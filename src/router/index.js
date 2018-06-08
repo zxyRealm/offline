@@ -12,8 +12,9 @@ const Equipment = () => import('@/views/equipment/index.vue');
 
 
 const Developer = () => import('@/views/developer/index.vue');
-const sysNotify = () => import('@/views/developer/notify.vue');
-
+const addInfo = () => import('@/views/developer/notify/add-info');
+const sysNotify = () => import('@/views/developer/notify/index');
+const apiIndex = () => import('@/views/developer/api/index.vue');
 const Data = () => import('@/views/data/index.vue');
 
 Vue.use(Router);
@@ -96,7 +97,7 @@ export const asyncRouterMap = [
   {
     path: "/developer",
     component: Layout,
-    redirect: '/developer/index',
+    redirect: '/developer/notify',
     meta: {
       auth: true,
       title:'开发者中心',
@@ -113,11 +114,20 @@ export const asyncRouterMap = [
         component: Developer
       },
       {
+        path: 'notify/add-info',
+        name: 'addInfo',
+        meta: {
+          auth:true,
+          title: "创建回调信息-开发者中心-线下浏览器服务平台"
+        },
+        component: addInfo
+      },
+      {
         path: 'notify',
         name: 'sysNotify',
         meta: {
           auth:true,
-          title: "系统通知-开发者中心-线下浏览器服务平台"
+          title: "消息通知-开发者中心-线下浏览器服务平台"
         },
         component: sysNotify
       },
@@ -142,7 +152,20 @@ export const asyncRouterMap = [
           title: "编辑信息-开发者中心-线下浏览器服务平台"
         },
         component: Developer
-      }
+      },
+      {
+        path:'api',
+        redirect:'api/index'
+      },
+      {
+        path: 'api/index',
+        name: 'apiIndex',
+        meta: {
+          auth:true,
+          title: "开放API-开发者中心-线下浏览器服务平台"
+        },
+        component: apiIndex
+      },
     ]
   }
 ];

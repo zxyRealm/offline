@@ -111,3 +111,12 @@ export default {
     /*z-index: 999;*/
   /*}*/
 </style>
+<style lang="scss" rel="stylesheet/scss">
+  .app-wrapper{
+    .app-main-content{
+      >div{
+        height: 100%;
+      }
+    }
+  }
+</style>

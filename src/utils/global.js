@@ -1,17 +1,17 @@
-import { Message } from 'element-ui'
+import {Message} from 'element-ui'
 import axios from "axios";
 import Cookies from "js-cookie"
 import Clipboard from "clipboard"
+
 exports.install = function (Vue, options) {
   // 公用提示框
   Vue.prototype.$tip = function (txt, type = 'info', delay = 1000) {
     const h = this.$createElement;
     const icon = type === 'error' ? 'error' : 'success';
-
     return Message({
-      message: h('div', {attrs:{class:'tip_message_content'}}, [
-        h('img', {attrs: {src: '/static/img/' + icon + '_tip_icon.png',class:'tip_img_icon'}}),
-        h('p', {style: 'padding:0;',attrs:{class:'text'}}, txt)
+      message: h('div', {attrs: {class: 'tip_message_content'}}, [
+        h('img', {attrs: {src: '/static/img/' + icon + '_tip_icon.png', class: 'tip_img_icon'}}),
+        h('p', {style: 'padding:0;', attrs: {class: 'text'}}, txt)
       ]),
       center: true,
       customClass: 'tip_message',
@@ -87,7 +87,7 @@ exports.install = function (Vue, options) {
   // 发送验证码
   Vue.prototype.$sendCode = function (data) {
     if (!data.phone) {
-      this.$tip("请先填写手机号",'error',2000);
+      this.$tip("请先填写手机号", 'error', 2000);
       return false
     }
     // console.log(this.timer);
@@ -104,9 +104,9 @@ exports.install = function (Vue, options) {
         }
       }, 1000);
       this.sending = true;
-      this.$http("/access/user/phone/code", { phone: data.phone }).then(res => {
+      this.$http("/access/user/phone/code", {phone: data.phone}).then(res => {
         this.sending = false;
-        if (res.success && res.result===1) {
+        if (res.success && res.result === 1) {
           this.$tip('发送成功');
         } else {
           clearInterval(this.timer);
@@ -119,7 +119,7 @@ exports.install = function (Vue, options) {
   };
 
   // 复制内容到粘贴板
-  Vue.prototype.$clip = function (text,event) {
+  Vue.prototype.$clip = function (text, event) {
     const clipboard = new Clipboard(event.target, {
       text: () => text
     });
@@ -136,6 +136,36 @@ exports.install = function (Vue, options) {
       clipboard.destroy()
     });
     clipboard.onClick(event)
+  };
+
+  // 确认操作框
+
+  Vue.prototype.$affirm = function (text, callback, showCancel=true) {
+    const h = this.$createElement;
+    this.$msgbox({
+      title: '',
+      message: h('p', null, [
+        h('span', null,text.text)
+      ]),
+      center:true,
+      customClass:'uu-message-affirm',
+      confirmButtonClass:'affirm',
+      cancelButtonClass:'cancel',
+      showCancelButton: showCancel,
+      confirmButtonText: text.confirm,
+      cancelButtonText: text.cancel,
+      beforeClose: (action, instance, done) => {
+        callback(action,instance,done);
+        // if (action === 'confirm') {
+        //   instance.confirmButtonLoading = true;
+        //   instance.confirmButtonText = '执行中...';
+        // } else {
+        //   done();
+        // }
+      }
+    }).then(action => {
+     // callback(action)
+    });
   }
 };
 

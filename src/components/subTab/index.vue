@@ -4,7 +4,7 @@
       <template v-for="(item,$index) in menuArray">
         <router-link v-if="item.index" :to="item.index">{{item.title}}</router-link>
         <a  href="javascript:void (0)" class="text"  v-else>{{item.title}}</a>
-        <span v-if="$index!==menuArray.length-1" class="separator">|</span>
+        <span v-if="$index!==menuArray.length-1" class="separator"></span>
       </template>
     </div>
     <template v-if="subLink.title">
@@ -54,7 +54,10 @@
   }
   .separator{
     width:2px;
-    margin:0 3px;
+    margin:0 10px;
+    height: 18px;
+    background-image: linear-gradient(to top,#813FC5,#1896E6);
+    /*background: url("/static/img/s");*/
   }
   }
   .sub-tab-link{

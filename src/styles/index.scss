@@ -249,18 +249,31 @@ code {
 }
 
 //确定按钮样式
-.el-button.affirm{
-  border: none;
-  height: 30px;
-  width: 130px;
-  background-image: linear-gradient(to left, #813FC5, #1896E6);
-  >span{
-    color: #fff;
+.el-button {
+  &.affirm,&.cancel{
+    border: none;
+    height: 30px;
+    width: 130px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    >span{
+      color: #fff;
+    }
+  }
+  &.affirm{
+    background-image: url("/static/img/affrim_btn_bg.png");
+    background-size: 110% 156%;
+  }
+  &.cancel{
+    background-image: url("/static/img/input_border_bg.png");
+    background-size:calc(100% - 1px) 100%;
+    >span{
+      color:#0F9EE9;
+    }
   }
 }
 
 //公共消息提示框样式
-
 
 .tip_message{
   min-width: auto;
@@ -286,4 +299,35 @@ code {
     }
   }
 
+}
+
+//公共确认框
+.uu-message-affirm{
+  width: 500px;
+  min-width: auto!important;
+  height: 200px;
+  padding-bottom:0!important;
+  .el-message-box__btns{
+    padding:25px 15px 0;
+    button:nth-child(2){
+      margin-left: 50px!important;
+    }
+  }
+  .el-message-box__headerbtn{
+    right:10px!important;
+    top:10px!important;
+  }
+  .el-button--primary{
+
+  }
+}
+
+//单行文本超出隐藏
+.ellipsis{
+  display: inline-block;
+  width:100%;
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
 }

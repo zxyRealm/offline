@@ -1,6 +1,5 @@
 <template>
   <div class="uu-icon" :class="type">
-    <!--<img :src="'/static/img/'+type+'_icon.png'" alt="">-->
   </div>
 </template>
 
@@ -28,6 +27,14 @@
     }
     &.notify {
       background-image: url("/static/img/notify_icon.png");
+    }
+    &.arrow{
+      background-image: url("/static/img/arrow_icon.png");
+    }
+    &.delete{
+      background-image: url("/static/img/delete_icon.png");
+      height: 14px;
+      width: 14px;
     }
   }
 </style>
