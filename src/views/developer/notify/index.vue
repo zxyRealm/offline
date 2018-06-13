@@ -3,22 +3,25 @@
     <uu-sub-tab :menu-array="menu"></uu-sub-tab>
     <no-callback-info v-if="noNotifyUrl"></no-callback-info>
     <div class="notify-list-wrap">
-      <div class="notify-list-items">
+      <div class="no-data-notify notify-list-items" v-if="!notifyList.length">
+        暂无消息通知
+      </div>
+      <div class="notify-list-items"  v-for="(item,$index) in notifyList">
         <div class="item-type">
-          <p class="ellipsis">通知类型：客流详情</p>
+          <p class="ellipsis">通知类型：{{item.type}}</p>
         </div>
         <div class="item-detail">
-          <p class="des ellipsis">通知描述：客流详情</p>
-          <p class="url ellipsis">回调地址：http://www.uni-ubi.com</p>
+          <p class="des ellipsis">通知描述：{{item.intro}}</p>
+          <p class="url ellipsis">回调地址：{{item.tokenURL}}</p>
         </div>
         <div class="item-time">
-          <p class="create">创建时间：<span>2018/05/03 15:32</span></p>
-          <p class="edit">上次编辑：<span>2018/05/03 15:32</span></p>
+          <p class="create">创建时间：<span>{{item.createTime}}</span></p>
+          <p class="edit">上次编辑：<span>{{item.lastEditTime}}</span></p>
         </div>
         <div class="item-handel vam">
           <router-link to="/developer/notify/edit-info">参数介绍</router-link>
           <router-link class="edit-link" to="/developer/notify/edit-info">编辑</router-link>
-           <uu-icon type="delete"></uu-icon>
+           <uu-icon type="delete" @click="delNotifyInfo(item.noticeGuid)"></uu-icon>
         </div>
       </div>
     </div>
@@ -37,8 +40,32 @@
         menu:[
           { title:'消息通知',index:'/developer/notify' },
           {title:'开放API',index:'/developer/api'}
-        ]
+        ],
+        notifyList:[],
+        pagination:{}
       }
+    },
+    methods:{
+      delNotifyInfo(id){
+        this.$http("/dataNotice/discard",{noticeGuid:id}).then(res=>{
+          if(res.success){
+            this.$tip("删除成功")
+          }
+        })
+      },
+      getNotifyList(page){
+        page = page || 1;
+        this.$http("/dataNotice/page/list",{index:page,length:10}).then(res=>{
+          console.log(res)
+          if(res.success){
+            this.notifyList = res.data.content || [];
+            this.pagination = res.data.pagination
+          }
+        })
+      }
+    },
+    created(){
+      this.getNotifyList()
     }
   }
 </script>

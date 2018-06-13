@@ -8,7 +8,7 @@
       <div class="form-filed vam">
         <uu-form ref="userInfoForm"
                  form-class="user-info-form"
-                 :rules="rules"
+                 :rules="editable?rules:{}"
                  :readonly="!editable"
                  v-model="userInfoForm">
           <el-form-item label="手机号：" readonly prop="phone">
@@ -17,28 +17,28 @@
           <el-form-item label="公司名称：" readonly prop="company">
             <el-input type="text" readonly placeholder="请输入公司名称" v-model="userInfoForm.company"></el-input>
           </el-form-item>
-          <el-form-item label="地区：" prop="address">
-            <area-select :readonly="!editable" v-model="userInfoForm.address"></area-select>
+          <el-form-item label="地区：" prop="pca">
+            <area-select :readonly="!editable" v-model="userInfoForm.pca"></area-select>
           </el-form-item>
-          <el-form-item prop="detail">
+          <el-form-item prop="address">
             <el-input type="text" :readonly="!editable" placeholder="请填写详细地址"
-                      v-model="userInfoForm.detail"></el-input>
+                      v-model="userInfoForm.address"></el-input>
           </el-form-item>
 
-          <el-form-item label="联系人：" prop="username">
+          <el-form-item label="联系人：" prop="contacts">
             <el-input type="text" :readonly="!editable" placeholder="请输入联系人姓名"
-                      v-model="userInfoForm.username"></el-input>
+                      v-model="userInfoForm.contacts"></el-input>
           </el-form-item>
         </uu-form>
       </div>
-      <el-button v-show="editable" class="affirm mc" @click="submitForm('userInfoForm')">保存</el-button>
+      <el-button v-show="editable" class="affirm mc" @click="submitForm('userInfoForm')">{{userInfo.merchantGuid?'编辑':'保存'}}</el-button>
     </div>
   </div>
 </template>
 
 <script>
-  import area from '@/components/area-select/area-select'
-
+import area from '@/components/area-select/area-select'
+import { mapState } from 'vuex'
   export default {
     components: {
       'area-select': area
@@ -62,58 +62,96 @@
           detail: [
             {required: true, message: '请输入详细地址', trigger: 'blur'}
           ],
-          username: [
+          contacts: [
             {required: true, message: '请输入联系人姓名', trigger: 'blur'}
           ]
         },
         subLink: {title: '编辑', index: '/developer/info/edit'},
         userInfoForm: {
-          username: '',
-          phone: '13186958888',
-          address: '14,151,1434',
-          detail:'',
-          company:'杭州宇泛智能科技有限公司'
+          contacts: '', //联系人
+          phone: '',
+          pca: '', //省市区id
+          address:'', //详细地址
+          company:''
         },
         editable: false
       }
     },
     methods: {
+      // 编辑修改个人信息
       submitForm(formName) {
         this.$refs[formName].submitForm((data)=>{
-          console.log(data)
+          let pcaArr = data.pca.split(',').map(Number);
+          let type = this.userInfo?'update':'create';
+          type==='update'?data.merchantGuid = this.userInfo.merchantGuid:'';
+          data.provinceAreaID = pcaArr[0];
+          data.cityAreaID = pcaArr[1];
+          data.districtAreaID = pcaArr[2];
+          delete  data.pca;
+          this.$http("/merchant/usercenter/"+type,data).then(res=>{
+            if(res.success){
+              if(type==='update'){
+                this.$tip("编辑成功")
+              }else {
+                this.$tip('保存成功')
+              }
+              this.$dispatch('GET_USER_INFO')
+            }
+          });
         })
       },
-      getDepInfo(){
-        this.$http("/api/merchant/usercenter").then(res=>{
-          if(res.result){
-            console.log(res.data)
+      getBaseInfo(){
+        this.$http("/merchant/getInfo").then(res=>{
+          for(let item in this.userInfoForm){
+            if(res.data[item]){
+              this.$set(this.userInfoForm,item,res.data[item])
+            }
           }
         })
+      },
+      initData(){
+        this.getBaseInfo();
+        if(this.userInfo.merchantGuid){
+          for(let item in this.userInfoForm){
+            if(this.userInfo[item]&&item!=='pca'){
+              this.$set(this.userInfoForm,item,this.userInfo[item])
+            }
+          }
+          this.userInfoForm.pca = this.userInfo.provinceAreaID +','+this.userInfo.cityAreaID +','+this.userInfo.districtAreaID;
+        }
       }
     },
     created() {
-      this.getDepInfo();
       if (this.$route.name === 'infoEdit') {
         this.subLink.title = '';
         this.editable = true
       } else {
         this.editable = false
       }
+      this.initData()
     },
     watch: {
       "$route": function (val) {
-        this.$refs.userInfoForm.$refs.submitForm.resetFields();
         if (val.name === 'infoEdit') {
           this.subLink.title = '';
           this.editable = true
         } else {
+          this.$refs.userInfoForm.$refs.submitForm.resetFields();
           this.subLink.title = '编辑';
           this.editable = false
         }
       },
+      "userInfo":function (val) {
+        this.initData()
+      },
       "userInfoForm.address": function (val) {
         console.log(val)
       }
+    },
+    computed:{
+      ...mapState([
+        "userInfo"
+      ])
     }
   }
 </script>

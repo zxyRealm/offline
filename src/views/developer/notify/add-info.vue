@@ -13,7 +13,10 @@
         @handel-submit="handelCallbackInfo"
         v-model="callbackForm">
         <el-form-item label="类型：" prop="type">
-          <el-input type="text" :readonly="!editable" placeholder="请选取类型" v-model="callbackForm.type"></el-input>
+          <el-select :readonly="!editable" placeholder="请选取类型" v-model="callbackForm.type">
+            <el-option :label="1">到店通知</el-option>
+          </el-select>
+          <!--<el-input type="text" :readonly="!editable" placeholder="请选取类型" v-model="callbackForm.type"></el-input>-->
         </el-form-item>
         <el-form-item label="回调地址：" prop="tokenURL">
           <el-input type="text" :readonly="!editable" placeholder="请输入回调地址" v-model="callbackForm.tokenURL"></el-input>
@@ -57,7 +60,13 @@
     },
     methods: {
       handelCallbackInfo(data) {
-        console.log(data)
+        const type = this.$route.name==='addInfo'?'create':'update';
+        this.$http(" /dataNotice/"+type,data).then(res=>{
+          if(res.success){
+
+          }
+          console.log(res)
+        })
       }
     }
   }

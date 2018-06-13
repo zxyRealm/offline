@@ -60,7 +60,6 @@
     },
     methods: {
       submitForm(callback) {
-
           this.$refs['submitForm'].validate((valid) => {
             if (valid) {
               let subData = JSON.parse(JSON.stringify(this.ruleForm));

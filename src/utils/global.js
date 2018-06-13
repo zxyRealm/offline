@@ -1,51 +1,14 @@
-import {Message} from 'element-ui'
-import axios from "axios";
 import Cookies from "js-cookie"
 import Clipboard from "clipboard"
-
+import { fetch,message } from '@/utils/request'
 exports.install = function (Vue, options) {
   // 公用提示框
   Vue.prototype.$tip = function (txt, type = 'info', delay = 1000) {
-    const h = this.$createElement;
-    const icon = type === 'error' ? 'error' : 'success';
-    return Message({
-      message: h('div', {attrs: {class: 'tip_message_content'}}, [
-        h('img', {attrs: {src: '/static/img/' + icon + '_tip_icon.png', class: 'tip_img_icon'}}),
-        h('p', {style: 'padding:0;', attrs: {class: 'text'}}, txt)
-      ]),
-      center: true,
-      customClass: 'tip_message',
-      dangerouslyUseHTMLString: true,
-      duration: delay,
-      type: type
-    })
+   return message(txt,type,delay)
   };
   // 异步请求
   Vue.prototype.$http = function (url, params) {
-    params = params || {};
-    return axios({
-      method: "post",
-      url: url,
-      data: params,
-      timeout: 15000,
-      responseType: 'json'
-    }).then(res => {
-      if (res.status === 200) {
-        if (res.data.code === "ERR-110") {
-          localStorage.clear();
-          this.$store.state.userInfo = {};
-          this.$router.push("/login");
-        } else if (res.data.result === 0) {
-          this.$tip(res.data.msg, 'error', 3500);
-        }
-        return res.data;
-      } else {
-        console.error(res)
-      }
-    }).catch((err) => {
-      console.log(err);
-      return err;
-    })
+    return fetch(url,params);
   };
   // 退出登录
   Vue.prototype.$exit = function () {
@@ -56,7 +19,6 @@ exports.install = function (Vue, options) {
         this.$router.push("/login")
       }
     });
-
   };
 
   // 确认操作提示框

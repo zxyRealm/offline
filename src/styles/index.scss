@@ -13,6 +13,9 @@ body {
   text-rendering: optimizeLegibility;
   font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
 }
+ul,li{
+  list-style: none;
+}
 html{
   font-size:14px;
 }
@@ -152,13 +155,15 @@ div:focus{
   }
 }
 
-code {
-  background: #eef1f6;
+code,pre {
+  border:1px solid $border;
+  color: #fff;
+  border-radius: 2px;
   padding: 15px 16px;
   margin-bottom: 20px;
+  font-size:13px;
   display: block;
   line-height: 36px;
-  font-size: 15px;
   font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
   a {
     color: #337ab7;
@@ -330,4 +335,45 @@ code {
   text-overflow:ellipsis;
   white-space: nowrap;
   box-sizing: border-box;
+}
+
+.text-btn{
+  color: $blue;
+  cursor: pointer;
+}
+
+//table 样式
+
+.el-table{
+  .el-table__header{
+    background-color: rgba(151,151,151,0.03);;
+  }
+  .el-table__body tr:hover>td{
+    background-color: transparent!important;
+  }
+  &:after,&:before{
+    background-color: $border!important;
+  }
+  &.el-table--border, &.el-table--group{
+    border-color: $border!important;
+
+  }
+  background: transparent!important;
+  td,th.is-leaf{
+    border-color: $border!important;
+  }
+  table{
+    background: transparent;
+    tr,th,td{
+      background: transparent;
+      color: #fff;
+    }
+  }
+}
+
+[class^='no-data']{
+  text-align: center;
+  &.no-data-notify{
+    line-height: 60px;
+  }
 }

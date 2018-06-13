@@ -22,7 +22,7 @@
         </span>
       </el-form-item>
 
-      <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading"
+      <el-button type="primary" size="medium" style="width:100%;margin-bottom:30px;" :loading="loading"
                  @click.native.prevent="handleLogin">登录
       </el-button>
 
@@ -124,8 +124,7 @@
   .login-container {
     .el-input {
       display: inline-block;
-      height: 47px;
-      width: 85%;
+      width: calc(100% - 54px);
       input {
         background: transparent;
         border: 0px;
@@ -133,7 +132,6 @@
         border-radius: 0px;
         padding: 12px 5px 12px 15px;
         color: $light_gray;
-        height: 47px;
         &:-webkit-autofill {
           -webkit-box-shadow: 0 0 0px 1000px $bg inset !important;
           -webkit-text-fill-color: #fff !important;
@@ -163,7 +161,7 @@
       position: absolute;
       left: 0;
       right: 0;
-      width: 520px;
+      width: 360px;
       padding: 35px 35px 15px 35px;
       margin: 120px auto;
     }
