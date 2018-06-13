@@ -26,6 +26,9 @@ export default {
     AppMain
   },
   mixins: [ResizeMixin],
+  created(){
+    this.$store.dispatch('GET_USER_INFO');
+  },
   mounted(){
     console.log(this.$store.state)
   },
@@ -45,6 +48,15 @@ export default {
     }
   },
   methods: {
+    checkFirst(){
+      this.$http("/merchant/usercenter").then(res=>{
+        if(!res.data){
+          this.$router.push("/developer/info/edit")
+        }
+      }).catch(error=>{
+        console.log('error',error)
+      })
+    },
     handleClickOutside() {
       this.$store.dispatch('closeSideBar', { withoutAnimation: false })
     }
@@ -62,9 +74,13 @@ export default {
     overflow: hidden;
     /*background-color: rgba(64,58,73,0.30);*/
     .app-main-content{
-      position: relative;
-      height: auto!important;
-      min-height: calc(100% - 15px)!important;
+      position: absolute;
+      top:20px;
+      left:20px;
+      bottom:20px;
+      right:20px;
+      /*height: calc(100% - 15px);*/
+      /*min-height: calc(100% - 15px)!important;*/
       box-sizing: border-box;
       background-color: #232027;
       color: #fff;

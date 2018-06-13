@@ -4,20 +4,28 @@ import app from './modules/app'
 import user from './modules/user'
 import getters from './getters'
 import permission from './modules/permission'
+import { fetch } from '@/utils/request'
+
 Vue.use(Vuex);
 
 const state = {
-  user:{}
+  userInfo:{}
 };
 
 const actions = {
-  SET_USER_INFO:(state,data) => {
-    state.user = data || {};
+  GET_USER_INFO:({commit})=>{
+    return fetch('/merchant/usercenter').then(res=>{
+     commit("SET_USER_INFO",res.data)
+    }).catch(error=>{
+      console.log(error)
+    })
   }
 };
 
 const mutations = {
-
+  SET_USER_INFO:(state,data)=>{
+    state.userInfo = data || {};
+  }
 };
 
 const store =  new Vuex.Store({

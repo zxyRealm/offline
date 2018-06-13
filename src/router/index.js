@@ -159,7 +159,16 @@ export const asyncRouterMap = [
       },
       {
         path: 'api/index',
-        name: 'apiIndex',
+        name: 'apiToken',
+        meta: {
+          auth:true,
+          title: "开放API-开发者中心-线下浏览器服务平台"
+        },
+        component: apiIndex
+      },
+      {
+        path: 'api/faceimg',
+        name: 'apiFaceImg',
         meta: {
           auth:true,
           title: "开放API-开发者中心-线下浏览器服务平台"
@@ -169,7 +178,6 @@ export const asyncRouterMap = [
     ]
   }
 ];
-
 
 const router = new Router({
   scrollBehavior: () => ({y: 0}),

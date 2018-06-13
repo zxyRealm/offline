@@ -101,9 +101,8 @@
     },
     methods: {
       getAddressList() {
-        this.$http("/api/area/list", {level: 1}).then((res) => {
+        this.$http("/area/list", {level: 1}).then((res) => {
           if (res.result === OK_CODE) {
-            // res.data = res.data.map(item=>{ this.$set(item,'initial',makePy(item.name));return item });
             this.$set(this.originAddress, 0, res.data[1].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
             this.$set(this.originAddress, 1, res.data[2].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
             this.$set(this.originAddress, 2, res.data[3].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
@@ -120,19 +119,6 @@
               this.currentType = 2;
             }
             this.addressOption = this.originAddress[0]
-            // this.$http("/api/area/list", {level: 2}).then((res2) => {
-            //   if (res2.result === OK_CODE) {
-            //     res2.data = res2.data.map(item=>{ this.$set(item,'initial',makePy(item.name));return item });
-            //     this.$set(this.originAddress, 1, res2.data);
-            //     this.$http("/api/area/list", {level: 3}).then((res3) => {
-            //       if (res3.result === OK_CODE) {
-            //         res3.data = res3.data.map(item=>{ this.$set(item,'initial',makePy(item.name));return item });
-            //         this.$set(this.originAddress, 2, res3.data);
-            //
-            //       }
-            //     });
-            //   }
-            // });
           }
         });
       },
