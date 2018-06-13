@@ -17,6 +17,12 @@ const sysNotify = () => import('@/views/developer/notify/index');
 const apiIndex = () => import('@/views/developer/api/index.vue');
 const Data = () => import('@/views/data/index.vue');
 
+/* 数据可视化的路由 */
+const guestAnalysis  = () => import('@/views/data/guest-analysis');
+const genderAnalysis  = () => import('@/views/data/gender-analysis');
+const ageAnalysis = () => import('@/views/data/age-analysis');
+const shopFrequencyAnalysis = () => import('@/views/data/shop-frequency-analysis');
+
 Vue.use(Router);
 
 
@@ -90,7 +96,41 @@ export const asyncRouterMap = [
         meta: {
           title: "我的社群-数据可视化-线下浏览器服务平台"
         },
-        component: Data
+        component: Data,
+        children: [
+          {
+            path: '/data/guest-analysis',
+            name: 'guest-analysis',
+            meta: {
+              title:  "流客分析"
+            },
+            component: guestAnalysis
+          },
+          {
+            path: '/data/gender-analysis',
+            name: 'gender-analysis',
+            meta: {
+              title:  "性别分析"
+            },
+            component: genderAnalysis
+          },
+          {
+            path: '/data/age-analysis',
+            name: 'age-analysis',
+            meta: {
+              title:  "年龄分析"
+            },
+            component: ageAnalysis
+          },
+          {
+            path: '/data/shop-frequency-analysis',
+            name: 'shop-frequency-analysis',
+            meta: {
+              title:  "到店频次分析"
+            },
+            component: shopFrequencyAnalysis
+          }
+        ]
       }
     ]
   },

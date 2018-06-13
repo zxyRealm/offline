@@ -11,6 +11,8 @@ import icons from '@/components/icons/index'
 import subTab from '@/components/subTab'
 import uuForm from '@/components/form'
 import * as filters from './filters'
+import echarts from 'echarts'
+Vue.prototype.$echarts = echarts
 
 Vue.use(require("./utils/global"));
 Vue.use(require('vue-wechat-title'));
