@@ -68,7 +68,7 @@ exports.install = function (Vue, options) {
       this.sending = true;
       this.$http("/access/user/phone/code", {phone: data.phone}).then(res => {
         this.sending = false;
-        if (res.success && res.result === 1) {
+        if (res.result === 1) {
           this.$tip('发送成功');
         } else {
           clearInterval(this.timer);

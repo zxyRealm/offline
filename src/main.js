@@ -10,18 +10,23 @@ import './styles/index.scss' // global css
 import icons from '@/components/icons/index'
 import subTab from '@/components/subTab'
 import uuForm from '@/components/form'
+import obList from '@/components/data-list'
+import obListItem from '@/components/data-list/sub-item'
 import * as filters from './filters'
 import echarts from 'echarts'
-Vue.prototype.$echarts = echarts
+Vue.prototype.$echarts = echarts;
 
 Vue.use(require("./utils/global"));
 Vue.use(require('vue-wechat-title'));
 Vue.use(Element,{
   size:'small'
 });
+
 Vue.component(icons.name,icons);
 Vue.component(subTab.name,subTab);
 Vue.component(uuForm.name,uuForm);
+Vue.component(obList.name,obList);
+Vue.component(obListItem.name,obListItem);
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])

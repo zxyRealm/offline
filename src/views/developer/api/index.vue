@@ -296,7 +296,7 @@
                     infoS: "会员date无效"
                   },
                   {
-                    names: "OBDS_EXP-622",
+                    names: "OBDS_EXP-612",
                     infoS: "会员cameraId为空\n"
                   },
                   {

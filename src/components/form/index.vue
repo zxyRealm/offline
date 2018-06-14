@@ -97,6 +97,9 @@
 <style rel="stylesheet/scss" lang="scss">
   .common-form {
     margin: 0 auto;
+    .el-select{
+      width: 100%;
+    }
     &[readonly] {
       .el-form-item {
         .el-form-item__content {
@@ -106,6 +109,7 @@
               background: transparent;
             }
           }
+
           .el-textarea__inner{
             background: transparent;
           }
@@ -114,6 +118,7 @@
     }
     .el-form-item {
       margin-bottom: 16px;
+      line-height: 30px;
       &[readonly] {
         .el-input {
           background: transparent !important;
@@ -139,9 +144,9 @@
         }
       }
       .el-form-item__content {
-        line-height: 32px;
+        line-height: 30px;
         .el-input {
-          height: 32px;
+          height: 30px;
           border-radius: 5px;
           .el-input__inner {
             background-color: #232027;
@@ -167,6 +172,7 @@
             background-size: 100% 100%;
             border: none;
             resize: none;
+            color: #fff;
           }
           &.el-input--medium{
             height: 300px;
@@ -177,6 +183,21 @@
         }
         .el-form-item__error{
           color:#F87F21;
+          line-height: 1.2;
+        }
+      }
+    }
+  }
+  .el-select-dropdown{
+    .el-select-dropdown__list{
+      .el-select-dropdown__item{
+        line-height: 24px;
+        height: 24px;
+        &:hover{
+          background-color: #EBEBEB;
+        }
+        >span{
+          line-height: 24px!important;
         }
       }
     }

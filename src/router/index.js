@@ -12,14 +12,15 @@ const Equipment = () => import('@/views/equipment/index.vue');
 
 
 const Developer = () => import('@/views/developer/index.vue');
-const addInfo = () => import('@/views/developer/notify/add-info');
+const notifyCallback = () => import('@/views/developer/notify/add-info');
 const sysNotify = () => import('@/views/developer/notify/index');
 const apiIndex = () => import('@/views/developer/api/index.vue');
+const paramExplain = () => import('@/views/developer/notify/explain.vue');
 const Data = () => import('@/views/data/index.vue');
 
 /* 数据可视化的路由 */
-const guestAnalysis  = () => import('@/views/data/guest-analysis');
-const genderAnalysis  = () => import('@/views/data/gender-analysis');
+const guestAnalysis = () => import('@/views/data/guest-analysis');
+const genderAnalysis = () => import('@/views/data/gender-analysis');
 const ageAnalysis = () => import('@/views/data/age-analysis');
 const shopFrequencyAnalysis = () => import('@/views/data/shop-frequency-analysis');
 
@@ -46,7 +47,7 @@ export const asyncRouterMap = [
     redirect: '/community/mine',
     meta: {
       auth: true,
-      title:'社群管理',
+      title: '社群管理',
       roles: ['admin']
     },
     children: [
@@ -102,7 +103,7 @@ export const asyncRouterMap = [
             path: '/data/guest-analysis',
             name: 'guest-analysis',
             meta: {
-              title:  "流客分析"
+              title: "流客分析"
             },
             component: guestAnalysis
           },
@@ -110,7 +111,7 @@ export const asyncRouterMap = [
             path: '/data/gender-analysis',
             name: 'gender-analysis',
             meta: {
-              title:  "性别分析"
+              title: "性别分析"
             },
             component: genderAnalysis
           },
@@ -118,7 +119,7 @@ export const asyncRouterMap = [
             path: '/data/age-analysis',
             name: 'age-analysis',
             meta: {
-              title:  "年龄分析"
+              title: "年龄分析"
             },
             component: ageAnalysis
           },
@@ -126,7 +127,7 @@ export const asyncRouterMap = [
             path: '/data/shop-frequency-analysis',
             name: 'shop-frequency-analysis',
             meta: {
-              title:  "到店频次分析"
+              title: "到店频次分析"
             },
             component: shopFrequencyAnalysis
           }
@@ -140,46 +141,55 @@ export const asyncRouterMap = [
     redirect: '/developer/notify',
     meta: {
       auth: true,
-      title:'开发者中心',
-      roles:['admin']
+      title: '开发者中心',
+      roles: ['admin']
     },
     children: [
       {
         path: 'index',
         name: 'developer',
         meta: {
-          auth:true,
+          auth: true,
           title: "个人信息-开发者中心-线下浏览器服务平台"
         },
         component: Developer
       },
       {
         path: 'notify/add-info',
-        name: 'addInfo',
+        name: 'addNotifyCallback',
         meta: {
-          auth:true,
+          auth: true,
           title: "创建回调信息-开发者中心-线下浏览器服务平台"
         },
-        component: addInfo
+        component: notifyCallback
+      },
+      {
+        path: 'notify/:id([0-9A-Z]{32})',
+        name: 'editNotifyCallback',
+        meta: {
+          auth: true,
+          title: "编辑回调信息-开发者中心-线下浏览器服务平台"
+        },
+        component: notifyCallback
       },
       {
         path: 'notify',
         name: 'sysNotify',
         meta: {
-          auth:true,
+          auth: true,
           title: "消息通知-开发者中心-线下浏览器服务平台"
         },
         component: sysNotify
       },
       {
-        path:'info',
-        redirect:'info/center'
+        path: 'info',
+        redirect: 'info/center'
       },
       {
         path: 'info/center',
         name: 'infoCenter',
         meta: {
-          auth:true,
+          auth: true,
           title: "个人信息-开发者中心-线下浏览器服务平台"
         },
         component: Developer
@@ -188,20 +198,20 @@ export const asyncRouterMap = [
         path: 'info/edit',
         name: 'infoEdit',
         meta: {
-          auth:true,
+          auth: true,
           title: "编辑信息-开发者中心-线下浏览器服务平台"
         },
         component: Developer
       },
       {
-        path:'api',
-        redirect:'api/index'
+        path: 'api',
+        redirect: 'api/index'
       },
       {
         path: 'api/index',
         name: 'apiToken',
         meta: {
-          auth:true,
+          auth: true,
           title: "开放API-开发者中心-线下浏览器服务平台"
         },
         component: apiIndex
@@ -210,11 +220,20 @@ export const asyncRouterMap = [
         path: 'api/faceimg',
         name: 'apiFaceImg',
         meta: {
-          auth:true,
+          auth: true,
           title: "开放API-开发者中心-线下浏览器服务平台"
         },
         component: apiIndex
       },
+      {
+        path: 'param/explain',
+        name:'paramExplain',
+        meta:{
+          auth:true,
+          title:'参数说明-开发者中心-线下浏览器服务平台'
+        },
+        component:paramExplain
+      }
     ]
   }
 ];
@@ -225,22 +244,22 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  if(getToken()){
-    if(store.getters.roles.length===0){
+  if (getToken()) {
+    if (store.getters.roles.length === 0) {
       let roles = ['admin'];
       store.commit('SET_ROLES', roles);
       store.dispatch('GenerateRoutes', {roles}).then(() => { // 根据roles权限生成可访问的路由表
         router.addRoutes(store.getters.addRouters); // 动态添加可访问路由表
         next({...to})
       })
-    }else {
+    } else {
       next()
     }
-  }else {
-    if(to.name==='login'){
+  } else {
+    if (to.name === 'login') {
       next()
-    }else {
-      next({path:'/'})
+    } else {
+      next({path: '/'})
     }
   }
 });

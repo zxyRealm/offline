@@ -11,6 +11,9 @@
       <router-link v-if="subLink.index" :to="subLink.index" class="sub-tab-link">{{subLink.title}}</router-link>
       <a  href="javascript:void (0)" class="sub-tab-link" v-else>{{subLink.title}}</a>
     </template>
+    <template v-if="subBtn.text">
+      <el-button class="affirm medium fr" @click="handleBtn">{{subBtn.text}}</el-button>
+    </template>
   </div>
 </template>
 
@@ -29,6 +32,21 @@
           default:()=>({
             title:''
           })
+        },
+        subBtn:{
+          type:[Object],
+          default:()=>({
+            text:''
+          })
+        }
+      },
+      methods:{
+        handleBtn(){
+          if(this.subBtn.index){
+            this.$router.push(this.subBtn.index)
+          }else {
+            this.$emit('handle-btn')
+          }
         }
       }
     }

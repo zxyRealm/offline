@@ -13,10 +13,10 @@
         @handel-submit="handelCallbackInfo"
         v-model="callbackForm">
         <el-form-item label="类型：" prop="type">
-          <el-select :readonly="!editable" placeholder="请选取类型" v-model="callbackForm.type">
-            <el-option :label="1">到店通知</el-option>
+          <el-select v-model="callbackForm.type" placeholder="请选取类型">
+            <el-option :value="1" label="到店通知">
+            </el-option>
           </el-select>
-          <!--<el-input type="text" :readonly="!editable" placeholder="请选取类型" v-model="callbackForm.type"></el-input>-->
         </el-form-item>
         <el-form-item label="回调地址：" prop="tokenURL">
           <el-input type="text" :readonly="!editable" placeholder="请输入回调地址" v-model="callbackForm.tokenURL"></el-input>
@@ -31,9 +31,21 @@
 </template>
 
 <script>
+  import { validateURL } from '@/utils/validate'
   export default {
     name: "notify",
     data() {
+      const validateUrl =(rule,value,callback)=>{
+        if(!value){
+          callback(new Error("请填写回调地址"))
+        }else {
+          if(validateURL(value)){
+            callback()
+          }else {
+            callback(new Error("回调地址不合法"))
+          }
+        }
+      };
       return {
         menu: [
           {title: '消息通知', index: '/developer/notify'},
@@ -44,7 +56,7 @@
             {required:true,message:'请选取类型',trigger:'blur'}
           ],
           tokenURL:[
-            {required:true,message:'请填写回调地址',trigger:'blur'}
+            {required:true,validator:validateUrl,trigger:'blur'}
           ],
           intro:[
             {required:true,message:'请填写描述',trigger:'blur'}
@@ -61,9 +73,14 @@
     methods: {
       handelCallbackInfo(data) {
         const type = this.$route.name==='addInfo'?'create':'update';
-        this.$http(" /dataNotice/"+type,data).then(res=>{
-          if(res.success){
-
+        this.$http("/dataNotice/"+type,data).then(res=>{
+          if(res.result){
+            if(type==='create'){
+              this.$tip("创建成功");
+            }else{
+              this.$tip("编辑成功")
+            }
+            this.$router.push("/developer/notify")
           }
           console.log(res)
         })

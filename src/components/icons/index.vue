@@ -1,5 +1,5 @@
 <template>
-  <div class="uu-icon" :class="type">
+  <div class="uu-icon" :class="type" @click="handleClick">
   </div>
 </template>
 
@@ -9,6 +9,11 @@
     props: {
       type: [String],
       default: ''
+    },
+    methods:{
+      handleClick(){
+        this.$emit("handle")
+      }
     }
   }
 </script>

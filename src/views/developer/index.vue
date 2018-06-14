@@ -89,7 +89,7 @@ import { mapState } from 'vuex'
           data.districtAreaID = pcaArr[2];
           delete  data.pca;
           this.$http("/merchant/usercenter/"+type,data).then(res=>{
-            if(res.success){
+            if(res.result){
               if(type==='update'){
                 this.$tip("编辑成功")
               }else {
