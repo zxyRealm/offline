@@ -131,7 +131,8 @@ export const asyncRouterMap = [
             },
             component: shopFrequencyAnalysis
           }
-        ]
+        ],
+        redirect: '/data/guest-analysis',
       }
     ]
   },

@@ -4,12 +4,12 @@
       <div class="screening">
           <screening :type="1"></screening>
       </div>
-      <div class="flow-diagram">
-          <echarts-pie></echarts-pie>
+       <div class="flow-diagram" ref="pie">
+          <echarts-pie ref="echartsPie"></echarts-pie>
       </div>
     </div>
-    <div class="table-data">
-       <echarts-line :line-height="tabelHeight"></echarts-line>
+    <div class="table-data" ref="line">
+       <echarts-line :line-height="tabelHeight" ref="echartsLine"></echarts-line>
     </div>
   </div>
 </template>
@@ -18,7 +18,7 @@
   import EchartsLine from '../../components/echarts/line'
   import EchartsPie from '../../components/echarts/pie'
     export default {
-       name: "guest-analysis",
+       name: "gender-analysis",
        components: {screening,EchartsLine,EchartsPie},
        data() {
          return {
@@ -39,11 +39,18 @@
          }
       },
       mounted() {
-           //table高度改变
-        window.onresize=function(){  
+        let me = this;
+        window.onresize = () => {  
             let table = document.getElementById("echarts-line");
-            let tableEle = document.body.clientHeight - 420;
-            table.style.height = tableEle+"px";
+            //let tableEle = document.body.clientHeight - 420;
+            table.style.height = me.$refs.line.offsetHeight +"px";
+            //宽度
+            table.style.width = me.$refs.line.offsetWidth +"px";
+            me.$refs.echartsLine.resizeEcharts();
+
+            let tablePie = document.getElementById("echarts-pie");
+            tablePie.style.width = me.$refs.pie.offsetWidth +"px";
+            me.$refs.echartsPie.resizeEcharts();
         } 
       }
     }
@@ -60,18 +67,23 @@
       min-width: 1020px;
       .screening, .flow-diagram {
         border: 1px solid #0F9EE9;
-        /*height: 230px;*/
         height: 230px;
       }
       .screening {
-        /*width: 37.65%;*/
         width: 36.86%;
         float: left;
       }
       .flow-diagram {
-       /* width: 61.37%;*/
         width: 62.17%;
         float: right;
+      }
+      &::after {
+        content: '';
+        width: 0;
+        height: 0;
+        clear: both;
+        display: block;
+        overflow: hidden;
       }
       
     }

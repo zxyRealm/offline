@@ -1,7 +1,7 @@
 <template>
     <div class="screening-wrap">
       <div>筛选</div>
-      <el-form  :model="params" ref="params" class="demo-ruleForm" label-width="90px" :class="type!=0?'normal-from':'' ">
+      <el-form  v-model="filterParams" ref="params" class="demo-ruleForm" label-width="90px" :class="type!=0?'normal-from':'' ">
         <el-form-item label="选择对象：" prop="selectObj">
           <select>
             <option value ="volvo">Volvo</option>
@@ -9,11 +9,28 @@
         </el-form-item>
        <el-form-item label="维度：" prop="dimension" auto-complete="off">
          <template v-for="(ele,index ) in dimensionData">
-           <button  @click="handleButton()" :key="index" class="dimension-button">{{ele}}</button>
+           <button class="dimension-button" @click="handleButton(index)" :key="index" :class="buttonIndex== index?'active':''">{{ele}}</button>
          </template>
         </el-form-item>
         <el-form-item label="时间："  prop="startTime" auto-complete="off">
-          <el-date-picker type="date" :model="params.startTime" placeholder="选择日期" class="picker-data">
+          <el-date-picker v-if="dimensionIdex == 0" 
+          type="date" 
+           v-model="filterParams.startTime"
+           placeholder="选择日期"
+           value-format = "yyyy-MM-dd" 
+           class="picker-data"
+          >
+          </el-date-picker> 
+          <el-date-picker v-if="dimensionIdex != 0"
+            v-model="filterParams.startTime"
+            type="daterange"
+            align="right"
+            unlink-panels
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format = "yyyy-MM-dd"
+            >
           </el-date-picker>
         </el-form-item>
         <el-form-item>
@@ -24,33 +41,103 @@
 </template>
 
 <script>
+    import { mapGetters,mapMutations} from 'vuex'
     export default {
-        name: "index",
+        name: "screening-index",
         props: ['type'],
         data() {
           return {
             buttonIndex: 0,
+            dimensionIdex: 0,
             dimensionData: ['小时','日','周','月'],
-             params: {
-               groupGuid: '',
-               type: '',         //类型
-               selectObj: '',    //选择对象
-               dimension: '',    //维度
-               startTime: '',    //开始时间
-               endTime:''        //结束时间
-             }
+            filterParams: {
+              groupGuid: '',
+              type: '',         //类型
+              selectObj: '',    //选择对象
+              dimension: '',    //维度
+              startTime: '',    //开始时间
+              endTime:''        //结束时间
+            }
           }
         },
       methods: {
+        //点击维度
         handleButton(value) {
-          this.params.dimension = value;
+          this.buttonIndex = value;
+          this.dimensionIdex = value;
+          this.filterParams.dimension = value+1;
         },
+        //处理时间
+        dealTime() {
+          if(this.filterParams.startTime.constructor == Array){
+            let tempDate = this.filterParams.startTime;
+            this.filterParams.startTime = tempDate[0];
+            this.filterParams.endTime = tempDate[1];
+          }else {
+            this.filterParams.endTime = this.filterParams.startTime;
+          }
+        },
+        //vuex状态管理数据
+        changeParams() {
+          //this.$store.dispatch("SET_FILTER_PARAMS",this.filterParams);
+          this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
+          //console.log("dafdfa:",this.$store.state.filterParams);
+        },
+        //获取当天时间 -格式yyyy-mm-dd
+        getNowFormatDate() {
+            let date = new Date();
+            let seperator1 = "-";
+            let year = date.getFullYear();
+            let month = date.getMonth() + 1;
+            let strDate = date.getDate();
+            if (month >= 1 && month <= 9) {
+                month = "0" + month;
+            }
+            if (strDate >= 0 && strDate <= 9) {
+                strDate = "0" + strDate;
+            }
+            let currentdate = year + seperator1 + month + seperator1 + strDate;
+            return currentdate;
+        },
+        //查询
         submitForm() {
-
+          this.dealTime();
+          this.changeParams();
         }
+      },
+      mounted() {
+          //默认值处理
+          this.filterParams.startTime = this.getNowFormatDate();
+          this.filterParams.type = this.type+1;
+          this.filterParams.dimension = 1;
+      },
+      computed: {
       }
     }
 </script>
+<style  rel="stylesheet/scss" lang="scss">
+     .demo-ruleForm {
+       .el-form-item__label {
+        color: #ffffff;
+      }
+      .el-range__icon,.el-input__icon {
+        display: none;
+      }
+      .el-range-separator {
+        line-height: 20px;
+      }
+      .el-range-editor--small.el-input__inner  {
+        height: 28px ;
+            line-height: 28px;
+      }
+       .picker-data  {
+        input.el-input__inner {
+            height: 28px ;
+            line-height: 28px;
+        }
+      }
+     }
+</style>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   .screening-wrap {
@@ -66,9 +153,9 @@
       .el-date-editor.el-input, .el-date-editor.el-input__inner {
         width: 210px;
       }
-      .picker-data  {
-        input.el-input__inner {
-            height: 28px ;
+      .picker-data {
+        .el-input--small .el-input__inner {
+            height: 28px;
             line-height: 28px;
         }
       }
@@ -89,6 +176,7 @@
       }
       .active {
         color: #2187DF;
+        border: 1px solid #2187DF;
         box-shadow: 0 2px 4px 0 rgba(22,20,24,0.50);
       }
     }
