@@ -2,26 +2,29 @@
     <div class="table-wrap">
       <div class="table-search">
         <span>表格数据</span>
-        <input type="text" placeholder="输入关键字"/>
-        <img src="/static/img/table-input-search.png">
+        <input v-model="fuzzyQuery" type="text" placeholder="输入关键字"/>
+        <img src="/static/img/table-input-search.png" @click="doSearch">
       </div>
       <el-table :height=tabelHeight
         :data="tableData"
         border
+       :highlight-current-row="true"
         class="table-content">
         <el-table-column
-          prop="date"
-          label="日期"
-          width="180">
+          prop="groupName"
+          label="社群名称">
         </el-table-column>
         <el-table-column
-          prop="name"
-          label="姓名"
-          width="180">
+          prop="dataTime"
+          label="时间">
         </el-table-column>
         <el-table-column
-          prop="address"
-          label="地址">
+          prop="inFlowerCount"
+          label="进客量">
+        </el-table-column>
+         <el-table-column
+          prop="outFlowerCount"
+          label="出客量">
         </el-table-column>
       </el-table>
       <div class="table-page"> 
@@ -43,21 +46,156 @@
         name: "table-index",
       data() {
         return {
+          fuzzyQuery: '',     //模糊匹配
           pageParams: {
             pageSize: 1,      //每页显示条数
             total: 4,         //总条数
             currentPage: 1    //当前第几页
           },
           tableData: [ {
-            date: '2016-05-03',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1516 弄'
-          }
-          , {
-            date: '2016-05-03',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1516 弄'
-          }]
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    },
+    {
+      "dataTime": null,
+      "groupName": "万达广场",
+      "inFlowerCount": 0,
+      "outFlowerCount": 0
+    }]
           
         }
       },
@@ -72,13 +210,17 @@
           this.pageParams.currentPage = val;
           console.log(`当前页: ${val}`);
         },
+        //条件请求数据
+        doSearch() {
+           //this.gettableData();
+        },
         //请求数据
         gettableData() {
-           let params = {
-
-           };
+           let params = this.$store.state.filterParams;
+           params.aa  = this.fuzzyQuery;
            this.$http({
-
+              url: '',
+              dat: params
            }).then(res => {
               if(res.result == 1){
 
@@ -135,10 +277,9 @@
     .table-content {
       width: 100%;
       // height: 200px;
-      overflow: auto;
-      // .el-table th ,.el-table tr,.el-table__row {
-      //   background-color: #303133!important;
-      // }
+      .el-table--scrollable-y .el-table__body-wrapper {
+            overflow: auto;
+      }
     }
     .table-page {
       position: absolute;

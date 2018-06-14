@@ -4,8 +4,8 @@
       <div class="screening">
           <screening :type="0"></screening>
       </div>
-      <div class="flow-diagram">
-          <echarts-line :line-height="'320px'"></echarts-line>
+      <div class="flow-diagram" ref="line">
+          <echarts-line :line-height="'320px'" ref="echartsLine"></echarts-line>
       </div>
     </div>
     <div class="table-data">
@@ -27,6 +27,17 @@
         },
         methods: {
 
+        },
+        mounted() {
+          let me = this;
+          window.onresize = () => {  
+            let table = document.getElementById("echarts-line");
+            //let tableEle = document.body.clientHeight - 420;
+            table.style.height = me.$refs.line.offsetHeight +"px";
+            //宽度
+            table.style.width = me.$refs.line.offsetWidth +"px";
+            me.$refs.echartsLine.resizeEcharts();
+         } 
         }
     }
 </script>
