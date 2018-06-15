@@ -1,7 +1,7 @@
 <template>
     <div class="screening-wrap">
       <div>筛选</div>
-      <el-form  v-model="filterParams" ref="params" class="demo-ruleForm" label-width="90px" :class="type!=0?'normal-from':'' ">
+      <el-form  v-model="filterParams" ref="params" class="demo-ruleForm" label-width="90px" :class="type!=1?'normal-from':'' ">
         <el-form-item label="选择对象：" prop="selectObj">
           <select>
             <option value ="volvo">Volvo</option>
@@ -83,33 +83,19 @@
           this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
           //console.log("dafdfa:",this.$store.state.filterParams);
         },
-        //获取当天时间 -格式yyyy-mm-dd
-        getNowFormatDate() {
-            let date = new Date();
-            let seperator1 = "-";
-            let year = date.getFullYear();
-            let month = date.getMonth() + 1;
-            let strDate = date.getDate();
-            if (month >= 1 && month <= 9) {
-                month = "0" + month;
-            }
-            if (strDate >= 0 && strDate <= 9) {
-                strDate = "0" + strDate;
-            }
-            let currentdate = year + seperator1 + month + seperator1 + strDate;
-            return currentdate;
-        },
         //查询
         submitForm() {
           this.dealTime();
           this.changeParams();
         }
       },
-      mounted() {
+      created() {
           //默认值处理
-          this.filterParams.startTime = this.getNowFormatDate();
-          this.filterParams.type = this.type+1;
+          this.filterParams.startTime = this.$getNowFormatDate();
+          this.filterParams.endTime = this.$getNowFormatDate();
+          this.filterParams.type = this.type;
           this.filterParams.dimension = 1;
+          this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
       },
       computed: {
       }

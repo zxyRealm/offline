@@ -249,7 +249,7 @@ export function debounce(func, wait, immediate) {
     return result
   }
 }
-
+//深复制
 export function deepClone(source) {
   if (!source && typeof source !== 'object') {
     throw new Error('error arguments', 'shallowClone')

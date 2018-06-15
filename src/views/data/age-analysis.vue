@@ -2,14 +2,14 @@
   <div class="data-guest">
     <div class="data-guest-content">
       <div class="screening">
-          <screening :type="1"></screening>
+          <screening :type="3"></screening>
       </div>
        <div class="flow-diagram" ref="pie">
-          <echarts-pie ref="echartsPie"></echarts-pie>
+          <echarts-pie ref="echartsPie" :pie-params="pieParams"></echarts-pie>
       </div>
     </div>
     <div class="table-data" ref="line">
-       <echarts-line :line-height="tabelHeight" ref="echartsLine"></echarts-line>
+       <echarts-line :line-height="tabelHeight" :line-params='lineParams' ref="echartsLine"></echarts-line>
     </div>
   </div>
 </template>
@@ -22,11 +22,30 @@
        components: {screening,EchartsLine,EchartsPie},
        data() {
          return {
-
+              //传递给线型图字段
+                lineParams: {
+                  title: {text: '年龄流量图'}
+                },
+                pieParams: {
+                  type: 3,
+                  title: {text: '年龄比例图'}
+                }
          }
        },
        methods: {
+          resizeFunction() {
+            let me = this;
+            let table = document.getElementById("echarts-line");
+            //let tableEle = document.body.clientHeight - 420;
+            table.style.height = me.$refs.line.offsetHeight +"px";
+            //宽度
+            table.style.width = me.$refs.line.offsetWidth +"px";
+            me.$refs.echartsLine.resizeEcharts();
 
+            let tablePie = document.getElementById("echarts-pie");
+            tablePie.style.width = me.$refs.pie.offsetWidth +"px";
+            me.$refs.echartsPie.resizeEcharts();
+          }
        },
       created() {
        
@@ -40,18 +59,12 @@
       },
       mounted() {
         let me = this;
-        window.onresize = () => {  
-            let table = document.getElementById("echarts-line");
-            //let tableEle = document.body.clientHeight - 420;
-            table.style.height = me.$refs.line.offsetHeight +"px";
-            //宽度
-            table.style.width = me.$refs.line.offsetWidth +"px";
-            me.$refs.echartsLine.resizeEcharts();
-
-            let tablePie = document.getElementById("echarts-pie");
-            tablePie.style.width = me.$refs.pie.offsetWidth +"px";
-            me.$refs.echartsPie.resizeEcharts();
-        } 
+        window.addEventListener('resize',me.resizeFunction);
+      },
+       beforeRouteLeave(to, from , next) {
+          let me = this;
+          window.removeEventListener("resize",me.resizeFunction);
+          next();
       }
     }
 </script>
@@ -66,8 +79,7 @@
       width: 100%;
       min-width: 1020px;
       .screening, .flow-diagram {
-        border: 1px solid #0F9EE9;
-        
+        // border: 1px solid #0F9EE9;
         height: 230px;
       }
       .screening {
@@ -95,7 +107,7 @@
       bottom: 0px;
       left: 0px;
       box-sizing: border-box;
-      border: 1px solid red;
+      // border: 1px solid red;
     }
   }
 </style>

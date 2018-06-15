@@ -119,7 +119,56 @@ exports.install = function (Vue, options) {
       beforeClose: (action, instance, done) => {
         callback(action,instance,done);
       }
-    })
-  }
+    }).then(action => {
+     // callback(action)
+    });
+  };
+
+  //浅复制-覆盖原来属性
+  Vue.prototype.$apply = function(scope,config){
+    for(var i in config){
+      scope[i] = config[i];
+    }
+    return scope;
+  };
+
+  //浅复制-不覆盖原来属性
+  Vue.prototype.$applyIf = function(scope,config){
+    for(var i in config){
+      if(!scope[i])
+        scope[i] = config[i];
+    }
+    return scope;
+  };
+
+  //获取当前日期 - 格式yyyy-mm-dd
+  Vue.prototype.$getNowFormatDate = function() {
+    let date = new Date();
+    let seperator1 = "-";
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let strDate = date.getDate();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    let currentdate = year + seperator1 + month + seperator1 + strDate;
+    return currentdate;
+  };
+
+  //显示图列 - echarts
+  Vue.prototype.$legendArray = function(array) {
+    let arr = [];
+    array.forEach(element => {
+      for(let ele in element){
+          if(ele == 'name'){
+              arr.push(element['name']);
+          }
+      }
+    });
+    return arr;
+  };
 };
 

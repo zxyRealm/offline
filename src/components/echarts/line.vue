@@ -7,11 +7,12 @@
 <script>
   export default {
      name: "echarts-line",
-     props: ['lineHeight'],
+     props: ['lineHeight','lineParams'],
      data() {
        return {
          data: [],
             option: {
+              color:['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'], //['#2187DF','#6D2EBB'，'#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'] 
               textStyle: {   //总体字体样式
                 color: "#ffffff"
               },
@@ -37,17 +38,18 @@
                  textStyle: {  //字体设置
                   color: '#ffffff',
                   fontSize: '12',
-                  fontWeight: 'lighter'
+                  fontWeight: 'lighter',
                 },
+                icon: 'line',   //'img:///static/img/Rectangle 28(1).png',
                 data:['邮件营销','联盟广告']
               },
               toolbox: {
                 
               },
               grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
+                left: '1%',
+                right: '3%',
+                bottom: '1%',
                 containLabel: true
               },
               xAxis : [
@@ -78,32 +80,16 @@
                 {
                   name:'邮件营销',
                   type:'line',
-                  // stack: '总量',
-                  areaStyle: {
-                    normal: {
-                      color : "rgba(0,0,0,0)", // 图表中各个图区域的边框线拐点颜色
-                                lineStyle: {
-                                    color:"#A65ADF" // 图表中各个图区域的边框线颜色
-                                },
-                        type: 'default',
-                        opacity: 0.8, // 图表中各个图区域的透明度
-                        color: "#A65ADF" // 图表中各个图区域的颜色
-                    }
-                  },
                   smooth:true,
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                  backgroundColor: {
-
-                  },
                   data:[120, 132, 101, 134, 90, 230, 210]
                 },
                 {
                   name:'联盟广告',
                   type:'line',
-                  // stack: '总量',
                   areaStyle: {normal: {}},
-                   smooth:true,
-                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
+                  smooth:true,
+                  itemStyle: {normal: {areaStyle: {type: 'default'}}},
                   data:[220, 182, 191, 234, 290, 330, 310]
                 }
               ]
@@ -121,28 +107,39 @@
         myChart.setOption(this.option);
         this.myChart = myChart;
       },
+      //自适应图表
       resizeEcharts() {
         this.myChart.resize();
-       
+      },
+      //定义颜色
+      changeColor() {
+        this.option.color =this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
       },
       //请求数据
       getLineData() {
         let params = this.$store.state.filterParams;
-        this.$http({
-         url: '',
-         data: params
-       }).then(res => {
-          if(res.result == 1){
-             this.data = res.data;
-             this.option.xAxis = this.data.xAxisGroup;
-             this.option.yAxis = this.data.yAxis;  //这个yAxis是对象形式
-             this.option.series = this.data.seriesGroup;
-          }
+        this.option.title= this.$apply(this.option.title,this.lineParams.title);
+        this.$http('/chart/line', {
+              groupGuid: "D680EFBC958C4B4E8E05C4FCA6FF4329",
+              type: this.$store.state.filterParams.type,
+              dimension: 2,
+              startTime: "2018-06-01",
+              endTime: "2018-06-06"
+              }).then(res => {
+              if(res.result == 1){
+                this.data = res.data;
+                this.option.xAxis[0] = this.$apply(this.option.xAxis[0],this.data.xAxisGroup[0]);
+                this.option.yAxis[0] = this.$apply(this.option.yAxis[0],this.data.yAxis);  //这个yAxis是对象形式
+                this.option.series = this.$apply( this.option.series,this.data.seriesGroup);
+                this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
+                this.drawLine();
+              }
        });
       }
     },
     mounted() {
-       this.drawLine();
+       this.changeColor();
+       this.getLineData();
     }
 
   }
