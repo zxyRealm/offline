@@ -8,9 +8,9 @@ const board = () => import('@/views/board');
 const Login = () => import('@/views/login/index.vue');
 const Layout = () => import('@/views/layout/Layout.vue');
 const Community = () => import('@/views/community/index.vue');
+const addCommunity = () => import('@/views/community/add-community.vue');
+
 const Equipment = () => import('@/views/equipment/index.vue');
-
-
 const Developer = () => import('@/views/developer/index.vue');
 const notifyCallback = () => import('@/views/developer/notify/add-info');
 const sysNotify = () => import('@/views/developer/notify/index');
@@ -58,13 +58,21 @@ export const asyncRouterMap = [
           title: "我的社群-社群管理-线下浏览器服务平台"
         },
         component: Community
+      },
+      {
+        path: 'add',
+        name: 'addCommunity',
+        meta: {
+          title: "我的社群-社群管理-线下浏览器服务平台"
+        },
+        component: addCommunity
       }
     ]
   },
   {
     path: "/equipment",
     component: Layout,
-    redirect: '/equipment/index',
+    redirect: '/equipment/mine',
     meta: {
       auth: true,
       title: "设备管理",
@@ -72,10 +80,18 @@ export const asyncRouterMap = [
     },
     children: [
       {
-        path: 'index',
+        path: 'mine',
         name: 'equipment',
         meta: {
-          title: "我的社群-设备管理-线下浏览器服务平台"
+          title: "自有设备-设备管理-线下浏览器服务平台"
+        },
+        component: Equipment
+      },
+      {
+        path: 'children',
+        name: 'equipmentChildren',
+        meta: {
+          title: "子社群设备-设备管理-线下浏览器服务平台"
         },
         component: Equipment
       }

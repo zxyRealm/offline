@@ -319,8 +319,48 @@ code,pre {
     }
   }
 }
+//table 中表单样式
+.table-form{
+  [class^=el-icon]{
+    font-size: 16px;
+    &.el-icon-success{
+      color: $orange;
+    }
+    &.el-icon-error{
+      color: $blue;
+    }
+  }
+  .is-circle{
+    border: none!important;
+    height: 16px;
+    width: 16px;
+    padding: 0!important;
+  }
+  .el-form-item{
+    .el-form-item__content{
+      line-height: 22px;
+    }
+    &:last-child{
+      margin-bottom: 0!important;
+    }
+    .el-input{
+      width: 154px;
+      min-width: auto!important;
+      line-height: 22px;
+      height: 22px;
+      vertical-align: middle;
+      .el-input__inner{
+        height: 22px;
+        line-height: 22px;
+        font-size: 12px;
+      }
+    }
+  }
+}
 
-
+[class^=el-icon]{
+  vertical-align: middle;
+}
 
 
 
@@ -417,8 +457,25 @@ code,pre {
   }
 }
 
+.data-list-wrap{
+  margin: 0 20px;
+}
+
 [class^='no-data']{
   text-align: center;
+  border: 1px dashed #1f2d3d;
+  background: rgba(0,0,0,0.20);
+  height: 110px;
+  width: 720px;
+  font-size: 12px;
+  margin: 120px auto;
+  line-height: 110px;
+  color: rgba(255,255,255,0.5);
+  &.small{
+    height: 50px;
+    width: 480px;
+    line-height: 50px;
+  }
   &.no-data-notify{
     line-height: 60px;
   }
@@ -430,5 +487,13 @@ code,pre {
   &:before{
     content: ''!important;
   }
+}
+
+.error-color{
+  color: $orange;
+}
+
+.success-color{
+ color: $blue;
 }
 

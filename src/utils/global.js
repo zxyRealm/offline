@@ -118,16 +118,8 @@ exports.install = function (Vue, options) {
       cancelButtonText: text.cancel,
       beforeClose: (action, instance, done) => {
         callback(action,instance,done);
-        // if (action === 'confirm') {
-        //   instance.confirmButtonLoading = true;
-        //   instance.confirmButtonText = '执行中...';
-        // } else {
-        //   done();
-        // }
       }
-    }).then(action => {
-     // callback(action)
-    });
+    })
   }
 };
 

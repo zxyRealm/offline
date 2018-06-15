@@ -56,6 +56,7 @@
     background: rgba(1,8,20,0.10);
     border: 1px dashed rgba(151,151,151,0.10);
     box-sizing: border-box;
+    margin-bottom: 10px;
     .ob-list-sub-item{
       position: relative;
       padding: 14px 28px;

@@ -27,6 +27,7 @@
     background-position: center center;
     background-size: contain;
     cursor: pointer;
+    vertical-align: middle;
     &.exit {
       background-image: url("/static/img/exit_icon.png");
     }
@@ -40,6 +41,16 @@
       background-image: url("/static/img/delete_icon.png");
       height: 14px;
       width: 14px;
+    }
+    &.success{
+      background-image: url("./image/ob-icon-success.png");
+      width: 16px;
+      height: 16px;
+    }
+    &.error{
+      background-image: url("./image/ob-icon-error.png");
+      width: 16px;
+      height: 16px;
     }
   }
 </style>

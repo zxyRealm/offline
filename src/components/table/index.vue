@@ -27,7 +27,7 @@
           label="出客量">
         </el-table-column>
       </el-table>
-      <div class="table-page"> 
+      <div class="table-page">
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -196,7 +196,7 @@
       "inFlowerCount": 0,
       "outFlowerCount": 0
     }]
-          
+
         }
       },
       methods: {
@@ -226,15 +226,26 @@
 
               }
            });
+        },
+        initSize(){
+          this.$nextTick(()=>{
+            let table = document.getElementsByClassName("table-content")[0];
+            let tableEle = document.body.clientHeight - 640;
+            table.style.height = tableEle+"px";
+          })
         }
       },
       created() {
         //table高度改变
-        window.onresize=function(){  
-            let table = document.getElementsByClassName("table-content")[0];
-            let tableEle = document.body.clientHeight - 640;
-            table.style.height = tableEle+"px";
-        } 
+
+        // window.onresize=function(){
+        //     let table = document.getElementsByClassName("table-content")[0];
+        //     let tableEle = document.body.clientHeight - 640;
+        //     table.style.height = tableEle+"px";
+        // }
+      },
+      mounted(){
+        window.addEventListener('resize',this.initSize());
       },
       computed: {
          //首先给table高度赋值
@@ -243,6 +254,7 @@
            return tableEle+'px';
          }
       }
+
     }
 </script>
 

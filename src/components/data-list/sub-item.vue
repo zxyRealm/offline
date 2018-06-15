@@ -84,7 +84,7 @@
       }
     },
     created(){
-
+      // console.log(parseTime(new Date(),'{y}-{m}-{d} {h}:{i}'));
     },
     filters:{
       time:function (val) {

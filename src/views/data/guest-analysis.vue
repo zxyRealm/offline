@@ -2,14 +2,14 @@
   <div class="data-guest">
     <div class="data-guest-content">
       <div class="screening">
-          <screening :type="0"></screening>
+        <screening :type="0"></screening>
       </div>
       <div class="flow-diagram" ref="line">
-          <echarts-line :line-height="'320px'" ref="echartsLine"></echarts-line>
+        <echarts-line :line-height="'320px'" ref="echartsLine"></echarts-line>
       </div>
     </div>
     <div class="table-data">
-       <table-data ></table-data>
+      <table-data></table-data>
     </div>
   </div>
 </template>
@@ -17,37 +17,38 @@
   import screening from '../../components/screening'
   import EchartsLine from '../../components/echarts/line'
   import TableData from '../../components/table/index'
-    export default {
-        name: "guest-analysis",
-        components: {screening,EchartsLine,TableData},
-        data() {
-            return {
 
-            }
-        },
-        methods: {
+  export default {
+    name: "guest-analysis",
+    components: {screening, EchartsLine, TableData},
+    data() {
+      return {}
+    },
+    methods: {
+      initEcharts() {
+        this.$nextTick(() => {
+          let table = document.getElementById("echarts-line");
+          table.style.height = this.$refs.line.offsetHeight + "px";
+          //宽度
+          table.style.width = this.$refs.line.offsetWidth + "px";
+          this.$refs.echartsLine.resizeEcharts();
+        })
+      }
+    },
 
-        },
-        mounted() {
-          let me = this;
-          window.onresize = () => {  
-            let table = document.getElementById("echarts-line");
-            //let tableEle = document.body.clientHeight - 420;
-            table.style.height = me.$refs.line.offsetHeight +"px";
-            //宽度
-            table.style.width = me.$refs.line.offsetWidth +"px";
-            me.$refs.echartsLine.resizeEcharts();
-         } 
-        }
+    mounted() {
+      let me = this;
+      window.addEventListener('resize', this.initEcharts());
     }
+  }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   .data-guest {
-     width: 100%;
-     height: 100%;
-     box-sizing: border-box;
-     padding: 12px 0 12px 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 12px 0 12px 0;
     .data-guest-content {
       width: 100%;
       min-width: 1020px;
@@ -62,7 +63,7 @@
         float: left;
       }
       .flow-diagram {
-       /* width: 61.37%;*/
+        /* width: 61.37%;*/
         width: 62.17%;
         float: right;
       }

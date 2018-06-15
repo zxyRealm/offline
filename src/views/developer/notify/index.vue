@@ -1,45 +1,27 @@
 <template>
   <div class="notify-wrap">
-    <uu-sub-tab :menu-array="menu" :sub-btn="!noNotifyUrl?btnOption:{}"></uu-sub-tab>
-    <no-callback-info v-if="noNotifyUrl"></no-callback-info>
-    <div class="list-wrap">
+    <uu-sub-tab :menu-array="menu" :show-button="!equipmentEmpty" :sub-btn="btnOption" @handle-btn="addCallbackInfo"></uu-sub-tab>
+    <!--<video src="/static/d1.264-3.mp4" controls="controls">-->
+      <!--您的浏览器不支持 video 标签。-->
+    <!--</video>-->
+    <no-callback-info v-if="equipmentEmpty"></no-callback-info>
+    <div class="data-list-wrap" v-else>
       <template v-for="(item,$index) in notifyList">
         <ob-list>
           <ob-list-item type="type" :data="item" prop="type" label="通知类型"></ob-list-item>
           <ob-list-item :data="item" prop="intro,tokenURL" label="通知描述,回调地址"></ob-list-item>
-          <ob-list-item router="/developer/notify" text="详情" label="用途：">
+          <ob-list-item type="time" :data="item" prop="createTime,lastEditTime" label="创建时间,上次编辑">
           </ob-list-item>
-          <ob-list-item type="time" :data="item" prop="createTime,createTime" label="创建时间,上次编辑"></ob-list-item>
           <ob-list-item>
             <router-link to="/developer/param/explain">
               参数介绍
             </router-link>
             <router-link style="margin: 0 36px" :to="'/developer/notify/'+item.noticeGuid">详情</router-link>
-            <!--<div class="handle">-->
-              <!--操作：<br>-->
-              <!--<el-popover-->
-                <!--placement="top"-->
-                <!--trigger="hover">-->
-                <!--<div>-->
-                  <!--<p>1.获取设备状态后，可进行操作。</p>-->
-                  <!--<p>2.已绑定至社群，无法删除该设备。</p>-->
-                <!--</div>-->
-                <!--<i slot="reference" style="margin-top: 10px" class="el-icon-question"></i>-->
-              <!--</el-popover>-->
-              <!--&lt;!&ndash;<i class="el-icon-question"></i>&ndash;&gt;-->
-            <!--</div>-->
-            <!--<div class="btn-wrap">-->
-              <!--<el-button class="medium close">关机</el-button>-->
-              <!--<el-button class="medium reboot">重启</el-button>-->
-              <!--<el-button class="medium upgrading" @click="update='升级中...'">{{update}}</el-button>-->
-              <!--<el-button class="medium reset">重置</el-button>-->
-            <!--</div>-->
             <el-button icon="el-icon-delete"  @click="delNotifyInfo(item.noticeGuid)" circle></el-button>
           </ob-list-item>
         </ob-list>
       </template>
     </div>
-
   </div>
 </template>
 <script>
@@ -51,10 +33,9 @@
     data() {
       return {
         update:'升级',
-        noNotifyUrl: false,
+        equipmentEmpty: false,
         btnOption: {
-          text: '创建',
-          index: '/developer/notify/add-info'
+          text: '创建'
         },
         menu: [
           {title: '消息通知', index: '/developer/notify'},
@@ -65,6 +46,16 @@
       }
     },
     methods: {
+      equipmentExit(){
+        this.$http("/device/merchant/exist",false).then(res=>{
+          this.equipmentEmpty = res.data;
+          if(res.data){
+            this.getNotifyList()
+          }
+        }).catch(error=>{
+          this.equipmentEmpty = true
+        })
+      },
       delNotifyInfo(id) {
         this.$affirm({
           confirm: '删除',
@@ -93,10 +84,35 @@
             this.pagination = res.data.pagination;
           }
         })
+      },
+      addCallbackInfo(){
+        if(this.noNotifyUrl){
+          this.$router.push('/developer/notify/add-info')
+        }else {
+          this.$affirm({
+            confirm: '删除',
+            cancel: '取消',
+            text: '确认删除本条通知？'
+          }, (action, instance, done) => {
+            if (action === 'confirm') {
+              // this.$http("/dataNotice/discard", {noticeGuid: id}).then(res => {
+              //   if (res.result) {
+              //     this.$tip("删除成功");
+              //     this.getNotifyList(this.pagination.index)
+              //   }
+              // });
+              done();
+            } else {
+              done()
+            }
+          })
+
+        }
+
       }
     },
     created() {
-      this.getNotifyList()
+      this.equipmentExit();
     },
     filters: {
       type: function (value) {

@@ -4,7 +4,13 @@ import Qs from "qs";
 import { Message } from "element-ui";
 
 // 异步请求
-export function fetch(url,params) {
+export function fetch(url,params,isTip=true) {
+  console.log('params',params,'isTip',isTip);
+  if(typeof params === 'boolean' ){
+    isTip = params;
+    params = null
+  }
+  params = params || {};
   // params = Qs.stringify(params||{});
   const promise = new Promise((resolve,reject)=>{
     axios({
@@ -27,7 +33,9 @@ export function fetch(url,params) {
             resolve(res.data)
           }
         }else {
-          message(res.data.msg,'error',1500);
+          if(isTip){
+            message(res.data.msg,'error',1500);
+          }
           reject(res.data)
         }
       } else {

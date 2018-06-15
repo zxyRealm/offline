@@ -14,7 +14,7 @@
         v-model="callbackForm">
         <el-form-item label="类型：" prop="type">
           <el-select v-model="callbackForm.type" placeholder="请选取类型">
-            <el-option :value="1" label="到店通知">
+            <el-option value="1" label="到店通知">
             </el-option>
           </el-select>
         </el-form-item>
@@ -63,7 +63,7 @@
           ]
         },
         callbackForm: {
-          type: '',
+          type: '1',
           tokenURL: '',
           intro: ''
         },
@@ -72,7 +72,7 @@
     },
     methods: {
       handelCallbackInfo(data) {
-        const type = this.$route.name==='addInfo'?'create':'update';
+        const type = this.$route.name==='addNotifyCallback'?'create':'update';
         this.$http("/dataNotice/"+type,data).then(res=>{
           if(res.result){
             if(type==='create'){
@@ -84,6 +84,16 @@
           }
           console.log(res)
         })
+      },
+      getCallbackInfo(){
+        this.$http("/dataNotice/getInfo",{noticeGuid:this.$route.params.id}).then(res=>{
+         this.callbackForm = res.data
+        })
+      }
+    },
+    mounted(){
+      if(this.$route.name==='editNotifyCallback'){
+        this.getCallbackInfo()
       }
     }
   }
