@@ -276,10 +276,13 @@
     }
     .table-content {
       width: 100%;
-      // height: 200px;
-      .el-table--scrollable-y .el-table__body-wrapper {
-            overflow: auto;
+      // .el-table--scrollable-y .el-table__body-wrapper {
+      //   overflow: auto;
+      // }
+      table.el-table__body tbody{
+        //overflow: auto;
       }
+      table{border-collapse:inherit;}
     }
     .table-page {
       position: absolute;

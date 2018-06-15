@@ -17,7 +17,6 @@
       components: {},
       data() {
         return {
-          indexType: 0,
           activeName: '客流分析',
           dataType: [
             {title:'客流分析',path: '/data/guest-analysis'},
@@ -31,10 +30,7 @@
 
       },
       methods: {
-        /* 选择类型 */
-        selectType(index) {
-            this.indexType = index;
-        }
+
       }
   }
 </script>

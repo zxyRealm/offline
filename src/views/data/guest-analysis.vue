@@ -2,10 +2,10 @@
   <div class="data-guest">
     <div class="data-guest-content">
       <div class="screening">
-          <screening :type="0"></screening>
+          <screening :type="1"></screening>
       </div>
       <div class="flow-diagram" ref="line">
-          <echarts-line :line-height="'320px'" ref="echartsLine"></echarts-line>
+          <echarts-line :line-height="'320px'" :line-params='lineParams' ref="echartsLine"></echarts-line>
       </div>
     </div>
     <div class="table-data">
@@ -22,23 +22,34 @@
         components: {screening,EchartsLine,TableData},
         data() {
             return {
-
+                //传递给线型图字段
+                lineParams: {
+                  title: {text: '进/出客流量图'}
+                }
             }
         },
         methods: {
-
+            resizeFunction() {
+              let me = this;
+              let table = document.getElementById("echarts-line");
+              //let tableEle = document.body.clientHeight - 420;
+              table.style.height = me.$refs.line.offsetHeight +"px";
+              //宽度
+              table.style.width = me.$refs.line.offsetWidth +"px";
+              me.$refs.echartsLine.resizeEcharts();
+            }
         },
         mounted() {
+         //
+
           let me = this;
-          window.onresize = () => {  
-            let table = document.getElementById("echarts-line");
-            //let tableEle = document.body.clientHeight - 420;
-            table.style.height = me.$refs.line.offsetHeight +"px";
-            //宽度
-            table.style.width = me.$refs.line.offsetWidth +"px";
-            me.$refs.echartsLine.resizeEcharts();
-         } 
-        }
+          window.addEventListener("resize",me.resizeFunction);
+        },
+         beforeRouteLeave(to, from , next) {
+          let me = this;
+          window.removeEventListener("resize",me.resizeFunction);
+          next();
+      }
     }
 </script>
 
@@ -52,17 +63,14 @@
       width: 100%;
       min-width: 1020px;
       .screening, .flow-diagram {
-        border: 1px solid #0F9EE9;
-        /*height: 230px;*/
+        // border: 1px solid #0F9EE9;
         height: 320px;
       }
       .screening {
-        /*width: 37.65%;*/
         width: 36.86%;
         float: left;
       }
       .flow-diagram {
-       /* width: 61.37%;*/
         width: 62.17%;
         float: right;
       }
@@ -83,7 +91,7 @@
       left: 0px;
       box-sizing: border-box;
       padding: 20px;
-      border: 1px solid red;
+      // border: 1px solid red;
     }
   }
 </style>
