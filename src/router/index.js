@@ -24,6 +24,9 @@ const genderAnalysis = () => import('@/views/data/gender-analysis');
 const ageAnalysis = () => import('@/views/data/age-analysis');
 const shopFrequencyAnalysis = () => import('@/views/data/shop-frequency-analysis');
 
+/** 控制台 **/
+const consoleIndex = () => import('@/views/console/index.vue');
+
 Vue.use(Router);
 
 
@@ -41,6 +44,25 @@ export const constantRouterMap = [
 ];
 
 export const asyncRouterMap = [
+  {
+    path: "/console",
+    component: Layout,
+    meta: {
+      auth: true,
+      title: '控制台',
+      roles: ['admin']
+    },
+    children: [
+      {
+          path: '/',
+          name:  'console-lwh',
+          meta: {
+            title: "控制台入库"
+          },
+          component: consoleIndex
+      }
+    ]
+  },
   {
     path: "/community",
     component: Layout,

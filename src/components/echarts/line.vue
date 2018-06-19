@@ -116,7 +116,7 @@
         this.option.color =this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
       },
       //请求数据
-      getLineData() {
+      getData() {
         let params = this.$store.state.filterParams;
         this.option.title= this.$apply(this.option.title,this.lineParams.title);
         this.$http('/chart/line', {
@@ -139,7 +139,7 @@
     },
     mounted() {
        this.changeColor();
-       this.getLineData();
+       this.getData();
     }
 
   }
