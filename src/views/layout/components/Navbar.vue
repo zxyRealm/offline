@@ -9,9 +9,15 @@
     </div>
     <!--<breadcrumb class="breadcrumb-container"></breadcrumb>-->
     <div class="right-menu vam tal">
-
-      <hamburger class="hamburger-container vam" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
-      控制台
+      <div class="navbar-console" >
+        <hamburger class="hamburger-container vam" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
+        <router-link to="/console">控制台</router-link>
+      </div>
+      <div class="navbar-console" v-if="$route.name  == 'console-lwh'">
+        <select>
+          <option>请选择社群</option>
+        </select>
+      </div>
       <div class="right-menu-item vam">
         <router-link to="/developer/notify" class="system-notify">
           <uu-icon type="notify"></uu-icon>
@@ -41,6 +47,7 @@ export default {
   },
   data(){
     return {
+      consoleState: false,  //控制台状态是否激活
       avatar:'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
     }
   },
@@ -51,6 +58,11 @@ export default {
     ])
   },
   methods: {
+    //切换到控制台
+    toConsole() {
+        this.consoleState = true;
+
+    },
     toggleSideBar() {
       this.$store.dispatch('toggleSideBar')
     },
@@ -154,6 +166,31 @@ export default {
         }
       }
     }
+    .navbar-console {
+        a {
+          color: #ffffff;
+          color: #ffffff;
+          position: relative;
+          top: 18px;
+        }
+        .router-link-active {
+            color: #ffffff;
+            position: relative;
+            top: 18px;
+        }
+        .router-link-active::after {
+            content: '';
+            background-image: linear-gradient(135deg, #813DC7 5%, #0F9EE9 100%);
+            height: 4px;
+            position: absolute;
+            width: 100%;
+            left: 0;
+            bottom: -26px;
+        }
+        select {
+           margin-left: 16px;
+        }
+      }
     .screenfull {
       height: 20px;
     }

@@ -5,7 +5,7 @@ import { Message } from "element-ui";
 
 // 异步请求
 export function fetch(url,params,isTip=true) {
-  console.log('params',params,'isTip',isTip);
+  //console.log('params',params,'isTip',isTip);
   if(typeof params === 'boolean' ){
     isTip = params;
     params = null

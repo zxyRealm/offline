@@ -215,7 +215,7 @@
            //this.gettableData();
         },
         //请求数据
-        gettableData() {
+        getData() {
            let params = this.$store.state.filterParams;
            params.aa  = this.fuzzyQuery;
            this.$http({

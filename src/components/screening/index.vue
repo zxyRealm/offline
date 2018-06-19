@@ -81,7 +81,9 @@
         changeParams() {
           //this.$store.dispatch("SET_FILTER_PARAMS",this.filterParams);
           this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
-          //console.log("dafdfa:",this.$store.state.filterParams);
+          //这这里触发兄弟组件更新条件
+          this.$parent.$children[1].getData();
+          this.$parent.$children[2].getData();
         },
         //查询
         submitForm() {

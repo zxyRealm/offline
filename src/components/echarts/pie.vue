@@ -45,8 +45,9 @@
                       avoidLabelOverlap: false,
                       label: {
                         normal: {
-                          show: false,
-                          position: 'center'
+                          show: true,
+                          formatter:'{c}%',  //显示百分比
+                          position: 'inside'
                         },
                       },
                       labelLine: {
@@ -54,6 +55,7 @@
                           show: false
                         }
                       },
+                      itemStyle : { normal: {label : {show: true, position: 'center'}}},
                       data:[ ]
                  }
               ]
@@ -83,7 +85,7 @@
         this.option.color = this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
       },
         //请求数据
-       getPieData() {
+       getData() {
         let params = this.$store.state.filterParams;
         this.option.title= this.$apply(this.option.title,this.pieParams.title);
         this.$http('/chart/pie',{
@@ -110,7 +112,7 @@
       },
       mounted(){
         this.changeColor();
-        this.getPieData();
+        this.getData();
       }
     }
 </script>
@@ -125,26 +127,16 @@
      background-size: 160px 160px; 
      position: relative;
   }
-  .pie-wing::before {
-    content: '';
-    width: 100%;
-    height: 100%;
-    background: url(/static/img/pie-right.png) no-repeat center left;
-    -webkit-background-size: 170px 170px;
-    background-size: 76px 26px;
-    position: absolute;
-    top: 0;
-    left: 26%;
-  }
   .pie-wing::after {
     content: '';
     width: 100%;
     height: 230px;
-    background: url(/static/img/pie-left.png) no-repeat right center;
+    background: url(/static/img/pie-left-right.png) no-repeat center center;
     -webkit-background-size: 170px 170px;
-    background-size: 76px 26px;
+    background-size: 300px  22px;
     position: absolute;
     top: 0;
-    left: -26%;
+    left:0;
   }
+  
 </style>
