@@ -88,7 +88,7 @@
     },
     filters:{
       time:function (val) {
-        return parseTime(val,'{y}-{m}-{d} {h}:{i}')
+        return parseTime(val,'{y}/{m}/{d} {h}:{i}')
       }
     }
   }

@@ -12,6 +12,7 @@ import subTab from '@/components/subTab'
 import uuForm from '@/components/form'
 import obList from '@/components/data-list'
 import obListItem from '@/components/data-list/sub-item'
+import obDialogForm from '@/components/dialog-form'
 import * as filters from './filters'
 import echarts from 'echarts'
 Vue.prototype.$echarts = echarts;
@@ -27,6 +28,7 @@ Vue.component(subTab.name,subTab);
 Vue.component(uuForm.name,uuForm);
 Vue.component(obList.name,obList);
 Vue.component(obListItem.name,obListItem);
+Vue.component(obDialogForm.name,obDialogForm);
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])

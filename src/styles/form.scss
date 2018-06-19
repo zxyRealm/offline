@@ -1,0 +1,160 @@
+$default:transparent;
+$white:#fff;
+.common-form {
+  margin: 0 auto;
+  //默认黑色主题背景
+  .el-select{
+    width: 100%;
+  }
+  &[readonly] {
+    .el-form-item {
+      .el-form-item__content {
+        .el-input {
+          background: $default;
+          .el-input__inner {
+            background: $default;
+          }
+        }
+        .el-textarea__inner{
+          background: $default;
+        }
+      }
+    }
+  }
+  .el-form-item {
+    margin-bottom: 16px;
+    line-height: 30px;
+    &[readonly] {
+      .el-input {
+        background: $default !important;
+        .el-input__inner {
+          &[readonly] {
+            background: $default;
+          }
+        }
+      }
+      .el-textarea__inner{
+        background: $default!important;
+        &[readonly]{
+          background: $default;
+        }
+      }
+    }
+    .el-form-item__label {
+      line-height: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      &:before {
+        display: none;
+      }
+    }
+    .el-form-item__content {
+      line-height: 30px;
+      .el-input {
+        height: 30px;
+        border-radius: 5px;
+        .el-input__inner {
+          background-color: #232027;
+          background-image: url("/static/img/input_border_bg.png");
+          background-repeat: no-repeat;
+          background-size: 100% 100%;
+          border: none;
+          margin: 1px;
+          color: #fff;
+          width: calc(100% - 2px);
+          line-height: 30px;
+          height: 30px;
+        }
+      }
+      .el-textarea{
+        height: 70px;
+        .el-textarea__inner{
+          height: 100%;
+          width: 100%;
+          background-color: #232027;
+          background-image: url("/static/img/textarea_border_bg.png");
+          background-repeat: no-repeat;
+          background-size: 100% 100%;
+          border: none;
+          resize: none;
+          color: #fff;
+        }
+        &.el-input--medium{
+          height: 300px;
+          .el-textarea__inner{
+            background-image:url("/static/img/textarea_border2_bg.png");
+          }
+        }
+      }
+      .el-form-item__error{
+        color:#F87F21;
+        line-height: 1.2;
+      }
+    }
+  }
+  //白色主题背景
+  &.white{
+    .el-form-item {
+      &[readonly] {
+        .el-input {
+          background: $white !important;
+          .el-input__inner {
+            &[readonly] {
+              background: $white;
+            }
+          }
+        }
+        .el-textarea__inner{
+          background: $white!important;
+          &[readonly]{
+            background: $white;
+          }
+        }
+      }
+      .el-form-item__label {
+        color: #333;
+        padding: 0;
+        &:before {
+          display: none;
+        }
+      }
+      .el-form-item__content {
+        line-height: 30px;
+        .el-input {
+          height: 30px;
+          border-radius: 5px;
+          .el-input__inner {
+            background-color: $white;
+            color:#333;
+          }
+        }
+        .el-textarea{
+          .el-textarea__inner{
+            background-color: $white;
+            color: #333;
+          }
+          &.el-input--medium{
+            .el-textarea__inner{
+              background-image:url("/static/img/textarea_border2_bg.png");
+            }
+          }
+        }
+      }
+    }
+  }
+}
+.el-select-dropdown{
+  .el-select-dropdown__list{
+    .el-select-dropdown__item{
+      line-height: 24px;
+      height: 24px;
+      &:hover{
+        background-color: #EBEBEB;
+      }
+      >span{
+        line-height: 24px!important;
+      }
+    }
+  }
+}

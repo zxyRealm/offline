@@ -22,19 +22,30 @@ exports.install = function (Vue, options) {
   };
 
   // 确认操作提示框
-  Vue.prototype.$affirm = function (txt, title = '操作提示', callback) {
-    this.$confirm(txt, title, {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      center: true,
-      customClass: 'affirmBox',
-      type: 'warning'
-    }).then(() => {
-      callback(true)
-    }).catch(() => {
-      callback(false)
-    });
-  };
+  // Vue.prototype.$affirm = function (txt, title = '操作提示', callback,type) {
+  //   let html = `${txt}`;
+  //   if(typeof callback !=='function'){
+  //     type = callback;
+  //   }
+  //   if(type){
+  //     console.log(type);
+  //     html = `<img src="/static/img/alert_message_${type}.png" alt=""><p>${txt}</p>`
+  //   }
+  //   this.$message({
+  //     title:title,
+  //     message:html,
+  //     confirmButtonText: '确定',
+  //     cancelButtonText: '取消',
+  //     dangerouslyUseHTMLString:true,
+  //     center: true,
+  //     customClass: 'affirmBox',
+  //     type: 'warning'
+  //   }).then(() => {
+  //     callback(true)
+  //   }).catch(() => {
+  //     callback(false)
+  //   });
+  // };
 
   // loading加载层
   Vue.prototype.$load = function (txt) {
@@ -102,26 +113,27 @@ exports.install = function (Vue, options) {
 
   // 确认操作框
 
-  Vue.prototype.$affirm = function (text, callback, showCancel=true) {
-    const h = this.$createElement;
+  Vue.prototype.$affirm = function (text, callback,type,showCancel=true) {
+    let html = `${text.text}`;
+    if(type){
+      html = ` <img width="72px" src="/static/img/alert_message_${type}.png" alt="提示信息"><p>${text.text}</p>`
+    }
     this.$msgbox({
       title: '',
-      message: h('p', null, [
-        h('span', null,text.text)
-      ]),
+      message:html,
       center:true,
+      dangerouslyUseHTMLString:true,
       customClass:'uu-message-affirm',
       confirmButtonClass:'affirm',
       cancelButtonClass:'cancel',
-      showCancelButton: showCancel,
+      showCancelButton: type?!type:showCancel,
+      showConfirmButton:!type,
       confirmButtonText: text.confirm,
       cancelButtonText: text.cancel,
       beforeClose: (action, instance, done) => {
         callback(action,instance,done);
       }
-    }).then(action => {
-     // callback(action)
-    });
+    })
   };
 
   //浅复制-覆盖原来属性

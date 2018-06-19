@@ -57,10 +57,6 @@ export function message(txt,type,delay) {
         <img class="tip_img_icon" src="/static/img/${icon}_tip_icon.png" alt="">
         <p style="padding:0" class="text">${txt}</p>
       </div>`,
-    // message: h('div', {attrs: {class: 'tip_message_content'}}, [
-    //   h('img', {attrs: {src: '/static/img/' + icon + '_tip_icon.png', class: 'tip_img_icon'}}),
-    //   h('p', {style: 'padding:0;', attrs: {class: 'text'}}, txt)
-    // ]),
     center: true,
     customClass: 'tip_message',
     dangerouslyUseHTMLString: true,

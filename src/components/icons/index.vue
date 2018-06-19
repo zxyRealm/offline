@@ -47,6 +47,11 @@
       width: 16px;
       height: 16px;
     }
+    &.relieve{
+      background-image: url("./image/relieve_icon.png");
+      width: 16px;
+      height: 16px;
+    }
     &.error{
       background-image: url("./image/ob-icon-error.png");
       width: 16px;
