@@ -97,7 +97,6 @@
        }
     },
     created() {
-       
     },
     methods: {
       // 绘制图表
@@ -109,11 +108,36 @@
       },
       //自适应图表
       resizeEcharts() {
+        this.drawLine();
         this.myChart.resize();
       },
       //定义颜色
       changeColor() {
         this.option.color =this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+      },
+      changeTitle() {
+        this.option.title= this.$apply(this.option.title,this.lineParams.title);
+      },
+       //显示客流量 = 控制台
+      showGenderData() {
+        this.changeTitle();
+        this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+        this.$http('/chart/line', {
+              groupGuid: "D680EFBC958C4B4E8E05C4FCA6FF4329",
+              type: 1,
+              dimension: 1,
+              startTime: this.$getNowFormatDate(),
+              endTime: this.$getNowFormatDate()
+              }).then(res => {
+              if(res.result == 1){
+                this.data = res.data;
+                this.option.xAxis[0] = this.$apply(this.option.xAxis[0],this.data.xAxisGroup[0]);
+                this.option.yAxis[0] = this.$apply(this.option.yAxis[0],this.data.yAxis);  //这个yAxis是对象形式
+                this.option.series = this.$apply( this.option.series,this.data.seriesGroup);
+                this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
+                this.drawLine();
+              }
+       });
       },
       //请求数据
       getData() {
@@ -138,8 +162,12 @@
       }
     },
     mounted() {
-       this.changeColor();
-       this.getData();
+        if(this.lineParams.title.text == "客流量统计") {
+           this.showGenderData();
+        }else {
+          this.changeColor();
+          this.getData();
+      }
     }
 
   }

@@ -1,12 +1,12 @@
 <template>
     <div class="all-time-wrap">
-         <div class="identify">身份识别设备</div>
+         <div class="identify"><span>身份识别设备</span></div>
          <div class="change-time">
-             <span>1</span>
-             <span>1</span>
+             <span>{{this.data[0]}}</span>
+             <span>{{this.data[1]}}</span>
              <div>:</div>
-             <span>1</span>
-             <span>1</span>
+             <span>{{this.data[2]}}</span>
+             <span>{{this.data[3]}}</span>
          </div>
     </div>
 </template>
@@ -15,7 +15,8 @@ export default {
     props: ['type'],
     data() {
         return {
-            data: []   //数据
+            showTime: {},
+            data: [0,0,0,0]   //数据
         }
     },
     methods: {
@@ -28,25 +29,50 @@ export default {
                 clock += hh + ":";
             if (mm < 10) clock += '0'; 
                clock += mm; 
-               return(clock); 
+            //   return(clock); 
+            this.$set(this.data, 0,  Math.floor(hh/10));
+            this.$set(this.data, 1,  hh%10);
+            this.$set(this.data, 2,  Math.floor(mm/10));
+            this.$set(this.data, 3,  mm%10);
+            console.info(this.data);
+        },
+        setTime() {
+            let me = this;
+            this.showTime = setInterval(() => {
+                me.time();
+            },60000);
         }
     },
     created() {
-        console.info("this.time();",this.time());
+       this.time();
+    },
+    mounted() {
+        this.setTime();
+    },
+    computed: {
+
     }
 }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
     .all-time-wrap {
         width: 100%;
+        text-align: center;
+        height: 82px;
         div.identify {
-            height: 20px;
-            width: 160px;
-            font-size: 14px;
-            color: #FFFFFF;
-            background-image:url(/static/img/identify.png); 
+            line-height: 34px;
+            height: 34px;
+            width: 164px;
+            margin-left: calc(50% - 82px);
+            background:url(/static/img/identify.png) no-repeat center; 
+            background-size: 100% 100%;
+            span {
+                 padding: 5px 20px;
+                 background: #cccccc;
+            }
         }
         .change-time {
+            margin-top: 12px;
             span {
                     display: inline-block;
                     width: 30px;

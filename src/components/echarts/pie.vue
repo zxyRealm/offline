@@ -34,20 +34,19 @@
                   fontWeight: 'lighter',
                 },
                 icon:'square',
-                borderRadius: 0,
-                data:[]
+                data:['男性占比','女性占比']
               },
               series: [
                   {
                       name:'访问来源',
                       type:'pie',
-                      radius: ['50%', '50%'],
+                      radius: ['50%', '70%'],
                       avoidLabelOverlap: false,
                       label: {
                         normal: {
                           show: true,
                           formatter:'{c}%',  //显示百分比
-                          position: 'inside'
+                          position: 'outside'
                         },
                       },
                       labelLine: {
@@ -56,7 +55,7 @@
                         }
                       },
                       itemStyle : { normal: {label : {show: true, position: 'center'}}},
-                      data:[ ]
+                      data:[]
                  }
               ]
             },
@@ -84,10 +83,23 @@
       changeColor() {
         this.option.color = this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
       },
+      //改变标题
+      changeTitle() {
+        this.option.title= this.$apply(this.option.title,this.pieParams.title);
+      },
+      //年龄分布数据渲染 = 控制台
+      showAgeData() {
+          this.changeTitle();
+          this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+          this.option.series[0].label.fontWeight = "bolder";
+          this.option.series[0].data = this.pieParams.seriesData;
+          this.option.legend.data = ['男性占比','女性占比'];//this.pieParams.legendData;
+          this.drawPie();
+      },
         //请求数据
        getData() {
         let params = this.$store.state.filterParams;
-        this.option.title= this.$apply(this.option.title,this.pieParams.title);
+        this.changeTitle();
         this.$http('/chart/pie',{
               groupGuid: "D680EFBC958C4B4E8E05C4FCA6FF4329",
               type: this.$store.state.filterParams.type,
@@ -111,8 +123,12 @@
         }
       },
       mounted(){
-        this.changeColor();
-        this.getData();
+        if(this.pieParams.title.text == "男女流量占比") {
+           this.showAgeData();
+        }else {
+           this.changeColor();
+           this.getData();
+        }
       }
     }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div id="echarts-bar" class="bar-wrap" :style="{height: lineHeight}">
+  <div id="echarts-bar" class="bar-wrap">
 
   </div>
 </template>
@@ -7,15 +7,23 @@
 <script>
   export default {
      name: "echarts-bar",
-     props: ['lineHeight'],
+     props: [],
      data() {
        return {
          data: [],
             option: {
+               title: {
+                text: '年龄分布',
+                 textStyle: {
+                  color: '#ffffff',
+                  fontSize: '14',
+                  fontWeight: 'lighter'
+                }
+              },
                  textStyle: {   //总体字体样式
                 color: "#ffffff"
               },
-            color: ['#3398DB'],
+            color: ['#247CD0'],
             tooltip : {
                 trigger: 'axis',
                 axisPointer : {            // 坐标轴指示器，坐标轴触发有效
@@ -31,7 +39,7 @@
             xAxis : [
                 {
                     type : 'category',
-                    data : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    data : ['0-10', '11-20', '21-30', '31-40', '41-50', '51以上'],
                     axisTick: {
                         alignWithLabel: true
                     }
@@ -56,7 +64,7 @@
                     type:'bar',
                     barWidth: '60%',
                     itemStyle : { normal: {label : {show: true, position: 'top'}}},
-                    data:[10, 52, 200, 334, 390, 330, 220]
+                    data:[10, 52, 200, 334, 390, 330]
                 }
             ]
             }
@@ -66,6 +74,13 @@
        
     },
     methods: {
+      //传递数据赋值给series.data
+      translateData(data) {
+         this.option.series.data = data;
+      },
+      changexAxisData(data) {
+         this.option.xAxis.data = data;
+      },
       // 绘制图表
       drawLine() {
         // 基于准备好的dom，初始化echarts实例
@@ -75,7 +90,6 @@
       },
       resizeEcharts() {
         this.myChart.resize();
-       
       },
       //请求数据
       getLineData() {
@@ -101,7 +115,7 @@
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .line-wrap {
+  .bar-wrap {
     width: 100%;
     box-sizing: border-box;
     padding: 20px;
