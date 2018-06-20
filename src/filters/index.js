@@ -7,6 +7,26 @@ function pluralize(time, label) {
   }
   return time + label + 's'
 }
+export function deviceType(type) {
+  switch (type){
+    case 1:
+      return '分析终端';
+    case 2:
+      return '客行分析一体机';
+    default:
+      return '身份识别一体机';
+  }
+}
+export function deviceState(state) {
+  switch (state){
+    case 1:
+      return '离线';
+    case 2:
+      return '在线';
+    default:
+      return '';
+  }
+}
 
 export function timeAgo(time) {
   const between = Date.now() / 1000 - Number(time);

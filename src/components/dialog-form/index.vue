@@ -2,6 +2,7 @@
   <el-dialog
     center
     top="30%"
+    @close="closeDialog"
     class="dialog-form-wrapper"
     width="500px" :title="title" :visible.sync="dialogFormVisible">
     <el-form
@@ -15,20 +16,20 @@
         <el-form-item label="设备序列号：" prop="deviceKey" :label-width="formLabelWidth">
           <el-input type="text" v-model="dialogForm.deviceKey" placeholder="请输入设备序列号" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="设备别名：" prop="deviceAlias" :label-width="formLabelWidth">
-          <el-input type="text" v-model="dialogForm.deviceAlias" placeholder="请输入设备别名" auto-complete="off"></el-input>
+        <el-form-item label="设备别名：" prop="deviceName" :label-width="formLabelWidth">
+          <el-input type="text" v-model="dialogForm.deviceName" placeholder="请输入设备别名" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item label="设备类型：" prop="type" :label-width="formLabelWidth">
           <el-radio-group v-model="dialogForm.type" disabled size="small">
-            <el-radio-button label="分析终端"></el-radio-button>
-            <el-radio-button label="客行分析一体机"></el-radio-button>
-            <el-radio-button label="身份识别一体机"></el-radio-button>
+            <el-radio-button :label="1">分析终端</el-radio-button>
+            <el-radio-button :label="2">客行分析一体机</el-radio-button>
+            <el-radio-button :label="3">身份识别一体机</el-radio-button>
           </el-radio-group>
         </el-form-item>
       </template>
       <template v-if="type==='community'">
-        <el-form-item label="选择社群：" :label-width="formLabelWidth">
-          <el-select v-model="dialogForm.region" placeholder="请选择社群">
+        <el-form-item label="选择社群：" prop="groupGuid" :label-width="formLabelWidth">
+          <el-select v-model="dialogForm.groupGuid" placeholder="请选择社群">
             <el-option v-for="(item,$index) in group" :label="item.groupName" :value="item.groupGuid" :key="$index"></el-option>
           </el-select>
         </el-form-item>
@@ -88,27 +89,57 @@
         if(!value){
           callback(new Error('请填写设备序列号'))
         }else {
-          // if(value.length!==16){
-          //   callback(new Error('请填写合法的序列号'))
-          // }else {
-            this.getDeviceType(value)
-          // }
+          if(value.length>=12){
+            // 校验设备是否被绑定过
+            this.$http("/merchant/device/exist",{deviceKey:value}).then(res=>{
+              if(res.data){
+                // 获取设备状态
+                this.$http("/device/type",{deviceKey:value}).then(res2=>{
+                  this.dialogForm.type = res2.data.deviceType;
+                  callback()
+                }).catch(err=>{
+                  callback(new Error(err?err.msg:'服务器异常'))
+                })
+              }else {
+                callback(new Error('设备已经绑定，请更换其他设备'))
+              }
+            }).catch(err=>{
+              callback(new Error(err.msg||'服务器异常'))
+            });
+          }else{
+            callback(new Error('请填写合法的设备序列号'))
+          }
+
         }
       };
       const validateName = (rule,value,callback)=>{
-        if(value){
-          this.checkDeviceName(value)
+        if(!value){
+          callback(new Error('请输入别名'))
+        }else {
+          if(value.length>=2&& value.length<=18){
+            this.$http("/merchant/device/alias/exist",{deviceName:value}).then(res=>{
+              callback()
+            }).catch(err=>{
+              callback(new Error(err.msg||'验证失败'))
+            });
+          }else {
+            callback(new Error("别名长度为2-18个字符"))
+          }
         }
 
       };
       return {
         dialogForm:{
           deviceKey:'',
-          deviceAlias:''
+          deviceName:'',
+          type:''
         },
         rules:{
           deviceKey:[
             { validator:validateKey,trigger:'blur'}
+          ],
+          deviceName:[
+            { validator:validateName,trigger:'blur'}
           ]
         },
         dialogFormVisible:false
@@ -137,34 +168,36 @@
     },
     methods:{
       submitDialogForm(formName){
-        this.$refs[formName].validate((valid)=>{
+        this.$refs[formName].validate(valid=>{
           if(valid){
-            console.log('validate is success')
+            this.$emit("remote-submit",this.dialogForm);
           }else {
             console.log('validate is not pass')
           }
         })
       },
       getDeviceType(key){
-        if(key && key.length){
+        if(key && key.length>=12){
           this.$http("/device/type",{deviceKey:key}).then(res=>{
             console.log(res)
+            this.dialogForm.type = res.data.deviceType
           })
         }else {
           console.log('请填写合法的设备序列号')
         }
 
       },
-      checkDeviceName(name){
-        this.$http("",{name:name}).then(res=>{
-          console.log(res)
-        })
+
+      closeDialog(){
+        console.log('close')
+        this.$refs.dialogForm.resetFields()
       }
     },
     beforeDestroy(){
-      if(this.$refs.dialogForm){
-        this.$refs.dialogForm.resetFields();
-      }
+
+      // if(this.$refs.dialogForm){
+      //   this.$refs.dialogForm.resetFields();
+      // }
     }
   }
 </script>
@@ -202,6 +235,11 @@
   .el-radio-group{
     .el-radio-button{
       float: left;
+      &.is-active{
+        .el-radio-button__inner{
+          color:#333;
+        }
+      }
       .el-radio-button__inner{
         border:none;
         padding: 0 4px;

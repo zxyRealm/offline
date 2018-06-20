@@ -11,6 +11,9 @@ const Community = () => import('@/views/community/index.vue');
 const addCommunity = () => import('@/views/community/add-community.vue');
 
 const Equipment = () => import('@/views/equipment/index.vue');
+const EquipmentMore = () => import('@/views/equipment/more/index.vue');
+const EquipmentChildren = () => import('@/views/equipment/children/index.vue');
+
 const Developer = () => import('@/views/developer/index.vue');
 const notifyCallback = () => import('@/views/developer/notify/add-info');
 const sysNotify = () => import('@/views/developer/notify/index');
@@ -115,7 +118,15 @@ export const asyncRouterMap = [
         meta: {
           title: "子社群设备-设备管理-线下浏览器服务平台"
         },
-        component: Equipment
+        component: EquipmentChildren
+      },
+      {
+        path: 'more/:key([0-9A-Z\-_]{12})',
+        name: 'equipmentMore',
+        meta: {
+          title: "分析终端用途-设备管理-线下浏览器服务平台"
+        },
+        component: EquipmentMore
       }
     ]
   },

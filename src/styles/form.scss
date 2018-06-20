@@ -1,5 +1,4 @@
-$default:transparent;
-$white:#fff;
+@import './variables.scss';
 .common-form {
   margin: 0 auto;
   //默认黑色主题背景

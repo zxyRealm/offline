@@ -1,6 +1,7 @@
 <template>
   <div class="sub-tab-wrap clearfix" :class="size?size:''">
     <div class="sub-tab-main vam">
+      <i v-if="back" @click.native="backPrev" class="el-icon-arrow-left"></i>
       <template v-for="(item,$index) in menuArray">
         <router-link v-if="item.index" :to="item.index">{{item.title}}</router-link>
         <a href="javascript:void (0)" class="text" v-else>{{item.title}}</a>
@@ -11,9 +12,17 @@
       <router-link v-if="subLink.index" :to="subLink.index" class="sub-tab-link">{{subLink.title}}</router-link>
       <a href="javascript:void (0)" class="sub-tab-link" v-else>{{subLink.title}}</a>
     </template>
-    <template v-if="showButton">
+    <template v-if="showButton && !search">
       <el-button class="affirm medium fr" @click="handleBtn">{{subBtn.text}}</el-button>
     </template>
+    <el-input
+      v-if="search && !showButton"
+      class="nav-search fr"
+      placeholder="请输入关键字"
+      @keyup.native.enter="searchMethod"
+      v-model="searchValue">
+      <i slot="prefix" @click.native="searchMethod" class="el-input__icon el-icon-search"></i>
+    </el-input>
   </div>
 </template>
 
@@ -21,6 +30,14 @@
   export default {
     name: "uu-sub-tab",
     props: {
+      back:{
+        type:Boolean,
+        default:false
+      },
+      search:{
+        type:Boolean,
+        default:false
+      },
       showButton:{
         type:Boolean,
         default:false
@@ -48,12 +65,29 @@
         })
       }
     },
+    data(){
+        return{
+          searchValue:''
+        }
+    },
     methods: {
       handleBtn() {
         if (this.subBtn.index) {
           this.$router.push(this.subBtn.index)
         } else {
           this.$emit('handle-btn')
+        }
+      },
+      backPrev(){
+        if(window.history.length){
+          window.go(-1)
+        }else {
+          this.$router.push("/")
+        }
+      },
+      searchMethod(){
+        if(this.searchValue){
+          this.$emit("remote-search",this.searchValue)
         }
       }
     }
@@ -72,6 +106,9 @@
       font-size: 16px;
       height: 100%;
       line-height: 24px;
+      .el-icon-arrow-left{
+        cursor: pointer;
+      }
       > a:not(.router-link-active) {
         color: #fff;
       }
@@ -113,7 +150,43 @@
         }
       }
     }
-
+    /*搜索框*/
+    .nav-search{
+      width: 280px;
+      border: none;
+      .el-input__prefix{
+        font-size:24px;
+      }
+      .el-input__inner{
+        background: transparent!important;
+        background-image: none;
+        border:none;
+        border-bottom:1px solid #ddd;
+      }
+    }
   }
 
+</style>
+<style lang="scss" rel="stylesheet/scss">
+  @import "@/styles/variables.scss";
+  .nav-search{
+    width: 280px;
+    border: none;
+    .el-input__prefix{
+      font-size:22px;
+      color: $blue;
+    }
+    &.el-input--prefix {
+      .el-input__inner{
+        background: transparent!important;
+        background-image: none;
+        border:none;
+        border-bottom:1px solid rgba(255,255,255,0.3);
+        padding-left: 35px;
+        border-radius: 0;
+        color: #fff;
+      }
+    }
+
+  }
 </style>

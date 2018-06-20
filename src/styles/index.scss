@@ -429,6 +429,9 @@ code,pre {
 }
 
 //table 样式
+.ob-table-wrap{
+  margin: 0 20px;
+}
 
 .el-table{
   .el-table__header{
@@ -497,3 +500,47 @@ code,pre {
  color: $blue;
 }
 
+.dashed-border{
+  background: rgba(1,8,20,0.10);
+  border: 1px dashed rgba(151,151,151,0.10);
+}
+
+//form表单元素风格
+
+//默认主题 黑色
+.el-input {
+  background-color: $default;
+  .el-input__inner {
+    border:none;
+    background: url("/static/img/input_border_bg.png") no-repeat center;
+    background-size:100% 100%;
+    background-color: $default;
+  }
+  &.white{
+    background: $white;
+    .el-input__inner{
+      background-color: $white;
+      color: #333;
+    }
+  }
+}
+.el-textarea{
+  background-color: $default;
+  .el-textarea__inner{
+    border: none!important;
+    background: url("/static/img/textarea_border_bg.png") no-repeat center;
+    background-size: 100% 100%;
+    background-color: $default;
+  }
+  &.white{
+    background-color: $white;
+    .el-textarea__inner{
+      background-color: $white;
+      color:#333;
+    }
+  }
+}
+
+
+
+//白色主题

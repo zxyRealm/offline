@@ -5,16 +5,22 @@ export function parseTime(time, cFormat) {
   if (arguments.length === 0 || !time) {
     return null
   }
-  if(typeof time ==='string'&&time.indexOf("-")>-1){
-    time = new Date(time.replace(/\-/g,'/'))
-  }
   const format = cFormat || '{y}-{m}-{d} {h}:{i}:{s}';
   let date;
   if (typeof time === 'object') {
     date = time
-  } else {
-    if (('' + time).length === 10) time = parseInt(time,10) * 1000;
-    date = new Date(time)
+  } else if(typeof time ==='string'){
+    if(Date.parse(time).toString().length===13){
+      date = new Date(time.replace(/\-/g,'/'))
+    }else {
+      return time;
+    }
+  }else if(typeof time ==='number') {
+    if(time.toString().length!==13){
+      return time
+    }else {
+      date = new Date(time)
+    }
   }
   const formatObj = {
     y: date.getFullYear(),
