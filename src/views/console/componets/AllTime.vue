@@ -34,7 +34,6 @@ export default {
             this.$set(this.data, 1,  hh%10);
             this.$set(this.data, 2,  Math.floor(mm/10));
             this.$set(this.data, 3,  mm%10);
-            console.info(this.data);
         },
         setTime() {
             let me = this;
@@ -68,7 +67,8 @@ export default {
             background-size: 100% 100%;
             span {
                  padding: 5px 20px;
-                 background: #cccccc;
+                 background: #0C50CF;
+                 opacity: 0.5;
             }
         }
         .change-time {

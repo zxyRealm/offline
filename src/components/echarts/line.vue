@@ -108,8 +108,9 @@
       },
       //自适应图表
       resizeEcharts() {
-        this.drawLine();
-        this.myChart.resize();
+        if(!!this.myChart) {
+           this.myChart.resize();
+        }
       },
       //定义颜色
       changeColor() {

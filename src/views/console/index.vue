@@ -5,8 +5,8 @@
                 <ul class="left-ul">
                     <li>
                         <p>客流汇总信息</p>
-                        <flow-info :type="'left'"  class="flow-left"></flow-info>
-                        <flow-info :type="'right'" class="flow-right"></flow-info>
+                        <flow-info :type="'left'" :number="inNumber"  class="flow-left"></flow-info>
+                        <flow-info :type="'right'"  :number="outNumber" class="flow-right"></flow-info>
                     </li>
                     <li>
                         <all-time class="li-all-time"></all-time>
@@ -22,43 +22,31 @@
                         <pie ref="echartsPie" :pieParams="pieParams"></pie>
                     </li>
                     <li ref='bar'>
-                        <bar ref="echartsBar"></bar>
+                        <bar ref="echartsBar" :ageBar="ageBar"></bar>
                     </li>
                 </ul>
             </div>
       </div>
       <div class="content-bottom">
             <ul class="customer-left">
-                <li v-for="(value,index) in arrayData" :key="index">
-                    <img src="/static/img/people.jpg">
-                    <span class="order">{{`第${index}位`}}</span>
-                    <div class="customer-detail">
-                        <span>女</span>
-                        <span>22</span>
-                        <span>01/22</span>
-                        <span>11:22</span>
-                    </div>
+                <li v-for="(value,index) in pedestrianInData" :key="index">
+                    <customer-info :index="index" :detailInfo="value"></customer-info>
                 </li>
-                <!-- <li>
-                </li>
-                <li>
-                </li>
-                <li>
-                </li> -->
             </ul>
             <div class="customer-middle">
+                <div>
+
+                </div>
                 <img src="/static/img/people-info.png"/>
+                <div>
+                     <!-- <img src="/static/img/out-img-1.png"/>
+                     <img src="/static/img/out-img-2.png"/>
+                     <img src="/static/img/out-img-3.png"/> -->
+                </div>
             </div>
             <ul class="customer-right">
-                 <li v-for="(value,index) in arrayData" :key="index">
-                    <img src="/static/img/people.jpg">
-                    <span class="order">{{`第${index}位`}}</span>
-                    <div class="customer-detail">
-                        <span>女</span>
-                        <span>22</span>
-                        <span>01/22</span>
-                        <span>11:22</span>
-                    </div>
+                 <li v-for="(value,index) in pedestrianOutData" :key="index">
+                   <customer-info :index="index" :detailInfo="value"></customer-info>
                 </li>
             </ul>
       </div>
@@ -70,31 +58,57 @@
   import bar from '@/components/echarts/bar.vue'
   import pie from '@/components/echarts/pie.vue'
   import lineConsole from '@/components/echarts/line.vue'
+  import CustomerInfo from './componets/CustomerInfo.vue'
   export default {
       name: "console",
-      components: {FlowInfo,AllTime,bar,pie,lineConsole},
+      components: {FlowInfo,AllTime,bar,pie,lineConsole,CustomerInfo},
       data() {
         return {
-            arrayData: [1,2,3,4],
-            pieParams: {
+            pedestrianInData: [],
+            pedestrianOutData: [],
+            pieParams: {   //饼图
                 type: 3,
                 title: {text: '男女流量占比'},
-                seriesData: [ {value:75, name:'男性占比'},{value:15, name:'女性占比'}],
+                seriesData: [ {value:0, name:'男性占比'},{value:0, name:'女性占比'}],
                 legendData: ['男性占比','女性占比']
             },
-            lineParams: {
+            lineParams: { //线图
                 title: {text: '客流量统计'}
             },
-           ageBar: [],
-           consoleData: []  //控制台数据
+            outNumber: 0,  
+            inNumber: 0,
+            ageBar: [],  //柱图
+            websocket: {},
         }
       },
       methods: {
+          getwebsocket() {
+              let me = this;
+              let wsServer = 'ws://192.168.20.122:8082'; //服务器地址
+              this.websocket = new WebSocket(wsServer);
+                //   websocket.send("hello");//向服务器发送消息
+                //   alert(websocket.readyState);//查看websocket当前状态
+                this.websocket.onopen = function (evt) {
+                    //已经建立连接
+                   me.websocket.send("YF_V1-RT6PZ0" + '_channel');
+                };
+                this.websocket.onmessage = function (evt) {
+                 //收到服务器消息，使用evt.data提取
+                  console.info(evt.data,"ddddd");
+                  //me.typePedestrian(JSON.parse(evt.data)['pedestrian'][0]);
+                };
+                //  websocket.onclose = function (evt) {
+                //   //已经关闭连接
+                // };
+                // websocket.onerror = function (evt) {
+                // //产生异常
+                // }; 
+          },
           resizeFunction() {
             let me = this;
             let table = document.getElementById("echarts-bar");
-            table.style.height = me.$refs.bar.offsetHeight +"px";
             table.style.width = me.$refs.bar.offsetWidth +"px";
+            table.style.height = me.$refs.bar.offsetHeight +"px";
             me.$refs.echartsBar.resizeEcharts();
 
             let tablePie = document.getElementById("echarts-pie");
@@ -107,28 +121,56 @@
             tableLine.style.height = me.$refs.lineConsole.offsetHeight +"px";
             me.$refs.echartsLine.resizeEcharts();
           },
+          //解析数据
+          resolveDatad(data) {
+            let obj = JSON.parse(data);
+            //饼图
+            this.pieParams.seriesData[0].value = obj.male;
+            this.pieParams.seriesData[1].value = obj.female;
+            //进出人数
+            this.outNumber = obj.outNumber;
+            this.inNumber = obj.inNumber;
+            //柱状图
+            this.ageBar = JSON.parse(obj.age);
+            //图片展示
+            this.typePedestrian(obj.pedestrian[0]);
+          },
+          //判断数据类型，并且限定大小4
+          typePedestrian(pedestrian) {
+             if(!pedestrian) return;
+             if(pedestrian){
+                 if(pedestrian.status == 0){ //进客
+                    this.pedestrianInData.length==4? this.pedestrianInData.shift():this.pedestrianInData.push(pedestrian);
+                 }else if(pedestrian.status == 1) { //出客
+                    this.pedestrianOutData.length==4? this.pedestrianOutData.shift():this.pedestrianOutData.push(pedestrian);
+                 }
+             }
+          },
           //请求数据
           getData() {
             this.$http('/personData',{
-                deviceKey: "D680EFBC958C4B4E8E05C4FCA6FF4329"
+                  deviceKey: "YF_V1-RT6PZ0"
                 }).then(res => {
                     if(res.result == 1){
-                        this.consoleData = res.data;
+                        this.resolveDatad(res.data);
+                        this.getwebsocket();
                     }
             });
           }
       },
       created() {
-        //this.getData();
+        this.getData();
       },
-        mounted() {
-            let me = this;
-            window.addEventListener('resize',me.resizeFunction);
-            me.resizeFunction();
-        },
+    mounted() {
+        let me = this;
+        window.addEventListener('resize',me.resizeFunction);
+        me.resizeFunction();
+    },
       beforeRouteLeave(to, from , next) {
         let me = this;
         window.removeEventListener("resize",me.resizeFunction);
+        //关闭websocket链接
+        this.websocket.close();
         next();
      }
   }
@@ -221,7 +263,7 @@
           border: 1px solid green;
        }
        .customer-left  {
-           width:calc(40% - 20px);
+           width:calc(38% - 20px);
            height: 100%;
            display: inline-block;
             li {
@@ -232,41 +274,10 @@
                 background-size: 100% 100%;
                 margin-right: 10px;
                 position: relative;
-                img {
-                    display: block;
-                    width: 100%;
-                    height: 100%;
-                    box-sizing: border-box;
-                    padding: 20px 12px;
-                }
-                span.order {
-                    position: absolute;
-                    top: -6px;
-                    left: calc(50% - 28px);
-                    opacity: 0.6;
-                    background: #6D2EBB;
-                    padding: 0 10px;
-                }
-                div.customer-detail {
-                    position: absolute;
-                    bottom: 20px;
-                    right: 12px;
-                    font-size: 12px;
-                    span {
-                        text-align: center;
-                        line-height: 16px;
-                        display: block;
-                        width: 46px;
-                        height: 16px;
-                        margin-bottom: 4px;
-                        opacity: 0.4;
-                        background: #000000;
-                    }
-                }
             }
        }
        .customer-middle  {
-           width: 20%;
+           width: 24%;
            height: 100%;
            display: inline-block;
            img {
@@ -274,7 +285,7 @@
            }
        }
        .customer-right  {
-           width: calc(40% - 20px);
+           width: calc(38% - 20px);
            height: 100%;
            display: inline-block;
            float: right;
@@ -286,38 +297,13 @@
                 background-size: 100% 100%;
                 margin-left: 10px;
                 position: relative;
-                img {
-                    display: block;
-                    width: 100%;
-                    height: 100%;
-                    box-sizing: border-box;
-                    padding: 20px 12px;
-                }
-                span.order {
-                    position: absolute;
-                    top: -6px;
-                    left: calc(50% - 28px);
-                    opacity: 0.6;
-                    background: #6D2EBB;
-                    padding: 0 10px;
-                }
-                div.customer-detail {
-                    position: absolute;
-                    bottom: 20px;
-                    right: 12px;
-                    font-size: 12px;
-                    span {
-                        text-align: center;
-                        line-height: 16px;
-                        display: block;
-                        width: 46px;
-                        height: 16px;
-                        margin-bottom: 4px;
-                        opacity: 0.4;
-                        background: #000000;
-                    }
-                }
             }
+        &::after {
+            content:'';
+            width: 0;
+            height: 0;
+            clear: both;
+        }
        }
    }
 </style>

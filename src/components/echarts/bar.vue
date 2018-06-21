@@ -1,5 +1,5 @@
 <template>
-  <div id="echarts-bar" class="bar-wrap">
+  <div id="echarts-bar" class="bar-wrap" >
 
   </div>
 </template>
@@ -7,7 +7,9 @@
 <script>
   export default {
      name: "echarts-bar",
-     props: [],
+     props: {
+        ageBar: Array
+     },
      data() {
        return {
          data: [],
@@ -64,9 +66,9 @@
                     type:'bar',
                     barWidth: '60%',
                     itemStyle : { normal: {label : {show: true, position: 'top'}}},
-                    data:[10, 52, 200, 334, 390, 330]
+                    data:[] 
                 }
-            ]
+              ]
             }
        }
     },
@@ -76,20 +78,22 @@
     methods: {
       //传递数据赋值给series.data
       translateData(data) {
-         this.option.series.data = data;
+         this.option.series[0].data = data;
       },
       changexAxisData(data) {
-         this.option.xAxis.data = data;
+         this.option.xAxis[0].data = data;
       },
       // 绘制图表
-      drawLine() {
-        // 基于准备好的dom，初始化echarts实例
+      drawBar() {
         let myChart = this.$echarts.init(document.getElementById('echarts-bar'));
+        this.option.series[0].data = this.ageBar;
         myChart.setOption(this.option);
         this.myChart = myChart;
       },
       resizeEcharts() {
-        this.myChart.resize();
+        if(!!this.myChart) {
+           this.myChart.resize();
+        }
       },
       //请求数据
       getLineData() {
@@ -107,8 +111,16 @@
        });
       }
     },
+    computed: {
+    },
+    created() {},
     mounted() {
-       this.drawLine();
+      // this.drawBar();
+    },
+    watch:{
+      ageBar:function(val,oldVal){
+          this.drawBar();
+      }
     }
 
   }

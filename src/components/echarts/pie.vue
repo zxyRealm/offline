@@ -45,7 +45,7 @@
                       label: {
                         normal: {
                           show: true,
-                          formatter:'{c}%',  //显示百分比
+                          formatter:'{d}%',  //显示百分比
                           position: 'outside'
                         },
                       },
@@ -77,7 +77,9 @@
         },
         //自适应
         resizeEcharts() {
-         this.myChartPie.resize();
+          if(!!this.myChartPie){
+            this.myChartPie.resize();
+          }
        },
        //定义颜色
       changeColor() {
@@ -93,7 +95,7 @@
           this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
           this.option.series[0].label.fontWeight = "bolder";
           this.option.series[0].data = this.pieParams.seriesData;
-          this.option.legend.data = ['男性占比','女性占比'];//this.pieParams.legendData;
+          this.option.legend.data = this.pieParams.legendData;
           this.drawPie();
       },
         //请求数据
@@ -124,11 +126,17 @@
       },
       mounted(){
         if(this.pieParams.title.text == "男女流量占比") {
-           this.showAgeData();
+          let me = this;
+          setTimeout(function(){
+               me.showAgeData();
+          },300);
         }else {
            this.changeColor();
            this.getData();
         }
+      },
+      watch: {
+        
       }
     }
 </script>
