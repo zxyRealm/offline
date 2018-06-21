@@ -13,6 +13,7 @@ import uuForm from '@/components/form'
 import obList from '@/components/data-list'
 import obListItem from '@/components/data-list/sub-item'
 import obDialogForm from '@/components/dialog-form'
+import obGroupNav from '@/components/group-nav'
 import * as filters from './filters'
 import echarts from 'echarts'
 Vue.prototype.$echarts = echarts;
@@ -28,6 +29,7 @@ Vue.component(subTab.name,subTab);
 Vue.component(uuForm.name,uuForm);
 Vue.component(obList.name,obList);
 Vue.component(obListItem.name,obListItem);
+Vue.component(obGroupNav.name,obGroupNav);
 Vue.component(obDialogForm.name,obDialogForm);
 // register global utility filters.
 Object.keys(filters).forEach(key => {

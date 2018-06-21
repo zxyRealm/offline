@@ -85,10 +85,10 @@ export const asyncRouterMap = [
         component: Community
       },
       {
-        path: 'add',
+        path: 'create',
         name: 'addCommunity',
         meta: {
-          title: "我的社群-社群管理-线下浏览器服务平台"
+          title: "新建社群-社群管理-线下浏览器服务平台"
         },
         component: addCommunity
       }
@@ -127,6 +127,22 @@ export const asyncRouterMap = [
           title: "分析终端用途-设备管理-线下浏览器服务平台"
         },
         component: EquipmentMore
+      },
+      {
+        path: 'search/children/:key',
+        name: 'searchChildren',
+        meta: {
+          title: "子社群设备搜索-设备管理-线下浏览器服务平台"
+        },
+        component: EquipmentChildren
+      },
+      {
+        path: 'search/mine/:key',
+        name: 'searchMine',
+        meta: {
+          title: "自有社群设备搜索-设备管理-线下浏览器服务平台"
+        },
+        component: Equipment
       }
     ]
   },

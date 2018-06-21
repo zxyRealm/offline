@@ -96,7 +96,6 @@
 
 <style lang="scss" rel="stylesheet/scss">
   @import '@/styles/variables.scss';
-  /*@import '../../styles/variables.scss'*/
   .ob-list-sub-item {
     &:first-child{
       .ellipsis{
@@ -111,6 +110,9 @@
       color: #515055;
     }
     &:last-child{
+      >.btn-item+.btn-item{
+        margin-left: 30px;
+      }
       >div{
         display: inline-block;
         vertical-align: middle;
@@ -120,7 +122,6 @@
       display: inline-block;
       width: 80px;
       vertical-align: middle;
-      margin: 0 30px;
       .el-button {
         height: 28px;
         margin-left: 0 !important;

@@ -1,7 +1,7 @@
 <template>
   <div class="sub-tab-wrap clearfix" :class="size?size:''">
     <div class="sub-tab-main vam">
-      <i v-if="back" @click.native="backPrev" class="el-icon-arrow-left"></i>
+      <i v-if="back" @click="backPrev" class="el-icon-arrow-left"></i>
       <template v-for="(item,$index) in menuArray">
         <router-link v-if="item.index" :to="item.index">{{item.title}}</router-link>
         <a href="javascript:void (0)" class="text" v-else>{{item.title}}</a>
@@ -17,15 +17,15 @@
     </template>
     <el-input
       v-if="search && !showButton"
+      clearable
       class="nav-search fr"
       placeholder="请输入关键字"
       @keyup.native.enter="searchMethod"
       v-model="searchValue">
-      <i slot="prefix" @click.native="searchMethod" class="el-input__icon el-icon-search"></i>
+      <i slot="prefix" @click="searchMethod" class="el-input__icon el-icon-search"></i>
     </el-input>
   </div>
 </template>
-
 <script>
   export default {
     name: "uu-sub-tab",
@@ -49,7 +49,7 @@
       menuArray: {
         type: [Array],
         default: () => [
-          {index: '', title: '个人中心'}
+          {index: '', title: ''}
         ]
       },
       subLink: {
@@ -79,8 +79,9 @@
         }
       },
       backPrev(){
+        console.log("返回")
         if(window.history.length){
-          window.go(-1)
+          window.history.go(-1)
         }else {
           this.$router.push("/")
         }
@@ -175,6 +176,8 @@
     .el-input__prefix{
       font-size:22px;
       color: $blue;
+      z-index: 999;
+      cursor: pointer;
     }
     &.el-input--prefix {
       .el-input__inner{

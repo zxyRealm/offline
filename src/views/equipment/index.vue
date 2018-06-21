@@ -1,14 +1,19 @@
 <template>
   <div class="equipment-list-wrap">
-    <uu-sub-tab search @remote-search="search" :menu-array="[{title: '设备列表'}]"></uu-sub-tab>
     <uu-sub-tab
+      :back="isSearch"
+      :search="!isSearch"
+      @remote-search="search"
+      :menu-array="[{title: $route.params.key?$route.params.key:'设备列表'}]"></uu-sub-tab>
+    <uu-sub-tab
+      v-if="!isSearch"
       size="medium"
       :show-button="!equipmentEmpty"
       :sub-btn="{text:'创建'}"
       @handle-btn="showDialog('device')"
       :menu-array="menu2"></uu-sub-tab>
-    <div v-if="equipmentEmpty" class="no-data-equipment">
-      您还没有设备，点击【添加】进行添加设备。
+    <div v-if="!equipmentList.length" class="no-data-equipment">
+      {{isSearch?'查询不到该设备。':'您还没有设备，点击【添加】进行添加设备。'}}
     </div>
     <div class="data-list-wrap" v-else>
       <template v-for="(item,$index) in equipmentList">
@@ -74,7 +79,7 @@
             </template>
           </ob-list-item>
           <ob-list-item>
-            <div class="handle">
+            <div class="handle btn-item">
               操作：<br>
               <el-popover
                 placement="top"
@@ -86,7 +91,7 @@
                 <i slot="reference" style="margin-top: 10px" class="el-icon-question"></i>
               </el-popover>
             </div>
-            <div class="btn-wrap">
+            <div class="btn-wrap btn-item">
               <el-button
                 :disabled="btnState(item.deviceState,'close')"
                 @click="handleBtn(item,'close')"
@@ -109,6 +114,7 @@
               </el-button>
             </div>
             <el-button
+              class="btn-item"
               :disabled="btnState(item.deviceState,'del')"
               icon="el-icon-delete"
               @click="deleteEquipment(item)" circle>
@@ -125,9 +131,9 @@
     </ob-dialog-form>
   </div>
 </template>
-
 <script>
   import {parseTime} from '@/utils'
+
   export default {
     name: "index",
     data() {
@@ -135,13 +141,13 @@
         if (!value) {
           callback(new Error('设备别名能为空'))
         } else {
-          if(value.length>=2&& value.length<=18){
-            this.$http("/merchant/device/alias/exist",{deviceName:value}).then(res=>{
+          if (value.length >= 2 && value.length <= 18) {
+            this.$http("/merchant/device/alias/exist", {deviceName: value}).then(res => {
               callback()
-            }).catch(err=>{
-              callback(new Error(err.msg||'验证失败'))
+            }).catch(err => {
+              callback(new Error(err.msg || '验证失败'))
             });
-          }else {
+          } else {
             callback(new Error("别名长度为2-18个字符"))
           }
         }
@@ -163,30 +169,7 @@
           {title: '子社群设备', index: '/equipment/children'}
         ],
         groupList: [],
-        equipmentList: [
-          {
-            createTime: new Date().getTime(),
-            intro: "通知",
-            lastEditTime: null,
-            merchantGuid: "12345678901",
-            noticeGuid: "DF2503C1CC8945A9A6D90A78BA16DCD0",
-            scene: null,
-            state: 1,
-            tokenURL: "http://baidu.com",
-            type: "1"
-          },
-          {
-            createTime: new Date().getTime(),
-            intro: "通知",
-            lastEditTime: null,
-            merchantGuid: "12345678901",
-            noticeGuid: "DF2503C1CC8945A9A6D90A78BA16DCD0",
-            scene: null,
-            state: 1,
-            tokenURL: "http://baidu.com",
-            type: "1"
-          }
-        ],
+        equipmentList: [],
         pagination: {},
         equipmentForm: {
           deviceName: '',
@@ -196,12 +179,14 @@
           {required: true, validator: validateName, trigger: "blur"}
           // { type: 'string',min:1,max: 18, message: '长度不可超过18个字符', trigger: 'change'}
         ],
-        dialogFormVisible: false
+        dialogFormVisible: false,
+        isSearch:false
       }
     },
     methods: {
-      search(val){
-        console.log('搜索',val)
+      search(val) {
+        this.$router.push(`/equipment/search/mine/${val}`);
+        console.log('搜索', val)
       },
       submitForm(data) {
         if (this.dialogOptions.type === 'device') {
@@ -254,10 +239,11 @@
       // 获取自有设备
       getMineEquipment(page) {
         page = page || 1;
-        this.$http("/device/list", {index: page, length: 10}).then(res => {
+        this.$http('/device/list', {index: page,searchText:this.$route.params.key||''}).then(res => {
           this.equipmentList = res.data.content;
           this.pagination = res.data.pagination;
         })
+
       },
       deleteEquipment(item) {
         this.$affirm({
@@ -331,9 +317,9 @@
         // console.log(this.dialogFormVisible);
         // this.dialogFormVisible = true;
       },
-      handleBtn(value,type) {
+      handleBtn(value, type) {
         let des = '';
-        switch (type){
+        switch (type) {
           case 'upgrade':
             des = '升级';
             break;
@@ -344,18 +330,18 @@
             des = '重置';
             break;
           case 'close':
-            if(value.deviceState!==-1){
+            if (value.deviceState !== -1) {
               des = '开启';
-            }else {
+            } else {
               des = '关闭'
             }
             break;
           default:
             des = '开启'
         }
-        this.$affirm({text:'确定'+ des +'设备【'+value.deviceName+'】?'},(action,instance,done)=>{
-          if(action==='confirm'){
-            switch (type){
+        this.$affirm({text: '确定' + des + '设备【' + value.deviceName + '】?'}, (action, instance, done) => {
+          if (action === 'confirm') {
+            switch (type) {
               case 'reboot':
                 this.$tip("重启成功");
                 break;
@@ -366,16 +352,16 @@
                 this.$tip("重置成功");
                 break;
               case 'close':
-                if(value.deviceState===-1){
+                if (value.deviceState === -1) {
                   this.$tip("设备开启中...")
-                }else {
+                } else {
                   this.$tip('设备关闭中...')
                 }
                 break;
               default:
             }
             done()
-          }else {
+          } else {
             done()
           }
         })
@@ -409,6 +395,7 @@
 
     },
     created() {
+      this.isSearch = this.$route.name==='searchMine';
       this.getMineEquipment()
     },
     filters: {
@@ -421,6 +408,18 @@
           default:
             return '身份识别一体机'
         }
+      }
+    },
+    computed: {
+      // isSearch: function () {
+      //   return this.$route.name === 'equipment'
+      // }
+    },
+    watch: {
+      $route: function (val) {
+        this.isSearch = (val.name==='searchMine');
+        this.equipmentList = [];
+        this.getMineEquipment()
       }
     }
   }

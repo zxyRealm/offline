@@ -26,7 +26,7 @@
           <div class="avatar-wrap">
             <img src="/static/img/logo.png" alt="">
           </div>
-          <span>{{'用户名'}}</span>
+          <span>{{userInfo.phone}}</span>
         </router-link>
         <a href="javascript:void (0);" class="exit" @click="logout">
           <uu-icon type="exit"></uu-icon>
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters,mapState } from 'vuex'
 // import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
@@ -53,8 +53,10 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'sidebar',
-      'name'
+      'sidebar'
+    ]),
+    ...mapState([
+      "userInfo"
     ])
   },
   methods: {
