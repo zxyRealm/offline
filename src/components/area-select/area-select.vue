@@ -201,10 +201,11 @@
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   .address-input {
+    width: 100%;
     display: inline-block;
     height: 30px;
     .address-btn {
-      width: 220px;
+      width: 100%;
       line-height: 30px;
       color: #fff;
       border: none;

@@ -10,7 +10,7 @@
         width="306px"
         label-width="84px"
         :readonly="!editable"
-        @handel-submit="handelCallbackInfo"
+        @handle-submit="handelCallbackInfo"
         v-model="callbackForm">
         <el-form-item label="类型：" prop="type">
           <el-select v-model="callbackForm.type" placeholder="请选取类型">

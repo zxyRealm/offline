@@ -66,7 +66,7 @@
               if(typeof callback ==='function'){
                 callback(subData);
               }else {
-                this.$emit('handel-submit',subData)
+                this.$emit('handle-submit',subData)
               }
             } else {
               console.warn("validate is not pass,con't submit")

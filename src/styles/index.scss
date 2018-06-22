@@ -123,6 +123,12 @@ div:focus{
   float: left;
 }
 
+.ml-10{
+  margin-left: 10px;
+}
+.mr-10{
+  margin-right: 10px;
+}
 .fcg{
   color: $disable;
 }
@@ -437,7 +443,10 @@ code,pre {
 
 .el-table{
   .el-table__header{
-    background-color: rgba(151,151,151,0.03);;
+    background-color: rgba(151,151,151,0.03);
+    .cell{
+      font-weight: 500;
+    }
   }
   .el-table__body tr:hover>td{
     background-color: transparent!important;
@@ -494,6 +503,12 @@ code,pre {
   }
 }
 
+.danger{
+  color: $pink;
+  &:hover{
+    color: $pink;
+  }
+}
 .error-color{
   color: $orange;
 }
@@ -516,6 +531,20 @@ code,pre {
   }
   .el-tree-node__content{
     height: 32px;
+    line-height: 32px;
+    .el-popover__reference,.el-icon-remove-outline{
+      display: none;
+    }
+    >span{
+      z-index: 999;
+    }
+  }
+  .is-current{
+    .el-tree-node__content{
+      .el-icon-remove-outline{
+        display: inline-block;
+      }
+    }
   }
   &.default{
     background-color: transparent!important;
@@ -523,6 +552,9 @@ code,pre {
     .is-current{
       >.el-tree-node__content{
         color: $blue;
+        .el-popover__reference{
+          display: inline-block;
+        }
         &:after{
           position: absolute;
           left:0;

@@ -106,6 +106,10 @@
           color: #fff;
         }
       }
+      .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner{
+        background-color: #409EFF;
+        border-color: #409EFF;
+      }
     }
   }
   //白色主题背景

@@ -79,7 +79,6 @@
         }
       },
       backPrev(){
-        console.log("返回")
         if(window.history.length){
           window.history.go(-1)
         }else {
@@ -151,9 +150,18 @@
         }
       }
     }
+    &.small{
+      padding:5px 20px;
+      height: auto;
+      .sub-tab-main{
+        font-size:14px;
+        margin-bottom: 5px;
+      }
+    }
     /*搜索框*/
     .nav-search{
       width: 280px;
+      max-width: 100%;
       border: none;
       .el-input__prefix{
         font-size:24px;

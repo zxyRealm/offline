@@ -1,5 +1,6 @@
 import Cookies from "js-cookie"
 import Clipboard from "clipboard"
+import QRCode from 'qrcodejs2'
 import { fetch,message } from '@/utils/request'
 exports.install = function (Vue, options) {
   // 公用提示框
@@ -20,32 +21,6 @@ exports.install = function (Vue, options) {
       }
     });
   };
-
-  // 确认操作提示框
-  // Vue.prototype.$affirm = function (txt, title = '操作提示', callback,type) {
-  //   let html = `${txt}`;
-  //   if(typeof callback !=='function'){
-  //     type = callback;
-  //   }
-  //   if(type){
-  //     console.log(type);
-  //     html = `<img src="/static/img/alert_message_${type}.png" alt=""><p>${txt}</p>`
-  //   }
-  //   this.$message({
-  //     title:title,
-  //     message:html,
-  //     confirmButtonText: '确定',
-  //     cancelButtonText: '取消',
-  //     dangerouslyUseHTMLString:true,
-  //     center: true,
-  //     customClass: 'affirmBox',
-  //     type: 'warning'
-  //   }).then(() => {
-  //     callback(true)
-  //   }).catch(() => {
-  //     callback(false)
-  //   });
-  // };
 
   // loading加载层
   Vue.prototype.$load = function (txt) {
@@ -136,6 +111,20 @@ exports.install = function (Vue, options) {
     })
   };
 
+  Vue.prototype.$createQRCode = function (url,id) {
+    this.$nextTick(()=>{
+      let ele = document.getElementById(id);
+      ele.innerHTML= '';
+      const qrCode = new QRCode(ele, {
+        text: url,
+        width: 74,
+        height: 74,
+        colorDark: "#000000",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    })
+  };
+
   /**
    * lwh = 公用的方法
    */
@@ -188,19 +177,19 @@ exports.install = function (Vue, options) {
   };
 
   //new Date 变成 2015-03-19 12:00：00
-  Vue.prototype.$formatDateTime = function(date) {  
-    let y = date.getFullYear();  
-    let m = date.getMonth() + 1;  
-    m = m < 10 ? ('0' + m) : m;  
-    let d = date.getDate();  
-    d = d < 10 ? ('0' + d) : d;  
-    let h = date.getHours();  
-    h=h < 10 ? ('0' + h) : h;  
-    let minute = date.getMinutes();  
-    minute = minute < 10 ? ('0' + minute) : minute;  
-    let second=date.getSeconds();  
-    second=second < 10 ? ('0' + second) : second;  
-    return y + '-' + m + '-' + d+' '+h+':'+minute+':'+second;  
-  };   
+  Vue.prototype.$formatDateTime = function(date) {
+    let y = date.getFullYear();
+    let m = date.getMonth() + 1;
+    m = m < 10 ? ('0' + m) : m;
+    let d = date.getDate();
+    d = d < 10 ? ('0' + d) : d;
+    let h = date.getHours();
+    h=h < 10 ? ('0' + h) : h;
+    let minute = date.getMinutes();
+    minute = minute < 10 ? ('0' + minute) : minute;
+    let second=date.getSeconds();
+    second=second < 10 ? ('0' + second) : second;
+    return y + '-' + m + '-' + d+' '+h+':'+minute+':'+second;
+  };
 };
 

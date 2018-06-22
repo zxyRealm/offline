@@ -85,10 +85,26 @@ export const asyncRouterMap = [
         component: Community
       },
       {
+        path: 'custom',
+        name: 'customCommunity',
+        meta: {
+          title: "自定义分组-社群管理-线下浏览器服务平台"
+        },
+        component: Community
+      },
+      {
         path: 'create',
-        name: 'addCommunity',
+        name: 'createCommunity',
         meta: {
           title: "新建社群-社群管理-线下浏览器服务平台"
+        },
+        component: addCommunity
+      },
+      {
+        path: 'edit/:gid',
+        name: 'editCommunity',
+        meta: {
+          title: "编辑社群信息-社群管理-线下浏览器服务平台"
         },
         component: addCommunity
       }
