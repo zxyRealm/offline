@@ -23,12 +23,12 @@ const actions = {
   },
   SET_FILTER_PARAMS:({commit})=>{
     let filterParams = {
-      groupGuid: '',
+      groupGuid: '6867A6C096844AD4982F19323B6C9574',
       type: 1,         //类型
       selectObj: '',    //选择对象
       dimension: 1,    //维度
       startTime: '',    //开始时间
-      endTime:''        //结束时间
+      endTime: ''       //结束时间
     }
     commit("SET_FILTER_PARAMS",filterParams);
     return  true;

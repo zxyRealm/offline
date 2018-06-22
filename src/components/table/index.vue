@@ -35,7 +35,7 @@
           :page-sizes="[1,10, 20, 30, 40]"
           :page-size="pageParams.pageSize"
           layout="total, sizes, prev, pager, next"
-          :total="10">
+          :total="pageParams.total">
         </el-pagination>
       </div>
     </div>
@@ -48,154 +48,11 @@
         return {
           fuzzyQuery: '',     //模糊匹配
           pageParams: {
-            pageSize: 1,      //每页显示条数
+            pageSize: 10,      //每页显示条数
             total: 4,         //总条数
             currentPage: 1    //当前第几页
           },
-          tableData: [ {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    },
-    {
-      "dataTime": null,
-      "groupName": "万达广场",
-      "inFlowerCount": 0,
-      "outFlowerCount": 0
-    }]
+         tableData: []
 
         }
       },
@@ -217,13 +74,22 @@
         //请求数据
         getData() {
            let params = this.$store.state.filterParams;
-           params.aa  = this.fuzzyQuery;
-           this.$http({
-              url: '',
-              dat: params
-           }).then(res => {
+           let filterParams = {
+              groupGuid: "6867A6C096844AD4982F19323B6C9574",
+              type: params.type,         //类型
+              dimension: params.dimension,    //维度
+              startTime: params.startTime,    //开始时间
+              endTime: params.endTime,       //结束时间
+              //selectObj: '',    //选择对象
+              length:  this.pageParams.pageSize,
+              index: this.pageParams.currentPage
+            };
+           this.$http('/chart/flowCount',filterParams).then(res => {
               if(res.result == 1){
-
+                this.tableData = res.data.content;
+                this.pageParams.total = res.data.pagination.total;
+                this.$set(this.pageParams,"total",res.data.pagination.total)
+                  console.info(this.pageParams.total,"table");
               }
            });
         },
@@ -236,6 +102,7 @@
         }
       },
       created() {
+        this.getData();
         //table高度改变
 
         // window.onresize=function(){

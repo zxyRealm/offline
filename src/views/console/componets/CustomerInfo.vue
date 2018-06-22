@@ -1,7 +1,7 @@
 <template>
     <div class="customer-info-wrap" @click="handleDetail">
        <img :src="detailInfo.img | imgBase">
-        <span class="order">{{`第${index+1}位`}}</span>
+        <span class="order">{{`第${index}位`}}</span>
         <div class="customer-detail">
             <span v-if="detailInfo.status==0">{{detailInfo.gender==0?'女':(detailInfo.gender==1?'男':'')}}</span>
             <span v-if="detailInfo.status==0">{{detailInfo.age}}</span>
@@ -63,7 +63,7 @@ export default {
         inSpan(parent) {
             let sex = this.detailInfo.gender==0?'女':(this.detailInfo.gender==1?'男':'');
             let params = {
-                head: `第${this.index+1}位访客`,
+                head: `第${this.index}位访客`,
                 gender: sex,
                 age: this.detailInfo.age,
                 day: this.daytime(this.detailInfo.time),
@@ -77,7 +77,7 @@ export default {
         },
         outSpan(parent) {
             let params = {
-                head: `第${this.index+1}位出客`,
+                head: `第${this.index}位出客`,
                 day: this.daytime(this.detailInfo.time),
                 time: this.time(this.detailInfo.time)
             };
@@ -131,17 +131,15 @@ export default {
         position: fixed;
         left: 0;
         top: 0;
-        opacity: 0.8;
         z-index: 999999;
-        background: #000000;
+        background: rgba(0,0,0,0.8);
         width: 100%;
         height: 100%;
         .shadow-detail-content {
             position: relative;
             left: 350px;
             top: 80px;
-            background: #109CE7;
-            opacity: 0.5;
+            background: rgba(16,156,231,0.5);
             height: calc(100% - 204px);
             width: calc(100% - 700px);
             padding: 40px;

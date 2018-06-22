@@ -89,6 +89,10 @@
       changeTitle() {
         this.option.title= this.$apply(this.option.title,this.pieParams.title);
       },
+      //控制台刷新数据更新饼图
+      consoleEmit() {
+        this.showAgeData();
+      },
       //年龄分布数据渲染 = 控制台
       showAgeData() {
           this.changeTitle();
@@ -103,11 +107,11 @@
         let params = this.$store.state.filterParams;
         this.changeTitle();
         this.$http('/chart/pie',{
-              groupGuid: "D680EFBC958C4B4E8E05C4FCA6FF4329",
-              type: this.$store.state.filterParams.type,
+              groupGuid:"6867A6C096844AD4982F19323B6C9574",
+              type: 2,//this.$store.state.filterParams.type,
               dimension: 2,
-              startTime: "2018-06-01",
-              endTime: "2018-06-06"
+              startTime: "2018-05-01",
+              endTime: "2018-05-06"
         }).then(res => {
             if(res.result == 1){
                 this.data = res.data;
@@ -136,6 +140,10 @@
         }
       },
       watch: {
+        pieParams(val,oldVal) {
+          console.info(val,"dadfddffas");
+          return true;
+        }
         
       }
     }

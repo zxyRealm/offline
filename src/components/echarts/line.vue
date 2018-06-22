@@ -10,6 +10,7 @@
      props: ['lineHeight','lineParams'],
      data() {
        return {
+         timer: null, //定时器
          data: [],
             option: {
               color:['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'], //['#2187DF','#6D2EBB'，'#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'] 
@@ -62,7 +63,7 @@
                       type: 'dashed'
                     }
                   },
-                  data : ['周一','周二','周三','周四','周五','周六','周日']
+                  data : []
                 }
               ],
               yAxis : [
@@ -82,7 +83,7 @@
                   type:'line',
                   smooth:true,
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                  data:[120, 132, 101, 134, 90, 230, 210]
+                  data:[]
                 },
                 {
                   name:'联盟广告',
@@ -90,7 +91,7 @@
                   areaStyle: {normal: {}},
                   smooth:true,
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                  data:[220, 182, 191, 234, 290, 330, 310]
+                  data:[]
                 }
               ]
             }
@@ -116,15 +117,33 @@
       changeColor() {
         this.option.color =this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
       },
+      //改变标题
       changeTitle() {
         this.option.title= this.$apply(this.option.title,this.lineParams.title);
       },
-       //显示客流量 = 控制台
+      //改变Series单个项目配置
+      changeSeries() {
+        let params = {
+           smooth:true,
+           itemStyle: {normal: {areaStyle: {type: 'default'}}},
+        };
+         for(let i =0; i<this.option.series.length;i++) {
+              this.$apply(this.option.series[i],params);
+         }
+      },
+      //每一小时刷新一次 这里的考虑不让他重新初始化 = 控制台
+      timing(){
+        let me = this;
+        this.timer = window.setInterval(()  => { 
+          me.showGenderData();
+        },3600000);
+      },
+      //显示客流量 = 控制台
       showGenderData() {
         this.changeTitle();
         this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
         this.$http('/chart/line', {
-              groupGuid: "D680EFBC958C4B4E8E05C4FCA6FF4329",
+              groupGuid: "6867A6C096844AD4982F19323B6C9574",
               type: 1,
               dimension: 1,
               startTime: this.$getNowFormatDate(),
@@ -135,6 +154,7 @@
                 this.option.xAxis[0] = this.$apply(this.option.xAxis[0],this.data.xAxisGroup[0]);
                 this.option.yAxis[0] = this.$apply(this.option.yAxis[0],this.data.yAxis);  //这个yAxis是对象形式
                 this.option.series = this.$apply( this.option.series,this.data.seriesGroup);
+                this.changeSeries();
                 this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
                 this.drawLine();
               }
@@ -145,10 +165,10 @@
         let params = this.$store.state.filterParams;
         this.option.title= this.$apply(this.option.title,this.lineParams.title);
         this.$http('/chart/line', {
-              groupGuid: "D680EFBC958C4B4E8E05C4FCA6FF4329",
+              groupGuid: "6867A6C096844AD4982F19323B6C9574",
               type: this.$store.state.filterParams.type,
               dimension: 2,
-              startTime: "2018-06-01",
+              startTime: "2018-05-01",
               endTime: "2018-06-06"
               }).then(res => {
               if(res.result == 1){
@@ -156,6 +176,7 @@
                 this.option.xAxis[0] = this.$apply(this.option.xAxis[0],this.data.xAxisGroup[0]);
                 this.option.yAxis[0] = this.$apply(this.option.yAxis[0],this.data.yAxis);  //这个yAxis是对象形式
                 this.option.series = this.$apply( this.option.series,this.data.seriesGroup);
+                this.changeSeries();
                 this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
                 this.drawLine();
               }
@@ -165,11 +186,15 @@
     mounted() {
         if(this.lineParams.title.text == "客流量统计") {
            this.showGenderData();
+           this.timing();  //定时刷新数据，一个小时一次
         }else {
           this.changeColor();
           this.getData();
       }
-    }
+    },
+    beforeDestroy() {
+       if(!!this.timer){window.clearInterval(this.timer);}
+     }
 
   }
 </script>
