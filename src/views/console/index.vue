@@ -112,9 +112,9 @@
                 "male":8,"outNumber":++this.outNumber,
                 "pedestrian":[{"age":0,"gender":0,"img":"","order":13,"status":1,"time":1529642071000}],
                 "pedestrianNumber":1,"time":1529642071000};
-                setInterval(() => {
-                     me.resolveDatad22(params);
-                },6000);
+                // setInterval(() => {
+                //      me.resolveDatad22(params);
+                // },6000);
           },
           resizeFunction() {
             let me = this;

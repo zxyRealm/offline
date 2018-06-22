@@ -89,7 +89,6 @@
                 this.tableData = res.data.content;
                 this.pageParams.total = res.data.pagination.total;
                 this.$set(this.pageParams,"total",res.data.pagination.total)
-                  console.info(this.pageParams.total,"table");
               }
            });
         },
