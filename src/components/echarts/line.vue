@@ -13,7 +13,7 @@
          timer: null, //定时器
          data: [],
             option: {
-              color:['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'], //['#2187DF','#6D2EBB'，'#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'] 
+              color:['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'],
               textStyle: {   //总体字体样式
                 color: "#ffffff"
               },
@@ -41,8 +41,8 @@
                   fontSize: '12',
                   fontWeight: 'lighter',
                 },
-                icon: 'line',   //'img:///static/img/Rectangle 28(1).png',
-                data:['邮件营销','联盟广告']
+                icon: 'line',   
+                data:['进人数','出人数']
               },
               toolbox: {
                 
@@ -63,7 +63,7 @@
                       type: 'dashed'
                     }
                   },
-                  data : []
+                  data : ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24"]
                 }
               ],
               yAxis : [
@@ -79,19 +79,19 @@
               ],
               series : [
                 {
-                  name:'邮件营销',
+                  name:'进人数',
                   type:'line',
                   smooth:true,
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                  data:[]
+                  data:["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
                 },
                 {
-                  name:'联盟广告',
+                  name:'出人数',
                   type:'line',
                   areaStyle: {normal: {}},
                   smooth:true,
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                  data:[]
+                  data:["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
                 }
               ]
             }
@@ -119,7 +119,10 @@
       },
       //改变标题
       changeTitle() {
-        this.option.title= this.$apply(this.option.title,this.lineParams.title);
+        this.option.title = this.$apply(this.option.title,this.lineParams.title);
+      },
+      changeSeriesData(){
+        
       },
       //改变Series单个项目配置
       changeSeries() {
@@ -165,11 +168,11 @@
         let params = this.$store.state.filterParams;
         this.option.title= this.$apply(this.option.title,this.lineParams.title);
         this.$http('/chart/line', {
-              groupGuid: "6867A6C096844AD4982F19323B6C9574",
-              type: this.$store.state.filterParams.type,
-              dimension: 2,
-              startTime: "2018-05-01",
-              endTime: "2018-06-06"
+                groupGuid: params.groupGuid,   //"6867A6C096844AD4982F19323B6C9574",
+                type: params.type,
+                dimension: params.dimension,
+                startTime: params.startTime,
+                endTime: params.endTime
               }).then(res => {
               if(res.result == 1){
                 this.data = res.data;
@@ -180,17 +183,53 @@
                 this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
                 this.drawLine();
               }
+       }).catch(error =>{
+         console.info(error);
        });
+      },
+      //模拟假数据series
+      simulateSeries(data) {
+        let emptyAaray = [];
+        for(let i=0;i<data.length;i++){
+           let params = {
+                  name: data[i],
+                  type:'line',
+                  smooth:true,
+                  itemStyle: {normal: {areaStyle: {type: 'default'}}},
+                  data:["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
+                };
+           emptyAaray.push(params);
+        }
+        return emptyAaray;
+      },
+      //默认数据展示 = 可视化
+      defaultShow() {
+        let type = this.$store.state.filterParams.type;
+        if(type == 2) {
+            this.option.legend['data'] = ['男','女'];
+            this.option.series =  this.simulateSeries(this.option.legend['data']);
+        }
+        if(type == 3) {
+            this.option.legend['data'] = ['0-10','11-20','21-30','31-40','41-50','50以上'];
+            this.option.series =  this.simulateSeries(this.option.legend['data']);
+        }
+        if(type == 4) {
+            this.option.legend['data'] = ['多次','单次'];
+            this.option.series =  this.simulateSeries(this.option.legend['data']);
+        }
       }
     },
     mounted() {
+      //this.drawLine();
         if(this.lineParams.title.text == "客流量统计") {
-           this.showGenderData();
-           this.timing();  //定时刷新数据，一个小时一次
+            this.showGenderData();
+            this.timing();  //定时刷新数据，一个小时一次
         }else {
-          this.changeColor();
-          this.getData();
-      }
+            this.changeColor();
+            this.changeTitle();
+            this.defaultShow();
+            this.drawLine();
+        }
     },
     beforeDestroy() {
        if(!!this.timer){window.clearInterval(this.timer);}

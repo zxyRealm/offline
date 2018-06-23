@@ -1,10 +1,10 @@
 <template>
     <div class="customer-info-wrap" @click="handleDetail">
        <img :src="detailInfo.img | imgBase">
-        <span class="order">{{`第${index}位`}}</span>
+        <span class="order">{{`第${detailInfo.order}位`}}</span>
         <div class="customer-detail">
             <span v-if="detailInfo.status==0">{{detailInfo.gender==0?'女':(detailInfo.gender==1?'男':'')}}</span>
-            <span v-if="detailInfo.status==0">{{detailInfo.age}}</span>
+            <span v-if="detailInfo.status==0">{{detailInfo.age ==-1?"":detailInfo.age}}</span>
             <span>{{this.daytime(detailInfo.time)}}</span>
             <span>{{this.time(detailInfo.time)}}</span>
         </div>
@@ -63,9 +63,9 @@ export default {
         inSpan(parent) {
             let sex = this.detailInfo.gender==0?'女':(this.detailInfo.gender==1?'男':'');
             let params = {
-                head: `第${this.index}位访客`,
+                head: `第${this.detailInfo.order}位访客`,
                 gender: sex,
-                age: this.detailInfo.age,
+                age: this.detailInfo.age ==-1?"":this.detailInfo.age,
                 day: this.daytime(this.detailInfo.time),
                 time: this.time(this.detailInfo.time)
             };
@@ -77,7 +77,7 @@ export default {
         },
         outSpan(parent) {
             let params = {
-                head: `第${this.index}位出客`,
+                head: `第${this.detailInfo.order}位出客`,
                 day: this.daytime(this.detailInfo.time),
                 time: this.time(this.detailInfo.time)
             };
@@ -128,6 +128,8 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
      /* 遮罩层div */
     #lwh-shadow-detail.shadow-detail-div {
+        min-width: 1280px;
+        min-height: 720px;
         position: fixed;
         left: 0;
         top: 0;
@@ -155,7 +157,7 @@ export default {
                 width: 27%;
                 text-align: center;
                 color: #ffffff;
-                margin-left: 40px;
+                margin-left: 10%;
                 span {
                     border-bottom: 2px dashed #ffffff;
                     padding: 12px 0;
@@ -190,7 +192,11 @@ export default {
                 left: calc(50% - 28px);
                 opacity: 0.6;
                 background: #6D2EBB;
-                padding: 0 10px;
+                padding: 0 4px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                max-width: 54px;
             }
             div.customer-detail {
                 position: absolute;

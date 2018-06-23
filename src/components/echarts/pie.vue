@@ -34,7 +34,7 @@
                   fontWeight: 'lighter',
                 },
                 icon:'square',
-                data:['男性占比','女性占比']
+                data:['男','女']
               },
               series: [
                   {
@@ -55,12 +55,15 @@
                         }
                       },
                       itemStyle : { normal: {label : {show: true, position: 'center'}}},
-                      data:[]
+                      data:[
+                          {value:0, name:'男'},
+                          {value:0, name:'女'}
+                      ]
                  }
               ]
             },
              roseSeries: {
-                radius : [50, 100],
+                radius : [50, 80],
                 center : ['50%', '50%'],
                 roseType: 'area',
                 type: 'pie'
@@ -102,32 +105,86 @@
           this.option.legend.data = this.pieParams.legendData;
           this.drawPie();
       },
+      //解析返回seriesGroup
+      installSeriesGroup(data)  {
+          data = [
+              {
+                data: [
+                  {
+                    name: "男性",
+                    value: "0"
+                  }
+                ],
+                name: "男性",
+                type: "pie"
+              },
+              {
+                data: [
+                  {
+                    name: "女性",
+                    value: "0"
+                  }
+                ],
+                name: "女性",
+                type: "pie"
+              }
+      ]
+        let emptyArray = [];
+         for(let i=0;i<data.length;i++){
+           emptyArray.push(data[i]['data'][0]);
+        }
+        this.option.series[0].data = this.$apply(this.option.series[0].data,emptyArray);
+        this.option.legend['data'] = this.$legendArray(data);
+      },
+      //转化数组 = 没有设备时候的id
+      transfromArray(data) {
+        let arr = [];
+          for(let i=0;i<data.length;i++){
+            let params = {
+                 name: data[i],
+                 value: "0"
+            };
+            arr.push(params);
+          }
+          this.option.series[0].data = arr;
+      },
+      //默认数据展示 = 可视化
+      defaultShow() {
+        let type = this.$store.state.filterParams.type;
+        if(type == 3) {
+            this.option.legend['data'] = ['0-10','11-20','21-30','31-40','41-50','50以上'];
+            this.transfromArray( this.option.legend['data']);
+        }
+        if(type == 4) {
+            this.option.legend['data'] = ['多次','单次'];
+            this.transfromArray( this.option.legend['data']);
+        }
+      },
         //请求数据
        getData() {
         let params = this.$store.state.filterParams;
         this.changeTitle();
         this.$http('/chart/pie',{
-              groupGuid:"6867A6C096844AD4982F19323B6C9574",
-              type: 2,//this.$store.state.filterParams.type,
-              dimension: 2,
-              startTime: "2018-05-01",
-              endTime: "2018-05-06"
+              groupGuid: params.groupGuid,
+              type: params.type,
+              dimension: params.dimension,
+              startTime: params.startTime,
+              endTime: params.endTime
         }).then(res => {
             if(res.result == 1){
                 this.data = res.data;
                 if(this.$store.state.filterParams.type == 3){
-                    this.option.series = this.$apply( this.option.series[0],this.data.seriesGroup[0]);
-                    this.option.legend['data'] = this.$legendArray(this.data.seriesGroup[0].data);
+                     this.installSeriesGroup();
                     this.option.series = this.$apply(this.option.series,this.roseSeries);
                 }else {
-                    this.option.series = this.$apply( this.option.series,this.data.seriesGroup);
-                    this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
+                   this.installSeriesGroup();
                 }
+                this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
                 this.drawPie();
             }
         });
         }
-      },
+    },
       mounted(){
         if(this.pieParams.title.text == "男女流量占比") {
           let me = this;
@@ -136,7 +193,9 @@
           },300);
         }else {
            this.changeColor();
-           this.getData();
+           this.changeTitle();
+           this.defaultShow();
+           this.drawPie();
         }
       },
       watch: {
@@ -158,6 +217,9 @@
      background: url('/static/img/pie-background.png') no-repeat center center;
      background-size: 160px 160px; 
      position: relative;
+     canvas {
+       z-index: 99999!important;
+     }
   }
   .pie-wing::after {
     content: '';
@@ -169,6 +231,7 @@
     position: absolute;
     top: 0;
     left:0;
+    z-index: -99999;
   }
   
 </style>

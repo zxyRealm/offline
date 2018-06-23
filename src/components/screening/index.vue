@@ -51,9 +51,8 @@
             dimensionIdex: 0,
             dimensionData: ['小时','日','周','月'],
             filterParams: {
-              groupGuid: '',
+              groupGuid: '',     //选择社群 6867A6C096844AD4982F19323B6C9574 
               type: '',         //类型
-              selectObj: '',    //选择对象
               dimension: '',    //维度
               startTime: '',    //开始时间
               endTime:''        //结束时间

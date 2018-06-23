@@ -1,6 +1,7 @@
 <template>
   <div class="console-wrap">
-      <div class="content-top">
+      <div class="tip" v-if="!state"><div @click="selectGroupId">暂无数据，请选择您的社群和设备</div></div>
+      <div class="content-top" v-if="state">
             <div class="content-top-left">
                 <ul class="left-ul">
                     <li>
@@ -27,7 +28,7 @@
                 </ul>
             </div>
       </div>
-      <div class="content-bottom">
+      <div class="content-bottom" v-if="state">
             <ul class="customer-left">
                 <li v-for="(value,index) in pedestrianInData" :key="index">
                     <customer-info :index="pedestrianInData.length -index" :detailInfo="value"></customer-info>
@@ -63,11 +64,13 @@
   import pie from '@/components/echarts/pie.vue'
   import lineConsole from '@/components/echarts/line.vue'
   import CustomerInfo from './componets/CustomerInfo.vue'
+  import  { mapState } from 'vuex'
   export default {
       name: "console",
       components: {FlowInfo,AllTime,bar,pie,lineConsole,CustomerInfo},
       data() {
         return {
+            state: false,    //是否有数据
             pedestrianInData: [],
             pedestrianOutData: [],
             pieParams: {   //饼图
@@ -86,35 +89,28 @@
         }
       },
       methods: {
-          getwebsocket() {
+          selectGroupId() {
+              console("请选择相应的设备");
+          },
+          getwebsocket(data) {
               let me = this;
-              let wsServer = 'ws://192.168.20.122:8082'; //服务器地址
+              let wsServer = 'ws://'+data+':8082'; //服务器地址
               this.websocket = new WebSocket(wsServer);
-                // alert(websocket.readyState);//查看websocket当前状态
+                //console.info(this.websocket.readyState,"+++++++++++");//查看websocket当前状态
                 this.websocket.onopen = function (evt) {
                     //已经建立连接
-                   me.websocket.send("YF_V1-RT6PZ0" + '_channel');  //向服务器发送消息
+                   me.websocket.send("YF_V1-X1QNT7" + '_channel');  //向服务器发送消息
                 };
                 this.websocket.onmessage = function (evt) {
                  //收到服务器消息，使用evt.data提取
-                  console.info(evt.data,"ddddd");
                   me.resolveDatad(evt.data);
                 };
-                //  websocket.onclose = function (evt) {
-                //   //已经关闭连接
-                // };
-                // websocket.onerror = function (evt) {
-                // //产生异常
-                // }; 
-               
-                let params = {"age":"[8,9,0,1,0,55,0]",
-                "female":5,"inNumber":++this.inNumber,
-                "male":8,"outNumber":++this.outNumber,
-                "pedestrian":[{"age":0,"gender":0,"img":"","order":13,"status":1,"time":1529642071000}],
-                "pedestrianNumber":1,"time":1529642071000};
-                // setInterval(() => {
-                //      me.resolveDatad22(params);
-                // },6000);
+                this.websocket.onclose = function (evt) {
+                  console.info("已经关闭连接");
+                };
+                this.websocket.onerror = function (evt) {
+                  console.info("产生异常")
+                }; 
           },
           resizeFunction() {
             let me = this;
@@ -133,28 +129,14 @@
             tableLine.style.height = me.$refs.lineConsole.offsetHeight +"px";
             me.$refs.echartsLine.resizeEcharts();
           },
-            //解析数据
-          resolveDatad22(data) {
-            let obj =data;
-            //饼图 = 推送实时更新数据
-            this.$set(this.pieParams.seriesData[0],"value",obj.male);
-            this.$set(this.pieParams.seriesData[1],"value",obj.female);
-            //饼图 = 数据更新
-            this.$refs.echartsPie.consoleEmit();
-            //进出人数
-            this.outNumber = obj.outNumber;
-            this.inNumber = obj.inNumber;
-            //柱状图
-            this.ageBar = JSON.parse(obj.age);
-            //图片展示
-            this.typePedestrian(obj.pedestrian[0]);
-          },
           //解析数据
           resolveDatad(data) {
             let obj = JSON.parse(data);
             //饼图 = 推送实时更新数据
             this.$set(this.pieParams.seriesData[0],"value",obj.male);
             this.$set(this.pieParams.seriesData[1],"value",obj.female);
+             //饼图 = 数据更新
+            if(!!this.$refs.echartsPie) {this.$refs.echartsPie.consoleEmit()};
             //进出人数
             this.outNumber = obj.outNumber;
             this.inNumber = obj.inNumber;
@@ -174,6 +156,14 @@
                  }
              }
           },
+          //获取长连接ip（端口号：8082）
+          getwebsocketIp() {
+               this.$http('/getServiceIp',{}).then(res => {
+                   if(res.result == 1){
+                        this.getwebsocket(res.data);
+                   }
+               });
+          },
           //请求数据
           getData() {
             this.$http('/personData',{
@@ -181,22 +171,31 @@
                 }).then(res => {
                     if(res.result == 1){
                         this.resolveDatad(res.data);
-                        // console.info(res.data,"res.data");
-                        setTimeout(() => {
-                                 this.getwebsocket();
-                        },2000)
+                        this.getwebsocketIp();
                     }
             });
           }
       },
       created() {
-        this.getData();
+        //this.getData();
       },
     mounted() {
         let me = this;
         window.addEventListener('resize',me.resizeFunction);
-        me.resizeFunction();
+       // me.resizeFunction();
     },
+    computed:{
+         ...mapState([
+            'groupConsoleId'
+         ])
+     },
+     watch:{
+         //监听vuexgroupConsoleId是否改变
+        groupConsoleId(val){
+            console.info(val,'dddfd==========');
+            this.getData();
+        }
+     },
       beforeRouteLeave(to, from , next) {
         let me = this;
         window.removeEventListener("resize",me.resizeFunction);
@@ -204,6 +203,7 @@
         this.websocket.close();
         next();
      }
+     
   }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -212,6 +212,24 @@
        box-sizing: border-box;
        height: 100%;
        min-width: 1240px;
+       .tip {
+           width: 100%;
+           height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            div {
+                width: 720px;
+                height: 110px;
+                text-align: center;
+                line-height: 110px;
+                background: rgba(1,8,20,0.10);
+                border: 2px dashed rgba(151,151,151,0.30);
+                opacity: 0.5;
+                font-size: 12px;
+                color: #FFFFFF;
+          }
+       }
        .content-top {
           height: 72%;
           .content-top-left,.content-top-right {

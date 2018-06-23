@@ -66,14 +66,13 @@
                     type:'bar',
                     barWidth: '60%',
                     itemStyle : { normal: {label : {show: true, position: 'top'}}},
-                    data:[] 
+                    data:[0,0,0,0,0,0] 
                 }
               ]
             }
        }
     },
     created() {
-       
     },
     methods: {
       //传递数据赋值给series.data
@@ -86,7 +85,7 @@
       // 绘制图表
       drawBar() {
         let myChart = this.$echarts.init(document.getElementById('echarts-bar'));
-        this.option.series[0].data = this.ageBar;
+       // this.option.series[0].data = this.ageBar;
         myChart.setOption(this.option);
         this.myChart = myChart;
       },
@@ -96,7 +95,7 @@
         }
       },
       //请求数据
-      getLineData() {
+      getBarData() {
         let params = this.$store.state.filterParams;
         this.$http({
          url: '',
@@ -115,7 +114,7 @@
     },
     created() {},
     mounted() {
-      // this.drawBar();
+      this.drawBar();
     },
     watch:{
       ageBar:function(val,oldVal){

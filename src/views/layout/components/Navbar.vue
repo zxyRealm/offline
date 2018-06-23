@@ -14,7 +14,7 @@
         <router-link to="/console">控制台</router-link>
       </div>
       <div class="navbar-console" v-if="$route.name  == 'console-lwh'">
-        <select>
+        <select @click="getGropId">
           <option>请选择社群</option>
         </select>
       </div>
@@ -47,6 +47,7 @@ export default {
   },
   data(){
     return {
+      groupSelectId: '',
       consoleState: false,  //控制台状态是否激活
       avatar:'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
     }
@@ -60,10 +61,14 @@ export default {
     ])
   },
   methods: {
+    //获取当前设备
+    getGropId() {
+      this.groupSelectId = "ddu你好毒！！！udd";
+      this.$store.commit("SET_GROUP_CONSOLEID",this.groupSelectId);
+    },
     //切换到控制台
     toConsole() {
         this.consoleState = true;
-
     },
     toggleSideBar() {
       this.$store.dispatch('toggleSideBar')

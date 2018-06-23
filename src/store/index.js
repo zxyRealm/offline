@@ -10,7 +10,8 @@ Vue.use(Vuex);
 
 const state = {
   userInfo:{},
-  filterParams: {}
+  filterParams: {},    //可视化社群条件
+  groupConsoleId:  ''  //控制台社群设备id
 };
 
 const actions = {
@@ -23,14 +24,18 @@ const actions = {
   },
   SET_FILTER_PARAMS:({commit})=>{
     let filterParams = {
-      groupGuid: '6867A6C096844AD4982F19323B6C9574',
-      type: 1,         //类型
-      selectObj: '',    //选择对象
-      dimension: 1,    //维度
-      startTime: '',    //开始时间
-      endTime: ''       //结束时间
+      groupGuid: '',     //选择社群
+      type: 1,           //类型
+      dimension: 1,      //维度
+      startTime: '',     //开始时间
+      endTime: ''        //结束时间
     }
     commit("SET_FILTER_PARAMS",filterParams);
+    return  true;
+  },
+  SET_GROUP_CONSOLEID:({commit})=>{
+    let groupConsoleId = "";
+    commit("SET_GROUP_CONSOLEID",groupConsoleId);
     return  true;
   }
 };
@@ -41,6 +46,9 @@ const mutations = {
   },
   SET_FILTER_PARAMS: (state,data) => {
     state.filterParams = data || {};
+  },
+  SET_GROUP_CONSOLEID: (state,data) => {
+    state.groupConsoleId = data || '';
   }
 };
 

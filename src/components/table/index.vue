@@ -75,12 +75,11 @@
         getData() {
            let params = this.$store.state.filterParams;
            let filterParams = {
-              groupGuid: "6867A6C096844AD4982F19323B6C9574",
+              groupGuid: params.groupGuid,
               type: params.type,         //类型
               dimension: params.dimension,    //维度
               startTime: params.startTime,    //开始时间
               endTime: params.endTime,       //结束时间
-              //selectObj: '',    //选择对象
               length:  this.pageParams.pageSize,
               index: this.pageParams.currentPage
             };
@@ -90,9 +89,12 @@
                 this.pageParams.total = res.data.pagination.total;
                 this.$set(this.pageParams,"total",res.data.pagination.total)
               }
+           }).catch(error => {
+              console.info("出现错误");
            });
         },
         initSize(){
+           //table高度改变
           this.$nextTick(()=>{
             let table = document.getElementsByClassName("table-content")[0];
             let tableEle = document.body.clientHeight - 640;
@@ -101,14 +103,7 @@
         }
       },
       created() {
-        this.getData();
-        //table高度改变
-
-        // window.onresize=function(){
-        //     let table = document.getElementsByClassName("table-content")[0];
-        //     let tableEle = document.body.clientHeight - 640;
-        //     table.style.height = tableEle+"px";
-        // }
+        //this.getData();
       },
       mounted(){
         window.addEventListener('resize',this.initSize());
