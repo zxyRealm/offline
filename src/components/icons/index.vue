@@ -79,11 +79,13 @@
       background-image: url("./image/higher_data_icon.png");
       height: $s14;
       width: $s14;
+      cursor: initial;
     }
     &.handle{
       background-image: url("./image/higher_handle_icon.png");
       height: $s14;
       width: $s14;
+      cursor: initial;
     }
     &.mine{
       background-image: url("./image/mine-community_icon.png");

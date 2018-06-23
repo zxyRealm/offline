@@ -135,7 +135,7 @@
         data.districtAreaID = address[2];
         data.rule = data.rule.toString();
         console.log(data);
-        this.$http("/group/create",data).then(res=>{
+        this.$http(`/group/${this.type}`,data).then(res=>{
           if(this.$route.name==='createCommunity'){
             this.$tip("创建成功");
             this.$router.push("/community/mine")
@@ -156,22 +156,29 @@
         })
       },
       getCommunityInfo(){
-        this.$http("",{guid:this.$route.params.gid}).then(res=>{
+        this.$http("/group/getInfo",{guid:this.$route.params.gid}).then(res=>{
           res.data.pca = `${res.data.provinceAreaID},${res.data.cityAreaID},${res.data.districtAreaID}`;
-          res.data.rule = res.data.rule.split(",").map(Number);
+          res.data.rule = (res.data.rule || '1').split(",").map(Number);
           this.communityForm = res.data;
+          console.log(this.communityForm);
           this.$createQRCode(res.data.code,'community-qrcode')
         })
       }
     },
     created(){
+      if(this.$route.name==='editCommunity'){
+        this.getCommunityInfo()
+      }
     },
     computed:{
       menuTitle:function(){
-        return this.$route.name==='editCommunity'?"编辑社群":"创建社群"
+        return this.$route.name==='editCommunity'?"编辑社群信息":"创建社群"
       },
       subText:function () {
         return this.$route.name==='editCommunity'?"保存":"创建"
+      },
+      type:function(){
+        return this.$route.name==='editCommunity'?"update":"create"
       }
     }
   }

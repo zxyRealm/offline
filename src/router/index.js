@@ -8,6 +8,7 @@ const board = () => import('@/views/board');
 const Login = () => import('@/views/login/index.vue');
 const Layout = () => import('@/views/layout/Layout.vue');
 const Community = () => import('@/views/community/index.vue');
+const customCommunity = () => import('@/views/community/custom.vue');
 const addCommunity = () => import('@/views/community/add-community.vue');
 
 const Equipment = () => import('@/views/equipment/index.vue');
@@ -90,7 +91,7 @@ export const asyncRouterMap = [
         meta: {
           title: "自定义分组-社群管理-线下浏览器服务平台"
         },
-        component: Community
+        component: customCommunity
       },
       {
         path: 'create',
@@ -101,7 +102,7 @@ export const asyncRouterMap = [
         component: addCommunity
       },
       {
-        path: 'edit/:gid',
+        path: 'edit/:gid([0-9A-Z]{32})',
         name: 'editCommunity',
         meta: {
           title: "编辑社群信息-社群管理-线下浏览器服务平台"

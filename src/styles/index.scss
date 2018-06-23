@@ -261,6 +261,9 @@ code,pre {
   z-index: 1000 !important;
 }
 
+
+
+
 //确定按钮样式
 .el-button {
   &.affirm,&.cancel{
@@ -327,7 +330,9 @@ code,pre {
     }
   }
 }
+
 //table 中表单样式
+
 .table-form{
   [class^=el-icon]{
     font-size: 16px;
@@ -346,7 +351,18 @@ code,pre {
   }
   .el-form-item{
     .el-form-item__content{
+      position: relative;
       line-height: 22px;
+      .el-form-item__error{
+        position: absolute;
+        right:0;
+        top:0;
+        left:220px;
+        color:#F87F21;
+        line-height: 22px;
+        padding-left:8px;
+        white-space: nowrap;
+      }
     }
     &:last-child{
       margin-bottom: 0!important;
@@ -361,6 +377,7 @@ code,pre {
         height: 22px;
         line-height: 22px;
         font-size: 12px;
+        color: #333;
       }
     }
   }
@@ -505,7 +522,7 @@ code,pre {
 
 .danger{
   color: $pink;
-  &:hover{
+  &:hover,&:focus{
     color: $pink;
   }
 }
@@ -539,20 +556,13 @@ code,pre {
       z-index: 999;
     }
   }
-  .is-current{
-    .el-tree-node__content{
-      .el-icon-remove-outline{
-        display: inline-block;
-      }
-    }
-  }
   &.default{
     background-color: transparent!important;
     color: #fff;
     .is-current{
       >.el-tree-node__content{
         color: $blue;
-        .el-popover__reference{
+        .el-popover__reference,.el-icon-remove-outline{
           display: inline-block;
         }
         &:after{

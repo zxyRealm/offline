@@ -1,0 +1,68 @@
+.community--inner {
+  position: relative;
+  padding: 20px;
+  height: 100%;
+  box-sizing: border-box;
+  .community--sidebar {
+    float: left;
+    width: 230px;
+    height: 100%;
+    .ob-group-nav{
+      padding: 0 20px;
+      .el-tree-node__content{
+        /*padding: 0 20px!important;*/
+      }
+    }
+    .btn-wrap {
+      margin: 20px 20px 10px;
+    }
+  }
+  .community--main {
+    height: 100%;
+    margin-left: 250px;
+    .cmm-top, .cmm-table {
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .cmm-top {
+      height: 260px;
+      margin-bottom: 20px;
+      .cm-info-wrap {
+        font-size: 12px;
+        padding: 0 40px;
+        box-sizing: border-box;
+        height: 189px;
+        .info-detail {
+          float: left;
+          p {
+            line-height: 30px;
+          }
+        }
+        .info-qr-code {
+          float: right;
+          text-align: center;
+          margin-top:20px;
+          > div {
+            display: inline-block;
+            vertical-align: middle;
+          }
+          .qr-code {
+            width: 84px;
+            height: 84px;
+            padding: 5px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            background: #fff;
+          }
+        }
+      }
+    }
+    .cmm-table {
+      height: 300px;
+    }
+    .cmm-sub-title {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+  }
+}
