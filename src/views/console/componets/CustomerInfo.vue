@@ -88,32 +88,54 @@ export default {
             }
         },
         handleDetail() {
+            //主页面
             let div = document.createElement("div");
             div.classList.add('shadow-detail-div');
             div.id = "lwh-shadow-detail"
-            
+            //主内容区
             let content = document.createElement("div");
             content.classList.add("shadow-detail-content");
-
+            //主内容区图片父
+            let imgPartent = document.createElement("div");
+            imgPartent.classList.add("detail-img-div");
+            content.appendChild(imgPartent);
+            //四个小图标
+            let topDiv = document.createElement("div");
+            topDiv.classList.add("detail-img-topDiv","icon-lwh-common");
+            imgPartent.appendChild(topDiv);
+            let rightDiv = document.createElement("div");
+            rightDiv.classList.add("detail-img-rightDiv","icon-lwh-common");
+            imgPartent.appendChild(rightDiv);
+             let bottomDiv = document.createElement("div");
+            bottomDiv.classList.add("detail-img-bottomDiv","icon-lwh-common");
+            imgPartent.appendChild(bottomDiv);
+             let leftDiv = document.createElement("div");
+            leftDiv.classList.add("detail-img-leftDiv","icon-lwh-common");
+            imgPartent.appendChild(leftDiv);
+             
+            //主内容区图片
             let img = document.createElement("img");
             img.classList.add("detail-content-img");
             img.src = "data:image/jpg;base64,"+this.detailInfo.img;
-            content.appendChild(img);
-
+            imgPartent.appendChild(img);
+            //主内容区详情
             let detail = document.createElement("div");
             detail.classList.add("detail-content-div");
-            content.appendChild(detail);
+            imgPartent.appendChild(detail);
             this.detailInfo.status==0 ?this.inSpan(detail):this.outSpan(detail);
-
+            //取消按钮
+            let canclePrent = document.createElement("div");
+            canclePrent.classList.add("detail-cancle-div");
             let cancle =  document.createElement("img");
             cancle.classList.add("detail-content-cancel");
             cancle.src = "/static/img/cancel-img.png";
             cancle.onclick = () => {
                 document.body.removeChild(div);
             }
+            canclePrent.appendChild(cancle);
+            content.appendChild(canclePrent);
 
             div.appendChild(content);
-             div.appendChild(cancle);
             document.body.appendChild(div);
         }
         
@@ -137,48 +159,86 @@ export default {
         background: rgba(0,0,0,0.8);
         width: 100%;
         height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         .shadow-detail-content {
-            position: relative;
-            left: 350px;
-            top: 80px;
-            background: rgba(16,156,231,0.5);
-            height: calc(100% - 204px);
-            width: calc(100% - 700px);
-            padding: 40px;
-            box-sizing: border-box;
-            .detail-content-img {
-                display: inline-block;
-                width: 56%;
-                height: calc(100%);
-                vertical-align: middle;
+            .detail-img-div {
+                   position: relative;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background: rgba(16,156,231,0.2);
+                    //background: url(/static/img/background-image.png) no-repeat;
+                    //background-size: 100% 100%;
+                    padding: 40px;
+                    .detail-content-img {
+                        width: 250px;
+                        border: 2px solid #109CE7;
+                    }
+                    .detail-content-div {
+                        display: flex;
+                        flex-direction: column;
+                        padding: 0 30px;
+                        text-align: center;
+                        span {
+                            color: #ffffff;
+                            border-bottom: 1px dashed #ffffff;
+                            padding: 12px 12px;
+                            width: 100%;
+                            display: inline-block;
+                        }
+                    }
+                    .icon-lwh-common {
+                        background-image: url(/static/img/console-detail-border-icon-top.png);
+                        position: absolute;
+                        height: 40px;
+                        width: 57px;
+                        background-repeat: no-repeat;
+                        background-size: contain;
+                    }
+                    .detail-img-topDiv {
+                         top: -2px;
+                        left: -2px;
+                    }
+                    .detail-img-rightDiv {
+                        top: -2px;
+                        right: -2px;
+                        background-image: url(/static/img/console-detail-border-icon-right.png);
+                    }
+                    .detail-img-bottomDiv {
+                        bottom: -2px;
+                        right: -2px;
+                        background-image: url(/static/img/console-detail-border-icon-bottom.png);
+                    }
+                    .detail-img-leftDiv {
+                        bottom: -2px;
+                        left: -2px;
+                        background-image: url(/static/img/console-detail-border-icon-left.png);
+                    }
+
             }
-            .detail-content-div {
-                display: inline-block;
-                width: 27%;
-                text-align: center;
-                color: #ffffff;
-                margin-left: 10%;
-                span {
-                    border-bottom: 2px dashed #ffffff;
-                    padding: 12px 0;
-                    width: 100%;
-                    display: inline-block;
+            .detail-cancle-div {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                .detail-content-cancel {
+                    width: 32px;
+                    margin-top: 10px;
                 }
             }
+            
         }
-        .detail-content-cancel {
-                 position: absolute;
-                 bottom: 80px;
-                display: inline-block;
-                width: 32px;
-                left: calc(50% - 16px);
-        }
+        
      }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
     .customer-info-wrap {
         width: 100%;
         height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         img {
                 display: block;
                 width: 100%;
@@ -189,14 +249,16 @@ export default {
             span.order {
                 position: absolute;
                 top: -6px;
-                left: calc(50% - 28px);
+                // left: calc(50% - 28px);
                 opacity: 0.6;
                 background: #6D2EBB;
                 padding: 0 4px;
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
-                max-width: 54px;
+                // max-width: 54px;
+                width: 60%;
+                text-align: center;
             }
             div.customer-detail {
                 position: absolute;

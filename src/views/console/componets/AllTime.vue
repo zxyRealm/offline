@@ -2,11 +2,11 @@
     <div class="all-time-wrap">
          <div class="identify"><span>身份识别设备</span></div>
          <div class="change-time">
-             <span>{{this.data[0]}}</span>
-             <span>{{this.data[1]}}</span>
+             <span ref="dd">{{this.dd}}</span>
+             <span ref="d">{{this.d}}</span>
              <div>:</div>
-             <span>{{this.data[2]}}</span>
-             <span>{{this.data[3]}}</span>
+             <span ref="tt">{{this.tt}}</span>
+             <span ref="t">{{this.t}}</span>
          </div>
     </div>
 </template>
@@ -16,6 +16,10 @@ export default {
     data() {
         return {
             showTime: {},
+            dd: 0,
+            d: 0,
+            tt: 0,
+            t: 0,
             data: [0,0,0,0]   //数据
         }
     },
@@ -30,10 +34,14 @@ export default {
             if (mm < 10) clock += '0'; 
                clock += mm; 
             //   return(clock); 
-            this.$set(this.data, 0,  Math.floor(hh/10));
-            this.$set(this.data, 1,  hh%10);
-            this.$set(this.data, 2,  Math.floor(mm/10));
-            this.$set(this.data, 3,  mm%10);
+            // this.$set(this.data, 0,  Math.floor(hh/10));
+            // this.$set(this.data, 1,  hh%10);
+            // this.$set(this.data, 2,  Math.floor(mm/10));
+            // this.$set(this.data, 3,  mm%10);
+            this.dd = Math.floor(hh/10);
+            this.d = hh%10;
+            this.tt = Math.floor(mm/10);
+            this.t = mm%10;
         },
         setTime() {
             let me = this;
@@ -48,8 +56,37 @@ export default {
     mounted() {
         this.setTime();
     },
+    watch: {
+        dd(val,oldVal) {
+            this.$refs.dd.classList.add("animation-lwh-show");
+            setTimeout(() => {
+                this.$refs.dd.classList.remove("animation-lwh-show");
+            },6000);
+        },
+        d(val,oldVal) {
+            this.$refs.d.classList.add("animation-lwh-show");
+            setTimeout(() => {
+                this.$refs.d.classList.remove("animation-lwh-show");
+            },6000);
+        },
+        tt(val,oldVal) {
+            this.$refs.tt.classList.add("animation-lwh-show");
+            setTimeout(() => {
+                this.$refs.tt.classList.remove("animation-lwh-show");
+            },6000);
+        },
+        t(val,oldVal) {
+            this.$refs.t.classList.add("animation-lwh-show");
+            setTimeout(() => {
+                this.$refs.t.classList.remove("animation-lwh-show");
+            },6000);
+        }
+    },
     computed: {
 
+    },
+    beforeRouteLeave() {
+        if(!!this.showTime) clearInterval(this.showTime);
     }
 }
 </script>
@@ -67,8 +104,9 @@ export default {
             background-size: 100% 100%;
             span {
                  padding: 5px 20px;
-                 background: #0C50CF;
-                 opacity: 0.5;
+                 background: rgba(12,80,207,0.3);
+                 //background: #0C50CF;
+                // opacity: 0.5;
             }
         }
         .change-time {
@@ -81,10 +119,24 @@ export default {
                     border-radius: 1px;
                     text-align: center;
                     line-height: 30px;
+                    //transform: rotate3d(1,0,0,-360deg) scale(1);
             }
             div {
                 display: inline;
             }
         }
+         //动画效果
+       .animation-lwh-show {
+                position: relative;
+                animation-name: skyset;
+                animation-duration: 2000ms;
+                animation-iteration-count: 1; /*无限循环*/
+                animation-timing-function: linear;
+                @keyframes skyset {
+                    0% { transform: rotate3d(1,0,0,180deg) scale(1);}
+                    50%{ transform: rotate3d(1,0,0,90deg) scale(1);}
+                    100% {transform: rotate3d(1,0,0,0deg) scale(1);}
+                }
+       }  
     }
 </style>

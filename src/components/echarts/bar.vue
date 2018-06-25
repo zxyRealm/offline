@@ -85,7 +85,7 @@
       // 绘制图表
       drawBar() {
         let myChart = this.$echarts.init(document.getElementById('echarts-bar'));
-       // this.option.series[0].data = this.ageBar;
+        this.option.series[0].data = this.ageBar;
         myChart.setOption(this.option);
         this.myChart = myChart;
       },
@@ -107,6 +107,8 @@
              this.option.yAxis = this.data.yAxis;  //这个yAxis是对象形式
              this.option.series = this.data.seriesGroup;
           }
+       }).catch(error => {
+          console.info(error);
        });
       }
     },

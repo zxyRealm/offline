@@ -2,8 +2,10 @@
     <div class="table-wrap">
       <div class="table-search">
         <span>表格数据</span>
-        <input v-model="fuzzyQuery" type="text" placeholder="输入关键字"/>
-        <img src="/static/img/table-input-search.png" @click="doSearch">
+        <div v-if="false">
+          <input v-model="fuzzyQuery" type="text" placeholder="输入关键字"/>
+          <img src="/static/img/table-input-search.png" @click="doSearch">
+        </div>
       </div>
       <el-table :height=tabelHeight
         :data="tableData"
@@ -15,7 +17,7 @@
           label="社群名称">
         </el-table-column>
         <el-table-column
-          prop="dataTime"
+          prop="dateTime"
           label="时间">
         </el-table-column>
         <el-table-column
@@ -49,7 +51,7 @@
           fuzzyQuery: '',     //模糊匹配
           pageParams: {
             pageSize: 10,      //每页显示条数
-            total: 4,         //总条数
+            total: 0,         //总条数
             currentPage: 1    //当前第几页
           },
          tableData: []
@@ -90,7 +92,7 @@
                 this.$set(this.pageParams,"total",res.data.pagination.total)
               }
            }).catch(error => {
-              console.info("出现错误");
+              console.info(error);
            });
         },
         initSize(){

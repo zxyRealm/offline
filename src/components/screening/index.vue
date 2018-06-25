@@ -51,7 +51,7 @@
             dimensionIdex: 0,
             dimensionData: ['小时','日','周','月'],
             filterParams: {
-              groupGuid: '',     //选择社群 6867A6C096844AD4982F19323B6C9574 
+              groupGuid: '6867A6C096844AD4982F19323B6C9574',     //选择社群 6867A6C096844AD4982F19323B6C9574 
               type: '',         //类型
               dimension: '',    //维度
               startTime: '',    //开始时间
@@ -86,6 +86,9 @@
         },
         //查询
         submitForm() {
+          if(this.filterParams.groupGuid == "") {
+              alert("请选择设备");
+          }
           this.dealTime();
           this.changeParams();
         }

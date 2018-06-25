@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
   export default {
      name: "echarts-line",
      props: ['lineHeight','lineParams'],
@@ -137,16 +138,22 @@
       //每一小时刷新一次 这里的考虑不让他重新初始化 = 控制台
       timing(){
         let me = this;
+        if(!!this.timer) {
+          this.timer = null;
+        };
         this.timer = window.setInterval(()  => { 
           me.showGenderData();
         },3600000);
       },
       //显示客流量 = 控制台
       showGenderData() {
+        // if(!this.$store.state.groupConsoleId) {
+        //    return;
+        // } 
         this.changeTitle();
         this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
         this.$http('/chart/line', {
-              groupGuid: "6867A6C096844AD4982F19323B6C9574",
+              groupGuid: this.$store.state.groupConsoleId || '6867A6C096844AD4982F19323B6C9574',
               type: 1,
               dimension: 1,
               startTime: this.$getNowFormatDate(),
@@ -161,6 +168,8 @@
                 this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
                 this.drawLine();
               }
+       }).catch(error => {
+          console.info(error);
        });
       },
       //请求数据
@@ -231,6 +240,18 @@
             this.drawLine();
         }
     },
+   computed:{
+         ...mapState([
+            'groupConsoleId'
+         ])
+     },
+     watch:{
+         //监听vuexgroupConsoleId是否改变
+        groupConsoleId(val){
+            this.showGenderData();
+            this.timing();  //定时刷新数据，一个小时一次
+        }
+     },
     beforeDestroy() {
        if(!!this.timer){window.clearInterval(this.timer);}
      }

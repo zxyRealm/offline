@@ -35,19 +35,23 @@
                 </li>
             </ul>
             <ul class="customer-middle">
-                <li class="customer-middle-top animation-lwh-show">
-                    <img src="/static/img/in-img-1.png"/>
-                    <img src="/static/img/in-img-2.png"/>
-                    <img src="/static/img/in-img-3.png"/> 
+                 <li class="customer-middle-top animation-lwh-show">
+                     <div>
+                        <img src="/static/img/in-img-1.png"/>
+                        <img src="/static/img/in-img-2.png"/>
+                        <img src="/static/img/in-img-3.png"/>
+                    </div>
+                </li> 
+                <li class="customer-middle-center">
+                    <div><img src="/static/img/people-info.png"/></div>
                 </li>
-                <li class="customer-middle-center"> 
-                    <!-- <img src="/static/img/people-info.png"/> -->
-                </li>
-                <li class="customer-middle-bottom animation-lwh-show">
-                    <img src="/static/img/out-img-1.png"/>
-                    <img src="/static/img/out-img-2.png"/>
-                    <img src="/static/img/out-img-3.png"/> 
-                </li>
+                 <li class="customer-middle-bottom animation-lwh-show">
+                     <div>
+                        <img src="/static/img/out-img-1.png"/>
+                        <img src="/static/img/out-img-2.png"/>
+                        <img src="/static/img/out-img-3.png"/>
+                     </div>
+                </li> 
             </ul>
             <ul class="customer-right">
                  <li v-for="(value,index) in pedestrianOutData" :key="index">
@@ -70,7 +74,7 @@
       components: {FlowInfo,AllTime,bar,pie,lineConsole,CustomerInfo},
       data() {
         return {
-            state: false,    //是否有数据
+            state: true,    //是否有数据
             pedestrianInData: [],
             pedestrianOutData: [],
             pieParams: {   //饼图
@@ -84,15 +88,16 @@
             },
             outNumber: 0,  
             inNumber: 0,
-            ageBar: [],  //柱图
+            ageBar: [0,0,0,0,0,0],  //柱图
             websocket: {},
         }
       },
       methods: {
           selectGroupId() {
-              console("请选择相应的设备");
+              console.info("请选择相应的设备");
           },
           getwebsocket(data) {
+              
               let me = this;
               let wsServer = 'ws://'+data+':8082'; //服务器地址
               this.websocket = new WebSocket(wsServer);
@@ -104,6 +109,7 @@
                 this.websocket.onmessage = function (evt) {
                  //收到服务器消息，使用evt.data提取
                   me.resolveDatad(evt.data);
+                  console.info(evt.data,"dddfdddd");
                 };
                 this.websocket.onclose = function (evt) {
                   console.info("已经关闭连接");
@@ -111,9 +117,11 @@
                 this.websocket.onerror = function (evt) {
                   console.info("产生异常")
                 }; 
+                
           },
           resizeFunction() {
             let me = this;
+            if(!me.$refs.bar) return;
             let table = document.getElementById("echarts-bar");
             table.style.width = me.$refs.bar.offsetWidth +"px";
             table.style.height = me.$refs.bar.offsetHeight +"px";
@@ -142,6 +150,8 @@
             this.inNumber = obj.inNumber;
             //柱状图
             this.ageBar = JSON.parse(obj.age);
+            //线型图
+            //if(!!this.$refs.echartsLine) {this.$refs.echartsLine.showGenderData("fddf")}
             //图片展示
             this.typePedestrian(obj.pedestrian[0]);
           },
@@ -162,27 +172,31 @@
                    if(res.result == 1){
                         this.getwebsocket(res.data);
                    }
+               }).catch(error => {
+                   console.info(error);
                });
           },
           //请求数据
           getData() {
             this.$http('/personData',{
-                  deviceKey: "YF_V1-RT6PZ0"
+                  deviceKey: "YF_V1-X1QNT7"
                 }).then(res => {
                     if(res.result == 1){
                         this.resolveDatad(res.data);
                         this.getwebsocketIp();
                     }
+            }).catch(error => {
+                console.info(error);
             });
           }
       },
       created() {
-        //this.getData();
+        this.getData();
       },
     mounted() {
         let me = this;
         window.addEventListener('resize',me.resizeFunction);
-       // me.resizeFunction();
+        me.resizeFunction();
     },
     computed:{
          ...mapState([
@@ -200,7 +214,7 @@
         let me = this;
         window.removeEventListener("resize",me.resizeFunction);
         //关闭websocket链接
-        this.websocket.close();
+        if(!this.websocket) this.websocket.close();
         next();
      }
      
@@ -249,7 +263,7 @@
                      height: 100%;
                      box-sizing: border-box;
                      padding: 20px;
-                     border: 1px solid red;
+                     //border: 1px solid red;
                      position: relative;
                      .flow-info-wrap {
                         top: calc(50% - 17px);
@@ -267,7 +281,7 @@
                      margin-left: 10px;
                      width: calc(40% - 10px);
                      height: 100%;
-                     border: 1px solid red;
+                    // border: 1px solid red;
                      box-sizing: border-box;
                      .li-all-time {
                         position: absolute;
@@ -278,7 +292,7 @@
             .left-div {
                 margin-top: 10px;
                 height: calc(69% - 10px);
-                border: 1px solid red;
+                //border: 1px solid red;
                 box-sizing: border-box;
             }
           }
@@ -291,12 +305,12 @@
                 height: 100%;
                  li:nth-child(1) {
                      height: 44%;
-                     border: 1px solid red;
+                     //border: 1px solid red;
                 }
                 li:nth-child(2) {
                      margin-top: 10px;
                      height: calc(56% - 10px);
-                     border: 1px solid red;
+                     //border: 1px solid red;
                      box-sizing: border-box;
                 }
             }
@@ -309,10 +323,10 @@
           min-height: 168px;
           box-sizing: border-box;
           padding: 20px;
-          border: 1px solid green;
+          //border: 1px solid green;
        }
        .customer-left  {
-           width:calc(37% - 20px);
+           width:calc(50% - 170px);
            height: 100%;
            display: inline-block;
             li {
@@ -321,75 +335,95 @@
                 height: 100%;
                 background: url(/static/img/background-img-in.png) no-repeat center;
                 background-size: 100% 100%;
-                margin-right: 10px;
+                margin-right: 12px;
                 position: relative;
             }
        }
        .customer-middle  {
-           width: 28%;
+           width: 320px;
            height: 100%;
            display: inline-block;
+           position: relative;
+           left: 8px;
            li {
              display: inline-block;
-             height: 100%
+             height: 100%;
            }
            .customer-middle-top,.customer-middle-bottom {
-             width: 12%;
+             width: 40px;
              overflow: hidden;
            }
             .customer-middle-top {
                 position: relative;
-               img {
-                   width: 36%;
-                   position: absolute;
-                   height: 32%;
-               }
-               img:nth-child(1) {
-                    right: 0%;
-                    top: 34%;
-               }
-               img:nth-child(2) {
-                   right: 28%;
-                    height: 28%;
-                    top: 36%;
-               }
-               img:nth-child(3) {
-                   right: 58%;
-                   height: 23%;
-                   top: 38%;
-               }
+                right: 6px;
+                div {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100%;
+                    img {
+                        width: 18px;
+                        position: absolute;
+                    }
+                    img:nth-child(1) {
+                         right: 0%;
+                    }
+                    img:nth-child(2) {
+                        right: 28%;
+                        width: 16px;
+                    }
+                    img:nth-child(3) {
+                        right: 58%;
+                        width: 14px;
+                    }
+                }
             }
            .customer-middle-center {
-             width: 72%;
-             background: url(/static/img/people-info.png) no-repeat center;
-             background-size: 100% 100%;
+               position: absolute;
+               width: 230px;
+            //  width: 72%;
+            //  background: url(/static/img/people-info.png) no-repeat center;
+            //  background-size: 100% 100%;
+                div {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100%;
+                    img {
+                    width: 230px;
+                }
+            }
+            
            }
           .customer-middle-bottom {
-               
-               img {
-                   width: 36%;
-                   position: absolute;
-                   height: 32%;
-               }
-               img:nth-child(1) {
-                    left: 0%;
-                    top: 34%;
-               }
-               img:nth-child(2) {
-                   left: 28%;
-                    height: 28%;
-                    top: 36%;
-               }
-               img:nth-child(3) {
-                   left: 58%;
-                   height: 23%;
-                   top: 38%;
+               position: absolute;
+               left: 276px;
+               div {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100%;
+                    img {
+                        width: 18px;
+                        position: absolute;
+                    }
+                    img:nth-child(1) {
+                        left: 0%;
+                    }
+                    img:nth-child(2) {
+                        left: 28%;
+                        width: 16px;
+                    }
+                    img:nth-child(3) {
+                        left: 58%;
+                        width: 14px;
+                    }
                }
            }
            
        }
        .customer-right  {
-           width: calc(37% - 20px);
+           width: calc(50% - 170px);
            height: 100%;
            display: inline-block;
            float: right;
@@ -399,7 +433,7 @@
                 height: 100%;
                 background: url(/static/img/background-image.png) no-repeat center;
                 background-size: 100% 100%;
-                margin-right: 12px;
+                margin-left: 12px;
                 position: relative;
             }
         &::after {
@@ -412,14 +446,15 @@
        //动画效果
        .animation-lwh-show {
             position: relative;
-                -webkit-animation-name: skyset;
-                -webkit-animation-duration: 3000ms;
-                -webkit-animation-iteration-count: infinite; /*无限循环*/
-                -webkit-animation-timing-function: linear;
-                @-webkit-keyframes skyset {
-                    0% { opacity: 0;}
-                    50%{ opacity: 0.5;}
-                    100% {opacity: 1;}
+                animation-name: skyset;
+                animation-duration: 3000ms;
+                animation-iteration-count: infinite; /*无限循环*/
+                animation-timing-function: linear;
+                @keyframes skyset {
+                    0% { opacity: 0.5;}
+                    25%{ opacity: 0.25;}
+                    75%{ opacity: 0.75;}
+                    100%{opacity: 1;}
                 }
        }  
    }
