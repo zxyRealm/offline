@@ -58,26 +58,34 @@ export default {
     },
     watch: {
         dd(val,oldVal) {
+           
             this.$refs.dd.classList.add("animation-lwh-show");
             setTimeout(() => {
+                 if(!this.$refs.dd) return;
                 this.$refs.dd.classList.remove("animation-lwh-show");
             },6000);
         },
         d(val,oldVal) {
+            
             this.$refs.d.classList.add("animation-lwh-show");
             setTimeout(() => {
+                if(!this.$refs.d) return;
                 this.$refs.d.classList.remove("animation-lwh-show");
             },6000);
         },
         tt(val,oldVal) {
+           
             this.$refs.tt.classList.add("animation-lwh-show");
             setTimeout(() => {
+                 if(!this.$refs.tt) return;
                 this.$refs.tt.classList.remove("animation-lwh-show");
             },6000);
         },
         t(val,oldVal) {
+           
             this.$refs.t.classList.add("animation-lwh-show");
             setTimeout(() => {
+                 if(!this.$refs.t) return;
                 this.$refs.t.classList.remove("animation-lwh-show");
             },6000);
         }
