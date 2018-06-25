@@ -1,12 +1,15 @@
 <template>
   <el-dialog
+    :type="type"
     center
-    top="30%"
+    top="auto"
     @close="closeDialog"
-    class="dialog-form-wrapper"
+    class="dialog-form-wrapper vam"
     width="500px" :title="title" :visible.sync="dialogFormVisible">
+    <el-scrollbar
+      :style="customStyle"
+    >
     <el-form
-      :style="{width:width}"
       label-position="left"
       class="common-form white"
       ref="dialogForm"
@@ -37,7 +40,17 @@
           <el-input type="textarea" v-model="dialogForm.name" placeholder="请填写描述" auto-complete="off"></el-input>
         </el-form-item>
       </template>
+      <template v-if="type==='group'">
+        <ob-group-nav
+          ref="customGroup"
+          :show-checkbox="true"
+          :check-strictly="true"
+          theme="white"
+          type="custom"
+        ></ob-group-nav>
+      </template>
     </el-form>
+    </el-scrollbar>
     <div slot="footer" class="dialog-footer">
       <el-button class="cancel"  @click="dialogFormVisible = false">取 消</el-button>
       <el-button class="affirm" type="primary" @click="submitDialogForm('dialogForm')">确 定</el-button>
@@ -45,7 +58,11 @@
   </el-dialog>
 </template>
 <script>
+  import Group from '@/components/group-nav'
   export default {
+    components:{
+      'ob-group-nav':Group
+    },
     name: "ob-dialog-form",
     props: {
       // 社群列表数据
@@ -168,13 +185,19 @@
     },
     methods:{
       submitDialogForm(formName){
-        this.$refs[formName].validate(valid=>{
-          if(valid){
-            this.$emit("remote-submit",this.dialogForm);
-          }else {
-            console.log('validate is not pass')
-          }
-        })
+        if(this.type==='group'){
+          this.$emit("remote-submit",this.$refs.customGroup.getCheckedKeys());
+         // console.log(this.$refs.customGroup)
+        }else {
+          this.$refs[formName].validate(valid=>{
+            if(valid){
+              this.$emit("remote-submit",this.dialogForm);
+            }else {
+              console.log('validate is not pass')
+            }
+          })
+        }
+
       },
       getDeviceType(key){
         if(key && key.length>=12){
@@ -198,6 +221,16 @@
       // if(this.$refs.dialogForm){
       //   this.$refs.dialogForm.resetFields();
       // }
+    },
+    computed:{
+      customStyle:function(){
+        switch (this.type){
+          case 'group':
+            return {width:'400px',background:'#f8f8f8',height:'400px'};
+          default:
+            return {width:this.width}
+        }
+      }
     }
   }
 </script>
@@ -205,6 +238,14 @@
 <style lang="scss" rel="stylesheet/scss">
 @import "@/styles/form.scss";
 .dialog-form-wrapper{
+  &[type=group]{
+    .el-dialog__body{
+      padding:0 20px 0;
+    }
+    .el-tree.white{
+      background: transparent;
+    }
+  }
   .el-dialog__header{
     padding: 25px 20px 10px;
     text-align: center;
@@ -224,6 +265,7 @@
     margin-left: 0;
   }
   .dialog-footer{
+    text-align: center;
     .el-button{
       margin-right: 50px;
       &:last-child{

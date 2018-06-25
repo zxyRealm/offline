@@ -32,6 +32,9 @@
         padding: 0 40px;
         box-sizing: border-box;
         height: 189px;
+        &.custom{
+          padding: 20px 40px;
+        }
         .info-detail {
           float: left;
           p {

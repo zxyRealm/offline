@@ -3,7 +3,7 @@
            ref="submitForm" :label-width="labelWidth"
            label-position="left" :class="formClass" class="common-form">
     <slot></slot>
-    <el-form-item v-if="subText">
+    <el-form-item class="form-item-button" v-if="subText">
       <el-button class="affirm" @click="submitForm('submitForm')">{{subText}}</el-button>
     </el-form-item>
   </el-form>

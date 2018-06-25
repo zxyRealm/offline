@@ -23,6 +23,9 @@
   .el-form-item {
     margin-bottom: 10px;
     line-height: 30px;
+    &.form-item-button{
+      margin: 20px 0 0 0;
+    }
     &[readonly] {
       .el-input {
         background: $default !important;
@@ -161,6 +164,14 @@
         }
       }
     }
+  }
+  &.error266{
+    .el-form-item{
+      .el-form-item__error{
+        left:246px;
+      }
+    }
+
   }
 }
 .el-select-dropdown{

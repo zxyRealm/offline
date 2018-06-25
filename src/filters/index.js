@@ -1,5 +1,5 @@
 // set function parseTime,formatTime to filter
-export { parseTime, formatTime } from '@/utils'
+export { parseTime, formatTime,customType } from '@/utils'
 
 function pluralize(time, label) {
   if (time === 1) {
@@ -17,6 +17,7 @@ export function deviceType(type) {
       return '身份识别一体机';
   }
 }
+
 export function deviceState(state) {
   switch (state){
     case 1:
@@ -27,6 +28,8 @@ export function deviceState(state) {
       return '';
   }
 }
+
+
 
 export function timeAgo(time) {
   const between = Date.now() / 1000 - Number(time);

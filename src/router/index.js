@@ -9,7 +9,9 @@ const Login = () => import('@/views/login/index.vue');
 const Layout = () => import('@/views/layout/Layout.vue');
 const Community = () => import('@/views/community/index.vue');
 const customCommunity = () => import('@/views/community/custom.vue');
+const editCustom = () => import('@/views/community/edit-custom.vue');
 const addCommunity = () => import('@/views/community/add-community.vue');
+const joinCommunity = () => import('@/views/community/join-community.vue');
 
 const Equipment = () => import('@/views/equipment/index.vue');
 const EquipmentMore = () => import('@/views/equipment/more/index.vue');
@@ -94,6 +96,22 @@ export const asyncRouterMap = [
         component: customCommunity
       },
       {
+        path: 'custom/create',
+        name: 'createCustom',
+        meta: {
+          title: "创建分组-社群管理-线下浏览器服务平台"
+        },
+        component: editCustom
+      },
+      {
+        path: 'custom/edit/:id([0-9A-Z]{32})',
+        name: 'editCustom',
+        meta: {
+          title: "编辑分组信息-社群管理-线下浏览器服务平台"
+        },
+        component: editCustom
+      },
+      {
         path: 'create',
         name: 'createCommunity',
         meta: {
@@ -108,6 +126,14 @@ export const asyncRouterMap = [
           title: "编辑社群信息-社群管理-线下浏览器服务平台"
         },
         component: addCommunity
+      },
+      {
+        path: 'join',
+        name: 'joinCommunity',
+        meta: {
+          title: "编辑社群信息-社群管理-线下浏览器服务平台"
+        },
+        component: joinCommunity
       }
     ]
   },

@@ -3,7 +3,7 @@
     <uu-sub-tab
       back
       :menu-array="[{title:menuTitle}]"></uu-sub-tab>
-    <div class="edit-community-form-wrap dashed-border">
+    <div class="community-common-form-wrap dashed-border">
       <uu-form
         label-width="106px"
         :sub-text="subText"
@@ -185,12 +185,7 @@
 </script>
 
 <style lang="scss">
-  .edit-community-form-wrap {
-    margin: 0 auto;
-    height: 520px;
-    width: 690px;
-    padding: 40px 0;
-    box-sizing: border-box;
+  .community-common-from-wrap{
     .qr-code-wrap {
       display: inline-block;
       vertical-align: middle;

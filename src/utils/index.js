@@ -43,6 +43,7 @@ export function parseTime(time, cFormat) {
   return time_str
 }
 
+// 格式化时间
 export function formatTime(time, option) {
   time = +time * 1000;
   const d = new Date(time);
@@ -66,7 +67,7 @@ export function formatTime(time, option) {
   }
 }
 
-// 格式化时间
+// 序列化对象
 export function getQueryObject(url) {
   url = url == null ? window.location.href : url;
   const search = url.substring(url.lastIndexOf('?') + 1);
@@ -81,6 +82,21 @@ export function getQueryObject(url) {
   });
   return obj
 }
+
+// 自定义分组类型
+export function customType(type,txt) {
+  switch (type){
+    case 1:
+      return txt?'地理位置':'address';
+    case 2:
+      return txt?'功能区':'action';
+    case 3:
+      return txt?'管理者':'manage';
+    default:
+      return txt?'其他':'more';
+  }
+}
+
 
 /**
  *get getByteLen

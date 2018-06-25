@@ -14,9 +14,10 @@
       <div class="community--inner">
         <div class="community--sidebar dashed-border">
           <div class="btn-wrap">
-            <el-button class="affirm medium">加入</el-button>
+            <el-button class="affirm medium" @click="$router.push('/community/join')">加入</el-button>
             <el-button class="affirm medium" @click="$router.push('/community/create')">创建</el-button>
           </div>
+
           <uu-sub-tab
             size="small"
             search
