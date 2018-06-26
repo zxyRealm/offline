@@ -16,10 +16,10 @@ export default {
     data() {
         return {
             showTime: {},
-            dd: 0,
-            d: 0,
-            tt: 0,
-            t: 0,
+            dd: '',
+            d: '',
+            tt: '',
+            t: '',
             data: [0,0,0,0]   //数据
         }
     },

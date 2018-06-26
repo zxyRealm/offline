@@ -13,10 +13,8 @@
         <hamburger class="hamburger-container vam" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
         <router-link to="/console">控制台</router-link>
       </div>
-      <div class="navbar-console" v-if="$route.name  == 'console-lwh'">
-        <select @click="getGropId">
-          <option>请选择社群</option>
-        </select>
+      <div class="navbar-console-select" v-if="$route.name  == 'console-lwh'" @click="getGropId">
+        <span>{{seelctName}}</span>
       </div>
       <div class="right-menu-item vam">
         <router-link to="/developer/notify" class="system-notify">
@@ -33,6 +31,13 @@
         </a>
       </div>
     </div>
+    <!-- 选择社群 -->
+     <ob-dialog-form
+      @remote-submit="remoteSubmit"
+      :type="dialogOptions.type"
+      :title="dialogOptions.title"
+      :visible.sync="dialogFormVisible">
+    </ob-dialog-form>
   </el-menu>
 </template>
 
@@ -48,7 +53,12 @@ export default {
   data(){
     return {
       groupSelectId: '',
-      consoleState: false,  //控制台状态是否激活
+      seelctName: '请选择您的社群',
+      dialogFormVisible: false,
+      dialogOptions: {
+        title: '添加社群',
+        type: 'group'
+      },
       avatar:'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
     }
   },
@@ -57,18 +67,26 @@ export default {
       'sidebar'
     ]),
     ...mapState([
-      "userInfo"
+      "userInfo",
+      'groupConsoleId'
     ])
   },
+  watch: {
+      groupConsoleId(val,oldVal) {
+
+      }
+  },
   methods: {
-    //获取当前设备
-    getGropId() {
-      this.groupSelectId = "ddu你好毒！！！udd";
-      this.$store.commit("SET_GROUP_CONSOLEID",this.groupSelectId);
+    //点击选择社群
+    getGropId(){
+      this.dialogFormVisible = true;
     },
-    //切换到控制台
-    toConsole() {
-        this.consoleState = true;
+    //获取当前设备
+    remoteSubmit(data) {
+      this.seelctName = data[0];
+      this.groupSelectId = data[0];
+      this.$store.commit("SET_GROUP_CONSOLEID",this.groupSelectId);
+      this.dialogFormVisible = false;
     },
     toggleSideBar() {
       this.$store.dispatch('toggleSideBar')
@@ -78,7 +96,12 @@ export default {
         location.reload()// In order to re-instantiate the vue-router object to avoid bugs
       })
     }
+  },
+  beforeRouteLeave (to, from, next) {
+
+    next();  
   }
+  
 }
 </script>
 
@@ -184,6 +207,7 @@ export default {
             color: #ffffff;
             position: relative;
             top: 18px;
+            padding: 0 12px;
         }
         .router-link-active::after {
             content: '';
@@ -194,10 +218,22 @@ export default {
             left: 0;
             bottom: -26px;
         }
-        select {
-           margin-left: 16px;
-        }
       }
+      .navbar-console-select {
+          display: inline-block;
+          margin-left: 12px;
+          &::after {
+            content: "";
+            width:0px;
+            height:0px;
+            border-right: 12px solid transparent;
+            border-left: 12px solid transparent;
+            border-top: 12px solid #ffffff;
+            top: 14px;
+            left: 10px;
+            position: relative;
+          }
+       }
     .screenfull {
       height: 20px;
     }

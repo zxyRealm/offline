@@ -74,7 +74,8 @@
       components: {FlowInfo,AllTime,bar,pie,lineConsole,CustomerInfo},
       data() {
         return {
-            state: true,    //是否有数据
+            state: false,    //是否有数据
+            deviceKey: '',
             pedestrianInData: [],
             pedestrianOutData: [],
             pieParams: {   //饼图
@@ -104,12 +105,12 @@
                 //console.info(this.websocket.readyState,"+++++++++++");//查看websocket当前状态
                 this.websocket.onopen = function (evt) {
                     //已经建立连接
-                   me.websocket.send("YF_V1-X1QNT7" + '_channel');  //向服务器发送消息
+                   me.websocket.send(this.key + '_channel');  //向服务器发送消息
                 };
                 this.websocket.onmessage = function (evt) {
                  //收到服务器消息，使用evt.data提取
                   me.resolveDatad(evt.data);
-                  console.info(evt.data,"dddfdddd");
+                  console.info("已经连接");
                 };
                 this.websocket.onclose = function (evt) {
                   console.info("已经关闭连接");
@@ -179,10 +180,11 @@
           //请求数据
           getData() {
             this.$http('/personData',{
-                  deviceKey: "YF_V1-X1QNT7"
+                  deviceKey:  "YF_V1-X1QNT7"
                 }).then(res => {
                     if(res.result == 1){
                         this.resolveDatad(res.data);
+                        this.resizeFunction();
                         this.getwebsocketIp();
                     }
             }).catch(error => {
@@ -191,12 +193,17 @@
           }
       },
       created() {
-        this.getData();
+        //this.getData();
       },
     mounted() {
         let me = this;
+        console.info(this.$store.state.groupConsoleId,"this.$store.state.groupConsoleId");
         window.addEventListener('resize',me.resizeFunction);
-        me.resizeFunction();
+        if(this.$store.state.groupConsoleId != "") {
+                this.deviceKey = this.$store.state.groupConsoleId;
+                this.state = true;
+                this.getData();
+        }
     },
     computed:{
          ...mapState([
@@ -206,7 +213,12 @@
      watch:{
          //监听vuexgroupConsoleId是否改变
         groupConsoleId(val){
-            console.info(val,'dddfd==========');
+           if(!val || val== ""){
+               this.state = false;
+               return;
+           }
+            this.deviceKey = val;
+            this.state = true;
             this.getData();
         }
      },
