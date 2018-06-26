@@ -60,9 +60,13 @@
     },
     methods: {
       submitForm(callback) {
+
+        console.log('callback');
           this.$refs['submitForm'].validate((valid) => {
+            console.log('callback22');
             if (valid) {
               let subData = JSON.parse(JSON.stringify(this.ruleForm));
+              console.log("valid",subData);
               if(typeof callback ==='function'){
                 callback(subData);
               }else {

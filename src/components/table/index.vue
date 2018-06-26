@@ -62,12 +62,12 @@
         //每页显示条数
         handleSizeChange(val) {
           this.pageParams.pageSize = val;
-          console.log(`每页 ${val} 条`);
+          //console.log(`每页 ${val} 条`);
         },
         //当前显示第几页
         handleCurrentChange(val) {
           this.pageParams.currentPage = val;
-          console.log(`当前页: ${val}`);
+          //console.log(`当前页: ${val}`);
         },
         //条件请求数据
         doSearch() {

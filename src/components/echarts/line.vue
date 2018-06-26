@@ -154,7 +154,7 @@ import { mapState } from 'vuex'
             return;
          } 
         this.$http('/chart/line', {
-              groupGuid: this.$store.state.groupConsoleId || '6867A6C096844AD4982F19323B6C9574',
+              groupGuid: this.$store.state.groupConsoleId, //|| '6867A6C096844AD4982F19323B6C9574',
               type: 1,
               dimension: 1,
               startTime: this.$getNowFormatDate(),

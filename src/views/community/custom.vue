@@ -90,6 +90,8 @@
     </template>
     <ob-dialog-form
       @remote-submit="remoteSubmit"
+      multiple
+      keys
       :type="dialogOptions.type"
       :title="dialogOptions.title"
       :visible.sync="dialogFormVisible">

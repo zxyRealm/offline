@@ -3,7 +3,17 @@
     <uu-sub-tab :menu-array="menu" :sub-link="subLink"></uu-sub-tab>
     <div class="user-info-wrap">
       <div class="avatar-wrap">
-        <img src="/static/img/logo.png" alt="">
+        <el-upload
+          class="avatar-uploader"
+          action=""
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :http-request="avatarUpload"
+          :before-upload="beforeAvatarUpload">
+          <div v-if="avatarUrl" :style="{ backgroundImage:'url(/static/img/logo.png)'}" class="avatar"></div>
+          <i  class="el-icon-plus avatar-uploader-icon" v-else></i>
+        </el-upload>
+        <!--<img src="/static/img/logo.png" alt="">-->
       </div>
       <div class="form-filed vam">
         <uu-form ref="userInfoForm"
@@ -119,6 +129,28 @@ import { mapState } from 'vuex'
           }
           this.userInfoForm.pca = this.userInfo.provinceAreaID +','+this.userInfo.cityAreaID +','+this.userInfo.districtAreaID;
         }
+      },
+      avatarUpload(data){
+        console.log('custom',data.file);
+        this.$http(`merchant/${this.userInfo.merchantGuid}/${data.file.name}`).then(res=>{
+
+        });
+      },
+      handleAvatarSuccess(){
+        console.log('upload success')
+      },
+      beforeAvatarUpload(file){
+        const isJPG = file.type === 'image/jpeg'||'image/png';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isJPG) {
+          this.$tip('上传头像图片只能是 JPG/PNG 格式!','error');
+        }
+        if (!isLt2M) {
+          this.$tip('上传头像图片大小不能超过 2MB!','error');
+        }
+
+        console.log('before',file);
+        return isJPG && isLt2M;
       }
     },
     created() {
@@ -128,7 +160,11 @@ import { mapState } from 'vuex'
       } else {
         this.editable = false
       }
-      this.initData()
+      this.initData();
+
+    },
+    mounted(){
+      this.avatarUrl = '/static/img/logo.png'
     },
     watch: {
       "$route": function (val) {
@@ -151,7 +187,15 @@ import { mapState } from 'vuex'
     computed:{
       ...mapState([
         "userInfo"
-      ])
+      ]),
+      avatarUrl:{
+        get(){
+          return this.userInfo.faceImgURL || '/static/img/logo.png'
+        },
+        set(val){
+          return this.userInfo.faceImgURL || ''
+        }
+      }
     }
   }
 </script>
@@ -169,6 +213,14 @@ import { mapState } from 'vuex'
       padding: 3px;
       box-sizing: border-box;
       margin-bottom: 18px;
+      .avatar-uploader{
+        height: 100%;
+        width: 100%;
+        .el-upload{
+          width: 100%;
+          height: 100%;
+        }
+      }
       > img {
         width: 100%;
         height: 100%;
@@ -188,4 +240,21 @@ import { mapState } from 'vuex'
     }
   }
 </style>
+<style lang="scss">
+  .avatar-wrap{
+    .avatar-uploader{
+      .el-upload{
+        height: 100%;
+        width:100%;
+        .avatar{
+          width: 100%;
+          height: 100%;
+          background-position: center center;
+          background-repeat: no-repeat;
+          background-size:contain;
+        }
+      }
+    }
+  }
 
+</style>

@@ -21,8 +21,8 @@
           <uu-icon type="notify"></uu-icon>
         </router-link>
         <router-link to="/developer/info" class="user-info">
-          <div class="avatar-wrap">
-            <img src="/static/img/logo.png" alt="">
+          <div class="avatar-wrap" >
+            <div class="avatar" :style="{backgroundImage:'url('+avatarUrl+')'}"></div>
           </div>
           <span>{{userInfo.phone}}</span>
         </router-link>
@@ -38,6 +38,13 @@
       :title="dialogOptions.title"
       :visible.sync="dialogFormVisible">
     </ob-dialog-form>
+    <pick-device
+     @pick-device="pickDeviceHandler"
+      :type="'group'"
+      :title="'选择设备'"
+      :groupId="groupSelectId"
+      :visible.sync="dialogDeviceVisible">
+    </pick-device>
   </el-menu>
 </template>
 
@@ -45,16 +52,18 @@
 import { mapGetters,mapState } from 'vuex'
 // import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
-
+import PickDevice from '../../console/componets/PickDevice.vue'
 export default {
   components: {
-    Hamburger
+    Hamburger,
+    PickDevice
   },
   data(){
     return {
       groupSelectId: '',
       seelctName: '请选择您的社群',
       dialogFormVisible: false,
+      dialogDeviceVisible: false,
       dialogOptions: {
         title: '添加社群',
         type: 'group'
@@ -69,7 +78,15 @@ export default {
     ...mapState([
       "userInfo",
       'groupConsoleId'
-    ])
+    ]),
+    avatarUrl:{
+      get(){
+        return this.userInfo.fullImage || '/static/img/logo.png';
+      },
+      set(){
+
+      }
+    }
   },
   watch: {
       groupConsoleId(val,oldVal) {
@@ -77,16 +94,29 @@ export default {
       }
   },
   methods: {
+    pickDeviceHandler(val) {
+      if(val == "上一步") {
+          this.dialogFormVisible = true;
+      }else {
+        console.info(val,'选中设备信息');
+      }
+    },
     //点击选择社群
     getGropId(){
       this.dialogFormVisible = true;
     },
     //获取当前设备
     remoteSubmit(data) {
-      this.seelctName = data[0];
-      this.groupSelectId = data[0];
-      this.$store.commit("SET_GROUP_CONSOLEID",this.groupSelectId);
+      if(!data || data.length ==0){
+          this.$alert('请选择需要添加社群名称', '提示：', {
+          confirmButtonText: '确定'
+        });
+        return;
+      }
+      this.seelctName = data[0].groupNickName;
+      this.groupSelectId = data[0].groupGuid;
       this.dialogFormVisible = false;
+      this.dialogDeviceVisible = true;
     },
     toggleSideBar() {
       this.$store.dispatch('toggleSideBar')
@@ -101,7 +131,6 @@ export default {
 
     next();  
   }
-  
 }
 </script>
 
@@ -189,9 +218,14 @@ export default {
           background-size: contain;
           vertical-align: middle;
           margin-right: 10px;
-          img{
+          padding: 2px;
+          box-sizing: border-box;
+          .avatar{
             height: 100%;
             width: 100%;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: contain;
           }
         }
       }
@@ -226,9 +260,9 @@ export default {
             content: "";
             width:0px;
             height:0px;
-            border-right: 12px solid transparent;
-            border-left: 12px solid transparent;
-            border-top: 12px solid #ffffff;
+            border-right: 8px solid transparent;
+            border-left: 8px solid transparent;
+            border-top: 8px solid #ffffff;
             top: 14px;
             left: 10px;
             position: relative;

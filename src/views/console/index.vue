@@ -180,12 +180,16 @@
           //请求数据
           getData() {
             this.$http('/personData',{
-                  deviceKey:  "YF_V1-X1QNT7"
+                  deviceKey:  this.deviceKey
                 }).then(res => {
                     if(res.result == 1){
+                        if(!res.data || res.data.length==0){
+                            this.resizeFunction();
+                            return;
+                        }
                         this.resolveDatad(res.data);
-                        this.resizeFunction();
                         this.getwebsocketIp();
+                        this.resizeFunction();
                     }
             }).catch(error => {
                 console.info(error);
@@ -197,7 +201,7 @@
       },
     mounted() {
         let me = this;
-        console.info(this.$store.state.groupConsoleId,"this.$store.state.groupConsoleId");
+        //console.info(this.$store.state.groupConsoleId,"this.$store.state.groupConsoleId");
         window.addEventListener('resize',me.resizeFunction);
         if(this.$store.state.groupConsoleId != "") {
                 this.deviceKey = this.$store.state.groupConsoleId;

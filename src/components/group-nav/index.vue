@@ -14,7 +14,7 @@
         :value="$index">
       </el-option>
     </el-select>
-    <el-checkbox v-if="type==='custom'" @change="checkedAll">全选</el-checkbox>
+    <el-checkbox v-if="type==='custom' && isCheckAll" @change="checkedAll">全选</el-checkbox>
     <el-tree
       :check-strictly="checkStrictly"
       :show-checkbox="showCheckbox"
@@ -27,6 +27,7 @@
       :default-expand-all="expandedAll"
       :filter-node-method="filterNode"
       @node-click="nodeClick"
+      @check="nodeCheck"
       @current-change="currentChange"
       ref="GroupTree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
@@ -91,6 +92,10 @@
       type: {
         type: [String],
         default: 'device'   //device 设备导航 community 社群导航 custom 自定义社群导航
+      },
+      multiple: {  //是否可多选 当type为custom时有效
+        type: Boolean,
+        default: false
       }
     },
     name: "ob-group-nav",
@@ -207,13 +212,6 @@
           }
         }
       },
-      // 退出社群
-      quitCommunity(mine, parent) {
-        this.$affirm({text: `确认退出【${parent.name}】社群？`}, (action, instance, done) => {
-
-        });
-
-      },
       // 离开社群
       leaveCommunity(type, current, parent) {
         // type 可选类型 quit、kick
@@ -249,6 +247,14 @@
         this.$nextTick(() => {
           this.$refs.GroupTree.setCurrentKey(key)
         });
+      },
+      getCheckedNodes(){
+        return this.$refs.GroupTree.getCheckedNodes()
+      },
+      nodeCheck(nodes,keys){
+        if(!this.multiple){
+          this.$refs.GroupTree.setCheckedNodes([nodes])
+        }
       },
       getCheckedKeys(){
         return this.$refs.GroupTree.getCheckedKeys()
@@ -304,6 +310,9 @@
         };
         getKeys(this.GroupList);
         return keys;
+      },
+      isCheckAll:function(){
+        return this.multiple
       }
     }
   }
