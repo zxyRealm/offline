@@ -3,9 +3,8 @@
       <div>筛选</div>
       <el-form  v-model="filterParams" ref="params" class="demo-ruleForm" label-width="90px" :class="type!=1?'normal-from':'' ">
         <el-form-item label="选择对象：" prop="selectObj">
-          <select>
-            <option value ="volvo">Volvo</option>
-          </select>
+          <input class="group-name-input" type="text" v-model="groupGuidName" @click="groupGuidNameClick"/>
+            <!-- <option value ="volvo">Volvo</option> -->
         </el-form-item>
        <el-form-item label="维度：" prop="dimension" auto-complete="off">
          <template v-for="(ele,index ) in dimensionData">
@@ -37,6 +36,13 @@
           <el-button class="affirm" @click="submitForm()">提交</el-button>
         </el-form-item>
       </el-form>
+      <!-- 选择社群 -->
+     <ob-dialog-form
+      @remote-submit="remoteSubmit"
+      :type="dialogOptions.type"
+      :title="dialogOptions.title"
+      :visible.sync="dialogFormVisible">
+    </ob-dialog-form>
     </div>
 </template>
 
@@ -47,11 +53,17 @@
         props: ['type'],
         data() {
           return {
+            groupGuidName: '请选择对象',
+            dialogFormVisible: false,
+            dialogOptions: {
+              title: '添加社群',
+              type: 'group'
+            },
             buttonIndex: 0,
             dimensionIdex: 0,
             dimensionData: ['小时','日','周','月'],
             filterParams: {
-              groupGuid: '6867A6C096844AD4982F19323B6C9574',     //选择社群 6867A6C096844AD4982F19323B6C9574 
+              groupGuid: '',     //选择社群 6867A6C096844AD4982F19323B6C9574 
               type: '',         //类型
               dimension: '',    //维度
               startTime: '',    //开始时间
@@ -60,6 +72,23 @@
           }
         },
       methods: {
+        //选择对象
+        groupGuidNameClick() {
+            this.dialogFormVisible = true;
+        },
+        remoteSubmit(data) {
+          if(!data) {
+             this.$alert('请选择设备', '提示:', {
+              confirmButtonText: '确定',
+              callback: action => {
+              }
+            });
+            return;
+          }
+          this.dialogFormVisible = false;
+          this.groupGuidName = data[0].groupNickName;
+          this.filterParams.groupGuid = data[0].groupGuid;
+        },
         //点击维度
         handleButton(value) {
           this.buttonIndex = value;
@@ -78,16 +107,21 @@
         },
         //vuex状态管理数据
         changeParams() {
-          //this.$store.dispatch("SET_FILTER_PARAMS",this.filterParams);
           this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
           //这这里触发兄弟组件更新条件
+          console.info(this.$parent.$children);
           this.$parent.$children[1].getData();
           this.$parent.$children[2].getData();
         },
         //查询
         submitForm() {
           if(this.filterParams.groupGuid == "") {
-              alert("请选择设备");
+             this.$alert('请选择设备', '提示:', {
+              confirmButtonText: '确定',
+              callback: action => {
+              }
+            });
+            return;
           }
           this.dealTime();
           this.changeParams();
@@ -149,10 +183,12 @@
             line-height: 28px;
         }
       }
-      select {
+      .group-name-input {
         width: 210px;
-        height: 28px;
+        height: 22px!important;
+        line-height: 28px;
         border-radius: 3px;
+        text-indent: 10px;
       }
       .dimension-button {
         width: 48px;

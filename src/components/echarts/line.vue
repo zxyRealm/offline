@@ -146,14 +146,15 @@ import { mapState } from 'vuex'
         },3600000);
       },
       //显示客流量 = 控制台
-      showGenderData() {
-        // if(!this.$store.state.groupConsoleId) {
-        //    return;
-        // } 
+      showGenderData() { 
         this.changeTitle();
         this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+         if(this.$store.state.groupConsoleId == "") {
+            this.drawLine();
+            return;
+         } 
         this.$http('/chart/line', {
-              groupGuid: this.$store.state.groupConsoleId || '6867A6C096844AD4982F19323B6C9574',
+              groupGuid: this.$store.state.groupConsoleId, //|| '6867A6C096844AD4982F19323B6C9574',
               type: 1,
               dimension: 1,
               startTime: this.$getNowFormatDate(),
