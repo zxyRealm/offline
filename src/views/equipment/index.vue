@@ -12,43 +12,14 @@
       :sub-btn="{text:'创建'}"
       @handle-btn="showDialog('device')"
       :menu-array="menu2"></uu-sub-tab>
-    <div v-if="!equipmentList.length" class="no-data-equipment">
-      {{isSearch?'查询不到该设备。':'您还没有设备，点击【添加】进行添加设备。'}}
-    </div>
+    <ob-list-empty
+      v-if="!equipmentList.length"
+      :text="isSearch?'查询不到该设备。':'您还没有设备，点击【添加】进行添加设备。'">
+    </ob-list-empty>
     <div class="data-list-wrap" v-else>
       <template v-for="(item,$index) in equipmentList">
         <ob-list>
-          <ob-list-item>
-            <p>
-              <span>设备别名：</span>
-              <el-popover
-                placement="top"
-                @show="showPopover($index)"
-                v-model="item.popover"
-                trigger="click">
-                <el-form
-                  @submit.native.prevent
-                  ref="tableForm"
-                  class="table-form"
-                  :model="equipmentForm"
-                >
-                  <el-form-item :rules="rules" prop="deviceName">
-                    <el-input type="text" v-model="equipmentForm.deviceName"></el-input>
-                    <uu-icon type="success" @click.native="changeEquipmentName('tableForm',$index)"></uu-icon>
-                    <uu-icon type="error" @click.native="cancelPopover($index)"></uu-icon>
-                  </el-form-item>
-                </el-form>
-                <a href="javascript:void (0)" slot="reference">{{item.deviceName?item.deviceName:'暂无昵称'}}</a>
-              </el-popover>
-            </p>
-            <p>
-              <span>运行状态：</span>
-              <span class="error-color">{{item.deviceState | deviceState}}</span>
-              <a href="javascript:void (0)" @click="getEquipmentState(item)">
-                <i v-if="item.deviceState" class="el-icon-refresh success-color"></i>
-                <template v-else>获取</template>
-              </a>
-            </p>
+          <ob-list-item type="state" :data="item" :isAmend="true">
           </ob-list-item>
           <ob-list-item>
             <p><span>序列号：</span><span>{{item.deviceKey}}</span></p>
@@ -78,47 +49,7 @@
               <p><span>应用场景：</span>{{item.deviceScene}}</p>
             </template>
           </ob-list-item>
-          <ob-list-item>
-            <div class="handle btn-item">
-              操作：<br>
-              <el-popover
-                placement="top"
-                trigger="hover">
-                <div>
-                  <p>1.获取设备状态后，可进行操作。</p>
-                  <p>2.已绑定至社群，无法删除该设备。</p>
-                </div>
-                <i slot="reference" style="margin-top: 10px" class="el-icon-question"></i>
-              </el-popover>
-            </div>
-            <div class="btn-wrap btn-item">
-              <el-button
-                :disabled="btnState(item.deviceState,'close')"
-                @click="handleBtn(item,'close')"
-                class="medium close">{{item.deviceState===1?'关机':'开机'}}
-              </el-button>
-              <el-button
-                :disabled="btnState(item.deviceState,'reboot')"
-                @click="handleBtn(item,'reboot')"
-                class="medium reboot">重启
-              </el-button>
-              <el-button
-                :disabled="btnState(item.deviceState,'upgrade')"
-                @click="handleBtn(item,'upgrade')"
-                class="medium upgrade">升级
-              </el-button>
-              <el-button
-                :disabled="btnState(item.deviceState,'reset')"
-                @click="handleBtn(item,'reset')"
-                class="medium reset">重置
-              </el-button>
-            </div>
-            <el-button
-              class="btn-item"
-              :disabled="btnState(item.deviceState,'del')"
-              icon="el-icon-delete"
-              @click="deleteEquipment(item)" circle>
-            </el-button>
+          <ob-list-item :data="item" type="handle" :showDelete="true">
           </ob-list-item>
         </ob-list>
       </template>

@@ -185,7 +185,7 @@
 </script>
 
 <style lang="scss">
-  .community-common-from-wrap{
+  .community-common-form-wrap{
     .qr-code-wrap {
       display: inline-block;
       vertical-align: middle;
@@ -203,7 +203,6 @@
 
       }
     }
-
     .qr-code-wrap {
       height: 120px;
       text-align: center;

@@ -326,9 +326,15 @@
         } else {
           this.currentData = this.tokenData
         }
+      },
+      getDeveloperInfo(){
+        this.$http("/developer/find").then(res=>{
+          this.devInfo = res.data
+        })
       }
     },
     mounted() {
+      this.getDeveloperInfo();
       this.routeChange(this.$route);
     },
     watch: {

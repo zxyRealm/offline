@@ -41,8 +41,12 @@ const actions = {
 };
 
 const mutations = {
-  SET_USER_INFO:(state,data)=>{
-    state.userInfo = data || {};
+  SET_USER_INFO:(state,data,key)=>{
+    if(key){
+      state.userInfo[key] = data[key]
+    }else {
+      state.userInfo = data || {};
+    }
   },
   SET_FILTER_PARAMS: (state,data) => {
     state.filterParams = data || {};

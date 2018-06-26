@@ -18,11 +18,11 @@ export function deviceType(type) {
   }
 }
 
-export function deviceState(state) {
+export function lineState(state) {
   switch (state){
     case 1:
       return '离线';
-    case 2:
+    case 0:
       return '在线';
     default:
       return '';

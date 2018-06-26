@@ -14,7 +14,7 @@
         <router-link to="/console">控制台</router-link>
       </div>
       <div class="navbar-console" v-if="$route.name  == 'console-lwh'">
-        <select @click="getGropId">
+        <select @click="getGroupId">
           <option>请选择社群</option>
         </select>
       </div>
@@ -61,16 +61,16 @@ export default {
     ]),
     avatarUrl:{
       get(){
-        return this.userInfo.fullImage || '/static/img/logo.png';
+        return this.userInfo.faceImgURL || '/static/img/logo.png';
       },
       set(){
-
+        return this.userInfo.faceImgURL || ''
       }
     }
   },
   methods: {
     //获取当前设备
-    getGropId() {
+    getGroupId() {
       this.groupSelectId = "ddu你好毒！！！udd";
       this.$store.commit("SET_GROUP_CONSOLEID",this.groupSelectId);
     },
@@ -180,6 +180,7 @@ export default {
           .avatar{
             height: 100%;
             width: 100%;
+            border-radius: 50%;
             background-repeat: no-repeat;
             background-position: center center;
             background-size: contain;

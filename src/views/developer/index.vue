@@ -10,7 +10,7 @@
           :on-success="handleAvatarSuccess"
           :http-request="avatarUpload"
           :before-upload="beforeAvatarUpload">
-          <div v-if="avatarUrl" :style="{ backgroundImage:'url(/static/img/logo.png)'}" class="avatar"></div>
+          <div v-if="avatarUrl" :style="{ backgroundImage:'url('+avatarUrl+')'}" class="avatar"></div>
           <i  class="el-icon-plus avatar-uploader-icon" v-else></i>
         </el-upload>
         <!--<img src="/static/img/logo.png" alt="">-->
@@ -131,9 +131,29 @@ import { mapState } from 'vuex'
         }
       },
       avatarUpload(data){
-        console.log('custom',data.file);
-        this.$http(`merchant/${this.userInfo.merchantGuid}/${data.file.name}`).then(res=>{
-
+        this.$http('/auth/oss/image/signature').then(res=>{
+          if(res.data){
+            let formData = new FormData();
+            if(!this.userInfo.merchantGuid){
+              this.$tip("请先完善个人信息");
+              return
+            }
+            formData.append('key',`merchant/${this.userInfo.merchantGuid}/${data.file.name}`);
+            formData.append('policy', res.data['policy']);
+            formData.append('OSSAccessKeyId', res.data['accessid']);
+            formData.append('success_action_status', '200');
+            formData.append('signature', res.data['signature']);
+            formData.append('file', data.file, data.file.name);
+            this.$http(res.data.host,formData).then(back=>{
+              console.log('=====',back)
+            }).catch(err=>{
+              let avatarHref = res.data.host+'/merchant/'+this.userInfo.merchantGuid+'/'+data.file.name;
+              this.$http("/merchant/usercenter/image",{faceImgURL:avatarHref}).then(res=>{
+                this.$tip('头像上传成功');
+                this.$store.state.userInfo.faceImgURL = avatarHref;
+              });
+            })
+          }
         });
       },
       handleAvatarSuccess(){
@@ -148,8 +168,6 @@ import { mapState } from 'vuex'
         if (!isLt2M) {
           this.$tip('上传头像图片大小不能超过 2MB!','error');
         }
-
-        console.log('before',file);
         return isJPG && isLt2M;
       }
     },
@@ -189,10 +207,12 @@ import { mapState } from 'vuex'
         "userInfo"
       ]),
       avatarUrl:{
-        get(){
+        get(val){
+          console.log('get avatar',this.userInfo.faceImgURL);
           return this.userInfo.faceImgURL || '/static/img/logo.png'
         },
         set(val){
+          console.log('set avatar',val);
           return this.userInfo.faceImgURL || ''
         }
       }
@@ -246,9 +266,12 @@ import { mapState } from 'vuex'
       .el-upload{
         height: 100%;
         width:100%;
+        box-sizing: border-box;
+        padding: 2px;
         .avatar{
           width: 100%;
           height: 100%;
+          border-radius: 50%;
           background-position: center center;
           background-repeat: no-repeat;
           background-size:contain;

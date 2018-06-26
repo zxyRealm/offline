@@ -653,7 +653,8 @@ code,pre {
 .el-scrollbar{
   margin: auto;
   .el-scrollbar__wrap{
-    overflow-x: hidden;
+    //overflow-x: hidden;
+    height: calc(100% + 17px);
   }
   &.ob-scrollbar{
     height: 100%;

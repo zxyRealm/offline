@@ -169,12 +169,17 @@
     methods: {
       // 获取社群列表
       getGroupList(keywords,key) {
-        keywords = keywords || '';
+        keywords = (keywords || '').trim();
         this.$http("/group/list", {searchText: keywords}).then(res => {
-          this.currentKey = (key || res.data[0]).groupGuid;
-          this.getCommunityInfo(key || res.data[0]);
-          this.getDeviceList(this.currentKey);
-          this.groupList = res.data;
+
+          if(keywords===''){
+            this.currentKey = (key || res.data[0]).groupGuid;
+            this.getCommunityInfo(key || res.data[0]);
+            this.getDeviceList(this.currentKey);
+            this.groupList = res.data;
+          }else {
+
+          }
           this.notHave = false;
         })
       },
@@ -186,7 +191,7 @@
       },
       // 搜索社群
       remoteSearch(val){
-        console.log(val)
+        this.getGroupList(val)
       },
       // 当前社群发生改变
       currentChange(val){

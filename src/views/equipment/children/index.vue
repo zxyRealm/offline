@@ -17,24 +17,10 @@
       </div>
       <div class="ec-container" :class="{'dashed-border':isSearch}">
         <el-scrollbar class="ob-scrollbar">
-          <div v-if="!initState||!equipmentList.length" class="no-data-children">
-            {{tipMsg}}
-          </div>
+          <ob-list-empty v-if="!initState||!equipmentList.length" :text="tipMsg"></ob-list-empty>
           <template v-for="(item,$index) in equipmentList" v-else>
             <ob-list>
-              <ob-list-item>
-                <p>
-                  <span>设备别名：</span>
-                  {{item.deviceName}}
-                </p>
-                <p>
-                  <span>运行状态：</span>
-                  <span class="error-color">{{item.deviceState | deviceState}}</span>
-                  <a href="javascript:void (0)" @click="getEquipmentState(item)">
-                    <i v-if="item.deviceState" class="el-icon-refresh success-color"></i>
-                    <template v-else>获取</template>
-                  </a>
-                </p>
+              <ob-list-item :data="item" type="state">
               </ob-list-item>
               <ob-list-item>
                 <p><span>序列号：</span><span>{{item.deviceKey}}</span></p>
@@ -57,42 +43,9 @@
                 <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
                 <p><span>应用场景：</span>{{item.deviceScene}}</p>
               </ob-list-item>
-              <ob-list-item>
-                <div class="handle btn-item">
-                  操作：<br>
-                  <el-popover
-                    placement="top"
-                    trigger="hover">
-                    <div>
-                      <p>1.获取设备状态后，可进行操作。</p>
-                      <p>2.已绑定至社群，无法删除该设备。</p>
-                    </div>
-                    <i slot="reference" style="margin-top: 10px" class="el-icon-question"></i>
-                  </el-popover>
-                </div>
-                <div class="btn-wrap btn-item">
-                  <el-button
-                    :disabled="btnState(item.deviceState,'close')"
-                    @click="handleBtn(item,'close')"
-                    class="medium close">{{item.deviceState===1?'关机':'开机'}}
-                  </el-button>
-                  <el-button
-                    :disabled="btnState(item.deviceState,'reboot')"
-                    @click="handleBtn(item,'reboot')"
-                    class="medium reboot">重启
-                  </el-button>
-                  <el-button
-                    :disabled="btnState(item.deviceState,'upgrade')"
-                    @click="handleBtn(item,'upgrade')"
-                    class="medium upgrade">升级
-                  </el-button>
-                  <el-button
-                    :disabled="btnState(item.deviceState,'reset')"
-                    @click="handleBtn(item,'reset')"
-                    class="medium reset">重置
-                  </el-button>
-                </div>
+              <ob-list-item :data="item" type="handle">
               </ob-list-item>
+
             </ob-list>
           </template>
         </el-scrollbar>
