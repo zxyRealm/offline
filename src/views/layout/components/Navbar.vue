@@ -23,8 +23,8 @@
           <uu-icon type="notify"></uu-icon>
         </router-link>
         <router-link to="/developer/info" class="user-info">
-          <div class="avatar-wrap">
-            <img src="/static/img/logo.png" alt="">
+          <div class="avatar-wrap" >
+            <div class="avatar" :style="{backgroundImage:'url('+avatarUrl+')'}"></div>
           </div>
           <span>{{userInfo.phone}}</span>
         </router-link>
@@ -58,7 +58,15 @@ export default {
     ]),
     ...mapState([
       "userInfo"
-    ])
+    ]),
+    avatarUrl:{
+      get(){
+        return this.userInfo.fullImage || '/static/img/logo.png';
+      },
+      set(){
+
+      }
+    }
   },
   methods: {
     //获取当前设备
@@ -79,6 +87,7 @@ export default {
       })
     }
   }
+
 }
 </script>
 
@@ -166,9 +175,14 @@ export default {
           background-size: contain;
           vertical-align: middle;
           margin-right: 10px;
-          img{
+          padding: 2px;
+          box-sizing: border-box;
+          .avatar{
             height: 100%;
             width: 100%;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: contain;
           }
         }
       }

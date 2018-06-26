@@ -642,6 +642,13 @@ code,pre {
 }
 
 //白色主题
+.el-select-dropdown{
+  .el-scrollbar{
+    .el-scrollbar__wrap{
+      overflow: scroll;
+    }
+  }
+}
 
 .el-scrollbar{
   margin: auto;

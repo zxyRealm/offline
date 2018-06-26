@@ -7,13 +7,13 @@
       <uu-form
         width="310px"
         label-width="96px"
+        :sub-text="step===2?'确定':''"
         @handle-submit="submitForm"
-        :readonly="!editable"
         v-model="joinForm"
         :rules="rules"
       >
         <el-form-item label-width="86px">
-          <div class="fs14">
+          <div class="item-title">
             1.通过社群邀请码搜索社群
           </div>
         </el-form-item>
@@ -24,7 +24,7 @@
             placeholder="请输入社群邀请码"
             v-model="joinForm.code"></el-input>
         </el-form-item>
-        <el-form-item v-if="communityInfo.groupGuid" label-width="100px">
+        <el-form-item v-if="communityInfo.guid && step!==2" label-width="100px">
           <div class="txt">
             您
             <a href="javascript:void (0)" @click="ensure">确定</a>
@@ -38,8 +38,8 @@
             <p>索权范围：星巴克-滨江区</p>
           </div>
         </el-form-item>
-        <el-form-item v-if="step===2" label-width="86spx">
-          <div class="fs14">
+        <el-form-item label-width="86px" v-if="step===2" >
+          <div class="item-title">
             2.选择自有社群加入
           </div>
         </el-form-item>
@@ -49,7 +49,7 @@
             <el-option
               v-for="item in groupList"
               :key="item.groupGuid"
-              :label="item.groupName"
+              :label="item.groupNickName"
               :value="item.groupGuid"></el-option>
           </el-select>
         </el-form-item>
@@ -74,17 +74,23 @@
         }
       };
       const  validateCode = (rule,value,callback)=>{
+        value = value.trim();
         this.communityInfo = {};
         if(!value){
           this.step = 1;
           callback(new Error("请填写社群邀请码"))
         }else {
+          console.log(value.length);
           if(value.length===10){
             this.$http("/group/code/info",{code:value}).then(res=>{
-              callback();
-              this.communityInfo = res.data;
-              if(!this.groupList.length){
-                this.getGroups()
+              if(res.data){
+                this.communityInfo = res.data;
+                if(!this.groupList.length){
+                  this.getGroups()
+                }
+                callback()
+              }else {
+                callback(new Error('邀请码不存在，请重新输入'));
               }
             }).catch(err=>{
               this.step = 1;
@@ -114,7 +120,6 @@
             {required:true,message:'请选择自有社群',trigger:'blur'}
           ],
           code:[
-            {required:true,message:'请填写邀请码',trigger:'blur'},
             {required:true,validator:validateCode,trigger:'change'}
           ]
         }
@@ -122,11 +127,10 @@
     },
     methods:{
       submitForm(data){
-        console.log(data)
-      },
-      getCommunityInfo(){
-        this.$http("/group/code/info",{code:this.joinForm.code}).then(res=>{
-          this.communityInfo = res.data
+        console.log('submit',data);
+        this.$http('/group/join',data).then(res=>{
+          this.$tip('加入成功');
+          this.$router.push("/community/mine")
         })
       },
       // 获取自有社群
@@ -155,8 +159,13 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .community-common-from-wrap{
-
+    .el-form-item{
+      .item-title{
+        font-size: 14px;
+        margin: 30px 0 15px;
+      }
+    }
   }
 </style>

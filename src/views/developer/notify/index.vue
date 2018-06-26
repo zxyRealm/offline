@@ -1,12 +1,10 @@
 <template>
   <div class="notify-wrap">
     <uu-sub-tab :menu-array="menu" :show-button="!equipmentEmpty" :sub-btn="btnOption" @handle-btn="addCallbackInfo"></uu-sub-tab>
-    <!--<video src="/static/d1.264-3.mp4" controls="controls">-->
-      <!--您的浏览器不支持 video 标签。-->
-    <!--</video>-->
+
     <no-callback-info v-if="equipmentEmpty"></no-callback-info>
     <div class="data-list-wrap" v-else>
-      <template v-for="(item,$index) in notifyList">
+      <template v-if="notifyList && notifyList.length" v-for="(item,$index) in notifyList">
         <ob-list>
           <ob-list-item type="type" :data="item" prop="type" label="通知类型"></ob-list-item>
           <ob-list-item :data="item" prop="intro,tokenURL" label="通知描述,回调地址"></ob-list-item>
@@ -21,6 +19,7 @@
           </ob-list-item>
         </ob-list>
       </template>
+      <ob-list-empty text="暂无通知信息。" v-else></ob-list-empty>
     </div>
   </div>
 </template>
@@ -48,7 +47,7 @@
     methods: {
       equipmentExit(){
         this.$http("/device/merchant/exist",false).then(res=>{
-          this.equipmentEmpty = res.data;
+          this.equipmentEmpty = !res.data;
           if(res.data){
             this.getNotifyList()
           }

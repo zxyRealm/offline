@@ -45,6 +45,7 @@
           ref="customGroup"
           :show-checkbox="true"
           :check-strictly="true"
+          :multiple="multiple"
           theme="white"
           type="custom"
         ></ob-group-nav>
@@ -99,6 +100,14 @@
       width:{
         type:[Number,String],
         default:'330px'
+      },
+      multiple:{  //当type为group是设置有效 是否可多选
+        type:Boolean,
+        default:false
+      },
+      keys:{    //当type为group是设置有效 默认获取节点，true获取key数组
+        type:Boolean,
+        default:false
       }
     },
     data() {
@@ -186,8 +195,11 @@
     methods:{
       submitDialogForm(formName){
         if(this.type==='group'){
-          this.$emit("remote-submit",this.$refs.customGroup.getCheckedKeys());
-         // console.log(this.$refs.customGroup)
+          let backArray = this.$refs.customGroup.getCheckedNodes();
+          if(this.keys){
+            backArray = this.$refs.customGroup.getCheckedKeys();
+          }
+          this.$emit("remote-submit",backArray);
         }else {
           this.$refs[formName].validate(valid=>{
             if(valid){
@@ -210,7 +222,6 @@
         }
 
       },
-
       closeDialog(){
         console.log('close')
         this.$refs.dialogForm.resetFields()
