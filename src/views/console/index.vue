@@ -238,7 +238,7 @@
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
    .console-wrap { 
-       background: black;
+       background: rgba(1, 8, 20, 0.1);
        box-sizing: border-box;
        height: 100%;
        min-width: 1240px;

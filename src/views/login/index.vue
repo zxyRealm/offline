@@ -78,7 +78,7 @@
             this.loading = true;
             this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
               this.loading = false;
-              this.$router.push({path:'/developer'})
+              this.$router.push({path:'/index'})  ///developer
             }).catch(() => {
               this.loading = false
             })
