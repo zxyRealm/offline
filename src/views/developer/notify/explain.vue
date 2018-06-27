@@ -1,6 +1,9 @@
 <template>
   <div class="param-explain-wrap">
-    <uu-sub-tab :menu-array="menu"></uu-sub-tab>
+    <uu-sub-tab back :menu-array="menu"></uu-sub-tab>
+    <div class="params-detail-wrap">
+
+    </div>
   </div>
 </template>
 

@@ -1,7 +1,25 @@
 @import './variables.scss';
+
+
+
 .common-form {
   margin: 0 auto;
   //默认黑色主题背景
+  &[block-message]{
+    .el-form-item{
+      position: initial!important;
+      margin-bottom: 20px!important;
+      .el-form-item__error{
+        line-height: 20px!important;
+        padding: 0!important;
+        top:100%!important;
+        left:0!important;
+      }
+    }
+  }
+  .el-radio-button__orig-radio:disabled+.el-radio-button__inner{
+    cursor: text;
+  }
   .el-select{
     width: 100%;
   }

@@ -188,7 +188,6 @@
       getDeviceState(value){
         // 0为在线，1为离线
         this.$http("/device/state/use",{deviceKey:value.deviceKey}).then(res=>{
-          console.log(this.data.offline)
           if(this.data.offline!==undefined){
             this.$tip("刷新成功")
           }
@@ -226,10 +225,15 @@
         }
         this.$affirm({text: '确定' + des + '设备【' + value.deviceName + '】?'}, (action, instance, done) => {
           if (action === 'confirm') {
+            done();
             let subData = {deviceKey:this.data.deviceKey};
              type ==='run'?(subData.operationCode?(value.deviceState?0:1):''):'';
              this.$load(`正在${des}中...`);
-             this.data.deviceState = 3;
+             // this.$affirm({text:'设备【BOX】升级中，请耐心等待...\n' +
+             //   '升级完成后您将收到站内通知。'},(action2,instance2,done2)=>{
+             //    done2()
+             // },'waiting');
+            this.data.deviceState = 3;
             this.$http(url,subData).then(res=>{
               this.$load().close();
               switch (type) {
@@ -251,8 +255,9 @@
                   break;
                 default:
               }
+            }).catch(err=>{
+              this.$load().close()
             });
-            done()
           } else {
             done()
           }

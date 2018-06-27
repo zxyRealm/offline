@@ -1,6 +1,6 @@
 <template>
   <div class="notify-wrap">
-    <uu-sub-tab :menu-array="menu"></uu-sub-tab>
+    <uu-sub-tab back :menu-array="[{title:notifyTitle}]"></uu-sub-tab>
     <div class="notify-form-wrap vam">
       <uu-form
         ref="callbackInfoForm"
@@ -82,13 +82,17 @@
             }
             this.$router.push("/developer/notify")
           }
-          console.log(res)
         })
       },
       getCallbackInfo(){
         this.$http("/dataNotice/getInfo",{noticeGuid:this.$route.params.id}).then(res=>{
          this.callbackForm = res.data
         })
+      }
+    },
+    computed:{
+      notifyTitle:function () {
+        return this.$route.name==='addNotifyCallback'?'创建数据回调':'编辑数据回调'
       }
     },
     mounted(){

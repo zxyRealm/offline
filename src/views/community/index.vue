@@ -17,13 +17,14 @@
             <el-button class="affirm medium" @click="$router.push('/community/join')">加入</el-button>
             <el-button class="affirm medium" @click="$router.push('/community/create')">创建</el-button>
           </div>
-
           <uu-sub-tab
             size="small"
             search
             @remote-search="remoteSearch"
             :menu-array="[{title:'自有社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
           <ob-group-nav
+            ref="groupNav"
+            only-checked
             v-model="groupList"
             type="community"
             :current-key="currentKey"
@@ -40,7 +41,7 @@
             </h2>
             <div class="cm-info-wrap">
               <div class="info-detail">
-                <p  v-if="isSon">
+                <p v-if="isSon">
                   <span class="fs14">社群昵称：</span>
                   <el-popover
                     placement="top"
@@ -50,7 +51,7 @@
                       @submit.native.prevent
                       ref="nickNameForm"
                       :rules="rules"
-                      class="table-form common-form"
+                      class="table-form"
                       :model="communityForm"
                     >
                       <el-form-item prop="groupNickName">
@@ -149,102 +150,106 @@
         notHave: true,
         groupList: [],
         tableData: [],
-        deviceList:[],
+        deviceList: [],
         communityInfo: {},
-        currentKey:'',
-        communityForm:{
-          groupPid:'',
-          groupGuid:'',
-          groupNickName:''
+        currentKey: '',
+        communityForm: {
+          groupPid: '',
+          groupGuid: '',
+          groupNickName: ''
         },
-        rules:{
-          groupNickName:[
-            { required: true, message: '请输入社群昵称', trigger: 'blur' },
-            { min: 2, max: 18, message: '长度在 2 到 18 个字符', trigger: 'blur' }
+        rules: {
+          groupNickName: [
+            {required: true, message: '请输入社群昵称', trigger: 'blur'},
+            {min: 2, max: 18, message: '长度在 2 到 18 个字符', trigger: 'blur'}
           ]
         },
-        nickNamePopover:false
+        nickNamePopover: false
       }
     },
     methods: {
       // 获取社群列表
-      getGroupList(keywords,key) {
+      getGroupList(keywords, key, isSearch) {
         keywords = (keywords || '').trim();
         this.$http("/group/list", {searchText: keywords}).then(res => {
-
-          if(keywords===''){
+          if (keywords === '') {
+            this.groupList = res.data;
+            this.notHave = false;
+          } else {
+            let keys = res.data.map(item => {
+              return item.groupGuid
+            });
+            this.$refs.groupNav.setCheckedKeys(keys)
+          }
+          if(res.data[0]){
             this.currentKey = (key || res.data[0]).groupGuid;
             this.getCommunityInfo(key || res.data[0]);
             this.getDeviceList(this.currentKey);
-            this.groupList = res.data;
-          }else {
-
           }
-          this.notHave = false;
         })
       },
       // 获取设备列表
-      getDeviceList(gid){
-        this.$http("/device/guid/list",{guid:gid}).then(res=>{
+      getDeviceList(gid) {
+        this.$http("/device/guid/list", {guid: gid}).then(res => {
           this.deviceList = res.data.content || []
         })
       },
       // 搜索社群
-      remoteSearch(val){
+      remoteSearch(val) {
         this.getGroupList(val)
       },
       // 当前社群发生改变
-      currentChange(val){
-       this.insetForm();
-       this.getCommunityInfo(val);
+      currentChange(val) {
+        this.insetForm();
+        this.getCommunityInfo(val);
         this.getDeviceList(val.groupGuid)
       },
       // 获取社群详细信息
-      getCommunityInfo(val){
-        this.$http("/group/getInfo",{guid:val.groupGuid}).then(res=>{
-          res.data?res.data.groupPid = val.groupPid:'';
+      getCommunityInfo(val) {
+        this.$http("/group/getInfo", {guid: val.groupGuid}).then(res => {
+          res.data ? res.data.groupPid = val.groupPid : '';
           this.communityInfo = res.data || {};
-          if(res.data){
-            this.$createQRCode(res.data.code,'qr-code')
+          if (res.data) {
+            this.$createQRCode(res.data.code, 'qr-code')
           }
         })
       },
       // 解散社群
-      disbandGroup(){
-        this.$affirm({text:`确认解散【${this.communityInfo.name}】社群？`},(action,instance,done)=>{
-          if(action==='confirm'){
-            this.$http("/group/disbandGroup",{guid:this.communityInfo.guid}).then(res=>{
+      disbandGroup() {
+        this.$affirm({text: `确认解散【${this.communityInfo.name}】社群？`}, (action, instance, done) => {
+          if (action === 'confirm') {
+            this.$http("/group/disbandGroup", {guid: this.communityInfo.guid}).then(res => {
               this.$tip("解散成功");
               this.getGroupList()
             });
             done()
-          }else {
+          } else {
             done()
           }
         });
 
       },
       // 修改社群昵称
-      changeCommunityName(formName){
-        this.$refs[formName].validate(valid=>{
-          if(valid){
+      changeCommunityName(formName) {
+        this.$refs[formName].validate(valid => {
+          if (valid) {
             let subData = JSON.parse(JSON.stringify(this.communityForm));
             subData.groupGuid = this.communityInfo.guid;
             subData.groupPid = this.communityInfo.groupPid;
-            this.$http('/group/nickName/update',subData).then(res=>{
+            this.$http('/group/nickName/update', subData).then(res => {
               this.$tip("昵称修改成功");
               this.insetForm();
-              this.getGroupList('',{groupGuid:this.communityInfo.guid,groupPid:this.communityInfo.groupPid})
+              this.getGroupList('', {groupGuid: this.communityInfo.guid, groupPid: this.communityInfo.groupPid})
             })
-          }else {
+          } else {
             console.log('error submit')
           }
         })
       },
-      insetForm(){
+      insetForm() {
         this.nickNamePopover = false;
-        if(this.$refs.nickNameForm){
-          this.$nextTick(()=>{
+        if (this.$refs.nickNameForm) {
+          this.$nextTick(() => {
             this.$refs.nickNameForm.resetFields()
           })
         }
@@ -257,21 +262,16 @@
       currentRule: function () {
         return (this.communityInfo.rule || '').split(",").length === 1 ? '数据查看权限' : '数据查看权限、设备操作权限'
       },
-      isSon:function () {
+      isSon: function () {
         return Boolean(this.communityInfo.groupPid)
       }
-    },
-    watch:{
-      groupList:function (val) {
-        console.log('grouplist',val)
-      }
     }
-
   }
 </script>
 
 <style lang="scss" scoped>
   @import "@/styles/community.scss";
+
   .community--inner {
     position: relative;
     padding: 20px;
@@ -281,9 +281,9 @@
       float: left;
       width: 230px;
       height: 100%;
-      .ob-group-nav{
+      .ob-group-nav {
         padding: 0 20px;
-        .el-tree-node__content{
+        .el-tree-node__content {
           /*padding: 0 20px!important;*/
         }
       }
@@ -315,7 +315,7 @@
           .info-qr-code {
             float: right;
             text-align: center;
-            margin-top:20px;
+            margin-top: 20px;
             > div {
               display: inline-block;
               vertical-align: middle;

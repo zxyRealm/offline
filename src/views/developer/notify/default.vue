@@ -40,11 +40,9 @@
           cancel:'返回',
           text:'您还没有设备，无法创建数据回调。'
         },(action,instance,done)=>{
-          console.log(this.$route.name);
           if(action==='confirm'){
             done();
-            this.$router.push("/developer/notify/add-info");
-            console.log("确定提交")
+            this.$router.push("/equipment/mine");
           }else {
             done()
           }

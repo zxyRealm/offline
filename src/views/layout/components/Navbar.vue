@@ -26,7 +26,7 @@
           </div>
           <span>{{userInfo.phone}}</span>
         </router-link>
-        <a href="javascript:void (0);" class="exit" @click="logout">
+        <a href="javascript:void (0);" class="exit" @click="$exit()">
           <uu-icon type="exit"></uu-icon>
         </a>
       </div>

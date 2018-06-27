@@ -548,13 +548,25 @@ code,pre {
 
 //默认主题 黑色
 .el-tree{
+  .el-tree-node__content>.el-tree-node__expand-icon{
+    padding: 4px;
+  }
+  .el-tree-node__children{
+    .el-tree-node__expand-icon.is-leaf{
+      padding: 0px!important;
+    }
+  }
   .el-tree-node__expand-icon.is-leaf{
-    padding: 0!important;
+    //padding: 4px!important;
     color: transparent!important;
   }
   .el-tree-node__content{
     height: 32px;
     line-height: 32px;
+    background: transparent!important;
+    &:focus,&:hover{
+     background-color: transparent;
+    }
     .el-popover__reference,.el-icon-remove-outline{
       display: none;
     }
@@ -586,7 +598,6 @@ code,pre {
     }
     .el-tree-node__content{
       position: relative;
-      background: transparent;
       &:hover{
         color: $blue;
         &:after{
