@@ -35,6 +35,7 @@ const consoleIndex = () => import('@/views/console/index.vue');
 
 /** 首页+消息 **/
 const homePage = () => import('@/views/index/index');
+const homeNotify = () => import('@/views/index/notify/index');
 
 Vue.use(Router);
 
@@ -70,7 +71,15 @@ export const asyncRouterMap = [
             title: "首页展示"
           },
           component: homePage
-      }
+      },
+      {
+        path: '/index/notify/:notifyState',
+        name:  'index-home',
+        meta: {
+          title: "首页展示-消息通知"
+        },
+        component: homeNotify
+    }
     ]
   },
   {

@@ -7,8 +7,8 @@
       </div>
       <div class="content">
           <h1>Hello, Uni-Ubi</h1>
-          <p>Save time,Enjoy life</p>
-          <h3>用有思想的技术，创造无处不在的美好</h3>
+          <p>Save time, Enjoy life</p>
+          <h2>用有思想的技术,&nbsp;&nbsp;创造无处不在的美好</h2>
       </div>
       <div class="bottom">
             <ul>
@@ -111,7 +111,7 @@ export default {
             padding: 4px 0 20px 0;
             color: #ffffff;
           }
-          h3 {
+          h2 {
             font-size: 18px;
           }
       }

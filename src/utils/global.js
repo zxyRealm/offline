@@ -3,6 +3,7 @@ import Clipboard from "clipboard"
 import QRCode from 'qrcodejs2'
 import { fetch,message } from '@/utils/request'
 exports.install = function (Vue, options) {
+  
   // 公用提示框
   Vue.prototype.$tip = function (txt, type = 'info', delay = 1000) {
    return message(txt,type,delay)
