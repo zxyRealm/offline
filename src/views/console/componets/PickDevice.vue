@@ -11,6 +11,7 @@
     >
     <div class="go-forword" @click="forword">上一步</div>
     <template>
+       <div v-if="deviceData.length == 0">该社群下暂时没有设备可以添加</div>
         <el-radio-group v-model="radio">
             <el-radio  v-for="(val,index) in deviceData" :label="index" :key="index">{{val['deviceName']}}</el-radio>
         </el-radio-group>
@@ -23,6 +24,7 @@
   </el-dialog>
 </template>
 <script>
+  import {eventObject} from '@/utils/event.js'
   export default {
    props: {
             title: {

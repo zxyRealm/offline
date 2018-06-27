@@ -17,8 +17,8 @@
         <span>{{seelctName}}</span>
       </div>
       <div class="right-menu-item vam">
-        <router-link to="/developer/notify" class="system-notify">
-          <uu-icon type="notify"></uu-icon>
+        <router-link :to="'/index/notify/'+notifState" class="system-notify" >
+          <uu-icon type="notify" :class="notifState?'notify-have':''"></uu-icon>
         </router-link>
         <router-link to="/developer/info" class="user-info">
           <div class="avatar-wrap" >
@@ -53,6 +53,7 @@ import { mapGetters,mapState } from 'vuex'
 // import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import PickDevice from '../../console/componets/PickDevice.vue'
+import {eventObject} from '@/utils/event.js'
 export default {
   components: {
     Hamburger,
@@ -60,6 +61,7 @@ export default {
   },
   data(){
     return {
+      notifState: false,  //是否有站内消息
       groupSelectId: '',
       seelctName: '请选择您的社群',
       dialogFormVisible: false,
@@ -126,6 +128,23 @@ export default {
         location.reload()// In order to re-instantiate the vue-router object to avoid bugs
       })
     }
+  },
+  created() {
+      //是否有新的消息
+      this.$http('/siteNotice/unRead').then(res => {
+        if(res.result == 1){
+            this.notifState = res.data > 0 ? true : false;
+        }
+      }).catch(error => {
+         console.info(error);
+      });
+  },
+  mounted() {
+      console.info(eventObject());
+      eventObject().$on('change', msg => { //eventObject接收事件
+        console.info(msg,"msg");
+        this.dialogFormVisible = true;
+      });
   },
   beforeRouteLeave (to, from, next) {
 
@@ -203,6 +222,16 @@ export default {
       >a{
         display: inline-block;
         margin: 0 5px;
+      }
+      .notify-have  {
+         position: relative;
+         &::before{
+            content: '';
+            border: 3px solid #F44336;
+            border-radius: 50%;
+            position: absolute;
+            left: 14px
+         }
       }
       .user-info{
         height: 34px;

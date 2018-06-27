@@ -69,6 +69,7 @@
   import lineConsole from '@/components/echarts/line.vue'
   import CustomerInfo from './componets/CustomerInfo.vue'
   import  { mapState } from 'vuex'
+  import {eventObject} from '@/utils/event.js'
   export default {
       name: "console",
       components: {FlowInfo,AllTime,bar,pie,lineConsole,CustomerInfo},
@@ -95,7 +96,7 @@
       },
       methods: {
           selectGroupId() {
-              console.info("请选择相应的设备");
+             eventObject().$emit('change','快点操作啊！');
           },
           getwebsocket(data) {
               
@@ -238,7 +239,7 @@
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
    .console-wrap { 
-       background: black;
+       background: rgba(1, 8, 20, 0.1);
        box-sizing: border-box;
        height: 100%;
        min-width: 1240px;

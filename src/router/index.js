@@ -33,6 +33,10 @@ const shopFrequencyAnalysis = () => import('@/views/data/shop-frequency-analysis
 /** 控制台 **/
 const consoleIndex = () => import('@/views/console/index.vue');
 
+/** 首页+消息 **/
+const homePage = () => import('@/views/index/index');
+const homeNotify = () => import('@/views/index/notify/index');
+
 Vue.use(Router);
 
 
@@ -50,6 +54,34 @@ export const constantRouterMap = [
 ];
 
 export const asyncRouterMap = [
+  {
+    path: "/index",
+    redirect: '/index/index',
+    component: Layout,
+    meta: {
+      auth: true,
+      title: '首页',
+      roles: ['admin']
+    },
+    children: [
+      {
+          path: '/',
+          name:  'index-lwh',
+          meta: {
+            title: "首页展示"
+          },
+          component: homePage
+      },
+      {
+        path: '/index/notify/:notifyState',
+        name:  'index-home',
+        meta: {
+          title: "首页展示-消息通知"
+        },
+        component: homeNotify
+    }
+    ]
+  },
   {
     path: "/console",
     component: Layout,

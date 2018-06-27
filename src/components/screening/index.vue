@@ -190,6 +190,17 @@
         border-radius: 3px;
         text-indent: 10px;
       }
+      input.group-name-input::after {
+        content: "";
+        width: 0px;
+        height: 0px;
+        border-right: 8px solid transparent;
+        border-left: 8px solid transparent;
+        border-top: 8px solid #ffffff;
+        top: 14px;
+        left: 10px;
+        position: relative;
+      }
       .dimension-button {
         width: 48px;
         height: 28px;
