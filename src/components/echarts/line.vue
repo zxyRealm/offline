@@ -83,16 +83,38 @@ import { mapState } from 'vuex'
                   name:'进人数',
                   type:'line',
                   smooth:true,
+                   areaStyle: {
+                      normal: {
+                          color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                              offset: 0,
+                              color: '#000'
+                          }, {
+                              offset: 1,
+                              color: '#ffe'
+                          }])
+                      }
+                  },
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                  data:["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
+                  data:["11", "10", "10", "10", "10", "110", "10", "10", "1110", "1011", "1110", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
                 },
                 {
                   name:'出人数',
                   type:'line',
-                  areaStyle: {normal: {}},
+                 // areaStyle: {normal: {}},
                   smooth:true,
+                   areaStyle: {
+                      normal: {
+                          color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                              offset: 0,
+                              color: '#000'
+                          }, {
+                              offset: 1,
+                              color: '#000'
+                          }])
+                      }
+                  },
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                  data:["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
+                  data:["110", "0", "110", "0", "0", "0", "0", "110", "0", "1110", "1110", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
                 }
               ]
             }
@@ -235,10 +257,13 @@ import { mapState } from 'vuex'
             this.showGenderData();
             this.timing();  //定时刷新数据，一个小时一次
         }else {
-            this.changeColor();
-            this.changeTitle();
-            this.defaultShow();
-            this.drawLine();
+          this.changeColor();
+          if(!this.$store.state.filterParams.groupGuid || (this.$store.state.filterParams.groupGuid=="")) {
+              this.changeTitle();
+              this.defaultShow();
+              this.drawLine();
+             
+          }
         }
     },
    computed:{
@@ -265,5 +290,7 @@ import { mapState } from 'vuex'
     width: 100%;
     box-sizing: border-box;
     padding: 20px;
+    background: rgba(35,32,39,0.30);
+    box-shadow: 0 0 4px 0 rgba(0,0,0,1);
   }
 </style>

@@ -147,7 +147,8 @@ export default {
       });
   },
   beforeRouteLeave (to, from, next) {
-
+    //路由跳转后，不需要保存控制台的信息
+    //this.$store.dispatch('SET_GROUP_CONSOLEID');
     next();
   }
 }

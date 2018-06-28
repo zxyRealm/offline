@@ -3,13 +3,9 @@
     <div class="data-guest-content">
       <div class="screening corner-bg">
         <screening :type="1"></screening>
-        <div class="bl-bg"></div>
-        <div class="br-bg"></div>
-        <div class="tl-bg"></div>
-        <div class="tr-bg"></div>
       </div>
       <div class="flow-diagram corner-bg" ref="line">
-        <echarts-line :line-height="'320px'" :line-params='lineParams' ref="echartsLine"></echarts-line>
+        <echarts-line :line-height="'320px'" :line-params='lineParams' ref="echartsLine" :class="'data-children-background'"></echarts-line>
       </div>
     </div>
     <div class="table-data corner-bg">
@@ -57,6 +53,10 @@
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+ .data-children-background {
+      background: rgba(35,32,39,0.30);
+      box-shadow: 0 0 4px 0 rgba(0,0,0,1);
+   }
   .data-guest {
     width: 100%;
     height: 100%;

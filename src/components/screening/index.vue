@@ -80,8 +80,6 @@
               title: '添加社群',
               type: 'group'
             },
-            // buttonIndex: 0,
-            // dimensionIdex: 0,
             dimensionData: ['小时','日','周','月'],
             filterParams: {
               groupGuid: '',     //选择社群 6867A6C096844AD4982F19323B6C9574 
@@ -100,7 +98,7 @@
             this.dialogFormVisible = true;
         },
         remoteSubmit(data) {
-          if((!data || data.length ==0) && (this.filterParams.groupGuid=="")) {
+          if((!data || data.length ==0)) {
              this.$alert('请选择对象', '提示:', {
               confirmButtonText: '确定',
               callback: action => {
@@ -114,8 +112,6 @@
         },
         //点击维度
         handleButton(value) {
-          // this.buttonIndex = value;
-          // this.dimensionIdex = value;
           this.filterParams.dimension = value+1;
         },
         //处理时间
@@ -139,11 +135,6 @@
         submitForm() {
           if(this.filterParams.groupGuid == "") {
             this.$tip("选择对象不能为空！");
-            //  this.$alert('请选择设备', '提示:', {
-            //   confirmButtonText: '确定',
-            //   callback: action => {
-            //   }
-            // });
             return;
           }
           this.dealTime();
@@ -153,15 +144,20 @@
       created() {
       },
       mounted() {
-          //this.$store.dispatch("SET_FILTER_PARAMS");  //主动调用action方法更新默认数据
-         //默认值处理
+          //this.$store.dispatch("SET_FILTER_PARAMS"); 主动调用action方法更新默认数据
+          //默认值处理
           this.filterParams.startTime = this.$store.state.filterParams.startTime;
           this.filterParams.endTime = this.$store.state.filterParams.endTime;
           this.filterParams.timeArray = this.$store.state.filterParams.timeArray;
           this.filterParams.type = this.type;
           this.filterParams.groupGuidName = this.$store.state.filterParams.groupGuidName;
+          this.filterParams.groupGuid = this.$store.state.filterParams.groupGuid;
           this.filterParams.dimension = this.$store.state.filterParams.dimension;
-          //this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
+          this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
+          if((this.filterParams.groupGuid != "") && (!!this.filterParams.groupGuid)) {
+            this.$parent.$children[1].getData();
+            this.$parent.$children[2].getData();
+          }
       },
       computed: {
       }
@@ -205,6 +201,8 @@
       height: 100%;
       box-sizing: border-box;
       padding: 20px;
+      background: rgba(35,32,39,0.30);
+      box-shadow: 0 0 4px 0 rgba(0,0,0,1);
     .demo-ruleForm {
       box-sizing: border-box;
       padding: 40px 14px;
@@ -236,7 +234,7 @@
       }
       .icon-select {
           display: inline-block;
-          position: relative;
+          position: absolute;
           &::after {
               content: "";
               width: 0px;

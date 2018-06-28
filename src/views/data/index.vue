@@ -35,6 +35,7 @@
   }
 </script>
 <style>
+  
    ul,li {
      list-style: none;
    }
@@ -50,6 +51,7 @@
       height: 40px;
       padding: 0 12px;
       box-sizing: border-box;
+      background-image: radial-gradient(1% 0%, #1B9BEE 156%, rgba(132,64,202,0.10) 100%);
       .router-link-active {
          color: #0F9EE9;
          position: relative;

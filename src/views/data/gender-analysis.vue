@@ -44,12 +44,9 @@
             let tablePie = document.getElementById("echarts-pie");
             tablePie.style.width = me.$refs.pie.offsetWidth +"px";
             me.$refs.echartsPie.resizeEcharts();
-
-           
           }
        },
       created() {
-
       },
       computed: {
          //首先给table高度赋值
@@ -61,9 +58,11 @@
       mounted() {
          let me = this;
          window.addEventListener("resize",me.resizeFunction);
-         //给饼图设置层级
-         let canvas=document.getElementsByTagName('canvas')[0];
-         canvas.style.zIndex = 99999;
+         //饼图设置层级
+         setTimeout(() => {
+            let canvas = document.getElementsByTagName('canvas')[0];
+            canvas.style.zIndex = 99999;
+        },600);
       },
       beforeRouteLeave(to, from , next) {
           let me = this;

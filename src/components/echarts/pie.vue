@@ -129,34 +129,18 @@
       },
       //解析返回seriesGroup
       installSeriesGroup(data)  {
-          data = [
-              {
-                data: [
-                  {
-                    name: "男性",
-                    value: "0"
-                  }
-                ],
-                name: "男性",
-                type: "pie"
-              },
-              {
-                data: [
-                  {
-                    name: "女性",
-                    value: "0"
-                  }
-                ],
-                name: "女性",
-                type: "pie"
-              }
-      ]
+        data = data.seriesGroup;
         let emptyArray = [];
          for(let i=0;i<data.length;i++){
            emptyArray.push(data[i]['data'][0]);
         }
-        this.option.series[0].data = this.$apply(this.option.series[0].data,emptyArray);
-        this.option.legend['data'] = this.$legendArray(data);
+        if(this.$store.state.filterParams.type == 3) {
+            this.option.series[0].data = data[0].data;
+            this.option.legend['data'] = this.$legendArray(data[0].data);
+        }else {
+            this.option.series[0].data = this.$apply(this.option.series[0].data,emptyArray);
+            this.option.legend['data'] = this.$legendArray(data);
+        }
       },
       //转化数组 = 没有设备时候的id
       transfromArray(data) {
@@ -173,6 +157,7 @@
       //默认数据展示 = 可视化
       defaultShow() {
         let type = this.$store.state.filterParams.type;
+        //console.info(this.$store.state.filterParams,"this.$store.state.filterParams");
         if(type == 3) {
             this.option.legend['data'] = ['0-10','11-20','21-30','31-40','41-50','50以上'];
             this.transfromArray( this.option.legend['data']);
@@ -196,12 +181,12 @@
             if(res.result == 1){
                 this.data = res.data;
                 if(this.$store.state.filterParams.type == 3){
-                     this.installSeriesGroup();
+                    this.installSeriesGroup(res.data);
                     this.option.series = this.$apply(this.option.series,this.roseSeries);
                 }else {
-                   this.installSeriesGroup();
+                   this.installSeriesGroup(res.data);
                 }
-                this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
+                //this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
                 this.drawPie();
             }
         });
@@ -214,10 +199,12 @@
                me.showAgeData();
           },300);
         }else {
-           this.changeColor();
-           this.changeTitle();
-           this.defaultShow();
-           this.drawPie();
+          this.changeColor();
+          if(!this.$store.state.filterParams.groupGuid || (this.$store.state.filterParams.groupGuid == "")) {
+              this.changeTitle();
+              this.defaultShow();
+              this.drawPie();
+          }
         }
       },
       watch: {
@@ -240,6 +227,8 @@
      background: url('/static/img/pie-background.png') no-repeat center center;
      background-size: 160px 160px;
      position: relative;
+     background: rgba(35,32,39,0.30);
+     box-shadow: 0 0 4px 0 rgba(0,0,0,1);
   }
   canvas {
        z-index: 99999!important;

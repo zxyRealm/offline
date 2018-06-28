@@ -58,7 +58,6 @@ const mutations = {
     }
   },
   SET_FILTER_PARAMS: (state,data) => {
-    console.info(data,"dfasdasfsaadafasdf");
     state.filterParams = data || {};
   },
   SET_GROUP_CONSOLEID: (state,data) => {
