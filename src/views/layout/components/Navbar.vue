@@ -117,7 +117,10 @@ export default {
       this.seelctName = data[0].groupNickName;
       this.groupSelectId = data[0].groupGuid;
       this.dialogFormVisible = false;
-      this.dialogDeviceVisible = true;
+      setTimeout(() => {
+        this.dialogDeviceVisible = true;
+      }, 400);
+      
     },
     toggleSideBar() {
       this.$store.dispatch('toggleSideBar')
@@ -139,9 +142,7 @@ export default {
       });
   },
   mounted() {
-      console.info(eventObject());
       eventObject().$on('change', msg => { //eventObject接收事件
-        console.info(msg,"msg");
         this.dialogFormVisible = true;
       });
   },
