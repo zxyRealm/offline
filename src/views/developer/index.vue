@@ -111,13 +111,15 @@ import { mapState } from 'vuex'
         })
       },
       getBaseInfo(){
-        this.$http("/merchant/getInfo").then(res=>{
-          for(let item in this.userInfoForm){
-            if(res.data[item]){
-              this.$set(this.userInfoForm,item,res.data[item])
+        if(!this.userInfoForm.company){
+          this.$http("/merchant/getInfo").then(res=>{
+            for(let item in this.userInfoForm){
+              if(res.data[item]){
+                this.$set(this.userInfoForm,item,res.data[item])
+              }
             }
-          }
-        })
+          })
+        }
       },
       initData(){
         this.getBaseInfo();
@@ -208,11 +210,9 @@ import { mapState } from 'vuex'
       ]),
       avatarUrl:{
         get(val){
-          console.log('get avatar',this.userInfo.faceImgURL);
           return this.userInfo.faceImgURL || '/static/img/logo.png'
         },
         set(val){
-          console.log('set avatar',val);
           return this.userInfo.faceImgURL || ''
         }
       }

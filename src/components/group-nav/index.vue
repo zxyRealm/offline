@@ -16,11 +16,12 @@
     </el-select>
     <el-checkbox v-if="type==='custom' && isCheckAll" @change="checkedAll">全选</el-checkbox>
     <el-tree
+      :only-checked="onlyChecked"
       :check-strictly="checkStrictly"
-      :show-checkbox="showCheckbox"
+      :show-checkbox="showChecked"
       :class="theme"
       class="filter-tree"
-      node-key="groupGuid"
+      :node-key="nodeKey"
       :data="TreeList"
       :props="defaultProps"
       :default-expanded-keys="expandedKeys"
@@ -52,7 +53,7 @@
         </el-popover>
         </template>
         <i v-if="type==='community'&& node.level===2" class="el-icon-remove-outline danger fr"
-           @click="leaveCommunity('kick',data)"></i>
+           @click="leaveCommunity('kick',data,node.parent.data)"></i>
       </span>
     </el-tree>
   </div>
@@ -69,6 +70,14 @@
         type: String,
         default: 'default'
       },
+      nodeKey:{
+        type:String,
+        default:'groupGuid'
+      },
+      onlyChecked:{
+        type:Boolean,
+        default:false
+      },
       expandedAll: {
         type: Boolean,
         default: true
@@ -79,7 +88,7 @@
       },
       checkStrictly: {
         type: Boolean,
-        default: false
+        default: true
       },
       expandedKeys: {
         type: Array,
@@ -172,16 +181,31 @@
     },
     methods: {
       nodeClick(val, node) {
-        this.$emit('node-click', val, node)
+        this.$emit('node-click', val, node);
+        if(this.showCheckbox){
+          if(!this.multiple){
+            this.$refs.GroupTree.setCheckedNodes([node.data]);
+          }else {
+            let nodes = this.$refs.GroupTree.getCheckedNodes();
+            let isChecked = nodes.filter(item=>{return item.$treeNodeId===node.data.$treeNodeId})[0];
+            if(isChecked){
+              this.$refs.GroupTree.setCheckedNodes(nodes.filter(item=>{return item.$treeNodeId!==node.data.$treeNodeId}))
+            }else {
+              nodes.push(node.data);
+              this.$refs.GroupTree.setCheckedNodes(nodes)
+            }
+
+          }
+        }
       },
       currentChange(val, node) {
-        if (val.groupGuid !== this.currentNode) {
+        if (val[this.nodeKey] !== this.currentNode) {
           this.$emit('current-change', val, node);
-          this.currentNode = val.groupGuid;
+          this.currentNode = val[this.nodeKey];
         }
       },
       selectChange(index) {
-        this.TreeList = this.GroupList[index].childGroupList
+        this.TreeList = this.GroupList[index][this.defaultProps.children]
       },
       filterNode() {
 
@@ -200,11 +224,11 @@
         })
       },
       getParentList(value) {
-        if (!value.groupGuid) {
+        if (!value[this.nodeKey]) {
           this.$tip("社群id不存在");
         } else {
           if (!value.parentList) {
-            this.$http("/group/fatherGruop", {guid: value.groupGuid}).then(res => {
+            this.$http("/group/fatherGruop", {guid: value[this.nodeKey]}).then(res => {
               if (res.data) {
                 this.$set(value, 'parentList', res.data)
               }
@@ -215,24 +239,25 @@
       // 离开社群
       leaveCommunity(type, current, parent) {
         // type 可选类型 quit、kick
-        let [des, pid, id, name] = ['', '', '', '',];
+        let [url,des] = ['/group/exit',''];
+        let params = {
+          groupPid:parent.guid||parent.groupGuid,
+          groupGuid:current.groupGuid,
+          groupNickName:current.groupNickName,
+          parentGroupNickName:parent.groupNickName
+        };
         switch (type) {
           case 'quit':
             des = '退出';
-            id = current.groupGuid;
-            pid = parent.guid;
-            name = parent.name;
+            url = '/group/exit';
             break;
           default:
             des = '踢出';
-            id = current.groupGuid;
-            pid = current.groupPid;
-            name = current.groupNickName;
+            url = '/group/remove';
         }
-        console.log(des, pid, id, name);
-        this.$affirm({text: `确认${des}【${name}】社群？`}, (action, instance, done) => {
+        this.$affirm({text: `确认${des}【${params.parentGroupNickName}】社群？`}, (action, instance, done) => {
           if (action === 'confirm') {
-            this.$http("/group/exit", {groupPid: pid, groupGuid: id}).then(res => {
+            this.$http(url, params).then(res => {
               this.$tip(`${des}社群成功`);
               this.getGroupList()
             });
@@ -248,10 +273,17 @@
           this.$refs.GroupTree.setCurrentKey(key)
         });
       },
+      // 设置选中节点
+      setCheckedKeys(keys){
+        this.$nextTick(()=>{
+          console.log('set checked',keys);
+          this.$refs.GroupTree.setCheckedKeys(keys)
+        })
+      },
       getCheckedNodes(){
         return this.$refs.GroupTree.getCheckedNodes()
       },
-      nodeCheck(nodes,keys){
+      nodeCheck(nodes){
         if(!this.multiple){
           this.$refs.GroupTree.setCheckedNodes([nodes])
         }
@@ -302,9 +334,9 @@
         let keys = [];
         let getKeys = (arr) => {
           arr.map(item => {
-            keys.push(item.groupGuid);
-            if (item.childGroupList) {
-              getKeys(item.childGroupList)
+            keys.push(item[this.nodeKey]);
+            if (item[this.defaultProps.children]) {
+              getKeys(item[this.defaultProps.children])
             }
           })
         };
@@ -313,6 +345,9 @@
       },
       isCheckAll:function(){
         return this.multiple
+      },
+      showChecked:function(){
+        return this.onlyChecked?this.onlyChecked:this.showCheckbox;
       }
     }
   }
@@ -364,20 +399,27 @@
 </style>
 <style lang="scss">
   @import "@/styles/variables.scss";
+  .el-tree{
+    &[only-checked]{
+      .el-checkbox{
+        display: none;
+      }
+    }
+  }
   .el-tree-node__expand-icon{
     color: #fff;
     font-size:14px;
   }
   .ob-group-nav{
     &[type=custom]{
-      padding: 15px 0 20px 30px ;
+      padding: 15px 20px;
       >.el-checkbox{
         display: block;
         height: 32px;
         line-height: 32px;
       }
       .el-tree {
-        padding-left: 20px;
+        padding: 0 20px;
         .el-tree-node__expand-icon{
           color: #333;
         }

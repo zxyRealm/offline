@@ -54,8 +54,8 @@
             </el-popover>
             ,可多选）</p>
           <el-checkbox-group v-model="communityForm.rule">
-            <el-checkbox disabled :label="1">数据查看权限</el-checkbox>
-            <el-checkbox :label="2">数据查看权限</el-checkbox>
+            <el-checkbox disabled :label="0">数据查看权限</el-checkbox>
+            <el-checkbox :label="1">设备操作权限</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </uu-form>
@@ -96,7 +96,7 @@
           phone: '',
           pca: '',
           address: '',
-          rule: [1]
+          rule: [0]
         },
         rules: {
           name: [
@@ -134,7 +134,6 @@
         data.cityAreaID = address[1];
         data.districtAreaID = address[2];
         data.rule = data.rule.toString();
-        console.log(data);
         this.$http(`/group/${this.type}`,data).then(res=>{
           if(this.$route.name==='createCommunity'){
             this.$tip("创建成功");

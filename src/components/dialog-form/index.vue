@@ -7,14 +7,27 @@
     class="dialog-form-wrapper vam"
     width="500px" :title="title" :visible.sync="dialogFormVisible">
     <el-scrollbar
+      v-if="type==='group'"
       :style="customStyle"
     >
+      <ob-group-nav
+        ref="customGroup"
+        :show-checkbox="true"
+        :multiple="multiple"
+        theme="white"
+        type="custom"
+      ></ob-group-nav>
+    </el-scrollbar>
     <el-form
+      block-message
+      style="width: 330px"
       label-position="left"
       class="common-form white"
       ref="dialogForm"
       :rules="rules"
-      :model="dialogForm">
+      :model="dialogForm"
+      v-else
+    >
       <template v-if="type==='device'">
         <el-form-item label="设备序列号：" prop="deviceKey" :label-width="formLabelWidth">
           <el-input type="text" v-model="dialogForm.deviceKey" placeholder="请输入设备序列号" auto-complete="off"></el-input>
@@ -29,29 +42,22 @@
             <el-radio-button :label="3">身份识别一体机</el-radio-button>
           </el-radio-group>
         </el-form-item>
+        <el-form-item class="tac">
+          <img v-if="dialogForm.type===1" src="./image/all_in_one_icon.png" alt="分析终端">
+          <img v-if="dialogForm.type===(2||3)" src="./image/analysis_terminal_icon.png" alt="一体机">
+        </el-form-item>
       </template>
       <template v-if="type==='community'">
         <el-form-item label="选择社群：" prop="groupGuid" :label-width="formLabelWidth">
           <el-select v-model="dialogForm.groupGuid" placeholder="请选择社群">
-            <el-option v-for="(item,$index) in group" :label="item.groupName" :value="item.groupGuid" :key="$index"></el-option>
+            <el-option v-for="(item,$index) in optionsGroup" :label="item.groupNickName" :value="$index" :key="$index"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="应用场景：" :label-width="formLabelWidth">
-          <el-input type="textarea" v-model="dialogForm.name" placeholder="请填写描述" auto-complete="off"></el-input>
+        <el-form-item label="应用场景：" :label-width="formLabelWidth" prop="deviceScene">
+          <el-input type="textarea" v-model="dialogForm.deviceScene" placeholder="请填写描述" auto-complete="off"></el-input>
         </el-form-item>
       </template>
-      <template v-if="type==='group'">
-        <ob-group-nav
-          ref="customGroup"
-          :show-checkbox="true"
-          :check-strictly="true"
-          :multiple="multiple"
-          theme="white"
-          type="custom"
-        ></ob-group-nav>
-      </template>
     </el-form>
-    </el-scrollbar>
     <div slot="footer" class="dialog-footer">
       <el-button class="cancel"  @click="dialogFormVisible = false">取 消</el-button>
       <el-button class="affirm" type="primary" @click="submitDialogForm('dialogForm')">确 定</el-button>
@@ -113,26 +119,31 @@
     data() {
       const validateKey = (rule,value,callback)=>{
         if(!value){
+          this.dialogForm.type = '';
           callback(new Error('请填写设备序列号'))
         }else {
           if(value.length>=12){
             // 校验设备是否被绑定过
-            this.$http("/merchant/device/exist",{deviceKey:value}).then(res=>{
+            this.$http("/merchant/device/exist",{deviceKey:value},false).then(res=>{
               if(res.data){
                 // 获取设备状态
-                this.$http("/device/type",{deviceKey:value}).then(res2=>{
+                this.$http("/device/type",{deviceKey:value},false).then(res2=>{
                   this.dialogForm.type = res2.data.deviceType;
                   callback()
                 }).catch(err=>{
+                  this.dialogForm.type = '';
                   callback(new Error(err?err.msg:'服务器异常'))
                 })
               }else {
+                this.dialogForm.type = '';
                 callback(new Error('设备已经绑定，请更换其他设备'))
               }
             }).catch(err=>{
+              this.dialogForm.type = '';
               callback(new Error(err.msg||'服务器异常'))
             });
           }else{
+            this.dialogForm.type = '';
             callback(new Error('请填写合法的设备序列号'))
           }
 
@@ -166,12 +177,23 @@
           ],
           deviceName:[
             { validator:validateName,trigger:'blur'}
+          ],
+          groupGuid:[
+            {required:true,message:'请选取自有社群',trigger:'blur'}
           ]
         },
+        optionsGroup:[],
         dialogFormVisible:false
       }
     },
     watch: {
+      group:{
+        handler:function(val){
+          this.optionsGroup = val || [];
+        },
+        deep:true
+      },
+
       visible: function (val) {
         this.dialogFormVisible = val
       },
@@ -181,7 +203,6 @@
       value:{
         handler:function(val){
           this.dialogForm = val;
-          console.log(val)
         },
         deep:true
       },
@@ -203,7 +224,7 @@
         }else {
           this.$refs[formName].validate(valid=>{
             if(valid){
-              this.$emit("remote-submit",this.dialogForm);
+              this.$emit("remote-submit",JSON.parse(JSON.stringify(this.dialogForm)));
             }else {
               console.log('validate is not pass')
             }
@@ -223,8 +244,9 @@
 
       },
       closeDialog(){
-        console.log('close')
-        this.$refs.dialogForm.resetFields()
+        if(this.$refs.dialogForm){
+          this.$refs.dialogForm.resetFields()
+        }
       }
     },
     beforeDestroy(){

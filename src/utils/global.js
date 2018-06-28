@@ -9,16 +9,18 @@ exports.install = function (Vue, options) {
    return message(txt,type,delay)
   };
   // 异步请求
-  Vue.prototype.$http = function (url, params) {
-    return fetch(url,params);
+  Vue.prototype.$http = function (url, params,showTip) {
+    return fetch(url,params,showTip);
   };
   // 退出登录
   Vue.prototype.$exit = function () {
-    this.$affirm('确认退出吗？', '', (res) => {
-      if (res) {
+    this.$affirm({text:'确认退出吗？'},(action,instance,done) => {
+      if (action==='confirm') {
         localStorage.clear();
         Cookies.remove("guid");
         this.$router.push("/login")
+      }else {
+        done()
       }
     });
   };

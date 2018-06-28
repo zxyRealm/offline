@@ -4,8 +4,8 @@
 
     <no-callback-info v-if="equipmentEmpty"></no-callback-info>
     <div class="data-list-wrap" v-else>
-      <template v-if="notifyList && notifyList.length" v-for="(item,$index) in notifyList">
-        <ob-list>
+      <template v-if="notifyList && notifyList.length">
+        <ob-list v-for="(item,$index) in notifyList" :key="$index">
           <ob-list-item type="type" :data="item" prop="type" label="通知类型"></ob-list-item>
           <ob-list-item :data="item" prop="intro,tokenURL" label="通知描述,回调地址"></ob-list-item>
           <ob-list-item type="time" :data="item" prop="createTime,lastEditTime" label="创建时间,上次编辑">
@@ -19,7 +19,8 @@
           </ob-list-item>
         </ob-list>
       </template>
-      <ob-list-empty text="暂无通知信息。" v-else></ob-list-empty>
+      <ob-list-empty v-else text="暂无通知信息。" ></ob-list-empty>
+
     </div>
   </div>
 </template>
@@ -85,27 +86,21 @@
         })
       },
       addCallbackInfo(){
-        if(this.noNotifyUrl){
+        if(!this.equipmentEmpty){
           this.$router.push('/developer/notify/add-info')
         }else {
           this.$affirm({
-            confirm: '删除',
-            cancel: '取消',
-            text: '确认删除本条通知？'
-          }, (action, instance, done) => {
-            if (action === 'confirm') {
-              // this.$http("/dataNotice/discard", {noticeGuid: id}).then(res => {
-              //   if (res.result) {
-              //     this.$tip("删除成功");
-              //     this.getNotifyList(this.pagination.index)
-              //   }
-              // });
+            confirm:'前往【添加设备】',
+            cancel:'返回',
+            text:'您还没有设备，无法创建数据回调。'
+          },(action,instance,done)=>{
+            if(action==='confirm'){
               done();
-            } else {
+              this.$router.push("/equipment/mine");
+            }else {
               done()
             }
           })
-
         }
 
       }

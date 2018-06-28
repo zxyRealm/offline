@@ -28,8 +28,8 @@
             <el-radio custom-type="more" :label="4">其他</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="分组描述：" prop="des">
-          <el-input type="textarea" :readonly="!editable" placeholder="请输入社群描述" v-model="customForm.des"></el-input>
+        <el-form-item label="分组描述：" prop="describe">
+          <el-input type="textarea" :readonly="!editable" placeholder="请输入社群描述" v-model="customForm.describe"></el-input>
         </el-form-item>
       </uu-form>
     </div>
@@ -56,7 +56,7 @@
         customForm:{
           name:'',
           type:'',
-          des:''
+          describe:''
         },
         rules:{
           name:[
@@ -65,7 +65,7 @@
           type:[
             {required:true,message:'请选取类型',trigger:'blur'}
           ],
-          des:[
+          describe:[
             {required:true,message:'请填写描述',trigger:'blur'}
           ]
         }
@@ -74,7 +74,7 @@
     methods:{
       submitForm(data){
         console.log(data)
-        // this.$http("",data).then(res=>{
+        // this.$http(`/groupCustom/${this.type}`,data).then(res=>{
         //   if(this.type==='create'){
         //     this.$tip('创建成功')
         //   }else {

@@ -59,9 +59,6 @@
                 <a href="javascript:void(0)" @click="dialogFormVisible=true">添加</a>
               </p>
             </h2>
-            <!--<div v-if="!customCommunityList.length"  class="no-data-community small">-->
-            <!--您尚未添加社群-->
-            <!--</div>-->
 
             <el-table
               border

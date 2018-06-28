@@ -17,6 +17,7 @@
       :text="isSearch?'查询不到该设备。':'您还没有设备，点击【添加】进行添加设备。'">
     </ob-list-empty>
     <div class="data-list-wrap" v-else>
+      <el-scrollbar>
       <template v-for="(item,$index) in equipmentList">
         <ob-list>
           <ob-list-item type="state" :data="item" :isAmend="true">
@@ -35,9 +36,9 @@
             </p>
           </ob-list-item>
           <ob-list-item>
-            <p v-if="item.deviceCsys">
+            <p v-if="!item.groupGuid || item.logicDelete">
               <span>绑定社群：</span>
-              <a href="javascript:void (0)" @click="showDialog('community')">未绑定</a>
+              <a href="javascript:void (0)" @click="showDialog('community',item)">未绑定</a>
             </p>
             <template v-else>
               <p>
@@ -53,8 +54,11 @@
           </ob-list-item>
         </ob-list>
       </template>
+      </el-scrollbar>
     </div>
     <ob-dialog-form
+      v-model="dialogForm"
+      :group="groupList"
       @remote-submit="submitForm"
       :type="dialogOptions.type"
       :title="dialogOptions.title"
@@ -89,6 +93,11 @@
           title: '添加设备'
         },
         equipmentEmpty: false,
+        dialogForm:{
+          deviceKey:'',
+          deviceName:'',
+          type:''
+        },
         btnOption: {
           text: '创建'
         },
@@ -111,13 +120,12 @@
           // { type: 'string',min:1,max: 18, message: '长度不可超过18个字符', trigger: 'change'}
         ],
         dialogFormVisible: false,
-        isSearch:false
+        isSearch: false
       }
     },
     methods: {
       search(val) {
         this.$router.push(`/equipment/search/mine/${val}`);
-        console.log('搜索', val)
       },
       submitForm(data) {
         if (this.dialogOptions.type === 'device') {
@@ -131,38 +139,44 @@
           });
         } else {
           // 绑定社群
+          data.groupNickName = this.groupList[data.groupGuid].groupNickName;
+          data.groupGuid = this.groupList[data.groupGuid].groupGuid;
           this.bindCommunity(data)
         }
       },
-      // 显示表单
-      showPopover(index) {
-        this.equipmentForm.deviceName = '';
-        this.equipmentForm.deviceKey = this.equipmentList[index].deviceKey;
+      getGroupList(){
+        this.$http("/group/list").then(res => {
+          this.groupList = res.data;
+        })
       },
-      // 关闭popover表单
-      cancelPopover(index) {
-        this.$set(this.equipmentList[index], 'popover', !this.equipmentList[index].popover)
-      },
-      showDialog(type) {
+      showDialog(type,data) {
         this.dialogFormVisible = false;
         this.dialogOptions.type = type || 'device';
-        this.dialogOptions.title = type === 'device' ? '添加设备' : '添加社群';
-        if (type === 'community') {
-          this.$http("/group/list").then(res => {
-            if (res.data.length) {
-              this.dialogFormVisible = true;
+        this.dialogOptions.title = type === 'device' ? '添加设备' : '绑定社群';
+        if(this.dialogOptions.type==='device'){
+          this.dialogForm = {
+            deviceKey:'',
+            deviceName:'',
+            type:''
+          }
+        }else {
+          this.dialogForm = {
+            deviceKey:data.deviceKey,
+            deviceName:data.deviceName,
+            groupGuid:'',
+            deviceScene:''
+          }
+        }
+        if (type === 'community' && !this.groupList.length) {
+          this.$affirm({
+            text: '没有可绑定的社群，前往<a href="#/community/create">创建社群</a>。'
+          }, (action, instance, done) => {
+            if (action === 'confirm') {
+              done();
             } else {
-              this.$affirm({
-                text: '没有可绑定的社群，前往<a href="#/community/create">创建社群</a>。'
-              }, (action, instance, done) => {
-                if (action === 'confirm') {
-                  done();
-                } else {
-                  done()
-                }
-              }, 'create')
+              done()
             }
-          });
+          }, 'create')
         } else {
           this.dialogFormVisible = true
         }
@@ -170,11 +184,13 @@
       // 获取自有设备
       getMineEquipment(page) {
         page = page || 1;
-        this.$http('/device/list', {index: page,searchText:this.$route.params.key||''}).then(res => {
+        this.$http('/device/list', {index: page, searchText: this.$route.params.key || ''}).then(res => {
           this.equipmentList = res.data.content;
           this.pagination = res.data.pagination;
+          if(!this.groupList.length){
+            this.getGroupList()
+          }
         })
-
       },
       deleteEquipment(item) {
         this.$affirm({
@@ -189,28 +205,6 @@
           }
         }, 'waiting')
       },
-      // 获取设备状态
-      getEquipmentState(value) {
-        this.$set(value, 'deviceState', 1);
-        // this.$http('');
-        console.log("equipment state")
-      },
-      // 修改别名
-      changeEquipmentName(formName, index) {
-        this.$refs[formName][index].validate((valid) => {
-          if (valid) {
-            this.$http("/merchant/device/alias", this.equipmentForm).then(res => {
-              this.$tip("修改成功");
-              this.$set(this.equipmentList[index], 'popover', false);
-              this.getMineEquipment(this.pagination.index)
-            })
-          } else {
-            console.log('error submit')
-          }
-        });
-
-      },
-
       //解 绑社群
       unBindCommunity(value) {
         this.$affirm({
@@ -225,6 +219,7 @@
               groupGuid: value.groupGuid
             }).then(res => {
               this.$tip("解绑成功");
+              this.$set(value,'logicDelete',1)
             });
           } else {
             done()
@@ -233,100 +228,29 @@
       },
       // 绑定社群
       bindCommunity(value) {
+        this.dialogFormVisible = false;
         this.$affirm({
-          text: '【设备操作权限】只能授权给一个社群，清谨慎加入。确定加入社群【星巴克】？'
+          text: '【'+value.deviceName+'】只能授权给一个社群，请谨慎加入。<br>确定加入社群【'+value.groupNickName+'】？'
         }, (action, instance, done) => {
           if (action === 'confirm') {
-            this.$http('/device/binding', {deviceKey: value.deviceKey}).then(res => {
-              this.$tip("解绑成功")
+            done();
+            this.$load("设备绑定中...");
+            this.$http('/device/binding', {deviceKey: value.deviceKey,groupGuid:value.groupGuid}).then(res => {
+              this.$load().close();
+              this.$tip("绑定成功");
+              this.getMineEquipment(this.pagination.index);
+
+            }).catch(()=>{
+              this.$load().close()
             });
           } else {
             done()
           }
         });
-
-        // console.log(this.dialogFormVisible);
-        // this.dialogFormVisible = true;
-      },
-      handleBtn(value, type) {
-        let des = '';
-        switch (type) {
-          case 'upgrade':
-            des = '升级';
-            break;
-          case 'reboot':
-            des = '重启';
-            break;
-          case 'reset':
-            des = '重置';
-            break;
-          case 'close':
-            if (value.deviceState !== -1) {
-              des = '开启';
-            } else {
-              des = '关闭'
-            }
-            break;
-          default:
-            des = '开启'
-        }
-        this.$affirm({text: '确定' + des + '设备【' + value.deviceName + '】?'}, (action, instance, done) => {
-          if (action === 'confirm') {
-            switch (type) {
-              case 'reboot':
-                this.$tip("重启成功");
-                break;
-              case 'upgrade':
-                this.$tip("正在升级中...");
-                break;
-              case 'reset':
-                this.$tip("重置成功");
-                break;
-              case 'close':
-                if (value.deviceState === -1) {
-                  this.$tip("设备开启中...")
-                } else {
-                  this.$tip('设备关闭中...')
-                }
-                break;
-              default:
-            }
-            done()
-          } else {
-            done()
-          }
-        })
-
-      },
-      btnState(state, type) {
-        //1开机 -1 关机 2升级 3重启 4重置
-        switch (state) {
-          case 1:
-            return false;
-          case -1:
-            if (type === 'upgrade') {
-              return true;
-            } else {
-              return false;
-            }
-          case 2:
-            if (type === 'upgrade') {
-              return false
-            } else {
-              return true;
-            }
-          case 3:
-            return true;
-          case 4:
-            return true;
-          default:
-            return true;
-        }
       }
-
     },
     created() {
-      this.isSearch = this.$route.name==='searchMine';
+      this.isSearch = this.$route.name === 'searchMine';
       this.getMineEquipment()
     },
     filters: {
@@ -348,7 +272,7 @@
     },
     watch: {
       $route: function (val) {
-        this.isSearch = (val.name==='searchMine');
+        this.isSearch = (val.name === 'searchMine');
         this.equipmentList = [];
         this.getMineEquipment()
       }
@@ -359,5 +283,10 @@
 <style scoped>
   .data-list-wrap {
     margin-top: 24px;
+    height: calc(100% - 134px);
+    box-sizing: border-box;
+  }
+  .data-list-wrap  >.el-scrollbar{
+    height: 100%;
   }
 </style>

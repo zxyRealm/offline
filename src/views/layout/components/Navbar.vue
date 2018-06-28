@@ -1,12 +1,13 @@
 <template>
   <el-menu class="navbar" mode="horizontal">
-    <div class="logo-wrap vam">
+
+    <router-link to="/index" class="logo-wrap vam">
       <img src="/static/img/logo.png" alt="">
       <div class="des">
         <h2>线下浏览器服务平台</h2>
         <p>Offline Browser service platform </p>
       </div>
-    </div>
+    </router-link>
     <!--<breadcrumb class="breadcrumb-container"></breadcrumb>-->
     <div class="right-menu vam tal">
       <div class="navbar-console" >
@@ -26,7 +27,7 @@
           </div>
           <span>{{userInfo.phone}}</span>
         </router-link>
-        <a href="javascript:void (0);" class="exit" @click="logout">
+        <a href="javascript:void (0);" class="exit" @click="$exit()">
           <uu-icon type="exit"></uu-icon>
         </a>
       </div>

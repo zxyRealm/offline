@@ -56,7 +56,6 @@ export const constantRouterMap = [
 export const asyncRouterMap = [
   {
     path: "/index",
-    redirect: '/index/index',
     component: Layout,
     meta: {
       auth: true,
