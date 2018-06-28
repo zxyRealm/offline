@@ -1,14 +1,14 @@
 <template>
   <div class="data-guest">
     <div class="data-guest-content">
-      <div class="screening">
+      <div class="screening corner-bg">
           <screening :type="3"></screening>
       </div>
-       <div class="flow-diagram" ref="pie">
+       <div class="flow-diagram corner-bg" ref="pie">
           <echarts-pie ref="echartsPie" :pie-params="pieParams"></echarts-pie>
       </div>
     </div>
-    <div class="table-data" ref="line">
+    <div class="table-data corner-bg" ref="line">
        <echarts-line :line-height="tabelHeight" :line-params='lineParams' ref="echartsLine"></echarts-line>
     </div>
   </div>
@@ -48,7 +48,7 @@
           }
        },
       created() {
-       
+
       },
       computed: {
          //首先给table高度赋值
@@ -98,7 +98,7 @@
         display: block;
         overflow: hidden;
       }
-      
+
     }
     .table-data {
       width: 100%;

@@ -82,7 +82,7 @@
         }else {
           console.log(value.length);
           if(value.length===10){
-            this.$http("/group/code/info",{code:value}).then(res=>{
+            this.$http("/group/code/info",{code:value},false).then(res=>{
               if(res.data){
                 this.communityInfo = res.data;
                 if(!this.groupList.length){
@@ -127,7 +127,6 @@
     },
     methods:{
       submitForm(data){
-        console.log('submit',data);
         this.$http('/group/join',data).then(res=>{
           this.$tip('加入成功');
           this.$router.push("/community/mine")

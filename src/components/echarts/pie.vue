@@ -1,6 +1,6 @@
 <template>
     <div id="echarts-pie" class="pie-wrap" :class="pieParams.type!=3 ? 'pie-wing':''">
-        
+
     </div>
 </template>
 <script>
@@ -203,7 +203,7 @@
           console.info(val,"dadfddffas");
           return true;
         }
-        
+
       }
     }
 </script>
@@ -215,7 +215,7 @@
      box-sizing: border-box;
      padding: 20px;
      background: url('/static/img/pie-background.png') no-repeat center center;
-     background-size: 160px 160px; 
+     background-size: 160px 160px;
      position: relative;
      canvas {
        z-index: 99999!important;
@@ -233,5 +233,5 @@
     left:0;
     z-index: -99999;
   }
-  
+
 </style>

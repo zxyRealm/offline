@@ -39,12 +39,13 @@
             <p v-if="!item.groupGuid || item.logicDelete">
               <span>绑定社群：</span>
               <a href="javascript:void (0)" @click="showDialog('community',item)">未绑定</a>
+              <span style="display: inline-block;width: 14px;height: 14px;" class="fr"></span>
             </p>
             <template v-else>
               <p>
                 <span>绑定社群：</span>
                 <span>{{item.groupName}}</span>
-                <uu-icon type="relieve" class='fr' @click.native="unBindCommunity(item)"></uu-icon>
+                <uu-icon type="relieve" @click.native="unBindCommunity(item)"></uu-icon>
               </p>
               <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
               <p><span>应用场景：</span>{{item.deviceScene}}</p>

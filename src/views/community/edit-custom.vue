@@ -41,11 +41,16 @@
     name: "edit-custom",
     data(){
       const  validateName = (rule,value,callback)=>{
+        value = value.trim();
         if(!value){
           callback(new Error("请填写分组名称"))
         }else {
           if(value.length>=2&&value.length<=18){
-            callback()
+            this.$http("/groupCustom/nameExist",{name:value},false).then(res=>{
+              callback()
+            }).catch(err=>{
+              callback(new Error(err.msg||'验证失败'))
+            })
           }else {
             callback(new Error('长度为2-18个字符'))
           }
@@ -68,19 +73,33 @@
           describe:[
             {required:true,message:'请填写描述',trigger:'blur'}
           ]
-        }
+        },
+        customGroupList:[],
+        customGroupInfo:{}
       }
     },
     methods:{
       submitForm(data){
-        console.log(data)
-        // this.$http(`/groupCustom/${this.type}`,data).then(res=>{
-        //   if(this.type==='create'){
-        //     this.$tip('创建成功')
-        //   }else {
-        //     this.$tip("更新成功")
-        //   }
-        // })
+        console.log(data);
+        this.$http(`/groupCustom/${this.type}`,data).then(res=>{
+          if(this.type==='create'){
+            this.$tip('创建成功');
+
+          }else {
+            this.$tip("更新成功")
+          }
+          this.$router.push({path:'/community/custom',params:{cid:this.$route.params.id}})
+        })
+      },
+      getCustomGroupInfo(){
+        this.$http("/groupCustom/info",{groupCustomGuid:this.$route.params.id}).then(res=>{
+          this.customForm = res.data
+        })
+      }
+    },
+    created(){
+      if(this.type==='update'){
+        this.getCustomGroupInfo()
       }
     },
     computed: {
