@@ -4,11 +4,7 @@
     <navbar></navbar>
     <div class="main-container">
       <sidebar class="sidebar-container"></sidebar>
-      <app-main class="app-main-content">
-        <div class="bl-bg"></div>
-        <div class="br-bg"></div>
-        <div class="tl-bg"></div>
-        <div class="tr-bg"></div>
+      <app-main class="app-main-content" :class="cornerBg">
       </app-main>
     </div>
   </div>
@@ -45,6 +41,12 @@ export default {
         withoutAnimation: this.sidebar.withoutAnimation,
         mobile: this.device === 'mobile'
       }
+    },
+    cornerBg(){
+      if(/\/data/.test(this.$route.path)){
+        return ''
+      }
+      return 'corner-bg'
     }
   },
   methods: {
@@ -72,49 +74,15 @@ export default {
     height: 100%;
     width: 100%;
     overflow: hidden;
-    /*background-color: rgba(64,58,73,0.30);*/
     .app-main-content{
       position: absolute;
       top:20px;
       left:20px;
       bottom:20px;
       right:20px;
-      /*height: calc(100% - 15px);*/
-      /*min-height: calc(100% - 15px)!important;*/
       box-sizing: border-box;
       background-color: #232027;
       color: #fff;
-      background-image: url("/static/img/main_bg_icon.png");
-      >div{
-        &[class$='-bg']{
-          position: absolute;
-          height: 17px;
-          width: 17px;
-          background-repeat: no-repeat;
-          background-size: contain;
-        }
-        &.br-bg{
-          bottom:-2px;
-          right:-2px;
-          background-image: url("/static/img/border_bottom_right_icon.png");
-        }
-        &.bl-bg{
-          bottom:-2px;
-          left:-3px;
-          background-image: url("/static/img/border_bottom_left_icon.png");
-        }
-        &.tl-bg{
-          top:-2px;
-          left:-3px;
-          background-image: url("/static/img/border_top_left_icon.png");
-        }
-        &.tr-bg{
-          top:-2px;
-          right:-2px;
-          background-image: url("/static/img/border_top_right_icon.png");
-        }
-      }
-
     }
   }
   /*.drawer-bg {*/
@@ -132,6 +100,7 @@ export default {
     .app-main-content{
       >div{
         height: 100%;
+        /*background-color: #0F0E11;*/
       }
     }
   }

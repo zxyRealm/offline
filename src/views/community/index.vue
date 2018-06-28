@@ -21,7 +21,7 @@
             size="small"
             search
             @remote-search="remoteSearch"
-            :menu-array="[{title:'自有社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
+            :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
           <ob-group-nav
             ref="groupNav"
             only-checked
@@ -169,23 +169,19 @@
     },
     methods: {
       // 获取社群列表
-      getGroupList(keywords, key, isSearch) {
+      getGroupList(keywords, key) {
         keywords = (keywords || '').trim();
-        this.$http("/group/list", {searchText: keywords}).then(res => {
+        this.$http("/group/list").then(res => {
           if (keywords === '') {
             this.groupList = res.data;
             this.notHave = false;
-          } else {
-            let keys = res.data.map(item => {
-              return item.groupGuid
-            });
-            this.$refs.groupNav.setCheckedKeys(keys)
-          }
-          if(res.data[0]){
             this.currentKey = (key || res.data[0]).groupGuid;
             this.getCommunityInfo(key || res.data[0]);
             this.getDeviceList(this.currentKey);
+          } else {
+
           }
+
         })
       },
       // 获取设备列表
@@ -196,7 +192,22 @@
       },
       // 搜索社群
       remoteSearch(val) {
-        this.getGroupList(val)
+        val = val.trim();
+        if(val){
+          this.$http("/group/list/search",{searchText:val}).then(res=>{
+            if(res.data[0]){
+              this.currentKey = res.data[0].groupGuid;
+              this.getCommunityInfo(key || res.data[0]);
+              this.getDeviceList(this.currentKey);
+              let keys = res.data.map(item => {
+                return item.groupGuid
+              });
+              this.$refs.groupNav.setCheckedKeys(keys)
+            }
+          })
+
+        }
+
       },
       // 当前社群发生改变
       currentChange(val) {

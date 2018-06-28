@@ -1,18 +1,18 @@
 <template>
   <div class="data-guest">
     <div class="data-guest-content">
-      <div class="screening">
+      <div class="screening corner-bg">
         <screening :type="1"></screening>
         <div class="bl-bg"></div>
         <div class="br-bg"></div>
         <div class="tl-bg"></div>
         <div class="tr-bg"></div>
       </div>
-      <div class="flow-diagram" ref="line">
+      <div class="flow-diagram corner-bg" ref="line">
         <echarts-line :line-height="'320px'" :line-params='lineParams' ref="echartsLine"></echarts-line>
       </div>
     </div>
-    <div class="table-data">
+    <div class="table-data corner-bg">
       <table-data></table-data>
     </div>
   </div>

@@ -14,6 +14,7 @@
         ref="customGroup"
         :show-checkbox="true"
         :multiple="multiple"
+        :disabled-keys="disabledKeys"
         theme="white"
         type="custom"
       ></ob-group-nav>
@@ -114,6 +115,10 @@
       keys:{    //当type为group是设置有效 默认获取节点，true获取key数组
         type:Boolean,
         default:false
+      },
+      disabledKeys:{
+        type:Array,
+        default:()=>[]
       }
     },
     data() {
@@ -193,7 +198,6 @@
         },
         deep:true
       },
-
       visible: function (val) {
         this.dialogFormVisible = val
       },
@@ -209,6 +213,12 @@
       dialogForm:{
         handler:function (val) {
           this.$emit('input',val)
+        },
+        deep:true
+      },
+      disabledKeys:{
+        handler:function(val){
+          console.log('change')
         },
         deep:true
       }
@@ -249,6 +259,9 @@
         }
       }
     },
+    created(){
+      // this.getDisabledKeys = this.disabledKeys
+    },
     beforeDestroy(){
 
       // if(this.$refs.dialogForm){
@@ -262,6 +275,15 @@
             return {width:'400px',background:'#f8f8f8',height:'400px'};
           default:
             return {width:this.width}
+        }
+      },
+      getDisabledKeys:{
+        get(){
+          console.log('child',this.disabledKeys);
+          return this.disabledKeys
+        },
+        set(){
+          return this.disabledKeys
         }
       }
     }

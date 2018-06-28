@@ -32,9 +32,17 @@
       @current-change="currentChange"
       ref="GroupTree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
-        <span class="ellipsis">{{ data.groupNickName }}</span>
-        <template v-if="!data.groupPid">
-           <uu-icon type="mine" style="margin-left: 12px"></uu-icon>
+        <span
+          v-if="type==='custom-community'"
+          class="ellipsis"
+          :custom-type="customType(data.type)"
+        >
+          {{data[defaultProps.label]}}
+        </span>
+
+        <span v-if="type!=='custom-community'" class="ellipsis">{{ data[defaultProps.label] }}</span>
+        <template v-if="!data.groupPid && type==='community'">
+           <uu-icon type="mine" v-if="type==='custom'" style="margin-left: 12px"></uu-icon>
            <el-popover
              placement="right"
              class="popover-wrap"
@@ -60,6 +68,8 @@
 </template>
 
 <script>
+  import {customType} from '@/utils'
+
   export default {
     props: {
       value: {
@@ -70,13 +80,13 @@
         type: String,
         default: 'default'
       },
-      nodeKey:{
-        type:String,
-        default:'groupGuid'
+      nodeKey: {
+        type: String,
+        default: 'groupGuid'
       },
-      onlyChecked:{
-        type:Boolean,
-        default:false
+      onlyChecked: {
+        type: Boolean,
+        default: false
       },
       expandedAll: {
         type: Boolean,
@@ -98,25 +108,31 @@
         type: [String, Number],
         default: ''
       },
+      disabledKeys:{
+        type:Array,
+        default:()=>[]
+      },
       type: {
         type: [String],
-        default: 'device'   //device 设备导航 community 社群导航 custom 自定义社群导航
+        default: 'device'   //device 设备导航 community 社群导航 custom-community 自定义社群导航
       },
       multiple: {  //是否可多选 当type为custom时有效
         type: Boolean,
         default: false
-      }
+      },
+      defaultProps: {
+        type:Object,
+        default:()=>({
+          children: 'childGroupList',
+          label: 'groupNickName'
+        })
+      },
     },
     name: "ob-group-nav",
     data() {
       return {
         currentGroup: '',
         GroupList: [],
-        TreeList: [],
-        defaultProps: {
-          children: 'childGroupList',
-          label: 'groupNickName'
-        },
         currentNode: '',
         testList: {
           "data": [
@@ -127,9 +143,7 @@
                     {
                       "childGroupList": [
                         {
-                          "childGroupList": [
-
-                          ],
+                          "childGroupList": [],
                           "createTime": "2018-06-11 11:24:17",
                           "groupGuid": "16B9EADCC5854772B9B96D130BE5C0BB",
                           "groupNickName": "创新科技园11",
@@ -176,25 +190,29 @@
             }
           ],
         },
-        checkedKeys:[]
+        checkedKeys: [],
+        agency:[]
       }
     },
     methods: {
       nodeClick(val, node) {
         this.$emit('node-click', val, node);
-        if(this.showCheckbox){
-          if(!this.multiple){
+        if (this.showCheckbox && !node.data.disabled) {
+          if (!this.multiple) {
             this.$refs.GroupTree.setCheckedNodes([node.data]);
-          }else {
+          } else {
             let nodes = this.$refs.GroupTree.getCheckedNodes();
-            let isChecked = nodes.filter(item=>{return item.$treeNodeId===node.data.$treeNodeId})[0];
-            if(isChecked){
-              this.$refs.GroupTree.setCheckedNodes(nodes.filter(item=>{return item.$treeNodeId!==node.data.$treeNodeId}))
-            }else {
+            let isChecked = nodes.filter(item => {
+              return item.$treeNodeId === node.data.$treeNodeId
+            })[0];
+            if (isChecked) {
+              this.$refs.GroupTree.setCheckedNodes(nodes.filter(item => {
+                return item.$treeNodeId !== node.data.$treeNodeId
+              }))
+            } else {
               nodes.push(node.data);
               this.$refs.GroupTree.setCheckedNodes(nodes)
             }
-
           }
         }
       },
@@ -213,13 +231,9 @@
       getGroupList(gid) {
         gid = (gid || '');
         this.$http("/group/list", {searchText: gid}).then(res => {
-          if (gid === '') {
-            this.GroupList = res.data;
-            if (this.type !== 'device') {
-              this.TreeList = this.GroupList
-            }
-          } else {
-
+          this.GroupList = res.data;
+          if (this.type !== 'device') {
+            this.TreeList = this.GroupList
           }
         })
       },
@@ -236,15 +250,18 @@
           }
         }
       },
+      customType(type, txt) {
+        return customType(type, txt)
+      },
       // 离开社群
       leaveCommunity(type, current, parent) {
         // type 可选类型 quit、kick
-        let [url,des] = ['/group/exit',''];
+        let [url, des] = ['/group/exit', ''];
         let params = {
-          groupPid:parent.guid||parent.groupGuid,
-          groupGuid:current.groupGuid,
-          groupNickName:current.groupNickName,
-          parentGroupNickName:parent.groupNickName
+          groupPid: parent.guid || parent.groupGuid,
+          groupGuid: current.groupGuid,
+          groupNickName: current.groupNickName,
+          parentGroupNickName: parent.groupNickName
         };
         switch (type) {
           case 'quit':
@@ -274,51 +291,45 @@
         });
       },
       // 设置选中节点
-      setCheckedKeys(keys){
-        this.$nextTick(()=>{
-          console.log('set checked',keys);
+      setCheckedKeys(keys) {
+        this.$nextTick(() => {
           this.$refs.GroupTree.setCheckedKeys(keys)
         })
       },
-      getCheckedNodes(){
+      // 设置不可选节点
+      getCheckedNodes() {
         return this.$refs.GroupTree.getCheckedNodes()
       },
-      nodeCheck(nodes){
-        if(!this.multiple){
+      nodeCheck(nodes) {
+        if (!this.multiple) {
           this.$refs.GroupTree.setCheckedNodes([nodes])
         }
       },
-      getCheckedKeys(){
+      getCheckedKeys() {
         return this.$refs.GroupTree.getCheckedKeys()
       },
       checkedAll(val) {
-        if(val){
-          this.$refs.GroupTree.setCheckedKeys(this.keysList)
-        }else {
-          this.$refs.GroupTree.setCheckedKeys([])
+        if (val) {
+          this.$refs.GroupTree.setCheckedNodes(this.originList)
+        } else {
+          this.$refs.GroupTree.setCheckedNodes(this.originList.filter(item=>item.disabled))
         }
       }
     },
-    created() {
-      // this.TreeList = this.testList.data;
+    mounted() {
       this.GroupList = this.value || [];
-      if (this.type !== 'community') {
+      if (this.type !== 'community'&&this.type!=='custom-community') {
         this.getGroupList()
       }
-    },
-    mounted() {
-      this.setCurrentKey(this.currentKey)
+      this.setCurrentKey(this.currentKey);
     },
     watch: {
       value: function (val) {
         this.GroupList = val || [];
-        if (this.type === 'community') {
-          this.TreeList = this.GroupList
-        }
       },
       GroupList: {
         handler: function (val) {
-          if (this.type === 'community') {
+          if (this.type === 'community' || this.type ==='custom-community') {
             this.TreeList = val
           }
           this.$emit("input", val)
@@ -343,11 +354,52 @@
         getKeys(this.GroupList);
         return keys;
       },
-      isCheckAll:function(){
+      isCheckAll: function () {
         return this.multiple
       },
-      showChecked:function(){
-        return this.onlyChecked?this.onlyChecked:this.showCheckbox;
+      showChecked: function () {
+        return this.onlyChecked ? this.onlyChecked : this.showCheckbox;
+      },
+      TreeList:{
+        get(){
+          // 设置默认不可选节点
+          let setKeys = new Set(this.disabledKeys);
+          if(setKeys.size){
+            this.setCheckedKeys(this.disabledKeys);
+            let setDisabled = (arr) =>{
+              for(let i=0,len=arr.length;i<len;i++){
+                if(setKeys.has(arr[i][this.nodeKey])){
+                  this.$set(arr[i],'disabled',true)
+                }
+                if(arr[i][this.defaultProps.children].length){
+                  setDisabled(arr[i][this.defaultProps.children])
+                }
+              }
+            };
+            setDisabled(this.GroupList);
+          }
+          if(this.type!=='device'){
+            this.agency = this.GroupList;
+          }
+          return this.agency
+        },
+        set(model){
+         this.agency =  model
+        }
+      },
+      originList:function(){
+        // 一维数组结构
+        let originArray = [];
+        let getArray = (arr)=>{
+          arr.map(item=>{
+            originArray.push(item);
+            if(item[this.defaultProps.children].length){
+              getArray(item[this.defaultProps.children])
+            }
+          });
+        };
+        getArray(this.TreeList);
+        return originArray
       }
     }
   }
@@ -399,28 +451,37 @@
 </style>
 <style lang="scss">
   @import "@/styles/variables.scss";
-  .el-tree{
-    &[only-checked]{
-      .el-checkbox{
+
+  .ob-group-nav {
+    &[type=custom-community] {
+
+    }
+  }
+
+  .el-tree {
+    &[only-checked] {
+      .el-checkbox {
         display: none;
       }
     }
   }
-  .el-tree-node__expand-icon{
+
+  .el-tree-node__expand-icon {
     color: #fff;
-    font-size:14px;
+    font-size: 14px;
   }
-  .ob-group-nav{
-    &[type=custom]{
+
+  .ob-group-nav {
+    &[type=custom] {
       padding: 15px 20px;
-      >.el-checkbox{
+      > .el-checkbox {
         display: block;
         height: 32px;
         line-height: 32px;
       }
       .el-tree {
         padding: 0 20px;
-        .el-tree-node__expand-icon{
+        .el-tree-node__expand-icon {
           color: #333;
         }
         .el-tree-node {
@@ -446,7 +507,6 @@
       }
     }
   }
-
 
   label.el-checkbox.is-checked + .custom-tree-node {
     color: $blue;

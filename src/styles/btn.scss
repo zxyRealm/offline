@@ -75,7 +75,15 @@
     bottom: 0;
   }
 }
-
+input:disabled{
+  cursor: default;
+}
+.is-disabled{
+  cursor: default!important;
+  .el-checkbox__inner{
+    cursor: default!important;
+  }
+}
 .custom-button {
   display: inline-block;
   line-height: 1;

@@ -42,11 +42,11 @@ import { mapState } from 'vuex'
                   fontSize: '12',
                   fontWeight: 'lighter',
                 },
-                icon: 'line',   
+                icon: 'line',
                 data:['进人数','出人数']
               },
               toolbox: {
-                
+
               },
               grid: {
                 left: '1%',
@@ -73,7 +73,7 @@ import { mapState } from 'vuex'
                   axisPointer: {  //y轴鼠标移动虚线不显示
                     show: false
                   },
-                  splitLine:{     //y轴横线不显示 
+                  splitLine:{     //y轴横线不显示
                     show: false
                     }
                 }
@@ -123,7 +123,7 @@ import { mapState } from 'vuex'
         this.option.title = this.$apply(this.option.title,this.lineParams.title);
       },
       changeSeriesData(){
-        
+
       },
       //改变Series单个项目配置
       changeSeries() {
@@ -141,18 +141,18 @@ import { mapState } from 'vuex'
         if(!!this.timer) {
           this.timer = null;
         };
-        this.timer = window.setInterval(()  => { 
+        this.timer = window.setInterval(()  => {
           me.showGenderData();
         },3600000);
       },
       //显示客流量 = 控制台
-      showGenderData() { 
+      showGenderData() {
         this.changeTitle();
         this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
          if(this.$store.state.groupConsoleId == "") {
             this.drawLine();
             return;
-         } 
+         }
         this.$http('/chart/line', {
               groupGuid: this.$store.state.groupConsoleId, //|| '6867A6C096844AD4982F19323B6C9574',
               type: 1,

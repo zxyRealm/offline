@@ -1,14 +1,14 @@
 <template>
   <div class="data-guest">
     <div class="data-guest-content">
-      <div class="screening">
+      <div class="screening corner-bg">
           <screening :type="4"></screening>
       </div>
-      <div class="flow-diagram" ref="pie">
+      <div class="flow-diagram corner-bg" ref="pie">
           <echarts-pie ref="echartsPie" :pie-params="pieParams"></echarts-pie>
       </div>
     </div>
-    <div class="table-data" ref="line">
+    <div class="table-data corner-bg" ref="line">
        <echarts-line :line-height="tabelHeight" :line-params='lineParams' ref="echartsLine"></echarts-line>
     </div>
   </div>
@@ -34,7 +34,7 @@
        },
        methods: {
          //table高度改变
-         resizeFunction() {  
+         resizeFunction() {
            let me = this;
             let table = document.getElementById("echarts-line");
             //let tableEle = document.body.clientHeight - 420;
@@ -49,7 +49,7 @@
         }
        },
       created() {
-       
+
       },
       computed: {
          //首先给table高度赋值

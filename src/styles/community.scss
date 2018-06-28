@@ -34,6 +34,11 @@
         height: 189px;
         &.custom{
           padding: 20px 40px;
+          .ellipsis{
+            width: auto;
+            vertical-align: text-bottom;
+            //max-width: 100%;
+          }
         }
         .info-detail {
           float: left;

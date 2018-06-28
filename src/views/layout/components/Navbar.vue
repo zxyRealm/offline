@@ -1,6 +1,5 @@
 <template>
   <el-menu class="navbar" mode="horizontal">
-
     <router-link to="/index" class="logo-wrap vam">
       <img src="/static/img/logo.png" alt="">
       <div class="des">
@@ -8,7 +7,6 @@
         <p>Offline Browser service platform </p>
       </div>
     </router-link>
-    <!--<breadcrumb class="breadcrumb-container"></breadcrumb>-->
     <div class="right-menu vam tal">
       <div class="navbar-console" >
         <hamburger class="hamburger-container vam" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>

@@ -21,50 +21,66 @@
             size="small"
             search
             @remote-search="remoteSearch"
-            :menu-array="[{title:'自有社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
+            :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
+
+          <ob-group-nav
+            theme="default"
+            node-key="guid"
+            :current-key="currentKey"
+            :defaultProps="{label:'name'}"
+            type="custom-community"
+            @current-change="currentChange"
+            v-model="customGroupList">
+          </ob-group-nav>
         </div>
         <div class="community--main">
           <div class="cmm-top dashed-border">
             <h2 class="cmm-sub-title">
               <span>分组详情</span>
-              <p class="handle fr fs14">
+              <p class="handle fr fs14" v-show="customGroupInfo.guid">
                 <a href="javascript:void (0)" class="danger mr-10" @click="deleteGroup">删除</a>
-                <router-link :to="'/community/custom/edit/26241D572B924A3E9008A95904C27551'">编辑</router-link>
+                <router-link :to="'/community/custom/edit/'+customGroupInfo.guid">编辑</router-link>
               </p>
             </h2>
             <div class="cm-info-wrap custom">
-              <div class="info-detail">
+              <div class="info-detail" v-if="customGroupInfo.guid">
                 <p>
-                  <span class="fs14">分组名称：</span>{{customCommunityInfo.name}}
+                  <span class="fs14">分组名称： </span>{{customGroupInfo.name}}
                 </p>
                 <p>
-                  <span class="fs14">分组类型：</span>
-                  <el-radio disabled :custom-type="customType(customCommunityInfo.type)"
-                            label=""
+                  <span class="fs14">分组类型： </span>
+                  <span
+                    class="ellipsis"
+                    :custom-type="customType(customGroupInfo.type)"
                   >
-                    {{customCommunityInfo.type|customType(true)}}
-                  </el-radio>
+                    {{customGroupInfo.type|customType(true)}}
+                  </span>
                 </p>
                 <p>
-                  <span class="fs14">分组描述：</span>
-                  {{customCommunityInfo.description}}</p>
+                  <span class="fs14">分组描述： </span>
+                  {{customGroupInfo.describe}}</p>
               </div>
+              <ob-list-empty top="6%" text="请选组分组" size="small" v-else></ob-list-empty>
             </div>
           </div>
           <div class="cmm-table dashed-border">
             <h2 class="cmm-sub-title">
               <span>社群列表</span>
               <p class="handle fr fs14">
-                <a href="javascript:void (0)" class="danger mr-10" @click="deleteMember">移除</a>
-                <a href="javascript:void(0)" @click="dialogFormVisible=true">添加</a>
+                <a href="javascript:void (0)"
+                   v-show="customMemberList.length"
+                   class="danger mr-10"
+                   @click="deleteMember">移除</a>
+                <a href="javascript:void(0)"
+                   v-show="customGroupInfo.guid"
+                   @click="dialogFormVisible=true">添加</a>
               </p>
             </h2>
-
             <el-table
               border
               ref="customTable"
               height="230px"
-              :data="customCommunityList"
+              :data="customMemberList"
               style="width:100%"
               @selection-change="handleSelectionChange"
               empty-text="您尚未添加社群。"
@@ -88,7 +104,7 @@
     <ob-dialog-form
       @remote-submit="remoteSubmit"
       multiple
-      keys
+      :disabled-keys="disabledKeys"
       :type="dialogOptions.type"
       :title="dialogOptions.title"
       :visible.sync="dialogFormVisible">
@@ -109,43 +125,71 @@
           title: '添加社群',
           type: 'group'
         },
-        customCommunityInfo: {
-          name:'余杭分店',
-          type:1,
-          description:'餐饮人流统计'
+        currentKey:'',
+        customGroupInfo: {
+          guid:"6867A6C096844AD4982F19323B6C9574",
+          name: '余杭分店',
+          type: 1,
+          description: '餐饮人流统计'
         },
-        customCommunityList: [
-          {name: '余杭分店'},
-          {name: '余杭分店'},
-          {name: '余杭分店'},
-          {name: '余杭分店'},
-          {name: '余杭分店'},
-          {name: '余杭分店'}
+        customMemberList: [
+          {guid:'6867A6C096844AD4982F19323B6C9574'},
+          {guid:'6AA8D1B3CAC9412AA6E0487438B7DD38'}
         ],
-        selectList: []
+        customGroupList: [],
+        selectList: [],
       }
     },
     methods: {
       remoteSearch() {
-
       },
       remoteSubmit(data) {
-        console.log('array', data)
+        this.addMember(data)
+      },
+      currentChange(data){
+        this.customGroupInfo = data;
+        this.getMemberList(data.guid)
       },
       customType(type, txt) {
         return customType(type, txt)
       },
+
       handleSelectionChange(val) {
         this.selectList = val;
       },
+      // 添加成员
+      addMember(keys){
+        console.log(keys.filter(item=>!item.disabled).map(item=>item.groupGuid).toString());
+        if(keys.length){
+          this.dialogFormVisible = false;
+          this.$http("/groupCustom/member/add",{
+            groupGuids:keys.filter(item=>!item.disabled).map(item=>item.groupGuid).toString(),
+            groupCustomGuid:this.customGroupInfo.guid
+          }).then(res=>{
+            this.$tip("添加成功");
+            this.getMemberList()
+          })
+        }else {
+          this.$tip('请选取要添加的社群')
+        }
+      },
       deleteMember() {
-        if (this.selectList.length) {
+        console.log(this.selectList);
+        if (!this.selectList.length) {
           this.$tip("请选择要移除的社群");
           return
         }
-        this.$affirm({text: `确认将选中社群移除【${this.customCommunityInfo.name}】分组？`}, (action, instance, done) => {
+        this.$affirm({text: `确认将选中社群移除【${this.customGroupInfo.name}】分组？`}, (action, instance, done) => {
           if (action === 'confirm') {
-            this.$tip("移除分组");
+            let ids = this.selectList.map(item=>item.guid).toString();
+            this.$http("/groupCustom/member/remove",{
+              groupGuids:ids,
+              groupCustomGuid:this.customGroupInfo.guid
+            }).then(res=>{
+              this.$tip("移除成功");
+              this.getMemberList()
+            });
+
             done()
           } else {
             done()
@@ -154,14 +198,51 @@
       },
       // 删除分组
       deleteGroup() {
-        this.$affirm({text: `确认删除【${this.customCommunityInfo.name}】分组？`}, (action, instance, done) => {
+        this.$affirm({text: `确认删除【${this.customGroupInfo.name}】分组？`}, (action, instance, done) => {
           if (action === 'confirm') {
-            this.$tip("删除分组");
+            this.$http("/groupCustom/delete",{groupCustomGuid:this.customGroupInfo.guid}).then(res=>{
+              this.$tip("删除成功");
+              this.customGroupInfo = {};
+              this.customGroupList = [];
+              this.getCustomGroupList()
+            });
             done()
-          }else {
+          } else {
             done()
           }
         })
+      },
+      getCustomGroupList() {
+        this.$http("/groupCustom/list").then(res => {
+          this.customGroupList = res.data;
+          console.log(this.$route);
+          if(this.$route.params.cid){
+            this.currentKey = this.this.$route.params.cid
+          }
+        })
+      },
+      getMemberList(id) {
+        id = id || this.customGroupInfo.guid;
+        if(!id){
+          this.$tip("请选取分组");
+          return false
+        }
+        this.$http("/groupCustom/member/info", {groupCustomGuid: id}).then(res => {
+          this.customMemberList = res.data
+        })
+      }
+    },
+    created() {
+      this.getCustomGroupList()
+    },
+    computed:{
+      disabledKeys:{
+        get(){
+          return this.customMemberList.map(item=>item.guid)
+        },
+        set(){
+          return this.customMemberList.map(item=>item.guid)
+        }
       }
     }
   }
