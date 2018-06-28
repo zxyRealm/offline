@@ -140,9 +140,7 @@ export default {
       });
   },
   mounted() {
-      console.info(eventObject());
       eventObject().$on('change', msg => { //eventObject接收事件
-        console.info(msg,"msg");
         this.dialogFormVisible = true;
       });
   },
