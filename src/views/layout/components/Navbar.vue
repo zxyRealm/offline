@@ -119,7 +119,10 @@ export default {
       this.seelctName = data[0].groupNickName;
       this.groupSelectId = data[0].groupGuid;
       this.dialogFormVisible = false;
-      this.dialogDeviceVisible = true;
+      setTimeout(() => {
+        this.dialogDeviceVisible = true;
+      }, 400);
+      
     },
     toggleSideBar() {
       this.$store.dispatch('toggleSideBar')

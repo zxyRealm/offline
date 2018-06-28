@@ -24,7 +24,7 @@
   </el-dialog>
 </template>
 <script>
-  import {eventObject} from '@/utils/event.js'
+  
   export default {
    props: {
             title: {

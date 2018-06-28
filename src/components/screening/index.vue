@@ -20,7 +20,7 @@
            class="picker-data"
           >
           </el-date-picker> 
-          <el-date-picker v-if="dimensionIdex != 0"
+          <el-date-picker v-else
             v-model="filterParams.startTime"
             type="daterange"
             align="right"
