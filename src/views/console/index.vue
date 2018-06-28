@@ -243,6 +243,7 @@
        box-sizing: border-box;
        height: 100%;
        min-width: 1240px;
+       
        .tip {
            width: 100%;
            height: 100%;
@@ -259,6 +260,7 @@
                 opacity: 0.5;
                 font-size: 12px;
                 color: #FFFFFF;
+                cursor: pointer;
           }
        }
        .content-top {

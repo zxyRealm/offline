@@ -7,34 +7,37 @@
           <img src="/static/img/table-input-search.png" @click="doSearch">
         </div>
       </div>
-      <el-table :height=tabelHeight
-        :data="tableData"
-        border
-       :highlight-current-row="true"
-        class="table-content">
-        <el-table-column
-          prop="groupName"
-          label="社群名称">
-        </el-table-column>
-        <el-table-column
-          prop="dateTime"
-          label="时间">
-        </el-table-column>
-        <el-table-column
-          prop="inFlowerCount"
-          label="进客量">
-        </el-table-column>
-         <el-table-column
-          prop="outFlowerCount"
-          label="出客量">
-        </el-table-column>
-      </el-table>
+      <!-- element自带滚动条 -->
+      <el-scrollbar :style="{height: tabelHeight}"> 
+        <el-table :height="tabelHeight"
+          :data="tableData"
+          border
+        :highlight-current-row="true"
+          class="table-content">
+          <el-table-column
+            prop="groupName"
+            label="社群名称">
+          </el-table-column>
+          <el-table-column
+            prop="dateTime"
+            label="时间">
+          </el-table-column>
+          <el-table-column
+            prop="inFlowerCount"
+            label="进客量">
+          </el-table-column>
+          <el-table-column
+            prop="outFlowerCount"
+            label="出客量">
+          </el-table-column>
+        </el-table>
+      </el-scrollbar>
       <div class="table-page">
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="pageParams.currentPage"
-          :page-sizes="[1,10, 20, 30, 40]"
+          :page-sizes="[10, 20, 30, 40]"
           :page-size="pageParams.pageSize"
           layout="total, sizes, prev, pager, next"
           :total="pageParams.total">
@@ -62,11 +65,13 @@
         //每页显示条数
         handleSizeChange(val) {
           this.pageParams.pageSize = val;
+          this.getData();
           //console.log(`每页 ${val} 条`);
         },
         //当前显示第几页
         handleCurrentChange(val) {
           this.pageParams.currentPage = val;
+          this.getData();
           //console.log(`当前页: ${val}`);
         },
         //条件请求数据
