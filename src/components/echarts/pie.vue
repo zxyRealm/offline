@@ -156,7 +156,6 @@
       //默认数据展示 = 可视化
       defaultShow() {
         let type = this.$store.state.filterParams.type;
-        //console.info(this.$store.state.filterParams,"this.$store.state.filterParams");
         if(type == 3) {
             this.option.legend['data'] = ['0-10','11-20','21-30','31-40','41-50','50以上'];
             this.transfromArray( this.option.legend['data']);
@@ -179,7 +178,6 @@
         }).then(res => {
             if(res.result == 1){
                 this.data = res.data;
-                console.info(res,"res");
                 if(this.$store.state.filterParams.type == 3){
                     this.installSeriesGroup(res.data);
                     this.option.series = this.$apply(this.option.series,this.roseSeries);
@@ -227,11 +225,6 @@
      position: relative;
      background-color: rgba(64,58,73,0.30);
      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
-    //background: rgba(35,32,39,0.30);
-    //box-shadow: 0 0 4px 0 rgba(0,0,0,1);
-  }
-  canvas {
-       z-index: 99999!important;
   }
   .pie-wing::after {
     content: '';

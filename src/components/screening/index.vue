@@ -5,7 +5,6 @@
         <el-form-item label="选择对象：" prop="groupGuidName">
           <input class="group-name-input" type="text" v-model="filterParams.groupGuidName" @click="groupGuidNameClick" auto-complete="off"/>
           <span class="icon-select"></span>
-            <!-- <option value ="volvo">Volvo</option> -->
         </el-form-item>
        <el-form-item label="维度：" prop="dimension" auto-complete="off">
          <template v-for="(ele,index ) in dimensionData">
@@ -47,8 +46,6 @@
       :title="dialogOptions.title"
       :visible.sync="dialogFormVisible">
     </ob-dialog-form>
-
-
     </div>
 </template>
 
@@ -74,7 +71,6 @@
                 { validator: groupGuidNameFunction, trigger: 'blur' }
               ],
             },
-           
             dialogFormVisible: false,
             dialogOptions: {
               title: '添加社群',
@@ -97,6 +93,7 @@
         groupGuidNameClick() {
             this.dialogFormVisible = true;
         },
+        //确定弹框
         remoteSubmit(data) {
           if((!data || data.length ==0)) {
              this.$alert('请选择对象', '提示:', {
@@ -137,6 +134,10 @@
             this.$tip("选择对象不能为空！");
             return;
           }
+          if(this.filterParams.dimension >1 && this.filterParams.timeArray.length == 0) {
+            this.$tip("选择时间不能为空！");
+            return;
+          }
           this.dealTime();
           this.changeParams();
         }
@@ -144,7 +145,6 @@
       created() {
       },
       mounted() {
-          //this.$store.dispatch("SET_FILTER_PARAMS"); 主动调用action方法更新默认数据
           //默认值处理
           this.filterParams.startTime = this.$store.state.filterParams.startTime;
           this.filterParams.endTime = this.$store.state.filterParams.endTime;
@@ -185,7 +185,6 @@
           }
           input {
             border: none;
-            /* background: url(/static/img/input_border_bg.png) no-repeat center; */
             -webkit-background-size: 100% 100%;
             background-size: 100% 100%;
             background-color: #fff; 

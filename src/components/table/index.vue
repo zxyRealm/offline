@@ -46,7 +46,7 @@
 
 <script>
     export default {
-        name: "table-index",
+      name: "table-index",
       data() {
         return {
           fuzzyQuery: '',     //模糊匹配
@@ -82,10 +82,10 @@
            let filterParams = {
               groupGuid: params.groupGuid,
               groupName: params.groupGuidName,
-              type: params.type,         //类型
+              type: params.type,              //类型
               dimension: params.dimension,    //维度
               startTime: params.startTime,    //开始时间
-              endTime: params.endTime,       //结束时间
+              endTime: params.endTime,        //结束时间
               length:  this.pageParams.pageSize,
               index: this.pageParams.currentPage
             };

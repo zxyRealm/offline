@@ -83,36 +83,13 @@ import { mapState } from 'vuex'
                   name:'进人数',
                   type:'line',
                   smooth:true,
-                   areaStyle: {
-                      normal: {
-                          color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                              offset: 0,
-                              color: '#000'
-                          }, {
-                              offset: 1,
-                              color: '#ffe'
-                          }])
-                      }
-                  },
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
                   data:["11", "10", "10", "10", "10", "110", "10", "10", "1110", "1011", "1110", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
                 },
                 {
                   name:'出人数',
                   type:'line',
-                 // areaStyle: {normal: {}},
                   smooth:true,
-                   areaStyle: {
-                      normal: {
-                          color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                              offset: 0,
-                              color: '#000'
-                          }, {
-                              offset: 1,
-                              color: '#000'
-                          }])
-                      }
-                  },
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
                   data:["110", "0", "110", "0", "0", "0", "0", "110", "0", "1110", "1110", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
                 }
@@ -272,7 +249,7 @@ import { mapState } from 'vuex'
          ])
      },
      watch:{
-         //监听vuexgroupConsoleId是否改变
+        //监听vuexgroupConsoleId是否改变
         groupConsoleId(val){
             this.showGenderData();
             this.timing();  //定时刷新数据，一个小时一次
