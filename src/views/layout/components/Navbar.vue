@@ -95,11 +95,12 @@ export default {
       }
   },
   methods: {
+    //设备返回数据
     pickDeviceHandler(val) {
       if(val == "上一步") {
           this.dialogFormVisible = true;
       }else {
-        console.info(val,'选中设备信息');
+        this.seelctName = val.deviceName;
       }
     },
     //点击选择社群
@@ -114,12 +115,11 @@ export default {
         });
         return;
       }
-      this.seelctName = data[0].groupNickName;
       this.groupSelectId = data[0].groupGuid;
       this.dialogFormVisible = false;
       setTimeout(() => {
         this.dialogDeviceVisible = true;
-      }, 400);
+      }, 300);
       
     },
     toggleSideBar() {
@@ -286,6 +286,7 @@ export default {
       .navbar-console-select {
           display: inline-block;
           margin-left: 12px;
+          cursor: pointer;
           &::after {
             content: "";
             width:0px;

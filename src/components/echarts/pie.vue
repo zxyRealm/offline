@@ -20,7 +20,8 @@
                   fontWeight: 'lighter'
                 }
               },
-              tooltip: {
+              tooltip: {    //鼠标悬浮提示消息
+                show: false, 
                 trigger: 'item',
                 formatter: "{a} <br/>{b}: {c} ({d}%)"
               },
@@ -40,21 +41,42 @@
                   {
                       name:'访问来源',
                       type:'pie',
-                      radius: ['50%', '70%'],
+                      radius: ['50%', '74%'],
                       avoidLabelOverlap: false,
                       label: {
                         normal: {
+                          fontSize: 16,
                           show: true,
-                          formatter:'{d}%',  //显示百分比
-                          position: 'outside'
+                          formatter: '{per|{d}%}',//'{d}%',  //显示百分比
+                          position: 'outside',
+                          rich: {
+                            per: {
+                              lineHeight: 22,
+                              align: 'center'
+                            }
+                          }
                         },
+                        
                       },
-                      labelLine: {
+                      labelLine: {  //指向线段
                         normal: {
-                          show: false
+                          show: false,
+                          smooth: true
                         }
                       },
-                      itemStyle : { normal: {label : {show: true, position: 'center'}}},
+                      itemStyle : { 
+                        normal:{
+                          label : {
+                             show: true,
+                             position: 'center'
+                            },
+                        },
+                        emphasis: {  //高亮的扇区和标签样式
+                            label: {
+                              show: true
+                            }
+                        }
+                      },
                       data:[
                           {value:0, name:'男'},
                           {value:0, name:'女'}
@@ -210,6 +232,7 @@
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   .pie-wrap{
+    
      width: 100%;
      height: 230px;
      box-sizing: border-box;
@@ -217,9 +240,9 @@
      background: url('/static/img/pie-background.png') no-repeat center center;
      background-size: 160px 160px;
      position: relative;
-     canvas {
+  }
+  canvas {
        z-index: 99999!important;
-     }
   }
   .pie-wing::after {
     content: '';
@@ -231,7 +254,7 @@
     position: absolute;
     top: 0;
     left:0;
-    z-index: -99999;
+    z-index: 0;
   }
 
 </style>

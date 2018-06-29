@@ -5,12 +5,21 @@ import user from './modules/user'
 import getters from './getters'
 import permission from './modules/permission'
 import { fetch } from '@/utils/request'
+import { parseTime } from  '@/utils/index'
 
 Vue.use(Vuex);
 
 const state = {
   userInfo:{},
-  filterParams: {},    //可视化社群条件
+  filterParams: {       //可视化社群条件
+    groupGuid: '',     //选择社群
+    type: 1,           //类型
+    dimension: 1,      //维度
+    startTime: parseTime(new Date(),'{y}-{m}-{d}'),     //开始时间
+    endTime: parseTime(new Date(),'{y}-{m}-{d}'),       //结束时间
+    timeArray: [],
+    groupGuidName: '请选择对象'
+  }, 
   groupConsoleId:  ''  //控制台社群设备id
 };
 
@@ -27,8 +36,8 @@ const actions = {
       groupGuid: '',     //选择社群
       type: 1,           //类型
       dimension: 1,      //维度
-      startTime: '',     //开始时间
-      endTime: ''        //结束时间
+      startTime: parseTime(new Date(),'{y}-{m}-{d}'),     //开始时间
+      endTime: parseTime(new Date(),'{y}-{m}-{d}')        //结束时间
     }
     commit("SET_FILTER_PARAMS",filterParams);
     return  true;
@@ -49,6 +58,7 @@ const mutations = {
     }
   },
   SET_FILTER_PARAMS: (state,data) => {
+    console.info(data,"dfasdasfsaadafasdf");
     state.filterParams = data || {};
   },
   SET_GROUP_CONSOLEID: (state,data) => {

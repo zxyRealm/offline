@@ -1,27 +1,29 @@
 <template>
     <div class="screening-wrap">
       <div>筛选</div>
-      <el-form  v-model="filterParams" ref="params" class="demo-ruleForm" label-width="90px" :class="type!=1?'normal-from':'' ">
-        <el-form-item label="选择对象：" prop="selectObj">
-          <input class="group-name-input" type="text" v-model="groupGuidName" @click="groupGuidNameClick"/>
+      <el-form  v-model="filterParams" class="demo-ruleForm" label-width="90px" :class="type!=1?'normal-from':'' ">
+        <el-form-item label="选择对象：" prop="groupGuidName">
+          <input class="group-name-input" type="text" v-model="filterParams.groupGuidName" @click="groupGuidNameClick" auto-complete="off"/>
+          <span class="icon-select"></span>
             <!-- <option value ="volvo">Volvo</option> -->
         </el-form-item>
        <el-form-item label="维度：" prop="dimension" auto-complete="off">
          <template v-for="(ele,index ) in dimensionData">
-           <button class="dimension-button" @click="handleButton(index)" :key="index" :class="buttonIndex== index?'active':''">{{ele}}</button>
+           <button class="dimension-button" @click.stop.prevent="handleButton(index)" :key="index" :class="(filterParams.dimension-1) == index?'actived':''">{{ele}}</button>
          </template>
         </el-form-item>
-        <el-form-item label="时间："  prop="startTime" auto-complete="off">
-          <el-date-picker v-if="dimensionIdex == 0" 
+        <el-form-item label="时间："  prop="startTime">
+          <el-date-picker v-if="filterParams.dimension == 1" 
           type="date" 
            v-model="filterParams.startTime"
            placeholder="选择日期"
            value-format = "yyyy-MM-dd" 
            class="picker-data"
+           :picker-options="pickerOptions1"
           >
           </el-date-picker> 
           <el-date-picker v-else
-            v-model="filterParams.startTime"
+            v-model="filterParams.timeArray"
             type="daterange"
             align="right"
             unlink-panels
@@ -29,11 +31,13 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             value-format = "yyyy-MM-dd"
+            :picker-options="pickerOptions1"
             >
           </el-date-picker>
+          <span class="icon-select"></span>
         </el-form-item>
         <el-form-item>
-          <el-button class="affirm" @click="submitForm()">提交</el-button>
+          <el-button class="affirm" @click.stop.prevent="submitForm()">提交</el-button>
         </el-form-item>
       </el-form>
       <!-- 选择社群 -->
@@ -43,6 +47,8 @@
       :title="dialogOptions.title"
       :visible.sync="dialogFormVisible">
     </ob-dialog-form>
+
+
     </div>
 </template>
 
@@ -52,22 +58,39 @@
         name: "screening-index",
         props: ['type'],
         data() {
+          let groupGuidNameFunction = (rule, value, callback) => {
+              if(!value){
+                  return callback(new Error("选择对象不能为空"));
+              }
+          }
           return {
-            groupGuidName: '请选择对象',
+             pickerOptions1: {   //不能选择当前时间之后的日期
+                disabledDate(time) {
+                  return time.getTime() > Date.now();
+                }
+            },
+            rules: {
+              groupGuidName: [
+                { validator: groupGuidNameFunction, trigger: 'blur' }
+              ],
+            },
+           
             dialogFormVisible: false,
             dialogOptions: {
               title: '添加社群',
               type: 'group'
             },
-            buttonIndex: 0,
-            dimensionIdex: 0,
+            // buttonIndex: 0,
+            // dimensionIdex: 0,
             dimensionData: ['小时','日','周','月'],
             filterParams: {
               groupGuid: '',     //选择社群 6867A6C096844AD4982F19323B6C9574 
               type: '',         //类型
               dimension: '',    //维度
               startTime: '',    //开始时间
-              endTime:''        //结束时间
+              endTime:'',       //结束时间
+              timeArray: [],
+              groupGuidName: '',
             }
           }
         },
@@ -77,8 +100,8 @@
             this.dialogFormVisible = true;
         },
         remoteSubmit(data) {
-          if(!data) {
-             this.$alert('请选择设备', '提示:', {
+          if((!data || data.length ==0) && (this.filterParams.groupGuid=="")) {
+             this.$alert('请选择对象', '提示:', {
               confirmButtonText: '确定',
               callback: action => {
               }
@@ -86,19 +109,19 @@
             return;
           }
           this.dialogFormVisible = false;
-          this.groupGuidName = data[0].groupNickName;
+          this.filterParams.groupGuidName = data[0].groupNickName;
           this.filterParams.groupGuid = data[0].groupGuid;
         },
         //点击维度
         handleButton(value) {
-          this.buttonIndex = value;
-          this.dimensionIdex = value;
+          // this.buttonIndex = value;
+          // this.dimensionIdex = value;
           this.filterParams.dimension = value+1;
         },
         //处理时间
         dealTime() {
-          if(this.filterParams.startTime.constructor == Array){
-            let tempDate = this.filterParams.startTime;
+          if(this.filterParams.timeArray.length != 0){
+            let tempDate = this.filterParams.timeArray;
             this.filterParams.startTime = tempDate[0];
             this.filterParams.endTime = tempDate[1];
           }else {
@@ -109,18 +132,18 @@
         changeParams() {
           this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
           //这这里触发兄弟组件更新条件
-          console.info(this.$parent.$children);
           this.$parent.$children[1].getData();
           this.$parent.$children[2].getData();
         },
         //查询
         submitForm() {
           if(this.filterParams.groupGuid == "") {
-             this.$alert('请选择设备', '提示:', {
-              confirmButtonText: '确定',
-              callback: action => {
-              }
-            });
+            this.$tip("选择对象不能为空！");
+            //  this.$alert('请选择设备', '提示:', {
+            //   confirmButtonText: '确定',
+            //   callback: action => {
+            //   }
+            // });
             return;
           }
           this.dealTime();
@@ -128,12 +151,17 @@
         }
       },
       created() {
-          //默认值处理
-          this.filterParams.startTime = this.$getNowFormatDate();
-          this.filterParams.endTime = this.$getNowFormatDate();
+      },
+      mounted() {
+          //this.$store.dispatch("SET_FILTER_PARAMS");  //主动调用action方法更新默认数据
+         //默认值处理
+          this.filterParams.startTime = this.$store.state.filterParams.startTime;
+          this.filterParams.endTime = this.$store.state.filterParams.endTime;
+          this.filterParams.timeArray = this.$store.state.filterParams.timeArray;
           this.filterParams.type = this.type;
-          this.filterParams.dimension = 1;
-          this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
+          this.filterParams.groupGuidName = this.$store.state.filterParams.groupGuidName;
+          this.filterParams.dimension = this.$store.state.filterParams.dimension;
+          //this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
       },
       computed: {
       }
@@ -155,10 +183,19 @@
             line-height: 28px;
       }
        .picker-data  {
-        input.el-input__inner {
-            height: 28px ;
-            line-height: 28px;
-        }
+          input.el-input__inner {
+              height: 28px ;
+              line-height: 28px;
+          }
+          input {
+            border: none;
+            /* background: url(/static/img/input_border_bg.png) no-repeat center; */
+            -webkit-background-size: 100% 100%;
+            background-size: 100% 100%;
+            background-color: #fff; 
+            border: 1px solid;
+            color: #000;
+          }
       }
      }
 </style>
@@ -184,22 +221,34 @@
         }
       }
       .group-name-input {
-        width: 210px;
-        height: 22px!important;
-        line-height: 28px;
-        border-radius: 3px;
-        text-indent: 10px;
+           width: 210px;
+            height: 26px !important;
+            line-height: 28px;
+            -webkit-border-radius: 3px;
+            border-radius: 3px;
+            text-indent: 26px;
+            border: none;
+            /* background: url(/static/img/input_border_bg.png) no-repeat center; */
+            -webkit-background-size: 100% 100%;
+            background-size: 100% 100%;
+            /* background-color: transparent; */
+            /* color: #fff;*/
       }
-      input.group-name-input::after {
-        content: "";
-        width: 0px;
-        height: 0px;
-        border-right: 8px solid transparent;
-        border-left: 8px solid transparent;
-        border-top: 8px solid #ffffff;
-        top: 14px;
-        left: 10px;
-        position: relative;
+      .icon-select {
+          display: inline-block;
+          position: relative;
+          &::after {
+              content: "";
+              width: 0px;
+              height: 0px;
+              border-right: 6px solid transparent;
+              border-left: 6px solid transparent;
+              border-top: 6px solid rgba(0,0,0,0.6);
+              top: 14px;
+              left: -28px;
+              cursor: pointer;
+              position: relative;
+        }
       }
       .dimension-button {
         width: 48px;
@@ -211,7 +260,7 @@
         font-size: 12px;
         margin-right: 6px;
       }
-      .active {
+      .actived {
         color: #2187DF;
         border: 1px solid #2187DF;
         box-shadow: 0 2px 4px 0 rgba(22,20,24,0.50);

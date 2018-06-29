@@ -44,6 +44,8 @@
             let tablePie = document.getElementById("echarts-pie");
             tablePie.style.width = me.$refs.pie.offsetWidth +"px";
             me.$refs.echartsPie.resizeEcharts();
+
+           
           }
        },
       created() {
@@ -57,8 +59,11 @@
          }
       },
       mounted() {
-        let me = this;
-       window.addEventListener("resize",me.resizeFunction);
+         let me = this;
+         window.addEventListener("resize",me.resizeFunction);
+         //给饼图设置层级
+         let canvas=document.getElementsByTagName('canvas')[0];
+         canvas.style.zIndex = 99999;
       },
       beforeRouteLeave(to, from , next) {
           let me = this;
