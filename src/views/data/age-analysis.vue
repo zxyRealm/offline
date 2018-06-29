@@ -53,7 +53,7 @@
       computed: {
          //首先给table高度赋值
          tabelHeight()  {
-           let tableEle = document.body.clientHeight - 420;
+           let tableEle = document.body.clientHeight - 420+14;
            return tableEle+'px';
          }
       },
@@ -79,7 +79,6 @@
       width: 100%;
       min-width: 1020px;
       .screening, .flow-diagram {
-        // border: 1px solid #0F9EE9;
         height: 230px;
       }
       .screening {
@@ -102,12 +101,12 @@
     }
     .table-data {
       width: 100%;
+      min-width: 1020px;
       position: absolute;
       top: 294px;
       bottom: 0px;
       left: 0px;
       box-sizing: border-box;
-      // border: 1px solid red;
     }
   }
 </style>

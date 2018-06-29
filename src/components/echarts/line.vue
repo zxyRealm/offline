@@ -290,7 +290,9 @@ import { mapState } from 'vuex'
     width: 100%;
     box-sizing: border-box;
     padding: 20px;
-    background: rgba(35,32,39,0.30);
-    box-shadow: 0 0 4px 0 rgba(0,0,0,1);
+    background-color: rgba(64,58,73,0.30);
+    box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
+    // background: rgba(35,32,39,0.30);
+    // box-shadow: 0 0 4px 0 rgba(0,0,0,1);
   }
 </style>

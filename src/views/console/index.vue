@@ -3,7 +3,7 @@
       <div class="tip" v-if="!state"><div @click="selectGroupId">暂无数据，请选择您的社群和设备</div></div>
       <div class="content-top" v-if="state">
             <div class="content-top-left">
-                <ul class="left-ul">
+                <ul class="left-ul corner-bg">
                     <li>
                         <p>客流汇总信息 </p>
                         <flow-info :type="'left'" :number="inNumber"  class="flow-left"></flow-info>
@@ -13,22 +13,22 @@
                         <all-time class="li-all-time"></all-time>
                     </li>
                 </ul>
-                <div class="left-div" ref="lineConsole">
+                <div class="left-div corner-bg" ref="lineConsole">
                     <line-console ref="echartsLine" :line-params='lineParams' ></line-console>
                 </div>
             </div>
             <div class="content-top-right">
                 <ul class="bottom-ul">
-                    <li ref='pie'> 
+                    <li ref='pie' class="corner-bg"> 
                         <pie ref="echartsPie" :pieParams="pieParams"></pie>
                     </li>
-                    <li ref='bar'>
+                    <li ref='bar' class="corner-bg">
                         <bar ref="echartsBar" :ageBar="ageBar"></bar>
                     </li>
                 </ul>
             </div>
       </div>
-      <div class="content-bottom" v-if="state">
+      <div class="content-bottom corner-bg" v-if="state">
             <ul class="customer-left">
                 <li v-for="(value,index) in pedestrianInData" :key="index">
                     <customer-info :index="pedestrianInData.length -index" :detailInfo="value"></customer-info>
@@ -99,11 +99,10 @@
              eventObject().$emit('change','快点操作啊！');
           },
           getwebsocket(data) {
-              
               let me = this;
               let wsServer = 'ws://'+data+':8082'; //服务器地址
               this.websocket = new WebSocket(wsServer);
-                //console.info(this.websocket.readyState,"+++++++++++");//查看websocket当前状态
+                console.info(this.websocket.readyState,"+++++++++++");//查看websocket当前状态
                 this.websocket.onopen = function (evt) {
                     //已经建立连接
                    me.websocket.send(this.key + '_channel');  //向服务器发送消息
@@ -131,7 +130,7 @@
 
             let tablePie = document.getElementById("echarts-pie");
             tablePie.style.width = me.$refs.pie.offsetWidth +"px";
-            //tablePie.style.height = me.$refs.pie.offsetHeight +"px";
+            tablePie.style.height = me.$refs.pie.offsetHeight +"px";
             me.$refs.echartsPie.resizeEcharts();
 
             let tableLine = document.getElementById("echarts-line");
@@ -152,8 +151,6 @@
             this.inNumber = obj.inNumber;
             //柱状图
             this.ageBar = JSON.parse(obj.age);
-            //线型图
-            //if(!!this.$refs.echartsLine) {this.$refs.echartsLine.showGenderData("fddf")}
             //图片展示
             this.typePedestrian(obj.pedestrian[0]);
           },
@@ -202,7 +199,6 @@
       },
     mounted() {
         let me = this;
-        //console.info(this.$store.state.groupConsoleId,"this.$store.state.groupConsoleId");
         window.addEventListener('resize',me.resizeFunction);
         if(this.$store.state.groupConsoleId != "") {
                 this.deviceKey = this.$store.state.groupConsoleId;
@@ -229,6 +225,8 @@
      },
       beforeRouteLeave(to, from , next) {
         let me = this;
+        //路由跳转后，不需要保存控制台的信息
+        this.$store.dispatch('SET_GROUP_CONSOLEID');
         window.removeEventListener("resize",me.resizeFunction);
         //关闭websocket链接
         if(!this.websocket) this.websocket.close();
@@ -239,11 +237,10 @@
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
    .console-wrap { 
-       background: rgba(1, 8, 20, 0.1);
        box-sizing: border-box;
        height: 100%;
        min-width: 1240px;
-       
+       background: #0F0E11;
        .tip {
            width: 100%;
            height: 100%;
@@ -274,6 +271,8 @@
             box-sizing: border-box;
             .left-ul {
                 height: 31%;
+                background-color: rgba(64,58,73,0.30);
+                box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
                 li {
                      float: left;
                 } 
@@ -282,7 +281,6 @@
                      height: 100%;
                      box-sizing: border-box;
                      padding: 20px;
-                     //border: 1px solid red;
                      position: relative;
                      .flow-info-wrap {
                         top: calc(50% - 17px);
@@ -300,7 +298,6 @@
                      margin-left: 10px;
                      width: calc(40% - 10px);
                      height: 100%;
-                    // border: 1px solid red;
                      box-sizing: border-box;
                      .li-all-time {
                         position: absolute;
@@ -311,7 +308,6 @@
             .left-div {
                 margin-top: 10px;
                 height: calc(69% - 10px);
-                //border: 1px solid red;
                 box-sizing: border-box;
             }
           }
@@ -320,16 +316,17 @@
             margin-left: 10px;
             width: calc(40% - 10px);
             box-sizing: border-box;
+            .pie-wrap {
+                background-size: 28%;
+            }
             .bottom-ul {
                 height: 100%;
                  li:nth-child(1) {
                      height: 44%;
-                     //border: 1px solid red;
                 }
                 li:nth-child(2) {
                      margin-top: 10px;
                      height: calc(56% - 10px);
-                     //border: 1px solid red;
                      box-sizing: border-box;
                 }
             }
@@ -342,7 +339,8 @@
           min-height: 168px;
           box-sizing: border-box;
           padding: 20px;
-          //border: 1px solid green;
+          background-color: rgba(64,58,73,0.30);
+          box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
        }
        .customer-left  {
            width:calc(50% - 170px);

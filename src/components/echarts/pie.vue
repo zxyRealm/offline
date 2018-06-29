@@ -122,7 +122,6 @@
       showAgeData() {
           this.changeTitle();
           this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
-          this.option.series[0].label.fontWeight = "bolder";
           this.option.series[0].data = this.pieParams.seriesData;
           this.option.legend.data = this.pieParams.legendData;
           this.drawPie();
@@ -180,6 +179,7 @@
         }).then(res => {
             if(res.result == 1){
                 this.data = res.data;
+                console.info(res,"res");
                 if(this.$store.state.filterParams.type == 3){
                     this.installSeriesGroup(res.data);
                     this.option.series = this.$apply(this.option.series,this.roseSeries);
@@ -209,7 +209,6 @@
       },
       watch: {
         pieParams(val,oldVal) {
-          console.info(val,"dadfddffas");
           return true;
         }
 
@@ -219,7 +218,6 @@
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   .pie-wrap{
-    
      width: 100%;
      height: 230px;
      box-sizing: border-box;
@@ -227,8 +225,10 @@
      background: url('/static/img/pie-background.png') no-repeat center center;
      background-size: 160px 160px;
      position: relative;
-     background: rgba(35,32,39,0.30);
-     box-shadow: 0 0 4px 0 rgba(0,0,0,1);
+     background-color: rgba(64,58,73,0.30);
+     box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
+    //background: rgba(35,32,39,0.30);
+    //box-shadow: 0 0 4px 0 rgba(0,0,0,1);
   }
   canvas {
        z-index: 99999!important;

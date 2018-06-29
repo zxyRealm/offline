@@ -8,7 +8,6 @@
         </div>
       </div>
       <!-- element自带滚动条 -->
-      <el-scrollbar :style="{height: tabelHeight}"> 
         <el-table :height="tabelHeight"
           :data="tableData"
           border
@@ -31,7 +30,6 @@
             label="出客量">
           </el-table-column>
         </el-table>
-      </el-scrollbar>
       <div class="table-page">
         <el-pagination
           @size-change="handleSizeChange"
@@ -83,6 +81,7 @@
            let params = this.$store.state.filterParams;
            let filterParams = {
               groupGuid: params.groupGuid,
+              groupName: params.groupGuidName,
               type: params.type,         //类型
               dimension: params.dimension,    //维度
               startTime: params.startTime,    //开始时间
@@ -90,7 +89,7 @@
               length:  this.pageParams.pageSize,
               index: this.pageParams.currentPage
             };
-           this.$http('/chart/flowCount',filterParams).then(res => {
+           this.$http('/chart/flowCount',encodeURIComponent(filterParams)).then(res => {
               if(res.result == 1){
                 this.tableData = res.data.content;
                 this.pageParams.total = res.data.pagination.total;
@@ -104,8 +103,14 @@
            //table高度改变
           this.$nextTick(()=>{
             let table = document.getElementsByClassName("table-content")[0];
-            let tableEle = document.body.clientHeight - 640;
-            table.style.height = tableEle+"px";
+            if(!table) return;
+            let tableEle = 0;
+            if(document.body.clientHeight < 720){
+                tableEle = 206;
+            }else {
+                tableEle = document.body.clientHeight - 640;
+            }
+               table.style.height = tableEle+"px";
           })
         }
       },
@@ -113,7 +118,7 @@
         //this.getData();
       },
       mounted(){
-        window.addEventListener('resize',this.initSize());
+        window.addEventListener('resize',this.initSize);
       },
       computed: {
          //首先给table高度赋值

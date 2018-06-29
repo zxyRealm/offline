@@ -13,7 +13,7 @@
          </template>
         </el-form-item>
         <el-form-item label="时间："  prop="startTime">
-          <el-date-picker v-if="filterParams.dimension == 1" 
+          <el-date-picker v-show="filterParams.dimension == 1" 
           type="date" 
            v-model="filterParams.startTime"
            placeholder="选择日期"
@@ -22,7 +22,7 @@
            :picker-options="pickerOptions1"
           >
           </el-date-picker> 
-          <el-date-picker v-else
+          <el-date-picker v-show ="filterParams.dimension > 1"
             v-model="filterParams.timeArray"
             type="daterange"
             align="right"
@@ -201,8 +201,8 @@
       height: 100%;
       box-sizing: border-box;
       padding: 20px;
-      background: rgba(35,32,39,0.30);
-      box-shadow: 0 0 4px 0 rgba(0,0,0,1);
+      background: rgba(64,58,73,0.30);
+      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
     .demo-ruleForm {
       box-sizing: border-box;
       padding: 40px 14px;

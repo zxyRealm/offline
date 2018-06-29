@@ -5,11 +5,11 @@
         <screening :type="1"></screening>
       </div>
       <div class="flow-diagram corner-bg" ref="line">
-        <echarts-line :line-height="'320px'" :line-params='lineParams' ref="echartsLine" :class="'data-children-background'"></echarts-line>
+        <echarts-line :line-height="'320px'" :line-params='lineParams' ref="echartsLine"></echarts-line>
       </div>
     </div>
-    <div class="table-data corner-bg">
-      <table-data></table-data>
+    <div class="table-data corner-bg" ref="table">
+      <table-data ref="element-table"></table-data>
     </div>
   </div>
 </template>
@@ -37,10 +37,11 @@
         //宽度
         table.style.width = me.$refs.line.offsetWidth + "px";
         me.$refs.echartsLine.resizeEcharts();
+        //表格高度
       }
     },
     mounted() {
-      //
+      //浏览器窗口监听
       let me = this;
       window.addEventListener("resize", me.resizeFunction);
     },
@@ -53,10 +54,6 @@
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
- .data-children-background {
-      background: rgba(35,32,39,0.30);
-      box-shadow: 0 0 4px 0 rgba(0,0,0,1);
-   }
   .data-guest {
     width: 100%;
     height: 100%;
@@ -66,7 +63,6 @@
       width: 100%;
       min-width: 1020px;
       .screening, .flow-diagram {
-        // border: 1px solid #0F9EE9;
         height: 320px;
       }
       .screening {
@@ -118,13 +114,15 @@
     }
     .table-data {
       width: 100%;
+      min-width: 1020px;
       position: absolute;
       top: 386px;
       bottom: 0px;
       left: 0px;
       box-sizing: border-box;
       padding: 20px;
-      // border: 1px solid red;
+      background-color: rgba(64,58,73,0.30);
+      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
     }
   }
 </style>
