@@ -118,7 +118,6 @@
         },
         rules: [
           {required: true, validator: validateName, trigger: "blur"}
-          // { type: 'string',min:1,max: 18, message: '长度不可超过18个字符', trigger: 'change'}
         ],
         dialogFormVisible: false,
         isSearch: false

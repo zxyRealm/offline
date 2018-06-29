@@ -1,16 +1,18 @@
 import Vue from 'vue'
 import axios from "axios/index";
-import Qs from "qs";
-import { Message } from "element-ui";
-
+import { Message,Loading } from "element-ui";
+import Store from '@/store'
 // 异步请求
-export function fetch(url,params,isTip=true) {
+export function fetch(url,params,isTip='数据加载中...') {
   if(typeof params === 'boolean' ){
     isTip = params;
     params = null
   }
   params = params || {};
-  // params = Qs.stringify(params||{});
+  if(isTip){
+    Store.state.loading = true;
+    loading(isTip)
+  }
   const promise = new Promise((resolve,reject)=>{
     axios({
       baseURL:'/api',
@@ -21,6 +23,10 @@ export function fetch(url,params,isTip=true) {
       timeout: 15000,
       responseType: 'json'
     }).then(res => {
+      Store.state.loading = false;
+      if(isTip){
+        loading(isTip).close()
+      }
       if (res.status === 200) {
         if(res.data.result){
           if(res.data.code==='ERR-110'){
@@ -42,13 +48,30 @@ export function fetch(url,params,isTip=true) {
         reject(res)
       }
     }).catch((error) => {
-      console.log(error);
+      Store.state.loading = false;
+      if(isTip){
+        loading(isTip).close()
+      }
+      message('服务异常，请稍后重新尝试','error',1500);
       reject(error);
     })
   });
   return promise
 }
 
+// 加载层
+export function loading(text,target) {
+  // target 必须用id
+  target = target?document.getElementById(target):document.body;
+  return Loading.service({
+    text:text,
+    target:target,
+    spinner: 'el-icon-loading',
+    background: 'transparent'
+  })
+}
+
+// 消息提示
 export function message(txt,type,delay) {
   const icon = type === 'error' ? 'error' : 'success';
   return Message({

@@ -130,7 +130,7 @@
           if(value.length>=12){
             // 校验设备是否被绑定过
             this.$http("/merchant/device/exist",{deviceKey:value},false).then(res=>{
-              if(res.data){
+              if(!res.data){
                 // 获取设备状态
                 this.$http("/device/type",{deviceKey:value},false).then(res2=>{
                   this.dialogForm.type = res2.data.deviceType;
@@ -151,7 +151,6 @@
             this.dialogForm.type = '';
             callback(new Error('请填写合法的设备序列号'))
           }
-
         }
       };
       const validateName = (rule,value,callback)=>{

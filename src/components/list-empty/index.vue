@@ -1,5 +1,5 @@
 <template>
-  <div class="ob-list-empty vam" :class="size" :style="{marginTop:top}">
+  <div v-if="!loading" class="ob-list-empty vam" :class="size" :style="{marginTop:top}">
     <span>
       {{text}}
     </span>
@@ -7,6 +7,7 @@
 </template>
 
 <script>
+
   export default {
     name: "ob-list-empty",
     props: {
@@ -21,6 +22,11 @@
       size:{
         type:String,
         default:''
+      }
+    },
+    computed:{
+      loading:function(){
+        return this.$store.state.loading
       }
     }
   }

@@ -4,7 +4,7 @@
     <navbar></navbar>
     <div class="main-container">
       <sidebar class="sidebar-container"></sidebar>
-      <app-main class="app-main-content" :class="cornerBg">
+      <app-main class="app-main-content" :class="cornerBg" id="app_main--content">
       </app-main>
     </div>
   </div>

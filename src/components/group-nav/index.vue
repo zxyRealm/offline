@@ -108,9 +108,9 @@
         type: [String, Number],
         default: ''
       },
-      disabledKeys:{
-        type:Array,
-        default:()=>[]
+      disabledKeys: {
+        type: Array,
+        default: () => []
       },
       type: {
         type: [String],
@@ -121,8 +121,8 @@
         default: false
       },
       defaultProps: {
-        type:Object,
-        default:()=>({
+        type: Object,
+        default: () => ({
           children: 'childGroupList',
           label: 'groupNickName'
         })
@@ -191,7 +191,7 @@
           ],
         },
         checkedKeys: [],
-        agency:[]
+        agency: []
       }
     },
     methods: {
@@ -312,13 +312,13 @@
         if (val) {
           this.$refs.GroupTree.setCheckedNodes(this.originList)
         } else {
-          this.$refs.GroupTree.setCheckedNodes(this.originList.filter(item=>item.disabled))
+          this.$refs.GroupTree.setCheckedNodes(this.originList.filter(item => item.disabled))
         }
       }
     },
     mounted() {
       this.GroupList = this.value || [];
-      if (this.type !== 'community'&&this.type!=='custom-community') {
+      if (this.type !== 'community' && this.type !== 'custom-community') {
         this.getGroupList()
       }
       this.setCurrentKey(this.currentKey);
@@ -329,7 +329,7 @@
       },
       GroupList: {
         handler: function (val) {
-          if (this.type === 'community' || this.type ==='custom-community') {
+          if (this.type === 'community' || this.type === 'custom-community') {
             this.TreeList = val
           }
           this.$emit("input", val)
@@ -360,46 +360,37 @@
       showChecked: function () {
         return this.onlyChecked ? this.onlyChecked : this.showCheckbox;
       },
-      TreeList:{
-        get(){
+      TreeList: {
+        get() {
           // 设置默认不可选节点
           let setKeys = new Set(this.disabledKeys);
-          if(setKeys.size){
-            this.setCheckedKeys(this.disabledKeys);
-            let setDisabled = (arr) =>{
-              for(let i=0,len=arr.length;i<len;i++){
-                if(setKeys.has(arr[i][this.nodeKey])){
-                  this.$set(arr[i],'disabled',true)
-                }
-                if(arr[i][this.defaultProps.children].length){
-                  setDisabled(arr[i][this.defaultProps.children])
+          this.setCheckedKeys(this.disabledKeys);
+          let setDisabled = (arr) => {
+            for (let i = 0, len = arr.length; i < len; i++) {
+              if (setKeys.has(arr[i][this.nodeKey])) {
+                this.$set(arr[i], 'disabled', true)
+              } else {
+                if (arr[i].disabled) {
+                  this.$set(arr[i], 'disabled', false)
                 }
               }
-            };
-            setDisabled(this.GroupList);
-          }
-          if(this.type!=='device'){
+              if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
+                setDisabled(arr[i][this.defaultProps.children])
+              }
+            }
+          };
+          setDisabled(this.GroupList);
+          if (this.type !== 'device') {
             this.agency = this.GroupList;
           }
           return this.agency
         },
-        set(model){
-         this.agency =  model
+        set(model) {
+          this.agency = model
         }
       },
-      originList:function(){
-        // 一维数组结构
-        let originArray = [];
-        let getArray = (arr)=>{
-          arr.map(item=>{
-            originArray.push(item);
-            if(item[this.defaultProps.children].length){
-              getArray(item[this.defaultProps.children])
-            }
-          });
-        };
-        getArray(this.TreeList);
-        return originArray
+      originList: function () {
+        return this.$restoreArray(this.TreeList,this.defaultProps.children)
       }
     }
   }
@@ -451,7 +442,6 @@
 </style>
 <style lang="scss">
   @import "@/styles/variables.scss";
-
   .ob-group-nav {
     &[type=custom-community] {
 

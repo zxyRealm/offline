@@ -6,9 +6,7 @@ import getters from './getters'
 import permission from './modules/permission'
 import { fetch } from '@/utils/request'
 import { parseTime } from  '@/utils/index'
-
 Vue.use(Vuex);
-
 const state = {
   userInfo:{},
   filterParams: {       //可视化社群条件
@@ -19,8 +17,9 @@ const state = {
     endTime: parseTime(new Date(),'{y}-{m}-{d}'),       //结束时间
     timeArray: [],
     groupGuidName: '请选择对象'
-  }, 
-  groupConsoleId:  ''  //控制台社群设备id
+  },
+  groupConsoleId:  '',  //控制台社群设备id
+  loading:true
 };
 
 const actions = {
