@@ -141,7 +141,8 @@
       }
     },
     methods: {
-      remoteSearch() {
+      remoteSearch(val) {
+        console.log('search',val)
       },
       remoteSubmit(data) {
         this.addMember(data)
@@ -159,7 +160,7 @@
       },
       // 添加成员
       addMember(keys){
-        console.log(keys.filter(item=>!item.disabled).map(item=>item.groupGuid).toString());
+        // console.log(keys.filter(item=>!item.disabled).map(item=>item.groupGuid).toString());
         if(keys.length){
           this.dialogFormVisible = false;
           this.$http("/groupCustom/member/add",{
@@ -215,9 +216,10 @@
       getCustomGroupList() {
         this.$http("/groupCustom/list").then(res => {
           this.customGroupList = res.data;
-          console.log(this.$route);
-          if(this.$route.params.cid){
-            this.currentKey = this.this.$route.params.cid
+          if(res.data[0]){
+            this.currentKey = res.data[0].guid;
+            this.customGroupInfo = res.data[0];
+            this.getMemberList()
           }
         })
       },
@@ -240,8 +242,8 @@
         get(){
           return this.customMemberList.map(item=>item.guid)
         },
-        set(){
-          return this.customMemberList.map(item=>item.guid)
+        set(val){
+          this.customMemberList = val
         }
       }
     }

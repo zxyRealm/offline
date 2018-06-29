@@ -20,23 +20,23 @@
       <el-scrollbar>
       <template v-for="(item,$index) in equipmentList">
         <ob-list>
-          <ob-list-item type="state" :data="item" :isAmend="true">
+          <ob-list-item width="16%" type="state" :data="item" :isAmend="true">
           </ob-list-item>
-          <ob-list-item>
+          <ob-list-item width="23%">
             <p><span>序列号：</span><span>{{item.deviceKey}}</span></p>
             <p><span>设备类型：</span>{{item.deviceType|deviceType}}</p>
             <p><span>添加时间：</span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</p>
           </ob-list-item>
-          <ob-list-item>
-            <p><span>用途：</span><br>
+          <ob-list-item width="8%">
+            <p class="tac"><span>用途：</span><br>
               <router-link v-if="item.deviceType!==1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>
               <template v-else>
                 {{item.deviceType | deviceType}}
               </template>
             </p>
           </ob-list-item>
-          <ob-list-item>
-            <p v-if="!item.groupGuid || item.logicDelete">
+          <ob-list-item width="23%">
+            <p v-if="!item.groupGuid">
               <span>绑定社群：</span>
               <a href="javascript:void (0)" @click="showDialog('community',item)">未绑定</a>
               <span style="display: inline-block;width: 14px;height: 14px;" class="fr"></span>
@@ -45,13 +45,13 @@
               <p>
                 <span>绑定社群：</span>
                 <span>{{item.groupName}}</span>
-                <uu-icon type="relieve" @click.native="unBindCommunity(item)"></uu-icon>
+                <uu-icon type="relieve" class="fr" @click.native="unBindCommunity(item)"></uu-icon>
               </p>
               <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
               <p><span>应用场景：</span>{{item.deviceScene}}</p>
             </template>
           </ob-list-item>
-          <ob-list-item :data="item" type="handle" :showDelete="true">
+          <ob-list-item width="20%" :data="item" type="handle" :showDelete="true">
           </ob-list-item>
         </ob-list>
       </template>
@@ -118,7 +118,6 @@
         },
         rules: [
           {required: true, validator: validateName, trigger: "blur"}
-          // { type: 'string',min:1,max: 18, message: '长度不可超过18个字符', trigger: 'change'}
         ],
         dialogFormVisible: false,
         isSearch: false
@@ -220,7 +219,7 @@
               groupGuid: value.groupGuid
             }).then(res => {
               this.$tip("解绑成功");
-              this.$set(value,'logicDelete',1)
+              this.$set(value,'groupGuid',null)
             });
           } else {
             done()

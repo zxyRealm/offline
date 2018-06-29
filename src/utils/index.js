@@ -97,7 +97,20 @@ export function customType(type,txt) {
   }
 }
 
-
+// 多维数组还原一维数组
+export function restoreArray(arr,children){
+  let newArray = [];
+  let restore = (arr,children) =>{
+    arr.map(item=>{
+      newArray.push(item);
+      if(item[children]&&item[children].length){
+        restore(item[children],children)
+      }
+    })
+  };
+  restore(arr,children);
+  return newArray
+}
 /**
  *get getByteLen
  * @param {Sting} val input value

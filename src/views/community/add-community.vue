@@ -66,7 +66,6 @@
 <script>
   import area from '@/components/area-select/area-select'
   import QRCode from 'qrcodejs2'
-
   export default {
     components: {
       'area-select': area
@@ -122,9 +121,7 @@
         this.$http("/group/code").then(res => {
           if (res.data) {
             this.communityForm.code = res.data;
-            // this.$nextTick(()=>{
-              this.createQrCode(res.data,'community-qrcode')
-            // })
+            this.createQrCode(res.data,'community-qrcode')
           }
         });
       },

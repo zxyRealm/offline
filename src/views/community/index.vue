@@ -146,6 +146,22 @@
   export default {
     name: "index",
     data() {
+      const validateName = (rule, value, callback) => {
+        value = value.trim();
+        if (!value) {
+          callback(new Error('请填写子社群昵称'))
+        } else {
+          if (value.length >= 2 && value.length <= 18) {
+            this.$http("/group/nickNameExist",{groupNickName:value},false).then(res=>{
+              callback()
+            }).catch(err=>{
+              callback(err.msg||'验证失败')
+            })
+          } else {
+            callback(new Error("长度为2-18个字符"))
+          }
+        }
+      };
       return {
         notHave: true,
         groupList: [],
@@ -172,40 +188,33 @@
       getGroupList(keywords, key) {
         keywords = (keywords || '').trim();
         this.$http("/group/list").then(res => {
-          if (keywords === '') {
             this.groupList = res.data;
             this.notHave = false;
             this.currentKey = (key || res.data[0]).groupGuid;
             this.getCommunityInfo(key || res.data[0]);
-            this.getDeviceList(this.currentKey);
-          } else {
-
-          }
-
+            this.getDeviceList(res.data[0]);
         })
       },
       // 获取设备列表
-      getDeviceList(gid) {
-        this.$http("/device/guid/list", {guid: gid}).then(res => {
-          this.deviceList = res.data.content || []
+      getDeviceList(val) {
+        let url = !val.groupPid? '/group/device ':'/device/guid/list';
+        this.$http(url, {guid: val.groupGuid}).then(res => {
+          this.deviceList = res.data.content || res.data || []
         })
       },
       // 搜索社群
       remoteSearch(val) {
         val = val.trim();
         if(val){
-          this.$http("/group/list/search",{searchText:val}).then(res=>{
+          this.$http("/group/list/search",{searchText:encodeURI(val)}).then(res=>{
             if(res.data[0]){
-              this.currentKey = res.data[0].groupGuid;
-              this.getCommunityInfo(key || res.data[0]);
-              this.getDeviceList(this.currentKey);
-              let keys = res.data.map(item => {
-                return item.groupGuid
-              });
-              this.$refs.groupNav.setCheckedKeys(keys)
+              this.currentKey = res.data[0];
+              let current = this.$restoreArray(this.groupList,'childGroupList').filter(item=>item.groupGuid===res.data[0])[0];
+              this.getCommunityInfo(current);
+              this.getDeviceList(current);
+              this.$refs.groupNav.setCheckedKeys(res.data)
             }
           })
-
         }
 
       },
@@ -213,7 +222,7 @@
       currentChange(val) {
         this.insetForm();
         this.getCommunityInfo(val);
-        this.getDeviceList(val.groupGuid)
+        this.getDeviceList(val)
       },
       // 获取社群详细信息
       getCommunityInfo(val) {

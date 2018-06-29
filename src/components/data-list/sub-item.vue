@@ -1,5 +1,5 @@
 <template>
-  <td class="ob-list-sub-item">
+  <td :width="width" class="ob-list-sub-item">
     <template v-if="type==='handle'">
       <div class="handle btn-item">
         操作：<br>
@@ -101,6 +101,10 @@
   export default {
     name: "ob-list-item",
     props: {
+      width:{
+        type:String,
+        default:'auto'
+      },
       router:{
         type:[String],
         default:''
