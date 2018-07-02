@@ -13,7 +13,7 @@
         <router-link to="/console">控制台</router-link>
       </div>
       <div class="navbar-console-select" v-if="$route.name  == 'console-lwh'" @click="getGropId">
-        <span>{{seelctName}}</span>
+        <span>{{selectName}}</span>
       </div>
       <div class="right-menu-item vam">
         <router-link :to="'/index/notify/'+notifState" class="system-notify" >
@@ -62,7 +62,7 @@ export default {
     return {
       notifState: false,  //是否有站内消息
       groupSelectId: '',
-      seelctName: '请选择您的社群',
+      selectName: '请选择您的社群',
       dialogFormVisible: false,
       dialogDeviceVisible: false,
       dialogOptions: {
@@ -90,6 +90,9 @@ export default {
     }
   },
   watch: {
+      $route(to,from){
+        if(to.path == "/console") this.selectName = "请选择您的社群";
+      },
       groupConsoleId(val,oldVal) {
 
       }
@@ -100,7 +103,7 @@ export default {
       if(val == "上一步") {
           this.dialogFormVisible = true;
       }else {
-        this.seelctName = val.deviceName;
+        this.selectName = val.deviceName;
       }
     },
     //点击选择社群
@@ -120,7 +123,6 @@ export default {
       setTimeout(() => {
         this.dialogDeviceVisible = true;
       }, 300);
-      
     },
     toggleSideBar() {
       this.$store.dispatch('toggleSideBar')
@@ -147,7 +149,8 @@ export default {
       });
   },
   beforeRouteLeave (to, from, next) {
-
+    //路由跳转后，不需要保存控制台的信息
+    //this.$store.dispatch('SET_GROUP_CONSOLEID');
     next();
   }
 }
@@ -156,7 +159,6 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 .navbar {
   height: 70px;
-  /*line-height: 70px;*/
   background-color: #232027;
   box-shadow: 3px 3px 5px 0 rgba(1,7,17,0.60);
   border-radius: 0 !important;

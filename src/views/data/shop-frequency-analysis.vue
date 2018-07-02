@@ -54,7 +54,7 @@
       computed: {
          //首先给table高度赋值
          tabelHeight()  {
-           let tableEle = document.body.clientHeight - 420;
+           let tableEle = document.body.clientHeight - 420+14;
            return tableEle+'px';
          }
       },
@@ -62,8 +62,11 @@
         let me = this;
         window.addEventListener("resize",me.resizeFunction);
         //给饼图设置层级
-         let canvas=document.getElementsByTagName('canvas')[0];
-         canvas.style.zIndex = 99999;
+        setTimeout(() => {
+            let canvas = document.getElementsByTagName('canvas')[0];
+            if(!!canvas) canvas.style.zIndex = 99999;
+        },600);
+         
       },
       beforeRouteLeave(to, from , next) {
           let me = this;
@@ -83,7 +86,6 @@
       width: 100%;
       min-width: 1020px;
       .screening, .flow-diagram {
-        // border: 1px solid #0F9EE9;
         height: 230px;
       }
       .screening {
@@ -111,7 +113,6 @@
       bottom: 0px;
       left: 0px;
       box-sizing: border-box;
-      // border: 1px solid red;
     }
   }
 </style>

@@ -35,6 +35,7 @@
   }
 </script>
 <style>
+  
    ul,li {
      list-style: none;
    }
@@ -42,6 +43,7 @@
 <style rel="stylesheet/scss" lang="scss" scoped>
   .data-wrap {
     height: 100%;
+    background: #0F0E11;
     .data-type {
       font-size: 16px;
       color: #FFFFFF;
@@ -50,6 +52,9 @@
       height: 40px;
       padding: 0 12px;
       box-sizing: border-box;
+      //background-image: radial-gradient(1% 0%, #1B9BEE 156%, rgba(132,64,202,0.10) 100%);
+      background: rgba(64,58,73,0.30);
+      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
       .router-link-active {
          color: #0F9EE9;
          position: relative;
