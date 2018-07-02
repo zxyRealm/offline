@@ -12,9 +12,9 @@ export function deviceType(type) {
     case 1:
       return '分析终端';
     case 2:
-      return '客行分析一体机';
+      return '客行分析';
     default:
-      return '身份识别一体机';
+      return '身份识别';
   }
 }
 

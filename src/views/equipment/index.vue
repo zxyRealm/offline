@@ -29,7 +29,7 @@
           </ob-list-item>
           <ob-list-item width="8%">
             <p class="tac"><span>用途：</span><br>
-              <router-link v-if="item.deviceType!==1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>
+              <router-link v-if="item.deviceType===1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>
               <template v-else>
                 {{item.deviceType | deviceType}}
               </template>
@@ -55,6 +55,14 @@
           </ob-list-item>
         </ob-list>
       </template>
+        <el-pagination
+          v-if="pagination.total"
+          @current-change="getMineEquipment"
+          :current-page="pagination.index"
+          :page-size="5"
+          layout="total,prev, pager, next, jumper"
+          :total="pagination.total">
+        </el-pagination>
       </el-scrollbar>
     </div>
     <ob-dialog-form
@@ -124,6 +132,9 @@
       }
     },
     methods: {
+      handleCurrentChange(page){
+
+      },
       search(val) {
         this.$router.push(`/equipment/search/mine/${val}`);
       },

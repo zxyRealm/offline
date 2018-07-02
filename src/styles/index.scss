@@ -41,6 +41,7 @@ html {
 
 #app {
   height: 100%;
+  min-width: 1220px;
 }
 
 *:before,
@@ -215,21 +216,50 @@ code, pre {
   }
 }
 
+//分页组件样式
+
+.el-pagination{
+  text-align: right;
+  color: #fff;
+  .el-pagination__total,.el-pagination__sizes{
+    float: left;
+    color: #fff;
+  }
+  button{
+    background: transparent!important;
+    color: #fff!important;
+    &:disabled{
+      color: #666!important;
+    }
+  }
+  .el-pager li{
+    background:transparent;
+    color: #fff;
+    &.active{
+      color: $blue;
+    }
+  }
+  .el-pagination__jump,.btn-next{
+    color: #fff;
+  }
+}
+
+
 //加载层样式
 
 .el-loading-mask{
   .el-loading-spinner{
-    margin-top: -106px!important;
+    margin-top: -58px!important;
   }
   .el-icon-loading{
     display: none;
   }
   .el-loading-text{
-    padding-top:192px;
+    padding-top:96px;
     box-sizing: border-box;
-    height: 212px;
+    height: 116px;
     background: url("/static/img/ob__loading--icon.png") no-repeat center top;
-    background-size: auto 192px;
+    background-size: auto 96px;
     color: #fff;
   }
 }
@@ -298,7 +328,11 @@ code, pre {
 .multiselect--active {
   z-index: 1000 !important;
 }
-
+button,input{
+  &:disabled{
+    cursor: default!important;
+  }
+}
 //确定按钮样式
 .el-button {
   &[disabled] {

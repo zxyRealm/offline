@@ -5,9 +5,7 @@
     </span>
   </div>
 </template>
-
 <script>
-
   export default {
     name: "ob-list-empty",
     props: {

@@ -77,10 +77,15 @@
           callback(new Error('请填写社群名称'))
         } else {
           if (value.length >= 2 && value.length <= 18) {
-            callback()
-            // this.$http("").then(res=>{
-            //
-            // })
+            if(this.type==='update' && this.originName===value){
+              callback()
+            }else {
+              this.$http("/group/name/exist",{groupNickName:encodeURI(value)}).then(res=>{
+                res.data?callback():callback(new Error('社群名称已存在'));
+              }).catch(err=>{
+                callback(new Error(err.msg||'验证失败'))
+              })
+            }
           } else {
             callback(new Error("长度为2-18个字符"))
           }
@@ -88,6 +93,7 @@
       };
       return {
         editable: true,
+        originName:'',
         communityForm: {
           name:'',
           code: '',
@@ -155,6 +161,7 @@
         this.$http("/group/getInfo",{guid:this.$route.params.gid}).then(res=>{
           res.data.pca = `${res.data.provinceAreaID},${res.data.cityAreaID},${res.data.districtAreaID}`;
           res.data.rule = (res.data.rule || '1').split(",").map(Number);
+          this.originName = JSON.parse(JSON.stringify(res.data.name));
           this.communityForm = res.data;
           console.log(this.communityForm);
           this.$createQRCode(res.data.code,'community-qrcode')
