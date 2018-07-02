@@ -19,18 +19,20 @@
            value-format = "yyyy-MM-dd" 
            class="picker-data"
            :picker-options="pickerOptions1"
+           :clearable="false"
           >
           </el-date-picker> 
           <el-date-picker v-show ="filterParams.dimension > 1"
             v-model="filterParams.timeArray"
             type="daterange"
-            align="right"
+            align="center"
             unlink-panels
             range-separator="至"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             value-format = "yyyy-MM-dd"
             :picker-options="pickerOptions1"
+            :clearable="false"
             >
           </el-date-picker>
           <span class="icon-select"></span>

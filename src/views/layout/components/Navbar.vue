@@ -120,7 +120,7 @@ export default {
       }
       this.groupSelectId = data[0].groupGuid;
       this.dialogFormVisible = false;
-      setTimeout(() => {
+      setTimeout(() => {  //解决闪现
         this.dialogDeviceVisible = true;
       }, 300);
     },

@@ -45,8 +45,8 @@
                       avoidLabelOverlap: false,
                       label: {
                         normal: {
-                          fontSize: 16,
                           show: true,
+                          fontSize: 16,
                           formatter: '{per|{d}%}',//'{d}%',  //显示百分比
                           position: 'outside',
                           rich: {

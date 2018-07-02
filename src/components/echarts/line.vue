@@ -6,6 +6,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import echarts from 'echarts'
   export default {
      name: "echarts-line",
      props: ['lineHeight','lineParams'],
@@ -84,14 +85,14 @@ import { mapState } from 'vuex'
                   type:'line',
                   smooth:true,
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                  data:["11", "10", "10", "10", "10", "110", "10", "10", "1110", "1011", "1110", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
+                  data:["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
                 },
                 {
                   name:'出人数',
                   type:'line',
                   smooth:true,
                   itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                  data:["110", "0", "110", "0", "0", "0", "0", "110", "0", "1110", "1110", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
+                  data:["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
                 }
               ]
             }
@@ -115,7 +116,68 @@ import { mapState } from 'vuex'
       },
       //定义颜色
       changeColor() {
-        this.option.color =this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+        this.option.color =this.$store.state.filterParams.type==3 ? [
+        new echarts.graphic.LinearGradient(
+                0, 1, 0, 0,
+                [
+                    {offset: 0, color: 'rgba(241,187,19,0)'},
+                    {offset: 1, color: 'rgba(189,146,13,1)'}
+                ]
+            ),
+        new echarts.graphic.LinearGradient(
+                0, 1, 0, 0,
+                [
+                    {offset: 0, color: 'rgba(127,193,106,0)'},
+                    {offset: 1, color: 'rgba(90,178,63,1)'}
+                ]
+            ),
+        new echarts.graphic.LinearGradient(
+                0, 1, 0, 0,
+                [
+                    {offset: 0, color: 'rgba(238,108,75,0)'},
+                    {offset: 1, color: 'rgba(204,83,52,1)'}
+                ]
+            ),
+        new echarts.graphic.LinearGradient(
+                0, 1, 0, 0,
+                [
+                    {offset: 0, color: 'rgba(166,91,223,0)'},
+                    {offset: 1, color: 'rgba(109,46,187,1)'}
+                ]
+            ),
+        new echarts.graphic.LinearGradient(
+              0, 1, 0, 0,
+              [
+                  {offset: 0, color: 'rgba(34,205,246,0)'},
+                  {offset: 1, color: 'rgba(15,158,233,1)'}
+              ]
+           ),
+        new echarts.graphic.LinearGradient(
+                0, 1, 0, 0,
+                [
+                    {offset: 0, color: 'rgba(255,255,255,0)'},
+                    {offset: 1, color: 'rgba(216,216,216,1)'}
+                ]
+            )
+        ] : [
+            new echarts.graphic.LinearGradient(
+                0, 1, 0, 0,
+                [
+                    {offset: 0, color: 'rgba(166,91,223,0)'},
+                    {offset: 1, color: 'rgba(109,46,187,1)'}
+                ]
+            ),
+            new echarts.graphic.LinearGradient(
+                0, 1, 0, 0,
+                [
+                    {offset: 0, color: 'rgba(34,205,246,0)'},
+                    {offset: 1, color: 'rgba(15,158,233,1)'}
+                ]
+            ),
+          '#F1BB13',
+          '#7FC16A',
+          '#EE6C4B',
+          '#DDDDDD'];
       },
       //改变标题
       changeTitle() {

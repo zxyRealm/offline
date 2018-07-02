@@ -69,35 +69,6 @@
         width: 36.86%;
         float: left;
         position: relative;
-        >div{
-        &[class$='-bg']{
-          position: absolute;
-          height: 17px;
-          width: 17px;
-          background-repeat: no-repeat;
-          background-size: contain;
-        }
-        &.br-bg{
-          bottom:-2px;
-          right:-2px;
-          background-image: url("/static/img/border_bottom_right_icon.png");
-        }
-        &.bl-bg{
-          bottom:-2px;
-          left:-3px;
-          background-image: url("/static/img/border_bottom_left_icon.png");
-        }
-        &.tl-bg{
-          top:-2px;
-          left:-3px;
-          background-image: url("/static/img/border_top_left_icon.png");
-        }
-        &.tr-bg{
-          top:-2px;
-          right:-2px;
-          background-image: url("/static/img/border_top_right_icon.png");
-        }
-      }
       }
       .flow-diagram {
         width:62.17%;

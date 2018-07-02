@@ -46,7 +46,7 @@
       },
     data() {
       return {
-        radio: -1,
+        radio: -1,      //不给它默认选择的设备
         dialogVisible: false,
         deviceData: []
       }
@@ -88,6 +88,7 @@
       closeDialog(){
           //console.info("close-device");
       },
+      //获取设备数据
       getDeviceData() {
          this.$http('/device/guid/list ',{
                 guid: this.groupId
@@ -111,7 +112,7 @@
           case 'group':
             return {width:'400px',background:'#f8f8f8',height:'400px'};
           default:
-            return {width:this.width}
+            return {width:this.width};
         }
       }
     }

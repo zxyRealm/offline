@@ -11,7 +11,7 @@
         <el-table :height="tabelHeight"
           :data="tableData"
           border
-        :highlight-current-row="true"
+        :highlight-current-row="false"
           class="table-content">
           <el-table-column
             prop="groupName"
@@ -64,13 +64,11 @@
         handleSizeChange(val) {
           this.pageParams.pageSize = val;
           this.getData();
-          //console.log(`每页 ${val} 条`);
         },
         //当前显示第几页
         handleCurrentChange(val) {
           this.pageParams.currentPage = val;
           this.getData();
-          //console.log(`当前页: ${val}`);
         },
         //条件请求数据
         doSearch() {
@@ -81,7 +79,7 @@
            let params = this.$store.state.filterParams;
            let filterParams = {
               groupGuid: params.groupGuid,
-              groupName: params.groupGuidName,
+              groupName: encodeURIComponent(params.groupGuidName),
               type: params.type,              //类型
               dimension: params.dimension,    //维度
               startTime: params.startTime,    //开始时间
@@ -89,7 +87,7 @@
               length:  this.pageParams.pageSize,
               index: this.pageParams.currentPage
             };
-           this.$http('/chart/flowCount',encodeURIComponent(filterParams)).then(res => {
+           this.$http('/chart/flowCount',filterParams).then(res => {
               if(res.result == 1){
                 this.tableData = res.data.content;
                 this.pageParams.total = res.data.pagination.total;
@@ -110,7 +108,7 @@
             }else {
                 tableEle = document.body.clientHeight - 640;
             }
-               table.style.height = tableEle+"px";
+                table.style.height = tableEle+"px";
           })
         }
       },

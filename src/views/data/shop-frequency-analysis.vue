@@ -22,10 +22,11 @@
        components: {screening,EchartsLine,EchartsPie},
        data() {
          return {
-              //传递给线型图字段
+                //传递给线型图字段
                 lineParams: {
                   title: {text: '到店频次流量图'}
                 },
+                //传递给饼图字段
                 pieParams: {
                   type: 4,
                   title: {text: '到店频次比例图'}
@@ -37,7 +38,6 @@
          resizeFunction() {
            let me = this;
             let table = document.getElementById("echarts-line");
-            //let tableEle = document.body.clientHeight - 420;
             table.style.height = me.$refs.line.offsetHeight +"px";
             //宽度
             table.style.width = me.$refs.line.offsetWidth +"px";

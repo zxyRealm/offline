@@ -27,7 +27,7 @@
         };
       },
       mounted() {
-
+            let my = "child";
       },
       methods: {
 
@@ -35,7 +35,7 @@
   }
 </script>
 <style>
-  
+
    ul,li {
      list-style: none;
    }
@@ -52,7 +52,6 @@
       height: 40px;
       padding: 0 12px;
       box-sizing: border-box;
-      //background-image: radial-gradient(1% 0%, #1B9BEE 156%, rgba(132,64,202,0.10) 100%);
       background: rgba(64,58,73,0.30);
       box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
       .router-link-active {
@@ -65,7 +64,7 @@
         height: 3px;
         position: absolute;
         width: 100%;
-        left: 0;  
+        left: 0;
         bottom: 0;
       }
       > li {
