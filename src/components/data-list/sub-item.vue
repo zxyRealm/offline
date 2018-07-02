@@ -232,7 +232,7 @@
             let subData = {deviceKey:this.data.deviceKey};
             type ==='run'?subData.operationCode=value.deviceState?0:1:'';
             this.$load(`正在${des}中...`);
-            this.data.deviceState = 3;
+            this.$set(value,'deviceState',3);
             this.$http(url,subData).then(res=>{
               this.$load().close();
               switch (type) {
