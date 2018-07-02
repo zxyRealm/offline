@@ -6,9 +6,7 @@
         :sub-btn="{text:'创建'}"
         @handle-btn="$router.push('/community/create')"
       ></uu-sub-tab>
-      <div class="no-data-community">
-        您还没有创建社群。
-      </div>
+      <ob-list-empty text="您还没有创建社群。"></ob-list-empty>
     </template>
     <template v-else>
       <div class="community--inner">
@@ -92,9 +90,8 @@
           </div>
           <div class="cmm-table dashed-border">
             <h2 class="cmm-sub-title">设备列表</h2>
-            <div class="no-data-community small" v-if="!deviceList.length">
-              没有可查看设备
-            </div>
+            <ob-list-empty top="10%" v-if="!deviceList.length" size="small" text="没有可查看设备。">
+            </ob-list-empty>
             <el-table
               border
               :data="deviceList"
@@ -152,10 +149,11 @@
           callback(new Error('请填写子社群昵称'))
         } else {
           if (value.length >= 2 && value.length <= 18) {
-            this.$http("/group/nickNameExist",{groupNickName:value},false).then(res=>{
-              callback()
-            }).catch(err=>{
-              callback(err.msg||'验证失败')
+            this.$http("/group/nickNameExist", {groupNickName: value},
+              false).then(res => {
+              !res.data ? callback() : callback("子社群昵称已存在")
+            }).catch(err => {
+              callback(err.msg || '验证失败')
             })
           } else {
             callback(new Error("长度为2-18个字符"))
@@ -164,11 +162,12 @@
       };
       return {
         notHave: true,
-        groupList: [],
+        originName: '',
+        groupList: [], //社群列表
         tableData: [],
-        deviceList: [],
-        communityInfo: {},
-        currentKey: '',
+        deviceList: [], //社群设备列表
+        communityInfo: {}, //社群信息
+        currentKey: '',  //当前选中社群id
         communityForm: {
           groupPid: '',
           groupGuid: '',
@@ -176,8 +175,7 @@
         },
         rules: {
           groupNickName: [
-            {required: true, message: '请输入社群昵称', trigger: 'blur'},
-            {min: 2, max: 18, message: '长度在 2 到 18 个字符', trigger: 'blur'}
+            {required: true, validator: validateName, trigger: 'blur'}
           ]
         },
         nickNamePopover: false
@@ -188,16 +186,16 @@
       getGroupList(keywords, key) {
         keywords = (keywords || '').trim();
         this.$http("/group/list").then(res => {
-            this.groupList = res.data;
-            this.notHave = false;
-            this.currentKey = (key || res.data[0]).groupGuid;
-            this.getCommunityInfo(key || res.data[0]);
-            this.getDeviceList(res.data[0]);
+          this.groupList = res.data;
+          this.notHave = false;
+          this.currentKey = (key || res.data[0]).groupGuid;
+          this.getCommunityInfo(key || res.data[0]);
+          this.getDeviceList(res.data[0]);
         })
       },
       // 获取设备列表
       getDeviceList(val) {
-        let url = !val.groupPid? '/group/device ':'/device/guid/list';
+        let url = !val.groupPid ? '/group/device ' : '/device/guid/list';
         this.$http(url, {guid: val.groupGuid}).then(res => {
           this.deviceList = res.data.content || res.data || []
         })
@@ -205,11 +203,11 @@
       // 搜索社群
       remoteSearch(val) {
         val = val.trim();
-        if(val){
-          this.$http("/group/list/search",{searchText:encodeURI(val)}).then(res=>{
-            if(res.data[0]){
+        if (val) {
+          this.$http("/group/list/search", {searchText: encodeURI(val)}).then(res => {
+            if (res.data[0]) {
               this.currentKey = res.data[0];
-              let current = this.$restoreArray(this.groupList,'childGroupList').filter(item=>item.groupGuid===res.data[0])[0];
+              let current = this.$restoreArray(this.groupList, 'childGroupList').filter(item => item.groupGuid === res.data[0])[0];
               this.getCommunityInfo(current);
               this.getDeviceList(current);
               this.$refs.groupNav.setCheckedKeys(res.data)
@@ -228,6 +226,7 @@
       getCommunityInfo(val) {
         this.$http("/group/getInfo", {guid: val.groupGuid}).then(res => {
           res.data ? res.data.groupPid = val.groupPid : '';
+          res.data.groupPid ? this.originName = JSON.parse(JSON.stringify(res.data.groupNickName)) : '';
           this.communityInfo = res.data || {};
           if (res.data) {
             this.$createQRCode(res.data.code, 'qr-code')

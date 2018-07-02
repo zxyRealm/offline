@@ -43,17 +43,8 @@ Vue.use(Router);
 export const constantRouterMap = [
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/index'
   },
-  {
-    path: '/login',
-    name: 'login',
-    meta: {auth: false, title: '登录-线下浏览器服务平台'},
-    component: Login
-  }
-];
-
-export const asyncRouterMap = [
   {
     path: "/index",
     component: Layout,
@@ -64,12 +55,12 @@ export const asyncRouterMap = [
     },
     children: [
       {
-          path: '/',
-          name:  'index-lwh',
-          meta: {
-            title: "首页展示"
-          },
-          component: homePage
+        path: '',
+        name:  'index-lwh',
+        meta: {
+          title: "首页展示"
+        },
+        component: homePage
       },
       {
         path: '/index/notify/:notifyState',
@@ -78,9 +69,19 @@ export const asyncRouterMap = [
           title: "首页展示-消息通知"
         },
         component: homeNotify
-    }
+      }
     ]
   },
+  {
+    path: '/login',
+    name: 'login',
+    meta: {auth: false, title: '登录-线下浏览器服务平台'},
+    component: Login
+  }
+];
+
+export const asyncRouterMap = [
+
   {
     path: "/console",
     component: Layout,

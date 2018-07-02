@@ -15,6 +15,9 @@ export function fetch(url,params,isTip='数据加载中...') {
   }
   const promise = new Promise((resolve,reject)=>{
     axios({
+      headers:{
+        'Content-Type':'application/json'
+      },
       baseURL:'/api',
       method: "POST",
       url: url,

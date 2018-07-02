@@ -242,7 +242,7 @@
           this.$tip("社群id不存在");
         } else {
           if (!value.parentList) {
-            this.$http("/group/fatherGruop", {guid: value[this.nodeKey]}).then(res => {
+            this.$http("/group/fatherGruop", {guid: value[this.nodeKey]},false).then(res => {
               if (res.data) {
                 this.$set(value, 'parentList', res.data)
               }

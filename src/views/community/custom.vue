@@ -6,9 +6,7 @@
         :sub-btn="{text:'创建'}"
         @handle-btn="$router.push('/community/create')"
       ></uu-sub-tab>
-      <div class="no-data-community">
-        您还没有创建社群。
-      </div>
+      <ob-list-empty text="您还没有创建社群。"></ob-list-empty>
     </template>
     <template v-else>
       <div class="community--inner">
@@ -114,7 +112,6 @@
 
 <script>
   import {customType} from '@/utils'
-
   export default {
     name: "custom",
     data() {
@@ -161,12 +158,17 @@
       // 添加成员
       addMember(keys){
         // console.log(keys.filter(item=>!item.disabled).map(item=>item.groupGuid).toString());
-        if(keys.length){
-          this.dialogFormVisible = false;
-          this.$http("/groupCustom/member/add",{
-            groupGuids:keys.filter(item=>!item.disabled).map(item=>item.groupGuid).toString(),
+        let subData = [];
+        keys.filter(item=>!item.disabled).map(item=>{
+          subData.push({
+            groupGuid:item.groupGuid,
+            groupName:item.groupNickName,
             groupCustomGuid:this.customGroupInfo.guid
-          }).then(res=>{
+          })
+        });
+        if(keys.length) {
+          this.dialogFormVisible = false;
+          this.$http("/groupCustom/member/add",{groupCustomMemberInfo:subData}).then(res=>{
             this.$tip("添加成功");
             this.getMemberList()
           })

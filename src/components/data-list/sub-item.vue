@@ -195,7 +195,6 @@
           if(this.data.offline!==undefined){
             this.$tip("刷新成功")
           }
-
           this.$set(this.data,'offline',res.data)
         })
       },
@@ -208,7 +207,7 @@
             break;
           case 'reboot':
             des = '重启';
-            url = '/device/reboot';
+            url = '/device/restart';
             break;
           case 'reset':
             des = '重置';
@@ -231,12 +230,8 @@
           if (action === 'confirm') {
             done();
             let subData = {deviceKey:this.data.deviceKey};
-             type ==='run'?(subData.operationCode?(value.deviceState?0:1):''):'';
-             this.$load(`正在${des}中...`);
-             // this.$affirm({text:'设备【BOX】升级中，请耐心等待...\n' +
-             //   '升级完成后您将收到站内通知。'},(action2,instance2,done2)=>{
-             //    done2()
-             // },'waiting');
+            type ==='run'?subData.operationCode=value.deviceState?0:1:'';
+            this.$load(`正在${des}中...`);
             this.data.deviceState = 3;
             this.$http(url,subData).then(res=>{
               this.$load().close();

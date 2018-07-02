@@ -46,11 +46,15 @@
           callback(new Error("请填写分组名称"))
         }else {
           if(value.length>=2&&value.length<=18){
-            this.$http("/groupCustom/nameExist",{name:value},false).then(res=>{
+            if(this.type==='update'&&this.originName===value){
               callback()
-            }).catch(err=>{
-              callback(new Error(err.msg||'验证失败'))
-            })
+            }else {
+              this.$http("/groupCustom/nameExist",{name:encodeURI(value)},false).then(res=>{
+                !res.data?callback():callback(new Error("分组名称已存在"));
+              }).catch(err=>{
+                callback(new Error(err.msg||'验证失败'))
+              })
+            }
           }else {
             callback(new Error('长度为2-18个字符'))
           }
@@ -58,6 +62,7 @@
       };
       return {
         editable:true,
+        originName:'',
         customForm:{
           name:'',
           type:'',
@@ -84,7 +89,6 @@
         this.$http(`/groupCustom/${this.type}`,data).then(res=>{
           if(this.type==='create'){
             this.$tip('创建成功');
-
           }else {
             this.$tip("更新成功")
           }
@@ -93,6 +97,7 @@
       },
       getCustomGroupInfo(){
         this.$http("/groupCustom/info",{groupCustomGuid:this.$route.params.id}).then(res=>{
+          this.originName = JSON.parse(JSON.stringify(res.data.name));
           this.customForm = res.data
         })
       }
