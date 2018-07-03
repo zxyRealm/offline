@@ -13,7 +13,7 @@
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
-
+import { mapState } from 'vuex'
 export default {
   name: 'layout',
   components: {
@@ -23,7 +23,8 @@ export default {
   },
   mixins: [ResizeMixin],
   created(){
-    this.$store.dispatch('GET_USER_INFO');
+   this.getBaseInfo();
+   this.$store.dispatch('GET_USER_INFO');
   },
   mounted(){
     console.log(this.$store.state)
@@ -47,9 +48,19 @@ export default {
         return ''
       }
       return 'corner-bg'
-    }
+    },
+    ...mapState([
+      "userInfo"
+    ])
   },
   methods: {
+    getBaseInfo(){
+      if(!this.userInfo.company){
+        this.$http("/merchant/getInfo").then(res=>{
+          this.$store.commit("SET_USER_INFO",res.data);
+        })
+      }
+    },
     checkFirst(){
       this.$http("/merchant/usercenter").then(res=>{
         if(!res.data){

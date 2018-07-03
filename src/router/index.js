@@ -397,11 +397,13 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else {
-    if (to.name === 'login') {
-      next()
-    } else {
-      next({path: '/'})
-    }
+    next();
+    console.log(to.name);
+    // if (to.name === 'login') {
+    //   next()
+    // } else {
+    //   next({path: '/'})
+    // }
   }
 });
 export default router

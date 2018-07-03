@@ -110,19 +110,7 @@ import { mapState } from 'vuex'
           });
         })
       },
-      getBaseInfo(){
-        if(!this.userInfoForm.company){
-          this.$http("/merchant/getInfo").then(res=>{
-            for(let item in this.userInfoForm){
-              if(res.data[item]){
-                this.$set(this.userInfoForm,item,res.data[item])
-              }
-            }
-          })
-        }
-      },
       initData(){
-        this.getBaseInfo();
         if(this.userInfo.merchantGuid){
           for(let item in this.userInfoForm){
             if(this.userInfo[item]&&item!=='pca'){
@@ -198,6 +186,7 @@ import { mapState } from 'vuex'
         }
       },
       "userInfo":function (val) {
+        console.log(val);
         this.initData()
       },
       "userInfoForm.address": function (val) {

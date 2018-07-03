@@ -49,11 +49,9 @@ const actions = {
 };
 
 const mutations = {
-  SET_USER_INFO:(state,data,key)=>{
-    if(key){
-      state.userInfo[key] = data[key]
-    }else {
-      state.userInfo = data || {};
+  SET_USER_INFO:(state,data)=>{
+    for(let item in data){
+      Vue.set(state.userInfo,item,data[item])
     }
   },
   SET_FILTER_PARAMS: (state,data) => {
