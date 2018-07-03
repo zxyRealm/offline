@@ -112,6 +112,10 @@
         type: Array,
         default: () => []
       },
+      isDisabled:{
+        type:[Boolean],
+        default:false
+      },
       type: {
         type: [String],
         default: 'device'   //device 设备导航 community 社群导航 custom-community 自定义社群导航
@@ -292,7 +296,6 @@
       },
       // 设置选中节点
       setCheckedKeys(keys) {
-        console.log('set keys',keys);
         this.$nextTick(() => {
           this.$refs.GroupTree.setCheckedKeys(keys)
         })
@@ -343,7 +346,6 @@
         deep: true
       },
       currentKey: function (key) {
-        console.log('currentKey',key)
         this.setCurrentKey(key)
       }
     },
@@ -370,23 +372,25 @@
       TreeList: {
         get() {
           // 设置默认不可选节点
-          let setKeys = new Set(this.disabledKeys);
-          this.setCheckedKeys(this.disabledKeys);
-          let setDisabled = (arr) => {
-            for (let i = 0, len = arr.length; i < len; i++) {
-              if (setKeys.has(arr[i][this.nodeKey])) {
-                this.$set(arr[i], 'disabled', true)
-              } else {
-                if (arr[i].disabled) {
-                  this.$set(arr[i], 'disabled', false)
+          if(this.isDisabled){
+            let setKeys = new Set(this.disabledKeys);
+            this.setCheckedKeys(this.disabledKeys);
+            let setDisabled = (arr) => {
+              for (let i = 0, len = arr.length; i < len; i++) {
+                if (setKeys.has(arr[i][this.nodeKey])) {
+                  this.$set(arr[i], 'disabled', true)
+                } else {
+                  if (arr[i].disabled) {
+                    this.$set(arr[i], 'disabled', false)
+                  }
+                }
+                if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
+                  setDisabled(arr[i][this.defaultProps.children])
                 }
               }
-              if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
-                setDisabled(arr[i][this.defaultProps.children])
-              }
-            }
-          };
-          setDisabled(this.GroupList);
+            };
+            setDisabled(this.GroupList);
+          }
           if (this.type !== 'device') {
             this.agency = this.GroupList;
           }

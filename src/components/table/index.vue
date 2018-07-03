@@ -79,7 +79,7 @@
            let params = this.$store.state.filterParams;
            let filterParams = {
               groupGuid: params.groupGuid,
-              groupName: encodeURIComponent(params.groupGuidName),
+              groupName: params.groupGuidName,
               type: params.type,              //类型
               dimension: params.dimension,    //维度
               startTime: params.startTime,    //开始时间

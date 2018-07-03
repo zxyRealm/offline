@@ -13,6 +13,7 @@
       <ob-group-nav
         ref="customGroup"
         :show-checkbox="true"
+        is-disabled
         :multiple="multiple"
         :disabled-keys="disabledKeys"
         theme="white"

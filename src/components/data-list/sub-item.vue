@@ -6,11 +6,15 @@
         <el-popover
           placement="top"
           trigger="hover">
-          <div>
-            <p>1.获取设备状态后，可进行操作。</p>
-            <p>2.已绑定至社群，无法删除该设备。</p>
-          </div>
-          <i slot="reference" style="margin-top: 10px" class="el-icon-question"></i>
+          <ul class="order-list">
+            <li v-show="data.offline===undefined">获取设备状态后，可进行操作</li>
+            <li v-show="data.groupGuid">已绑定至社群，无法删除该设备</li>
+            <li v-show="data.offline===1">设备状态异常（离线），无法操作</li>
+          </ul>
+          <i slot="reference"
+             v-if="!(data.offline===0&&data.groupGuid)"
+             style="margin-top: 10px"
+             class="el-icon-question"></i>
         </el-popover>
       </div>
       <div class="btn-wrap btn-item">
@@ -40,7 +44,7 @@
       <el-button
         v-if="showDelete"
         class="btn-item"
-        :disabled="btnState(data.deviceState,'del')"
+        :disabled="!!data.groupGuid"
         icon="el-icon-delete"
         @click="deleteEquipment(data)" circle>
       </el-button>
@@ -232,7 +236,9 @@
             let subData = {deviceKey:this.data.deviceKey};
             type ==='run'?subData.operationCode=value.deviceState?0:1:'';
             this.$load(`正在${des}中...`);
-            this.$set(value,'deviceState',3);
+            if(type==='upgrade'){
+              this.$set(value,'deviceState',3);
+            }
             this.$http(url,subData).then(res=>{
               this.$load().close();
               switch (type) {
@@ -240,7 +246,8 @@
                   this.$tip("重启成功");
                   break;
                 case 'upgrade':
-                  this.$tip("正在成功");
+                  this.$tip("设备【BOX】升级中，请耐心等待...<br>" +
+                    "升级完成后您将收到站内通知。",'waiting');
                   break;
                 case 'reset':
                   this.$tip("重置成功");
@@ -348,6 +355,12 @@
 
 <style lang="scss" rel="stylesheet/scss">
   @import '@/styles/variables.scss';
+  .order-list{
+    li{
+      box-sizing: border-box;
+      list-style:disc inside;
+    }
+  }
   .ob-list-sub-item {
     &:first-child{
       .ellipsis{
@@ -357,6 +370,7 @@
     [class^=el-icon]{
       font-size: 16px;
     }
+
     .el-icon-question{
       /*background: #333;*/
       color: #515055;

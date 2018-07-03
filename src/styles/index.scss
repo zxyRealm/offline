@@ -471,6 +471,24 @@ button,input{
   background: #000;
   border: none;
   user-select: none;
+  &.device{
+    width: 500px;
+    height: 200px;
+    background: #fff;
+    margin-top: -100px;
+    text-align: center;
+    .tip_img_icon{
+      width: 72px!important;
+      height: auto!important;
+    }
+    .tip_message_content{
+      .text{
+        margin-top: 16px;
+        color: #333;
+        line-height: 1.5;
+      }
+    }
+  }
   .el-message__icon {
     display: none;
   }

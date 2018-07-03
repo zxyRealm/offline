@@ -75,15 +75,16 @@ export function loading(text,target) {
 }
 
 // 消息提示
-export function message(txt,type,delay) {
-  const icon = type === 'error' ? 'error' : 'success';
+export function message(txt,type,delay=2000) {
+  const icon = (type!=='waiting'&&type!=='caution'&&type!=='error')? 'success' :type;
+  let cs = type==='waiting'||type==='caution'?'device':'';
   return Message({
-    message:`<div class="tip_message_content">
+    message:`<div class="tip_message_content ${type}">
         <img class="tip_img_icon" src="/static/img/${icon}_tip_icon.png" alt="">
         <p style="padding:0" class="text">${txt}</p>
       </div>`,
     center: true,
-    customClass: 'tip_message',
+    customClass: `tip_message ${cs}`,
     dangerouslyUseHTMLString: true,
     duration: delay,
     type: type

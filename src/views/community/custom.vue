@@ -23,9 +23,9 @@
 
           <ob-group-nav
             ref="customGroup"
-            only-checked
             theme="default"
             node-key="guid"
+            only-checked
             :current-key="currentKey"
             :defaultProps="{label:'name'}"
             type="custom-community"
@@ -144,6 +144,7 @@
       remoteSearch(val) {
         this.$http("/groupCustom/info/search",{searchText:val}).then(res=>{
           if(res.data[0]){
+            this.currentKey = res.data.guid;
             this.setData(res.data[0]);
             this.$refs.customGroup.setCheckedKeys(res.data.map(item=>item.guid))
           }
@@ -157,7 +158,6 @@
         this.setData(data)
       },
       setData(data){
-        this.currentKey = data.guid;
         this.customGroupInfo = data;
         this.getMemberList(data.guid)
       },
@@ -218,7 +218,7 @@
             this.$http("/groupCustom/delete",{groupCustomGuid:this.customGroupInfo.guid}).then(res=>{
               this.$tip("删除成功");
               this.customGroupInfo = {};
-              this.customGroupList = [];
+              // this.customGroupList = [];
               this.getCustomGroupList()
             });
             done()
@@ -232,6 +232,7 @@
         this.$http("/groupCustom/list").then(res => {
           this.customGroupList = res.data;
           if(res.data[0]){
+            this.currentKey = res.data[0].guid;
             this.setData(res.data[0]);
           }
         })
