@@ -56,10 +56,10 @@
         </ob-list>
       </template>
         <el-pagination
-          v-if="pagination.total"
+          v-if="pagination.total && pagination.total>pagination.length"
           @current-change="getMineEquipment"
           :current-page="pagination.index"
-          :page-size="5"
+          :page-size="pagination.length"
           layout="total,prev, pager, next, jumper"
           :total="pagination.total">
         </el-pagination>

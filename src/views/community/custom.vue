@@ -22,6 +22,8 @@
             :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
 
           <ob-group-nav
+            ref="customGroup"
+            only-checked
             theme="default"
             node-key="guid"
             :current-key="currentKey"
@@ -138,26 +140,36 @@
       }
     },
     methods: {
+      // 搜索
       remoteSearch(val) {
-        console.log('search',val)
+        this.$http("/groupCustom/info/search",{searchText:val}).then(res=>{
+          if(res.data[0]){
+            this.setData(res.data[0]);
+            this.$refs.customGroup.setCheckedKeys(res.data.map(item=>item.guid))
+          }
+        })
       },
       remoteSubmit(data) {
         this.addMember(data)
       },
+      // 当前选中值变化
       currentChange(data){
+        this.setData(data)
+      },
+      setData(data){
+        this.currentKey = data.guid;
         this.customGroupInfo = data;
         this.getMemberList(data.guid)
       },
       customType(type, txt) {
         return customType(type, txt)
       },
-
+      // 设置多选项值
       handleSelectionChange(val) {
         this.selectList = val;
       },
       // 添加成员
       addMember(keys){
-        // console.log(keys.filter(item=>!item.disabled).map(item=>item.groupGuid).toString());
         let subData = [];
         keys.filter(item=>!item.disabled).map(item=>{
           subData.push({
@@ -176,8 +188,8 @@
           this.$tip('请选取要添加的社群')
         }
       },
+      // 删除成员
       deleteMember() {
-        console.log(this.selectList);
         if (!this.selectList.length) {
           this.$tip("请选择要移除的社群");
           return
@@ -215,16 +227,16 @@
           }
         })
       },
+      // 获取自定义分组列表
       getCustomGroupList() {
         this.$http("/groupCustom/list").then(res => {
           this.customGroupList = res.data;
           if(res.data[0]){
-            this.currentKey = res.data[0].guid;
-            this.customGroupInfo = res.data[0];
-            this.getMemberList()
+            this.setData(res.data[0]);
           }
         })
       },
+      // 获取自定义分组成员列表
       getMemberList(id) {
         id = id || this.customGroupInfo.guid;
         if(!id){

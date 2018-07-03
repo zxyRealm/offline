@@ -270,20 +270,18 @@
               return false;
             case 1:
               return true;
-            case -1:
+            case 2:
               if (type === 'upgrade') {
                 return true;
               } else {
                 return false;
               }
-            case 2:
+            case 3:
               if (type === 'upgrade') {
                 return false
               } else {
                 return true;
               }
-            case 3:
-              return true;
             default:
               return false;
           }
@@ -335,16 +333,10 @@
         return arr[0] ? arr : []
       }
     },
-    mounted(){
-
-    },
     watch:{
       filter:function (val) {
         this.format = val
       }
-    },
-    created(){
-      // console.log(parseTime(new Date(),'{y}-{m}-{d} {h}:{i}'));
     },
     filters:{
       time:function (val) {

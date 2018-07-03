@@ -48,6 +48,14 @@
 
             </ob-list>
           </template>
+          <el-pagination
+            v-if="pagination.total && pagination.total>pagination.length"
+            @current-change="getEquipmentList"
+            :current-page="pagination.index"
+            :page-size="pagination.length"
+            layout="total,prev, pager, next, jumper"
+            :total="pagination.total">
+          </el-pagination>
         </el-scrollbar>
       </div>
     </div>
@@ -79,91 +87,11 @@
             this.pagination = res.data.pagination;
           })
         }else {
-          this.$http("/device/search", {searchText:this.$route.params.key, index: page}).then(res => {
+          this.$http("/device/search", {searchText:this.$route.params.key||'', index: page}).then(res => {
             this.equipmentList = res.data.content;
             this.pagination = res.data.pagination;
           })
         }
-      },
-      btnState(state, type) {
-        //1开机 -1 关机 2升级 3重启 4重置
-        switch (state) {
-          case 1:
-            return false;
-          case -1:
-            if (type === 'upgrade') {
-              return true;
-            } else {
-              return false;
-            }
-          case 2:
-            if (type === 'upgrade') {
-              return false
-            } else {
-              return true;
-            }
-          case 3:
-            return true;
-          case 4:
-            return true;
-          default:
-            return true;
-        }
-      },
-      handleBtn(value, type) {
-        let des = '';
-        switch (type) {
-          case 'upgrade':
-            des = '升级';
-            break;
-          case 'reboot':
-            des = '重启';
-            break;
-          case 'reset':
-            des = '重置';
-            break;
-          case 'close':
-            if (value.deviceState !== -1) {
-              des = '开启';
-            } else {
-              des = '关闭'
-            }
-            break;
-          default:
-            des = '开启'
-        }
-        this.$affirm({text: '确定' + des + '设备【' + value.deviceName + '】?'}, (action, instance, done) => {
-          if (action === 'confirm') {
-            switch (type) {
-              case 'reboot':
-                this.$tip("重启成功");
-                break;
-              case 'upgrade':
-                this.$tip("正在升级中...");
-                break;
-              case 'reset':
-                this.$tip("重置成功");
-                break;
-              case 'close':
-                if (value.deviceState === -1) {
-                  this.$tip("设备开启中...")
-                } else {
-                  this.$tip('设备关闭中...')
-                }
-                break;
-              default:
-            }
-            done()
-          } else {
-            done()
-          }
-        })
-      },
-      // 获取设备状态
-      getEquipmentState(value) {
-        this.$set(value, 'deviceState', 1);
-        // this.$http('');
-        console.log("equipment state")
       },
       search(value) {
         this.$router.push(`/equipment/search/children/${value}`);

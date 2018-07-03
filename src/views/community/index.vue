@@ -149,12 +149,16 @@
           callback(new Error('请填写子社群昵称'))
         } else {
           if (value.length >= 2 && value.length <= 18) {
-            this.$http("/group/nickNameExist", {groupNickName: value},
-              false).then(res => {
-              !res.data ? callback() : callback("子社群昵称已存在")
-            }).catch(err => {
-              callback(err.msg || '验证失败')
-            })
+            if(this.originName===value){
+              callback(new Error("子社群昵称已存在"))
+            }else {
+              this.$http("/group/nickNameExist", {groupNickName: value},
+                false).then(res => {
+                !res.data ? callback() : callback("子社群昵称已存在")
+              }).catch(err => {
+                callback(err.msg || '验证失败')
+              })
+            }
           } else {
             callback(new Error("长度为2-18个字符"))
           }
@@ -204,7 +208,7 @@
       remoteSearch(val) {
         val = val.trim();
         if (val) {
-          this.$http("/group/list/search", {searchText: encodeURI(val)}).then(res => {
+          this.$http("/group/list/search", {searchText: val}).then(res => {
             if (res.data[0]) {
               this.currentKey = res.data[0];
               let current = this.$restoreArray(this.groupList, 'childGroupList').filter(item => item.groupGuid === res.data[0])[0];

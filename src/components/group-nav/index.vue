@@ -292,8 +292,14 @@
       },
       // 设置选中节点
       setCheckedKeys(keys) {
+        console.log('set keys',keys);
         this.$nextTick(() => {
           this.$refs.GroupTree.setCheckedKeys(keys)
+        })
+      },
+      setCheckedNodes(nodes) {
+        this.$nextTick(() => {
+          this.$refs.GroupTree.setCheckedNodes(nodes)
         })
       },
       // 设置不可选节点
@@ -337,6 +343,7 @@
         deep: true
       },
       currentKey: function (key) {
+        console.log('currentKey',key)
         this.setCurrentKey(key)
       }
     },

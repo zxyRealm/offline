@@ -80,8 +80,8 @@
             if(this.type==='update' && this.originName===value){
               callback()
             }else {
-              this.$http("/group/name/exist",{name:encodeURI(value)}).then(res=>{
-                res.data?callback():callback(new Error('社群名称已存在'));
+              this.$http("/group/name/exist",{name:value}).then(res=>{
+                !res.data?callback():callback(new Error('社群名称已存在'));
               }).catch(err=>{
                 callback(new Error(err.msg||'验证失败'))
               })
