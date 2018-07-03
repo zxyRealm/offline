@@ -47,16 +47,16 @@ export default {
   components: {
   },
   created(){
-    
+
   },
   mounted(){
-    
+
   },
   computed: {
-   
+
   },
   methods: {
-   
+
   }
 }
 </script>
@@ -66,8 +66,9 @@ export default {
       height: 100%;
       width: 100%;
       min-width: 1020px;
-      background:url(/static/img/home-page-three.png) no-repeat center; 
-      background-size: 100%; 
+      min-height: 610px;
+      background:url(/static/img/home-page-three.png) no-repeat center;
+      background-size: 100%;
       position: relative;
       .head {
         height: 80px;
@@ -90,7 +91,7 @@ export default {
       }
       div {
          color: #ffffff;//激活颜色color: #0F9EE9;
-         font-size: 16px; 
+         font-size: 16px;
       }
       .content {
           width: 39.1%;
