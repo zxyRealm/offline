@@ -36,10 +36,7 @@ const consoleIndex = () => import('@/views/console/index.vue');
 /** 首页+消息 **/
 const homePage = () => import('@/views/index/index');
 const homeNotify = () => import('@/views/index/notify/index');
-
 Vue.use(Router);
-
-
 export const constantRouterMap = [
   {
     path: '/',
@@ -77,11 +74,7 @@ export const constantRouterMap = [
     name: 'login',
     meta: {auth: false, title: '登录-线下浏览器服务平台'},
     component: Login
-  }
-];
-
-export const asyncRouterMap = [
-
+  },
   {
     path: "/console",
     component: Layout,
@@ -92,12 +85,12 @@ export const asyncRouterMap = [
     },
     children: [
       {
-          path: '/',
-          name:  'console-lwh',
-          meta: {
-            title: "控制台入库"
-          },
-          component: consoleIndex
+        path: '/',
+        name:  'console-lwh',
+        meta: {
+          title: "控制台入库"
+        },
+        component: consoleIndex
       }
     ]
   },
@@ -169,13 +162,13 @@ export const asyncRouterMap = [
       }
     ]
   },
+  {path:'/equipment',redirect:'/equipment/mine'},
   {
     path: "/equipment",
     component: Layout,
-    redirect: '/equipment/mine',
     meta: {
       auth: true,
-      title: "设备管理",
+      title: "设备管理-线下浏览器服务平台",
       roles: ['admin']
     },
     children: [
@@ -385,25 +378,10 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  if (getToken()) {
-    if (store.getters.roles.length === 0) {
-      let roles = ['admin'];
-      store.commit('SET_ROLES', roles);
-      store.dispatch('GenerateRoutes', {roles}).then(() => { // 根据roles权限生成可访问的路由表
-        router.addRoutes(store.getters.addRouters); // 动态添加可访问路由表
-        next({...to})
-      })
-    } else {
-      next()
-    }
+  if (to.meta.auth) {
+    next()
   } else {
     next();
-    console.log(to.name);
-    // if (to.name === 'login') {
-    //   next()
-    // } else {
-    //   next({path: '/'})
-    // }
   }
 });
 export default router

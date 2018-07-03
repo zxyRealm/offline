@@ -23,11 +23,9 @@ export default {
   },
   mixins: [ResizeMixin],
   created(){
-   this.getBaseInfo();
    this.$store.dispatch('GET_USER_INFO');
   },
   mounted(){
-    console.log(this.$store.state)
   },
   computed: {
     sidebar() {
@@ -54,13 +52,6 @@ export default {
     ])
   },
   methods: {
-    getBaseInfo(){
-      if(!this.userInfo.company){
-        this.$http("/merchant/getInfo").then(res=>{
-          this.$store.commit("SET_USER_INFO",res.data);
-        })
-      }
-    },
     checkFirst(){
       this.$http("/merchant/usercenter").then(res=>{
         if(!res.data){
@@ -96,15 +87,6 @@ export default {
       color: #fff;
     }
   }
-  /*.drawer-bg {*/
-    /*background: #000;*/
-    /*opacity: 0.3;*/
-    /*width: 100%;*/
-    /*top: 0;*/
-    /*height: 100%;*/
-    /*position: absolute;*/
-    /*z-index: 999;*/
-  /*}*/
 </style>
 <style lang="scss" rel="stylesheet/scss">
   .app-wrapper{
