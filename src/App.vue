@@ -11,6 +11,8 @@ export default {
     if(!this.userInfo.company){
       this.$http("/merchant/getInfo").then(res=>{
         this.$store.commit("SET_USER_INFO",res.data);
+      }).catch(err=>{
+        // window.open(window.location.href)
       })
     }
   },
