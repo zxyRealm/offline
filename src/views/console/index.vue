@@ -108,13 +108,13 @@
         //console.info(this.websocket.readyState,"+++++++++++");//查看websocket当前状态
         this.websocket.onopen = function (evt) {
           //已经建立连接
-          this.deviceKey = "YF_V1-X1QNT7";
-          me.websocket.send(this.deviceKey + '_channel');  //向服务器发送消息
+          me.websocket.send(me.deviceKey + '_channel');  //向服务器发送消息
+          console.info("已经连接");
         };
         this.websocket.onmessage = function (evt) {
           //收到服务器消息，使用evt.data提取
           me.resolveDatad(evt.data);
-          console.info("已经连接");
+          //console.info("已经连接");
         };
         this.websocket.onclose = function (evt) {
           console.info("已经关闭连接");
@@ -204,6 +204,8 @@
     },
     created() {
       //this.getData();
+      //console.info(this.$route.params.groupSelectId,"dddd");
+      //let.groupSelectId = this.$route.params.groupSelectId;
     },
     mounted() {
       let me = this;
@@ -248,7 +250,7 @@
   .console-wrap {
     box-sizing: border-box;
     height: 100%;
-    min-width: 1240px;
+    /*min-width: 1240px;*/
     background: #0F0E11;
     .tip {
       width: 100%;
