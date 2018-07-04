@@ -24,7 +24,7 @@
   </el-dialog>
 </template>
 <script>
-  
+
   export default {
    props: {
             title: {
@@ -83,6 +83,7 @@
           this.$emit("pick-device",this.deviceData[this.radio]);
         }
         this.dialogVisible = false;
+        console.info(this.deviceData[this.radio],'this.deviceData[this.radio]');
         this.$store.commit("SET_GROUP_CONSOLEID",this.deviceData[this.radio].deviceKey);
       },
       closeDialog(){

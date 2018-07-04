@@ -248,7 +248,7 @@
   .console-wrap {
     box-sizing: border-box;
     height: 100%;
-    min-width: 1240px;
+    /*min-width: 1240px;*/
     background: #0F0E11;
     .tip {
       width: 100%;

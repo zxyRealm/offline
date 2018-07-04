@@ -6,8 +6,8 @@
         </div>
         <div class="content" v-if="!state">
             <ul>
-               <li v-for="(val,index) in notifyData" :key="index">
-                   <span>{{index}}.&nbsp;&nbsp;{{val.content}}</span>
+               <li v-for="(val,index) in notifyData" :key="index" :class="val.readState ==1?'': 'readed'">
+                   <span :class="val.readState ==1?'active':''">{{index}}.&nbsp;&nbsp;{{val.content}}</span>
                    <span>{{val.createTime}}</span>
                </li>
             </ul>
@@ -26,18 +26,23 @@
             getData() {
                 this.$http('/siteNotice/list',{}).then(res => {
                     if(res.result == 1){
-                       this.notifyData = res.data;
+                      if(res.data.length > 0) {
+                         this.notifyData = res.data
+                      }else {
+                        this.state = true;
+                      }
                     }
                 } );
             }
         },
         created() {
              let notifyState = this.$route.params.notifyState;
-             if(notifyState == "true") {
-                this.getData();
-             }else{
-                this.state = true;
-             }
+             this.getData();
+//             if(notifyState == "true") {
+//                this.getData();
+//             }else{
+//                this.state = true;
+//             }
         }
     }
 </script>
@@ -87,6 +92,9 @@
                overflow-y: auto;
                border: 2px dashed  hsla(0, 0%, 62%, 0.03);
                background: rgba(15,158,233,0.003);
+               .readed {
+                 opacity: 0.5;
+               }
                li {
                     display: flex;
                     justify-content: space-between;
@@ -99,14 +107,22 @@
                         display: inline-block;
                         word-wrap: break-word;
                      }
-                    span:nth-child(1)::before{
-                        content: '';
-                        border: 4px solid #0F9EE9;
-                        border-radius: 50%;
-                        position: absolute;
-                        top: 4px;
-                        left: -20px
-                    }
+                    /*<!--span:nth-child(1)::before{-->*/
+                        /*<!--content: '';-->*/
+                        /*<!--border: 4px solid #0F9EE9;-->*/
+                        /*<!--border-radius: 50%;-->*/
+                        /*<!--position: absolute;-->*/
+                        /*<!--top: 4px;-->*/
+                        /*<!--left: -20px-->*/
+                    /*<!--}-->*/
+                   .active::before {
+                     content: '';
+                     border: 4px solid #0F9EE9;
+                     border-radius: 50%;
+                     position: absolute;
+                     top: 6px;
+                     left: -20px
+                   }
                }
            }
        }
