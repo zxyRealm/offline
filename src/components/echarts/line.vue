@@ -308,12 +308,12 @@ import echarts from 'echarts'
     },
    computed:{
          ...mapState([
-            'groupConsoleId'
+            'groupSelectId'
          ])
      },
      watch:{
         //监听vuexgroupConsoleId是否改变
-        groupConsoleId(val){
+       groupSelectId(val){
             this.showGenderData();
             this.timing();  //定时刷新数据，一个小时一次
         }

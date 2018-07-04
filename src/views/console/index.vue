@@ -238,6 +238,7 @@
       let me = this;
       //路由跳转后，不需要保存控制台的信息
       this.$store.dispatch('SET_GROUP_CONSOLEID');
+      this.$store.dispatch('SET_GROUP_SELECT_ID');
       window.removeEventListener("resize", me.resizeFunction);
       //关闭websocket链接
       if (!this.websocket) this.websocket.close();
