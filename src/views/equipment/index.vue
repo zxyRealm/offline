@@ -82,6 +82,7 @@
     name: "index",
     data() {
       const validateName = (rule, value, callback) => {
+        value = value.trim();
         if (!value) {
           callback(new Error('设备别名能为空'))
         } else {

@@ -103,7 +103,7 @@
       },
       getwebsocket(data) {
         let me = this;
-        let wsServer = 'ws://' + data + ':8082'; //服务器地址
+        let wsServer = 'ws://' + data + ':8083'; //服务器地址
         this.websocket = new WebSocket(wsServer);
         //console.info(this.websocket.readyState,"+++++++++++");//查看websocket当前状态
         this.websocket.onopen = function (evt) {
@@ -172,7 +172,7 @@
           }
         }
       },
-      //获取长连接ip（端口号：8082）
+      //获取长连接ip（端口号：8083）
       getwebsocketIp() {
         this.$http('/getServiceIp', {}).then(res => {
           if (res.result == 1) {

@@ -124,11 +124,12 @@
     },
     data() {
       const validateKey = (rule,value,callback)=>{
+        value = value.trim();
         if(!value){
           this.dialogForm.type = '';
           callback(new Error('请填写设备序列号'))
         }else {
-          if(value.length>=12){
+          if(value.length===16){
             // 校验设备是否被绑定过
             this.$http("/merchant/device/exist",{deviceKey:value},false).then(res=>{
               if(!res.data){
@@ -245,7 +246,7 @@
       getDeviceType(key){
         if(key && key.length>=12){
           this.$http("/device/type",{deviceKey:key}).then(res=>{
-            console.log(res)
+            console.log(res);
             this.dialogForm.type = res.data.deviceType
           })
         }else {

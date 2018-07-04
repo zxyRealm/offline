@@ -23,7 +23,8 @@ exports.install = function (Vue, options) {
       if (action==='confirm') {
         localStorage.clear();
         Cookies.remove("guid");
-        this.$router.push("/login")
+        done()
+        // this.$router.push("/login")
       }else {
         done()
       }
