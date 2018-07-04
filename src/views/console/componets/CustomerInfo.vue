@@ -1,8 +1,8 @@
 <template>
-    <div class="customer-info-wrap" @click="handleDetail">
+    <div class="customer-info-wrap" :class="detailInfo.status==0?'customer-info-wrap-in':'customer-info-wrap-out'" @click="handleDetail">
        <img :src="detailInfo.img | imgBase">
-        <span class="order">{{`第${detailInfo.order}位`}}</span>
-        <div class="customer-detail">
+        <span class="order" :class="detailInfo.status==0?'':'order-in'">{{`第${detailInfo.order}位`}}</span>
+        <div class="customer-detail" :class="detailInfo.status==0?'customer-detail-in':''">
             <span v-if="detailInfo.status==0">{{detailInfo.gender==0?'女':(detailInfo.gender==1?'男':'')}}</span>
             <span v-if="detailInfo.status==0">{{detailInfo.age ==-1?"":detailInfo.age}}</span>
             <span>{{this.daytime(detailInfo.time)}}</span>
@@ -101,21 +101,21 @@ export default {
             content.appendChild(imgPartent);
             //四个小图标
             let topDiv = document.createElement("div");
-            topDiv.classList.add("detail-img-topDiv","icon-lwh-common");
+            this.detailInfo.status==0 ? topDiv.classList.add("detail-img-topDiv-in","icon-lwh-common-in"):topDiv.classList.add("detail-img-topDiv","icon-lwh-common");
             imgPartent.appendChild(topDiv);
             let rightDiv = document.createElement("div");
-            rightDiv.classList.add("detail-img-rightDiv","icon-lwh-common");
+            this.detailInfo.status==0 ? rightDiv.classList.add("detail-img-rightDiv-in","icon-lwh-common-in"):rightDiv.classList.add("detail-img-rightDiv","icon-lwh-common");
             imgPartent.appendChild(rightDiv);
              let bottomDiv = document.createElement("div");
-            bottomDiv.classList.add("detail-img-bottomDiv","icon-lwh-common");
+            this.detailInfo.status==0 ? bottomDiv.classList.add("detail-img-bottomDiv-in","icon-lwh-common-in"):bottomDiv.classList.add("detail-img-bottomDiv","icon-lwh-common");
             imgPartent.appendChild(bottomDiv);
              let leftDiv = document.createElement("div");
-            leftDiv.classList.add("detail-img-leftDiv","icon-lwh-common");
+             this.detailInfo.status==0 ? leftDiv.classList.add("detail-img-leftDiv-in","icon-lwh-common-in") : leftDiv.classList.add("detail-img-leftDiv","icon-lwh-common");
             imgPartent.appendChild(leftDiv);
 
             //主内容区图片
             let img = document.createElement("img");
-            img.classList.add("detail-content-img");
+          this.detailInfo.status==0 ? img.classList.add("detail-content-img-in"):img.classList.add("detail-content-img");
             img.src = "data:image/jpg;base64,"+this.detailInfo.img;
             imgPartent.appendChild(img);
             //主内容区详情
@@ -177,6 +177,10 @@ export default {
                         height: 420px;
                         border: 2px solid #109CE7;
                     }
+                    .detail-content-img-in {
+                        height: 420px;
+                        border: 2px solid #6D2EBB;
+                    }
                     .detail-content-div {
                         display: flex;
                         flex-direction: column;
@@ -198,26 +202,52 @@ export default {
                         background-repeat: no-repeat;
                         background-size: contain;
                     }
+                    .icon-lwh-common-in {
+                      background-image: url(/static/img/console-detail-border-in-icon-top.png);
+                      position: absolute;
+                      height: 40px;
+                      width: 57px;
+                      background-repeat: no-repeat;
+                      background-size: contain;
+                    }
                     .detail-img-topDiv {
                          top: -2px;
                         left: -2px;
+                    }
+                    .detail-img-topDiv-in {
+                      top: -2px;
+                      left: -2px;
                     }
                     .detail-img-rightDiv {
                         top: -2px;
                         right: -2px;
                         background-image: url(/static/img/console-detail-border-icon-right.png);
                     }
+                    .detail-img-rightDiv-in {
+                        top: -2px;
+                        right: -2px;
+                        background-image: url(/static/img/console-detail-border-in-icon-right.png);
+                    }
                     .detail-img-bottomDiv {
                         bottom: -2px;
                         right: -2px;
                         background-image: url(/static/img/console-detail-border-icon-bottom.png);
+                    }
+                    .detail-img-bottomDiv-in {
+                      bottom: -2px;
+                      right: -2px;
+                      background-image: url(/static/img/console-detail-border-in-icon-bottom.png);
                     }
                     .detail-img-leftDiv {
                         bottom: -2px;
                         left: -2px;
                         background-image: url(/static/img/console-detail-border-icon-left.png);
                     }
-
+                    .detail-img-leftDiv-in {
+                      bottom: -2px;
+                      left: -2px;
+                      background-image: url(/static/img/console-detail-in-border-left.png);
+                    }
             }
             .detail-cancle-div {
                 display: flex;
@@ -234,6 +264,14 @@ export default {
      }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
+    .customer-info-wrap-in {
+        background: url(/static/img/background-img-in.png) no-repeat center;
+        background-size: 100% 100%;
+    }
+    .customer-info-wrap-out {
+        background: url(/static/img/background-image.png) no-repeat center;
+        background-size: 100% 100%;
+    }
     .customer-info-wrap {
         width: 100%;
         height: 100%;
@@ -251,17 +289,21 @@ export default {
                 position: absolute;
                 top: -6px;
                 // left: calc(50% - 28px);
-                opacity: 0.6;
-                background: #6D2EBB;
+               // opacity: 0.6;
+                background: rgba(109,46,187,0.3);
                 padding: 0 4px;
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 // max-width: 54px;
-                width: 60%;
+                //width: 60%;
+                width: 54%;
                 text-align: center;
             }
-            div.customer-detail {
+            span.order-in {
+                background: rgba(16,156,231,0.3);
+            }
+            .customer-detail {
                 position: absolute;
                 bottom: 20px;
                 right: 12px;
@@ -277,6 +319,9 @@ export default {
                     background: #000000;
                 }
             }
+      .customer-detail-in {
+        right: 22px;
+      }
     }
 
 </style>

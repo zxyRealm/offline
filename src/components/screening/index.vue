@@ -12,16 +12,16 @@
          </template>
         </el-form-item>
         <el-form-item label="时间："  prop="startTime">
-          <el-date-picker v-show="filterParams.dimension == 1" 
-          type="date" 
+          <el-date-picker v-show="filterParams.dimension == 1"
+          type="date"
            v-model="filterParams.startTime"
            placeholder="选择日期"
-           value-format = "yyyy-MM-dd" 
+           value-format = "yyyy-MM-dd"
            class="picker-data"
            :picker-options="pickerOptions1"
            :clearable="false"
           >
-          </el-date-picker> 
+          </el-date-picker>
           <el-date-picker v-show ="filterParams.dimension > 1"
             v-model="filterParams.timeArray"
             type="daterange"
@@ -53,6 +53,7 @@
 
 <script>
     import { mapGetters,mapMutations} from 'vuex'
+    import {eventObject} from '@/utils/event.js'
     export default {
         name: "screening-index",
         props: ['type'],
@@ -80,7 +81,7 @@
             },
             dimensionData: ['小时','日','周','月'],
             filterParams: {
-              groupGuid: '',     //选择社群 6867A6C096844AD4982F19323B6C9574 
+              groupGuid: '',     //选择社群 6867A6C096844AD4982F19323B6C9574
               type: '',         //类型
               dimension: '',    //维度
               startTime: '',    //开始时间
@@ -145,6 +146,15 @@
         }
       },
       created() {
+        eventObject().$on('resize-echarts-data', msg => { //eventObject接收事件  == 控制数据可视化的图表重置
+          let consoleTimer = null;
+          if(consoleTimer){
+            consoleTimer = null;
+          }
+          consoleTimer = setTimeout(() => {
+            this.$parent.resizeFunction();
+          },300)
+        });
       },
       mounted() {
           //默认值处理
@@ -189,7 +199,7 @@
             border: none;
             -webkit-background-size: 100% 100%;
             background-size: 100% 100%;
-            background-color: #fff; 
+            background-color: #fff;
             border: 1px solid;
             color: #000;
           }

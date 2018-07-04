@@ -34,6 +34,7 @@
        methods: {
           resizeFunction() {
             let me = this;
+            if(!me.$refs.line) return;
             let table = document.getElementById("echarts-line");
             //let tableEle = document.body.clientHeight - 420;
             table.style.height = me.$refs.line.offsetHeight +"px";

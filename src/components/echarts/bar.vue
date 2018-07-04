@@ -27,6 +27,7 @@
               },
             color: ['#247CD0'],
             tooltip : {
+                show:false,
                 trigger: 'axis',
                 axisPointer : {            // 坐标轴指示器，坐标轴触发有效
                     type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
@@ -48,17 +49,17 @@
                 }
             ],
             yAxis : [
-                
+
                 {
                     type : 'value',
                      axisPointer: {  //y轴鼠标移动虚线不显示
                         show: false
                     },
-                  splitLine:{     //y轴横线不显示 
+                  splitLine:{     //y轴横线不显示
                     show: false
                     }
                 }
-               
+
             ],
             series : [
                 {
@@ -66,7 +67,7 @@
                     type:'bar',
                     barWidth: '60%',
                     itemStyle : { normal: {label : {show: true, position: 'top'}}},
-                    data:[0,0,0,0,0,0] 
+                    data:[0,0,0,0,0,0]
                 }
               ]
             }

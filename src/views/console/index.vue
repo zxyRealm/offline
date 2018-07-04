@@ -127,6 +127,11 @@
       resizeFunction() {
         let me = this;
         if (!me.$refs.bar) return;
+        let consoleTimer = null;
+        if(consoleTimer){
+          consoleTimer = null;
+        }
+        consoleTimer = setTimeout(()=> {
         let table = document.getElementById("echarts-bar");
         table.style.width = me.$refs.bar.offsetWidth + "px";
         table.style.height = me.$refs.bar.offsetHeight + "px";
@@ -141,6 +146,7 @@
         tableLine.style.width = me.$refs.lineConsole.offsetWidth + "px";
         tableLine.style.height = me.$refs.lineConsole.offsetHeight + "px";
         me.$refs.echartsLine.resizeEcharts();
+        },300)
       },
       //解析数据
       resolveDatad(data) {
@@ -206,6 +212,9 @@
       //this.getData();
       //console.info(this.$route.params.groupSelectId,"dddd");
       //let.groupSelectId = this.$route.params.groupSelectId;
+      eventObject().$on('resize-echarts-console', msg => { //eventObject接收事件  == 控制控制台的图表重置
+        this.resizeFunction();
+      });
     },
     mounted() {
       let me = this;
@@ -360,11 +369,13 @@
       display: inline-block;
       li {
         float: right;
-        width: 22%;
+        width: 25%;
         height: 100%;
-        background: url(/static/img/background-img-in.png) no-repeat center;
-        background-size: 100% 100%;
-        margin-right: 12px;
+        /*background: url(/static/img/background-img-in.png) no-repeat center;*/
+        /*background-size: 100% 100%;*/
+        /*margin-right: 11px;*/
+        padding-right: 10px;
+        box-sizing: border-box;
         position: relative;
       }
     }
@@ -458,12 +469,14 @@
       float: right;
       li {
         float: left;
-        width: 22%;
+        width: 25%;
         height: 100%;
-        background: url(/static/img/background-image.png) no-repeat center;
-        background-size: 100% 100%;
-        margin-left: 12px;
+        /*background: url(/static/img/background-image.png) no-repeat center;*/
+        /*background-size: 100% 100%;*/
+        //margin-left: 11px;
         position: relative;
+        padding-left: 10px;
+        box-sizing: border-box;
       }
       &::after {
         content: '';

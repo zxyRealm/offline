@@ -17,6 +17,7 @@
   import screening from '../../components/screening'
   import EchartsLine from '../../components/echarts/line'
   import TableData from '../../components/table/index'
+  import {eventObject} from '@/utils/event.js'
   export default {
     name: "guest-analysis",
     components: {screening, EchartsLine, TableData},
@@ -31,6 +32,7 @@
     methods: {
       resizeFunction() {
         let me = this;
+        if(!me.$refs.line) return;
         let table = document.getElementById("echarts-line");
         //let tableEle = document.body.clientHeight - 420;
         table.style.height = me.$refs.line.offsetHeight + "px";
