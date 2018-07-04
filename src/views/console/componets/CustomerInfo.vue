@@ -22,19 +22,19 @@ export default {
         //日
         daytime(date) {
             date = new Date(date);
-            let m = date.getMonth() + 1;  
-            m = m < 10 ? ('0' + m) : m;  
-            let d = date.getDate();  
-            d = d < 10 ? ('0' + d) : d; 
+            let m = date.getMonth() + 1;
+            m = m < 10 ? ('0' + m) : m;
+            let d = date.getDate();
+            d = d < 10 ? ('0' + d) : d;
             return m + '/' + d;
         },
         //时分
         time(date) {
             date = new Date(date);
-            let h = date.getHours();  
-            h=h < 10 ? ('0' + h) : h;  
-            let minute = date.getMinutes();  
-            minute = minute < 10 ? ('0' + minute) : minute; 
+            let h = date.getHours();
+            h=h < 10 ? ('0' + h) : h;
+            let minute = date.getMinutes();
+            minute = minute < 10 ? ('0' + minute) : minute;
             return  h+':'+minute;
         },
         imgBase(data) {
@@ -44,19 +44,19 @@ export default {
     methods: {
         daytime(date) {
             date = new Date(date);
-            let m = date.getMonth() + 1;  
-            m = m < 10 ? ('0' + m) : m;  
-            let d = date.getDate();  
-            d = d < 10 ? ('0' + d) : d; 
+            let m = date.getMonth() + 1;
+            m = m < 10 ? ('0' + m) : m;
+            let d = date.getDate();
+            d = d < 10 ? ('0' + d) : d;
             return m + '/' + d;
         },
         //时分
         time(date) {
             date = new Date(date);
-            let h = date.getHours();  
-            h=h < 10 ? ('0' + h) : h;  
-            let minute = date.getMinutes();  
-            minute = minute < 10 ? ('0' + minute) : minute; 
+            let h = date.getHours();
+            h=h < 10 ? ('0' + h) : h;
+            let minute = date.getMinutes();
+            minute = minute < 10 ? ('0' + minute) : minute;
             return  h+':'+minute;
         },
         //进客信息
@@ -112,7 +112,7 @@ export default {
              let leftDiv = document.createElement("div");
             leftDiv.classList.add("detail-img-leftDiv","icon-lwh-common");
             imgPartent.appendChild(leftDiv);
-             
+
             //主内容区图片
             let img = document.createElement("img");
             img.classList.add("detail-content-img");
@@ -138,7 +138,7 @@ export default {
             div.appendChild(content);
             document.body.appendChild(div);
         }
-        
+
     },
     mounted() {
     },
@@ -173,7 +173,8 @@ export default {
                     //background-size: 100% 100%;
                     padding: 40px;
                     .detail-content-img {
-                        width: 250px;
+                        /*width: 250px;*/
+                        height: 420px;
                         border: 2px solid #109CE7;
                     }
                     .detail-content-div {
@@ -227,9 +228,9 @@ export default {
                     margin-top: 10px;
                 }
             }
-            
+
         }
-        
+
      }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -277,5 +278,5 @@ export default {
                 }
             }
     }
-    
+
 </style>
