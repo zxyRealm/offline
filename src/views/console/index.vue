@@ -178,7 +178,7 @@
           }
         }
       },
-      //获取长连接ip（端口号：8082）
+      //获取长连接ip（端口号：8083）
       getwebsocketIp() {
         this.$http('/getServiceIp', {}).then(res => {
           if (res.result == 1) {
