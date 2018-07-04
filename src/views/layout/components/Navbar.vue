@@ -16,8 +16,8 @@
         <span>{{selectName}}</span>
       </div>
       <div class="right-menu-item vam">
-        <router-link :to="'/index/notify/'+notifState" class="system-notify" >
-          <uu-icon type="notify" :class="notifState?'notify-have':''"></uu-icon>
+        <router-link :to="'/index/notify/'+notifState" class="system-notify">
+          <uu-icon type="notify" :class="notifState?'notify-have':''" ></uu-icon>
         </router-link>
         <router-link to="/developer/info" class="user-info">
           <div class="avatar-wrap" >
@@ -92,12 +92,17 @@ export default {
   watch: {
       $route(to,from){
         if(to.path == "/console") this.selectName = "请选择您的社群";
+        if(to.path.indexOf("index/notify") > -1) this.notifyToggle();
       },
       groupConsoleId(val,oldVal) {
 
       }
   },
   methods: {
+    //只要点击了通知消息就为false
+    notifyToggle() {
+      this.notifState = false;
+    },
     //设备返回数据
     pickDeviceHandler(val) {
       if(val == "上一步") {
