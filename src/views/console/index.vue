@@ -103,18 +103,19 @@
       },
       getwebsocket(data) {
         let me = this;
-        let wsServer = 'ws://' + data + ':8082'; //服务器地址
+        let wsServer = 'ws://' + data + ':8083'; //服务器地址
         this.websocket = new WebSocket(wsServer);
         //console.info(this.websocket.readyState,"+++++++++++");//查看websocket当前状态
         this.websocket.onopen = function (evt) {
           //已经建立连接
-          this.deviceKey = "YF_V1-X1QNT7";
-          me.websocket.send(this.deviceKey + '_channel');  //向服务器发送消息
+          console.info(me.deviceKey);
+          me.websocket.send(me.deviceKey + '_channel');  //向服务器发送消息
+          console.info("已经连接");
         };
         this.websocket.onmessage = function (evt) {
           //收到服务器消息，使用evt.data提取
           me.resolveDatad(evt.data);
-          console.info("已经连接");
+          //console.info("已经连接");
         };
         this.websocket.onclose = function (evt) {
           console.info("已经关闭连接");
