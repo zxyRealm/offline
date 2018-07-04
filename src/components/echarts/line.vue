@@ -210,12 +210,13 @@ import echarts from 'echarts'
       showGenderData() {
         this.changeTitle();
         this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
-         if(this.$store.state.groupConsoleId == "") {
+        //console.info(this.$store.state.groupSelectId,"this.$store.state.groupSelectId");
+         if(this.$store.state.groupSelectId == "" || !this.$store.state.groupSelectId) {
             this.drawLine();
             return;
          }
         this.$http('/chart/line', {
-              groupGuid: this.$store.state.groupConsoleId, //|| '6867A6C096844AD4982F19323B6C9574',
+              groupGuid: this.$store.state.groupSelectId, //|| '6867A6C096844AD4982F19323B6C9574',
               type: 1,
               dimension: 1,
               startTime: this.$getNowFormatDate(),
@@ -301,7 +302,7 @@ import echarts from 'echarts'
               this.changeTitle();
               this.defaultShow();
               this.drawLine();
-             
+
           }
         }
     },

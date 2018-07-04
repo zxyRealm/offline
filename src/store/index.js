@@ -19,6 +19,7 @@ const state = {
     groupGuidName: '请选择对象'
   },
   groupConsoleId:  '',  //控制台社群设备id
+  groupSelectId: '',    //選擇群id
   loading:true
 };
 
@@ -45,6 +46,11 @@ const actions = {
     let groupConsoleId = "";
     commit("SET_GROUP_CONSOLEID",groupConsoleId);
     return  true;
+  },
+  SET_GROUP_SELECT_ID: ({commit})=>{
+    let groupSelectId = "";
+    commit("SET_GROUP_SELECT_ID",groupSelectId);
+    return  true;
   }
 };
 
@@ -59,6 +65,9 @@ const mutations = {
   },
   SET_GROUP_CONSOLEID: (state,data) => {
     state.groupConsoleId = data || '';
+  },
+  SET_GROUP_SELECT_ID: (state,data) => {
+    state.groupSelectId = data || '';
   }
 };
 

@@ -124,6 +124,7 @@ export default {
         return;
       }
       this.groupSelectId = data[0].groupGuid;
+      this.$store.commit("SET_GROUP_SELECT_ID",this.groupSelectId);
       this.dialogFormVisible = false;
       setTimeout(() => {  //解决闪现
         this.dialogDeviceVisible = true;
@@ -154,8 +155,8 @@ export default {
       });
   },
   beforeRouteLeave (to, from, next) {
-    //路由跳转后，不需要保存控制台的信息
-    //this.$store.dispatch('SET_GROUP_CONSOLEID');
+    //路由跳转后，不需要保存控制台群的信息
+    this.$store.dispatch('SET_GROUP_SELECT_ID');
     next();
   }
 }

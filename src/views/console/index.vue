@@ -108,7 +108,6 @@
         //console.info(this.websocket.readyState,"+++++++++++");//查看websocket当前状态
         this.websocket.onopen = function (evt) {
           //已经建立连接
-          console.info(me.deviceKey);
           me.websocket.send(me.deviceKey + '_channel');  //向服务器发送消息
           console.info("已经连接");
         };
@@ -205,6 +204,8 @@
     },
     created() {
       //this.getData();
+      //console.info(this.$route.params.groupSelectId,"dddd");
+      //let.groupSelectId = this.$route.params.groupSelectId;
     },
     mounted() {
       let me = this;
