@@ -68,35 +68,7 @@
         currentType: 0,  //分为三个类型 0:province、1:city、2:area
         currentAddress: '',
         addressOption: [],
-        originAddress: [
-          [
-            {id: 11102, name: '浙江'},
-            {id: 11202, name: '北京'},
-            {id: 11402, name: '福建'},
-            {id: 11602, name: '云南'},
-            {id: 11702, name: '内蒙古'},
-            {id: 11602, name: '云南'},
-            {id: 11702, name: '内蒙古'},
-            {id: 11902, name: '香港特别行政区'},
-            {id: 11206, name: '澳门特别行政区'},
-            {id: 11236, name: '呼和浩特'}
-          ],
-          [
-            {id: 112334, name: '温州'},
-            {id: 112334, name: '湖州'},
-            {id: 112334, name: '杭州'},
-            {id: 112334, name: '绍兴'},
-            {id: 112334, name: '金华'},
-            {id: 112334, name: '衢州'},
-          ],
-          [
-            {id: 112234, name: '江干区'},
-            {id: 112235, name: '余杭区'},
-            {id: 112236, name: '萧山区'},
-            {id: 112237, name: '西湖区'},
-            {id: 112238, name: '滨江区'}
-          ]
-        ]
+        originAddress: []
       }
     },
     methods: {
@@ -225,7 +197,6 @@
 
     }
   }
-
   .address-popover {
     .select-wrap {
       width: 100%;
@@ -233,6 +204,7 @@
         border: none;
         .el-input__inner {
           border: none;
+          color: #333;
         }
       }
     }
@@ -250,6 +222,8 @@
       .el-input {
         .el-input__inner {
           border: none;
+          color: #333;
+          background:transparent;
         }
         &.search-input {
           height: $line24;

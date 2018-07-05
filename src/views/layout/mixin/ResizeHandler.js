@@ -1,5 +1,4 @@
 import store from '@/store'
-import Cookies from 'js-cookie'
 const { body } = document;
 const WIDTH = 1024;
 const RATIO = 3;

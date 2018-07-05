@@ -36,9 +36,6 @@ import SidebarItem from './SidebarItem'
 
 export default {
   components: { SidebarItem },
-  created(){
-    console.log("路由加载")
-  },
   computed: {
     ...mapGetters([
       "sidebar",

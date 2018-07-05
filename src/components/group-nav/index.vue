@@ -26,7 +26,6 @@
       :props="defaultProps"
       :default-expanded-keys="expandedKeys"
       :default-expand-all="expandedAll"
-      :filter-node-method="filterNode"
       @node-click="nodeClick"
       @check="nodeCheck"
       @current-change="currentChange"
@@ -200,7 +199,6 @@
     },
     methods: {
       nodeClick(val, node) {
-        this.$emit('node-click', val, node);
         if (this.showCheckbox && !node.data.disabled) {
           if (!this.multiple) {
             this.$refs.GroupTree.setCheckedNodes([node.data]);
@@ -228,9 +226,6 @@
       },
       selectChange(index) {
         this.TreeList = this.GroupList[index][this.defaultProps.children]
-      },
-      filterNode() {
-
       },
       getGroupList(gid) {
         gid = (gid || '');
@@ -350,19 +345,6 @@
       }
     },
     computed: {
-      keysList: function () {
-        let keys = [];
-        let getKeys = (arr) => {
-          arr.map(item => {
-            keys.push(item[this.nodeKey]);
-            if (item[this.defaultProps.children]) {
-              getKeys(item[this.defaultProps.children])
-            }
-          })
-        };
-        getKeys(this.GroupList);
-        return keys;
-      },
       isCheckAll: function () {
         return this.multiple
       },

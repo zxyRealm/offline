@@ -1,19 +1,17 @@
 <template>
   <div class="developer-center clearfix">
-    <uu-sub-tab :menu-array="menu" :sub-link="subLink"></uu-sub-tab>
+    <uu-sub-tab back :menu-array="menu" :sub-link="subLink"></uu-sub-tab>
     <div class="user-info-wrap">
       <div class="avatar-wrap">
         <el-upload
           class="avatar-uploader"
           action=""
           :show-file-list="false"
-          :on-success="handleAvatarSuccess"
           :http-request="avatarUpload"
           :before-upload="beforeAvatarUpload">
           <div v-if="avatarUrl" :style="{ backgroundImage:'url('+avatarUrl+')'}" class="avatar"></div>
           <i  class="el-icon-plus avatar-uploader-icon" v-else></i>
         </el-upload>
-        <!--<img src="/static/img/logo.png" alt="">-->
       </div>
       <div class="form-filed vam">
         <uu-form ref="userInfoForm"
@@ -49,6 +47,7 @@
 <script>
 import area from '@/components/area-select/area-select'
 import { mapState } from 'vuex'
+import axios from 'axios';
   export default {
     components: {
       'area-select': area
@@ -56,6 +55,7 @@ import { mapState } from 'vuex'
     name: "index",
     data() {
       return {
+        error:'',
         menu: [
           {title: '个人中心'}
         ],
@@ -76,7 +76,7 @@ import { mapState } from 'vuex'
             {required: true, message: '请输入联系人姓名', trigger: 'blur'}
           ]
         },
-        subLink: {title: '编辑', index: '/developer/info/edit'},
+        subLink: {title: '编辑', index: '/person/edit'},
         userInfoForm: {
           contacts: '', //联系人
           phone: '',
@@ -92,7 +92,7 @@ import { mapState } from 'vuex'
       submitForm(formName) {
         this.$refs[formName].submitForm((data)=>{
           let pcaArr = data.pca.split(',').map(Number);
-          let type = this.userInfo?'update':'create';
+          let type = this.userInfo.merchantGuid?'update':'create';
           type==='update'?data.merchantGuid = this.userInfo.merchantGuid:'';
           data.provinceAreaID = pcaArr[0];
           data.cityAreaID = pcaArr[1];
@@ -121,7 +121,7 @@ import { mapState } from 'vuex'
         }
       },
       avatarUpload(data){
-        this.$http('/auth/oss/image/signature').then(res=>{
+       this.$http("/auth/oss/image/signature").then(res=>{
           if(res.data){
             let formData = new FormData();
             if(!this.userInfo.merchantGuid){
@@ -135,19 +135,23 @@ import { mapState } from 'vuex'
             formData.append('signature', res.data['signature']);
             formData.append('file', data.file, data.file.name);
             this.$http(res.data.host,formData).then(back=>{
-              console.log('=====',back)
-            }).catch(err=>{
-              let avatarHref = res.data.host+'/merchant/'+this.userInfo.merchantGuid+'/'+data.file.name;
-              this.$http("/merchant/usercenter/image",{faceImgURL:avatarHref}).then(res=>{
-                this.$tip('头像上传成功');
-                this.$store.state.userInfo.faceImgURL = avatarHref;
-              });
-            })
+                if(!back.data){
+                  let avatarHref = res.data.host+'/merchant/'+this.userInfo.merchantGuid+'/'+data.file.name;
+                  this.$http("/merchant/usercenter/image",{faceImgURL:avatarHref}).then(res=>{
+                    this.$tip('头像上传成功');
+                    this.$store.state.userInfo.faceImgURL = avatarHref;
+                  });
+                }else {
+                  this.$tip("上传失败，请稍后重试",'error')
+                }
+            }).catch(error=>{
+              this.error = error;
+            });
           }
+        }).catch(err=>{  console.log('--=error',err);
+
+          this.$tip("服务器错误，请重新尝试")
         });
-      },
-      handleAvatarSuccess(){
-        console.log('upload success')
       },
       beforeAvatarUpload(file){
         const isJPG = file.type === 'image/jpeg'||'image/png';
@@ -162,7 +166,7 @@ import { mapState } from 'vuex'
       }
     },
     created() {
-      if (this.$route.name === 'infoEdit') {
+      if (this.$route.name === 'personEdit') {
         this.subLink.title = '';
         this.editable = true
       } else {
@@ -176,21 +180,18 @@ import { mapState } from 'vuex'
     },
     watch: {
       "$route": function (val) {
-        if (val.name === 'infoEdit') {
+        if (val.name === 'personEdit') {
           this.subLink.title = '';
           this.editable = true
         } else {
           this.$refs.userInfoForm.$refs.submitForm.resetFields();
+          this.initData();
           this.subLink.title = '编辑';
           this.editable = false
         }
       },
       "userInfo":function (val) {
-        console.log(val);
         this.initData()
-      },
-      "userInfoForm.address": function (val) {
-        console.log(val)
       }
     },
     computed:{

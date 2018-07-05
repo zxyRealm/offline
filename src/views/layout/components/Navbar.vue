@@ -19,7 +19,7 @@
         <router-link :to="'/index/notify/'+notifState" class="system-notify">
           <uu-icon type="notify" :class="notifState?'notify-have':''" ></uu-icon>
         </router-link>
-        <router-link to="/developer/info" class="user-info">
+        <router-link to="/person/center" class="user-info">
           <div class="avatar-wrap" >
             <div class="avatar" :style="{backgroundImage:'url('+avatarUrl+')'}"></div>
           </div>

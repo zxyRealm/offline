@@ -71,7 +71,7 @@
           >
             <el-form-item :rules="rules" prop="deviceName">
               <el-input type="text" v-model="equipmentForm.deviceName"></el-input>
-              <uu-icon type="success" @click.native="changeEquipmentName('tableForm')"></uu-icon>
+              <uu-icon type="success" @click.native="changeEquipmentName"></uu-icon>
               <uu-icon type="error" @click.native="data.popover=false"></uu-icon>
             </el-form-item>
           </el-form>
@@ -152,11 +152,11 @@
     data(){
       const validateName = (rule, value, callback) => {
         if (!value) {
-          callback(new Error('设备别名能为空'))
+          callback(new Error('设备别名不能为空'))
         } else {
           if (value.length >= 2 && value.length <= 18) {
-            this.$http("/merchant/device/alias/exist", {deviceName: value}).then(res => {
-              callback()
+            this.$http("/merchant/device/alias/exist", {deviceName: value},false).then(res => {
+              !res.data?callback():callback('设备别名已存在')
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
             });
@@ -312,9 +312,11 @@
         })
       },
       // 修改设备昵称
-      changeEquipmentName(formName, index) {
-        this.$refs[formName].validate((valid) => {
+      changeEquipmentName() {
+        console.log('change name');
+        this.$refs['tableForm'].validate((valid) => {
           if (valid) {
+            this.equipmentForm.deviceKey = this.data.deviceKey;
             this.$http("/merchant/device/alias", this.equipmentForm).then(res => {
               this.$tip("修改成功");
               this.$set(this.data, 'popover', false);

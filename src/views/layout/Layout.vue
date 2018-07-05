@@ -52,15 +52,6 @@ export default {
     ])
   },
   methods: {
-    checkFirst(){
-      this.$http("/merchant/usercenter").then(res=>{
-        if(!res.data){
-          this.$router.push("/developer/info/edit")
-        }
-      }).catch(error=>{
-        console.log('error',error)
-      })
-    },
     handleClickOutside() {
       this.$store.dispatch('closeSideBar', { withoutAnimation: false })
     }
