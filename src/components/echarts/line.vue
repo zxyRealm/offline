@@ -204,19 +204,18 @@ import echarts from 'echarts'
         };
         this.timer = window.setInterval(()  => {
           me.showGenderData();
-        },3600000);
+        },60000);  //3600000
       },
       //显示客流量 = 控制台
       showGenderData() {
         this.changeTitle();
         this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
-        //console.info(this.$store.state.groupSelectId,"this.$store.state.groupSelectId");
          if(this.$store.state.groupSelectId == "" || !this.$store.state.groupSelectId) {
             this.drawLine();
             return;
          }
         this.$http('/chart/line', {
-              groupGuid: this.$store.state.groupSelectId, //|| '6867A6C096844AD4982F19323B6C9574',
+              groupGuid: this.$store.state.groupSelectId,
               type: 1,
               dimension: 1,
               startTime: this.$getNowFormatDate(),
@@ -224,6 +223,7 @@ import echarts from 'echarts'
               }).then(res => {
               if(res.result == 1){
                 this.data = res.data;
+                console.info(this.data,"res+++++++++++++");
                 this.option.xAxis[0] = this.$apply(this.option.xAxis[0],this.data.xAxisGroup[0]);
                 this.option.yAxis[0] = this.$apply(this.option.yAxis[0],this.data.yAxis);  //这个yAxis是对象形式
                 this.option.series = this.$apply( this.option.series,this.data.seriesGroup);
@@ -240,7 +240,7 @@ import echarts from 'echarts'
         let params = this.$store.state.filterParams;
         this.option.title= this.$apply(this.option.title,this.lineParams.title);
         this.$http('/chart/line', {
-                groupGuid: params.groupGuid,   //"6867A6C096844AD4982F19323B6C9574",
+                groupGuid: params.groupGuid,
                 type: params.type,
                 dimension: params.dimension,
                 startTime: params.startTime,
@@ -315,7 +315,7 @@ import echarts from 'echarts'
         //监听vuexgroupConsoleId是否改变
        groupSelectId(val){
             this.showGenderData();
-            this.timing();  //定时刷新数据，一个小时一次
+            this.timing();   //定时刷新数据，一个小时一次
         }
      },
     beforeDestroy() {

@@ -114,7 +114,6 @@
         this.websocket.onmessage = function (evt) {
           //收到服务器消息，使用evt.data提取
           me.resolveDatad(evt.data);
-          //console.info("已经连接");
         };
         this.websocket.onclose = function (evt) {
           console.info("已经关闭连接");
@@ -127,7 +126,7 @@
       resizeFunction() {
         let me = this;
         if (!me.$refs.bar) return;
-        let consoleTimer = null;
+        let consoleTimer = null;   //定时器
         if(consoleTimer){
           consoleTimer = null;
         }
@@ -204,6 +203,7 @@
             this.resizeFunction();
           }
         }).catch(error => {
+          this.resizeFunction();  //请求失败渲染默认数据
           console.info(error);
         });
       }
