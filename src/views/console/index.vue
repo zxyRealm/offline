@@ -94,7 +94,7 @@
         outNumber: 0,   //出入数
         inNumber: 0,    //进入数
         ageBar: [0, 0, 0, 0, 0, 0],  //柱图
-        websocket: {},
+        websocket: null,
       }
     },
     methods: {
@@ -243,9 +243,11 @@
       //路由跳转后，不需要保存控制台的信息
       this.$store.dispatch('SET_GROUP_CONSOLEID');
       this.$store.dispatch('SET_GROUP_SELECT_ID');
+      //解除绑定事件
       window.removeEventListener("resize", me.resizeFunction);
+      eventObject().$off('resize-echarts-console');
       //关闭websocket链接
-      if (!this.websocket) this.websocket.close();
+      if (!!this.websocket) {this.websocket.close()};
       next();
     }
 

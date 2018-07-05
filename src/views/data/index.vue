@@ -12,6 +12,7 @@
 </template>
 
 <script>
+  import {eventObject} from '@/utils/event.js'
   export default {
       name: "data-index",
       components: {},
@@ -29,18 +30,13 @@
       mounted() {
             let my = "child";
       },
-      methods: {
-
+      beforeRouteLeave(to, from, next) {
+        eventObject().$off('resize-echarts-data');
+        next();
       }
   }
 </script>
-<style>
-
-   ul,li {
-     list-style: none;
-   }
-</style>
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   .data-wrap {
     height: 100%;
     background: #0F0E11;
@@ -79,5 +75,7 @@
         }
       }
     }
+    //下面路由使用的公共样式
+
  }
 </style>
