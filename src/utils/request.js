@@ -9,12 +9,24 @@ export function fetch(url,params,isTip='数据加载中...') {
     params = null
   }
   params = params || {};
-  if(isTip){
-    Store.state.loading = true;
-    loading(isTip)
-  }
+  let instance = axios.create();
+  instance.interceptors.request.use(config=>{
+    if(isTip){
+      Store.state.loading = true;
+      loading(isTip)
+    }
+    return config;
+  },error=>{
+    // 对请求错误做些什么
+    if(isTip){
+      Store.state.loading = true;
+      loading(isTip)
+    }
+    return Promise.reject(error);
+  });
+
   const promise = new Promise((resolve,reject)=>{
-    axios({
+    instance({
       headers:{
         'Content-Type':'application/json'
       },
@@ -22,7 +34,6 @@ export function fetch(url,params,isTip='数据加载中...') {
       method: "POST",
       url: url,
       data: params,
-      // params:params,
       timeout: 15000,
       responseType: 'json'
     }).then(res => {
@@ -30,8 +41,11 @@ export function fetch(url,params,isTip='数据加载中...') {
       if(isTip){
         loading(isTip).close()
       }
+      if(!res.data){
+        return resolve(res);
+      }
       if (res.status === 200) {
-        if(res.data.result){
+        if(res.data && res.data.result){
           if(res.data.code==='ERR-110'){
             reject(res.data);
             localStorage.clear();
@@ -50,13 +64,13 @@ export function fetch(url,params,isTip='数据加载中...') {
         message("服务器异常，请稍后重试！",'error',1500);
         reject(res)
       }
-    }).catch((error) => {
+    }).catch(error=>{
       Store.state.loading = false;
       if(isTip){
         loading(isTip).close()
       }
-      message('服务异常，请稍后重新尝试','error',1500);
-      reject(error);
+      message(error.response?error.response.statusText:'服务异常，请稍后重新尝试','error');
+      reject(error.response)
     })
   });
   return promise

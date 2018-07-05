@@ -84,10 +84,10 @@
       const validateName = (rule, value, callback) => {
         value = value.trim();
         if (!value) {
-          callback(new Error('设备别名能为空'))
+          callback(new Error('设备别名不能为空'))
         } else {
           if (value.length >= 2 && value.length <= 18) {
-            this.$http("/merchant/device/alias/exist", {deviceName: value}).then(res => {
+            this.$http("/merchant/device/alias/exist", {deviceName: value},false).then(res => {
               callback()
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))

@@ -1,11 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import {getToken} from '../utils/auth'
 import store from '../store'
 
 const board = () => import('@/views/board');
 
-const Login = () => import('@/views/login/index.vue');
 const Layout = () => import('@/views/layout/Layout.vue');
 const Community = () => import('@/views/community/index.vue');
 const customCommunity = () => import('@/views/community/custom.vue');
@@ -68,12 +66,6 @@ export const constantRouterMap = [
         component: homeNotify
       }
     ]
-  },
-  {
-    path: '/login',
-    name: 'login',
-    meta: {auth: false, title: '登录-线下浏览器服务平台'},
-    component: Login
   },
   {
     path: "/console",
@@ -316,12 +308,8 @@ export const constantRouterMap = [
         component: sysNotify
       },
       {
-        path: 'info',
-        redirect: 'info/center'
-      },
-      {
-        path: 'info/center',
-        name: 'infoCenter',
+        path: '/person/center',
+        name: 'personCenter',
         meta: {
           auth: true,
           title: "个人信息-开发者中心-线下浏览器服务平台"
@@ -329,8 +317,8 @@ export const constantRouterMap = [
         component: Developer
       },
       {
-        path: 'info/edit',
-        name: 'infoEdit',
+        path: '/person/edit',
+        name: 'personEdit',
         meta: {
           auth: true,
           title: "编辑信息-开发者中心-线下浏览器服务平台"
