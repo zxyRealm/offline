@@ -204,7 +204,7 @@ import echarts from 'echarts'
         };
         this.timer = window.setInterval(()  => {
           me.showGenderData();
-        },60000);  //3600000
+        },3600000);
       },
       //显示客流量 = 控制台
       showGenderData() {
@@ -223,7 +223,6 @@ import echarts from 'echarts'
               }).then(res => {
               if(res.result == 1){
                 this.data = res.data;
-                console.info(this.data,"res+++++++++++++");
                 this.option.xAxis[0] = this.$apply(this.option.xAxis[0],this.data.xAxisGroup[0]);
                 this.option.yAxis[0] = this.$apply(this.option.yAxis[0],this.data.yAxis);  //这个yAxis是对象形式
                 this.option.series = this.$apply( this.option.series,this.data.seriesGroup);
