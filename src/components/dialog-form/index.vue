@@ -219,7 +219,7 @@
       },
       disabledKeys:{
         handler:function(val){
-          console.log('change')
+
         },
         deep:true
       }

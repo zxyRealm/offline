@@ -73,7 +73,7 @@
     },
     methods: {
       getAddressList() {
-        this.$http("/area/list", {level: 1}).then((res) => {
+        this.$http("/area/list", {level: 1},false).then((res) => {
           if (res.result === OK_CODE) {
             this.$set(this.originAddress, 0, res.data[1].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
             this.$set(this.originAddress, 1, res.data[2].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
@@ -115,11 +115,11 @@
           this.currentValue = [];
         }
       },
-      currentAddress: function (val) {
+      currentAddress: function (val,old) {
         this.$set(this.currentValue, this.currentType, val);
         if (this.currentType < 2) {
           this.currentType++
-        } else {
+        } else if(val!==old) {
           this.visible = false
         }
       },
@@ -136,7 +136,7 @@
         deep: true
       },
       search(val){
-       val = val.replace(/[\s ]+/g,'');
+       val = val.trim();
         if(val){
           let isChar = /^[a-z]+$/i.test(val);
           this.addressOption.map(item=>{
@@ -153,9 +153,7 @@
         }
       },
       visible:function(val){
-        if(val){
-
-        }else {
+        if(!val){
           if(!this.currentValue[2]){
             this.address = '';
             this.$emit("input",'')
