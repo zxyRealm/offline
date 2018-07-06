@@ -204,12 +204,25 @@ import echarts from 'echarts'
         };
         this.timer = window.setInterval(()  => {
           me.showGenderData();
-        },3600000);
+        },3600000);//3600000
       },
       //显示客流量 = 控制台
       showGenderData() {
         this.changeTitle();
-        this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+        this.option.color = [ new echarts.graphic.LinearGradient(
+          0, 1, 0, 0,
+          [
+            {offset: 0, color: 'rgba(166,91,223,0)'},
+            {offset: 1, color: 'rgba(109,46,187,1)'}
+          ]
+        ),
+          new echarts.graphic.LinearGradient(
+            0, 1, 0, 0,
+            [
+              {offset: 0, color: 'rgba(34,205,246,0)'},
+              {offset: 1, color: 'rgba(15,158,233,1)'}
+            ]
+          ),'#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
          if(this.$store.state.groupSelectId == "" || !this.$store.state.groupSelectId) {
             this.drawLine();
             return;

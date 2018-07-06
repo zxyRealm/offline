@@ -11,6 +11,7 @@
         ageBar: Array
      },
      data() {
+
        return {
          data: [],
             option: {
@@ -118,11 +119,18 @@
     created() {},
     mounted() {
       this.drawBar();
+
     },
     watch:{
-      ageBar:function(val,oldVal){
+      ageBar:  {  //监听数组
+        handler(val, oldVal){
           this.drawBar();
-      }
+        },
+        deep:true
+      },
+//      ageBar:function(val,oldVal){
+//          this.drawBar();
+//      }
     }
 
   }
