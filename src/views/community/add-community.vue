@@ -80,7 +80,7 @@
             if(this.type==='update' && this.originName===value){
               callback()
             }else {
-              this.$http("/group/name/exist",{name:value}).then(res=>{
+              this.$http("/group/name/exist",{name:value},false).then(res=>{
                 !res.data?callback():callback(new Error('社群名称已存在'));
               }).catch(err=>{
                 callback(new Error(err.msg||'验证失败'))
@@ -124,6 +124,7 @@
     },
     methods: {
       getQrCode(){
+        console.log("blur");
         this.$http("/group/code").then(res => {
           if (res.data) {
             this.communityForm.code = res.data;

@@ -3,6 +3,7 @@ import Clipboard from "clipboard"
 import QRCode from 'qrcodejs2'
 import { fetch,message } from '@/utils/request'
 import { restoreArray } from '@/utils'
+
 exports.install = function (Vue, options) {
 
   // 公用提示框

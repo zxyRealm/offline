@@ -189,10 +189,12 @@
       // 获取社群列表
       getGroupList(keywords, key) {
         keywords = (keywords || '').trim();
-        this.$http("/group/list").then(res => {
+        this.$http("/group/list",'',false).then(res => {
           this.groupList = res.data;
           this.notHave = false;
-          this.currentKey = (key || res.data[0]).groupGuid;
+          this.$nextTick(()=>{
+            this.$refs.groupNav.setCurrentKey((key || res.data[0]).groupGuid);
+          });
           this.getCommunityInfo(key || res.data[0]);
           this.getDeviceList(res.data[0]);
         })

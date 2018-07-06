@@ -105,7 +105,7 @@ import axios from 'axios';
               }else {
                 this.$tip('保存成功')
               }
-              this.$dispatch('GET_USER_INFO')
+              this.$store.dispatch('GET_USER_INFO')
             }
           });
         })

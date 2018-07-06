@@ -334,7 +334,10 @@
       GroupList: {
         handler: function (val) {
           if (this.type === 'community' || this.type === 'custom-community') {
-            this.TreeList = val
+            this.TreeList = val;
+            // if(val[0]){
+            //   this.setCurrentKey(val[0][this.nodeKey])
+            // }
           }
           this.$emit("input", val)
         },
