@@ -79,9 +79,9 @@
     data() {
       return {
         state: false,    //是否有数据
-        deviceKey: '',
-        pedestrianInData: [],
-        pedestrianOutData: [],
+        deviceKey: '',   //设备序列号
+        pedestrianInData: [], //进客流
+        pedestrianOutData: [], //出客流
         pieParams: {   //饼图
           type: 3,
           title: {text: '男女流量占比'},
@@ -91,10 +91,10 @@
         lineParams: { //线图
           title: {text: '客流量统计'}
         },
-        outNumber: 0,
-        inNumber: 0,
+        outNumber: 0,   //出入数
+        inNumber: 0,    //进入数
         ageBar: [0, 0, 0, 0, 0, 0],  //柱图
-        websocket: {},
+        websocket: null,
       }
     },
     methods: {
@@ -105,7 +105,6 @@
         let me = this;
         let wsServer = 'ws://' + data + ':8083'; //服务器地址
         this.websocket = new WebSocket(wsServer);
-        //console.info(this.websocket.readyState,"+++++++++++");//查看websocket当前状态
         this.websocket.onopen = function (evt) {
           //已经建立连接
           me.websocket.send(me.deviceKey + '_channel');  //向服务器发送消息
@@ -114,7 +113,6 @@
         this.websocket.onmessage = function (evt) {
           //收到服务器消息，使用evt.data提取
           me.resolveDatad(evt.data);
-          //console.info("已经连接");
         };
         this.websocket.onclose = function (evt) {
           console.info("已经关闭连接");
@@ -127,7 +125,7 @@
       resizeFunction() {
         let me = this;
         if (!me.$refs.bar) return;
-        let consoleTimer = null;
+        let consoleTimer = null;   //定时器
         if(consoleTimer){
           consoleTimer = null;
         }
@@ -158,7 +156,6 @@
         if (!!this.$refs.echartsPie) {
           this.$refs.echartsPie.consoleEmit()
         }
-        ;
         //进出人数
         this.outNumber = obj.outNumber;
         this.inNumber = obj.inNumber;
@@ -204,14 +201,12 @@
             this.resizeFunction();
           }
         }).catch(error => {
+          this.resizeFunction();  //请求失败渲染默认数据
           console.info(error);
         });
       }
     },
     created() {
-      //this.getData();
-      //console.info(this.$route.params.groupSelectId,"dddd");
-      //let.groupSelectId = this.$route.params.groupSelectId;
       eventObject().$on('resize-echarts-console', msg => { //eventObject接收事件  == 控制控制台的图表重置
         this.resizeFunction();
       });
@@ -232,7 +227,7 @@
       ])
     },
     watch: {
-      //监听vuexgroupConsoleId是否改变
+      //监听vuex groupConsoleId是否改变
       groupConsoleId(val) {
         if (!val || val == "") {
           this.state = false;
@@ -248,9 +243,11 @@
       //路由跳转后，不需要保存控制台的信息
       this.$store.dispatch('SET_GROUP_CONSOLEID');
       this.$store.dispatch('SET_GROUP_SELECT_ID');
+      //解除绑定事件
       window.removeEventListener("resize", me.resizeFunction);
+      eventObject().$off('resize-echarts-console');
       //关闭websocket链接
-      if (!this.websocket) this.websocket.close();
+      if (!!this.websocket) {this.websocket.close()};
       next();
     }
 

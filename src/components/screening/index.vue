@@ -58,28 +58,18 @@
         name: "screening-index",
         props: ['type'],
         data() {
-          let groupGuidNameFunction = (rule, value, callback) => {
-              if(!value){
-                  return callback(new Error("选择对象不能为空"));
-              }
-          }
           return {
              pickerOptions1: {   //不能选择当前时间之后的日期
                 disabledDate(time) {
                   return time.getTime() > Date.now();
                 }
             },
-            rules: {
-              groupGuidName: [
-                { validator: groupGuidNameFunction, trigger: 'blur' }
-              ],
-            },
-            dialogFormVisible: false,
+            dialogFormVisible: false,  //选择群组
             dialogOptions: {
               title: '添加社群',
               type: 'group'
             },
-            dimensionData: ['小时','日','周','月'],
+            dimensionData: ['小时','日','周','月'],  //维度
             filterParams: {
               groupGuid: '',     //选择社群 6867A6C096844AD4982F19323B6C9574
               type: '',         //类型
@@ -237,11 +227,8 @@
             border-radius: 3px;
             text-indent: 26px;
             border: none;
-            /* background: url(/static/img/input_border_bg.png) no-repeat center; */
             -webkit-background-size: 100% 100%;
             background-size: 100% 100%;
-            /* background-color: transparent; */
-            /* color: #fff;*/
       }
       .icon-select {
           display: inline-block;
