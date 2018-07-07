@@ -103,7 +103,7 @@
       },
       getwebsocket(data) {
         let me = this;
-        let wsServer = 'ws://' + data + ':8083'; //服务器地址
+        let wsServer = 'ws://' + data ; //服务器地址
         this.websocket = new WebSocket(wsServer);
         this.websocket.onopen = function (evt) {
           //已经建立连接
@@ -179,6 +179,7 @@
       getwebsocketIp() {
         this.$http('/getServiceIp', {}).then(res => {
           if (res.result == 1) {
+            console.info(res.data,"websocket");
             this.getwebsocket(res.data);
           }
         }).catch(error => {
