@@ -179,7 +179,6 @@
       getwebsocketIp() {
         this.$http('/getServiceIp', {}).then(res => {
           if (res.result == 1) {
-            console.info(res.data,"websocket");
             this.getwebsocket(res.data);
           }
         }).catch(error => {
