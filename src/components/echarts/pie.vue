@@ -85,9 +85,10 @@
               ]
             },
              roseSeries: {
-                radius : [50, 80],
+                radius : [50, 76],
                 center : ['50%', '50%'],
-                roseType: 'area'
+                //roseType: 'area'
+               roseType : 'radius'
             }
           }
       },
