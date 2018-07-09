@@ -40,6 +40,7 @@
         </uu-form>
       </div>
       <el-button v-show="editable" class="affirm mc" @click="submitForm('userInfoForm')">{{userInfo.merchantGuid?'编辑':'保存'}}</el-button>
+
     </div>
   </div>
 </template>

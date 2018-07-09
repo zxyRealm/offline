@@ -2,6 +2,22 @@ import Vue from 'vue'
 import axios from "axios/index";
 import { Message,Loading } from "element-ui";
 import Store from '@/store'
+
+
+// 加载层
+export function load(text,target) {
+  // target 必须用id
+  target = target?document.getElementById(target):document.body;
+  return Loading.service({
+    text:text,
+    target:target,
+    spinner: 'el-icon-loading',
+    background: 'transparent'
+  })
+}
+
+
+
 // 异步请求
 export function fetch(url,params,isTip='数据加载中...') {
   if(typeof params === 'boolean' ){
@@ -13,18 +29,17 @@ export function fetch(url,params,isTip='数据加载中...') {
   instance.interceptors.request.use(config=>{
     if(isTip){
       Store.state.loading = true;
-      loading(isTip)
+      load(isTip)
     }
     return config;
   },error=>{
     // 对请求错误做些什么
     if(isTip){
       Store.state.loading = true;
-      loading(isTip)
+      load(isTip)
     }
     return Promise.reject(error);
   });
-
   const promise = new Promise((resolve,reject)=>{
     instance({
       headers:{
@@ -39,7 +54,7 @@ export function fetch(url,params,isTip='数据加载中...') {
     }).then(res => {
       Store.state.loading = false;
       if(isTip){
-        loading(isTip).close()
+        load(isTip).close()
       }
       if(!res.data){
         return resolve(res);
@@ -67,25 +82,13 @@ export function fetch(url,params,isTip='数据加载中...') {
     }).catch(error=>{
       Store.state.loading = false;
       if(isTip){
-        loading(isTip).close()
+        load(isTip).close()
       }
       message(error.response?error.response.statusText:'服务异常，请稍后重新尝试','error');
       reject(error.response)
     })
   });
   return promise
-}
-
-// 加载层
-export function loading(text,target) {
-  // target 必须用id
-  target = target?document.getElementById(target):document.body;
-  return Loading.service({
-    text:text,
-    target:target,
-    spinner: 'el-icon-loading',
-    background: 'transparent'
-  })
 }
 
 // 消息提示

@@ -1,8 +1,6 @@
 <template>
-  <div class="console-wrap">
-    <div class="tip" v-if="!state">
-      <div @click="selectGroupId">暂无数据，请选择您的社群和设备</div>
-    </div>
+  <div class="console-wrap" :style="{backgroundColor:!state?'':'#0F0E11' }">
+    <ob-list-empty text="暂无数据，请选择您的社群和设备" v-if="!state"></ob-list-empty>
     <div class="content-top" v-if="state">
       <div class="content-top-left">
         <ul class="left-ul corner-bg">
@@ -38,21 +36,11 @@
       </ul>
       <ul class="customer-middle">
         <li class="customer-middle-top animation-lwh-show">
-          <div>
-            <img src="/static/img/in-img-1.png"/>
-            <img src="/static/img/in-img-2.png"/>
-            <img src="/static/img/in-img-3.png"/>
-          </div>
         </li>
-        <li class="customer-middle-center">
-          <div><img src="/static/img/people-info.png"/></div>
+        <li class="customer-middle-center vam">
+
         </li>
         <li class="customer-middle-bottom animation-lwh-show">
-          <div>
-            <img src="/static/img/out-img-1.png"/>
-            <img src="/static/img/out-img-2.png"/>
-            <img src="/static/img/out-img-3.png"/>
-          </div>
         </li>
       </ul>
       <ul class="customer-right">
@@ -233,6 +221,11 @@
           this.state = false;
           return;
         }
+        this.pedestrianInData = [];
+        this.pedestrianOutData = [];
+        if(this.websocket){
+          this.websocket.close()
+        }
         this.deviceKey = val;
         this.state = true;
         this.getData();
@@ -255,29 +248,7 @@
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
   .console-wrap {
-    box-sizing: border-box;
-    height: 100%;
-    /*min-width: 1240px;*/
-    background: #0F0E11;
-    .tip {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      div {
-        width: 720px;
-        height: 110px;
-        text-align: center;
-        line-height: 110px;
-        background: rgba(1, 8, 20, 0.10);
-        border: 2px dashed rgba(151, 151, 151, 0.30);
-        opacity: 0.5;
-        font-size: 12px;
-        color: #FFFFFF;
-        cursor: pointer;
-      }
-    }
+    overflow: hidden;
     .content-top {
       height: 72%;
       .content-top-left, .content-top-right {
@@ -368,9 +339,6 @@
         float: right;
         width: 25%;
         height: 100%;
-        /*background: url(/static/img/background-img-in.png) no-repeat center;*/
-        /*background-size: 100% 100%;*/
-        /*margin-right: 11px;*/
         padding-right: 10px;
         box-sizing: border-box;
         position: relative;
@@ -386,76 +354,34 @@
         display: inline-block;
         height: 100%;
       }
-      .customer-middle-top, .customer-middle-bottom {
+
+      .customer-middle-top,.customer-middle-bottom{
         width: 40px;
         overflow: hidden;
+        background-repeat: no-repeat,no-repeat,no-repeat;
+        background-position: 0 center,10px center,20px center;
+        background-size: 14px auto,16px auto,18px auto;
+
       }
-      .customer-middle-top {
-        position: relative;
+      .customer-middle-top{
         right: 6px;
-        div {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-          img {
-            width: 18px;
-            position: absolute;
-          }
-          img:nth-child(1) {
-            right: 0%;
-          }
-          img:nth-child(2) {
-            right: 28%;
-            width: 16px;
-          }
-          img:nth-child(3) {
-            right: 58%;
-            width: 14px;
-          }
-        }
+        background-image:url("/static/img/in-img-3.png"),url("/static/img/in-img-2.png"),url("/static/img/in-img-1.png");
       }
       .customer-middle-center {
         position: absolute;
         width: 230px;
-        //  width: 72%;
-        //  background: url(/static/img/people-info.png) no-repeat center;
-        //  background-size: 100% 100%;
-        div {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-          img {
-            width: 230px;
-          }
+        background: url('/static/img/people-info.png') no-repeat center center;
+        background-size: 100% auto;
+        >img {
+          width: 100%;
         }
-
       }
       .customer-middle-bottom {
         position: absolute;
         left: 276px;
-        div {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-          img {
-            width: 18px;
-            position: absolute;
-          }
-          img:nth-child(1) {
-            left: 0%;
-          }
-          img:nth-child(2) {
-            left: 28%;
-            width: 16px;
-          }
-          img:nth-child(3) {
-            left: 58%;
-            width: 14px;
-          }
-        }
+        background-image:url("/static/img/out-img-1.png"),url("/static/img/out-img-2.png"),url("/static/img/out-img-3.png");
+        background-position: 0 center,12px center,24px center;
+        background-size: 18px auto,16px auto,14px auto;
       }
 
     }
@@ -468,9 +394,6 @@
         float: left;
         width: 25%;
         height: 100%;
-        /*background: url(/static/img/background-image.png) no-repeat center;*/
-        /*background-size: 100% 100%;*/
-        //margin-left: 11px;
         position: relative;
         padding-left: 10px;
         box-sizing: border-box;

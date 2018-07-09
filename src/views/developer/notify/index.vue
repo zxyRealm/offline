@@ -1,7 +1,6 @@
 <template>
   <div class="notify-wrap">
     <uu-sub-tab :menu-array="menu" :show-button="!equipmentEmpty" :sub-btn="btnOption" @handle-btn="addCallbackInfo"></uu-sub-tab>
-
     <no-callback-info v-if="equipmentEmpty"></no-callback-info>
     <div class="data-list-wrap" v-else>
       <template v-if="notifyList && notifyList.length">
@@ -23,6 +22,7 @@
 
     </div>
   </div>
+
 </template>
 <script>
   export default {
@@ -32,6 +32,7 @@
     },
     data() {
       return {
+        paste:'',
         update:'升级',
         equipmentEmpty: false,
         btnOption: {

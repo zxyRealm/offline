@@ -64,6 +64,7 @@ html {
     text-align: left;
     display: inline-block;
     vertical-align: middle;
+    line-height: 1.5;
   }
 }
 
@@ -198,11 +199,13 @@ code, pre {
     }
   }
 }
+
 //四角背景样式
-.corner-bg{
-  background: url("/static/img/border_bottom_right_icon.png") no-repeat right bottom,url("/static/img/border_bottom_left_icon.png") no-repeat left bottom,url("/static/img/border_top_left_icon.png") no-repeat left top,url("/static/img/border_top_right_icon.png") no-repeat right top;
+.corner-bg {
+  background: url("/static/img/border_bottom_right_icon.png") no-repeat right bottom, url("/static/img/border_bottom_left_icon.png") no-repeat left bottom, url("/static/img/border_top_left_icon.png") no-repeat left top, url("/static/img/border_top_right_icon.png") no-repeat right top;
   background-size: 16px auto;
 }
+
 .warn-content {
   background: rgba(66, 185, 131, .1);
   border-radius: 2px;
@@ -218,44 +221,43 @@ code, pre {
 
 //分页组件样式
 
-.el-pagination{
+.el-pagination {
   text-align: right;
   color: #fff;
-  .el-pagination__total,.el-pagination__sizes{
+  .el-pagination__total, .el-pagination__sizes {
     float: left;
     color: #fff;
   }
-  button{
-    background: transparent!important;
-    color: #fff!important;
-    &:disabled{
-      color: #666!important;
+  button {
+    background: transparent !important;
+    color: #fff !important;
+    &:disabled {
+      color: #666 !important;
     }
   }
-  .el-pager li{
-    background:transparent;
+  .el-pager li {
+    background: transparent;
     color: #fff;
-    &.active{
+    &.active {
       color: $blue;
     }
   }
-  .el-pagination__jump,.btn-next{
+  .el-pagination__jump, .btn-next {
     color: #fff;
   }
 }
 
-
 //加载层样式
 
-.el-loading-mask{
-  .el-loading-spinner{
-    margin-top: -58px!important;
+.el-loading-mask {
+  .el-loading-spinner {
+    margin-top: -58px !important;
   }
-  .el-icon-loading{
+  .el-icon-loading {
     display: none;
   }
-  .el-loading-text{
-    padding-top:96px;
+  .el-loading-text {
+    padding-top: 96px;
     box-sizing: border-box;
     height: 116px;
     background: url("/static/img/ob__loading--icon.png") no-repeat center top;
@@ -263,6 +265,7 @@ code, pre {
     color: #fff;
   }
 }
+
 //main-container全局样式
 .app-container {
   padding: 20px;
@@ -328,11 +331,13 @@ code, pre {
 .multiselect--active {
   z-index: 1000 !important;
 }
-button,input{
-  &:disabled{
-    cursor: default!important;
+
+button, input {
+  &:disabled {
+    cursor: default !important;
   }
 }
+
 //确定按钮样式
 .el-button {
   &[disabled] {
@@ -363,38 +368,6 @@ button,input{
     width: 80px;
     span {
       color: #fff;
-    }
-    &.close, &.disable, &.reset, &.reboot, &.upgrade, &.upgrading {
-      height: 30px;
-      padding: 8px 15px;
-      background-size: contain;
-      border: none;
-    }
-    &.upgrade {
-      background-image: $upgrade;
-    }
-    &.upgrading {
-      position: relative;
-      background-image: $upgrade;
-      &:after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: $upgrading repeat-x top left;
-        background-size: auto 100%;
-      }
-    }
-    &.reset {
-      background-image: $reset;
-    }
-    &.close {
-      background-image: $close;
-    }
-    &.reboot {
-      background-image: $reboot;
     }
     &.disable {
       background: #515055;
@@ -471,18 +444,18 @@ button,input{
   background: #000;
   border: none;
   user-select: none;
-  &.device{
+  &.device {
     width: 500px;
     height: 200px;
     background: #fff;
     margin-top: -100px;
     text-align: center;
-    .tip_img_icon{
-      width: 72px!important;
-      height: auto!important;
+    .tip_img_icon {
+      width: 72px !important;
+      height: auto !important;
     }
-    .tip_message_content{
-      .text{
+    .tip_message_content {
+      .text {
         margin-top: 16px;
         color: #333;
         line-height: 1.5;

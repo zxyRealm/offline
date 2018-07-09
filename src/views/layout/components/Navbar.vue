@@ -271,16 +271,12 @@ export default {
       }
     }
     .navbar-console {
+      line-height: 36px;
         a {
           color: #ffffff;
-          color: #ffffff;
-          position: relative;
-          top: 18px;
         }
         .router-link-active {
             color: #ffffff;
-            position: relative;
-            top: 18px;
             padding: 0 12px;
         }
         .router-link-active::after {

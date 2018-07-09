@@ -1,18 +1,22 @@
 <template>
-  <div class="customer-info-wrap vam" :class="detailInfo.status==0?'customer-info-wrap-in':'customer-info-wrap-out'"
-       @click="handleDetail">
-    <span class="order" :class="detailInfo.status==0?'':'order-in'">{{`第${detailInfo.order}位`}}</span>
-    <img :src="detailInfo.img | imgBase">
-    <div class="customer-detail" :class="detailInfo.status==0?'customer-detail-in':''">
-      <span v-if="detailInfo.status==0">{{detailInfo.gender==0?'女':(detailInfo.gender==1?'男':'')}}</span>
-      <span v-if="detailInfo.status==0">{{detailInfo.age ==-1?"":detailInfo.age}}</span>
-      <span>{{this.daytime(detailInfo.time)}}</span>
-      <span>{{this.time(detailInfo.time)}}</span>
+  <div class="ob-dialog-info-wrap vam">
+    <div class="ob-dialog-info-main">
+      <div class="ob-dialog-info-content">
+        <img src="" alt="">
+
+      </div>
+      <div>
+        <span class="ob-dialog-info-close">
+
+        </span>
+      </div>
     </div>
   </div>
+
 </template>
 <script>
   export default {
+    name:'ob-dialog-info',
     props: ['index', 'detailInfo'],
     data() {
       return {
@@ -100,7 +104,6 @@
         let imgPartent = document.createElement("div");
         imgPartent.classList.add("detail-img-div","vam");
         content.appendChild(imgPartent);
-
         //主内容区图片
         let img = document.createElement("img");
         this.detailInfo.status == 0 ? img.classList.add("detail-content-img-in") : img.classList.add("detail-content-img");
@@ -126,31 +129,28 @@
         document.body.appendChild(div);
       }
     },
-    mounted() {
-
-    },
     watch: {}
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
   /* 遮罩层div */
-  #lwh-shadow-detail.shadow-detail-div {
+  .ob-dialog-info-wrap{
     min-width: 1280px;
     min-height: 720px;
     position: fixed;
     left: 0;
     top: 0;
-    z-index: 999999;
+    z-index: 9999;
     background: rgba(0, 0, 0, 0.8);
     width: 100%;
     height: 100%;
-    .shadow-detail-content {
-      .detail-img-div {
+    .ob-dialog-info-main {
+      .ob-dialog-info-content{
         position: relative;
         background: rgba(16, 156, 231, 0.2);
         background-repeat:no-repeat,no-repeat,no-repeat,no-repeat;
         background-position: left top,right top,right bottom,left bottom;
-       background-image: url(/static/img/console-detail-border-icon-top.png),url(/static/img/console-detail-border-icon-right.png),url(/static/img/console-detail-border-icon-bottom.png),url(/static/img/console-detail-border-icon-left.png);
+        background-image: url(/static/img/console-detail-border-icon-top.png),url(/static/img/console-detail-border-icon-right.png),url(/static/img/console-detail-border-icon-bottom.png),url(/static/img/console-detail-border-icon-left.png);
         background-size: 52px auto;
         padding: 40px;
         .detail-content-img {
@@ -173,14 +173,11 @@
           }
         }
       }
-      .detail-cancle-div {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        .detail-content-cancel {
-          width: 32px;
-          margin-top: 10px;
-        }
+      .ob-dialog-info-close {
+        display: inline-block;
+        width: 34px;
+        height: 34px;
+        cursor: pointer;
       }
     }
   }

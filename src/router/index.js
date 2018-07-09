@@ -34,6 +34,9 @@ const consoleIndex = () => import('@/views/console/index.vue');
 /** 首页+消息 **/
 const homePage = () => import('@/views/index/index');
 const homeNotify = () => import('@/views/index/notify/index');
+
+const Demo = () => import('@/components/HelloWorld');
+
 Vue.use(Router);
 export const constantRouterMap = [
   {
@@ -83,6 +86,14 @@ export const constantRouterMap = [
           title: "控制台入库"
         },
         component: consoleIndex
+      },
+      {
+        path: '/test',
+        name:  'test-demo',
+        meta: {
+          title: "示例"
+        },
+        component: Demo
       }
     ]
   },

@@ -12,7 +12,7 @@
             <li v-show="data.offline===1">设备状态异常（离线），无法操作</li>
           </ul>
           <i slot="reference"
-             v-if="!(data.offline===0&&data.groupGuid)"
+             v-show="!(data.offline ===0 && !data.groupGuid)"
              style="margin-top: 10px"
              class="el-icon-question"></i>
         </el-popover>
@@ -199,7 +199,8 @@
           if(this.data.offline!==undefined){
             this.$tip("刷新成功")
           }
-          this.$set(this.data,'offline',res.data)
+          this.$set(this.data,'offline',res.data);
+          console.log(this.data)
         })
       },
       handleDevice(type) {
@@ -229,6 +230,11 @@
           default:
             des = '开启';
             url = '/device/startOrShutdown'
+        }
+        if(type==='upgrade' && value.deviceState===3){
+          this.$tip("设备【BOX】升级中，请耐心等待...<br>" +
+            "升级完成后您将收到站内通知。",'waiting');
+          return false;
         }
         this.$affirm({text: '确定' + des + '设备【' + value.deviceName + '】?'}, (action, instance, done) => {
           if (action === 'confirm') {
@@ -295,7 +301,6 @@
         }else {
           return true
         }
-
       },
       // 删除设备
       deleteEquipment(item) {
@@ -354,9 +359,14 @@
     }
   }
 </script>
-
 <style lang="scss" rel="stylesheet/scss">
-  @import '@/styles/variables.scss';
+  @import "@/styles/variables.scss";
+  $close:url("./image/close_btn_bg.png");
+  $reset:url("./image/reset_btn_bg.png");
+  $reboot:url("./image/reboot_btn_bg.png");
+  $upgrade:url("./image/upgrade_btn-bg.png");
+  $upgrading:url("./image/upgrading_btn_bg.png");
+  $disable:url('./image/disable_btn_bg.png');
   .order-list{
     li{
       box-sizing: border-box;
@@ -372,9 +382,7 @@
     [class^=el-icon]{
       font-size: 16px;
     }
-
     .el-icon-question{
-      /*background: #333;*/
       color: #515055;
     }
     &:last-child{
@@ -437,6 +445,51 @@
     }
     .uu-icon {
       vertical-align: middle;
+    }
+  }
+  .el-button{
+    &.medium{
+      &.close, &.disable, &.reset, &.reboot, &.upgrade, &.upgrading {
+        height: 30px;
+        padding: 8px 15px;
+        background-size: contain;
+        border: none;
+      }
+      &.upgrade {
+        background-image: $upgrade;
+      }
+      &.upgrading {
+        position: relative;
+        background-image: $upgrade;
+        &:after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: $upgrading repeat-x top left;
+          animation: mymove 3.5s linear infinite ;
+          background-size: auto 100%;
+        }
+        @keyframes mymove {
+          from {
+            background-position-x:0;
+          }
+          to {
+            background-position-x: 100%;
+          }
+        }
+      }
+      &.reset {
+        background-image: $reset;
+      }
+      &.close {
+        background-image: $close;
+      }
+      &.reboot {
+        background-image: $reboot;
+      }
     }
   }
 </style>
