@@ -21,7 +21,7 @@
                 }
               },
               tooltip: {    //鼠标悬浮提示消息
-                show: false, 
+                show: false,
                 trigger: 'item',
                 formatter: "{a} <br/>{b}: {c} ({d}%)"
               },
@@ -56,7 +56,7 @@
                             }
                           }
                         },
-                        
+
                       },
                       labelLine: {  //指向线段
                         normal: {
@@ -64,7 +64,7 @@
                           smooth: true
                         }
                       },
-                      itemStyle : { 
+                      itemStyle : {
                         normal:{
                           label : {
                              show: true,
@@ -87,8 +87,7 @@
              roseSeries: {
                 radius : [50, 80],
                 center : ['50%', '50%'],
-                roseType: 'area',
-                type: 'pie'
+                roseType: 'area'
             }
           }
       },
@@ -135,6 +134,7 @@
         }
         if(this.$store.state.filterParams.type == 3) {
             this.option.series[0].data = data[0].data;
+            console.info(data[0].data);
             this.option.legend['data'] = this.$legendArray(data[0].data);
         }else {
             this.option.series[0].data = this.$apply(this.option.series[0].data,emptyArray);
@@ -180,7 +180,7 @@
                 this.data = res.data;
                 if(this.$store.state.filterParams.type == 3){
                     this.installSeriesGroup(res.data);
-                    this.option.series = this.$apply(this.option.series,this.roseSeries);
+                    this.option.series[0] = this.$apply(this.option.series[0],this.roseSeries);
                 }else {
                    this.installSeriesGroup(res.data);
                 }
