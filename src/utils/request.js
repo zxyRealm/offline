@@ -60,15 +60,8 @@ export function fetch(url,params,isTip='数据加载中...') {
         return resolve(res);
       }
       if (res.status === 200) {
-        if(res.data && res.data.result){
-          if(res.data.code==='ERR-110'){
-            reject(res.data);
-            localStorage.clear();
-            this.$store.state.userInfo = {};
-            this.$router.push("/login");
-          }else if(res.data.result===1){
-            resolve(res.data)
-          }
+        if(res.data.result){
+          resolve(res.data)
         }else {
           if(isTip){
             message(res.data.msg,'error',1500);

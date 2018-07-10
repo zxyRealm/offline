@@ -164,26 +164,24 @@
       },
       //判断数据类型，并且限定大小4
       typePedestrian(pedestrian) {
-        if (pedestrian) {
-          if (pedestrian.status === 0) { //进客
-            if(this.pedestrianInData.length>=4){
-              this.pedestrianInData.splice(this.pedestrianInData.length-1,1)
-            }
-            this.pedestrianInData.unshift(pedestrian)
-          } else if (pedestrian.status === 1) { //出客
-            if(this.pedestrianOutData.length>=4){
-              this.pedestrianOutData.splice(this.pedestrianOutData.length-1,1)
-            }
-            this.pedestrianOutData.unshift(pedestrian)
-          }
+        if(!pedestrian)return;
+        let currentList = []; //进出客数据列表
+        // status 0 进客 1 出客
+        pedestrian.status?currentList = this.pedestrianOutData:currentList = this.pedestrianInData;
+        // 过滤重复数据
+        let last = currentList[currentList.length-1];
+        if(last && pedestrian.order===last.order){
+          return;
         }
+        if(currentList.length>=4){
+          currentList.splice(currentList.length-1,1)
+        }
+        currentList.unshift(pedestrian);
       },
       //获取长连接ip（端口号：8083）
       getwebsocketIp() {
-        this.$http('/getServiceIp', {}).then(res => {
-          if (res.result == 1) {
-            this.getwebsocket(res.data);
-          }
+        this.$http('/getServiceIp').then(res => {
+          this.getwebsocket(res.data);
         }).catch(error => {
           console.info(error);
         });
@@ -193,16 +191,11 @@
         this.$http('/personData', {
           deviceKey: this.deviceKey
         }).then(res => {
-          if (res.result == 1) {
-            if (!res.data || res.data.length == 0) {
-              this.getwebsocketIp();
-              this.resizeFunction();
-              return;
-            }
+          if(res.data && res.data.length){
             this.resolveDatad(res.data);
-            this.getwebsocketIp();
-            this.resizeFunction();
           }
+          this.getwebsocketIp();
+          this.resizeFunction();
         }).catch(error => {
           this.resizeFunction();  //请求失败渲染默认数据
           console.info(error);
@@ -366,17 +359,17 @@
         box-sizing: border-box;
         position: relative;
       }
-      .list-customer-enter, .list-customer-leave-to {
+      .list-customer-enter{
         opacity: 0;
         transform: translateX(100%);
-      }
-      .list-customer-leave-active {
-        position: absolute;
-        opacity: 0;
       }
       &.customer-right {
         li {
           float: left;
+        }
+        .list-customer-enter{
+          opacity: 0;
+          transform: translateX(-100%);
         }
       }
     }

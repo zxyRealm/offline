@@ -118,26 +118,36 @@
       float: right;
       transition: all 1s;
       display: inline-block;
-      margin-right: 10px;
-      width: 100px;
+      width: 22%;
+      margin-right: 3%;
       height: 180px;
       line-height: 180px;
       background: #4AB7BD;
+
     }
     &.fr{
+      .list-complete-enter{
+        opacity: 0;
+        transform: translateX(-100%);
+      }
       .list-complete-item{
         float: left;
+        &:last-child{
+          margin-right: 0;
+        }
       }
     }
-  }
-
-  .list-complete-enter, .list-complete-leave-to {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-
-  .list-complete-leave-active {
-    position: absolute;
+    &.fl{
+      .list-complete-enter{
+        opacity: 0;
+        transform: translateX(100%);
+      }
+      .list-complete-item{
+        &:first-child{
+          margin-right: 0;
+        }
+      }
+    }
   }
 
   .el-button {

@@ -150,6 +150,7 @@
       height: 100%;
       box-sizing: border-box;
       padding: 20px 12px;
+      margin: auto;
     }
     span.order {
       position: absolute;
@@ -157,7 +158,7 @@
       right: 0;
       margin: 0 auto;
       top: -6px;
-      width: calc(100% - 48px);
+      width: calc(58%);
       display: inline-block;
       background: rgba(109, 46, 187, 0.3);
       padding: 0 4px;
