@@ -9,13 +9,20 @@
       <span>{{this.daytime(detailInfo.time)}}</span>
       <span>{{this.time(detailInfo.time)}}</span>
     </div>
+    <ob-dialog-info :visible.sync="showDialog" :data="detailInfo"></ob-dialog-info>
   </div>
 </template>
 <script>
+  import ObDialogInfo from './ObDialogInfo'
+  import { parseTime } from '@/utils/index'
   export default {
+    components:{
+      ObDialogInfo
+    },
     props: ['index', 'detailInfo'],
     data() {
       return {
+        showDialog:false,
         data: []   //数据
       }
     },
@@ -60,70 +67,8 @@
         minute = minute < 10 ? ('0' + minute) : minute;
         return h + ':' + minute;
       },
-      //进客信息
-      inSpan(parent) {
-        let sex = this.detailInfo.gender == 0 ? '女' : (this.detailInfo.gender == 1 ? '男' : '');
-        let params = {
-          head: `第${this.detailInfo.order}位访客`,
-          gender: sex,
-          age: this.detailInfo.age == -1 ? "" : this.detailInfo.age,
-          day: this.daytime(this.detailInfo.time),
-          time: this.time(this.detailInfo.time)
-        };
-        for (let ele in params) {
-          let span = document.createElement("span");
-          span.innerHTML = params[ele];
-          parent.appendChild(span);
-        }
-      },
-      outSpan(parent) {
-        let params = {
-          head: `第${this.detailInfo.order}位出客`,
-          day: this.daytime(this.detailInfo.time),
-          time: this.time(this.detailInfo.time)
-        };
-        for (let ele in params) {
-          let span = document.createElement("span");
-          span.innerHTML = params[ele];
-          parent.appendChild(span);
-        }
-      },
       handleDetail() {
-        //主页面
-        let div = document.createElement("div");
-        div.classList.add('shadow-detail-div','vam');
-        div.id = "lwh-shadow-detail";
-        //主内容区
-        let content = document.createElement("div");
-        content.classList.add("shadow-detail-content");
-        //主内容区图片父
-        let imgPartent = document.createElement("div");
-        imgPartent.classList.add("detail-img-div","vam");
-        content.appendChild(imgPartent);
-
-        //主内容区图片
-        let img = document.createElement("img");
-        this.detailInfo.status == 0 ? img.classList.add("detail-content-img-in") : img.classList.add("detail-content-img");
-        img.src = "data:image/jpg;base64," + this.detailInfo.img;
-        imgPartent.appendChild(img);
-        //主内容区详情
-        let detail = document.createElement("div");
-        detail.classList.add("detail-content-div");
-        imgPartent.appendChild(detail);
-        this.detailInfo.status == 0 ? this.inSpan(detail) : this.outSpan(detail);
-        //取消按钮
-        let canclePrent = document.createElement("div");
-        canclePrent.classList.add("detail-cancle-div");
-        let cancle = document.createElement("img");
-        cancle.classList.add("detail-content-cancel");
-        cancle.src = "/static/img/cancel-img.png";
-        cancle.onclick = () => {
-          document.body.removeChild(div);
-        };
-        canclePrent.appendChild(cancle);
-        content.appendChild(canclePrent);
-        div.appendChild(content);
-        document.body.appendChild(div);
+        this.showDialog = true;
       }
     },
     mounted() {
@@ -190,7 +135,6 @@
     background: url(/static/img/background-img-in.png) no-repeat center;
     background-size: 100% 100%;
   }
-
   .customer-info-wrap-out {
     background: url(/static/img/background-image.png) no-repeat center;
     background-size: 100% 100%;
@@ -242,7 +186,7 @@
       }
     }
     .customer-detail-in {
-      right: 22px;
+      right: 12px;
     }
   }
 

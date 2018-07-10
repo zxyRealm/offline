@@ -46,12 +46,29 @@
       </li>
     </ul>
     <h2>Ecosystem</h2>
-    <ul class="animation">
-      <li v-for="item in animation" :key="item" class="animation-item">
-        {{item}}
-      </li>
-    </ul>
-    <el-button @click="addItem">新增</el-button>
+    <div class="transition-wrap fl">
+      <transition-group name="list-complete" tag="p">
+        <span
+          v-for="item in items"
+          :key="item"
+          class="list-complete-item"
+        >
+          {{ item }}
+        </span>
+      </transition-group>
+    </div>
+    <div class="transition-wrap fr">
+      <transition-group name="list-complete" tag="p">
+        <span
+          v-for="item in items"
+          :key="item"
+          class="list-complete-item"
+        >
+          {{ item }}
+        </span>
+      </transition-group>
+    </div>
+    <el-button @click="add">新增</el-button>
   </div>
 </template>
 
@@ -60,13 +77,18 @@
     name: 'HelloWorld',
     data() {
       return {
-        animation:[],
+        items: [],
+        nextNum: 1,
+        animation: [1, 2, 3],
         msg: 'Welcome to Your Vue.js App'
       }
     },
     methods: {
-      addItem() {
-        this.animation.push(this.animation.length + 1)
+      add: function () {
+        if(this.items.length>=4){
+          this.items.splice(this.items.length-1, 1,);
+        }
+        this.items.unshift(this.nextNum++)
       },
     },
     watch: {
@@ -82,22 +104,46 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-  .hello{
+  .hello {
     text-align: center;
   }
-  .animation {
-    height: 180px;
-    .animation-item {
-      width: 100px;
-      text-align: center;
-      line-height: 180px;
-      border: 1px solid #ddd;
+  .transition-wrap{
+    width: calc(110px * 4);
+    overflow: hidden;
+    p{
+      overflow: hidden;
+      height: 180px;
     }
-
+    .list-complete-item {
+      float: right;
+      transition: all 1s;
+      display: inline-block;
+      margin-right: 10px;
+      width: 100px;
+      height: 180px;
+      line-height: 180px;
+      background: #4AB7BD;
+    }
+    &.fr{
+      .list-complete-item{
+        float: left;
+      }
+    }
   }
-  .el-button{
+
+  .list-complete-enter, .list-complete-leave-to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  .list-complete-leave-active {
+    position: absolute;
+  }
+
+  .el-button {
     margin-top: 15px;
   }
+
   h1, h2 {
     font-weight: normal;
   }

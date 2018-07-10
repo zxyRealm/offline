@@ -1,13 +1,16 @@
 <template>
-  <div class="ob-dialog-info-wrap vam">
+  <div class="ob-dialog-info-wrap vam" v-show="isShow">
     <div class="ob-dialog-info-main">
-      <div class="ob-dialog-info-content">
-        <img src="" alt="">
-
+      <div class="ob-dialog-info-content vam" :class="type">
+        <img :src="'data:image/jpg;base64,'+data.img" alt="访客图像">
+        <div class="detail-info">
+          <p v-for="(item,$index) in info" :key="$index" v-if="$index!=='img'">
+           {{item}}
+          </p>
+        </div>
       </div>
-      <div>
-        <span class="ob-dialog-info-close">
-
+      <div class="tac">
+        <span class="ob-dialog-info-close" @click="isShow=false">
         </span>
       </div>
     </div>
@@ -15,121 +18,59 @@
 
 </template>
 <script>
+  import { parseTime } from '@/utils/index'
   export default {
     name:'ob-dialog-info',
-    props: ['index', 'detailInfo'],
+    props:{
+      visible:{
+        type:Boolean,
+        default:false
+      },
+      data:{
+        type:[Object,Array],
+        default:()=>({})
+      }
+    },
     data() {
       return {
-        data: []   //数据
+        isShow:false
       }
     },
-    filters: {
-      //日
-      daytime(date) {
-        date = new Date(date);
-        let m = date.getMonth() + 1;
-        m = m < 10 ? ('0' + m) : m;
-        let d = date.getDate();
-        d = d < 10 ? ('0' + d) : d;
-        return m + '/' + d;
+    created(){
+      console.log('data',this.data)
+    },
+    watch: {
+      visible(val){
+        this.isShow = val
       },
-      //时分
-      time(date) {
-        date = new Date(date);
-        let h = date.getHours();
-        h = h < 10 ? ('0' + h) : h;
-        let minute = date.getMinutes();
-        minute = minute < 10 ? ('0' + minute) : minute;
-        return h + ':' + minute;
+      isShow(val){
+        this.$emit("update:visible",val)
       },
-      imgBase(data) {
-        return `data:image/jpg;base64,${data}`
+      data:{
+        handler(val){
+          console.log('new data',val)
+        },
+        deep:true
       }
     },
-    methods: {
-      daytime(date) {
-        date = new Date(date);
-        let m = date.getMonth() + 1;
-        m = m < 10 ? ('0' + m) : m;
-        let d = date.getDate();
-        d = d < 10 ? ('0' + d) : d;
-        return m + '/' + d;
-      },
-      //时分
-      time(date) {
-        date = new Date(date);
-        let h = date.getHours();
-        h = h < 10 ? ('0' + h) : h;
-        let minute = date.getMinutes();
-        minute = minute < 10 ? ('0' + minute) : minute;
-        return h + ':' + minute;
-      },
-      //进客信息
-      inSpan(parent) {
-        let sex = this.detailInfo.gender == 0 ? '女' : (this.detailInfo.gender == 1 ? '男' : '');
-        let params = {
-          head: `第${this.detailInfo.order}位访客`,
-          gender: sex,
-          age: this.detailInfo.age == -1 ? "" : this.detailInfo.age,
-          day: this.daytime(this.detailInfo.time),
-          time: this.time(this.detailInfo.time)
-        };
-        for (let ele in params) {
-          let span = document.createElement("span");
-          span.innerHTML = params[ele];
-          parent.appendChild(span);
+    computed:{
+      info(){
+        let obj = {};
+        if(this.data.status){
+          obj.order = `第${this.data.order}位出客`
+        }else {
+          obj.order = `第${this.data.order}位进客`;
+          obj.gender = this.data.gender===-1?'未知':this.data.gender?'男':'女';
+          obj.age = this.data.age === -1 ? "未知" : this.data.age;
         }
+        obj.day = parseTime(this.data.time,'{m}/{d}');
+        obj.time = parseTime(this.data.time,'{h}:{s}');
+       return obj;
       },
-      outSpan(parent) {
-        let params = {
-          head: `第${this.detailInfo.order}位出客`,
-          day: this.daytime(this.detailInfo.time),
-          time: this.time(this.detailInfo.time)
-        };
-        for (let ele in params) {
-          let span = document.createElement("span");
-          span.innerHTML = params[ele];
-          parent.appendChild(span);
-        }
-      },
-      handleDetail() {
-        //主页面
-        let div = document.createElement("div");
-        div.classList.add('shadow-detail-div','vam');
-        div.id = "lwh-shadow-detail";
-        //主内容区
-        let content = document.createElement("div");
-        content.classList.add("shadow-detail-content");
-        //主内容区图片父
-        let imgPartent = document.createElement("div");
-        imgPartent.classList.add("detail-img-div","vam");
-        content.appendChild(imgPartent);
-        //主内容区图片
-        let img = document.createElement("img");
-        this.detailInfo.status == 0 ? img.classList.add("detail-content-img-in") : img.classList.add("detail-content-img");
-        img.src = "data:image/jpg;base64," + this.detailInfo.img;
-        imgPartent.appendChild(img);
-        //主内容区详情
-        let detail = document.createElement("div");
-        detail.classList.add("detail-content-div");
-        imgPartent.appendChild(detail);
-        this.detailInfo.status == 0 ? this.inSpan(detail) : this.outSpan(detail);
-        //取消按钮
-        let canclePrent = document.createElement("div");
-        canclePrent.classList.add("detail-cancle-div");
-        let cancle = document.createElement("img");
-        cancle.classList.add("detail-content-cancel");
-        cancle.src = "/static/img/cancel-img.png";
-        cancle.onclick = () => {
-          document.body.removeChild(div);
-        };
-        canclePrent.appendChild(cancle);
-        content.appendChild(canclePrent);
-        div.appendChild(content);
-        document.body.appendChild(div);
+      type(){
+        return this.data.status?'out':'in';
       }
-    },
-    watch: {}
+    }
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
@@ -144,6 +85,7 @@
     background: rgba(0, 0, 0, 0.8);
     width: 100%;
     height: 100%;
+    text-align: center!important;
     .ob-dialog-info-main {
       .ob-dialog-info-content{
         position: relative;
@@ -153,94 +95,40 @@
         background-image: url(/static/img/console-detail-border-icon-top.png),url(/static/img/console-detail-border-icon-right.png),url(/static/img/console-detail-border-icon-bottom.png),url(/static/img/console-detail-border-icon-left.png);
         background-size: 52px auto;
         padding: 40px;
-        .detail-content-img {
+        &.in{
+          background-image: url(/static/img/console-detail-border-in-icon-top.png),url(/static/img/console-detail-border-in-icon-right.png),url(/static/img/console-detail-border-in-icon-bottom.png),url(/static/img/console-detail-border-in-left.png);
+          >img{
+            border: 2px solid #6D2EBB;
+          }
+        }
+        >img{
+          display: inline-block;
           height: 420px;
+          min-width: 150px;
           border: 2px solid #109CE7;
         }
-        .detail-content-img-in {
-          height: 420px;
-          border: 2px solid #6D2EBB;
-        }
-        .detail-content-div {
+        .detail-info{
           padding-left:30px;
           text-align: center;
-          span {
+          >p{
+            height: 1.5em;
             color: #ffffff;
             border-bottom: 1px dashed #ffffff;
             padding: 12px 12px;
             display: block;
-            box-sizing: border-box;
           }
         }
       }
       .ob-dialog-info-close {
         display: inline-block;
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
         cursor: pointer;
+        background: url("/static/img/cancel-img.png") no-repeat center center;
+        background-size: cover;
+        border-radius: 50%;
+        margin-top: 12px;
       }
     }
   }
-</style>
-<style rel="stylesheet/scss" lang="scss" scoped>
-  .customer-info-wrap-in {
-    background: url(/static/img/background-img-in.png) no-repeat center;
-    background-size: 100% 100%;
-  }
-
-  .customer-info-wrap-out {
-    background: url(/static/img/background-image.png) no-repeat center;
-    background-size: 100% 100%;
-  }
-  .customer-info-wrap {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-      padding: 20px 12px;
-    }
-    span.order {
-      position: absolute;
-      left: 0;
-      right: 0;
-      margin: 0 auto;
-      top: -6px;
-      width: calc(100% - 48px);
-      display: inline-block;
-      background: rgba(109, 46, 187, 0.3);
-      padding: 0 4px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      text-align: center;
-    }
-    span.order-in {
-      background: rgba(16, 156, 231, 0.3);
-    }
-    .customer-detail {
-      position: absolute;
-      bottom: 20px;
-      right: 12px;
-      font-size: 12px;
-      span {
-        text-align: center;
-        line-height: 16px;
-        display: block;
-        width: 46px;
-        height: 16px;
-        margin-bottom: 4px;
-        opacity: 0.4;
-        background: #000000;
-      }
-    }
-    .customer-detail-in {
-      right: 22px;
-    }
-  }
-
 </style>

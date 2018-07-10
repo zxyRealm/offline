@@ -9,10 +9,10 @@
     <el-scrollbar
       :style="customStyle"
     >
-      <div class="go-forword" @click="forword">上一步</div>
+      <a href="javascript:void(0)" class="go-forword" @click="forword">上一步</a>
       <template>
-        <div v-if="deviceData.length == 0">该社群下暂时没有设备可以添加</div>
         <div class="vam" style="height:400px">
+          <div v-if="deviceData.length == 0">该社群下暂时没有设备可以添加</div>
           <el-radio-group v-model="radio">
             <el-radio v-for="(val,index) in deviceData" :label="index" :key="index">{{val['deviceName']}}</el-radio>
           </el-radio-group>

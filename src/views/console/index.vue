@@ -29,25 +29,35 @@
       </div>
     </div>
     <div class="content-bottom corner-bg" v-if="state">
-      <ul class="customer-left">
-        <li v-for="(value,index) in pedestrianInData" :key="index">
-          <customer-info :index="pedestrianInData.length -index" :detailInfo="value"></customer-info>
+
+      <transition-group name="list-customer" class="transition-wrap customer-left" tag="ul">
+        <li
+          v-for="(item,$index) in pedestrianInData"
+          :key="$index"
+          class="list-customer-item"
+        >
+          <customer-info :index="pedestrianInData.length -$index" :detailInfo="item"></customer-info>
         </li>
-      </ul>
+      </transition-group>
+
       <ul class="customer-middle">
         <li class="customer-middle-top animation-lwh-show">
         </li>
         <li class="customer-middle-center vam">
-
         </li>
         <li class="customer-middle-bottom animation-lwh-show">
         </li>
       </ul>
-      <ul class="customer-right">
-        <li v-for="(value,index) in pedestrianOutData" :key="index">
-          <customer-info :index="pedestrianOutData.length-index" :detailInfo="value"></customer-info>
+      <transition-group name="list-customer" class="transition-wrap customer-right" tag="ul">
+        <li
+          v-for="(item,$index) in pedestrianOutData"
+          :key="$index"
+          class="list-customer-item"
+        >
+          <customer-info :index="pedestrianOutData.length -$index" :detailInfo="item"></customer-info>
         </li>
-      </ul>
+      </transition-group>
+
     </div>
   </div>
 </template>
@@ -91,7 +101,7 @@
       },
       getwebsocket(data) {
         let me = this;
-        let wsServer = 'ws://' + data ; //服务器地址
+        let wsServer = 'ws://' + data; //服务器地址
         this.websocket = new WebSocket(wsServer);
         this.websocket.onopen = function (evt) {
           //已经建立连接
@@ -114,25 +124,25 @@
         let me = this;
         if (!me.$refs.bar) return;
         let consoleTimer = null;   //定时器
-        if(consoleTimer){
+        if (consoleTimer) {
           consoleTimer = null;
         }
-        consoleTimer = setTimeout(()=> {
-        let table = document.getElementById("echarts-bar");
-        table.style.width = me.$refs.bar.offsetWidth + "px";
-        table.style.height = me.$refs.bar.offsetHeight + "px";
-        me.$refs.echartsBar.resizeEcharts();
+        consoleTimer = setTimeout(() => {
+          let table = document.getElementById("echarts-bar");
+          table.style.width = me.$refs.bar.offsetWidth + "px";
+          table.style.height = me.$refs.bar.offsetHeight + "px";
+          me.$refs.echartsBar.resizeEcharts();
 
-        let tablePie = document.getElementById("echarts-pie");
-        tablePie.style.width = me.$refs.pie.offsetWidth + "px";
-        tablePie.style.height = me.$refs.pie.offsetHeight + "px";
-        me.$refs.echartsPie.resizeEcharts();
+          let tablePie = document.getElementById("echarts-pie");
+          tablePie.style.width = me.$refs.pie.offsetWidth + "px";
+          tablePie.style.height = me.$refs.pie.offsetHeight + "px";
+          me.$refs.echartsPie.resizeEcharts();
 
-        let tableLine = document.getElementById("echarts-line");
-        tableLine.style.width = me.$refs.lineConsole.offsetWidth + "px";
-        tableLine.style.height = me.$refs.lineConsole.offsetHeight + "px";
-        me.$refs.echartsLine.resizeEcharts();
-        },300)
+          let tableLine = document.getElementById("echarts-line");
+          tableLine.style.width = me.$refs.lineConsole.offsetWidth + "px";
+          tableLine.style.height = me.$refs.lineConsole.offsetHeight + "px";
+          me.$refs.echartsLine.resizeEcharts();
+        }, 300)
       },
       //解析数据
       resolveDatad(data) {
@@ -154,12 +164,17 @@
       },
       //判断数据类型，并且限定大小4
       typePedestrian(pedestrian) {
-        if (!pedestrian) return;
         if (pedestrian) {
-          if (pedestrian.status == 0) { //进客
-            this.pedestrianInData.length == 4 ? (this.pedestrianInData.pop() && this.pedestrianInData.unshift(pedestrian)) : this.pedestrianInData.unshift(pedestrian);
-          } else if (pedestrian.status == 1) { //出客
-            this.pedestrianOutData.length == 4 ? (this.pedestrianOutData.pop() && this.pedestrianOutData.unshift(pedestrian)) : this.pedestrianOutData.unshift(pedestrian);
+          if (pedestrian.status === 0) { //进客
+            if(this.pedestrianInData.length>=4){
+              this.pedestrianInData.splice(this.pedestrianInData.length-1,1)
+            }
+            this.pedestrianInData.unshift(pedestrian)
+          } else if (pedestrian.status === 1) { //出客
+            if(this.pedestrianOutData.length>=4){
+              this.pedestrianOutData.splice(this.pedestrianOutData.length-1,1)
+            }
+            this.pedestrianOutData.unshift(pedestrian)
           }
         }
       },
@@ -223,7 +238,7 @@
         }
         this.pedestrianInData = [];
         this.pedestrianOutData = [];
-        if(this.websocket){
+        if (this.websocket) {
           this.websocket.close()
         }
         this.deviceKey = val;
@@ -240,7 +255,9 @@
       window.removeEventListener("resize", me.resizeFunction);
       eventObject().$off('resize-echarts-console');
       //关闭websocket链接
-      if (!!this.websocket) {this.websocket.close()};
+      if (!!this.websocket) {
+        this.websocket.close()
+      }
       next();
     }
 
@@ -321,21 +338,27 @@
         }
       }
     }
+
     .content-bottom {
       width: 100%;
       margin-top: 10px;
       height: calc(28% - 10px);
       min-height: 168px;
       box-sizing: border-box;
-      padding: 20px;
+      padding: 10px 20px;
       background-color: rgba(64, 58, 73, 0.30);
       box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
     }
-    .customer-left {
+    .transition-wrap {
       width: calc(50% - 170px);
       height: 100%;
       display: inline-block;
-      li {
+      overflow: hidden;
+      padding:10px 0;
+      box-sizing: border-box;
+      .list-customer-item{
+        transition: all 1s;
+        display: inline-block;
         float: right;
         width: 25%;
         height: 100%;
@@ -343,7 +366,21 @@
         box-sizing: border-box;
         position: relative;
       }
+      .list-customer-enter, .list-customer-leave-to {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+      .list-customer-leave-active {
+        position: absolute;
+        opacity: 0;
+      }
+      &.customer-right {
+        li {
+          float: left;
+        }
+      }
     }
+
     .customer-middle {
       width: 320px;
       height: 100%;
@@ -355,56 +392,37 @@
         height: 100%;
       }
 
-      .customer-middle-top,.customer-middle-bottom{
+      .customer-middle-top, .customer-middle-bottom {
         width: 40px;
         overflow: hidden;
-        background-repeat: no-repeat,no-repeat,no-repeat;
-        background-position: 0 center,10px center,20px center;
-        background-size: 14px auto,16px auto,18px auto;
+        background-repeat: no-repeat, no-repeat, no-repeat;
+        background-position: 0 center, 10px center, 20px center;
+        background-size: 14px auto, 16px auto, 18px auto;
 
       }
-      .customer-middle-top{
+      .customer-middle-top {
         right: 6px;
-        background-image:url("/static/img/in-img-3.png"),url("/static/img/in-img-2.png"),url("/static/img/in-img-1.png");
+        background-image: url("/static/img/in-img-3.png"), url("/static/img/in-img-2.png"), url("/static/img/in-img-1.png");
       }
       .customer-middle-center {
         position: absolute;
         width: 230px;
         background: url('/static/img/people-info.png') no-repeat center center;
         background-size: 100% auto;
-        >img {
+        > img {
           width: 100%;
         }
       }
       .customer-middle-bottom {
         position: absolute;
         left: 276px;
-        background-image:url("/static/img/out-img-1.png"),url("/static/img/out-img-2.png"),url("/static/img/out-img-3.png");
-        background-position: 0 center,12px center,24px center;
-        background-size: 18px auto,16px auto,14px auto;
+        background-image: url("/static/img/out-img-1.png"), url("/static/img/out-img-2.png"), url("/static/img/out-img-3.png");
+        background-position: 0 center, 12px center, 24px center;
+        background-size: 18px auto, 16px auto, 14px auto;
       }
 
     }
-    .customer-right {
-      width: calc(50% - 170px);
-      height: 100%;
-      display: inline-block;
-      float: right;
-      li {
-        float: left;
-        width: 25%;
-        height: 100%;
-        position: relative;
-        padding-left: 10px;
-        box-sizing: border-box;
-      }
-      &::after {
-        content: '';
-        width: 0;
-        height: 0;
-        clear: both;
-      }
-    }
+
     //动画效果
     .animation-lwh-show {
       position: relative;

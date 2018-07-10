@@ -9,7 +9,6 @@
     </div>
     <!-- element自带滚动条 -->
     <el-table
-      :height="tabelHeight"
       :data="tableData"
       border
       :highlight-current-row="false"
@@ -113,20 +112,9 @@
         })
       }
     },
-    created() {
-      //this.getData();
-    },
     mounted() {
       window.addEventListener('resize', this.initSize);
-    },
-    computed: {
-      //首先给table高度赋值
-      tabelHeight() {
-        let tableEle = document.body.clientHeight - 640 <= 200 ? 200 : document.body.clientHeight - 640;
-        return tableEle + 'px';
-      }
     }
-
   }
 </script>
 
@@ -161,14 +149,13 @@
     }
     .table-content {
       width: 100%;
+      min-height: 200px;
       table {
         border-collapse: inherit;
       }
     }
     .table-page {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
+      margin-top: 15px;
       .el-pagination {
         text-align: right;
         box-sizing: border-box;

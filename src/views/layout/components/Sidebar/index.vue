@@ -7,7 +7,7 @@
       :default-active="currRouter"
       :collapse="isCollapse"
       background-color="#232027"
-      text-color="#bfcbd9"
+      text-color="#fff"
       active-text-color="#fff"
     >
       <el-menu-item index="/community">
@@ -32,10 +32,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import SidebarItem from './SidebarItem'
-
 export default {
-  components: { SidebarItem },
   computed: {
     ...mapGetters([
       "sidebar",

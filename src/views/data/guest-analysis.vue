@@ -8,7 +8,7 @@
         <echarts-line :line-height="'320px'" :line-params='lineParams' ref="echartsLine"></echarts-line>
       </div>
     </div>
-    <div class="table-data corner-bg" :style="{bottom:tableHeight>340?0:'auto'}" ref="table">
+    <div class="table-data corner-bg" ref="table">
       <table-data ref="element-table"></table-data>
     </div>
   </div>
