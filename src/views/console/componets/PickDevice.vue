@@ -9,7 +9,7 @@
     <el-scrollbar
       :style="customStyle"
     >
-      <a href="javascript:void(0)" class="go-forword" @click="forword">上一步</a>
+      <a href="javascript:void (0)" class="go-forword" @click="forword">上一步</a>
       <template>
         <div class="vam" style="height:400px">
           <div v-if="deviceData.length == 0">该社群下暂时没有设备可以添加</div>
@@ -85,7 +85,7 @@
           this.$emit("pick-device", this.deviceData[this.radio]);
         }
         this.dialogVisible = false;
-        this.$store.commit("SET_GROUP_CONSOLEID", this.deviceData[this.radio].deviceKey);
+        this.$store.commit("SET_GROUP_CONSOLE_ID", this.deviceData[this.radio].deviceKey);
       },
       closeDialog() {
         //console.info("close-device");

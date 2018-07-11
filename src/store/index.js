@@ -28,27 +28,6 @@ const actions = {
     }).catch(error=>{
       console.log(error)
     })
-  },
-  SET_FILTER_PARAMS:({commit})=>{
-    let filterParams = {
-      groupGuid: '',     //选择社群
-      type: 1,           //类型
-      dimension: 1,      //维度
-      startTime: parseTime(new Date(),'{y}-{m}-{d}'),     //开始时间
-      endTime: parseTime(new Date(),'{y}-{m}-{d}')        //结束时间
-    }
-    commit("SET_FILTER_PARAMS",filterParams);
-    return  true;
-  },
-  SET_GROUP_CONSOLEID:({commit})=>{
-    let groupConsoleId = "";
-    commit("SET_GROUP_CONSOLEID",groupConsoleId);
-    return  true;
-  },
-  SET_GROUP_SELECT_ID: ({commit})=>{
-    let groupSelectId = "";
-    commit("SET_GROUP_SELECT_ID",groupSelectId);
-    return  true;
   }
 };
 
@@ -61,7 +40,7 @@ const mutations = {
   SET_FILTER_PARAMS: (state,data) => {
     state.filterParams = data || {};
   },
-  SET_GROUP_CONSOLEID: (state,data) => {
+  SET_GROUP_CONSOLE_ID: (state,data) => {
     state.groupConsoleId = data || '';
   },
   SET_GROUP_SELECT_ID: (state,data) => {

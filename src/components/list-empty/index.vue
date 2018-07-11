@@ -2,6 +2,7 @@
   <div v-if="!loading" class="ob-list-empty vam" :class="size" :style="{marginTop:top}">
     <span>
       {{text}}
+      <slot></slot>
     </span>
   </div>
 </template>

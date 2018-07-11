@@ -48,24 +48,28 @@
     <h2>Ecosystem</h2>
     <div class="transition-wrap fl">
       <transition-group name="list-complete" tag="p">
-        <span
+        <div
           v-for="item in items"
           :key="item"
           class="list-complete-item"
         >
-          {{ item }}
-        </span>
+          <div class="item-content">
+            {{ item }}
+          </div>
+        </div>
       </transition-group>
     </div>
     <div class="transition-wrap fr">
-      <transition-group name="list-complete" tag="p">
-        <span
+      <transition-group :duration="1000" name="list-complete" tag="p">
+        <div
           v-for="item in items"
           :key="item"
           class="list-complete-item"
         >
-          {{ item }}
-        </span>
+          <div class="item-content">
+            {{ item }}
+          </div>
+        </div>
       </transition-group>
     </div>
     <el-button @click="add">新增</el-button>
@@ -85,10 +89,12 @@
     },
     methods: {
       add: function () {
+
+        // let max = Math.max.call(null,this.items)+1;
         if(this.items.length>=4){
           this.items.splice(this.items.length-1, 1,);
         }
-        this.items.unshift(this.nextNum++)
+        this.items.unshift(this.nextNum++);
       },
     },
     watch: {
@@ -111,6 +117,8 @@
     width: calc(110px * 4);
     overflow: hidden;
     p{
+      float: right;
+      width: calc(110px * 5);
       overflow: hidden;
       height: 180px;
     }
@@ -118,14 +126,23 @@
       float: right;
       transition: all 1s;
       display: inline-block;
-      width: 22%;
-      margin-right: 3%;
+      width: 20%;
+      padding-right: 10px;
       height: 180px;
       line-height: 180px;
-      background: #4AB7BD;
-
+      box-sizing: border-box;
+      .item-content{
+        background: #4AB7BD;
+        height: 100%;
+      }
     }
+    /*.list-complete-leave-active{*/
+      /*position: absolute;*/
+    /*}*/
     &.fr{
+      p{
+        float: left;
+      }
       .list-complete-enter{
         opacity: 0;
         transform: translateX(-100%);

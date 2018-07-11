@@ -16,8 +16,6 @@ export function load(text,target) {
   })
 }
 
-
-
 // 异步请求
 export function fetch(url,params,isTip='数据加载中...') {
   if(typeof params === 'boolean' ){
