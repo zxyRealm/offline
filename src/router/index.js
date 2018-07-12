@@ -372,6 +372,7 @@ export const constantRouterMap = [
 ];
 
 const router = new Router({
+  mode:'history',
   scrollBehavior: () => ({y: 0}),
   routes: constantRouterMap
 });

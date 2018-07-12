@@ -73,28 +73,36 @@
       </transition-group>
     </div>
     <el-button @click="add">新增</el-button>
+    <p>$set 方法测试{{empty.name}}</p>
   </div>
 </template>
-
 <script>
   export default {
     name: 'HelloWorld',
+    components:{
+
+    },
     data() {
       return {
         items: [],
         nextNum: 1,
         animation: [1, 2, 3],
-        msg: 'Welcome to Your Vue.js App'
+        msg: 'Welcome to Your Vue.js App',
+        empty:{
+
+        }
       }
     },
     methods: {
       add: function () {
-
         // let max = Math.max.call(null,this.items)+1;
         if(this.items.length>=4){
           this.items.splice(this.items.length-1, 1,);
         }
         this.items.unshift(this.nextNum++);
+        this.$set(this.empty,'name',`${this.nextNum}测试开始`);
+        // this.empty.name = `${this.nextNum}测试开始`;
+        console.log(this.empty)
       },
     },
     watch: {
@@ -103,6 +111,12 @@
           console.log('changed list', val)
         },
         deep: true
+      },
+      empty:{
+        handler(val){
+          console.log('change',val)
+        },
+        deep:true
       }
     }
   }
