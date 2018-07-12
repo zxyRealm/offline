@@ -324,7 +324,7 @@ import echarts from 'echarts'
          ])
      },
      watch:{
-        //监听vuexgroupConsoleId是否改变
+        //监听vuex groupConsoleId是否改变
        groupSelectId(val){
             this.showGenderData();
             this.timing();   //定时刷新数据，一个小时一次
