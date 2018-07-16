@@ -7,6 +7,8 @@ function pluralize(time, label) {
   }
   return time + label + 's'
 }
+
+// 设备类型
 export function deviceType(type) {
   switch (type){
     case 1:
@@ -16,6 +18,11 @@ export function deviceType(type) {
     default:
       return '身份识别';
   }
+}
+
+// 设备操作权限
+export function authority(str){
+  return (str||'').split(",")<=1?'数据查看权限':'数据查看权限、设备操作权限';
 }
 
 export function lineState(state) {
@@ -28,8 +35,6 @@ export function lineState(state) {
       return '';
   }
 }
-
-
 
 export function timeAgo(time) {
   const between = Date.now() / 1000 - Number(time);

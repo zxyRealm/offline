@@ -25,8 +25,6 @@ export default {
   created(){
    this.$store.dispatch('GET_USER_INFO');
   },
-  mounted(){
-  },
   computed: {
     sidebar() {
       return this.$store.state.app.sidebar

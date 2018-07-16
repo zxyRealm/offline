@@ -66,7 +66,7 @@
                 {
                     name:'直接访问',
                     type:'bar',
-                    barWidth: '60%',
+                    barWidth: '50%',
                     itemStyle : { normal: {label : {show: true, position: 'top'}}},
                     data:[0,0,0,0,0,0]
                 }

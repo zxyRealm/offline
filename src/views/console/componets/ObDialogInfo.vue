@@ -64,7 +64,7 @@
           obj.age = this.data.age === -1 ? "未知" : this.data.age;
         }
         obj.day = parseTime(this.data.time,'{m}/{d}');
-        obj.time = parseTime(this.data.time,'{h}:{s}');
+        obj.time = parseTime(this.data.time,'{h}:{i}');
        return obj;
       },
       type(){

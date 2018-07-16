@@ -1,6 +1,8 @@
 <template>
   <div class="console-wrap" :style="{backgroundColor:!state?'':'#0F0E11' }">
-    <ob-list-empty text="暂无数据，请选择您的社群和设备" v-if="!state"></ob-list-empty>
+    <ob-list-empty v-if="!state">
+      ，<a href="javascript:void (0)" @click="selectGroupId">请选择您的社群和设备</a>
+    </ob-list-empty>
     <div class="content-top" v-if="state">
       <div class="content-top-left">
         <ul class="left-ul corner-bg">
@@ -29,17 +31,17 @@
       </div>
     </div>
     <div class="content-bottom corner-bg" v-if="state">
-
-      <transition-group name="list-customer" class="transition-wrap customer-left" tag="ul">
-        <li
-          v-for="(item,$index) in pedestrianInData"
-          :key="$index"
-          class="list-customer-item"
-        >
-          <customer-info :index="pedestrianInData.length -$index" :detailInfo="item"></customer-info>
-        </li>
-      </transition-group>
-
+      <div class="customer-wrap">
+        <transition-group name="list-customer" class="transition-wrap left" tag="ul">
+          <li
+            v-for="(item,$index) in pedestrianInData"
+            :key="item.order"
+            class="list-customer-item"
+          >
+            <customer-info :index="pedestrianInData.length -$index" :detailInfo="item"></customer-info>
+          </li>
+        </transition-group>
+      </div>
       <ul class="customer-middle">
         <li class="customer-middle-top animation-lwh-show">
         </li>
@@ -48,16 +50,17 @@
         <li class="customer-middle-bottom animation-lwh-show">
         </li>
       </ul>
-      <transition-group name="list-customer" class="transition-wrap customer-right" tag="ul">
-        <li
-          v-for="(item,$index) in pedestrianOutData"
-          :key="$index"
-          class="list-customer-item"
-        >
-          <customer-info :index="pedestrianOutData.length -$index" :detailInfo="item"></customer-info>
-        </li>
-      </transition-group>
-
+      <div class="customer-wrap">
+        <transition-group name="list-customer" class="transition-wrap right" tag="ul">
+          <li
+            v-for="(item,$index) in pedestrianOutData"
+            :key="item.order"
+            class="list-customer-item out-li"
+          >
+            <customer-info :index="pedestrianOutData.length -$index" :detailInfo="item"></customer-info>
+          </li>
+        </transition-group>
+      </div>
     </div>
   </div>
 </template>
@@ -68,8 +71,8 @@
   import pie from '@/components/echarts/pie.vue'
   import lineConsole from '@/components/echarts/line.vue'
   import CustomerInfo from './componets/CustomerInfo.vue'
-  import {mapState} from 'vuex'
-  import {eventObject} from '@/utils/event.js'
+  import { mapState } from 'vuex'
+  import { eventObject } from '@/utils/event.js'
 
   export default {
     name: "console",
@@ -242,8 +245,8 @@
     beforeRouteLeave(to, from, next) {
       let me = this;
       //路由跳转后，不需要保存控制台的信息
-      this.$store.dispatch('SET_GROUP_CONSOLEID');
-      this.$store.dispatch('SET_GROUP_SELECT_ID');
+      this.$store.commit('SET_GROUP_CONSOLE_ID');
+      this.$store.commit('SET_GROUP_SELECT_ID');
       //解除绑定事件
       window.removeEventListener("resize", me.resizeFunction);
       eventObject().$off('resize-echarts-console');
@@ -253,7 +256,6 @@
       }
       next();
     }
-
   }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -331,7 +333,6 @@
         }
       }
     }
-
     .content-bottom {
       width: 100%;
       margin-top: 10px;
@@ -342,34 +343,46 @@
       background-color: rgba(64, 58, 73, 0.30);
       box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
     }
-    .transition-wrap {
+    .customer-wrap{
+      display: inline-block;
       width: calc(50% - 170px);
       height: 100%;
-      display: inline-block;
       overflow: hidden;
-      padding:10px 0;
-      box-sizing: border-box;
-      .list-customer-item{
-        transition: all 1s;
-        display: inline-block;
+      .transition-wrap {
         float: right;
-        width: 25%;
+        width: 125%;
         height: 100%;
-        padding-right: 10px;
+        overflow: hidden;
+        padding:10px 0;
         box-sizing: border-box;
-        position: relative;
-      }
-      .list-customer-enter{
-        opacity: 0;
-        transform: translateX(100%);
-      }
-      &.customer-right {
-        li {
-          float: left;
+        .list-customer-item{
+          transition: all 1s;
+          display: inline-block;
+          float: right;
+          width: 20%;
+          height: 100%;
+          padding-right: 10px;
+          box-sizing: border-box;
+          position: relative;
+        }
+        /* 保持左右间距对齐 */
+        .out-li {
+          padding-left: 10px;
+          padding-right: 0px;
         }
         .list-customer-enter{
           opacity: 0;
-          transform: translateX(-100%);
+          transform: translateX(100%);
+        }
+        &.right {
+          float: left;
+          li {
+            float: left;
+          }
+          .list-customer-enter{
+            opacity: 0;
+            transform: translateX(-100%);
+          }
         }
       }
     }
@@ -380,6 +393,7 @@
       display: inline-block;
       position: relative;
       left: 8px;
+      margin-right: 12px;  //保持两边的距离优雅
       li {
         display: inline-block;
         height: 100%;
@@ -415,7 +429,6 @@
       }
 
     }
-
     //动画效果
     .animation-lwh-show {
       position: relative;

@@ -77,7 +77,7 @@
                   {{communityInfo.phone}}</p>
                 <p>
                   <span class="fs14"> 索权范围：</span>
-                  {{currentRule}}</p>
+                  {{communityInfo.rule | authority }}</p>
               </div>
               <div class="info-qr-code">
                 <div>社群邀请码：</div>
@@ -284,9 +284,6 @@
       this.getGroupList()
     },
     computed: {
-      currentRule: function () {
-        return (this.communityInfo.rule || '').split(",").length === 1 ? '数据查看权限' : '数据查看权限、设备操作权限'
-      },
       isSon: function () {
         return Boolean(this.communityInfo.groupPid)
       }
@@ -296,7 +293,6 @@
 
 <style lang="scss" scoped>
   @import "@/styles/community.scss";
-
   .community--inner {
     position: relative;
     padding: 20px;

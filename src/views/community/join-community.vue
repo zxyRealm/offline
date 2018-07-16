@@ -28,14 +28,14 @@
           <div class="txt">
             您
             <a href="javascript:void (0)" @click="ensure">确定</a>
-            加入【星巴克】社群？
+            加入【 {{communityInfo.name}} 】社群？
           </div>
           <div class="fs12" >
-            <p>社群名称：星巴克-滨江区</p>
-            <p>地区：星巴克-滨江区</p>
-            <p>联系人：星巴克-滨江区</p>
-            <p>联系电话：星巴克-滨江区</p>
-            <p>索权范围：星巴克-滨江区</p>
+            <p>社群名称：{{communityInfo.name}}</p>
+            <p>地区：{{communityInfo.fullAddress}}</p>
+            <p>联系人：{{communityInfo.cantact}}</p>
+            <p>联系电话：{{communityInfo.phone}}</p>
+            <p>索权范围：{{communityInfo.fullAddress | authority}}</p>
           </div>
         </el-form-item>
         <el-form-item label-width="86px" v-if="step===2" >
