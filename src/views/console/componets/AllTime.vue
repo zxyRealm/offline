@@ -31,9 +31,9 @@ export default {
             let clock = '';
             if(hh < 10) clock += "0";
                 clock += hh + ":";
-            if (mm < 10) clock += '0'; 
-               clock += mm; 
-            //   return(clock); 
+            if (mm < 10) clock += '0';
+               clock += mm;
+            //   return(clock);
             // this.$set(this.data, 0,  Math.floor(hh/10));
             // this.$set(this.data, 1,  hh%10);
             // this.$set(this.data, 2,  Math.floor(mm/10));
@@ -45,9 +45,9 @@ export default {
         },
         setTime() {
             let me = this;
-            this.showTime = setInterval(() => {
+            this.showTime = window.setInterval(() => {
                 me.time();
-            },60000);
+            },6000);  //默认是一分钟60000
         }
     },
     created() {
@@ -58,7 +58,7 @@ export default {
     },
     watch: {
         dd(val,oldVal) {
-           
+
             this.$refs.dd.classList.add("animation-lwh-show");
             setTimeout(() => {
                  if(!this.$refs.dd) return;
@@ -66,7 +66,7 @@ export default {
             },6000);
         },
         d(val,oldVal) {
-            
+
             this.$refs.d.classList.add("animation-lwh-show");
             setTimeout(() => {
                 if(!this.$refs.d) return;
@@ -74,7 +74,7 @@ export default {
             },6000);
         },
         tt(val,oldVal) {
-           
+
             this.$refs.tt.classList.add("animation-lwh-show");
             setTimeout(() => {
                  if(!this.$refs.tt) return;
@@ -82,7 +82,7 @@ export default {
             },6000);
         },
         t(val,oldVal) {
-           
+
             this.$refs.t.classList.add("animation-lwh-show");
             setTimeout(() => {
                  if(!this.$refs.t) return;
@@ -94,7 +94,7 @@ export default {
 
     },
     beforeRouteLeave() {
-        if(!!this.showTime) clearInterval(this.showTime);
+        if(!!this.showTime) window.clearInterval(this.showTime);
     }
 }
 </script>
@@ -108,7 +108,7 @@ export default {
             height: 34px;
             width: 164px;
             margin-left: calc(50% - 82px);
-            background:url(/static/img/identify.png) no-repeat center; 
+            background:url(/static/img/identify.png) no-repeat center;
             background-size: 100% 100%;
             span {
                  padding: 5px 20px;
@@ -145,6 +145,6 @@ export default {
                     50%{ transform: rotate3d(1,0,0,90deg) scale(1);}
                     100% {transform: rotate3d(1,0,0,0deg) scale(1);}
                 }
-       }  
+       }
     }
 </style>

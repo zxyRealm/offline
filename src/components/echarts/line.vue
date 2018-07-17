@@ -199,10 +199,10 @@
       timing() {
         let me = this;
         if (this.timer) {
-          clearInterval(this.timer);
+          window.clearInterval(this.timer);
           this.timer = null;
         };
-        this.timer = setInterval(() => {
+        this.timer = window.setInterval(() => {
           me.showGenderData();
         }, 3600000);//3600000
       },
@@ -332,7 +332,7 @@
     },
     beforeDestroy() {
       if(this.timer) {
-        clearInterval(this.timer);
+        window.clearInterval(this.timer);
       }
     }
 

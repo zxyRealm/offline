@@ -27,19 +27,19 @@
         lineParams: {
           title: {text: '进/出客流量图'}
         },
-        tableHeight:300
+        tableHeight:0
       }
     },
     methods: {
       resizeFunction() {
         let me = this;
         if(!me.$refs.line) return;
-        let table = document.getElementById("echarts-line");
-        this.tableHeight = this.$refs.table.offsetHeight;
+        let line = document.getElementById("echarts-line");
+        //this.tableHeight = this.$refs.table.offsetHeight;
         //let tableEle = document.body.clientHeight - 420;
-        table.style.height = me.$refs.line.offsetHeight + "px";
+        line.style.height = me.$refs.line.offsetHeight + "px";
         //宽度
-        table.style.width = me.$refs.line.offsetWidth + "px";
+        line.style.width = me.$refs.line.offsetWidth + "px";
         me.$refs.echartsLine.resizeEcharts();
         //表格高度
       }
@@ -49,7 +49,7 @@
       let me = this;
       window.addEventListener("resize", me.resizeFunction);
       this.$nextTick(()=>{
-        this.tableHeight = this.$refs.table.offsetHeight
+        this.tableHeight = this.$refs.table.offsetHeight - 40 +"px";
       })
     },
     beforeRouteLeave(to, from, next) {

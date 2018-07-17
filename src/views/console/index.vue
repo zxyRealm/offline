@@ -55,7 +55,7 @@
           <li
             v-for="(item,$index) in pedestrianOutData"
             :key="item.order"
-            class="list-customer-item"
+            class="list-customer-item out-li"
           >
             <customer-info :index="pedestrianOutData.length -$index" :detailInfo="item"></customer-info>
           </li>
@@ -318,7 +318,30 @@
         width: calc(40% - 10px);
         box-sizing: border-box;
         .pie-wrap {
-          background-size: 28%;
+          background-size: 0%;
+        }
+        .pie-wrap::before {
+          content: '';
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0px;
+          right: 0px;
+          background: url('/static/img/pie-background.png') no-repeat center center;
+          background-size: 32%;
+          animation-name: piepie;
+          animation-duration: 10000ms;
+          animation-iteration-count: infinite; /*无限循环*/
+          animation-timing-function: linear;
+          @keyframes piepie {
+            0% {
+              transform:rotate(0deg);
+            }
+
+            100% {
+              transform:rotate(360deg);
+            }
+          }
         }
         .bottom-ul {
           height: 100%;
@@ -365,6 +388,11 @@
           box-sizing: border-box;
           position: relative;
         }
+        /* 保持左右间距对齐 */
+        .out-li {
+          padding-left: 10px;
+          padding-right: 0px;
+        }
         .list-customer-enter{
           opacity: 0;
           transform: translateX(100%);
@@ -388,6 +416,7 @@
       display: inline-block;
       position: relative;
       left: 8px;
+      margin-right: 12px;  //保持两边的距离优雅
       li {
         display: inline-block;
         height: 100%;

@@ -1,5 +1,5 @@
 <template>
-    <div id="echarts-pie" class="pie-wrap" :class="pieParams.type!=3 ? 'pie-wing':''">
+    <div id="echarts-pie" class="pie-wrap pie-console" :class="pieParams.type!=3 ? 'pie-wing':''">
 
     </div>
 </template>
@@ -226,7 +226,9 @@
      position: relative;
      background-color: rgba(64,58,73,0.30);
      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
+    position: relative;
   }
+
   .pie-wing::after {
     content: '';
     width: 100%;

@@ -46,7 +46,7 @@
                     data : ['0-10', '11-20', '21-30', '31-40', '41-50', '51以上'],
                     axisTick: {
                         alignWithLabel: true
-                    }
+                    },
                 }
             ],
             yAxis : [
@@ -66,7 +66,7 @@
                 {
                     name:'直接访问',
                     type:'bar',
-                    barWidth: '60%',
+                    barWidth: '50%',
                     itemStyle : { normal: {label : {show: true, position: 'top'}}},
                     data:[0,0,0,0,0,0]
                 }
