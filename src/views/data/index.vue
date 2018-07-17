@@ -37,6 +37,9 @@
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
+  .main-container {
+    overflow: hidden;
+  }
   .data-wrap {
     height: 100%;
     background: #0F0E11;
