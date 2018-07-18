@@ -100,14 +100,16 @@
       initSize() {
         //table高度改变
         this.$nextTick(() => {
-          let table = document.getElementsByClassName("table-content")[0];
+          let tableHead = document.getElementsByClassName("table-content")[0];
+          let table = document.getElementsByTagName("table")[0];
           if (!table) return;
           let tableEle = 0;
           if (document.body.clientHeight < 720) {
             tableEle = 206;
           } else {
-            tableEle = document.body.clientHeight - 640;
+            tableEle = document.body.clientHeight - 631;
           }
+          tableHead.style.minHeight = tableEle + "px";
           table.style.height = tableEle + "px";
         })
       }
@@ -122,7 +124,7 @@
 <style rel="stylesheet/scss" lang="scss">
   .table-wrap {
     width: 100%;
-    min-height: 300px;
+    //min-height: 300px;
     .table-search {
       height: 48px;
       line-height: 48px;
@@ -150,7 +152,7 @@
     }
     .table-content {
       width: 100%;
-      min-height: 200px;
+      //min-height: 200px;
       table {
         border-collapse: inherit;
       }

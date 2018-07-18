@@ -48,9 +48,6 @@
       //浏览器窗口监听
       let me = this;
       window.addEventListener("resize", me.resizeFunction);
-      this.$nextTick(()=>{
-        this.tableHeight = this.$refs.table.offsetHeight - 40 +"px";
-      })
     },
     beforeRouteLeave(to, from, next) {
       let me = this;
@@ -102,7 +99,7 @@
       padding: 20px;
       background-color: rgba(64,58,73,0.30);
       box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
-      margin-bottom: 20px;
+      //margin-bottom: 20px;
     }
   }
 </style>

@@ -46,12 +46,13 @@
                       label: {
                         normal: {
                           show: true,
-                          fontSize: 16,
+                          //fontSize: 16,
                           formatter: '{per|{d}%}',//'{d}%',  //显示百分比
                           position: 'outside',
                           rich: {
                             per: {
-                              lineHeight: 22,
+                              //lineHeight: 22,
+                              fontSize: 12,
                               align: 'center'
                             }
                           }
@@ -135,7 +136,6 @@
         }
         if(this.$store.state.filterParams.type == 3) {
             this.option.series[0].data = data[0].data;
-            console.info(data[0].data);
             this.option.legend['data'] = this.$legendArray(data[0].data);
         }else {
             this.option.series[0].data = this.$apply(this.option.series[0].data,emptyArray);
@@ -221,13 +221,35 @@
      height: 230px;
      box-sizing: border-box;
      padding: 20px;
-     background: url('/static/img/pie-background.png') no-repeat center center;
-     background-size: 160px 160px;
+     /*background: url('/static/img/pie-background.png') no-repeat center center;*/
+     /*background-size: 160px 160px;*/
      position: relative;
      background-color: rgba(64,58,73,0.30);
      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
   }
+  .pie-wrap::before {
+    content: '';
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: url('/static/img/pie-background.png') no-repeat center center;
+    background-size: 168px;
+    animation-name: piepie;
+    animation-duration: 10000ms;
+    animation-iteration-count: infinite; /*无限循环*/
+    animation-timing-function: linear;
+    @keyframes piepie {
+      0% {
+        transform: rotate(0deg);
+      }
 
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  }
   .pie-wing::after {
     content: '';
     width: 100%;
