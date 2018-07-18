@@ -1,15 +1,6 @@
 <template>
   <div class="community-mine-wrap">
-    <template v-if="notHave">
-      <uu-sub-tab
-        show-button
-        :sub-btn="{text:'创建'}"
-        @handle-btn="$router.push('/community/create')"
-      ></uu-sub-tab>
-      <ob-list-empty text="您还没有创建社群。"></ob-list-empty>
-    </template>
-    <template v-else>
-      <div class="community--inner">
+    <div class="community--inner">
         <div class="community--sidebar dashed-border">
           <div class="btn-wrap">
             <el-button disabled class="affirm medium">加入</el-button>
@@ -61,7 +52,7 @@
                     <span class="fs14">分组描述： </span>
                     {{customGroupInfo.describe}}</p>
                 </div>
-                <ob-list-empty top="6%" text="请选组分组" size="small" v-else></ob-list-empty>
+                <ob-list-empty top="6%" text="您暂未创建分组。" size="small" v-else></ob-list-empty>
               </div>
             </div>
             <div class="cmm-table dashed-border">
@@ -85,6 +76,7 @@
                 style="width:100%"
                 @selection-change="handleSelectionChange"
                 empty-text="您尚未添加社群。"
+                v-if="customGroupInfo.guid"
               >
                 <el-table-column
                   align="center"
@@ -98,12 +90,13 @@
                 >
                 </el-table-column>
               </el-table>
+              <ob-list-empty top="6%" text="您暂未创建分组。" size="small" v-else></ob-list-empty>
             </div>
           </el-scrollbar>
         </div>
       </div>
-    </template>
     <ob-dialog-form
+      ref="customForm"
       @remote-submit="remoteSubmit"
       multiple
       :disabled-keys="disabledKeys"
@@ -116,7 +109,6 @@
 
 <script>
   import {customType} from '@/utils'
-
   export default {
     name: "custom",
     data() {
@@ -129,14 +121,12 @@
         },
         currentKey: '',
         customGroupInfo: {
-          guid: "6867A6C096844AD4982F19323B6C9574",
-          name: '余杭分店',
+          guid: "",
+          name: "",
           type: 1,
-          description: '餐饮人流统计'
+          description: ''
         },
         customMemberList: [
-          {guid: '6867A6C096844AD4982F19323B6C9574'},
-          {guid: '6AA8D1B3CAC9412AA6E0487438B7DD38'}
         ],
         customGroupList: [],
         selectList: [],
@@ -238,6 +228,7 @@
             this.currentKey = res.data[0].guid;
             this.setData(res.data[0]);
           }
+          console.log()
         })
       },
       // 获取自定义分组成员列表

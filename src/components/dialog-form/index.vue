@@ -243,31 +243,21 @@
         }
 
       },
-      getDeviceType(key){
-        if(key && key.length>=12){
-          this.$http("/device/type",{deviceKey:key}).then(res=>{
-            console.log(res);
-            this.dialogForm.type = res.data.deviceType
-          })
-        }else {
-          console.log('请填写合法的设备序列号')
-        }
-
-      },
       closeDialog(){
         if(this.$refs.dialogForm){
           this.$refs.dialogForm.resetFields()
         }
+      },
+      setCheckedNodes(key){
+        this.$nextTick(()=>{
+          this.$refs.customGroup.setCheckedNodes(key||[])
+        })
       }
     },
     created(){
       // this.getDisabledKeys = this.disabledKeys
     },
     beforeDestroy(){
-
-      // if(this.$refs.dialogForm){
-      //   this.$refs.dialogForm.resetFields();
-      // }
     },
     computed:{
       customStyle:function(){

@@ -394,6 +394,10 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   fetch('/loginCheck', false).then(res => {
+    console.log(to);
+    if(to.name){
+
+    }
     next()
   }).catch(err => {
     if (err.code === 'ERR-110') {

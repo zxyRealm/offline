@@ -44,19 +44,24 @@
     &.form-item-button{
       margin: 20px 0 0 0;
     }
+    .el-input__inner {
+      &[readonly] {
+        background: $default!important;
+      }
+    }
     &[readonly] {
       .el-input {
         background: $default !important;
         .el-input__inner {
           &[readonly] {
-            background: $default;
+            background: $default!important;
           }
         }
       }
       .el-textarea__inner{
         background: $default!important;
         &[readonly]{
-          background: $default;
+          background: $default!important;
         }
       }
     }

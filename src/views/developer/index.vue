@@ -20,7 +20,7 @@
                  :readonly="!editable"
                  v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
-            <el-input type="text" :readonly="!userInfoForm.phone"  placeholder="请输入手机号" v-model="userInfoForm.phone"></el-input>
+            <el-input type="text" :readonly="!!userInfoForm.phone"  placeholder="请输入手机号" v-model="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称："  prop="company">
             <el-input type="text" :readonly="!!userInfoForm.company" placeholder="请输入公司名称" v-model="userInfoForm.company"></el-input>
@@ -111,11 +111,11 @@ import axios from 'axios';
       initData(){
           for(let item in this.userInfoForm){
             if((this.userInfo[item]||item==='contacts')&&item!=='pca'){
-              if(item==='contacts'){
-                this.$set(this.userInfoForm,'contacts',this.userInfo.name);
-              }else {
+              // if(item==='contacts'){
+              //   this.$set(this.userInfoForm,'contacts',this.userInfo.name);
+              // }else {
                 this.$set(this.userInfoForm,item,this.userInfo[item])
-              }
+              // }
             }
           }
           this.userInfoForm.pca = this.userInfo.provinceAreaID?this.userInfo.provinceAreaID +','+this.userInfo.cityAreaID +','+this.userInfo.districtAreaID:'';

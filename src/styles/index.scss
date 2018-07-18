@@ -558,6 +558,7 @@ button, input {
 .data-list-wrap {
   margin: 0 20px;
   height:calc(100% - 84px);
+  overflow: hidden;
   >.el-scrollbar{
     height: 100%;
   }

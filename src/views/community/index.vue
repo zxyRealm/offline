@@ -33,12 +33,12 @@
             <div class="cmm-top dashed-border">
               <h2 class="cmm-sub-title">
                 <span>社群信息</span>
-                <p class="handle fr fs14" v-if="!isSon">
+                <p class="handle fr fs14" v-if="!isSon && communityInfo.guid">
                   <a href="javascript:void (0)" class="danger mr-10" @click="disbandGroup">解散</a>
                   <router-link :to="'/community/edit/'+communityInfo.guid">编辑</router-link>
                 </p>
               </h2>
-              <div class="cm-info-wrap">
+              <div class="cm-info-wrap" v-show="communityInfo.guid">
                 <div class="info-detail">
                   <p v-if="isSon">
                     <span class="fs14">社群昵称：</span>
@@ -88,10 +88,11 @@
                   </div>
                 </div>
               </div>
+              <ob-list-empty text="请选取社群" size="small" top="8%" v-if="!communityInfo.guid" ></ob-list-empty>
             </div>
             <div class="cmm-table dashed-border">
               <h2 class="cmm-sub-title">设备列表</h2>
-              <ob-list-empty top="10%" v-if="!deviceList.length" size="small" text="没有可查看设备。">
+              <ob-list-empty top="8%" v-if="!deviceList.length" size="small" text="没有可查看设备。">
               </ob-list-empty>
               <el-table
                 border
@@ -194,7 +195,8 @@
         this.$http("/group/list", '', false).then(res => {
           this.groupList = res.data;
           this.notHave = false;
-          if(!(key&&res.data[0])){
+          if(key&&res.data[0]){
+            console.log(key,res.data[0]);
             return
           }
           this.$nextTick(() => {
@@ -239,6 +241,7 @@
           res.data ? res.data.groupPid = val.groupPid : '';
           res.data.groupPid ? this.originName = JSON.parse(JSON.stringify(res.data.groupNickName)) : '';
           this.communityInfo = res.data || {};
+
           if (res.data) {
             this.$createQRCode(res.data.code, 'qr-code')
           }

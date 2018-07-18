@@ -14,7 +14,7 @@
       :menu-array="menu2"></uu-sub-tab>
     <ob-list-empty
       v-if="!equipmentList.length"
-      :text="isSearch?'查询不到该设备。':'您还没有设备，点击【添加】进行添加设备。'">
+      :text="isSearch?'查询不到该设备。':'您还没有设备，点击【创建】进行添加设备。'">
     </ob-list-empty>
     <div class="data-list-wrap" v-else>
       <el-scrollbar>
