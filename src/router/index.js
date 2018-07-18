@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import store from '../store'
-
+import { fetch } from '@/utils/request'
 const board = () => import('@/views/board');
 
 const Layout = () => import('@/views/layout/Layout.vue');
@@ -179,7 +179,8 @@ export const constantRouterMap = [
         path: 'mine',
         name: 'equipment',
         meta: {
-          title: "自有设备-设备管理-线下浏览器服务平台"
+          title: "自有设备-设备管理-线下浏览器服务平台",
+          auth: true
         },
         component: Equipment
       },
@@ -187,7 +188,8 @@ export const constantRouterMap = [
         path: 'children',
         name: 'equipmentChildren',
         meta: {
-          title: "子社群设备-设备管理-线下浏览器服务平台"
+          title: "子社群设备-设备管理-线下浏览器服务平台",
+          auth: true
         },
         component: EquipmentChildren
       },
@@ -195,7 +197,8 @@ export const constantRouterMap = [
         path: 'more/:key([0-9A-Z\-_]{12})',
         name: 'equipmentMore',
         meta: {
-          title: "分析终端用途-设备管理-线下浏览器服务平台"
+          title: "分析终端用途-设备管理-线下浏览器服务平台",
+          auth: true
         },
         component: EquipmentMore
       },
@@ -203,7 +206,8 @@ export const constantRouterMap = [
         path: 'search/children/:key',
         name: 'searchChildren',
         meta: {
-          title: "子社群设备搜索-设备管理-线下浏览器服务平台"
+          title: "子社群设备搜索-设备管理-线下浏览器服务平台",
+          auth: true
         },
         component: EquipmentChildren
       },
@@ -372,15 +376,23 @@ export const constantRouterMap = [
 ];
 
 const router = new Router({
+  mode:'history',
   scrollBehavior: () => ({y: 0}),
   routes: constantRouterMap
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.auth) {
+  fetch('/loginCheck',false).then(res=>{
     next()
-  } else {
-    next();
-  }
+  }).catch(err=>{
+    if(err.code==='ERR-110'){
+
+      fetch('/getUserLoginUrl',false).then(res=>{
+        window.open('//'+res.data+'?redirect_url='+window.location.href,'_blank');
+      }).catch(err=>{
+
+      });
+    }
+  });
 });
 export default router

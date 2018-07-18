@@ -58,7 +58,9 @@ export function fetch(url,params,isTip='数据加载中...') {
         return resolve(res);
       }
       if (res.status === 200) {
-        if(res.data.result){
+        if(res.data.code==='ERR-110'){
+          reject(res.data)
+        }else if(res.data.result){
           resolve(res.data)
         }else {
           if(isTip){

@@ -49,8 +49,8 @@
              trigger="hover">
               <div v-if="data.parentList" class="clearfix">
                 <div class="parent-item clearfix" v-for="item in data.parentList">
-                  <uu-icon type="data"></uu-icon>
-                  <uu-icon type="handle"></uu-icon>
+                  <uu-icon  type="data"></uu-icon>
+                  <uu-icon v-show="isHandle(item.rule)" type="handle"></uu-icon>
                   <div class="name">{{item.name}}</div>
                   <uu-icon type="quit" @click.native="()=>leaveCommunity('quit',data,item)"></uu-icon>
                 </div>
@@ -226,6 +226,9 @@
       },
       selectChange(index) {
         this.TreeList = this.GroupList[index][this.defaultProps.children]
+      },
+      isHandle(val){
+        return (val || "").split(',').length===2
       },
       getGroupList(gid) {
         gid = (gid || '');
