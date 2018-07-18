@@ -198,13 +198,14 @@
       //每一小时刷新一次 这里的考虑不让他重新初始化 = 控制台
       timing() {
         let me = this;
+        me.showGenderData();
+        this.cleanTimer();
+        this.timer = window.setTimeout(this.timing, 3600000);//3600000
+      },
+      cleanTimer() {
         if (this.timer) {
-          window.clearInterval(this.timer);
-          this.timer = null;
+          window.clearTimeout(this.timer);
         };
-        this.timer = window.setInterval(() => {
-          me.showGenderData();
-        }, 3600000);//3600000
       },
       //显示客流量 = 控制台
       showGenderData() {
@@ -331,11 +332,12 @@
       }
     },
     beforeDestroy() {
-      if(this.timer) {
-        window.clearInterval(this.timer);
-      }
+     this.cleanTimer();
+    },
+    beforeRouteLeave(to, from, next) {
+      this.cleanTimer();
+      next();
     }
-
   }
 </script>
 

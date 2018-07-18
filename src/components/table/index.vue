@@ -11,7 +11,6 @@
     <el-table
       :data="tableData"
       border
-      :height="tableHeight"
       :highlight-current-row="false"
       class="table-content">
       <el-table-column
@@ -56,8 +55,8 @@
           total: 0,         //总条数
           currentPage: 1    //当前第几页
         },
-        tableData: [],
-        tableHeight: 0
+        tableData: []
+
       }
     },
     methods: {
@@ -104,13 +103,12 @@
           let table = document.getElementsByClassName("table-content")[0];
           if (!table) return;
           let tableEle = 0;
-          if (document.body.clientHeight <= 720) {
-            tableEle = 88;
+          if (document.body.clientHeight < 720) {
+            tableEle = 206;
           } else {
-            tableEle = document.body.clientHeight - 638;
+            tableEle = document.body.clientHeight - 640;
           }
-          //table.style.height = tableEle + "px";
-          this.tableHeight = tableEle + "px";
+          table.style.height = tableEle + "px";
         })
       }
     },
@@ -124,7 +122,7 @@
 <style rel="stylesheet/scss" lang="scss">
   .table-wrap {
     width: 100%;
-    //min-height: 100px;
+    min-height: 300px;
     .table-search {
       height: 48px;
       line-height: 48px;
@@ -152,8 +150,7 @@
     }
     .table-content {
       width: 100%;
-     // min-height: 200px;
-      min-height: 80px;
+      min-height: 200px;
       table {
         border-collapse: inherit;
       }

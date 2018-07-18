@@ -45,9 +45,8 @@ export default {
         },
         setTime() {
             let me = this;
-            this.showTime = window.setInterval(() => {
-                me.time();
-            },6000);  //默认是一分钟60000
+            me.time();
+            this.showTime = window.setTimeout(this.setTime,10000);  //默认是一分钟60000
         }
     },
     created() {
@@ -58,35 +57,35 @@ export default {
     },
     watch: {
         dd(val,oldVal) {
-
             this.$refs.dd.classList.add("animation-lwh-show");
-            setTimeout(() => {
+            let timer = window.setTimeout(() => {
                  if(!this.$refs.dd) return;
-                this.$refs.dd.classList.remove("animation-lwh-show");
+                 this.$refs.dd.classList.remove("animation-lwh-show");
+                 window.clearTimeout(timer);
             },6000);
         },
         d(val,oldVal) {
-
             this.$refs.d.classList.add("animation-lwh-show");
-            setTimeout(() => {
+            let timer = window.setTimeout(() => {
                 if(!this.$refs.d) return;
                 this.$refs.d.classList.remove("animation-lwh-show");
+                window.clearTimeout(timer);
             },6000);
         },
         tt(val,oldVal) {
-
-            this.$refs.tt.classList.add("animation-lwh-show");
-            setTimeout(() => {
+          this.$refs.tt.classList.add("animation-lwh-show");
+          let timer = window.setTimeout(() => {
                  if(!this.$refs.tt) return;
-                this.$refs.tt.classList.remove("animation-lwh-show");
+                 this.$refs.tt.classList.remove("animation-lwh-show");
+                 window.clearTimeout(timer);
             },6000);
         },
         t(val,oldVal) {
-
-            this.$refs.t.classList.add("animation-lwh-show");
-            setTimeout(() => {
-                 if(!this.$refs.t) return;
+          this.$refs.t.classList.add("animation-lwh-show");
+          let timer = window.setTimeout(() => {
+                if(!this.$refs.t) return;
                 this.$refs.t.classList.remove("animation-lwh-show");
+                window.clearTimeout(timer);
             },6000);
         }
     },
@@ -94,7 +93,7 @@ export default {
 
     },
     beforeRouteLeave() {
-        if(!!this.showTime) window.clearInterval(this.showTime);
+        if(this.showTime) window.clearTimeout(this.showTime);
     }
 }
 </script>
