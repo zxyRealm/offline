@@ -1,9 +1,10 @@
 <template>
   <div class="notify-wrap">
-    <uu-sub-tab :menu-array="menu" :show-button="!equipmentEmpty" :sub-btn="btnOption" @handle-btn="addCallbackInfo"></uu-sub-tab>
+    <uu-sub-tab :menu-array="menu" :show-button="!equipmentEmpty" :sub-btn="btnOption"
+                @handle-btn="addCallbackInfo"></uu-sub-tab>
     <no-callback-info v-if="equipmentEmpty"></no-callback-info>
     <div class="data-list-wrap" v-else>
-      <template v-if="notifyList && notifyList.length">
+      <el-scrollbar v-if="notifyList && notifyList.length">
         <ob-list v-for="(item,$index) in notifyList" :key="$index">
           <ob-list-item type="type" :data="item" prop="type" label="通知类型"></ob-list-item>
           <ob-list-item :data="item" prop="intro,tokenURL" label="通知描述,回调地址"></ob-list-item>
@@ -14,12 +15,11 @@
               参数介绍
             </router-link>
             <router-link style="margin: 0 36px" :to="'/developer/notify/'+item.noticeGuid">详情</router-link>
-            <el-button icon="el-icon-delete"  @click="delNotifyInfo(item.noticeGuid)" circle></el-button>
+            <el-button icon="el-icon-delete" @click="delNotifyInfo(item.noticeGuid)" circle></el-button>
           </ob-list-item>
         </ob-list>
-      </template>
-      <ob-list-empty v-else text="暂无通知信息。" ></ob-list-empty>
-
+      </el-scrollbar>
+      <ob-list-empty v-else text="暂无通知信息。"></ob-list-empty>
     </div>
   </div>
 
@@ -32,8 +32,8 @@
     },
     data() {
       return {
-        paste:'',
-        update:'升级',
+        paste: '',
+        update: '升级',
         equipmentEmpty: false,
         btnOption: {
           text: '创建'
@@ -42,18 +42,30 @@
           {title: '消息通知', index: '/developer/notify'},
           {title: '开放API', index: '/developer/api'}
         ],
-        notifyList: [],
+        notifyList: [
+          // {
+          //   createTime: "2018-07-18 10:45:33",
+          //   intro: "测试通知",
+          //   lastEditTime: null,
+          //   merchantGuid: "12345678901",
+          //   noticeGuid: "EBAC92648D3047119A069FE9AA909E30",
+          //   scene: null,
+          //   state: 1,
+          //   tokenURL: "http://192.168.20.227:8083/test/result",
+          //   type: "1"
+          // }
+        ],
         pagination: {}
       }
     },
     methods: {
-      equipmentExit(){
-        this.$http("/device/merchant/exist",false).then(res=>{
+      equipmentExit() {
+        this.$http("/device/merchant/exist", false).then(res => {
           this.equipmentEmpty = !res.data;
-          if(res.data){
+          if (res.data) {
             this.getNotifyList()
           }
-        }).catch(error=>{
+        }).catch(error => {
           this.equipmentEmpty = true
         })
       },
@@ -86,19 +98,19 @@
           }
         })
       },
-      addCallbackInfo(){
-        if(!this.equipmentEmpty){
+      addCallbackInfo() {
+        if (!this.equipmentEmpty) {
           this.$router.push('/developer/notify/add-info')
-        }else {
+        } else {
           this.$affirm({
-            confirm:'前往【添加设备】',
-            cancel:'返回',
-            text:'您还没有设备，无法创建数据回调。'
-          },(action,instance,done)=>{
-            if(action==='confirm'){
+            confirm: '前往【添加设备】',
+            cancel: '返回',
+            text: '您还没有设备，无法创建数据回调。'
+          }, (action, instance, done) => {
+            if (action === 'confirm') {
               done();
               this.$router.push("/equipment/mine");
-            }else {
+            } else {
               done()
             }
           })

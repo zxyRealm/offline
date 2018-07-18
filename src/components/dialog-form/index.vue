@@ -45,8 +45,8 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item class="tac">
-          <img v-if="dialogForm.type===1" src="./image/all_in_one_icon.png" alt="分析终端">
-          <img v-if="dialogForm.type===(2||3)" src="./image/analysis_terminal_icon.png" alt="一体机">
+          <img v-if="dialogForm.type===1" src="./image/analysis_terminal_icon.png" alt="分析终端">
+          <img v-if="dialogForm.type===(2||3)" src="./image/all_in_one_icon.png" alt="一体机">
         </el-form-item>
       </template>
       <template v-if="type==='community'">

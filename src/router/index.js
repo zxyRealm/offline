@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import store from '../store'
-import { fetch } from '@/utils/request'
+import {fetch} from '@/utils/request'
+import {MessageBox} from "element-ui"
+
 const board = () => import('@/views/board');
 
 const Layout = () => import('@/views/layout/Layout.vue');
@@ -54,7 +56,7 @@ export const constantRouterMap = [
     children: [
       {
         path: '',
-        name:  'index-lwh',
+        name: 'index-lwh',
         meta: {
           title: "首页展示"
         },
@@ -62,7 +64,7 @@ export const constantRouterMap = [
       },
       {
         path: '/index/notify/:notifyState',
-        name:  'index-home',
+        name: 'index-home',
         meta: {
           title: "首页展示-消息通知"
         },
@@ -81,7 +83,7 @@ export const constantRouterMap = [
     children: [
       {
         path: '/',
-        name:  'console-lwh',
+        name: 'console-lwh',
         meta: {
           title: "控制台入库"
         },
@@ -89,7 +91,7 @@ export const constantRouterMap = [
       },
       {
         path: '/test',
-        name:  'test-demo',
+        name: 'test-demo',
         meta: {
           title: "示例"
         },
@@ -165,7 +167,7 @@ export const constantRouterMap = [
       }
     ]
   },
-  {path:'/equipment',redirect:'/equipment/mine'},
+  {path: '/equipment', redirect: '/equipment/mine'},
   {
     path: "/equipment",
     component: Layout,
@@ -364,32 +366,42 @@ export const constantRouterMap = [
       },
       {
         path: 'param/explain',
-        name:'paramExplain',
-        meta:{
-          auth:true,
-          title:'参数说明-开发者中心-线下浏览器服务平台'
+        name: 'paramExplain',
+        meta: {
+          auth: true,
+          title: '参数说明-开发者中心-线下浏览器服务平台'
         },
-        component:paramExplain
+        component: paramExplain
       }
     ]
   }
 ];
 
 const router = new Router({
-  mode:'history',
+  mode: 'history',
   scrollBehavior: () => ({y: 0}),
   routes: constantRouterMap
 });
 
 router.beforeEach((to, from, next) => {
-  fetch('/loginCheck',false).then(res=>{
+  // next()
+  fetch('/loginCheck', false).then(res => {
     next()
-  }).catch(err=>{
-    if(err.code==='ERR-110'){
-
-      fetch('/getUserLoginUrl',false).then(res=>{
-        window.open('//'+res.data+'?redirect_url='+window.location.href,'_blank');
-      }).catch(err=>{
+  }).catch(err => {
+    if (err.code === 'ERR-110') {
+      fetch('/getUserLoginUrl', false).then(res => {
+        let url = encodeURI(encodeURI(window.location.href));
+        let html = `
+              <p>您的登录已过期，请重新登录！</p>
+            `;
+        MessageBox.confirm(html, '登录确认', {
+          center: true,
+          dangerouslyUseHTMLString: true,
+          showCancelButton: false
+        }).then(()=>{
+          window.location.href = `//${res.data}#?redirectURL=${url}`
+        });
+      }).catch(err => {
 
       });
     }

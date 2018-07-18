@@ -199,6 +199,9 @@
           if(this.data.offline!==undefined){
             this.$tip("刷新成功")
           }
+          if(value.groupGuid){
+            this.devicePermission(value)
+          }
           this.$set(this.data,'offline',res.data);
           console.log(this.data)
         })
@@ -310,6 +313,10 @@
           text: '确定将设备【' + item.deviceName + '】删除？'
         }, (action, instance, done) => {
           if (action === 'confirm') {
+            this.$http("/merchant/device/delete",{deviceKey:item.deviceKey}).then(res=>{
+              this.$tip("删除成功");
+              this.$delete(item)
+            });
             done();
           } else {
             done()
@@ -332,6 +339,12 @@
           }
         });
 
+      },
+      // 获取设备操作权限
+      devicePermission(val){
+        this.$http("/merchant/device/operationPermission",{guid:val.groupGuid}).then(res=>{
+          res.data?this.$set(val,'deviceState',-1):''
+        })
       },
       showPopover(){
         this.$set(this.data,'popover',true);
@@ -422,6 +435,9 @@
         font-size: 16px;
         &[disabled]{
           color: $disable;
+          >i{
+            color: #515055;
+          }
         }
       }
     }
