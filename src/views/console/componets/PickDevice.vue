@@ -102,8 +102,11 @@
         }).catch(error => {
           console.info(error);
         });
+      },
+      //重置radio
+      resetRadio() {
+        this.radio = -1;
       }
-
     },
     beforeDestroy() {
 
