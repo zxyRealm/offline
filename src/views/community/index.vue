@@ -194,6 +194,9 @@
         this.$http("/group/list", '', false).then(res => {
           this.groupList = res.data;
           this.notHave = false;
+          if(!(key&&res.data[0])){
+            return
+          }
           this.$nextTick(() => {
             this.$refs.groupNav.setCurrentKey((key || res.data[0]).groupGuid);
           });

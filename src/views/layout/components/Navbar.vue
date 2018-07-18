@@ -23,7 +23,7 @@
           <div class="avatar-wrap" >
             <div class="avatar" :style="{backgroundImage:'url('+avatarUrl+')'}"></div>
           </div>
-          <span>{{userInfo.phone}}</span>
+          <span>{{userInfo.phone?userInfo.phone:userInfo.email}}</span>
         </router-link>
         <a href="javascript:void (0);" class="exit" @click="$exit()">
           <uu-icon type="exit"></uu-icon>

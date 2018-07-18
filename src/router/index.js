@@ -380,29 +380,33 @@ export const constantRouterMap = [
 const router = new Router({
   mode: 'history',
   scrollBehavior: () => ({y: 0}),
-  routes: constantRouterMap
+  routes: constantRouterMap,
+  // 取消掉对query参数 encodeURLComponent编码处理
+  stringifyQuery: query => {
+    let str = '';
+    for (let item in query) {
+      str += `${item}=${query[item]}&`
+    }
+    let fullStr = str.replace(/&$/, '');
+    return fullStr ? '?' + fullStr : ''
+  }
 });
 
 router.beforeEach((to, from, next) => {
-  // next()
   fetch('/loginCheck', false).then(res => {
     next()
   }).catch(err => {
     if (err.code === 'ERR-110') {
-      fetch('/getUserLoginUrl', false).then(res => {
-        let url = encodeURI(encodeURI(window.location.href));
-        let html = `
+      console.log(err);
+      let html = `
               <p>您的登录已过期，请重新登录！</p>
             `;
-        MessageBox.confirm(html, '登录确认', {
-          center: true,
-          dangerouslyUseHTMLString: true,
-          showCancelButton: false
-        }).then(()=>{
-          window.location.href = `//${res.data}#?redirectURL=${url}`
-        });
-      }).catch(err => {
-
+      MessageBox.confirm(html, '登录确认', {
+        center: true,
+        dangerouslyUseHTMLString: true,
+        showCancelButton: false
+      }).then(() => {
+        window.location.href = `${err.data}?redirectURL=${window.location.href}`
       });
     }
   });

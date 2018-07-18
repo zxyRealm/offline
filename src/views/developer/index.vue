@@ -1,6 +1,6 @@
 <template>
   <div class="developer-center clearfix">
-    <uu-sub-tab back :menu-array="menu" :sub-link="subLink"></uu-sub-tab>
+    <uu-sub-tab back :menu-array="[{title: '个人中心'}]" :sub-link="subLink"></uu-sub-tab>
     <div class="user-info-wrap">
       <div class="avatar-wrap">
         <el-upload
@@ -19,11 +19,11 @@
                  :rules="editable?rules:{}"
                  :readonly="!editable"
                  v-model="userInfoForm">
-          <el-form-item label="手机号：" readonly prop="phone">
-            <el-input type="text" readonly placeholder="请输入手机号" v-model="userInfoForm.phone"></el-input>
+          <el-form-item label="手机号：" prop="phone">
+            <el-input type="text" :readonly="!userInfoForm.phone"  placeholder="请输入手机号" v-model="userInfoForm.phone"></el-input>
           </el-form-item>
-          <el-form-item label="公司名称：" readonly prop="company">
-            <el-input type="text" readonly placeholder="请输入公司名称" v-model="userInfoForm.company"></el-input>
+          <el-form-item label="公司名称："  prop="company">
+            <el-input type="text" :readonly="!!userInfoForm.company" placeholder="请输入公司名称" v-model="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
             <area-select :readonly="!editable" v-model="userInfoForm.pca"></area-select>
@@ -57,9 +57,6 @@ import axios from 'axios';
     data() {
       return {
         error:'',
-        menu: [
-          {title: '个人中心'}
-        ],
         rules: {
           company: [
             {required: true, message: '请输入公司名称', trigger: 'blur'}
@@ -112,14 +109,16 @@ import axios from 'axios';
         })
       },
       initData(){
-        if(this.userInfo.merchantGuid){
           for(let item in this.userInfoForm){
-            if(this.userInfo[item]&&item!=='pca'){
-              this.$set(this.userInfoForm,item,this.userInfo[item])
+            if((this.userInfo[item]||item==='contacts')&&item!=='pca'){
+              if(item==='contacts'){
+                this.$set(this.userInfoForm,'contacts',this.userInfo.name);
+              }else {
+                this.$set(this.userInfoForm,item,this.userInfo[item])
+              }
             }
           }
-          this.userInfoForm.pca = this.userInfo.provinceAreaID +','+this.userInfo.cityAreaID +','+this.userInfo.districtAreaID;
-        }
+          this.userInfoForm.pca = this.userInfo.provinceAreaID?this.userInfo.provinceAreaID +','+this.userInfo.cityAreaID +','+this.userInfo.districtAreaID:'';
       },
       avatarUpload(data){
        this.$http("/auth/oss/image/signature").then(res=>{
@@ -174,10 +173,9 @@ import axios from 'axios';
         this.editable = false
       }
       this.initData();
-
     },
     mounted(){
-      this.avatarUrl = '/static/img/logo.png'
+      this.avatarUrl = '/static/img/logo.png';
     },
     watch: {
       "$route": function (val) {
@@ -191,7 +189,7 @@ import axios from 'axios';
           this.editable = false
         }
       },
-      "userInfo":function (val) {
+      "userInfo"(val) {
         this.initData()
       }
     },

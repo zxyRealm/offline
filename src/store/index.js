@@ -34,8 +34,11 @@ const actions = {
 const mutations = {
   SET_USER_INFO:(state,data)=>{
     for(let item in data){
-      Vue.set(state.userInfo,item,data[item])
+      if(data[item]!==null){
+        Vue.set(state.userInfo,item,data[item])
+      }
     }
+    console.log(state.userInfo)
   },
   SET_FILTER_PARAMS: (state,data) => {
     state.filterParams = data || {};
