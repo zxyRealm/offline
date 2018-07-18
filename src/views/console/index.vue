@@ -21,7 +21,7 @@
       </div>
       <div class="content-top-right">
         <ul class="bottom-ul">
-          <li ref='pie' class="corner-bg">
+          <li ref='pie' class="corner-bg pie-background">
             <pie ref="echartsPie" :pieParams="pieParams"></pie>
           </li>
           <li ref='bar' class="corner-bg">
@@ -138,7 +138,7 @@
 
           let tablePie = document.getElementById("echarts-pie");
           tablePie.style.width = me.$refs.pie.offsetWidth + "px";
-          tablePie.style.height = me.$refs.pie.offsetHeight + "px";
+//          tablePie.style.height = me.$refs.pie.offsetHeight + "px";
           me.$refs.echartsPie.resizeEcharts();
 
           let tableLine = document.getElementById("echarts-line");
@@ -328,7 +328,7 @@
           top: 0px;
           right: 0px;
           background: url('/static/img/pie-background.png') no-repeat center center;
-          background-size: 32%;
+          background-size: 168px;
           animation-name: piepie;
           animation-duration: 10000ms;
           animation-iteration-count: infinite; /*无限循环*/
@@ -346,11 +346,11 @@
         .bottom-ul {
           height: 100%;
           li:nth-child(1) {
-            height: 44%;
+            //height: 44%;
           }
           li:nth-child(2) {
             margin-top: 10px;
-            height: calc(56% - 10px);
+            height:  calc(100% - 240px);//calc(56% - 10px);
             box-sizing: border-box;
           }
         }
