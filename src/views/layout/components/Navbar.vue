@@ -31,13 +31,13 @@
       </div>
     </div>
     <!-- 选择社群 -->
-     <ob-dialog-form
+     <ob-dialog-form ref="dialog"
       @remote-submit="remoteSubmit"
       :type="dialogOptions.type"
       :title="dialogOptions.title"
       :visible.sync="dialogFormVisible">
     </ob-dialog-form>
-    <pick-device
+    <pick-device ref="device"
      @pick-device="pickDeviceHandler"
       :type="'group'"
       :title="'选择设备'"
@@ -96,7 +96,14 @@ export default {
       },
       groupConsoleId(val,oldVal) {
 
-      }
+      },
+    //当消失的时候不记录上次选择
+     dialogFormVisible(val,oldVal) {
+        if(!val) this.$refs.dialog.setCheckedNodes();
+     },
+    dialogDeviceVisible(val,oldVal) {
+      if(!val) this.$refs.device.resetRadio();
+    }
   },
   methods: {
     //只要点击了通知消息就为false
@@ -106,14 +113,19 @@ export default {
     //设备返回数据
     pickDeviceHandler(val) {
       if(val == "上一步") {
-          this.dialogFormVisible = true;
+
+        this.dialogFormVisible = true;
+       // this.$refs.dialog.setCheckedNodes();
       }else {
         this.selectName = val.deviceName;
       }
     },
     //点击选择社群
     getGropId(){
+
       this.dialogFormVisible = true;
+     // this.$refs.dialog.setCheckedNodes();
+
     },
     //获取当前设备
     remoteSubmit(data) {
@@ -155,6 +167,7 @@ export default {
       eventObject().$on('change', msg => { //eventObject接收事件
         this.dialogFormVisible = true;
       });
+      console.info(this.$refs.dialog,"11111setCheckedNodes");
   },
   beforeRouteLeave (to, from, next) {
     //路由跳转后，不需要保存控制台群的信息
