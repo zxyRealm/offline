@@ -38,7 +38,7 @@ const homePage = () => import('@/views/index/index');
 const homeNotify = () => import('@/views/index/notify/index');
 
 const Demo = () => import('@/components/HelloWorld');
-
+const error404 = ()=> import('@/views/errorPage/404');
 Vue.use(Router);
 export const constantRouterMap = [
   {
@@ -374,6 +374,10 @@ export const constantRouterMap = [
         component: paramExplain
       }
     ]
+  },
+  {
+    path:"*",
+    component:error404
   }
 ];
 
