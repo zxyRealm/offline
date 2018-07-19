@@ -59,12 +59,15 @@
         this.dialogVisible = val;
       },
       //监听群id
-      groupId(val) {
-        this.getDeviceData();
+      groupId(val,oldVal) {
+        //this.getDeviceData();
       },
       //子组件通知父组件
       dialogVisible: function (val) {
         this.$emit('update:visible', val)
+        if(val) {
+          this.getDeviceData();
+        }
       },
     },
     methods: {

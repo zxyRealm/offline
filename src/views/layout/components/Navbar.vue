@@ -138,7 +138,7 @@ export default {
       this.groupSelectId = data[0].groupGuid;
       this.$store.commit("SET_GROUP_SELECT_ID",this.groupSelectId);
       this.dialogFormVisible = false;
-      setTimeout(() => {  //解决闪现
+      window.setTimeout(() => {  //解决闪现
         this.dialogDeviceVisible = true;
       }, 300);
     },
