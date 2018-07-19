@@ -1,5 +1,5 @@
 <template>
-    <div id="echarts-pie" class="pie-wrap pie-console" >   <!--:class="pieParams.type!=3 ? 'pie-wing':''"-->
+    <div id="echarts-pie" class="pie-wrap pie-console" :class="pieParams.type==3 ? '':'pie-wrap-circle'">   <!--:class="pieParams.type!=3 ? 'pie-wing':''"-->
 
     </div>
 </template>
@@ -87,7 +87,7 @@
               ]
             },
              roseSeries: {
-                radius : [50, 88],  //這裡实现的方式不同会有差别显示的大小
+                radius : [44, 76],
                 center : ['50%', '50%'],
                 //roseType: 'area'
                roseType : 'radius'
@@ -136,7 +136,7 @@
            emptyArray.push(data[i]['data'][0]);
         }
         if(this.$store.state.filterParams.type == 3) {
-            this.option.series[0].data = data[0].data;
+            this.option.series[0].data =data[0].data;
             this.option.legend['data'] = this.$legendArray(data[0].data);
         }else {
             this.option.series[0].data = this.$apply(this.option.series[0].data,emptyArray);
@@ -164,7 +164,7 @@
         if(type == 3) {
             this.option.legend['data'] = ['0-10','11-20','21-30','31-40','41-50','50以上'];
             this.transfromArray( this.option.legend['data']);
-            //this.option.series[0] = this.$apply(this.option.series[0],this.roseSeries);
+            this.option.series[0] = this.$apply(this.option.series[0],this.roseSeries);
         }
         if(type == 4) {
             this.option.legend['data'] = ['多次','单次'];
@@ -233,7 +233,7 @@
      background-color: rgba(64,58,73,0.30);
      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
   }
-  .pie-wrap::before {
+  .pie-wrap-circle::before {
     content: '';
     width: 100%;
     height: 100%;

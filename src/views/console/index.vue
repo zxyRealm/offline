@@ -318,7 +318,30 @@
         width: calc(40% - 10px);
         box-sizing: border-box;
         .pie-wrap {
-          background-size: 0%;
+          //background-size: 0%;
+        }
+        .pie-wrap::before {
+          content: '';
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0px;
+          right: 0px;
+          background: url('/static/img/pie-background.png') no-repeat center center;
+          background-size: 168px;
+          animation-name: piepie;
+          animation-duration: 10000ms;
+          animation-iteration-count: infinite; /*无限循环*/
+          animation-timing-function: linear;
+          @keyframes piepie {
+            0% {
+              transform: rotate(0deg);
+            }
+
+            100% {
+              transform: rotate(360deg);
+            }
+          }
         }
         .bottom-ul {
           height: 100%;
