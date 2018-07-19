@@ -167,6 +167,9 @@
 </script>
 <style  rel="stylesheet/scss" lang="scss">
      .demo-ruleForm {
+       input {
+         cursor: pointer;
+       }
        .el-form-item__label {
         color: #ffffff;
       }
@@ -229,6 +232,7 @@
             border: none;
             -webkit-background-size: 100% 100%;
             background-size: 100% 100%;
+           cursor: pointer;
       }
       .icon-select {
           display: inline-block;
@@ -255,6 +259,7 @@
         border-radius: 3px;
         font-size: 12px;
         margin-right: 6px;
+        cursor: pointer;
       }
       .actived {
         color: #2187DF;

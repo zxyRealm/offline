@@ -42,6 +42,7 @@
         line.style.width = me.$refs.line.offsetWidth + "px";
         me.$refs.echartsLine.resizeEcharts();
         //表格高度
+        //if(this.$refs.table)this.$refs.table.initSize();
       }
     },
     mounted() {

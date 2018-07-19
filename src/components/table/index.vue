@@ -45,6 +45,7 @@
 </template>
 
 <script>
+  import Vue from 'vue'
   export default {
     name: "table-index",
     data() {
@@ -89,9 +90,9 @@
         };
         this.$http('/chart/flowCount', filterParams).then(res => {
           if (res.result == 1) {
-            this.tableData = res.data.content;
-            this.pageParams.total = res.data.pagination.total;
-            this.$set(this.pageParams, "total", res.data.pagination.total)
+            this.tableData = res.data.content || [];
+            this.pageParams.total = res.data.pagination.total || 0;
+            this.$set(this.pageParams, "total", res.data.pagination.total || 0)
           }
         }).catch(error => {
           console.info(error);
@@ -102,7 +103,7 @@
         this.$nextTick(() => {
           let tableHead = document.getElementsByClassName("table-content")[0];
           let table = document.getElementsByTagName("table")[0];
-          if (!table) return;
+          if (!table || !tableHead) return;
           let tableEle = 0;
           if (document.body.clientHeight < 720) {
             tableEle = 206;
@@ -112,12 +113,19 @@
           tableHead.style.minHeight = tableEle + "px";
           table.style.height = tableEle + "px";
         })
+      },
+      removeResize() {
+        window.removeEventListener("resize", this.initSize);
       }
     },
     mounted() {
       window.addEventListener('resize', this.initSize);
       this.initSize();
-    }
+    },
+    beforeRouteLeave(to, from, next) {
+      this.removeResize();
+      next();
+    },
   }
 </script>
 

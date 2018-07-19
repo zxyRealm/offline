@@ -1,5 +1,5 @@
 <template>
-    <div id="echarts-pie" class="pie-wrap pie-console" :class="pieParams.type!=3 ? 'pie-wing':''">
+    <div id="echarts-pie" class="pie-wrap pie-console" >   <!--:class="pieParams.type!=3 ? 'pie-wing':''"-->
 
     </div>
 </template>
@@ -49,6 +49,7 @@
                           //fontSize: 16,
                           formatter: '{per|{d}%}',//'{d}%',  //显示百分比
                           position: 'outside',
+                          //padding: [30, 0, 0, 0],
                           rich: {
                             per: {
                               //lineHeight: 22,
@@ -86,7 +87,7 @@
               ]
             },
              roseSeries: {
-                radius : [50, 76],
+                radius : [50, 88],  //這裡实现的方式不同会有差别显示的大小
                 center : ['50%', '50%'],
                 //roseType: 'area'
                roseType : 'radius'
@@ -157,13 +158,18 @@
       //默认数据展示 = 可视化
       defaultShow() {
         let type = this.$store.state.filterParams.type;
+        if(type == 2) {
+          //this.option.series[0].label['normal']['padding'] =  [40, 0, 0, 0];
+        }
         if(type == 3) {
             this.option.legend['data'] = ['0-10','11-20','21-30','31-40','41-50','50以上'];
             this.transfromArray( this.option.legend['data']);
+            //this.option.series[0] = this.$apply(this.option.series[0],this.roseSeries);
         }
         if(type == 4) {
             this.option.legend['data'] = ['多次','单次'];
             this.transfromArray( this.option.legend['data']);
+           // this.option.series[0].label['normal']['padding'] =  [0, 0, 40, 0];
         }
       },
         //请求数据

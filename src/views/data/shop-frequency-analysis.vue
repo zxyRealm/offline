@@ -62,12 +62,6 @@
       mounted() {
         let me = this;
         window.addEventListener("resize",me.resizeFunction);
-        //给饼图设置层级
-        setTimeout(() => {
-            let canvas = document.getElementsByTagName('canvas')[0];
-            if(!!canvas) canvas.style.zIndex = 99999;
-        },600);
-
       },
       beforeRouteLeave(to, from , next) {
           let me = this;
