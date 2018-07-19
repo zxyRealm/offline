@@ -72,7 +72,7 @@
               <el-table
                 border
                 ref="customTable"
-                height="230px"
+                height="250px"
                 :data="customMemberList"
                 style="width:100%"
                 @selection-change="handleSelectionChange"

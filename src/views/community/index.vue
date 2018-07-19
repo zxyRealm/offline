@@ -96,6 +96,7 @@
               <ob-list-empty top="8%" v-if="!deviceList.length" size="small" text="没有可查看设备。">
               </ob-list-empty>
               <el-table
+                height="250px"
                 border
                 :data="deviceList"
                 style="width:100%"

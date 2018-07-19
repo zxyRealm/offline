@@ -179,6 +179,10 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
 .navbar {
+  position: fixed;
+  top:0;
+  left:0;
+  width: 100%;
   height: 70px;
   background-color: #232027;
   box-shadow: 3px 3px 5px 0 rgba(1,7,17,0.60);
@@ -186,12 +190,14 @@ export default {
   border: none!important;
   color: #fff;
   .logo-wrap{
-    float:left;
+    float: left;
     width: 220px;
-    height: 100%;
+    height: 70px;
     text-align: center;
     box-shadow: 3px 3px 5px 0 rgba(1,7,17,0.60);
     color:#fff;
+    z-index:999;
+    background: #232027;
     >img{
       height: 30px;
     }
