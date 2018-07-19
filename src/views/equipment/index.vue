@@ -51,7 +51,7 @@
               <p><span>应用场景：</span>{{item.deviceScene}}</p>
             </template>
           </ob-list-item>
-          <ob-list-item width="20%" :data="item" type="handle" :showDelete="true">
+          <ob-list-item @refresh="getMineEquipment" width="20%" :data="item" type="handle" :showDelete="true">
           </ob-list-item>
         </ob-list>
       </template>
@@ -119,7 +119,9 @@
           {title: '子社群设备', index: '/equipment/children'}
         ],
         groupList: [],
-        equipmentList: [],
+        equipmentList: [
+          {deviceKey:'K_EP_OSFN234ISl'}
+        ],
         pagination: {},
         equipmentForm: {
           deviceName: '',
@@ -133,9 +135,6 @@
       }
     },
     methods: {
-      handleCurrentChange(page){
-
-      },
       search(val) {
         this.$router.push(`/equipment/search/mine/${val}`);
       },
@@ -195,7 +194,7 @@
       },
       // 获取自有设备
       getMineEquipment(page) {
-        page = page || 1;
+        page = page || this.pagination.page || 1;
         this.$http('/device/list', {index: page, searchText: this.$route.params.key || ''}).then(res => {
           this.equipmentList = res.data.content;
           this.pagination = res.data.pagination;

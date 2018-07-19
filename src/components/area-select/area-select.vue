@@ -190,7 +190,7 @@
         cursor: text;
       }
       &[placeholder]{
-        color:#d0d0d0;
+        color:rgba(255,255,255,.4);
       }
 
     }

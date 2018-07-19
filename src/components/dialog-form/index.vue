@@ -160,7 +160,7 @@
           callback(new Error('请输入别名'))
         }else {
           if(value.length>=2&& value.length<=18){
-            this.$http("/merchant/device/alias/exist",{deviceName:value}).then(res=>{
+            this.$http("/merchant/device/alias/exist",{deviceName:value},false).then(res=>{
               callback()
             }).catch(err=>{
               callback(new Error(err.msg||'验证失败'))
@@ -203,7 +203,10 @@
         this.dialogFormVisible = val
       },
       dialogFormVisible: function (val) {
-        this.$emit('update:visible', val)
+        this.$emit('update:visible', val);
+        if(val&&this.$refs.customGroup){
+          this.$refs.customGroup.getGroupList()
+        }
       },
       value:{
         handler:function(val){

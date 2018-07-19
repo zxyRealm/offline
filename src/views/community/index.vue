@@ -18,6 +18,7 @@
           <uu-sub-tab
             size="small"
             search
+            placeholder="快速查找社群"
             @remote-search="remoteSearch"
             :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
           <ob-group-nav
@@ -192,18 +193,17 @@
       // 获取社群列表
       getGroupList(keywords, key) {
         keywords = (keywords || '').trim();
-        this.$http("/group/list", '', false).then(res => {
+        this.$http("/group/list",false).then(res => {
           this.groupList = res.data;
           this.notHave = false;
-          if(key&&res.data[0]){
-            console.log(key,res.data[0]);
+          if(!key&&!res.data[0]){
             return
           }
           this.$nextTick(() => {
             this.$refs.groupNav.setCurrentKey((key || res.data[0]).groupGuid);
           });
           this.getCommunityInfo(key || res.data[0]);
-          this.getDeviceList(res.data[0]);
+          this.getDeviceList(key||res.data[0]);
         })
       },
       // 获取设备列表
