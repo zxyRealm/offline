@@ -203,7 +203,6 @@
             this.devicePermission(value)
           }
           this.$set(this.data,'offline',res.data);
-          console.log(this.data)
         })
       },
       handleDevice(type) {
@@ -315,7 +314,7 @@
           if (action === 'confirm') {
             this.$http("/merchant/device/delete",{deviceKey:item.deviceKey}).then(res=>{
               this.$tip("删除成功");
-              this.$delete(item)
+              this.$emit("refresh");
             });
             done();
           } else {

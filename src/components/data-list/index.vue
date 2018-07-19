@@ -1,28 +1,8 @@
 <template>
-  <table class="ob-list-item" width="100%">
+  <table class="ob-list-item" width="100%" v-if="visible">
     <tr class="ob-list-item-tr">
-     <slot :scope="data"></slot>
+     <slot @remove="remove" :scope="data"></slot>
     </tr>
-
-    <!--<div class="ob-list-sub-item">-->
-      <!--<p class="ellipsis">通知类型：{{item.type}}</p>-->
-    <!--</div>-->
-    <!--<div class="item-type">-->
-      <!--<p class="ellipsis">通知类型：{{data.type}}</p>-->
-    <!--</div>-->
-    <!--<div class="item-detail">-->
-      <!--<p class="des ellipsis">通知描述：{{data.intro}}</p>-->
-      <!--<p class="url ellipsis">回调地址：{{data.tokenURL}}</p>-->
-    <!--</div>-->
-    <!--<div class="item-time vam">-->
-      <!--<p class="create">创建时间：<span>{{data.createTime}}</span></p>-->
-      <!--<p class="edit">上次编辑：<span>{{data.lastEditTime}}</span></p>-->
-    <!--</div>-->
-    <!--<div class="item-handel vam">-->
-      <!--<router-link to="/developer/notify/edit-info">参数介绍</router-link>-->
-      <!--<router-link class="edit-link" to="/developer/notify/edit-info">编辑</router-link>-->
-      <!--<uu-icon type="delete" @handle="delNotifyInfo(data.noticeGuid)"></uu-icon>-->
-    <!--</div>-->
   </table>
 </template>
 
@@ -41,11 +21,14 @@
       },
       data(){
           return{
-
+            visible:true
           }
       },
       methods:{
-
+        remove(){
+          console.log('remove');
+          this.visible = false
+        }
       }
     }
 </script>

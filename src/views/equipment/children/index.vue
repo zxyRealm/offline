@@ -43,7 +43,7 @@
                 <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
                 <p><span>应用场景：</span>{{item.deviceScene}}</p>
               </ob-list-item>
-              <ob-list-item :data="item" type="handle">
+              <ob-list-item @refresh="getEquipmentList" :data="item" type="handle">
               </ob-list-item>
 
             </ob-list>
@@ -79,7 +79,7 @@
     },
     methods: {
       getEquipmentList(page) {
-        page = page || 1;
+        page = page || this.pagination.page || 1;
         !this.initState ? this.initState = true : '';
         if(this.isSearch){
           this.$http("/device/guid/list", {guid: this.currentGroup, index: page}).then(res => {

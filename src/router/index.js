@@ -196,7 +196,7 @@ export const constantRouterMap = [
         component: EquipmentChildren
       },
       {
-        path: 'more/:key([0-9A-Z\-_]{12})',
+        path: 'more/:key([0-9A-Z\-_]{16})',
         name: 'equipmentMore',
         meta: {
           title: "分析终端用途-设备管理-线下浏览器服务平台",
@@ -394,14 +394,13 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   fetch('/loginCheck', false).then(res => {
-    console.log(to);
-    if(to.name){
-
+    if(to.name==='personCenter'&&(!store.state.userInfo.company||!store.state.userInfo.phone)){
+      next('/person/edit')
+    }else{
+      next()
     }
-    next()
   }).catch(err => {
     if (err.code === 'ERR-110') {
-      console.log(err);
       let html = `
               <p>您的登录已过期，请重新登录！</p>
             `;

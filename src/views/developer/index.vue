@@ -111,11 +111,7 @@ import axios from 'axios';
       initData(){
           for(let item in this.userInfoForm){
             if((this.userInfo[item]||item==='contacts')&&item!=='pca'){
-              // if(item==='contacts'){
-              //   this.$set(this.userInfoForm,'contacts',this.userInfo.name);
-              // }else {
-                this.$set(this.userInfoForm,item,this.userInfo[item])
-              // }
+              this.$set(this.userInfoForm,item,this.userInfo[item])
             }
           }
           this.userInfoForm.pca = this.userInfo.provinceAreaID?this.userInfo.provinceAreaID +','+this.userInfo.cityAreaID +','+this.userInfo.districtAreaID:'';
@@ -243,9 +239,7 @@ import axios from 'axios';
       /*border: 1px solid chocolate;*/
       background: url("/static/img/textarea_border2_bg.png") no-repeat;
       background-size: 100% 100%;
-      .user-info-form {
 
-      }
     }
   }
 </style>
@@ -268,5 +262,13 @@ import axios from 'axios';
       }
     }
   }
-
+  .form-filed{
+    .user-info-form {
+      .el-input__inner {
+        &[readonly] {
+          background: transparent!important;
+        }
+      }
+    }
+  }
 </style>

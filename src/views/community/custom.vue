@@ -9,6 +9,7 @@
           <uu-sub-tab
             size="small"
             search
+            placeholder="快速查找分组"
             @remote-search="remoteSearch"
             :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
 
@@ -52,7 +53,7 @@
                     <span class="fs14">分组描述： </span>
                     {{customGroupInfo.describe}}</p>
                 </div>
-                <ob-list-empty top="6%" text="您暂未创建分组。" size="small" v-else></ob-list-empty>
+                <ob-list-empty top="6%" text="您尚未创建分组。" size="small" v-else></ob-list-empty>
               </div>
             </div>
             <div class="cmm-table dashed-border">
@@ -90,7 +91,7 @@
                 >
                 </el-table-column>
               </el-table>
-              <ob-list-empty top="6%" text="您暂未创建分组。" size="small" v-else></ob-list-empty>
+              <ob-list-empty top="6%" text="您尚未添加社群。" size="small" v-else></ob-list-empty>
             </div>
           </el-scrollbar>
         </div>

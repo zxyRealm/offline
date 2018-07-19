@@ -19,7 +19,7 @@
       v-if="search && !showButton"
       clearable
       class="nav-search fr"
-      placeholder="请输入关键字"
+      :placeholder="placeholder"
       @keyup.native.enter="searchMethod"
       v-model="searchValue">
       <i slot="prefix" @click="searchMethod" class="el-input__icon el-icon-search"></i>
@@ -63,6 +63,10 @@
         default: () => ({
           text: ''
         })
+      },
+      placeholder:{
+        type:String,
+        default:'请输入关键字'
       }
     },
     data(){
