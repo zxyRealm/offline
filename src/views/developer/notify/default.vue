@@ -1,6 +1,5 @@
 <template>
   <div class="notify-default-wrap">
-    <!--<uu-sub-tab :menu-array="menu"></uu-sub-tab>-->
     <p class="tac fs12">若您已拥有设备，并配置了回调信息，则在消费者到店时便可接收到相关数据信息。</p>
     <div class="step-wrap vam">
       <div class="step-items">
@@ -35,18 +34,28 @@
     },
     methods:{
       createCallback(){
-        this.$affirm({
-          confirm:'前往【添加设备】',
-          cancel:'返回',
-          text:'您还没有设备，无法创建数据回调。'
-        },(action,instance,done)=>{
-          if(action==='confirm'){
-            done();
-            this.$router.push("/equipment/mine");
+        this.$http("/device/merchant/exist", false).then(res => {
+          console.log(res);
+          if (res.data) {
+            this.$router.push("/developer/notify/add-info");
           }else {
-            done()
+            this.$affirm({
+              confirm:'前往【设备列表】',
+              cancel:'返回',
+              text:'您还没有绑定设备，无法创建数据回调。'
+            },(action,instance,done)=>{
+              if(action==='confirm'){
+                done();
+                this.$router.push("/equipment/mine");
+              }else {
+                done()
+              }
+            })
           }
+        }).catch(error => {
+
         })
+
       }
     }
   }

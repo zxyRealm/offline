@@ -143,7 +143,7 @@ export default {
       }, 300);
     },
     toggleSideBar() {
-      this.$store.dispatch('toggleSideBar');
+      this.$store.dispatch("DISPATCH_SIDEBAR");
       eventObject().$emit('resize-echarts-console', '');  //触发控制台图表重置
       eventObject().$emit('resize-echarts-data', '');  //触发数据可视化图表重置
     },

@@ -5,7 +5,6 @@
 </template>
 
 <script>
-  import Cookies from 'js-cookie'
 export default {
   name: 'App',
   created(){
@@ -18,7 +17,6 @@ export default {
     }
   },
   mounted(){
-    Cookies.set('unique_id',Math.random(),{domain:'uniubi.com'})
   },
   computed:{
     userInfo:function(){

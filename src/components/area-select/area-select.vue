@@ -14,7 +14,7 @@
           v-model="search"
           placeholder="拼音支持首字母输入">
           <span slot="suffix" class="el-input__icon" @click="address=''">重置</span>
-          <span slot="suffix" class="el-input__icon el-icon-close" @click="search=''"></span>
+          <span slot="suffix" class="el-input__icon el-icon-close" @click="visible=false"></span>
         </el-input>
         <el-input
           type="text" readonly

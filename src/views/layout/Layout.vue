@@ -12,7 +12,6 @@
 
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
-import ResizeMixin from './mixin/ResizeHandler'
 import { mapState } from 'vuex'
 export default {
   name: 'layout',
@@ -21,7 +20,6 @@ export default {
     Sidebar,
     AppMain
   },
-  mixins: [ResizeMixin],
   created(){
    this.$store.dispatch('GET_USER_INFO');
   },

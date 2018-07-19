@@ -32,7 +32,21 @@
 
 <script>
 import { mapGetters } from 'vuex'
+const { body } = document;
+const WIDTH = 1024;
+const RATIO = 3;
 export default {
+  mounted(){
+    // window.addEventListener('resize', ()=> {
+    //   this.isMobile()?this.$store.dispatch("DISPATCH_SIDEBAR",true):this.$store.dispatch("DISPATCH_SIDEBAR",false)
+    // })
+  },
+  methods:{
+      isMobile(){
+        let rect = body.getBoundingClientRect();
+        return rect.width - RATIO < WIDTH
+      }
+  },
   computed: {
     ...mapGetters([
       "sidebar",

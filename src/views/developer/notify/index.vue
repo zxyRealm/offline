@@ -1,10 +1,9 @@
 <template>
   <div class="notify-wrap">
-    <uu-sub-tab :menu-array="menu" :show-button="!equipmentEmpty" :sub-btn="btnOption"
+    <uu-sub-tab :menu-array="menu" :show-button="!!notifyList.length" :sub-btn="btnOption"
                 @handle-btn="addCallbackInfo"></uu-sub-tab>
-    <no-callback-info v-if="equipmentEmpty"></no-callback-info>
-    <div class="data-list-wrap" v-else>
-      <el-scrollbar v-if="notifyList && notifyList.length">
+    <div class="data-list-wrap" v-if="notifyList && notifyList.length">
+      <el-scrollbar>
         <ob-list v-for="(item,$index) in notifyList" :key="$index">
           <ob-list-item type="type" :data="item" prop="type" label="通知类型"></ob-list-item>
           <ob-list-item :data="item" prop="intro,tokenURL" label="通知描述,回调地址"></ob-list-item>
@@ -19,10 +18,9 @@
           </ob-list-item>
         </ob-list>
       </el-scrollbar>
-      <ob-list-empty v-else text="暂无通知信息。"></ob-list-empty>
     </div>
+    <no-callback-info v-else></no-callback-info>
   </div>
-
 </template>
 <script>
   export default {
@@ -59,16 +57,6 @@
       }
     },
     methods: {
-      equipmentExit() {
-        this.$http("/device/merchant/exist", false).then(res => {
-          this.equipmentEmpty = !res.data;
-          if (res.data) {
-            this.getNotifyList()
-          }
-        }).catch(error => {
-          this.equipmentEmpty = true
-        })
-      },
       delNotifyInfo(id) {
         this.$affirm({
           confirm: '删除',
@@ -119,7 +107,7 @@
       }
     },
     created() {
-      this.equipmentExit();
+      this.getNotifyList();
     },
     filters: {
       type: function (value) {
