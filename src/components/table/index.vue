@@ -45,6 +45,7 @@
 </template>
 
 <script>
+  import Vue from 'vue'
   export default {
     name: "table-index",
     data() {
@@ -89,9 +90,9 @@
         };
         this.$http('/chart/flowCount', filterParams).then(res => {
           if (res.result == 1) {
-            this.tableData = res.data.content;
-            this.pageParams.total = res.data.pagination.total;
-            this.$set(this.pageParams, "total", res.data.pagination.total)
+            this.tableData = res.data.content || [];
+            this.pageParams.total = res.data.pagination.total || 0;
+            this.$set(this.pageParams, "total", res.data.pagination.total || 0)
           }
         }).catch(error => {
           console.info(error);

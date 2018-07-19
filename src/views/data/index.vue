@@ -40,6 +40,31 @@
   .main-container {
     overflow: hidden;
   }
+  /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+  .main-container::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    background-color: transparent;
+  }
+  /*定义滚动条轨道 内阴影+圆角*/
+  .main-container::-webkit-scrollbar-track {
+    width: 0px;
+    height: 0px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 0px;
+    background-color: #232027;//#9E9E9E;
+    border-radius: 10px;
+  }
+  /*定义滑块 内阴影+圆角*/
+  .main-container::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: 	#555;
+  }
+  /* 防止動效影響路由 */
+  .flow-diagram  {
+    overflow: hidden;
+  }
   .data-wrap {
     height: 100%;
     background: #0F0E11;
