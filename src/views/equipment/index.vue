@@ -194,7 +194,7 @@
       },
       // 获取自有设备
       getMineEquipment(page) {
-        page = page || this.pagination.page || 1;
+        page = page || this.pagination.index || 1;
         this.$http('/device/list', {index: page, searchText: this.$route.params.key || ''}).then(res => {
           this.equipmentList = res.data.content;
           this.pagination = res.data.pagination;
@@ -240,23 +240,14 @@
       // 绑定社群
       bindCommunity(value) {
         this.dialogFormVisible = false;
-        this.$affirm({
-          text: '【'+value.deviceName+'】只能授权给一个社群，请谨慎加入。<br>确定加入社群【'+value.groupNickName+'】？'
-        }, (action, instance, done) => {
-          if (action === 'confirm') {
-            done();
-            this.$load("设备绑定中...");
-            this.$http('/device/binding', {deviceKey: value.deviceKey,groupGuid:value.groupGuid}).then(res => {
-              this.$load().close();
-              this.$tip("绑定成功");
-              this.getMineEquipment(this.pagination.index);
+        this.$load("设备绑定中...");
+        this.$http('/device/binding', {deviceKey: value.deviceKey,groupGuid:value.groupGuid}).then(res => {
+          this.$load().close();
+          this.$tip("绑定成功");
+          this.getMineEquipment(this.pagination.index);
 
-            }).catch(()=>{
-              this.$load().close()
-            });
-          } else {
-            done()
-          }
+        }).catch(()=>{
+          this.$load().close()
         });
       }
     },

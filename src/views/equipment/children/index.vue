@@ -79,7 +79,7 @@
     },
     methods: {
       getEquipmentList(page) {
-        page = page || this.pagination.page || 1;
+        page = page || this.pagination.index || 1;
         !this.initState ? this.initState = true : '';
         if(this.isSearch){
           this.$http("/device/guid/list", {guid: this.currentGroup, index: page}).then(res => {

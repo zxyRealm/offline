@@ -10,7 +10,7 @@
           :http-request="avatarUpload"
           :before-upload="beforeAvatarUpload">
           <div v-if="avatarUrl" :style="{ backgroundImage:'url('+avatarUrl+')'}" class="avatar"></div>
-          <i  class="el-icon-plus avatar-uploader-icon" v-else></i>
+          <i class="el-icon-plus avatar-uploader-icon" v-else></i>
         </el-upload>
       </div>
       <div class="form-filed vam">
@@ -20,10 +20,12 @@
                  :readonly="!editable"
                  v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
-            <el-input type="text" :readonly="!!userInfoForm.phone"  placeholder="请输入手机号" v-model="userInfoForm.phone"></el-input>
+            <el-input type="text" :readonly="!!userInfo.phone" placeholder="请输入手机号"
+                      v-model="userInfoForm.phone"></el-input>
           </el-form-item>
-          <el-form-item label="公司名称："  prop="company">
-            <el-input type="text" :readonly="!!userInfoForm.company" placeholder="请输入公司名称" v-model="userInfoForm.company"></el-input>
+          <el-form-item label="公司名称：" prop="company">
+            <el-input type="text" :readonly="!!userInfo.company" placeholder="请输入公司名称"
+                      v-model="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
             <area-select :readonly="!editable" v-model="userInfoForm.pca"></area-select>
@@ -39,30 +41,44 @@
           </el-form-item>
         </uu-form>
       </div>
-      <el-button v-show="editable" class="affirm mc" @click="submitForm('userInfoForm')">{{userInfo.merchantGuid?'编辑':'保存'}}</el-button>
+      <el-button v-show="editable" class="affirm mc" @click="submitForm('userInfoForm')">
+        {{userInfo.merchantGuid?'编辑':'保存'}}
+      </el-button>
 
     </div>
   </div>
 </template>
 
 <script>
-import area from '@/components/area-select/area-select'
-import { mapState } from 'vuex'
-import axios from 'axios';
+  import area from '@/components/area-select/area-select'
+  import {mapState} from 'vuex'
+  import axios from 'axios';
+
   export default {
     components: {
       'area-select': area
     },
     name: "index",
     data() {
+      const validatePhone = (rule, value, callback) => {
+        if (!value) {
+          callback(new Error('请填写手机号'))
+        } else {
+          if (/^134[0-8]\d{7}$|^13[^4]\d{8}$|^14[5-9]\d{8}$|^15[^4]\d{8}$|^16[6]\d{8}$|^17[0-8]\d{8}$|^18[\d]{9}$|^19[8,9]\d{8}$/.test(value)) {
+            callback()
+          } else {
+            callback(new Error('请填写正确的手机号'))
+          }
+        }
+      };
       return {
-        error:'',
+        error: '',
         rules: {
           company: [
             {required: true, message: '请输入公司名称', trigger: 'blur'}
           ],
           phone: [
-            {required: true, message: '请输入手机号', trigger: 'blur'}
+            { validator: validatePhone, trigger: 'blur'}
           ],
           address: [
             {required: true, message: '请输入选取地址', trigger: 'blur'}
@@ -79,8 +95,8 @@ import axios from 'axios';
           contacts: '', //联系人
           phone: '',
           pca: '', //省市区id
-          address:'', //详细地址
-          company:''
+          address: '', //详细地址
+          company: ''
         },
         editable: false
       }
@@ -88,19 +104,19 @@ import axios from 'axios';
     methods: {
       // 编辑修改个人信息
       submitForm(formName) {
-        this.$refs[formName].submitForm((data)=>{
+        this.$refs[formName].submitForm((data) => {
           let pcaArr = data.pca.split(',').map(Number);
-          let type = this.userInfo.merchantGuid?'update':'create';
-          type==='update'?data.merchantGuid = this.userInfo.merchantGuid:'';
+          let type = this.userInfo.merchantGuid ? 'update' : 'create';
+          type === 'update' ? data.merchantGuid = this.userInfo.merchantGuid : '';
           data.provinceAreaID = pcaArr[0];
           data.cityAreaID = pcaArr[1];
           data.districtAreaID = pcaArr[2];
           delete  data.pca;
-          this.$http("/merchant/usercenter/"+type,data).then(res=>{
-            if(res.result){
-              if(type==='update'){
+          this.$http("/merchant/usercenter/" + type, data).then(res => {
+            if (res.result) {
+              if (type === 'update') {
                 this.$tip("编辑成功")
-              }else {
+              } else {
                 this.$tip('保存成功')
               }
               this.$store.dispatch('GET_USER_INFO')
@@ -108,55 +124,56 @@ import axios from 'axios';
           });
         })
       },
-      initData(){
-          for(let item in this.userInfoForm){
-            if((this.userInfo[item]||item==='contacts')&&item!=='pca'){
-              this.$set(this.userInfoForm,item,this.userInfo[item])
-            }
+      initData() {
+        for (let item in this.userInfoForm) {
+          if ((this.userInfo[item] || item === 'contacts') && item !== 'pca') {
+            this.$set(this.userInfoForm, item, this.userInfo[item])
           }
-          this.userInfoForm.pca = this.userInfo.provinceAreaID?this.userInfo.provinceAreaID +','+this.userInfo.cityAreaID +','+this.userInfo.districtAreaID:'';
+        }
+        this.userInfoForm.pca = this.userInfo.provinceAreaID ? this.userInfo.provinceAreaID + ',' + this.userInfo.cityAreaID + ',' + this.userInfo.districtAreaID : '';
       },
-      avatarUpload(data){
-       this.$http("/auth/oss/image/signature").then(res=>{
-          if(res.data){
+      avatarUpload(data) {
+        this.$http("/auth/oss/image/signature").then(res => {
+          if (res.data) {
             let formData = new FormData();
-            if(!this.userInfo.merchantGuid){
+            if (!this.userInfo.merchantGuid) {
               this.$tip("请先完善个人信息");
               return
             }
-            formData.append('key',`merchant/${this.userInfo.merchantGuid}/${data.file.name}`);
+            formData.append('key', `merchant/${this.userInfo.merchantGuid}/${data.file.name}`);
             formData.append('policy', res.data['policy']);
             formData.append('OSSAccessKeyId', res.data['accessid']);
             formData.append('success_action_status', '200');
             formData.append('signature', res.data['signature']);
             formData.append('file', data.file, data.file.name);
-            this.$http(res.data.host,formData).then(back=>{
-                if(!back.data){
-                  let avatarHref = res.data.host+'/merchant/'+this.userInfo.merchantGuid+'/'+data.file.name;
-                  this.$http("/merchant/usercenter/image",{faceImgURL:avatarHref}).then(res=>{
-                    this.$tip('头像上传成功');
-                    this.$store.state.userInfo.faceImgURL = avatarHref;
-                  });
-                }else {
-                  this.$tip("上传失败，请稍后重试",'error')
-                }
-            }).catch(error=>{
+            this.$http(res.data.host, formData).then(back => {
+              if (!back.data) {
+                let avatarHref = res.data.host + '/merchant/' + this.userInfo.merchantGuid + '/' + data.file.name;
+                this.$http("/merchant/usercenter/image", {faceImgURL: avatarHref}).then(res => {
+                  this.$tip('头像上传成功');
+                  this.$store.state.userInfo.faceImgURL = avatarHref;
+                });
+              } else {
+                this.$tip("上传失败，请稍后重试", 'error')
+              }
+            }).catch(error => {
               this.error = error;
             });
           }
-        }).catch(err=>{  console.log('--=error',err);
+        }).catch(err => {
+          console.log('--=error', err);
 
           this.$tip("服务器错误，请重新尝试")
         });
       },
-      beforeAvatarUpload(file){
-        const isJPG = file.type === 'image/jpeg'||'image/png';
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg' || 'image/png';
         const isLt2M = file.size / 1024 / 1024 < 2;
         if (!isJPG) {
-          this.$tip('上传头像图片只能是 JPG/PNG 格式!','error');
+          this.$tip('上传头像图片只能是 JPG/PNG 格式!', 'error');
         }
         if (!isLt2M) {
-          this.$tip('上传头像图片大小不能超过 2MB!','error');
+          this.$tip('上传头像图片大小不能超过 2MB!', 'error');
         }
         return isJPG && isLt2M;
       }
@@ -170,7 +187,7 @@ import axios from 'axios';
       }
       this.initData();
     },
-    mounted(){
+    mounted() {
       this.avatarUrl = '/static/img/logo.png';
     },
     watch: {
@@ -189,15 +206,15 @@ import axios from 'axios';
         this.initData()
       }
     },
-    computed:{
+    computed: {
       ...mapState([
         "userInfo"
       ]),
-      avatarUrl:{
-        get(val){
+      avatarUrl: {
+        get(val) {
           return this.userInfo.faceImgURL || '/static/img/logo.png'
         },
-        set(val){
+        set(val) {
           return this.userInfo.faceImgURL || ''
         }
       }
@@ -218,10 +235,10 @@ import axios from 'axios';
       padding: 3px;
       box-sizing: border-box;
       margin-bottom: 18px;
-      .avatar-uploader{
+      .avatar-uploader {
         height: 100%;
         width: 100%;
-        .el-upload{
+        .el-upload {
           width: 100%;
           height: 100%;
         }
@@ -244,29 +261,30 @@ import axios from 'axios';
   }
 </style>
 <style lang="scss">
-  .avatar-wrap{
-    .avatar-uploader{
-      .el-upload{
+  .avatar-wrap {
+    .avatar-uploader {
+      .el-upload {
         height: 100%;
-        width:100%;
+        width: 100%;
         box-sizing: border-box;
         padding: 2px;
-        .avatar{
+        .avatar {
           width: 100%;
           height: 100%;
           border-radius: 50%;
           background-position: center center;
           background-repeat: no-repeat;
-          background-size:contain;
+          background-size: contain;
         }
       }
     }
   }
-  .form-filed{
+
+  .form-filed {
     .user-info-form {
       .el-input__inner {
         &[readonly] {
-          background: transparent!important;
+          background: transparent !important;
         }
       }
     }

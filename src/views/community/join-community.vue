@@ -35,7 +35,7 @@
             <p>地区：{{communityInfo.fullAddress}}</p>
             <p>联系人：{{communityInfo.cantact}}</p>
             <p>联系电话：{{communityInfo.phone}}</p>
-            <p>索权范围：{{communityInfo.fullAddress | authority}}</p>
+            <p>索权范围：{{communityInfo.rule | authority}}</p>
           </div>
         </el-form-item>
         <el-form-item label-width="86px" v-if="step===2" >
@@ -80,7 +80,6 @@
           this.step = 1;
           callback(new Error("请填写社群邀请码"))
         }else {
-          console.log(value.length);
           if(value.length===10){
             this.$http("/group/code/info",{code:value},false).then(res=>{
               if(res.data){
@@ -127,10 +126,25 @@
     },
     methods:{
       submitForm(data){
-        this.$http('/group/join',data).then(res=>{
-          this.$tip('加入成功');
-          this.$router.push("/community/mine")
-        })
+        let join = ()=>{
+          this.$http('/group/join',data).then(res=>{
+            this.$tip('加入成功');
+            this.$router.push("/community/mine")
+          })
+        };
+
+        if(this.communityInfo.rule.split(",").length===2){
+          this.$http("/merchant/device/operationPermission",{guid:data.groupGuid}).then(res=>{
+            if(res.data){
+              join()
+            }else{
+              this.$tip(`您已将【设备操作权限】授权给其他社群,<br>无法加入【${this.communityInfo.name}】`,'waiting')
+            }
+          })
+        }else{
+          join()
+        }
+
       },
       // 获取自有社群
       getGroups(){
@@ -140,7 +154,20 @@
       },
       ensure(){
         this.joinForm.groupPid = this.communityInfo.guid;
-        this.step = 2;
+        if(this.communityInfo.rule.split(",").length===2){
+          this.$affirm({
+            text: '【设备操作权限】只能授权给一个社群，请谨慎加入。<br>确定加入社群【'+this.communityInfo.name+'】？'
+          },(action, instance, done) => {
+            if (action === 'confirm') {
+              done();
+              this.step = 2;
+            } else {
+              done()
+            }
+          });
+        }else{
+          this.step = 2;
+        }
       }
     },
 
