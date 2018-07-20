@@ -47,7 +47,6 @@ export function fetch(url,params,isTip='数据加载中...') {
       method: "POST",
       url: url,
       data: params,
-      timeout: 15000,
       responseType: 'json'
     }).then(res => {
       Store.state.loading = false;

@@ -112,7 +112,7 @@
           data.cityAreaID = pcaArr[1];
           data.districtAreaID = pcaArr[2];
           delete  data.pca;
-          this.$http("/merchant/usercenter/" + type, data).then(res => {
+          this.$http("/merchant/usercenter/update", data).then(res => {
             if (res.result) {
               if (type === 'update') {
                 this.$tip("编辑成功")

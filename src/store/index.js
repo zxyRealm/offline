@@ -18,7 +18,8 @@ const state = {
   },
   groupConsoleId:  '',  //控制台社群设备id
   groupSelectId: '',    //選擇群id
-  loading:true
+  loading:true,
+  showBar:true   //是否显示侧边栏
 };
 
 const actions = {

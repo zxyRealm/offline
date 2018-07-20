@@ -1,6 +1,6 @@
 <template>
   <div class="community-mine-wrap">
-    <template v-if="notHave">
+    <template v-if="!groupList.length">
       <uu-sub-tab
         show-button
         :sub-btn="{text:'创建'}"

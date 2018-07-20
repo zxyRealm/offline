@@ -6,11 +6,16 @@
     left:220px;
     width: calc(100% - 220px);
     height: calc(100% - 70px);
-    transition: left .28s;
+    transition: all .28s;
     padding: 20px;
     background: #0F0E11;
     overflow-y: auto;
     box-sizing: border-box;
+    &.no-bar{
+      left:0!important;
+      transition: none;
+      width: 100%!important;
+    }
   }
   // 侧边栏
   .sidebar-container {

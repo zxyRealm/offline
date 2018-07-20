@@ -9,10 +9,10 @@
     </router-link>
     <div class="right-menu vam tal">
       <div class="navbar-console" >
-        <hamburger class="hamburger-container vam" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
+        <hamburger class="hamburger-container vam" v-show="showBar" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
         <router-link to="/console">控制台</router-link>
       </div>
-      <div class="navbar-console-select" v-if="$route.name  == 'console-lwh'" @click="getGropId">
+      <div class="navbar-console-select" v-if="$route.name  === 'console-lwh'" @click="getGropId">
         <span>{{selectName}}</span>
       </div>
       <div class="right-menu-item vam">
@@ -87,6 +87,9 @@ export default {
       set(){
         return this.userInfo.faceImgURL || ''
       }
+    },
+    showBar(){
+      return this.$route.name  !== 'console-lwh'
     }
   },
   watch: {
