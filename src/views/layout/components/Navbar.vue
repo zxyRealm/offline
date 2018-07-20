@@ -1,4 +1,5 @@
 <template>
+  <div>
   <el-menu class="navbar" mode="horizontal">
     <router-link to="/index" class="logo-wrap vam">
       <img src="/static/img/logo.png" alt="">
@@ -30,21 +31,22 @@
         </a>
       </div>
     </div>
+  </el-menu>
     <!-- 选择社群 -->
-     <ob-dialog-form ref="dialog"
-      @remote-submit="remoteSubmit"
-      :type="dialogOptions.type"
-      :title="dialogOptions.title"
-      :visible.sync="dialogFormVisible">
+    <ob-dialog-form ref="dialog"
+        @remote-submit="remoteSubmit"
+        :type="dialogOptions.type"
+        :title="dialogOptions.title"
+        :visible.sync="dialogFormVisible">
     </ob-dialog-form>
     <pick-device ref="device"
-     @pick-device="pickDeviceHandler"
-      :type="'group'"
-      :title="'选择设备'"
-      :groupId="groupSelectId"
-      :visible.sync="dialogDeviceVisible">
+       @pick-device="pickDeviceHandler"
+       :type="'group'"
+       :title="'选择设备'"
+       :groupId="groupSelectId"
+       :visible.sync="dialogDeviceVisible">
     </pick-device>
-  </el-menu>
+  </div>
 </template>
 
 <script>
@@ -118,17 +120,13 @@ export default {
       if(val == "上一步") {
 
         this.dialogFormVisible = true;
-       // this.$refs.dialog.setCheckedNodes();
       }else {
         this.selectName = val.deviceName;
       }
     },
     //点击选择社群
     getGropId(){
-
       this.dialogFormVisible = true;
-     // this.$refs.dialog.setCheckedNodes();
-
     },
     //获取当前设备
     remoteSubmit(data) {
@@ -170,7 +168,6 @@ export default {
       eventObject().$on('change', msg => { //eventObject接收事件
         this.dialogFormVisible = true;
       });
-      console.info(this.$refs.dialog,"11111setCheckedNodes");
   },
   beforeRouteLeave (to, from, next) {
     //路由跳转后，不需要保存控制台群的信息
@@ -296,6 +293,7 @@ export default {
       line-height: 36px;
         a {
           color: #ffffff;
+          position: relative;
         }
         .router-link-active {
             color: #ffffff;
