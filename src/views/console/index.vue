@@ -86,8 +86,8 @@
         pieParams: {   //饼图
           type: 3,
           title: {text: '男女流量占比'},
-          seriesData: [{value: 0, name: '男士占比'}, {value: 0, name: '女士占比'}],
-          legendData: ['男士占比', '女士占比']
+          seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}],
+          //legendData: ['女', '男']
         },
         lineParams: { //线图
           title: {text: '客流量统计'}
@@ -151,8 +151,8 @@
       resolveDatad(data) {
         let obj = JSON.parse(data);
         //饼图 = 推送实时更新数据
-        this.$set(this.pieParams.seriesData[0], "value", obj.male);
-        this.$set(this.pieParams.seriesData[1], "value", obj.female);
+        this.$set(this.pieParams.seriesData[0], "value", obj.female);
+        this.$set(this.pieParams.seriesData[1], "value", obj.male);
         //饼图 = 数据更新
         if (!!this.$refs.echartsPie) {
           this.$refs.echartsPie.consoleEmit()

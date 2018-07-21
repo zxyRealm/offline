@@ -37,7 +37,7 @@
       }
     },
     created(){
-      console.log('data',this.data)
+      //console.log('data',this.data)
     },
     watch: {
       visible(val){
@@ -48,7 +48,7 @@
       },
       data:{
         handler(val){
-          console.log('new data',val)
+          //console.log('new data',val)
         },
         deep:true
       }
@@ -88,8 +88,18 @@
     text-align: center!important;
     .ob-dialog-info-main {
       .ob-dialog-info-content{
+        &::before {
+          content: '';
+          position: absolute;
+          background: url(/static/img/in_out_person_background.png) no-repeat center;
+          background-size: 100% 100%;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+        }
         position: relative;
-        background: rgba(16, 156, 231, 0.2);
+       // background: rgba(16, 156, 231, 0.2);
         background-repeat:no-repeat,no-repeat,no-repeat,no-repeat;
         background-position: left top,right top,right bottom,left bottom;
         background-image: url(/static/img/console-detail-border-icon-top.png),url(/static/img/console-detail-border-icon-right.png),url(/static/img/console-detail-border-icon-bottom.png),url(/static/img/console-detail-border-icon-left.png);

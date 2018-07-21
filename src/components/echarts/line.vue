@@ -53,11 +53,25 @@
             }
           },
           tooltip: {
+            show: true,
             trigger: 'axis',
+            formatter : function(params) {
+              let str = "";
+              for(let i=0,l=params.length; i<l; i++) {
+                str += params[i].seriesName + "：&nbsp;&nbsp;"+ params[i].value + "<br/>"
+              }
+              return str;
+            },
+            padding: [10,30],
+            textStyle: {
+              fontSize: 11,
+            },
             axisPointer: {
               type: 'cross',
               label: {
-                backgroundColor: '#6a7985'
+                backgroundColor: 'rgba(114,116,118,1)',//'#6a7985',
+                fontSize: 11,
+                //padding: [15, 17, 15, 17]
               }
             }
           },
