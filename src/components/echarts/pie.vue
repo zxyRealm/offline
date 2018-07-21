@@ -10,6 +10,18 @@
       data(){
           return {
             type: 0,  //判断是否显示外阴影
+            //到店频次图例字体样式
+            shopLegend: [
+              {
+                name: '多次',
+                textStyle: {
+                  color: 'rgba(109,46,187,1)'
+                },
+              },
+              { name:'单次',
+                textStyle: {
+                  color: 'rgba(15,158,233,1)'
+                }}],
             option: {
               color:['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'], //['#2187DF','#6D2EBB']
               title: {
@@ -93,8 +105,8 @@
                         }
                       },
                       data:[
-                          {value:0, name:'男'},
-                          {value:0, name:'女'}
+                          {value:0, name:'女'},
+                          {value:0, name:'男'}
                       ]
                  }
               ]
@@ -123,7 +135,7 @@
        },
        //定义颜色
       changeColor() {
-        this.option.color = this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+        this.option.color = this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#6D2EBB','#2187DF','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
       },
       //改变标题
       changeTitle() {
@@ -150,10 +162,14 @@
         }
         if(this.$store.state.filterParams.type == 3) {
             this.option.series[0].data =data[0].data;
-            this.option.legend['data'] = this.$legendArray(data[0].data);
-        }else {
+            this.option.legend['data'] = this.addColor(['0-10岁','11-20岁','21-30岁','31-40岁','41-50岁','50岁以上']);
+            //this.option.legend['data'] = this.$legendArray(data[0].data);
+        }else if(this.$store.state.filterParams.type == 2) {
             this.option.series[0].data = this.$apply(this.option.series[0].data,emptyArray);
-            this.option.legend['data'] = this.$legendArray(data);
+            //this.option.legend['data'] = this.$legendArray(data);
+        }else if(this.$store.state.filterParams.type == 4) {
+          this.option.series[0].data = this.$apply(this.option.series[0].data,emptyArray);
+          this.option.legend['data'] = this.shopLegend;
         }
       },
       //转化数组 = 没有设备时候的id
@@ -170,7 +186,7 @@
       },
         //给legend字体颜色
         addColor(data) {
-          let legendColor =  ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'];
+          let legendColor =  ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD']; //type = 3
           let a = [];
           for(let i=0,l=data.length; i<l; i++) {
             let obj = {
@@ -191,26 +207,14 @@
           //this.option.series[0].label['normal']['padding'] =  [40, 0, 0, 0];
         }
         if(type == 3) {
-            this.option.legend['data'] = ['0-10','11-20','21-30','31-40','41-50','50以上'];
-            this.transfromArray( ['0-10','11-20','21-30','31-40','41-50','50以上']);
+            this.option.legend['data'] = ['0-10岁','11-20岁','21-30岁','31-40岁','41-50岁','50岁以上'];
+            this.transfromArray( ['0-10岁','11-20岁','21-30岁','31-40岁','41-50岁','50岁以上']);
             this.option.series[0] = this.$apply(this.option.series[0],this.roseSeries);
             this.option.legend['data'] = this.addColor(this.option.legend['data']);
         }
         if(type == 4) {
-            this.option.legend['data'] = [
-              {
-                name: '多次',
-                textStyle: {
-                  color: '#6D2EBB'
-                }
-              }
-              ,{
-              name: '单次',
-              textStyle: {
-                color: '#2187DF'
-              }
-            }];
-            this.transfromArray(['单次','多次']);
+            this.option.legend['data'] = this.shopLegend;
+            this.transfromArray(['多次','单次']);
         }
       },
         //请求数据

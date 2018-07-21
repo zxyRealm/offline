@@ -327,7 +327,7 @@
           position: absolute;
           top: 0px;
           right: 0px;
-          background: url('/static/img/pie-background.png') no-repeat center center;
+          background: url('/static/img/pie-background3.png') no-repeat center center;
           background-size: 168px;
           animation-name: piepie;
           animation-duration: 10000ms;
