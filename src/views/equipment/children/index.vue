@@ -16,9 +16,8 @@
         <ob-group-nav @current-change="currentChange"></ob-group-nav>
       </div>
       <div class="ec-container" :class="{'dashed-border':isSearch}">
-        <el-scrollbar class="ob-scrollbar">
-          <ob-list-empty v-if="!initState||!equipmentList.length" :text="tipMsg"></ob-list-empty>
-          <template v-for="(item,$index) in equipmentList" v-else>
+        <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
+          <template v-for="(item,$index) in equipmentList" >
             <ob-list>
               <ob-list-item :data="item" type="state">
               </ob-list-item>
@@ -57,6 +56,7 @@
             :total="pagination.total">
           </el-pagination>
         </el-scrollbar>
+        <ob-list-empty v-if="!equipmentList.length" :text="tipMsg"></ob-list-empty>
       </div>
     </div>
   </div>
@@ -71,16 +71,15 @@
           {title: '自有设备', index: '/equipment/mine'},
           {title: '子社群设备', index: '/equipment/children'}
         ],
-        currentGroup: '',
-        equipmentList: [],
-        pagination: {},
-        initState: false
+        currentGroup: '',  //选中社群
+        equipmentList: [], //设备列表
+        pagination: {} //分页参数
       }
     },
     methods: {
+      // 获取社群列表
       getEquipmentList(page) {
         page = page || this.pagination.index || 1;
-        !this.initState ? this.initState = true : '';
         if(this.isSearch){
           this.$http("/device/guid/list", {guid: this.currentGroup, index: page}).then(res => {
             this.equipmentList = res.data.content;
@@ -93,6 +92,7 @@
           })
         }
       },
+      // 搜索社群设备
       search(value) {
         this.$router.push(`/equipment/search/children/${value}`);
       },
@@ -110,7 +110,7 @@
         return this.$route.name === 'equipmentChildren'
       },
       tipMsg:function () {
-        return !this.isSearch?'查询不到该设备。':!this.initState?'请先在左侧选择自有社群，以查看其下的子社群设备。':(!this.equipmentList.length?"该社群尚未绑定设备。":'')
+        return !this.isSearch?'查询不到该设备。':!this.currentGroup?'请先在左侧选择自有社群，以查看其下的子社群设备。':(!this.equipmentList.length?"该社群尚未绑定设备。":'')
       }
     },
     watch: {
