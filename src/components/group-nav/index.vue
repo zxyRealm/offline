@@ -38,25 +38,30 @@
         >
           {{data[defaultProps.label]}}
         </span>
-
         <span v-if="type!=='custom-community'" class="ellipsis">{{ data[defaultProps.label] }}</span>
-        <template v-if="!data.groupPid && type==='community'">
-           <uu-icon type="mine" v-if="type==='custom'" style="margin-left: 12px"></uu-icon>
+        <uu-icon type="mine" v-if="!data.groupPid && type==='community'||type==='custom'"
+                 style="margin:8px 0 8px 12px;float: left;"></uu-icon>
+        <template>
            <el-popover
              placement="right"
              class="popover-wrap"
              @show='()=>getParentList(data)'
              trigger="hover">
-              <div v-if="data.parentList" class="clearfix">
+              <div v-if="data.parentList&&data.parentList.length" class="clearfix">
                 <div class="parent-item clearfix" v-for="item in data.parentList">
-                  <uu-icon  type="data"></uu-icon>
-                  <uu-icon v-show="isHandle(item.rule)" type="handle"></uu-icon>
+                  <el-tooltip effect="dark" content="数据查看权限" placement="top">
+                   <uu-icon type="data"></uu-icon>
+                  </el-tooltip>
+                 <el-tooltip v-show="isHandle(item.rule)" effect="dark" content="设备操作权限" placement="top">
+                   <uu-icon type="handle"></uu-icon>
+                  </el-tooltip>
                   <div class="name">{{item.name}}</div>
                   <uu-icon type="quit" @click.native="()=>leaveCommunity('quit',data,item)"></uu-icon>
                 </div>
               </div>
               <div class="tac fs12" v-else>暂未加入社群</div>
-          <el-button v-if="node.level===1" type="text" class="popover fr" size="mini" slot="reference">上级</el-button>
+          <el-button v-if="node.level===1 && !data.groupPid && type==='community'" type="text" class="popover fr"
+                     size="mini" slot="reference">上级</el-button>
         </el-popover>
         </template>
         <i v-if="type==='community'&& node.level===2" class="el-icon-remove-outline danger fr"
@@ -111,9 +116,9 @@
         type: Array,
         default: () => []
       },
-      isDisabled:{
-        type:[Boolean],
-        default:false
+      isDisabled: {
+        type: [Boolean],
+        default: false
       },
       type: {
         type: [String],
@@ -227,8 +232,8 @@
       selectChange(index) {
         this.TreeList = this.GroupList[index][this.defaultProps.children]
       },
-      isHandle(val){
-        return (val || "").split(',').length===2
+      isHandle(val) {
+        return (val || "").split(',').length === 2
       },
       getGroupList(gid) {
         gid = (gid || '');
@@ -244,7 +249,7 @@
           this.$tip("社群id不存在");
         } else {
           if (!value.parentList) {
-            this.$http("/group/fatherGruop", {guid: value[this.nodeKey]},false).then(res => {
+            this.$http("/group/fatherGruop", {guid: value[this.nodeKey]}, false).then(res => {
               if (res.data) {
                 this.$set(value, 'parentList', res.data)
               }
@@ -360,7 +365,7 @@
       TreeList: {
         get() {
           // 设置默认不可选节点
-          if(this.isDisabled){
+          if (this.isDisabled) {
             let setKeys = new Set(this.disabledKeys);
             this.setCheckedKeys(this.disabledKeys);
             let setDisabled = (arr) => {
@@ -389,7 +394,7 @@
         }
       },
       originList: function () {
-        return this.$restoreArray(this.TreeList,this.defaultProps.children)
+        return this.$restoreArray(this.TreeList, this.defaultProps.children)
       }
     }
   }
@@ -399,10 +404,12 @@
   .custom-tree-node {
     width: 100%;
     .ellipsis {
+      float: left;
       max-width: 84px;
       width: auto;
       vertical-align: middle;
     }
+
     .el-icon-remove-outline {
       font-size: 18px;
       margin: 7px 0;
@@ -441,6 +448,7 @@
 </style>
 <style lang="scss">
   @import "@/styles/variables.scss";
+
   .ob-group-nav {
     &[type=custom-community] {
 

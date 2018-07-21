@@ -3,7 +3,6 @@ import axios from "axios/index";
 import { Message,Loading } from "element-ui";
 import Store from '@/store'
 
-
 // 加载层
 export function load(text,target) {
   // target 必须用id
@@ -34,7 +33,8 @@ export function fetch(url,params,isTip='数据加载中...') {
     // 对请求错误做些什么
     if(isTip){
       Store.state.loading = true;
-      load(isTip)
+      load(isTip);
+
     }
     return Promise.reject(error);
   });
@@ -49,7 +49,6 @@ export function fetch(url,params,isTip='数据加载中...') {
       data: params,
       responseType: 'json'
     }).then(res => {
-      Store.state.loading = false;
       if(isTip){
         load(isTip).close()
       }
@@ -60,6 +59,9 @@ export function fetch(url,params,isTip='数据加载中...') {
         if(res.data.code==='ERR-110'){
           reject(res.data)
         }else if(res.data.result){
+          if(isTip){
+            Store.state.loading = false;
+          }
           resolve(res.data)
         }else {
           if(isTip){
@@ -72,7 +74,7 @@ export function fetch(url,params,isTip='数据加载中...') {
         reject(res)
       }
     }).catch(error=>{
-      Store.state.loading = false;
+      // Store.state.loading = false;
       if(isTip){
         load(isTip).close()
       }
@@ -84,7 +86,7 @@ export function fetch(url,params,isTip='数据加载中...') {
 }
 
 // 消息提示
-export function message(txt,type,delay=2000) {
+export function message(txt,type,delay=1500) {
   const icon = (type!=='waiting'&&type!=='caution'&&type!=='error')? 'success' :type;
   let cs = type==='waiting'||type==='caution'?'device':'';
   return Message({

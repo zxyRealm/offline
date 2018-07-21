@@ -39,24 +39,33 @@
         :readonly="readonly"
         slot="reference"
         :placeholder="!addressText"
-        class="address-btn">{{addressText?addressText:'请选取地址'}}</el-button>
+        :class="{'popover-icon':visible}"
+        class="address-btn">
+        {{addressText?addressText:placeholder}}
+      </el-button>
+
     </el-popover>
   </div>
 </template>
 
 <script>
   let OK_CODE = 1;
-  import { makePy } from '../../utils/initial'
+  import {makePy} from '../../utils/initial'
+
   export default {
     name: "area-select",
     props: {
-      readonly:{
-        type:Boolean,
-        default:false
+      readonly: {
+        type: Boolean,
+        default: false
       },
       value: {
         type: [Array, String],
         default: ''
+      },
+      placeholder: {
+        type: String,
+        default: '请选取地址'
       }
     },
     data() {
@@ -73,11 +82,20 @@
     },
     methods: {
       getAddressList() {
-        this.$http("/area/list", {level: 1},false).then((res) => {
+        this.$http("/area/list", {level: 1}, false).then((res) => {
           if (res.result === OK_CODE) {
-            this.$set(this.originAddress, 0, res.data[1].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
-            this.$set(this.originAddress, 1, res.data[2].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
-            this.$set(this.originAddress, 2, res.data[3].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
+            this.$set(this.originAddress, 0, res.data[1].map(item => {
+              this.$set(item, 'initial', makePy(item.name));
+              return item
+            }));
+            this.$set(this.originAddress, 1, res.data[2].map(item => {
+              this.$set(item, 'initial', makePy(item.name));
+              return item
+            }));
+            this.$set(this.originAddress, 2, res.data[3].map(item => {
+              this.$set(item, 'initial', makePy(item.name));
+              return item
+            }));
             if (this.value) {
               let idArr = this.value.split(',').map(Number);
               let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()];
@@ -115,11 +133,11 @@
           this.currentValue = [];
         }
       },
-      currentAddress: function (val,old) {
+      currentAddress: function (val, old) {
         this.$set(this.currentValue, this.currentType, val);
         if (this.currentType < 2) {
           this.currentType++
-        } else if(val!==old) {
+        } else if (val !== old) {
           this.visible = false
         }
       },
@@ -130,33 +148,34 @@
             idStr += idStr ? (',' + item.id) : item.id;
             textStr += textStr ? ('-' + item.name) : item.name;
           });
-          this.$emit("input",idStr);
+          this.$emit("input", idStr);
           this.address = textStr;
         },
         deep: true
       },
-      search(val){
-       val = val.trim();
-        if(val){
+      search(val) {
+        val = val.trim();
+        if (val) {
           let isChar = /^[a-z]+$/i.test(val);
-          this.addressOption.map(item=>{
-            if(item.name.indexOf(val)>-1 || item.initial[0].indexOf(val.toUpperCase())>-1){
-              this.$set(item,'active',1)
-            }else {
-              this.$set(item,'active',0)
+          this.addressOption.map(item => {
+            if (item.name.indexOf(val) > -1 || item.initial[0].indexOf(val.toUpperCase()) > -1) {
+              this.$set(item, 'active', 1)
+            } else {
+              this.$set(item, 'active', 0)
             }
           });
-        }else {
-          this.addressOption.map(item=>{
-            this.$set(item,'active',0)
+        } else {
+          this.addressOption.map(item => {
+            this.$set(item, 'active', 0)
           });
         }
       },
-      visible:function(val){
-        if(!val){
-          if(!this.currentValue[2]){
+      visible: function (val) {
+        if (!val) {
+          if (!this.currentValue[2]) {
             this.address = '';
-            this.$emit("input",'')
+            this.search = '';
+            this.$emit("input", '')
           }
         }
       }
@@ -175,6 +194,7 @@
     display: inline-block;
     height: 30px;
     .address-btn {
+      position: relative;
       width: 100%;
       line-height: 30px;
       color: #fff;
@@ -185,16 +205,33 @@
       background-repeat: no-repeat;
       background-size: 100% 100%;
       text-align: left;
-      &[readonly]{
+      &[readonly] {
         background: transparent;
         cursor: text;
+        &:after{
+          display: none;
+        }
       }
-      &[placeholder]{
-        color:rgba(255,255,255,.4);
+      &[placeholder] {
+        color: rgba(255, 255, 255, .4);
       }
-
+      &:after {
+        position: absolute;
+        content: '';
+        right: 4px;
+        height: 100%;
+        width: 30px;
+        background: url("/static/img/select_arrow_icon.png") no-repeat center;
+        background-size: 15px auto;
+        transition: transform 0.5s;
+        transform: rotate(0deg);
+      }
+      &.popover-icon:after {
+        transform: rotate(180deg);
+      }
     }
   }
+
   .address-popover {
     .select-wrap {
       width: 100%;
@@ -221,7 +258,7 @@
         .el-input__inner {
           border: none;
           color: #333;
-          background:transparent;
+          background: transparent;
         }
         &.search-input {
           height: $line24;
@@ -253,7 +290,7 @@
                 margin-right: 0;
               }
             }
-            .el-input__validateIcon{
+            .el-input__validateIcon {
               display: none;
             }
           }
@@ -277,8 +314,8 @@
         .el-radio-button {
           width: 48px;
           margin: 0 6px;
-          &.selectable{
-            .el-radio-button__inner{
+          &.selectable {
+            .el-radio-button__inner {
               color: #0F9EE9;
             }
           }

@@ -40,20 +40,24 @@ html {
 }
 
 //input placeholder 字体颜色设置
-::-webkit-input-placeholder { /* WebKit browsers */
+textarea::-webkit-input-placeholder,input::-webkit-input-placeholder { /* WebKit browsers */
   color: $placeholder-color;
+  font-size: 12px;
 }
 
-:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+textarea:-moz-placeholder,input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
   color: $placeholder-color;
+  font-size: 12px;
 }
 
-::-moz-placeholder { /* Mozilla Firefox 19+ */
+textarea::-moz-placeholder ,input::-moz-placeholder { /* Mozilla Firefox 19+ */
   color: $placeholder-color;
+  font-size: 12px;
 }
 
-:-ms-input-placeholder { /* Internet Explorer 10+ */
+textarea:-ms-input-placeholder,input:-ms-input-placeholder { /* Internet Explorer 10+ */
   color: $placeholder-color;
+  font-size: 12px;
 }
 
 #app {
@@ -74,6 +78,7 @@ html {
   height: 100%;
 }
 
+//上下居中布局
 .vam {
   vertical-align: middle;
   line-height: 0;
@@ -195,6 +200,7 @@ div:focus {
   display: block;
 }
 
+//清除浮动
 .clearfix {
   &:after {
     visibility: hidden;
@@ -235,7 +241,6 @@ code, pre {
   background: rgba(66, 185, 131, .1);
   border-radius: 2px;
   padding: 16px;
-  padding: 1rem;
   line-height: 1.6rem;
   word-spacing: .05rem;
   a {
@@ -356,6 +361,31 @@ code, pre {
 .multiselect--active {
   z-index: 1000 !important;
 }
+
+//element-ui el-select组件样式覆盖
+
+.el-select-dropdown{
+  .el-select-dropdown__list{
+    .el-select-dropdown__item{
+      line-height: 20px;
+      height: 20px;
+      font-size:12px;
+      font-weight: 500;
+      &.selected{
+        background: #EBEBEB;
+        color: #333;
+      }
+      &:hover{
+        background-color: #EBEBEB;
+      }
+      >span{
+        line-height: 20px!important;
+      }
+    }
+  }
+}
+
+
 
 button, input {
   &:disabled {
@@ -559,7 +589,6 @@ button, input {
   }
   &.el-table--border, &.el-table--group {
     border-color: $border !important;
-
   }
   background: transparent !important;
   td, th.is-leaf {
@@ -575,9 +604,12 @@ button, input {
 }
 
 .data-list-wrap {
-  margin: 0 20px;
+  padding-left: 20px;
+  padding-right: 20px;
   height: calc(100% - 84px);
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
   > .el-scrollbar {
     height: 100%;
   }
@@ -606,6 +638,10 @@ button, input {
 .el-select__caret {
   background: url("/static/img/select_arrow_icon.png") no-repeat center center;
   background-size: 15px auto;
+  transform: rotateZ(180deg)!important;
+  &.is-reverse{
+    transform: rotateZ(0deg)!important;
+  }
   &:before {
     content: '' !important;
   }

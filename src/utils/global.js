@@ -7,7 +7,7 @@ import {restoreArray} from '@/utils'
 exports.install = function (Vue, options) {
 
   // 公用提示框
-  Vue.prototype.$tip = function (txt, type = 'info', delay = 1000) {
+  Vue.prototype.$tip = function (txt, type = 'info', delay = 1500) {
     return message(txt, type, delay)
   };
   // 异步请求
@@ -101,7 +101,7 @@ exports.install = function (Vue, options) {
   Vue.prototype.$affirm = function (text, callback, type, showCancel = true) {
     let html = `${text.text}`;
     if (type) {
-      html = ` <img width="72px" src="/static/img/alert_message_${type}.png" alt="提示信息"><p>${text.text}</p>`
+      html = ` <img width="72px" src="/static/img/${type}_tip_icon.png" alt="提示信息"><p>${text.text}</p>`
     }
     this.$msgbox({
       title: '',

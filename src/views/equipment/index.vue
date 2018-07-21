@@ -9,14 +9,14 @@
       v-if="!isSearch"
       size="medium"
       :show-button="!equipmentEmpty"
-      :sub-btn="{text:'创建'}"
+      :sub-btn="{text:'添加'}"
       @handle-btn="showDialog('device')"
       :menu-array="menu2"></uu-sub-tab>
     <ob-list-empty
       v-if="!equipmentList.length"
-      :text="isSearch?'查询不到该设备。':'您还没有设备，点击【创建】进行添加设备。'">
+      :text="isSearch?'查询不到该设备':'您尚无设备，请点击【添加】'">
     </ob-list-empty>
-    <div class="data-list-wrap" v-else>
+    <div class="data-list-wrap" v-if="equipmentList.length">
       <el-scrollbar>
       <template v-for="(item,$index) in equipmentList">
         <ob-list>
@@ -51,7 +51,7 @@
               <p><span>应用场景：</span>{{item.deviceScene}}</p>
             </template>
           </ob-list-item>
-          <ob-list-item @refresh="getMineEquipment" width="20%" :data="item" type="handle" :showDelete="true">
+          <ob-list-item @refresh="getMineEquipment" style="min-width: 260px"  width="20%" :data="item" type="handle" :showDelete="true">
           </ob-list-item>
         </ob-list>
       </template>
@@ -77,7 +77,7 @@
 </template>
 <script>
   import {parseTime} from '@/utils'
-
+import {mapState} from 'vuex'
   export default {
     name: "index",
     data() {
@@ -88,7 +88,11 @@
         } else {
           if (value.length >= 2 && value.length <= 18) {
             this.$http("/merchant/device/alias/exist", {deviceName: value},false).then(res => {
-              callback()
+              if(res.data){
+                callback(new Error(res.msg))
+              }else {
+                callback()
+              }
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
             });
@@ -180,14 +184,14 @@
         }
         if (type === 'community' && !this.groupList.length) {
           this.$affirm({
-            text: '没有可绑定的社群，前往<a href="#/community/create">创建社群</a>。'
+            text: '没有可绑定的社群，前往<a href="/community/create">创建社群</a>。'
           }, (action, instance, done) => {
             if (action === 'confirm') {
               done();
             } else {
               done()
             }
-          }, 'create')
+          }, 'caution')
         } else {
           this.dialogFormVisible = true
         }
@@ -221,7 +225,7 @@
         this.$affirm({
           confirm: '确定',
           cancel: '返回',
-          text: '将设备从社群解绑，您将无法查看该设备数据/无法操作设备。确定要将【' + value.deviceName + '】设备从【' + value.groupName + '】社群解绑？'
+          text: '将设备从社群解绑，您将无法查看该设备数据/无法操作设备。<br>确定要将【' + value.deviceName + '】设备从【' + value.groupName + '】社群解绑？'
         }, (action, instance, done) => {
           if (action === 'confirm') {
             done();
@@ -268,6 +272,7 @@
       }
     },
     computed: {
+      ...mapState(["loading"])
       // isSearch: function () {
       //   return this.$route.name === 'equipment'
       // }
@@ -284,9 +289,8 @@
 
 <style scoped>
   .data-list-wrap {
-    margin-top: 24px;
+    padding-top: 24px;
     height: calc(100% - 134px);
-    box-sizing: border-box;
   }
   .data-list-wrap  >.el-scrollbar{
     height: 100%;

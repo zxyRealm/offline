@@ -12,7 +12,6 @@
             placeholder="快速查找分组"
             @remote-search="remoteSearch"
             :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
-
           <ob-group-nav
             ref="customGroup"
             theme="default"
@@ -26,11 +25,10 @@
           </ob-group-nav>
         </div>
         <div class="community--main">
-          <el-scrollbar>
             <div class="cmm-top dashed-border">
               <h2 class="cmm-sub-title">
                 <span>分组详情</span>
-                <p class="handle fr fs14" v-show="customGroupInfo.guid">
+                <p class="handle fr fs14" v-show="customGroupInfo.guid && !loading">
                   <a href="javascript:void (0)" class="danger mr-10" @click="deleteGroup">删除</a>
                   <router-link :to="'/community/custom/edit/'+customGroupInfo.guid">编辑</router-link>
                 </p>
@@ -53,13 +51,13 @@
                     <span class="fs14">分组描述： </span>
                     {{customGroupInfo.describe}}</p>
                 </div>
-                <ob-list-empty top="6%" text="您尚未创建分组。" size="small" v-else></ob-list-empty>
+                <ob-list-empty text="您尚未创建分组" size="small" v-if="!customGroupInfo.guid&&!loading"></ob-list-empty>
               </div>
             </div>
             <div class="cmm-table dashed-border">
               <h2 class="cmm-sub-title">
                 <span>社群列表</span>
-                <p class="handle fr fs14">
+                <p class="handle fr fs14" v-if="!loading">
                   <a href="javascript:void (0)"
                      v-show="customMemberList.length"
                      class="danger mr-10"
@@ -85,15 +83,14 @@
                   width="120">
                 </el-table-column>
                 <el-table-column
-                  header-align="center"
+                  align="center"
                   prop="name"
                   label="社群名称"
                 >
                 </el-table-column>
               </el-table>
-              <ob-list-empty top="6%" text="您尚未添加社群。" size="small" v-else></ob-list-empty>
+              <ob-list-empty top="32px" text="您尚未添加社群" size="small" v-if="!customGroupInfo.guid&&!loading"></ob-list-empty>
             </div>
-          </el-scrollbar>
         </div>
       </div>
     <ob-dialog-form
@@ -110,6 +107,7 @@
 
 <script>
   import {customType} from '@/utils'
+  import { mapState} from 'vuex'
   export default {
     name: "custom",
     data() {
@@ -138,8 +136,10 @@
       remoteSearch(val) {
         this.$http("/groupCustom/info/search", {searchText: val}).then(res => {
           if (res.data[0]) {
-            this.currentKey = res.data.guid;
             this.setData(res.data[0]);
+            this.$nextTick(() => {
+              this.$refs.customGroup.setCurrentKey(res.data.guid);
+            });
             this.$refs.customGroup.setCheckedKeys(res.data.map(item => item.guid))
           }
         })
@@ -225,11 +225,13 @@
       getCustomGroupList() {
         this.$http("/groupCustom/list").then(res => {
           this.customGroupList = res.data;
+          this.$store.state.loading = false;
           if (res.data[0]) {
-            this.currentKey = res.data[0].guid;
+            this.$nextTick(() => {
+              this.$refs.customGroup.setCurrentKey(res.data[0].guid);
+            });
             this.setData(res.data[0]);
           }
-          console.log()
         })
       },
       // 获取自定义分组成员列表
@@ -240,7 +242,8 @@
           return false
         }
         this.$http("/groupCustom/member/info", {groupCustomGuid: id}).then(res => {
-          this.customMemberList = res.data
+          this.customMemberList = res.data;
+          this.$store.state.loading = false;
         })
       }
     },
@@ -255,7 +258,8 @@
         set(val) {
           this.customMemberList = val
         }
-      }
+      },
+      ...mapState(["loading"])
     }
   }
 </script>

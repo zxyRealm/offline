@@ -38,8 +38,8 @@
         <el-form-item label="联系电话：" prop="phone">
           <el-input type="text" :readonly="!editable" placeholder="请输入联系电话" v-model="communityForm.phone"></el-input>
         </el-form-item>
-        <el-form-item label="搜索范围：" prop="rule">
-          <p class="fcg">（要求子社群授予的设备权限
+        <el-form-item label="索权范围：" prop="rule">
+          <p class="fcg">(要求子社群授予的设备权限
             <el-popover
               placement="top"
               width="268"
@@ -52,7 +52,7 @@
               </div>
               <i slot="reference" class="el-icon-question"></i>
             </el-popover>
-            ,可多选）</p>
+            ,可多选)</p>
           <el-checkbox-group v-model="communityForm.rule">
             <el-checkbox disabled :label="0">数据查看权限</el-checkbox>
             <el-checkbox :label="1">设备操作权限</el-checkbox>
@@ -66,6 +66,7 @@
 <script>
   import area from '@/components/area-select/area-select'
   import QRCode from 'qrcodejs2'
+  import { validPhone } from '@/utils/validate'
   export default {
     components: {
       'area-select': area
@@ -89,6 +90,17 @@
           } else {
             callback(new Error("长度为2-18个字符"))
           }
+        }
+      };
+      const validatePhone = (rule, value, callback) => {
+        if (value){
+          if (validPhone(value)) {
+            callback()
+          } else {
+            callback(new Error('请填写正确的手机号'))
+          }
+        }else {
+          callback()
         }
       };
       return {
@@ -118,6 +130,9 @@
           ],
           rule: [
             {required: true, message: '请选取权限范围', trigger: 'blur'}
+          ],
+          phone: [
+            { validator: validatePhone, trigger: 'blur'}
           ]
         }
       }

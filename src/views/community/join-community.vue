@@ -5,7 +5,7 @@
       :menu-array="[{title:'加入社群'}]"></uu-sub-tab>
     <div class="community-common-form-wrap dashed-border vam">
       <uu-form
-        width="310px"
+        width="318px"
         label-width="96px"
         :sub-text="step===2?'确定':''"
         @handle-submit="submitForm"
@@ -59,6 +59,7 @@
 </template>
 
 <script>
+
   export default {
     name: "edit-custom",
     data(){
@@ -73,6 +74,7 @@
           }
         }
       };
+
       const  validateCode = (rule,value,callback)=>{
         value = value.trim();
         this.communityInfo = {};
@@ -138,7 +140,7 @@
             if(res.data){
               join()
             }else{
-              this.$tip(`您已将【设备操作权限】授权给其他社群,<br>无法加入【${this.communityInfo.name}】`,'waiting')
+              this.$tip(`您已将【设备操作权限】授权给其他社群,<br>无法加入【${this.communityInfo.name}】`,'caution');
             }
           })
         }else{
