@@ -49,12 +49,14 @@
              trigger="hover">
               <div v-if="data.parentList&&data.parentList.length" class="clearfix">
                 <div class="parent-item clearfix" v-for="item in data.parentList">
-                  <el-tooltip effect="dark" content="数据查看权限" placement="top">
-                   <uu-icon type="data"></uu-icon>
-                  </el-tooltip>
-                 <el-tooltip v-show="isHandle(item.rule)" effect="dark" content="设备操作权限" placement="top">
-                   <uu-icon type="handle"></uu-icon>
-                  </el-tooltip>
+                  <div style="width: 36px;margin-right: 5px;">
+                    <el-tooltip class="fl" effect="dark" content="数据查看权限" placement="top">
+                      <uu-icon type="data"></uu-icon>
+                    </el-tooltip>
+                    <el-tooltip class="fl" v-show="isHandle(item.rule)" effect="dark" content="设备操作权限" placement="top">
+                      <uu-icon type="handle"></uu-icon>
+                    </el-tooltip>
+                  </div>
                   <div class="name">{{item.name}}</div>
                   <uu-icon type="quit" @click.native="()=>leaveCommunity('quit',data,item)"></uu-icon>
                 </div>
@@ -268,18 +270,18 @@
           groupPid: parent.guid || parent.groupGuid,
           groupGuid: current.groupGuid,
           groupNickName: current.groupNickName,
-          parentGroupNickName: parent.groupNickName
+          parentGroupNickName: parent.groupNickName || parent.name
         };
         switch (type) {
           case 'quit':
-            des = '退出';
+            des = `确定要退出【${params.parentGroupNickName}】社群？`;
             url = '/group/exit';
             break;
           default:
-            des = '踢出';
+            des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>确定要移除子社群【${params.groupNickName}】？`;
             url = '/group/remove';
         }
-        this.$affirm({text: `确认${des}【${params.parentGroupNickName}】社群？`}, (action, instance, done) => {
+        this.$affirm({text: `${des}`}, (action, instance, done) => {
           if (action === 'confirm') {
             this.$http(url, params).then(res => {
               this.$tip(`${des}社群成功`);

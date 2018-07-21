@@ -45,7 +45,6 @@
     height: 100%;
   }
   .ob-list-empty {
-    display: inline-block;
     text-align: center;
     border: 1px dashed #1f2d3d;
     background: rgba(0, 0, 0, 0.20);
@@ -54,7 +53,6 @@
     font-size: 12px;
     line-height: 110px;
     color: rgba(255, 255, 255, 0.5);
-    margin: 0 auto;
     &.small {
       height: 50px;
       width: 480px;

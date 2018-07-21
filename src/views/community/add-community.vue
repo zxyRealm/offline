@@ -6,7 +6,7 @@
     <div class="community-common-form-wrap dashed-border">
       <uu-form
         label-width="106px"
-        :sub-text="subText"
+        sub-text="保存"
         @handle-submit="submitForm"
         :readonly="!editable"
         v-model="communityForm"
@@ -154,12 +154,8 @@
         data.districtAreaID = address[2];
         data.rule = data.rule.toString();
         this.$http(`/group/${this.type}`,data).then(res=>{
-          if(this.$route.name==='createCommunity'){
-            this.$tip("创建成功");
-            this.$router.push("/community/mine")
-          }else {
-            this.$tip("信息修改成功")
-          }
+          this.$tip("保存成功");
+          this.$router.push("/community/mine");
         })
       },
       createQrCode(url,id){

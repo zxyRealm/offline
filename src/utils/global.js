@@ -113,8 +113,8 @@ exports.install = function (Vue, options) {
       cancelButtonClass: 'cancel',
       showCancelButton: type ? !type : showCancel,
       showConfirmButton: !type,
-      confirmButtonText: text.confirm,
-      cancelButtonText: text.cancel,
+      confirmButtonText: text.confirm || '确定',
+      cancelButtonText: text.cancel || '返回',
       beforeClose: (action, instance, done) => {
         callback(action, instance, done);
       }

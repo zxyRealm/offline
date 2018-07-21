@@ -13,48 +13,50 @@
       @handle-btn="showDialog('device')"
       :menu-array="menu2"></uu-sub-tab>
     <ob-list-empty
+      top="106px"
       v-if="!equipmentList.length"
       :text="isSearch?'查询不到该设备':'您尚无设备，请点击【添加】'">
     </ob-list-empty>
     <div class="data-list-wrap" v-if="equipmentList.length">
       <el-scrollbar>
-      <template v-for="(item,$index) in equipmentList">
-        <ob-list>
-          <ob-list-item width="16%" type="state" :data="item" :isAmend="true">
-          </ob-list-item>
-          <ob-list-item width="23%">
-            <p><span>序列号：</span><span>{{item.deviceKey}}</span></p>
-            <p><span>设备类型：</span>{{item.deviceType|deviceType}}</p>
-            <p><span>添加时间：</span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</p>
-          </ob-list-item>
-          <ob-list-item width="8%">
-            <p class="tac"><span>用途：</span><br>
-              <router-link v-if="item.deviceType===1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>
-              <template v-else>
-                {{item.deviceType | deviceType}}
-              </template>
-            </p>
-          </ob-list-item>
-          <ob-list-item width="23%">
-            <p v-if="!item.groupGuid">
-              <span>绑定社群：</span>
-              <a href="javascript:void (0)" @click="showDialog('community',item)">未绑定</a>
-              <span style="display: inline-block;width: 14px;height: 14px;" class="fr"></span>
-            </p>
-            <template v-else>
-              <p>
-                <span>绑定社群：</span>
-                <span>{{item.groupName}}</span>
-                <uu-icon type="relieve" class="fr" @click.native="unBindCommunity(item)"></uu-icon>
+        <template v-for="(item,$index) in equipmentList">
+          <ob-list>
+            <ob-list-item width="16%" type="state" :data="item" :isAmend="true">
+            </ob-list-item>
+            <ob-list-item width="23%">
+              <p><span>序列号：</span><span>{{item.deviceKey}}</span></p>
+              <p><span>设备类型：</span>{{item.deviceType|deviceType}}</p>
+              <p><span>添加时间：</span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</p>
+            </ob-list-item>
+            <ob-list-item width="8%">
+              <p class="tac"><span>用途：</span><br>
+                <router-link v-if="item.deviceType===1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>
+                <template v-else>
+                  {{item.deviceType | deviceType}}
+                </template>
               </p>
-              <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
-              <p><span>应用场景：</span>{{item.deviceScene}}</p>
-            </template>
-          </ob-list-item>
-          <ob-list-item @refresh="getMineEquipment" style="min-width: 260px"  width="20%" :data="item" type="handle" :showDelete="true">
-          </ob-list-item>
-        </ob-list>
-      </template>
+            </ob-list-item>
+            <ob-list-item width="23%">
+              <p v-if="!item.groupGuid">
+                <span>绑定社群：</span>
+                <a href="javascript:void (0)" @click="showDialog('community',item)">未绑定</a>
+                <span style="display: inline-block;width: 14px;height: 14px;" class="fr"></span>
+              </p>
+              <template v-else>
+                <p>
+                  <span>绑定社群：</span>
+                  <span>{{item.groupName}}</span>
+                  <uu-icon type="relieve" class="fr" @click.native="unBindCommunity(item)"></uu-icon>
+                </p>
+                <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
+                <p><span>应用场景：</span>{{item.deviceScene}}</p>
+              </template>
+            </ob-list-item>
+            <ob-list-item @refresh="getMineEquipment" style="min-width: 260px" width="20%" :data="item" type="handle"
+                          :showDelete="true">
+            </ob-list-item>
+          </ob-list>
+        </template>
         <el-pagination
           v-if="pagination.total && pagination.total>pagination.length"
           @current-change="getMineEquipment"
@@ -77,7 +79,8 @@
 </template>
 <script>
   import {parseTime} from '@/utils'
-import {mapState} from 'vuex'
+  import {mapState} from 'vuex'
+
   export default {
     name: "index",
     data() {
@@ -87,10 +90,10 @@ import {mapState} from 'vuex'
           callback(new Error('设备别名不能为空'))
         } else {
           if (value.length >= 2 && value.length <= 18) {
-            this.$http("/merchant/device/alias/exist", {deviceName: value},false).then(res => {
-              if(res.data){
+            this.$http("/merchant/device/alias/exist", {deviceName: value}, false).then(res => {
+              if (res.data) {
                 callback(new Error(res.msg))
-              }else {
+              } else {
                 callback()
               }
             }).catch(err => {
@@ -107,10 +110,10 @@ import {mapState} from 'vuex'
           title: '添加设备'
         },
         equipmentEmpty: false,
-        dialogForm:{
-          deviceKey:'',
-          deviceName:'',
-          type:''
+        dialogForm: {
+          deviceKey: '',
+          deviceName: '',
+          type: ''
         },
         btnOption: {
           text: '创建'
@@ -124,7 +127,7 @@ import {mapState} from 'vuex'
         ],
         groupList: [],
         equipmentList: [
-          {deviceKey:'K_EP_OSFN234ISl'}
+
         ],
         pagination: {},
         equipmentForm: {
@@ -159,27 +162,27 @@ import {mapState} from 'vuex'
           this.bindCommunity(data)
         }
       },
-      getGroupList(){
+      getGroupList() {
         this.$http("/group/list").then(res => {
           this.groupList = res.data;
         })
       },
-      showDialog(type,data) {
+      showDialog(type, data) {
         this.dialogFormVisible = false;
         this.dialogOptions.type = type || 'device';
         this.dialogOptions.title = type === 'device' ? '添加设备' : '绑定社群';
-        if(this.dialogOptions.type==='device'){
+        if (this.dialogOptions.type === 'device') {
           this.dialogForm = {
-            deviceKey:'',
-            deviceName:'',
-            type:''
+            deviceKey: '',
+            deviceName: '',
+            type: ''
           }
-        }else {
+        } else {
           this.dialogForm = {
-            deviceKey:data.deviceKey,
-            deviceName:data.deviceName,
-            groupGuid:'',
-            deviceScene:''
+            deviceKey: data.deviceKey,
+            deviceName: data.deviceName,
+            groupGuid: '',
+            deviceScene: ''
           }
         }
         if (type === 'community' && !this.groupList.length) {
@@ -202,7 +205,7 @@ import {mapState} from 'vuex'
         this.$http('/device/list', {index: page, searchText: this.$route.params.key || ''}).then(res => {
           this.equipmentList = res.data.content;
           this.pagination = res.data.pagination;
-          if(!this.groupList.length){
+          if (!this.groupList.length) {
             this.getGroupList()
           }
         })
@@ -234,7 +237,7 @@ import {mapState} from 'vuex'
               groupGuid: value.groupGuid
             }).then(res => {
               this.$tip("解绑成功");
-              this.$set(value,'groupGuid',null)
+              this.$set(value, 'groupGuid', null)
             });
           } else {
             done()
@@ -245,12 +248,12 @@ import {mapState} from 'vuex'
       bindCommunity(value) {
         this.dialogFormVisible = false;
         this.$load("设备绑定中...");
-        this.$http('/device/binding', {deviceKey: value.deviceKey,groupGuid:value.groupGuid}).then(res => {
+        this.$http('/device/binding', {deviceKey: value.deviceKey, groupGuid: value.groupGuid}).then(res => {
           this.$load().close();
           this.$tip("绑定成功");
           this.getMineEquipment(this.pagination.index);
 
-        }).catch(()=>{
+        }).catch(() => {
           this.$load().close()
         });
       }
@@ -292,7 +295,8 @@ import {mapState} from 'vuex'
     padding-top: 24px;
     height: calc(100% - 134px);
   }
-  .data-list-wrap  >.el-scrollbar{
+
+  .data-list-wrap > .el-scrollbar {
     height: 100%;
   }
 </style>

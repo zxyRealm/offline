@@ -103,7 +103,6 @@
   .sub-tab-wrap {
     padding: 20px;
     line-height: 24px;
-    height: 24px;
     font-size: 16px;
     .sub-tab-main {
       float: left;
@@ -133,7 +132,6 @@
     }
     &.medium {
       padding: 0 20px;
-      height: 28px;
       line-height: 28px;
       .separator{
         display: none;
@@ -143,7 +141,7 @@
         margin-right: 20px;
         >a{
           height: 28px;
-          line-height: 28px;
+          line-height: 26px;
           background-color: rgba(0,0,0,.2);
           padding: 0 20px;
           margin-right: 20px;
