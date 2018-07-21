@@ -29,13 +29,26 @@
                 orient: 'vertical',
                 x: 'right',
                 right: 0,
+                align: 'left',
+                itemWidth: 16,
+                itemGap: 12,
                 textStyle: {
                   color: '#ffffff',
                   fontSize: '12',
                   fontWeight: 'lighter',
                 },
                 icon:'square',
-                data:['男','女']
+                data:[{
+                  name: '女',
+                  textStyle: {
+                    color: '#6D2EBB'
+                  }
+                },{
+                  name: '男',
+                  textStyle: {
+                    color: '#2187DF'
+                  }
+                }]
               },
               series: [
                   {
@@ -155,6 +168,22 @@
           }
           this.option.series[0].data = arr;
       },
+        //给legend字体颜色
+        addColor(data) {
+          let legendColor =  ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'];
+          let a = [];
+          for(let i=0,l=data.length; i<l; i++) {
+            let obj = {
+              name: data[i],
+              textStyle: {
+                color: legendColor[i]
+              }
+            }
+            a.push(obj);
+          }
+          return a;
+        },
+
       //默认数据展示 = 可视化
       defaultShow() {
         let type = this.$store.state.filterParams.type;
@@ -163,13 +192,25 @@
         }
         if(type == 3) {
             this.option.legend['data'] = ['0-10','11-20','21-30','31-40','41-50','50以上'];
-            this.transfromArray( this.option.legend['data']);
+            this.transfromArray( ['0-10','11-20','21-30','31-40','41-50','50以上']);
             this.option.series[0] = this.$apply(this.option.series[0],this.roseSeries);
+            this.option.legend['data'] = this.addColor(this.option.legend['data']);
         }
         if(type == 4) {
-            this.option.legend['data'] = ['多次','单次'];
-            this.transfromArray( this.option.legend['data']);
-           // this.option.series[0].label['normal']['padding'] =  [0, 0, 40, 0];
+            this.option.legend['data'] = [
+              {
+                name: '多次',
+                textStyle: {
+                  color: '#6D2EBB'
+                }
+              }
+              ,{
+              name: '单次',
+              textStyle: {
+                color: '#2187DF'
+              }
+            }];
+            this.transfromArray(['单次','多次']);
         }
       },
         //请求数据
@@ -240,7 +281,7 @@
     position: absolute;
     top: 0px;
     right: 0px;
-    background: url('/static/img/pie-background.png') no-repeat center center;
+    background: url('/static/img/pie-background2.png') no-repeat center center;
     background-size: 168px;
     animation-name: piepie;
     animation-duration: 10000ms;

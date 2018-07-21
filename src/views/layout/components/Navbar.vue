@@ -68,7 +68,7 @@ export default {
       dialogFormVisible: false,
       dialogDeviceVisible: false,
       dialogOptions: {
-        title: '添加社群',
+        title: '选择社群',
         type: 'group'
       }
     }

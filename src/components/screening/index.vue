@@ -54,6 +54,7 @@
 <script>
     import { mapGetters,mapMutations} from 'vuex'
     import {eventObject} from '@/utils/event.js'
+    import { parseTime } from  '@/utils/index'
     export default {
         name: "screening-index",
         props: ['type'],
@@ -66,7 +67,7 @@
             },
             dialogFormVisible: false,  //选择群组
             dialogOptions: {
-              title: '添加社群',
+              title: '选择对象',
               type: 'group'
             },
             dimensionData: ['小时','日','周','月'],  //维度
@@ -103,10 +104,11 @@
         //点击维度
         handleButton(value) {
           this.filterParams.dimension = value+1;
+          this.filterParams.endTime = this.filterParams.startTime = parseTime(new Date(),'{y}-{m}-{d}');
         },
         //处理时间
         dealTime() {
-          if(this.filterParams.timeArray.length != 0){
+          if(this.filterParams.timeArray.length != 0 && this.filterParams.dimension != 1){
             let tempDate = this.filterParams.timeArray;
             this.filterParams.startTime = tempDate[0];
             this.filterParams.endTime = tempDate[1];
