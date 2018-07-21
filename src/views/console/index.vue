@@ -21,8 +21,8 @@
       </div>
       <div class="content-top-right">
         <ul class="bottom-ul">
-          <li ref='pie' class="corner-bg pie-background">
-            <pie ref="echartsPie" :pieParams="pieParams"></pie>
+          <li ref='pie' class="corner-bg pie-background ">
+            <pie ref="echartsPie" :pieParams="pieParams" class="pie-wrap-circle"></pie>
           </li>
           <li ref='bar' class="corner-bg">
             <bar ref="echartsBar" :ageBar="ageBar"></bar>
@@ -86,8 +86,8 @@
         pieParams: {   //饼图
           type: 3,
           title: {text: '男女流量占比'},
-          seriesData: [{value: 0, name: '男性占比'}, {value: 0, name: '女性占比'}],
-          legendData: ['男性占比', '女性占比']
+          seriesData: [{value: 0, name: '男士占比'}, {value: 0, name: '女士占比'}],
+          legendData: ['男士占比', '女士占比']
         },
         lineParams: { //线图
           title: {text: '客流量统计'}
@@ -320,7 +320,7 @@
         .pie-wrap {
           //background-size: 0%;
         }
-        .pie-wrap::before {
+        .pie-wrap-circle::before {
           content: '';
           width: 100%;
           height: 100%;
@@ -416,7 +416,7 @@
       display: inline-block;
       position: relative;
       left: 8px;
-      margin-right: 12px;  //保持两边的距离优雅
+      margin-right: 10px;  //保持两边的距离优雅
       li {
         display: inline-block;
         height: 100%;

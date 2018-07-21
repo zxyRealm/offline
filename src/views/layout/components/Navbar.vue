@@ -68,7 +68,7 @@ export default {
       dialogFormVisible: false,
       dialogDeviceVisible: false,
       dialogOptions: {
-        title: '添加社群',
+        title: '选择社群',
         type: 'group'
       },
       avatar:'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'

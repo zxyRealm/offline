@@ -44,6 +44,29 @@
     }
   }
 </script>
+<style rel="stylesheet/scss" lang="scss">
+  /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+  .content ul::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    background-color: transparent;
+  }
+  /*定义滚动条轨道 内阴影+圆角*/
+  .content ul::-webkit-scrollbar-track {
+    width: 0px;
+    height: 0px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 0px;
+    background-color: #232027;//#9E9E9E;
+    border-radius: 10px;
+  }
+  /*定义滑块 内阴影+圆角*/
+  .content ul::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: 	#555;
+  }
+</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
   .home-notify-wrapper {
     height: 100px;
@@ -74,7 +97,7 @@
           margin-bottom: 16px;
           padding-left: 25px;
           text-align: right;
-          background: url("/static/img/list-icon-green.png") no-repeat left center;
+          //background: url("/static/img/list-icon-green.png") no-repeat left center;
           span{
             display: inline-block;
             vertical-align: middle;
@@ -83,14 +106,15 @@
               width: 60%;
               text-align: left;
               display: inline-block;
+              position: relative;
             }
           }
           .active::before {
             content: '';
-            border: 4px solid #0F9EE9;
+            border: 3px solid #0F9EE9;
             border-radius: 50%;
             position: absolute;
-            top: 6px;
+            top: 7px;
             left: -20px
           }
         }

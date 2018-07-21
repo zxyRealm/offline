@@ -18,7 +18,7 @@
         option: {
           color: ['#F1BB13', '#7FC16A', '#EE6C4B', '#6D2EBB', '#2187DF', '#DDDDDD'],
           textStyle: {   //总体字体样式
-            color: "#ffffff"
+           color: "#ffffff"
           },
           title: {
             text: '进出客流量图',
@@ -40,12 +40,21 @@
           legend: {
             right: 0,  //排序方式
             textStyle: {  //字体设置
-              color: '#ffffff',
+             // color: '#ffffff',
               fontSize: '12',
               fontWeight: 'lighter',
             },
             icon: 'line',
-            data: ['进人数', '出人数']
+            data: [{
+              name: '进人数',
+              textStyle: {
+                color: 'rgba(109,46,187,1)'
+              },
+            },
+              { name:'出人数',
+              textStyle: {
+              color: 'rgba(15,158,233,1)'
+            }}]
           },
           toolbox: {},
           grid: {
@@ -287,20 +296,54 @@
         }
         return emptyAaray;
       },
+      //给legend字体颜色
+      addColor(data) {
+        let legendColor =  ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'];
+        let a = [];
+        for(let i=0,l=data.length; i<l; i++) {
+          let obj = {
+            name: data[i],
+            textStyle: {
+              color: legendColor[i]
+            }
+          }
+          a.push(obj);
+        }
+        return a;
+      },
       //默认数据展示 = 可视化
       defaultShow() {
         let type = this.$store.state.filterParams.type;
         if (type == 2) {
-          this.option.legend['data'] = ['男', '女'];
-          this.option.series = this.simulateSeries(this.option.legend['data']);
+          //['男', '女'];
+          this.option.legend['data'] = [{
+            name: '女',
+            textStyle: {
+              color: 'rgba(109,46,187,1)'
+            },
+          },
+            { name:'男',
+              textStyle: {
+                color: 'rgba(15,158,233,1)'
+              }}]
+          this.option.series = this.simulateSeries([ '女','男']);
         }
         if (type == 3) {
-          this.option.legend['data'] = ['0-10', '11-20', '21-30', '31-40', '41-50', '50以上'];
-          this.option.series = this.simulateSeries(this.option.legend['data']);
+          this.option.legend['data'] = this.addColor(['0-10', '11-20', '21-30', '31-40', '41-50', '50以上']);
+          this.option.series = this.simulateSeries(['0-10', '11-20', '21-30', '31-40', '41-50', '50以上']);
         }
         if (type == 4) {
-          this.option.legend['data'] = ['多次', '单次'];
-          this.option.series = this.simulateSeries(this.option.legend['data']);
+          this.option.legend['data'] = [{
+            name: '多次',
+            textStyle: {
+              color: 'rgba(109,46,187,1)'
+            },
+          },
+            { name:'单次',
+              textStyle: {
+                color: 'rgba(15,158,233,1)'
+              }}];
+          this.option.series = this.simulateSeries(['多次', '单次']);
         }
       }
     },
