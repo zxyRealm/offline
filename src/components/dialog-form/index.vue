@@ -61,7 +61,7 @@
       </template>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button class="cancel"  @click="dialogFormVisible = false">取 消</el-button>
+      <el-button class="cancel"  @click="dialogFormVisible = false">返 回</el-button>
       <el-button class="affirm" type="primary" @click="submitDialogForm('dialogForm')">确 定</el-button>
     </div>
   </el-dialog>
@@ -161,7 +161,11 @@
         }else {
           if(value.length>=2&& value.length<=18){
             this.$http("/merchant/device/alias/exist",{deviceName:value},false).then(res=>{
-              callback()
+              if(res.data){
+                callback(new Error('别名已存在，请重新输入'))
+              }else {
+                callback()
+              }
             }).catch(err=>{
               callback(new Error(err.msg||'验证失败'))
             });

@@ -83,6 +83,9 @@ input:disabled{
   .el-checkbox__inner{
     cursor: default!important;
   }
+  +.el-checkbox__label{
+    cursor: default!important;
+  }
 }
 .custom-button {
   display: inline-block;

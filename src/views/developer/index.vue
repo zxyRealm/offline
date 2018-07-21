@@ -9,7 +9,7 @@
           :show-file-list="false"
           :http-request="avatarUpload"
           :before-upload="beforeAvatarUpload">
-          <div v-if="avatarUrl" :style="{ backgroundImage:'url('+avatarUrl+')'}" class="avatar"></div>
+          <div v-if="avatar" :style="{ backgroundImage:'url('+avatar+')'}" class="avatar"></div>
           <i class="el-icon-plus avatar-uploader-icon" v-else></i>
         </el-upload>
       </div>
@@ -18,42 +18,39 @@
                  form-class="user-info-form"
                  :rules="editable?rules:{}"
                  :readonly="!editable"
+                 :subText="!editable?'':buttonText"
+                 @handle-submit="submitForm"
                  v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
-            <el-input type="text" :readonly="!!userInfo.phone" placeholder="请输入手机号"
+            <el-input type="text" :readonly="!!userInfo.phone" placeholder="添加手机号"
                       v-model="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称：" prop="company">
-            <el-input type="text" :readonly="!!userInfo.company" placeholder="请输入公司名称"
+            <el-input type="text" :readonly="!!userInfo.company" placeholder="添加公司名称"
                       v-model="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
-            <area-select :readonly="!editable" v-model="userInfoForm.pca"></area-select>
+            <area-select placeholder="选择商铺所在区域" :readonly="!editable" v-model="userInfoForm.pca"></area-select>
           </el-form-item>
           <el-form-item prop="address">
-            <el-input type="text" :readonly="!editable" placeholder="请填写详细地址"
+            <el-input type="text" :readonly="!editable" placeholder="添加商户详细地址"
                       v-model="userInfoForm.address"></el-input>
           </el-form-item>
 
           <el-form-item label="联系人：" prop="contacts">
-            <el-input type="text" :readonly="!editable" placeholder="请输入联系人姓名"
+            <el-input type="text" :readonly="!editable" placeholder="添加联系人"
                       v-model="userInfoForm.contacts"></el-input>
           </el-form-item>
         </uu-form>
       </div>
-      <el-button v-show="editable" class="affirm mc" @click="submitForm('userInfoForm')">
-        {{userInfo.merchantGuid?'编辑':'保存'}}
-      </el-button>
-
     </div>
   </div>
 </template>
-
 <script>
   import area from '@/components/area-select/area-select'
-  import {mapState} from 'vuex'
+  import { mapState,mapGetters } from 'vuex'
   import axios from 'axios';
-
+  import { validPhone } from '@/utils/validate'
   export default {
     components: {
       'area-select': area
@@ -64,7 +61,7 @@
         if (!value) {
           callback(new Error('请填写手机号'))
         } else {
-          if (/^134[0-8]\d{7}$|^13[^4]\d{8}$|^14[5-9]\d{8}$|^15[^4]\d{8}$|^16[6]\d{8}$|^17[0-8]\d{8}$|^18[\d]{9}$|^19[8,9]\d{8}$/.test(value)) {
+          if (validPhone(value)) {
             callback()
           } else {
             callback(new Error('请填写正确的手机号'))
@@ -103,26 +100,24 @@
     },
     methods: {
       // 编辑修改个人信息
-      submitForm(formName) {
-        this.$refs[formName].submitForm((data) => {
-          let pcaArr = data.pca.split(',').map(Number);
-          let type = this.userInfo.merchantGuid ? 'update' : 'create';
-          type === 'update' ? data.merchantGuid = this.userInfo.merchantGuid : '';
-          data.provinceAreaID = pcaArr[0];
-          data.cityAreaID = pcaArr[1];
-          data.districtAreaID = pcaArr[2];
-          delete  data.pca;
-          this.$http("/merchant/usercenter/update", data).then(res => {
-            if (res.result) {
-              if (type === 'update') {
-                this.$tip("编辑成功")
-              } else {
-                this.$tip('保存成功')
-              }
-              this.$store.dispatch('GET_USER_INFO')
+      submitForm(data) {
+        let pcaArr = data.pca.split(',').map(Number);
+        let type = this.userInfo.merchantGuid ? 'update' : 'create';
+        type === 'update' ? data.merchantGuid = this.userInfo.merchantGuid : '';
+        data.provinceAreaID = pcaArr[0];
+        data.cityAreaID = pcaArr[1];
+        data.districtAreaID = pcaArr[2];
+        delete  data.pca;
+        this.$http("/merchant/usercenter/update", data).then(res => {
+          if (res.result) {
+            if (type === 'update') {
+              this.$tip("编辑成功")
+            } else {
+              this.$tip('保存成功')
             }
-          });
-        })
+            this.$store.dispatch('GET_USER_INFO')
+          }
+        });
       },
       initData() {
         for (let item in this.userInfoForm) {
@@ -133,14 +128,15 @@
         this.userInfoForm.pca = this.userInfo.provinceAreaID ? this.userInfo.provinceAreaID + ',' + this.userInfo.cityAreaID + ',' + this.userInfo.districtAreaID : '';
       },
       avatarUpload(data) {
+        let uid = this.userInfo.developerId;
+        if (!uid) {
+          this.$tip("请先完善个人信息");
+          return
+        }
         this.$http("/auth/oss/image/signature").then(res => {
           if (res.data) {
             let formData = new FormData();
-            if (!this.userInfo.merchantGuid) {
-              this.$tip("请先完善个人信息");
-              return
-            }
-            formData.append('key', `merchant/${this.userInfo.merchantGuid}/${data.file.name}`);
+            formData.append('key', `merchant/${uid}/${data.file.name}`);
             formData.append('policy', res.data['policy']);
             formData.append('OSSAccessKeyId', res.data['accessid']);
             formData.append('success_action_status', '200');
@@ -148,7 +144,7 @@
             formData.append('file', data.file, data.file.name);
             this.$http(res.data.host, formData).then(back => {
               if (!back.data) {
-                let avatarHref = res.data.host + '/merchant/' + this.userInfo.merchantGuid + '/' + data.file.name;
+                let avatarHref = res.data.host + '/merchant/' + uid + '/' + data.file.name;
                 this.$http("/merchant/usercenter/image", {faceImgURL: avatarHref}).then(res => {
                   this.$tip('头像上传成功');
                   this.$store.state.userInfo.faceImgURL = avatarHref;
@@ -161,8 +157,6 @@
             });
           }
         }).catch(err => {
-          console.log('--=error', err);
-
           this.$tip("服务器错误，请重新尝试")
         });
       },
@@ -188,7 +182,7 @@
       this.initData();
     },
     mounted() {
-      this.avatarUrl = '/static/img/logo.png';
+      // this.avatarUrl = '/static/img/logo.png';
     },
     watch: {
       "$route": function (val) {
@@ -208,8 +202,10 @@
     },
     computed: {
       ...mapState([
-        "userInfo"
+        "userInfo",
+        "loading"
       ]),
+      ...mapGetters(["avatar"]),
       avatarUrl: {
         get(val) {
           return this.userInfo.faceImgURL || '/static/img/logo.png'
@@ -217,6 +213,9 @@
         set(val) {
           return this.userInfo.faceImgURL || ''
         }
+      },
+      buttonText(){
+        return this.userInfo.company?'编辑':'保存'
       }
     }
   }

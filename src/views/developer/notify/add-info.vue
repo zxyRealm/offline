@@ -15,6 +15,7 @@
         <el-form-item label="类型：" prop="type">
           <el-select v-model="callbackForm.type" placeholder="请选取类型">
             <el-option value="1" label="到店通知">
+              到店通知
             </el-option>
           </el-select>
         </el-form-item>
@@ -63,7 +64,7 @@
           ]
         },
         callbackForm: {
-          type: '1',
+          type: "1",
           tokenURL: '',
           intro: ''
         },
@@ -92,7 +93,7 @@
     },
     computed:{
       notifyTitle:function () {
-        return this.$route.name==='addNotifyCallback'?'创建数据回调':'编辑数据回调'
+        return this.$route.name==='addNotifyCallback'?'创建消息通知':'编辑消息通知'
       }
     },
     mounted(){

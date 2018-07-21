@@ -70,7 +70,8 @@
       }
     }
     .cmm-table {
-      min-height: 322px;
+
+      height: calc(100% - 280px);
     }
     .cmm-sub-title {
       font-size: 16px;

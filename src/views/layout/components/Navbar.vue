@@ -22,7 +22,7 @@
         </router-link>
         <router-link to="/person/center" class="user-info">
           <div class="avatar-wrap" >
-            <div class="avatar" :style="{backgroundImage:'url('+avatarUrl+')'}"></div>
+            <div class="avatar" :style="{backgroundImage:'url('+avatar+')'}"></div>
           </div>
           <span>{{userInfo.phone?userInfo.phone:userInfo.email}}</span>
         </router-link>
@@ -70,13 +70,13 @@ export default {
       dialogOptions: {
         title: '选择社群',
         type: 'group'
-      },
-      avatar:'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
+      }
     }
   },
   computed: {
     ...mapGetters([
-      'sidebar'
+      'sidebar',
+      "avatar"
     ]),
     ...mapState([
       "userInfo",

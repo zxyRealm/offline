@@ -7,9 +7,8 @@
       <div class="developer-api-header">
         <h3>开发者信息</h3>
         <div class="developer-detail fs12 clearfix">
-          <p>appId：{{devInfo.appId}}</p>
-          <p>appKey：{{devInfo.appKey}}</p>
-          <p>appSecret：{{isShow?devInfo.appSecret:''}}<span class="text-btn" @click="isShow=!isShow">{{isShow?'隐藏':'显示'}}</span>
+          <p>AccessKey：{{devInfo.accessKey}}</p>
+          <p>AccessSecret：{{devInfo.accessSecret}}
           </p>
         </div>
       </div>
@@ -27,33 +26,35 @@
             </div>
           </div>
         </div>
-        <el-scrollbar class="developer-api-content" ref="scrollContent">
-          <div class="scroll-inner">
-            <div class="total-content">
-              <ul class="api-list-item" v-for="(item,index) in currentData">
-                <li class="api-list-title">{{item.title}}</li>
-                <li class="api-list-context fs12" v-if="index<4">{{item.info}}
+        <div class="developer-api-content">
+          <el-scrollbar ref="scrollContent">
+            <div class="scroll-inner">
+              <div class="total-content">
+                <ul class="api-list-item" v-for="(item,index) in currentData">
+                  <li class="api-list-title">{{item.title}}</li>
+                  <li class="api-list-context fs12" v-if="index<4">{{item.info}}
                   </li>
-                <li v-else-if="item.info[0].code" v-for="(items,$index) in item.info" :key="$index">
-                  <p class="des">{{items.des}}</p>
-                  <pre v-html="items.code">{{items.code}}</pre>
-                </li>
-                <li v-else>
-                  <el-table
-                    :data="item.info[1].tableData"
-                    border
-                    style="width: 100%">
-                    <el-table-column v-for="(items) in item.info[0].tableTitle" :key="items.id"
-                                     :prop="items.prop"
-                                     :label="items.label"
-                                     :width="items.width||''">
-                    </el-table-column>
-                  </el-table>
-                </li>
-              </ul>
+                  <li v-else-if="item.info[0].code" v-for="(items,$index) in item.info" :key="$index">
+                    <p class="des">{{items.des}}</p>
+                    <pre v-html="items.code">{{items.code}}</pre>
+                  </li>
+                  <li v-else>
+                    <el-table
+                      :data="item.info[1].tableData"
+                      border
+                      style="width: 100%">
+                      <el-table-column v-for="(items) in item.info[0].tableTitle" :key="items.id"
+                                       :prop="items.prop"
+                                       :label="items.label"
+                                       :width="items.width||''">
+                      </el-table-column>
+                    </el-table>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
-        </el-scrollbar>
+          </el-scrollbar>
+        </div>
       </div>
     </div>
   </div>
@@ -327,8 +328,8 @@
           this.currentData = this.tokenData
         }
       },
-      getDeveloperInfo(){
-        this.$http("/developer/find").then(res=>{
+      getDeveloperInfo() {
+        this.$http("/developer/find").then(res => {
           this.devInfo = res.data
         })
       }
@@ -395,16 +396,19 @@
         }
       }
       .developer-api-content {
-        height: 100%;
-        overflow-y: auto;
+        height: calc(100% - 30px);
         margin-left: 128px;
         box-sizing: border-box;
-        .el-scrollbar__wrap{
+        overflow: hidden;
+        .el-scrollbar{
+          height: 100%;
+        }
+        .el-scrollbar__wrap {
           width: calc(100% + 17px);
           height: calc(100% + 17px);
           overflow-x: hidden;
         }
-        .scroll-inner{
+        .scroll-inner {
           margin-left: 20px;
         }
         .api-list-item {
@@ -422,10 +426,10 @@
   }
 </style>
 <style lang="scss" rel="stylesheet/scss">
-.developer-api-container{
-  .el-scrollbar__wrap{
-    overflow-x: hidden!important;
-    /*padding: 10px 30px;*/
+  .developer-api-container {
+    .el-scrollbar__wrap {
+      overflow-x: hidden !important;
+      /*padding: 10px 30px;*/
+    }
   }
-}
 </style>

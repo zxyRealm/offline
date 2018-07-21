@@ -1,5 +1,5 @@
 <template>
-  <td :width="width" class="ob-list-sub-item">
+  <td :width="width" :style="styles" class="ob-list-sub-item">
     <template v-if="type==='handle'">
       <div class="handle btn-item">
         操作：<br>
@@ -105,6 +105,9 @@
   export default {
     name: "ob-list-item",
     props: {
+      styles:{
+        type:[String,Object]
+      },
       width:{
         type:String,
         default:'auto'
@@ -182,7 +185,7 @@
           case 'type':
             return this.notifyType(val);
           case 'time':
-            return parseTime(val,'{y}-{m}-{d} {h}:{i}');
+            return parseTime(val,'{y}/{m}/{d} {h}:{i}');
           default:
             return val
         }
@@ -362,6 +365,11 @@
     watch:{
       filter:function (val) {
         this.format = val
+      },
+      "data.popover"(val){
+        if(!val && this.$refs.tableForm){
+          this.$refs.tableForm.resetFields();
+        }
       }
     },
     filters:{
@@ -469,6 +477,7 @@
         padding: 8px 15px;
         background-size: contain;
         border: none;
+        background-color: transparent;
       }
       &.upgrade {
         background-image: $upgrade;

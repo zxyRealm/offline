@@ -192,17 +192,3 @@
 
   }
 }
-.el-select-dropdown{
-  .el-select-dropdown__list{
-    .el-select-dropdown__item{
-      line-height: 24px;
-      height: 24px;
-      &:hover{
-        background-color: #EBEBEB;
-      }
-      >span{
-        line-height: 24px!important;
-      }
-    }
-  }
-}

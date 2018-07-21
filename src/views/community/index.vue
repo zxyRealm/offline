@@ -1,14 +1,14 @@
 <template>
   <div class="community-mine-wrap">
-    <template v-if="!groupList.length">
+    <template v-if="!groupList.length && !loading">
       <uu-sub-tab
         show-button
         :sub-btn="{text:'创建'}"
         @handle-btn="$router.push('/community/create')"
       ></uu-sub-tab>
-      <ob-list-empty text="您还没有创建社群。"></ob-list-empty>
+      <ob-list-empty text="您还没有创建社群"></ob-list-empty>
     </template>
-    <template v-else>
+    <template v-if="groupList.length">
       <div class="community--inner">
         <div class="community--sidebar dashed-border">
           <div class="btn-wrap">
@@ -30,7 +30,7 @@
             @current-change="currentChange"></ob-group-nav>
         </div>
         <div class="community--main">
-          <el-scrollbar>
+          <!--<el-scrollbar>-->
             <div class="cmm-top dashed-border">
               <h2 class="cmm-sub-title">
                 <span>社群信息</span>
@@ -89,11 +89,11 @@
                   </div>
                 </div>
               </div>
-              <ob-list-empty text="请选取社群" size="small" top="8%" v-if="!communityInfo.guid" ></ob-list-empty>
+              <ob-list-empty text="请选取社群" size="small" v-if="!communityInfo.guid" ></ob-list-empty>
             </div>
             <div class="cmm-table dashed-border">
               <h2 class="cmm-sub-title">设备列表</h2>
-              <ob-list-empty top="8%" v-if="!deviceList.length" size="small" text="没有可查看设备。">
+              <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
               </ob-list-empty>
               <el-table
                 height="250px"
@@ -137,7 +137,7 @@
                 </el-table-column>
               </el-table>
             </div>
-          </el-scrollbar>
+          <!--</el-scrollbar>-->
         </div>
       </div>
     </template>
@@ -145,6 +145,7 @@
 </template>
 
 <script>
+  import {mapState} from 'vuex'
   export default {
     name: "index",
     data() {
@@ -170,7 +171,6 @@
         }
       };
       return {
-        notHave: true,
         originName: '',
         groupList: [], //社群列表
         tableData: [],
@@ -194,9 +194,8 @@
       // 获取社群列表
       getGroupList(keywords, key) {
         keywords = (keywords || '').trim();
-        this.$http("/group/list",false).then(res => {
+        this.$http("/group/list").then(res => {
           this.groupList = res.data;
-          this.notHave = false;
           if(!key&&!res.data[0]){
             return
           }
@@ -211,7 +210,8 @@
       getDeviceList(val) {
         let url = !val.groupPid ? '/group/device ' : '/device/guid/list';
         this.$http(url, {guid: val.groupGuid}).then(res => {
-          this.deviceList = res.data.content || res.data || []
+          this.deviceList = res.data.content || res.data || [];
+          this.$store.state.loading = false;
         })
       },
       // 搜索社群
@@ -242,7 +242,6 @@
           res.data ? res.data.groupPid = val.groupPid : '';
           res.data.groupPid ? this.originName = JSON.parse(JSON.stringify(res.data.groupNickName)) : '';
           this.communityInfo = res.data || {};
-
           if (res.data) {
             this.$createQRCode(res.data.code, 'qr-code')
           }
@@ -295,7 +294,8 @@
     computed: {
       isSon: function () {
         return Boolean(this.communityInfo.groupPid)
-      }
+      },
+      ...mapState(['loading'])
     }
   }
 </script>

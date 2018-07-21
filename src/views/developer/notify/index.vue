@@ -1,6 +1,6 @@
 <template>
   <div class="notify-wrap">
-    <uu-sub-tab :menu-array="menu" :show-button="!!notifyList.length" :sub-btn="btnOption"
+    <uu-sub-tab :menu-array="menu" :show-button="!!notifyList.length && !loading" :sub-btn="btnOption"
                 @handle-btn="addCallbackInfo"></uu-sub-tab>
     <div class="data-list-wrap" v-if="notifyList && notifyList.length">
       <el-scrollbar>
@@ -13,16 +13,17 @@
             <router-link to="/developer/param/explain">
               参数介绍
             </router-link>
-            <router-link style="margin: 0 36px" :to="'/developer/notify/'+item.noticeGuid">详情</router-link>
+            <router-link style="margin: 0 36px" :to="'/developer/notify/'+item.noticeGuid">编辑</router-link>
             <el-button icon="el-icon-delete" @click="delNotifyInfo(item.noticeGuid)" circle></el-button>
           </ob-list-item>
         </ob-list>
       </el-scrollbar>
     </div>
-    <no-callback-info v-else></no-callback-info>
+    <no-callback-info v-if="!notifyList.length && !loading"></no-callback-info>
   </div>
 </template>
 <script>
+  import {mapState} from 'vuex'
   export default {
     name: "notify",
     components: {
@@ -93,7 +94,7 @@
           this.$affirm({
             confirm: '前往【添加设备】',
             cancel: '返回',
-            text: '您还没有设备，无法创建数据回调。'
+            text: '您还没有设备，无法创建消息通知。'
           }, (action, instance, done) => {
             if (action === 'confirm') {
               done();
@@ -108,6 +109,9 @@
     },
     created() {
       this.getNotifyList();
+    },
+    computed:{
+      ...mapState(["loading"])
     },
     filters: {
       type: function (value) {

@@ -42,7 +42,7 @@
             this.$affirm({
               confirm:'前往【设备列表】',
               cancel:'返回',
-              text:'您还没有绑定设备，无法创建数据回调。'
+              text:'您还没有绑定设备，无法创建消息通知。'
             },(action,instance,done)=>{
               if(action==='confirm'){
                 done();
