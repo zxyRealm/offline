@@ -2,7 +2,7 @@
     <div class="screening-wrap">
       <div>筛选</div>
       <el-form  v-model="filterParams" class="demo-ruleForm" label-width="90px" :class="type!=1?'normal-from':'' ">
-        <el-form-item label="选择对象：" prop="groupGuidName">
+        <el-form-item label="选择社群：" prop="groupGuidName">
           <input class="group-name-input" type="text" v-model="filterParams.groupGuidName" @click="groupGuidNameClick" auto-complete="off"/>
           <span class="icon-select"></span>
         </el-form-item>
@@ -67,7 +67,7 @@
             },
             dialogFormVisible: false,  //选择群组
             dialogOptions: {
-              title: '选择对象',
+              title: '选择社群',
               type: 'group'
             },
             dimensionData: ['小时','日','周','月'],  //维度
@@ -90,7 +90,7 @@
         //确定弹框
         remoteSubmit(data) {
           if((!data || data.length ==0)) {
-             this.$alert('请选择对象', '提示:', {
+             this.$alert('请选择社群', '提示:', {
               confirmButtonText: '确定',
               callback: action => {
               }
@@ -104,7 +104,7 @@
         //点击维度
         handleButton(value) {
           this.filterParams.dimension = value+1;
-          this.filterParams.endTime = this.filterParams.startTime = parseTime(new Date(),'{y}-{m}-{d}');
+          if(value==0) this.filterParams.endTime = this.filterParams.startTime = parseTime(new Date(),'{y}-{m}-{d}');
         },
         //处理时间
         dealTime() {
@@ -126,7 +126,7 @@
         //查询
         submitForm() {
           if(this.filterParams.groupGuid == "") {
-            this.$tip("选择对象不能为空！");
+            this.$tip("选择社群不能为空！");
             return;
           }
           if(this.filterParams.dimension >1 && this.filterParams.timeArray.length == 0) {

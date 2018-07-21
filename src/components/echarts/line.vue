@@ -15,6 +15,30 @@
       return {
         timer: null, //定时器
         data: [],
+        //性别比例图例字体样式
+        genderLegend: [
+          {
+          name: '女',
+          textStyle: {
+            color: 'rgba(109,46,187,1)'
+          },
+        },
+          { name:'男',
+            textStyle: {
+              color: 'rgba(15,158,233,1)'
+            }}],
+        //到店频次图例字体样式
+        shopLegend: [
+          {
+            name: '多次',
+            textStyle: {
+              color: 'rgba(109,46,187,1)'
+            },
+          },
+          { name:'单次',
+            textStyle: {
+              color: 'rgba(15,158,233,1)'
+            }}],
         option: {
           color: ['#F1BB13', '#7FC16A', '#EE6C4B', '#6D2EBB', '#2187DF', '#DDDDDD'],
           textStyle: {   //总体字体样式
@@ -46,12 +70,12 @@
             },
             icon: 'line',
             data: [{
-              name: '进人数',
+              name: '进客流',
               textStyle: {
                 color: 'rgba(109,46,187,1)'
               },
             },
-              { name:'出人数',
+              { name:'出客流',
               textStyle: {
               color: 'rgba(15,158,233,1)'
             }}]
@@ -89,14 +113,14 @@
           ],
           series: [
             {
-              name: '进人数',
+              name: '进客流',
               type: 'line',
               smooth: true,
               itemStyle: {normal: {areaStyle: {type: 'default'}}},
               data: ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
             },
             {
-              name: '出人数',
+              name: '出客流',
               type: 'line',
               smooth: true,
               itemStyle: {normal: {areaStyle: {type: 'default'}}},
@@ -250,7 +274,7 @@
             this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis);  //这个yAxis是对象形式
             this.option.series = this.$apply(this.option.series, this.data.seriesGroup);
             this.changeSeries();
-            this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
+            //this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
             this.drawLine();
           }
         }).catch(error => {
@@ -274,7 +298,16 @@
             this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis);  //这个yAxis是对象形式
             this.option.series = this.$apply(this.option.series, this.data.seriesGroup);
             this.changeSeries();
-            this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
+            //this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
+            if( this.$store.state.filterParams.type == 3) {
+              this.option.legend['data'] = this.addColor(['0-10岁','11-20岁','21-30岁','31-40岁','41-50岁','50岁以上']);
+            }
+            if(this.$store.state.filterParams.type == 2) {
+              this.option.legend['data'] = this.genderLegend;
+            }
+            if(this.$store.state.filterParams.type == 4) {
+              this.option.legend['data'] = this.shopLegend;
+            }
             this.drawLine();
           }
         }).catch(error => {
@@ -315,17 +348,7 @@
       defaultShow() {
         let type = this.$store.state.filterParams.type;
         if (type == 2) {
-          //['男', '女'];
-          this.option.legend['data'] = [{
-            name: '女',
-            textStyle: {
-              color: 'rgba(109,46,187,1)'
-            },
-          },
-            { name:'男',
-              textStyle: {
-                color: 'rgba(15,158,233,1)'
-              }}]
+          this.option.legend['data'] = this.genderLegend;
           this.option.series = this.simulateSeries([ '女','男']);
         }
         if (type == 3) {
@@ -333,16 +356,7 @@
           this.option.series = this.simulateSeries(['0-10', '11-20', '21-30', '31-40', '41-50', '50以上']);
         }
         if (type == 4) {
-          this.option.legend['data'] = [{
-            name: '多次',
-            textStyle: {
-              color: 'rgba(109,46,187,1)'
-            },
-          },
-            { name:'单次',
-              textStyle: {
-                color: 'rgba(15,158,233,1)'
-              }}];
+          this.option.legend['data'] = this.shopLegend;
           this.option.series = this.simulateSeries(['多次', '单次']);
         }
       }
