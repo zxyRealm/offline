@@ -28,7 +28,7 @@
               </ob-list-item>
               <ob-list-item>
                 <p><span>用途：</span><br>
-                  <router-link v-if="item.deviceType!==1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>
+                  <router-link v-if="item.deviceType===1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>
                   <template v-else>
                     {{item.deviceType | deviceType}}
                   </template>
@@ -42,7 +42,7 @@
                 <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
                 <p><span>应用场景：</span>{{item.deviceScene}}</p>
               </ob-list-item>
-              <ob-list-item @refresh="getEquipmentList" :data="item" type="handle">
+              <ob-list-item style="min-width: 215px" @refresh="getEquipmentList" :data="item" type="handle">
               </ob-list-item>
 
             </ob-list>
@@ -56,7 +56,7 @@
             :total="pagination.total">
           </el-pagination>
         </el-scrollbar>
-        <ob-list-empty v-if="!equipmentList.length" :text="tipMsg"></ob-list-empty>
+        <ob-list-empty v-if="!equipmentList.length" :size="small" :text="tipMsg"></ob-list-empty>
       </div>
     </div>
   </div>
@@ -97,6 +97,7 @@
         this.$router.push(`/equipment/search/children/${value}`);
       },
       currentChange(val) {
+        console.log('current',val);
         this.currentGroup = val.groupGuid;
       }
     },
@@ -110,11 +111,16 @@
         return this.$route.name === 'equipmentChildren'
       },
       tipMsg:function () {
-        return !this.isSearch?'查询不到该设备。':!this.currentGroup?'请先在左侧选择自有社群，以查看其下的子社群设备。':(!this.equipmentList.length?"该社群尚未绑定设备。":'')
+        return !this.isSearch?'查询不到该设备':!this.currentGroup?'请先在左侧选择自有社群，以查看其下的子社群设备':(!this.equipmentList.length?"该社群尚未绑定设备":'')
+      },
+      small(){
+        return this.currentGroup&&!this.equipmentList.length?'small':''
       }
     },
     watch: {
       currentGroup:function () {
+        this.equipmentList = [];
+        this.pagination = {};
         this.getEquipmentList()
       },
       $route: function (val) {
@@ -155,6 +161,7 @@
         height: 100%;
         &.dashed-border{
           margin-left: 160px;
+          border: none;
         }
       }
     }

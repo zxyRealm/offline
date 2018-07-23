@@ -6,8 +6,9 @@ export function parseTime(time, cFormat) {
   if (arguments.length === 0 || !time) {
     return null
   }
+  // 兼容火狐 1992-12-12 12:23:56.0 时间格式 处理出现的bug
   if(time.toString().lastIndexOf('.')>-1){
-    // time = time.toString().substr(0,time.lastIndexOf("."))
+    time = time.toString().substr(0,time.lastIndexOf("."))
   }
   const format = cFormat || '{y}-{m}-{d} {h}:{i}:{s}';
   let date;
