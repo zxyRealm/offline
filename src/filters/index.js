@@ -31,8 +31,10 @@ export function lineState(state) {
       return '离线';
     case 0:
       return '在线';
-    default:
+    case undefined:
       return '';
+    default:
+      return '在线';
   }
 }
 

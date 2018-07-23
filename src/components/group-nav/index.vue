@@ -35,6 +35,7 @@
           v-if="type==='custom-community'"
           class="ellipsis"
           :custom-type="customType(data.type)"
+          :style="{maxWidth:''}"
         >
           {{data[defaultProps.label]}}
         </span>
@@ -75,7 +76,6 @@
 
 <script>
   import {customType} from '@/utils'
-
   export default {
     props: {
       value: {
@@ -130,6 +130,7 @@
         type: Boolean,
         default: false
       },
+      // 默认子类键名、显示文本键名
       defaultProps: {
         type: Object,
         default: () => ({
@@ -335,6 +336,7 @@
       if (this.type !== 'community' && this.type !== 'custom-community') {
         this.getGroupList()
       }
+      console.log(this.type)
       this.setCurrentKey(this.currentKey);
     },
     watch: {
@@ -403,13 +405,21 @@
 </script>
 
 <style lang="scss" scoped>
+  [type=custom-community]{
+      .custom-tree-node{
+        >.ellipsis{
+          max-width: 154px;
+        }
+      }
+  }
   .custom-tree-node {
     width: 100%;
-    .ellipsis {
+    >.ellipsis {
       float: left;
       max-width: 84px;
       width: auto;
       vertical-align: middle;
+      font-size: 12px;
     }
 
     .el-icon-remove-outline {
@@ -453,7 +463,9 @@
 
   .ob-group-nav {
     &[type=custom-community] {
-
+      .el-icon-caret-right{
+        width: 8px;
+      }
     }
   }
 
@@ -482,6 +494,10 @@
         padding: 0 20px;
         .el-tree-node__expand-icon {
           color: #333;
+          &.el-icon-caret-right{
+            float: left;
+            margin: 5px 0;
+          }
         }
         .el-tree-node {
           > .el-tree-node__content {

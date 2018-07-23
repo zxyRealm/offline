@@ -42,8 +42,9 @@
               <div class="cm-info-wrap" v-show="communityInfo.guid">
                 <div class="info-detail">
                   <p v-if="isSon">
-                    <span class="fs14">社群昵称：</span>
+                    <span class="fs14">备注名：</span>
                     <el-popover
+                      popper-class="nick_name--popover"
                       placement="top"
                       v-model="nickNamePopover"
                       trigger="click">
@@ -89,7 +90,7 @@
                   </div>
                 </div>
               </div>
-              <ob-list-empty text="请选取社群" size="small" v-if="!communityInfo.guid" ></ob-list-empty>
+              <ob-list-empty top="32px" text="请选取社群" size="small" v-if="!communityInfo.guid" ></ob-list-empty>
             </div>
             <div class="cmm-table dashed-border">
               <h2 class="cmm-sub-title">设备列表</h2>
@@ -177,6 +178,7 @@
         deviceList: [], //社群设备列表
         communityInfo: {}, //社群信息
         currentKey: '',  //当前选中社群id
+        currentCommunity:{}, //当前社群信息
         communityForm: {
           groupPid: '',
           groupGuid: '',
@@ -216,22 +218,41 @@
       },
       // 搜索社群
       remoteSearch(val) {
-        val = val.trim();
         if (val) {
           this.$http("/group/list/search", {searchText: val}).then(res => {
             if (res.data[0]) {
               this.currentKey = res.data[0];
               let current = this.$restoreArray(this.groupList, 'childGroupList').filter(item => item.groupGuid === res.data[0])[0];
+              this.$refs.groupNav.setCheckedKeys(res.data);
+              this.$nextTick(() => {
+                this.$refs.groupNav.setCurrentKey(current.guid);
+              });
               this.getCommunityInfo(current);
               this.getDeviceList(current);
-              this.$refs.groupNav.setCheckedKeys(res.data)
+            }else {
+              this.setDefaultData()
             }
           })
+        }else {
+          this.setDefaultData()
         }
 
       },
+
+      // 设置默认选中值
+      setDefaultData(){
+        let current = this.groupList[0];
+        console.log('current',current);
+        this.$nextTick(() => {
+          this.$refs.groupNav.setCurrentKey(current.guid || current.groupGuid);
+        });
+        this.$refs.groupNav.setCheckedKeys([]);
+        this.getCommunityInfo(current);
+        this.getDeviceList(current);
+      },
       // 当前社群发生改变
       currentChange(val) {
+        this.currentCommunity = val;
         this.insetForm();
         this.getCommunityInfo(val);
         this.getDeviceList(val)
@@ -240,6 +261,7 @@
       getCommunityInfo(val) {
         this.$http("/group/getInfo", {guid: val.groupGuid}).then(res => {
           res.data ? res.data.groupPid = val.groupPid : '';
+          res.data.groupNickName = val.groupNickName || this.currentCommunity.groupNickName;
           res.data.groupPid ? this.originName = JSON.parse(JSON.stringify(res.data.groupNickName)) : '';
           this.communityInfo = res.data || {};
           if (res.data) {
@@ -271,6 +293,7 @@
             subData.groupPid = this.communityInfo.groupPid;
             this.$http('/group/nickName/update', subData).then(res => {
               this.$tip("昵称修改成功");
+              this.currentCommunity.groupNickName = subData.groupNickName;
               this.insetForm();
               this.getGroupList('', {groupGuid: this.communityInfo.guid, groupPid: this.communityInfo.groupPid})
             })
@@ -302,73 +325,9 @@
 
 <style lang="scss" scoped>
   @import "@/styles/community.scss";
-  /*.community--inner {*/
-  /*position: relative;*/
-  /*padding: 20px;*/
-  /*height: 100%;*/
-  /*box-sizing: border-box;*/
-  /*.community--sidebar {*/
-  /*float: left;*/
-  /*width: 230px;*/
-  /*height: 100%;*/
-  /*.ob-group-nav {*/
-  /*padding: 0 20px;*/
-  /*.el-tree-node__content {*/
-  /*!*padding: 0 20px!important;*!*/
-  /*}*/
-  /*}*/
-  /*.btn-wrap {*/
-  /*margin: 20px 20px 10px;*/
-  /*}*/
-  /*}*/
-  /*.community--main {*/
-  /*height: 100%;*/
-  /*margin-left: 250px;*/
-  /*.cmm-top, .cmm-table {*/
-  /*padding: 20px;*/
-  /*box-sizing: border-box;*/
-  /*}*/
-  /*.cmm-top {*/
-  /*height: 260px;*/
-  /*margin-bottom: 20px;*/
-  /*.cm-info-wrap {*/
-  /*font-size: 12px;*/
-  /*padding: 0 40px;*/
-  /*box-sizing: border-box;*/
-  /*height: 189px;*/
-  /*.info-detail {*/
-  /*float: left;*/
-  /*p {*/
-  /*line-height: 30px;*/
-  /*}*/
-  /*}*/
-  /*.info-qr-code {*/
-  /*float: right;*/
-  /*text-align: center;*/
-  /*margin-top: 20px;*/
-  /*> div {*/
-  /*display: inline-block;*/
-  /*vertical-align: middle;*/
-  /*}*/
-  /*.qr-code {*/
-  /*width: 84px;*/
-  /*height: 84px;*/
-  /*padding: 5px;*/
-  /*box-sizing: border-box;*/
-  /*margin-bottom: 10px;*/
-  /*background: #fff;*/
-  /*}*/
-  /*}*/
-  /*}*/
-  /*}*/
-  /*.cmm-table {*/
-  /*height: 300px;*/
-  /*}*/
-  /*.cmm-sub-title {*/
-  /*font-size: 16px;*/
-  /*margin-bottom: 10px;*/
-  /*}*/
-  /*}*/
-  /*}*/
-
+</style>
+<style>
+  .nick_name--popover{
+    padding: 8px 10px;
+  }
 </style>

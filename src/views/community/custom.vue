@@ -134,15 +134,32 @@
     methods: {
       // 搜索
       remoteSearch(val) {
-        this.$http("/groupCustom/info/search", {searchText: val}).then(res => {
-          if (res.data[0]) {
-            this.setData(res.data[0]);
-            this.$nextTick(() => {
-              this.$refs.customGroup.setCurrentKey(res.data.guid);
-            });
-            this.$refs.customGroup.setCheckedKeys(res.data.map(item => item.guid))
-          }
-        })
+        if(val){
+          this.$http("/groupCustom/info/search", {searchText: val}).then(res => {
+            if(this.customGroupList.length){
+              if (res.data[0]) {
+                let current = res.data[0];
+                this.setData(current);
+                this.$nextTick(() => {
+                  this.$refs.customGroup.setCurrentKey(current.guid);
+                });
+                this.$refs.customGroup.setCheckedKeys(res.data.map(item => item.guid))
+              }else {
+                this.setDefaultData();
+              }
+            }
+          })
+        }else {
+          this.setDefaultData();
+        }
+      },
+      setDefaultData(){
+        let current = this.customGroupList[0];
+        this.setData(current);
+        this.$refs.customGroup.setCheckedKeys([]);
+        this.$nextTick(() => {
+          this.$refs.customGroup.setCurrentKey(current.guid || current.groupGuid);
+        });
       },
       remoteSubmit(data) {
         this.addMember(data)
@@ -179,7 +196,7 @@
             this.getMemberList()
           })
         } else {
-          this.$tip('请选取要添加的社群')
+          this.$tip('请选取要添加的社群','error')
         }
       },
       // 删除成员
@@ -188,7 +205,7 @@
           this.$tip("请选择要移除的社群");
           return
         }
-        this.$affirm({text: `确认将选中社群移除【${this.customGroupInfo.name}】分组？`}, (action, instance, done) => {
+        this.$affirm({text: `确定将所选社群从分组【${this.customGroupInfo.name}】中移除？`}, (action, instance, done) => {
           if (action === 'confirm') {
             let ids = this.selectList.map(item => item.guid).toString();
             this.$http("/groupCustom/member/remove", {
@@ -212,7 +229,6 @@
             this.$http("/groupCustom/delete", {groupCustomGuid: this.customGroupInfo.guid}).then(res => {
               this.$tip("删除成功");
               this.customGroupInfo = {};
-              // this.customGroupList = [];
               this.getCustomGroupList()
             });
             done()
