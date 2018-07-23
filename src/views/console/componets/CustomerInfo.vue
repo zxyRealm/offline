@@ -2,8 +2,8 @@
   <div class="customer-info-wrap vam" :class="detailInfo.status==0?'customer-info-wrap-in':'customer-info-wrap-out'"
        @click="handleDetail">
     <span class="order" :class="detailInfo.status==0?'':'order-in'">{{`第${detailInfo.order}位`}}</span>
-    <div class="customer-img">
-      <img :src="detailInfo.img | imgBase">
+    <div class="customer-img" ref="imgFather">
+      <img :src="detailInfo.img | imgBase"  ref="img" :style="styleObj" >
     </div>
     <div class="customer-detail" :class="detailInfo.status==0?'customer-detail-in':''">
       <span v-if="detailInfo.status==0">{{detailInfo.gender==0?'女':(detailInfo.gender==1?'男':'')}}</span>
@@ -24,6 +24,9 @@
     props: ['index', 'detailInfo'],
     data() {
       return {
+        styleObj: {
+
+        },
         showDialog:false,
         data: []   //数据
       }
@@ -74,7 +77,12 @@
       }
     },
     mounted() {
-
+      //图片宽高自适应
+      if((this.$refs.img.offsetWidth/this.$refs.img.offsetHeight) > (this.$refs.imgFather.offsetWidth/this.$refs.imgFather.offsetHeight)) {
+        this.$set(this.styleObj,'height','100%');
+      }else {
+        this.$set(this.styleObj,'width','100%');
+      }
     },
     watch: {}
   }
@@ -153,10 +161,11 @@
       margin: auto;
       box-sizing: border-box;
       overflow: hidden;
+      position: relative;
     }
     img {
       //display: block;
-      width: 100%;
+      //width: 100%;
       //height: 100%;
       //margin-bottom: 20px;
      // box-sizing: border-box;
