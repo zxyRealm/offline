@@ -130,7 +130,7 @@
               ]
             },
              roseSeries: {
-                radius : [44, 76],
+                radius : [44, 75],
                 center : ['50%', '50%'],
                 //roseType: 'area'
                roseType : 'radius'

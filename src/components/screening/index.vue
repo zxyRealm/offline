@@ -78,7 +78,7 @@
               startTime: '',    //开始时间
               endTime:'',       //结束时间
               timeArray: [],
-              groupGuidName: '',
+              groupGuidName: '请选择社群',
             }
           }
         },
@@ -90,11 +90,12 @@
         //确定弹框
         remoteSubmit(data) {
           if((!data || data.length ==0)) {
-             this.$alert('请选择社群', '提示:', {
-              confirmButtonText: '确定',
-              callback: action => {
-              }
-            });
+            this.$tip("请选择社群","error");
+//             this.$alert('请选择社群', '提示:', {
+//              confirmButtonText: '确定',
+//              callback: action => {
+//              }
+//            });
             return;
           }
           this.dialogFormVisible = false;
@@ -120,19 +121,24 @@
         changeParams() {
           this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
           //这这里触发兄弟组件更新条件
-          this.$parent.$children[1].getData();
-          this.$parent.$children[2].getData();
+          try {
+            this.$parent.$children[1].getData();
+            this.$parent.$children[2].getData();
+          }catch (e) {
+            console.info(e);
+          }
         },
         //查询
         submitForm() {
           if(this.filterParams.groupGuid == "") {
-            this.$tip("选择社群不能为空！");
+            this.$tip("选择社群不能为空！","error");
             return;
           }
           if(this.filterParams.dimension >1 && this.filterParams.timeArray.length == 0) {
-            this.$tip("选择时间不能为空！");
+            this.$tip("选择时间不能为空！","error");
             return;
           }
+          eventObject().$emit('screening-params-change','');
           this.dealTime();
           this.changeParams();
         }

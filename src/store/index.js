@@ -14,7 +14,7 @@ const state = {
     startTime: parseTime(new Date(),'{y}-{m}-{d}'),     //开始时间
     endTime: parseTime(new Date(),'{y}-{m}-{d}'),       //结束时间
     timeArray: [],
-    groupGuidName: '请选择对象'
+    groupGuidName: '请选择社群'
   },
   groupConsoleId:  '',  //控制台社群设备id
   groupSelectId: '',    //選擇群id

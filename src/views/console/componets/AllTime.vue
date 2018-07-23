@@ -110,7 +110,7 @@ export default {
             background:url(/static/img/identify.png) no-repeat center;
             background-size: 100% 100%;
             span {
-                 padding: 5px 20px;
+                 padding: 3px 26px;
                  background: rgba(12,80,207,0.3);
                  //background: #0C50CF;
                 // opacity: 0.5;
