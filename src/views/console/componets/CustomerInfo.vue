@@ -2,7 +2,9 @@
   <div class="customer-info-wrap vam" :class="detailInfo.status==0?'customer-info-wrap-in':'customer-info-wrap-out'"
        @click="handleDetail">
     <span class="order" :class="detailInfo.status==0?'':'order-in'">{{`第${detailInfo.order}位`}}</span>
-    <img :src="detailInfo.img | imgBase">
+    <div class="customer-img">
+      <img :src="detailInfo.img | imgBase">
+    </div>
     <div class="customer-detail" :class="detailInfo.status==0?'customer-detail-in':''">
       <span v-if="detailInfo.status==0">{{detailInfo.gender==0?'女':(detailInfo.gender==1?'男':'')}}</span>
       <span v-if="detailInfo.status==0">{{detailInfo.age ==-1?"":detailInfo.age}}</span>
@@ -144,13 +146,22 @@
     width: 100%;
     height: 100%;
     text-align: center;
-    img {
-      display: block;
+    .customer-img {
       width: 100%;
-      height: 100%;
-      box-sizing: border-box;
+      height: calc(100% - 20px);
       padding: 20px 12px;
       margin: auto;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    img {
+      //display: block;
+      width: 100%;
+      //height: 100%;
+      //margin-bottom: 20px;
+     // box-sizing: border-box;
+      //padding: 20px 12px;
+      //margin: auto;
     }
     span.order {
       position: absolute;

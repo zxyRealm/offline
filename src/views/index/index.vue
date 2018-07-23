@@ -23,7 +23,7 @@
         <li class="vam">
           <router-link to="/community">
             <div>社群管理</div>
-            <p>创建社群，绑定只能设备</p>
+            <p>创建社群，绑定智能设备</p>
           </router-link>
         </li>
         <li class="vam">
