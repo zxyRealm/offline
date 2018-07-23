@@ -6,6 +6,9 @@ export function parseTime(time, cFormat) {
   if (arguments.length === 0 || !time) {
     return null
   }
+  if(time.toString().lastIndexOf('.')>-1){
+    // time = time.toString().substr(0,time.lastIndexOf("."))
+  }
   const format = cFormat || '{y}-{m}-{d} {h}:{i}:{s}';
   let date;
   if (typeof time === 'object') {

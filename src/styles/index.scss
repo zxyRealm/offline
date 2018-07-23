@@ -470,12 +470,12 @@ button, input {
     .el-input {
       width: 154px;
       min-width: auto !important;
-      line-height: 22px;
+      line-height: 20px;
       height: 22px;
       vertical-align: middle;
       .el-input__inner {
         height: 22px;
-        line-height: 22px;
+        line-height: 20px;
         font-size: 12px;
         color: #333;
       }
@@ -812,6 +812,25 @@ button, input {
 
 .el-radio__inner {
   box-shadow: none !important;
+}
+
+.el-tree-node{
+  &.is-current,&.is-checked{
+    [custom-type]{
+      &[custom-type='address'] {
+        background-image: url("./btn_image/address_icon@x1.png");
+      }
+      &[custom-type='action'] {
+        background-image: url("./btn_image/action_icon@x1.png");
+      }
+      &[custom-type='manage'] {
+        background-image: url("./btn_image/manage_icon@x1.png");
+      }
+      &[custom-type='more'] {
+        background-image: url("./btn_image/more_icon@x1.png");
+      }
+    }
+  }
 }
 
 [custom-type] {

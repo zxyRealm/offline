@@ -18,6 +18,7 @@
     <el-input
       v-if="search && !showButton"
       clearable
+      @clear="searchMethod"
       class="nav-search fr"
       :placeholder="placeholder"
       @keyup.native.enter="searchMethod"
@@ -90,9 +91,14 @@
         }
       },
       searchMethod(){
-        if(this.searchValue){
-          this.$emit("remote-search",this.searchValue)
-        }
+        // if(this.searchValue){
+          this.$emit("remote-search",(this.searchValue||'').trim())
+        // }
+      }
+    },
+    watch:{
+      searchValue(val){
+        console.log('search val',val)
       }
     }
   }
