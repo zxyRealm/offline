@@ -131,9 +131,10 @@ export default {
     //获取当前设备
     remoteSubmit(data) {
       if(!data || data.length ==0){
-          this.$alert('请选择需要添加社群名称', '提示：', {
-          confirmButtonText: '确定'
-        });
+        this.$tip("请选择您的社群","error");
+//          this.$alert('请选择需要添加社群名称', '提示：', {
+//          confirmButtonText: '确定'
+//        });
         return;
       }
       this.groupSelectId = data[0].groupGuid;

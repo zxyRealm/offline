@@ -88,7 +88,12 @@
         padding: 16px;
         overflow-y: auto;
         border: 2px dashed hsla(0, 0%, 62%, 0.03);
-        background: rgba(15, 158, 233, 0.003);
+        /*background: rgba(15, 158, 233, 0.003);*/
+        /*border-image: linear-gradient(to right,#1896E6,#813FC5) 20 20;*/
+        background-image: url(/static/img/notify_background.png);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 100% 100%;
         .readed {
           opacity: 0.5;
         }

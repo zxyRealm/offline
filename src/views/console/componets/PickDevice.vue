@@ -79,9 +79,10 @@
       //确定
       submitDialogForm() {
         if (this.radio == -1) {
-          this.$alert('请选择需要添加设备名称', '提示：', {
-            confirmButtonText: '确定'
-          });
+          this.$tip("请选择您的设备",'error');
+//          this.$alert('请选择需要添加设备名称', '提示：', {
+//            confirmButtonText: '确定'
+//          });
           return;
         }
         if (this.type === 'group') {

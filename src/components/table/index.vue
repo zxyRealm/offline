@@ -37,7 +37,7 @@
         :current-page="pageParams.currentPage"
         :page-sizes="[10, 20, 30, 40]"
         :page-size="pageParams.pageSize"
-        layout="total, sizes, prev, pager, next"
+        :layout="layout"
         :total="pageParams.total">
       </el-pagination>
     </div>
@@ -46,6 +46,8 @@
 
 <script>
   import Vue from 'vue'
+  import { mapState } from 'vuex'
+  import { eventObject } from '@/utils/event.js'
   export default {
     name: "table-index",
     data() {
@@ -56,6 +58,7 @@
           total: 0,         //总条数
           currentPage: 1    //当前第几页
         },
+        layout: 'total, sizes',
         tableData: []
 
       }
@@ -119,8 +122,32 @@
       }
     },
     mounted() {
+      //查询条件改变并且确定后，当前页码重置为1
+      eventObject().$on('screening-params-change', msg => {
+        this.pageParams.currentPage = 1;
+      })
       window.addEventListener('resize', this.initSize);
       this.initSize();
+    },
+    computed: {
+      ...mapState([
+        'filterParams'
+      ])
+    },
+    watch: {
+      filterParams: {
+        handler: function (val, oldVal) {
+           //console.info(val,11111111);
+          //this.pageParams.currentPage = 1;
+        },
+        deep: true
+      },
+      tableData: {
+        handler: function (val, oldVal) {
+          this.layout = val.length == 0 ?  'total, sizes' : 'total, sizes, prev, pager, next';
+        },
+        deep: true
+      }
     },
     beforeRouteLeave(to, from, next) {
       this.removeResize();

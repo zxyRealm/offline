@@ -1,17 +1,17 @@
 <template>
   <div class="console-wrap" :style="{backgroundColor:!state?'':'#0F0E11' }">
     <ob-list-empty v-if="!state">
-      ，<a href="javascript:void (0)" @click="selectGroupId">请选择您的社群和设备</a>
+      <a href="javascript:void (0)" @click="selectGroupId">请选择您的社群和设备</a>
     </ob-list-empty>
     <div class="content-top" v-if="state">
       <div class="content-top-left">
-        <ul class="left-ul corner-bg">
-          <li>
+        <ul class="left-ul">
+          <li class="corner-bg">
             <p>客流汇总信息 </p>
             <flow-info :type="'left'" :number="inNumber" class="flow-left"></flow-info>
             <flow-info :type="'right'" :number="outNumber" class="flow-right"></flow-info>
           </li>
-          <li>
+          <li class="corner-bg">
             <all-time class="li-all-time"></all-time>
           </li>
         </ul>
@@ -272,10 +272,12 @@
         box-sizing: border-box;
         .left-ul {
           height: 31%;
-          background-color: rgba(64, 58, 73, 0.30);
-          box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
+          /*background-color: rgba(64, 58, 73, 0.30);*/
+          /*box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);*/
           li {
             float: left;
+            background-color: rgba(64, 58, 73, 0.30);
+            box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
           }
           li:nth-child(1) {
             width: 60%;
