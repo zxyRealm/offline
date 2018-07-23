@@ -5,6 +5,7 @@
 </template>
 
 <script>
+  import echarts from 'echarts'
   export default {
     name: "echarts-bar",
     props: {
@@ -26,7 +27,13 @@
           textStyle: {   //总体字体样式
             color: "#ffffff"
           },
-          color: ['#247CD0'],
+          color: [new echarts.graphic.LinearGradient(
+            0, 0, 0, 1,
+            [
+              {offset: 0, color: 'rgba(133,93,182,1)'},
+              {offset: 1, color: 'rgba(36,124,208,1)'}
+            ]
+          )],
           tooltip: {
             show: false,
             trigger: 'axis',

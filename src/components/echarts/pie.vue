@@ -4,6 +4,7 @@
     </div>
 </template>
 <script>
+  import echarts from 'echarts'
     export default {
       name: "echarts-pie",
       props: ['pieParams'],
@@ -71,13 +72,30 @@
                       label: {
                         normal: {
                           show: true,
-                          //fontSize: 16,
-                          formatter: '{per|{d}%}',//'{d}%',  //显示百分比
+                          fontSize: 13,
+                          formatter: function (v) {
+                            if(v.name == '女' || v.name == '多次') {
+                              return '{gray|' + v.percent +'%' +'}';
+                            }else if(v.name == '男' || v.name == '单次') {
+                              return '{green|' + v.percent +'%'+ '}';
+                            }else {
+                              return v.percent+'%';
+                            }
+                          },//'{per|{d}%}',//'{d}%',  //显示百分比
                           position: 'outside',
                           //padding: [30, 0, 0, 0],
                           rich: {
+                            gray: {
+                              color: 'rgba(109,46,187,1)',
+                              fontSize: 16,
+                            },
+                            green: {
+                              color: 'rgba(15,158,233,1)',
+                              fontSize: 16,
+                            },
                             per: {
                               //lineHeight: 22,
+                              //color: '#fff',
                               fontSize: 12,
                               align: 'center'
                             }
@@ -135,7 +153,21 @@
        },
        //定义颜色
       changeColor() {
-        this.option.color = this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#6D2EBB','#2187DF','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+        this.option.color = this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : [
+          new echarts.graphic.LinearGradient(
+            0, 0, 0, 1,
+            [
+              {offset: 0, color: 'rgba(166,90,223,1)'},
+              {offset: 1, color: 'rgba(109,46,187,1)'}
+            ]
+        ),
+          new echarts.graphic.LinearGradient(
+            0, 0, 0, 1,
+            [
+              {offset: 0, color: 'rgba(35,205,246,1)'},
+              {offset: 1, color: 'rgba(15,158,233,1)'}
+            ]
+          ),'#6D2EBB','#2187DF','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
       },
       //改变标题
       changeTitle() {
@@ -148,9 +180,22 @@
       //年龄分布数据渲染 = 控制台
       showAgeData() {
           this.changeTitle();
-          this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+          this.option.color = [ new echarts.graphic.LinearGradient(
+            0, 0, 0, 1,
+            [
+              {offset: 0, color: 'rgba(166,90,223,1)'},
+              {offset: 1, color: 'rgba(109,46,187,1)'}
+            ]
+          ),
+            new echarts.graphic.LinearGradient(
+              0, 0, 0, 1,
+              [
+                {offset: 0, color: 'rgba(35,205,246,1)'},
+                {offset: 1, color: 'rgba(15,158,233,1)'}
+              ]
+            ),'#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
           this.option.series[0].data = this.pieParams.seriesData;
-          this.option.legend.data = this.pieParams.legendData;
+          //this.option.legend.data = this.pieParams.legendData;
           this.drawPie();
       },
       //解析返回seriesGroup
