@@ -1,9 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import app from './modules/app'
-import user from './modules/user'
 import getters from './getters'
-import permission from './modules/permission'
 import { fetch } from '@/utils/request'
 import { parseTime } from  '@/utils/index'
 Vue.use(Vuex);
@@ -16,10 +14,12 @@ const state = {
     startTime: parseTime(new Date(),'{y}-{m}-{d}'),     //开始时间
     endTime: parseTime(new Date(),'{y}-{m}-{d}'),       //结束时间
     timeArray: [],
-    groupGuidName: '请选择对象'
+    groupGuidName: '请选择社群'
   },
   groupConsoleId:  '',  //控制台社群设备id
-  loading:true
+  groupSelectId: '',    //選擇群id
+  loading:true,
+  showBar:true   //是否显示侧边栏
 };
 
 const actions = {
@@ -29,44 +29,32 @@ const actions = {
     }).catch(error=>{
       console.log(error)
     })
-  },
-  SET_FILTER_PARAMS:({commit})=>{
-    let filterParams = {
-      groupGuid: '',     //选择社群
-      type: 1,           //类型
-      dimension: 1,      //维度
-      startTime: parseTime(new Date(),'{y}-{m}-{d}'),     //开始时间
-      endTime: parseTime(new Date(),'{y}-{m}-{d}')        //结束时间
-    }
-    commit("SET_FILTER_PARAMS",filterParams);
-    return  true;
-  },
-  SET_GROUP_CONSOLEID:({commit})=>{
-    let groupConsoleId = "";
-    commit("SET_GROUP_CONSOLEID",groupConsoleId);
-    return  true;
   }
 };
 
 const mutations = {
   SET_USER_INFO:(state,data)=>{
     for(let item in data){
-      Vue.set(state.userInfo,item,data[item])
+      if(data[item]!==null){
+        Vue.set(state.userInfo,item,data[item])
+      }
     }
+    console.log(state.userInfo)
   },
   SET_FILTER_PARAMS: (state,data) => {
     state.filterParams = data || {};
   },
-  SET_GROUP_CONSOLEID: (state,data) => {
+  SET_GROUP_CONSOLE_ID: (state,data) => {
     state.groupConsoleId = data || '';
+  },
+  SET_GROUP_SELECT_ID: (state,data) => {
+    state.groupSelectId = data || '';
   }
 };
 
 const store =  new Vuex.Store({
   modules:{
-    app,
-    permission,
-    user
+    app
   },
   state,
   mutations,

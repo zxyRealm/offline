@@ -1,14 +1,21 @@
 #app {
   // 主体区域
   .main-container {
-    position: relative;
+    position: absolute;
+    top:70px;
+    left:220px;
+    width: calc(100% - 220px);
     height: calc(100% - 70px);
-    transition: margin-left .28s;
-    margin-left: 220px;
+    transition: all .28s;
     padding: 20px;
     background: #0F0E11;
     overflow-y: auto;
     box-sizing: border-box;
+    &.no-bar{
+      left:0!important;
+      transition: none;
+      width: 100%!important;
+    }
   }
   // 侧边栏
   .sidebar-container {
@@ -61,7 +68,8 @@
       width: 65px !important;
     }
     .main-container {
-      margin-left: 65px;
+      left: 65px;
+      width:calc(100% - 65px)
     }
     .submenu-title-noDropdown {
       padding-left: 10px !important;

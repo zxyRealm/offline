@@ -34,6 +34,7 @@
        methods: {
           resizeFunction() {
             let me = this;
+            if(!me.$refs.line) return;
             let table = document.getElementById("echarts-line");
             //let tableEle = document.body.clientHeight - 420;
             table.style.height = me.$refs.line.offsetHeight +"px";
@@ -58,11 +59,6 @@
       mounted() {
          let me = this;
          window.addEventListener("resize",me.resizeFunction);
-         //饼图设置层级
-         setTimeout(() => {
-            let canvas = document.getElementsByTagName('canvas')[0];
-            if(!!canvas) canvas.style.zIndex = 99999;
-        },600);
       },
       beforeRouteLeave(to, from , next) {
           let me = this;

@@ -14,7 +14,7 @@
           v-model="search"
           placeholder="拼音支持首字母输入">
           <span slot="suffix" class="el-input__icon" @click="address=''">重置</span>
-          <span slot="suffix" class="el-input__icon el-icon-close" @click="search=''"></span>
+          <span slot="suffix" class="el-input__icon el-icon-close" @click="visible=false"></span>
         </el-input>
         <el-input
           type="text" readonly
@@ -39,24 +39,33 @@
         :readonly="readonly"
         slot="reference"
         :placeholder="!addressText"
-        class="address-btn">{{addressText?addressText:'请选取地址'}}</el-button>
+        :class="{'popover-icon':visible}"
+        class="address-btn">
+        {{addressText?addressText:placeholder}}
+      </el-button>
+
     </el-popover>
   </div>
 </template>
 
 <script>
   let OK_CODE = 1;
-  import { makePy } from '../../utils/initial'
+  import {makePy} from '../../utils/initial'
+
   export default {
     name: "area-select",
     props: {
-      readonly:{
-        type:Boolean,
-        default:false
+      readonly: {
+        type: Boolean,
+        default: false
       },
       value: {
         type: [Array, String],
         default: ''
+      },
+      placeholder: {
+        type: String,
+        default: '请选取地址'
       }
     },
     data() {
@@ -68,44 +77,25 @@
         currentType: 0,  //分为三个类型 0:province、1:city、2:area
         currentAddress: '',
         addressOption: [],
-        originAddress: [
-          [
-            {id: 11102, name: '浙江'},
-            {id: 11202, name: '北京'},
-            {id: 11402, name: '福建'},
-            {id: 11602, name: '云南'},
-            {id: 11702, name: '内蒙古'},
-            {id: 11602, name: '云南'},
-            {id: 11702, name: '内蒙古'},
-            {id: 11902, name: '香港特别行政区'},
-            {id: 11206, name: '澳门特别行政区'},
-            {id: 11236, name: '呼和浩特'}
-          ],
-          [
-            {id: 112334, name: '温州'},
-            {id: 112334, name: '湖州'},
-            {id: 112334, name: '杭州'},
-            {id: 112334, name: '绍兴'},
-            {id: 112334, name: '金华'},
-            {id: 112334, name: '衢州'},
-          ],
-          [
-            {id: 112234, name: '江干区'},
-            {id: 112235, name: '余杭区'},
-            {id: 112236, name: '萧山区'},
-            {id: 112237, name: '西湖区'},
-            {id: 112238, name: '滨江区'}
-          ]
-        ]
+        originAddress: []
       }
     },
     methods: {
       getAddressList() {
-        this.$http("/area/list", {level: 1}).then((res) => {
+        this.$http("/area/list", {level: 1}, false).then((res) => {
           if (res.result === OK_CODE) {
-            this.$set(this.originAddress, 0, res.data[1].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
-            this.$set(this.originAddress, 1, res.data[2].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
-            this.$set(this.originAddress, 2, res.data[3].map(item=>{ this.$set(item,'initial',makePy(item.name));return item }));
+            this.$set(this.originAddress, 0, res.data[1].map(item => {
+              this.$set(item, 'initial', makePy(item.name));
+              return item
+            }));
+            this.$set(this.originAddress, 1, res.data[2].map(item => {
+              this.$set(item, 'initial', makePy(item.name));
+              return item
+            }));
+            this.$set(this.originAddress, 2, res.data[3].map(item => {
+              this.$set(item, 'initial', makePy(item.name));
+              return item
+            }));
             if (this.value) {
               let idArr = this.value.split(',').map(Number);
               let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()];
@@ -143,11 +133,11 @@
           this.currentValue = [];
         }
       },
-      currentAddress: function (val) {
+      currentAddress: function (val, old) {
         this.$set(this.currentValue, this.currentType, val);
         if (this.currentType < 2) {
           this.currentType++
-        } else {
+        } else if (val !== old) {
           this.visible = false
         }
       },
@@ -158,35 +148,34 @@
             idStr += idStr ? (',' + item.id) : item.id;
             textStr += textStr ? ('-' + item.name) : item.name;
           });
-          this.$emit("input",idStr);
+          this.$emit("input", idStr);
           this.address = textStr;
         },
         deep: true
       },
-      search(val){
-       val = val.replace(/[\s ]+/g,'');
-        if(val){
+      search(val) {
+        val = val.trim();
+        if (val) {
           let isChar = /^[a-z]+$/i.test(val);
-          this.addressOption.map(item=>{
-            if(item.name.indexOf(val)>-1 || item.initial[0].indexOf(val.toUpperCase())>-1){
-              this.$set(item,'active',1)
-            }else {
-              this.$set(item,'active',0)
+          this.addressOption.map(item => {
+            if (item.name.indexOf(val) > -1 || item.initial[0].indexOf(val.toUpperCase()) > -1) {
+              this.$set(item, 'active', 1)
+            } else {
+              this.$set(item, 'active', 0)
             }
           });
-        }else {
-          this.addressOption.map(item=>{
-            this.$set(item,'active',0)
+        } else {
+          this.addressOption.map(item => {
+            this.$set(item, 'active', 0)
           });
         }
       },
-      visible:function(val){
-        if(val){
-
-        }else {
-          if(!this.currentValue[2]){
+      visible: function (val) {
+        if (!val) {
+          if (!this.currentValue[2]) {
             this.address = '';
-            this.$emit("input",'')
+            this.search = '';
+            this.$emit("input", '')
           }
         }
       }
@@ -205,6 +194,7 @@
     display: inline-block;
     height: 30px;
     .address-btn {
+      position: relative;
       width: 100%;
       line-height: 30px;
       color: #fff;
@@ -215,14 +205,30 @@
       background-repeat: no-repeat;
       background-size: 100% 100%;
       text-align: left;
-      &[readonly]{
+      &[readonly] {
         background: transparent;
         cursor: text;
+        &:after{
+          display: none;
+        }
       }
-      &[placeholder]{
-        color:#d0d0d0;
+      &[placeholder] {
+        color: rgba(255, 255, 255, .4);
       }
-
+      &:after {
+        position: absolute;
+        content: '';
+        right: 4px;
+        height: 100%;
+        width: 30px;
+        background: url("/static/img/select_arrow_icon.png") no-repeat center;
+        background-size: 15px auto;
+        transition: transform 0.5s;
+        transform: rotate(0deg);
+      }
+      &.popover-icon:after {
+        transform: rotate(180deg);
+      }
     }
   }
 
@@ -233,6 +239,7 @@
         border: none;
         .el-input__inner {
           border: none;
+          color: #333;
         }
       }
     }
@@ -250,6 +257,8 @@
       .el-input {
         .el-input__inner {
           border: none;
+          color: #333;
+          background: transparent;
         }
         &.search-input {
           height: $line24;
@@ -281,7 +290,7 @@
                 margin-right: 0;
               }
             }
-            .el-input__validateIcon{
+            .el-input__validateIcon {
               display: none;
             }
           }
@@ -305,8 +314,8 @@
         .el-radio-button {
           width: 48px;
           margin: 0 6px;
-          &.selectable{
-            .el-radio-button__inner{
+          &.selectable {
+            .el-radio-button__inner {
               color: #0F9EE9;
             }
           }

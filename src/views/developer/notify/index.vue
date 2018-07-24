@@ -1,10 +1,9 @@
 <template>
   <div class="notify-wrap">
-    <uu-sub-tab :menu-array="menu" :show-button="!equipmentEmpty" :sub-btn="btnOption" @handle-btn="addCallbackInfo"></uu-sub-tab>
-
-    <no-callback-info v-if="equipmentEmpty"></no-callback-info>
-    <div class="data-list-wrap" v-else>
-      <template v-if="notifyList && notifyList.length">
+    <uu-sub-tab :menu-array="menu" :show-button="!!notifyList.length && !loading" :sub-btn="btnOption"
+                @handle-btn="addCallbackInfo"></uu-sub-tab>
+    <div class="data-list-wrap" v-if="notifyList && notifyList.length">
+      <el-scrollbar>
         <ob-list v-for="(item,$index) in notifyList" :key="$index">
           <ob-list-item type="type" :data="item" prop="type" label="通知类型"></ob-list-item>
           <ob-list-item :data="item" prop="intro,tokenURL" label="通知描述,回调地址"></ob-list-item>
@@ -14,17 +13,17 @@
             <router-link to="/developer/param/explain">
               参数介绍
             </router-link>
-            <router-link style="margin: 0 36px" :to="'/developer/notify/'+item.noticeGuid">详情</router-link>
-            <el-button icon="el-icon-delete"  @click="delNotifyInfo(item.noticeGuid)" circle></el-button>
+            <router-link style="margin: 0 36px" :to="'/developer/notify/'+item.noticeGuid">编辑</router-link>
+            <el-button icon="el-icon-delete" @click="delNotifyInfo(item.noticeGuid)" circle></el-button>
           </ob-list-item>
         </ob-list>
-      </template>
-      <ob-list-empty v-else text="暂无通知信息。" ></ob-list-empty>
-
+      </el-scrollbar>
     </div>
+    <no-callback-info v-if="!notifyList.length && !loading"></no-callback-info>
   </div>
 </template>
 <script>
+  import {mapState} from 'vuex'
   export default {
     name: "notify",
     components: {
@@ -32,7 +31,8 @@
     },
     data() {
       return {
-        update:'升级',
+        paste: '',
+        update: '升级',
         equipmentEmpty: false,
         btnOption: {
           text: '创建'
@@ -41,21 +41,23 @@
           {title: '消息通知', index: '/developer/notify'},
           {title: '开放API', index: '/developer/api'}
         ],
-        notifyList: [],
+        notifyList: [
+          // {
+          //   createTime: "2018-07-18 10:45:33",
+          //   intro: "测试通知",
+          //   lastEditTime: null,
+          //   merchantGuid: "12345678901",
+          //   noticeGuid: "EBAC92648D3047119A069FE9AA909E30",
+          //   scene: null,
+          //   state: 1,
+          //   tokenURL: "http://192.168.20.227:8083/test/result",
+          //   type: "1"
+          // }
+        ],
         pagination: {}
       }
     },
     methods: {
-      equipmentExit(){
-        this.$http("/device/merchant/exist",false).then(res=>{
-          this.equipmentEmpty = !res.data;
-          if(res.data){
-            this.getNotifyList()
-          }
-        }).catch(error=>{
-          this.equipmentEmpty = true
-        })
-      },
       delNotifyInfo(id) {
         this.$affirm({
           confirm: '删除',
@@ -85,19 +87,19 @@
           }
         })
       },
-      addCallbackInfo(){
-        if(!this.equipmentEmpty){
+      addCallbackInfo() {
+        if (!this.equipmentEmpty) {
           this.$router.push('/developer/notify/add-info')
-        }else {
+        } else {
           this.$affirm({
-            confirm:'前往【添加设备】',
-            cancel:'返回',
-            text:'您还没有设备，无法创建数据回调。'
-          },(action,instance,done)=>{
-            if(action==='confirm'){
+            confirm: '前往【添加设备】',
+            cancel: '返回',
+            text: '您还没有设备，无法创建消息通知。'
+          }, (action, instance, done) => {
+            if (action === 'confirm') {
               done();
               this.$router.push("/equipment/mine");
-            }else {
+            } else {
               done()
             }
           })
@@ -106,7 +108,10 @@
       }
     },
     created() {
-      this.equipmentExit();
+      this.getNotifyList();
+    },
+    computed:{
+      ...mapState(["loading"])
     },
     filters: {
       type: function (value) {

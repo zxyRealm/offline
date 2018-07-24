@@ -16,9 +16,8 @@
         <ob-group-nav @current-change="currentChange"></ob-group-nav>
       </div>
       <div class="ec-container" :class="{'dashed-border':isSearch}">
-        <el-scrollbar class="ob-scrollbar">
-          <ob-list-empty v-if="!initState||!equipmentList.length" :text="tipMsg"></ob-list-empty>
-          <template v-for="(item,$index) in equipmentList" v-else>
+        <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
+          <template v-for="(item,$index) in equipmentList" >
             <ob-list>
               <ob-list-item :data="item" type="state">
               </ob-list-item>
@@ -29,7 +28,7 @@
               </ob-list-item>
               <ob-list-item>
                 <p><span>用途：</span><br>
-                  <router-link v-if="item.deviceType!==1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>
+                  <router-link v-if="item.deviceType===1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>
                   <template v-else>
                     {{item.deviceType | deviceType}}
                   </template>
@@ -43,12 +42,21 @@
                 <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
                 <p><span>应用场景：</span>{{item.deviceScene}}</p>
               </ob-list-item>
-              <ob-list-item :data="item" type="handle">
+              <ob-list-item style="min-width: 215px" @refresh="getEquipmentList" :data="item" type="handle">
               </ob-list-item>
 
             </ob-list>
           </template>
+          <el-pagination
+            v-if="pagination.total && pagination.total>pagination.length"
+            @current-change="getEquipmentList"
+            :current-page="pagination.index"
+            :page-size="pagination.length"
+            layout="total,prev, pager, next, jumper"
+            :total="pagination.total">
+          </el-pagination>
         </el-scrollbar>
+        <ob-list-empty v-if="!equipmentList.length" :size="small" :text="tipMsg"></ob-list-empty>
       </div>
     </div>
   </div>
@@ -63,112 +71,33 @@
           {title: '自有设备', index: '/equipment/mine'},
           {title: '子社群设备', index: '/equipment/children'}
         ],
-        currentGroup: '',
-        equipmentList: [],
-        pagination: {},
-        initState: false
+        currentGroup: '',  //选中社群
+        equipmentList: [], //设备列表
+        pagination: {} //分页参数
       }
     },
     methods: {
+      // 获取社群列表
       getEquipmentList(page) {
-        page = page || 1;
-        !this.initState ? this.initState = true : '';
+        page = page || this.pagination.index || 1;
         if(this.isSearch){
           this.$http("/device/guid/list", {guid: this.currentGroup, index: page}).then(res => {
             this.equipmentList = res.data.content;
             this.pagination = res.data.pagination;
           })
         }else {
-          this.$http("/device/search", {searchText:this.$route.params.key, index: page}).then(res => {
+          this.$http("/device/search", {searchText:this.$route.params.key||'', index: page}).then(res => {
             this.equipmentList = res.data.content;
             this.pagination = res.data.pagination;
           })
         }
       },
-      btnState(state, type) {
-        //1开机 -1 关机 2升级 3重启 4重置
-        switch (state) {
-          case 1:
-            return false;
-          case -1:
-            if (type === 'upgrade') {
-              return true;
-            } else {
-              return false;
-            }
-          case 2:
-            if (type === 'upgrade') {
-              return false
-            } else {
-              return true;
-            }
-          case 3:
-            return true;
-          case 4:
-            return true;
-          default:
-            return true;
-        }
-      },
-      handleBtn(value, type) {
-        let des = '';
-        switch (type) {
-          case 'upgrade':
-            des = '升级';
-            break;
-          case 'reboot':
-            des = '重启';
-            break;
-          case 'reset':
-            des = '重置';
-            break;
-          case 'close':
-            if (value.deviceState !== -1) {
-              des = '开启';
-            } else {
-              des = '关闭'
-            }
-            break;
-          default:
-            des = '开启'
-        }
-        this.$affirm({text: '确定' + des + '设备【' + value.deviceName + '】?'}, (action, instance, done) => {
-          if (action === 'confirm') {
-            switch (type) {
-              case 'reboot':
-                this.$tip("重启成功");
-                break;
-              case 'upgrade':
-                this.$tip("正在升级中...");
-                break;
-              case 'reset':
-                this.$tip("重置成功");
-                break;
-              case 'close':
-                if (value.deviceState === -1) {
-                  this.$tip("设备开启中...")
-                } else {
-                  this.$tip('设备关闭中...')
-                }
-                break;
-              default:
-            }
-            done()
-          } else {
-            done()
-          }
-        })
-      },
-      // 获取设备状态
-      getEquipmentState(value) {
-        this.$set(value, 'deviceState', 1);
-        // this.$http('');
-        console.log("equipment state")
-      },
+      // 搜索社群设备
       search(value) {
         this.$router.push(`/equipment/search/children/${value}`);
       },
       currentChange(val) {
+        console.log('current',val);
         this.currentGroup = val.groupGuid;
       }
     },
@@ -182,11 +111,16 @@
         return this.$route.name === 'equipmentChildren'
       },
       tipMsg:function () {
-        return !this.isSearch?'查询不到该设备。':!this.initState?'请先在左侧选择自有社群，以查看其下的子社群设备。':(!this.equipmentList.length?"该社群尚未绑定设备。":'')
+        return !this.isSearch?'查询不到该设备':!this.currentGroup?'请先在左侧选择自有社群，以查看其下的子社群设备':(!this.equipmentList.length?"该社群尚未绑定设备":'')
+      },
+      small(){
+        return this.currentGroup&&!this.equipmentList.length?'small':''
       }
     },
     watch: {
       currentGroup:function () {
+        this.equipmentList = [];
+        this.pagination = {};
         this.getEquipmentList()
       },
       $route: function (val) {
@@ -227,6 +161,7 @@
         height: 100%;
         &.dashed-border{
           margin-left: 160px;
+          border: none;
         }
       }
     }

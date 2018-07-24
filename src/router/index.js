@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import {getToken} from '../utils/auth'
 import store from '../store'
+import {fetch} from '@/utils/request'
+import {MessageBox} from "element-ui"
 
 const board = () => import('@/views/board');
 
-const Login = () => import('@/views/login/index.vue');
 const Layout = () => import('@/views/layout/Layout.vue');
 const Community = () => import('@/views/community/index.vue');
 const customCommunity = () => import('@/views/community/custom.vue');
@@ -37,9 +37,9 @@ const consoleIndex = () => import('@/views/console/index.vue');
 const homePage = () => import('@/views/index/index');
 const homeNotify = () => import('@/views/index/notify/index');
 
+const Demo = () => import('@/components/HelloWorld');
+const error404 = ()=> import('@/views/errorPage/404');
 Vue.use(Router);
-
-
 export const constantRouterMap = [
   {
     path: '/',
@@ -56,7 +56,7 @@ export const constantRouterMap = [
     children: [
       {
         path: '',
-        name:  'index-lwh',
+        name: 'index-lwh',
         meta: {
           title: "首页展示"
         },
@@ -64,7 +64,7 @@ export const constantRouterMap = [
       },
       {
         path: '/index/notify/:notifyState',
-        name:  'index-home',
+        name: 'index-home',
         meta: {
           title: "首页展示-消息通知"
         },
@@ -72,16 +72,6 @@ export const constantRouterMap = [
       }
     ]
   },
-  {
-    path: '/login',
-    name: 'login',
-    meta: {auth: false, title: '登录-线下浏览器服务平台'},
-    component: Login
-  }
-];
-
-export const asyncRouterMap = [
-
   {
     path: "/console",
     component: Layout,
@@ -92,12 +82,20 @@ export const asyncRouterMap = [
     },
     children: [
       {
-          path: '/',
-          name:  'console-lwh',
-          meta: {
-            title: "控制台入库"
-          },
-          component: consoleIndex
+        path: '/',
+        name: 'console-lwh',
+        meta: {
+          title: "控制台入库"
+        },
+        component: consoleIndex
+      },
+      {
+        path: '/test',
+        name: 'test-demo',
+        meta: {
+          title: "示例"
+        },
+        component: Demo
       }
     ]
   },
@@ -169,13 +167,13 @@ export const asyncRouterMap = [
       }
     ]
   },
+  {path: '/equipment', redirect: '/equipment/mine'},
   {
     path: "/equipment",
     component: Layout,
-    redirect: '/equipment/mine',
     meta: {
       auth: true,
-      title: "设备管理",
+      title: "设备管理-线下浏览器服务平台",
       roles: ['admin']
     },
     children: [
@@ -183,7 +181,8 @@ export const asyncRouterMap = [
         path: 'mine',
         name: 'equipment',
         meta: {
-          title: "自有设备-设备管理-线下浏览器服务平台"
+          title: "自有设备-设备管理-线下浏览器服务平台",
+          auth: true
         },
         component: Equipment
       },
@@ -191,15 +190,17 @@ export const asyncRouterMap = [
         path: 'children',
         name: 'equipmentChildren',
         meta: {
-          title: "子社群设备-设备管理-线下浏览器服务平台"
+          title: "子社群设备-设备管理-线下浏览器服务平台",
+          auth: true
         },
         component: EquipmentChildren
       },
       {
-        path: 'more/:key([0-9A-Z\-_]{12})',
+        path: 'more/:key([0-9A-Z\-_]{16})',
         name: 'equipmentMore',
         meta: {
-          title: "分析终端用途-设备管理-线下浏览器服务平台"
+          title: "分析终端用途-设备管理-线下浏览器服务平台",
+          auth: true
         },
         component: EquipmentMore
       },
@@ -207,7 +208,8 @@ export const asyncRouterMap = [
         path: 'search/children/:key',
         name: 'searchChildren',
         meta: {
-          title: "子社群设备搜索-设备管理-线下浏览器服务平台"
+          title: "子社群设备搜索-设备管理-线下浏览器服务平台",
+          auth: true
         },
         component: EquipmentChildren
       },
@@ -323,12 +325,8 @@ export const asyncRouterMap = [
         component: sysNotify
       },
       {
-        path: 'info',
-        redirect: 'info/center'
-      },
-      {
-        path: 'info/center',
-        name: 'infoCenter',
+        path: '/person/center',
+        name: 'personCenter',
         meta: {
           auth: true,
           title: "个人信息-开发者中心-线下浏览器服务平台"
@@ -336,8 +334,8 @@ export const asyncRouterMap = [
         component: Developer
       },
       {
-        path: 'info/edit',
-        name: 'infoEdit',
+        path: '/person/edit',
+        name: 'personEdit',
         meta: {
           auth: true,
           title: "编辑信息-开发者中心-线下浏览器服务平台"
@@ -368,42 +366,56 @@ export const asyncRouterMap = [
       },
       {
         path: 'param/explain',
-        name:'paramExplain',
-        meta:{
-          auth:true,
-          title:'参数说明-开发者中心-线下浏览器服务平台'
+        name: 'paramExplain',
+        meta: {
+          auth: true,
+          title: '参数说明-开发者中心-线下浏览器服务平台'
         },
-        component:paramExplain
+        component: paramExplain
       }
     ]
+  },
+  {
+    path:"*",
+    component:error404
   }
 ];
 
 const router = new Router({
+  mode: 'history',
   scrollBehavior: () => ({y: 0}),
-  routes: constantRouterMap
+  routes: constantRouterMap,
+  // 取消掉对query参数 encodeURLComponent编码处理
+  stringifyQuery: query => {
+    let str = '';
+    for (let item in query) {
+      str += `${item}=${query[item]}&`
+    }
+    let fullStr = str.replace(/&$/, '');
+    return fullStr ? '?' + fullStr : ''
+  }
 });
 
 router.beforeEach((to, from, next) => {
-  if (getToken()) {
-    if (store.getters.roles.length === 0) {
-      let roles = ['admin'];
-      store.commit('SET_ROLES', roles);
-      store.dispatch('GenerateRoutes', {roles}).then(() => { // 根据roles权限生成可访问的路由表
-        router.addRoutes(store.getters.addRouters); // 动态添加可访问路由表
-        next({...to})
-      })
-    } else {
+  fetch('/loginCheck', false).then(res => {
+    if(to.name==='personCenter'&&(!store.state.userInfo.company||!store.state.userInfo.phone)){
+      next('/person/edit')
+    }else{
       next()
     }
-  } else {
-    next();
-    console.log(to.name);
-    // if (to.name === 'login') {
-    //   next()
-    // } else {
-    //   next({path: '/'})
-    // }
-  }
+  }).catch(err => {
+    if (err.code === 'ERR-110') {
+      let html = `
+              <p>您的登录已过期，请重新登录！</p>
+            `;
+      MessageBox.confirm(html, '登录确认', {
+        center: true,
+        dangerouslyUseHTMLString: true,
+        showCancelButton: false
+      }).then(() => {
+        window.location.href = `${err.data}?redirectURL=${window.location.href}`
+      });
+    }
+  });
 });
 export default router

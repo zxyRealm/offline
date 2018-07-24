@@ -31,9 +31,9 @@ export default {
             let clock = '';
             if(hh < 10) clock += "0";
                 clock += hh + ":";
-            if (mm < 10) clock += '0'; 
-               clock += mm; 
-            //   return(clock); 
+            if (mm < 10) clock += '0';
+               clock += mm;
+            //   return(clock);
             // this.$set(this.data, 0,  Math.floor(hh/10));
             // this.$set(this.data, 1,  hh%10);
             // this.$set(this.data, 2,  Math.floor(mm/10));
@@ -45,9 +45,8 @@ export default {
         },
         setTime() {
             let me = this;
-            this.showTime = setInterval(() => {
-                me.time();
-            },60000);
+            me.time();
+            this.showTime = window.setTimeout(this.setTime,10000);  //默认是一分钟60000
         }
     },
     created() {
@@ -58,35 +57,35 @@ export default {
     },
     watch: {
         dd(val,oldVal) {
-           
             this.$refs.dd.classList.add("animation-lwh-show");
-            setTimeout(() => {
+            let timer = window.setTimeout(() => {
                  if(!this.$refs.dd) return;
-                this.$refs.dd.classList.remove("animation-lwh-show");
+                 this.$refs.dd.classList.remove("animation-lwh-show");
+                 window.clearTimeout(timer);
             },6000);
         },
         d(val,oldVal) {
-            
             this.$refs.d.classList.add("animation-lwh-show");
-            setTimeout(() => {
+            let timer = window.setTimeout(() => {
                 if(!this.$refs.d) return;
                 this.$refs.d.classList.remove("animation-lwh-show");
+                window.clearTimeout(timer);
             },6000);
         },
         tt(val,oldVal) {
-           
-            this.$refs.tt.classList.add("animation-lwh-show");
-            setTimeout(() => {
+          this.$refs.tt.classList.add("animation-lwh-show");
+          let timer = window.setTimeout(() => {
                  if(!this.$refs.tt) return;
-                this.$refs.tt.classList.remove("animation-lwh-show");
+                 this.$refs.tt.classList.remove("animation-lwh-show");
+                 window.clearTimeout(timer);
             },6000);
         },
         t(val,oldVal) {
-           
-            this.$refs.t.classList.add("animation-lwh-show");
-            setTimeout(() => {
-                 if(!this.$refs.t) return;
+          this.$refs.t.classList.add("animation-lwh-show");
+          let timer = window.setTimeout(() => {
+                if(!this.$refs.t) return;
                 this.$refs.t.classList.remove("animation-lwh-show");
+                window.clearTimeout(timer);
             },6000);
         }
     },
@@ -94,7 +93,7 @@ export default {
 
     },
     beforeRouteLeave() {
-        if(!!this.showTime) clearInterval(this.showTime);
+        if(this.showTime) window.clearTimeout(this.showTime);
     }
 }
 </script>
@@ -108,10 +107,10 @@ export default {
             height: 34px;
             width: 164px;
             margin-left: calc(50% - 82px);
-            background:url(/static/img/identify.png) no-repeat center; 
+            background:url(/static/img/identify.png) no-repeat center;
             background-size: 100% 100%;
             span {
-                 padding: 5px 20px;
+                 padding: 3px 26px;
                  background: rgba(12,80,207,0.3);
                  //background: #0C50CF;
                 // opacity: 0.5;
@@ -145,6 +144,6 @@ export default {
                     50%{ transform: rotate3d(1,0,0,90deg) scale(1);}
                     100% {transform: rotate3d(1,0,0,0deg) scale(1);}
                 }
-       }  
+       }
     }
 </style>

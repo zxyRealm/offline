@@ -49,7 +49,7 @@
             if(this.type==='update'&&this.originName===value){
               callback()
             }else {
-              this.$http("/groupCustom/nameExist",{name:encodeURI(value)},false).then(res=>{
+              this.$http("/groupCustom/nameExist",{name:value},false).then(res=>{
                 !res.data?callback():callback(new Error("分组名称已存在"));
               }).catch(err=>{
                 callback(new Error(err.msg||'验证失败'))

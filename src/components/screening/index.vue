@@ -2,7 +2,7 @@
     <div class="screening-wrap">
       <div>筛选</div>
       <el-form  v-model="filterParams" class="demo-ruleForm" label-width="90px" :class="type!=1?'normal-from':'' ">
-        <el-form-item label="选择对象：" prop="groupGuidName">
+        <el-form-item label="选择社群：" prop="groupGuidName">
           <input class="group-name-input" type="text" v-model="filterParams.groupGuidName" @click="groupGuidNameClick" auto-complete="off"/>
           <span class="icon-select"></span>
         </el-form-item>
@@ -12,16 +12,16 @@
          </template>
         </el-form-item>
         <el-form-item label="时间："  prop="startTime">
-          <el-date-picker v-show="filterParams.dimension == 1" 
-          type="date" 
+          <el-date-picker v-show="filterParams.dimension == 1"
+          type="date"
            v-model="filterParams.startTime"
            placeholder="选择日期"
-           value-format = "yyyy-MM-dd" 
+           value-format = "yyyy-MM-dd"
            class="picker-data"
            :picker-options="pickerOptions1"
            :clearable="false"
           >
-          </el-date-picker> 
+          </el-date-picker>
           <el-date-picker v-show ="filterParams.dimension > 1"
             v-model="filterParams.timeArray"
             type="daterange"
@@ -53,40 +53,32 @@
 
 <script>
     import { mapGetters,mapMutations} from 'vuex'
+    import {eventObject} from '@/utils/event.js'
+    import { parseTime } from  '@/utils/index'
     export default {
         name: "screening-index",
         props: ['type'],
         data() {
-          let groupGuidNameFunction = (rule, value, callback) => {
-              if(!value){
-                  return callback(new Error("选择对象不能为空"));
-              }
-          }
           return {
              pickerOptions1: {   //不能选择当前时间之后的日期
                 disabledDate(time) {
                   return time.getTime() > Date.now();
                 }
             },
-            rules: {
-              groupGuidName: [
-                { validator: groupGuidNameFunction, trigger: 'blur' }
-              ],
-            },
-            dialogFormVisible: false,
+            dialogFormVisible: false,  //选择群组
             dialogOptions: {
-              title: '添加社群',
+              title: '选择社群',
               type: 'group'
             },
-            dimensionData: ['小时','日','周','月'],
+            dimensionData: ['小时','日','周','月'],  //维度
             filterParams: {
-              groupGuid: '',     //选择社群 6867A6C096844AD4982F19323B6C9574 
+              groupGuid: '',     //选择社群 6867A6C096844AD4982F19323B6C9574
               type: '',         //类型
               dimension: '',    //维度
               startTime: '',    //开始时间
               endTime:'',       //结束时间
               timeArray: [],
-              groupGuidName: '',
+              groupGuidName: '请选择社群',
             }
           }
         },
@@ -98,11 +90,12 @@
         //确定弹框
         remoteSubmit(data) {
           if((!data || data.length ==0)) {
-             this.$alert('请选择对象', '提示:', {
-              confirmButtonText: '确定',
-              callback: action => {
-              }
-            });
+            this.$tip("请选择社群","error");
+//             this.$alert('请选择社群', '提示:', {
+//              confirmButtonText: '确定',
+//              callback: action => {
+//              }
+//            });
             return;
           }
           this.dialogFormVisible = false;
@@ -112,10 +105,11 @@
         //点击维度
         handleButton(value) {
           this.filterParams.dimension = value+1;
+          if(value==0) this.filterParams.endTime = this.filterParams.startTime = parseTime(new Date(),'{y}-{m}-{d}');
         },
         //处理时间
         dealTime() {
-          if(this.filterParams.timeArray.length != 0){
+          if(this.filterParams.timeArray.length != 0 && this.filterParams.dimension != 1){
             let tempDate = this.filterParams.timeArray;
             this.filterParams.startTime = tempDate[0];
             this.filterParams.endTime = tempDate[1];
@@ -127,24 +121,38 @@
         changeParams() {
           this.$store.commit("SET_FILTER_PARAMS",this.filterParams);
           //这这里触发兄弟组件更新条件
-          this.$parent.$children[1].getData();
-          this.$parent.$children[2].getData();
+          try {
+            this.$parent.$children[1].getData();
+            this.$parent.$children[2].getData();
+          }catch (e) {
+            console.info(e);
+          }
         },
         //查询
         submitForm() {
           if(this.filterParams.groupGuid == "") {
-            this.$tip("选择对象不能为空！");
+            this.$tip("选择社群不能为空！","error");
             return;
           }
           if(this.filterParams.dimension >1 && this.filterParams.timeArray.length == 0) {
-            this.$tip("选择时间不能为空！");
+            this.$tip("选择时间不能为空！","error");
             return;
           }
+          eventObject().$emit('screening-params-change','');
           this.dealTime();
           this.changeParams();
         }
       },
       created() {
+        eventObject().$on('resize-echarts-data', msg => { //eventObject接收事件  == 控制数据可视化的图表重置
+          let consoleTimer = null;
+          if(consoleTimer){
+            consoleTimer = null;
+          }
+          consoleTimer = setTimeout(() => {
+            this.$parent.resizeFunction();
+          },300)
+        });
       },
       mounted() {
           //默认值处理
@@ -167,6 +175,9 @@
 </script>
 <style  rel="stylesheet/scss" lang="scss">
      .demo-ruleForm {
+       input {
+         cursor: pointer;
+       }
        .el-form-item__label {
         color: #ffffff;
       }
@@ -189,7 +200,7 @@
             border: none;
             -webkit-background-size: 100% 100%;
             background-size: 100% 100%;
-            background-color: #fff; 
+            background-color: #fff;
             border: 1px solid;
             color: #000;
           }
@@ -227,11 +238,9 @@
             border-radius: 3px;
             text-indent: 26px;
             border: none;
-            /* background: url(/static/img/input_border_bg.png) no-repeat center; */
             -webkit-background-size: 100% 100%;
             background-size: 100% 100%;
-            /* background-color: transparent; */
-            /* color: #fff;*/
+           cursor: pointer;
       }
       .icon-select {
           display: inline-block;
@@ -258,6 +267,7 @@
         border-radius: 3px;
         font-size: 12px;
         margin-right: 6px;
+        cursor: pointer;
       }
       .actived {
         color: #2187DF;

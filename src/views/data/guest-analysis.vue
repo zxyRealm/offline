@@ -17,6 +17,7 @@
   import screening from '../../components/screening'
   import EchartsLine from '../../components/echarts/line'
   import TableData from '../../components/table/index'
+  import {eventObject} from '@/utils/event.js'
   export default {
     name: "guest-analysis",
     components: {screening, EchartsLine, TableData},
@@ -25,19 +26,23 @@
         //传递给线型图字段
         lineParams: {
           title: {text: '进/出客流量图'}
-        }
+        },
+        tableHeight:0
       }
     },
     methods: {
       resizeFunction() {
         let me = this;
-        let table = document.getElementById("echarts-line");
+        if(!me.$refs.line) return;
+        let line = document.getElementById("echarts-line");
+        //this.tableHeight = this.$refs.table.offsetHeight;
         //let tableEle = document.body.clientHeight - 420;
-        table.style.height = me.$refs.line.offsetHeight + "px";
+        line.style.height = me.$refs.line.offsetHeight + "px";
         //宽度
-        table.style.width = me.$refs.line.offsetWidth + "px";
+        line.style.width = me.$refs.line.offsetWidth + "px";
         me.$refs.echartsLine.resizeEcharts();
         //表格高度
+        //if(this.$refs.table)this.$refs.table.initSize();
       }
     },
     mounted() {
@@ -49,6 +54,8 @@
       let me = this;
       window.removeEventListener("resize", me.resizeFunction);
       next();
+    },
+    computed:{
     }
   }
 </script>
@@ -88,12 +95,12 @@
       min-width: 1020px;
       position: absolute;
       top: 386px;
-      bottom: 0px;
       left: 0px;
       box-sizing: border-box;
       padding: 20px;
       background-color: rgba(64,58,73,0.30);
       box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
+      //margin-bottom: 20px;
     }
   }
 </style>

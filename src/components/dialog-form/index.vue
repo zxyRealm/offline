@@ -13,6 +13,7 @@
       <ob-group-nav
         ref="customGroup"
         :show-checkbox="true"
+        is-disabled
         :multiple="multiple"
         :disabled-keys="disabledKeys"
         theme="white"
@@ -44,8 +45,8 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item class="tac">
-          <img v-if="dialogForm.type===1" src="./image/all_in_one_icon.png" alt="分析终端">
-          <img v-if="dialogForm.type===(2||3)" src="./image/analysis_terminal_icon.png" alt="一体机">
+          <img v-if="dialogForm.type===1" src="./image/analysis_terminal_icon.png" alt="分析终端">
+          <img v-if="dialogForm.type===(2||3)" src="./image/all_in_one_icon.png" alt="一体机">
         </el-form-item>
       </template>
       <template v-if="type==='community'">
@@ -60,7 +61,7 @@
       </template>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button class="cancel"  @click="dialogFormVisible = false">取 消</el-button>
+      <el-button class="cancel"  @click="dialogFormVisible = false">返 回</el-button>
       <el-button class="affirm" type="primary" @click="submitDialogForm('dialogForm')">确 定</el-button>
     </div>
   </el-dialog>
@@ -123,11 +124,12 @@
     },
     data() {
       const validateKey = (rule,value,callback)=>{
+        value = value.trim();
         if(!value){
           this.dialogForm.type = '';
           callback(new Error('请填写设备序列号'))
         }else {
-          if(value.length>=12){
+          if(value.length===16){
             // 校验设备是否被绑定过
             this.$http("/merchant/device/exist",{deviceKey:value},false).then(res=>{
               if(!res.data){
@@ -158,8 +160,12 @@
           callback(new Error('请输入别名'))
         }else {
           if(value.length>=2&& value.length<=18){
-            this.$http("/merchant/device/alias/exist",{deviceName:value}).then(res=>{
-              callback()
+            this.$http("/merchant/device/alias/exist",{deviceName:value},false).then(res=>{
+              if(res.data){
+                callback(new Error('别名已存在，请重新输入'))
+              }else {
+                callback()
+              }
             }).catch(err=>{
               callback(new Error(err.msg||'验证失败'))
             });
@@ -201,7 +207,10 @@
         this.dialogFormVisible = val
       },
       dialogFormVisible: function (val) {
-        this.$emit('update:visible', val)
+        this.$emit('update:visible', val);
+        if(val&&this.$refs.customGroup){
+          this.$refs.customGroup.getGroupList()
+        }
       },
       value:{
         handler:function(val){
@@ -217,7 +226,7 @@
       },
       disabledKeys:{
         handler:function(val){
-          console.log('change')
+
         },
         deep:true
       }
@@ -241,31 +250,21 @@
         }
 
       },
-      getDeviceType(key){
-        if(key && key.length>=12){
-          this.$http("/device/type",{deviceKey:key}).then(res=>{
-            console.log(res)
-            this.dialogForm.type = res.data.deviceType
-          })
-        }else {
-          console.log('请填写合法的设备序列号')
-        }
-
-      },
       closeDialog(){
         if(this.$refs.dialogForm){
           this.$refs.dialogForm.resetFields()
         }
+      },
+      setCheckedNodes(key){
+        this.$nextTick(()=>{
+          this.$refs.customGroup.setCheckedNodes(key||[])
+        })
       }
     },
     created(){
       // this.getDisabledKeys = this.disabledKeys
     },
     beforeDestroy(){
-
-      // if(this.$refs.dialogForm){
-      //   this.$refs.dialogForm.resetFields();
-      // }
     },
     computed:{
       customStyle:function(){

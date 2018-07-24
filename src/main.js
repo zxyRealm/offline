@@ -1,11 +1,13 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
+// App 在UI库css 后引用可以避免生产环境与开发环境中样式不一致的问题
+//引用顺序决定打包后css 顺序
+import 'element-ui/lib/theme-chalk/index.css'
 import App from './App'
 import router from './router'
 import Element from 'element-ui'
 import store from './store'
-import 'element-ui/lib/theme-chalk/index.css'
 import './styles/index.scss' // global css
 import icons from '@/components/icons/index'
 import subTab from '@/components/subTab'
@@ -37,9 +39,7 @@ Vue.component(obListEmpty.name,obListEmpty);
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
 });
-
 Vue.config.productionTip = false;
-
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

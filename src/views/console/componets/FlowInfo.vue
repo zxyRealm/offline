@@ -19,7 +19,7 @@ export default {
         }
     },
     methods: {
-       
+
     },
     watch: {
         number(val,oldVal) {
@@ -64,7 +64,7 @@ export default {
             }
             50% {
                 opacity: 1;
-                bottom: 34px;    
+                bottom: 34px;
             }
             100% {
                 opacity:0;
@@ -72,7 +72,7 @@ export default {
             }
       }
        span.number {
-            top: 26px;
+            top: 20px;
             position: absolute;
             left: 20px;
             font-size: 18px;

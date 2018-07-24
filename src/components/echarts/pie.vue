@@ -1,15 +1,28 @@
 <template>
-    <div id="echarts-pie" class="pie-wrap" :class="pieParams.type!=3 ? 'pie-wing':''">
+    <div id="echarts-pie" class="pie-wrap pie-console" :class="pieParams.type==3 ? '':'pie-wrap-circle'">   <!--:class="pieParams.type!=3 ? 'pie-wing':''"-->
 
     </div>
 </template>
 <script>
+  import echarts from 'echarts'
     export default {
       name: "echarts-pie",
       props: ['pieParams'],
       data(){
           return {
             type: 0,  //判断是否显示外阴影
+            //到店频次图例字体样式
+            shopLegend: [
+              {
+                name: '多次',
+                textStyle: {
+                  color: 'rgba(109,46,187,1)'
+                },
+              },
+              { name:'单次',
+                textStyle: {
+                  color: 'rgba(15,158,233,1)'
+                }}],
             option: {
               color:['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'], //['#2187DF','#6D2EBB']
               title: {
@@ -21,7 +34,7 @@
                 }
               },
               tooltip: {    //鼠标悬浮提示消息
-                show: false, 
+                show: false,
                 trigger: 'item',
                 formatter: "{a} <br/>{b}: {c} ({d}%)"
               },
@@ -29,13 +42,26 @@
                 orient: 'vertical',
                 x: 'right',
                 right: 0,
+                align: 'left',
+                itemWidth: 16,
+                itemGap: 12,
                 textStyle: {
                   color: '#ffffff',
                   fontSize: '12',
                   fontWeight: 'lighter',
                 },
                 icon:'square',
-                data:['男','女']
+                data:[{
+                  name: '女',
+                  textStyle: {
+                    color: '#6D2EBB'
+                  }
+                },{
+                  name: '男',
+                  textStyle: {
+                    color: '#2187DF'
+                  }
+                }]
               },
               series: [
                   {
@@ -46,17 +72,36 @@
                       label: {
                         normal: {
                           show: true,
-                          fontSize: 16,
-                          formatter: '{per|{d}%}',//'{d}%',  //显示百分比
+                          fontSize: 13,
+                          formatter: function (v) {
+                            if(v.name == '女' || v.name == '多次') {
+                              return '{gray|' + v.percent +'%' +'}';
+                            }else if(v.name == '男' || v.name == '单次') {
+                              return '{green|' + v.percent +'%'+ '}';
+                            }else {
+                              return v.percent+'%';
+                            }
+                          },//'{per|{d}%}',//'{d}%',  //显示百分比
                           position: 'outside',
+                          //padding: [30, 0, 0, 0],
                           rich: {
+                            gray: {
+                              color: 'rgba(109,46,187,1)',
+                              fontSize: 16,
+                            },
+                            green: {
+                              color: 'rgba(15,158,233,1)',
+                              fontSize: 16,
+                            },
                             per: {
-                              lineHeight: 22,
+                              //lineHeight: 22,
+                              //color: '#fff',
+                              fontSize: 12,
                               align: 'center'
                             }
                           }
                         },
-                        
+
                       },
                       labelLine: {  //指向线段
                         normal: {
@@ -64,7 +109,7 @@
                           smooth: true
                         }
                       },
-                      itemStyle : { 
+                      itemStyle : {
                         normal:{
                           label : {
                              show: true,
@@ -78,17 +123,17 @@
                         }
                       },
                       data:[
-                          {value:0, name:'男'},
-                          {value:0, name:'女'}
+                          {value:0, name:'女'},
+                          {value:0, name:'男'}
                       ]
                  }
               ]
             },
              roseSeries: {
-                radius : [50, 80],
+                radius : [44, 75],
                 center : ['50%', '50%'],
-                roseType: 'area',
-                type: 'pie'
+                //roseType: 'area'
+               roseType : 'radius'
             }
           }
       },
@@ -108,7 +153,21 @@
        },
        //定义颜色
       changeColor() {
-        this.option.color = this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+        this.option.color = this.$store.state.filterParams.type==3 ? ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD'] : [
+          new echarts.graphic.LinearGradient(
+            0, 0, 0, 1,
+            [
+              {offset: 0, color: 'rgba(166,90,223,1)'},
+              {offset: 1, color: 'rgba(109,46,187,1)'}
+            ]
+        ),
+          new echarts.graphic.LinearGradient(
+            0, 0, 0, 1,
+            [
+              {offset: 0, color: 'rgba(35,205,246,1)'},
+              {offset: 1, color: 'rgba(15,158,233,1)'}
+            ]
+          ),'#6D2EBB','#2187DF','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
       },
       //改变标题
       changeTitle() {
@@ -121,9 +180,22 @@
       //年龄分布数据渲染 = 控制台
       showAgeData() {
           this.changeTitle();
-          this.option.color = ['#2187DF','#6D2EBB','#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
+          this.option.color = [ new echarts.graphic.LinearGradient(
+            0, 0, 0, 1,
+            [
+              {offset: 0, color: 'rgba(166,90,223,1)'},
+              {offset: 1, color: 'rgba(109,46,187,1)'}
+            ]
+          ),
+            new echarts.graphic.LinearGradient(
+              0, 0, 0, 1,
+              [
+                {offset: 0, color: 'rgba(35,205,246,1)'},
+                {offset: 1, color: 'rgba(15,158,233,1)'}
+              ]
+            ),'#F1BB13','#7FC16A','#EE6C4B','#DDDDDD'];
           this.option.series[0].data = this.pieParams.seriesData;
-          this.option.legend.data = this.pieParams.legendData;
+          //this.option.legend.data = this.pieParams.legendData;
           this.drawPie();
       },
       //解析返回seriesGroup
@@ -134,11 +206,15 @@
            emptyArray.push(data[i]['data'][0]);
         }
         if(this.$store.state.filterParams.type == 3) {
-            this.option.series[0].data = data[0].data;
-            this.option.legend['data'] = this.$legendArray(data[0].data);
-        }else {
+            this.option.series[0].data =data[0].data;
+            this.option.legend['data'] = this.addColor(['0-10岁','11-20岁','21-30岁','31-40岁','41-50岁','50岁以上']);
+            //this.option.legend['data'] = this.$legendArray(data[0].data);
+        }else if(this.$store.state.filterParams.type == 2) {
             this.option.series[0].data = this.$apply(this.option.series[0].data,emptyArray);
-            this.option.legend['data'] = this.$legendArray(data);
+            //this.option.legend['data'] = this.$legendArray(data);
+        }else if(this.$store.state.filterParams.type == 4) {
+          this.option.series[0].data = this.$apply(this.option.series[0].data,emptyArray);
+          this.option.legend['data'] = this.shopLegend;
         }
       },
       //转化数组 = 没有设备时候的id
@@ -153,16 +229,37 @@
           }
           this.option.series[0].data = arr;
       },
+        //给legend字体颜色
+        addColor(data) {
+          let legendColor =  ['#F1BB13','#7FC16A','#EE6C4B','#6D2EBB','#2187DF','#DDDDDD']; //type = 3
+          let a = [];
+          for(let i=0,l=data.length; i<l; i++) {
+            let obj = {
+              name: data[i],
+              textStyle: {
+                color: legendColor[i]
+              }
+            }
+            a.push(obj);
+          }
+          return a;
+        },
+
       //默认数据展示 = 可视化
       defaultShow() {
         let type = this.$store.state.filterParams.type;
+        if(type == 2) {
+          //this.option.series[0].label['normal']['padding'] =  [40, 0, 0, 0];
+        }
         if(type == 3) {
-            this.option.legend['data'] = ['0-10','11-20','21-30','31-40','41-50','50以上'];
-            this.transfromArray( this.option.legend['data']);
+            this.option.legend['data'] = ['0-10岁','11-20岁','21-30岁','31-40岁','41-50岁','50岁以上'];
+            this.transfromArray( ['0-10岁','11-20岁','21-30岁','31-40岁','41-50岁','50岁以上']);
+            this.option.series[0] = this.$apply(this.option.series[0],this.roseSeries);
+            this.option.legend['data'] = this.addColor(this.option.legend['data']);
         }
         if(type == 4) {
-            this.option.legend['data'] = ['多次','单次'];
-            this.transfromArray( this.option.legend['data']);
+            this.option.legend['data'] = this.shopLegend;
+            this.transfromArray(['多次','单次']);
         }
       },
         //请求数据
@@ -180,7 +277,7 @@
                 this.data = res.data;
                 if(this.$store.state.filterParams.type == 3){
                     this.installSeriesGroup(res.data);
-                    this.option.series = this.$apply(this.option.series,this.roseSeries);
+                    this.option.series[0] = this.$apply(this.option.series[0],this.roseSeries);
                 }else {
                    this.installSeriesGroup(res.data);
                 }
@@ -220,11 +317,34 @@
      height: 230px;
      box-sizing: border-box;
      padding: 20px;
-     background: url('/static/img/pie-background.png') no-repeat center center;
-     background-size: 160px 160px;
+     /*background: url('/static/img/pie-background.png') no-repeat center center;*/
+     /*background-size: 160px 160px;*/
      position: relative;
      background-color: rgba(64,58,73,0.30);
      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
+  }
+  .pie-wrap-circle::before {
+    content: '';
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: url('/static/img/pie-background2.png') no-repeat center center;
+    background-size: 168px;
+    animation-name: piepie;
+    animation-duration: 10000ms;
+    animation-iteration-count: infinite; /*无限循环*/
+    animation-timing-function: linear;
+    @keyframes piepie {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
   }
   .pie-wing::after {
     content: '';

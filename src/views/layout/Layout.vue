@@ -2,8 +2,8 @@
   <div class="app-wrapper" :class="classObj">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"></div>
     <navbar></navbar>
-    <div class="main-container">
-      <sidebar class="sidebar-container"></sidebar>
+    <div class="main-container" :class="{'no-bar':!showBar}">
+      <sidebar v-show="showBar" class="sidebar-container"></sidebar>
       <app-main class="app-main-content" :class="cornerBg" id="app_main--content">
       </app-main>
     </div>
@@ -12,7 +12,6 @@
 
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
-import ResizeMixin from './mixin/ResizeHandler'
 import { mapState } from 'vuex'
 export default {
   name: 'layout',
@@ -21,13 +20,8 @@ export default {
     Sidebar,
     AppMain
   },
-  mixins: [ResizeMixin],
   created(){
-   this.getBaseInfo();
    this.$store.dispatch('GET_USER_INFO');
-  },
-  mounted(){
-    console.log(this.$store.state)
   },
   computed: {
     sidebar() {
@@ -51,25 +45,12 @@ export default {
     },
     ...mapState([
       "userInfo"
-    ])
+    ]),
+    showBar(){
+      return this.$route.name !== 'console-lwh'
+    }
   },
   methods: {
-    getBaseInfo(){
-      if(!this.userInfo.company){
-        this.$http("/merchant/getInfo").then(res=>{
-          this.$store.commit("SET_USER_INFO",res.data);
-        })
-      }
-    },
-    checkFirst(){
-      this.$http("/merchant/usercenter").then(res=>{
-        if(!res.data){
-          this.$router.push("/developer/info/edit")
-        }
-      }).catch(error=>{
-        console.log('error',error)
-      })
-    },
     handleClickOutside() {
       this.$store.dispatch('closeSideBar', { withoutAnimation: false })
     }
@@ -96,15 +77,6 @@ export default {
       color: #fff;
     }
   }
-  /*.drawer-bg {*/
-    /*background: #000;*/
-    /*opacity: 0.3;*/
-    /*width: 100%;*/
-    /*top: 0;*/
-    /*height: 100%;*/
-    /*position: absolute;*/
-    /*z-index: 999;*/
-  /*}*/
 </style>
 <style lang="scss" rel="stylesheet/scss">
   .app-wrapper{

@@ -18,8 +18,9 @@
     <el-input
       v-if="search && !showButton"
       clearable
+      @clear="searchMethod"
       class="nav-search fr"
-      placeholder="请输入关键字"
+      :placeholder="placeholder"
       @keyup.native.enter="searchMethod"
       v-model="searchValue">
       <i slot="prefix" @click="searchMethod" class="el-input__icon el-icon-search"></i>
@@ -63,6 +64,10 @@
         default: () => ({
           text: ''
         })
+      },
+      placeholder:{
+        type:String,
+        default:'请输入关键字'
       }
     },
     data(){
@@ -86,9 +91,14 @@
         }
       },
       searchMethod(){
-        if(this.searchValue){
-          this.$emit("remote-search",this.searchValue)
-        }
+        // if(this.searchValue){
+          this.$emit("remote-search",(this.searchValue||'').trim())
+        // }
+      }
+    },
+    watch:{
+      searchValue(val){
+        console.log('search val',val)
       }
     }
   }
@@ -99,7 +109,6 @@
   .sub-tab-wrap {
     padding: 20px;
     line-height: 24px;
-    height: 24px;
     font-size: 16px;
     .sub-tab-main {
       float: left;
@@ -129,7 +138,6 @@
     }
     &.medium {
       padding: 0 20px;
-      height: 28px;
       line-height: 28px;
       .separator{
         display: none;
@@ -139,7 +147,7 @@
         margin-right: 20px;
         >a{
           height: 28px;
-          line-height: 28px;
+          line-height: 26px;
           background-color: rgba(0,0,0,.2);
           padding: 0 20px;
           margin-right: 20px;

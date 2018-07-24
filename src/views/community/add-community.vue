@@ -6,7 +6,7 @@
     <div class="community-common-form-wrap dashed-border">
       <uu-form
         label-width="106px"
-        :sub-text="subText"
+        sub-text="保存"
         @handle-submit="submitForm"
         :readonly="!editable"
         v-model="communityForm"
@@ -38,8 +38,8 @@
         <el-form-item label="联系电话：" prop="phone">
           <el-input type="text" :readonly="!editable" placeholder="请输入联系电话" v-model="communityForm.phone"></el-input>
         </el-form-item>
-        <el-form-item label="搜索范围：" prop="rule">
-          <p class="fcg">（要求子社群授予的设备权限
+        <el-form-item label="索权范围：" prop="rule">
+          <p class="fcg">(要求子社群授予的设备权限
             <el-popover
               placement="top"
               width="268"
@@ -52,7 +52,7 @@
               </div>
               <i slot="reference" class="el-icon-question"></i>
             </el-popover>
-            ,可多选）</p>
+            ,可多选)</p>
           <el-checkbox-group v-model="communityForm.rule">
             <el-checkbox disabled :label="0">数据查看权限</el-checkbox>
             <el-checkbox :label="1">设备操作权限</el-checkbox>
@@ -66,6 +66,7 @@
 <script>
   import area from '@/components/area-select/area-select'
   import QRCode from 'qrcodejs2'
+  import { validPhone } from '@/utils/validate'
   export default {
     components: {
       'area-select': area
@@ -80,8 +81,8 @@
             if(this.type==='update' && this.originName===value){
               callback()
             }else {
-              this.$http("/group/name/exist",{name:encodeURI(value)}).then(res=>{
-                res.data?callback():callback(new Error('社群名称已存在'));
+              this.$http("/group/name/exist",{name:value},false).then(res=>{
+                !res.data?callback():callback(new Error('社群名称已存在'));
               }).catch(err=>{
                 callback(new Error(err.msg||'验证失败'))
               })
@@ -89,6 +90,17 @@
           } else {
             callback(new Error("长度为2-18个字符"))
           }
+        }
+      };
+      const validatePhone = (rule, value, callback) => {
+        if (value){
+          if (validPhone(value)) {
+            callback()
+          } else {
+            callback(new Error('请填写正确的手机号'))
+          }
+        }else {
+          callback()
         }
       };
       return {
@@ -118,12 +130,16 @@
           ],
           rule: [
             {required: true, message: '请选取权限范围', trigger: 'blur'}
+          ],
+          phone: [
+            { validator: validatePhone, trigger: 'blur'}
           ]
         }
       }
     },
     methods: {
       getQrCode(){
+        console.log("blur");
         this.$http("/group/code").then(res => {
           if (res.data) {
             this.communityForm.code = res.data;
@@ -138,12 +154,8 @@
         data.districtAreaID = address[2];
         data.rule = data.rule.toString();
         this.$http(`/group/${this.type}`,data).then(res=>{
-          if(this.$route.name==='createCommunity'){
-            this.$tip("创建成功");
-            this.$router.push("/community/mine")
-          }else {
-            this.$tip("信息修改成功")
-          }
+          this.$tip("保存成功");
+          this.$router.push("/community/mine");
         })
       },
       createQrCode(url,id){
