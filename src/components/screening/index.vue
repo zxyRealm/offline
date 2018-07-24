@@ -38,7 +38,7 @@
           <span class="icon-select"></span>
         </el-form-item>
         <el-form-item>
-          <el-button class="affirm" @click.stop.prevent="submitForm()">提交</el-button>
+          <el-button class="affirm" @click.stop.prevent="submitForm()">查询</el-button>
         </el-form-item>
       </el-form>
       <!-- 选择社群 -->

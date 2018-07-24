@@ -93,11 +93,12 @@
     .table-data {
       width: 100%;
       min-width: 1020px;
-      position: absolute;
-      top: 386px;
-      left: 0px;
-      box-sizing: border-box;
-      padding: 20px;
+      margin-top: 10px;
+      /*position: absolute;*/
+      /*top: 386px;*/
+      /*left: 0px;*/
+      /*box-sizing: border-box;*/
+      /*padding: 20px;*/
       background-color: rgba(64,58,73,0.30);
       box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
       //margin-bottom: 20px;

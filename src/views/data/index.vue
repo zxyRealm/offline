@@ -37,13 +37,14 @@
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
+
   .main-container {
-    overflow: hidden;
+    //overflow: hidden;
   }
   /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
   .main-container::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
     background-color: transparent;
   }
   /*定义滚动条轨道 内阴影+圆角*/
@@ -53,11 +54,11 @@
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
     border-radius: 0px;
     background-color: #232027;//#9E9E9E;
-    border-radius: 10px;
+    border-radius: 8px;
   }
   /*定义滑块 内阴影+圆角*/
   .main-container::-webkit-scrollbar-thumb {
-    border-radius: 10px;
+    border-radius: 8px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
     background-color: 	#555;
   }
