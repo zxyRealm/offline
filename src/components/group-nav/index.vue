@@ -210,7 +210,7 @@
         if (this.showCheckbox && !node.data.disabled) {
           if (!this.multiple) {
             this.$refs.GroupTree.setCheckedNodes([node.data]);
-          } else {
+          }else{
             let nodes = this.$refs.GroupTree.getCheckedNodes();
             let isChecked = nodes.filter(item => {
               return item.$treeNodeId === node.data.$treeNodeId
@@ -233,7 +233,8 @@
         }
       },
       selectChange(index) {
-        this.TreeList = this.GroupList[index][this.defaultProps.children]
+        this.TreeList = this.GroupList[index][this.defaultProps.children];
+        this.$emit("current-change",'')
       },
       isHandle(val) {
         return (val || "").split(',').length === 2
@@ -285,8 +286,8 @@
         this.$affirm({text: `${des}`}, (action, instance, done) => {
           if (action === 'confirm') {
             this.$http(url, params).then(res => {
-              this.$tip(`${des}社群成功`);
-              this.getGroupList()
+              this.$tip(`${type==='quit'?'退出':'移除'}成功`);
+              this.$emit("refresh")
             });
             done()
           } else {
@@ -336,7 +337,6 @@
       if (this.type !== 'community' && this.type !== 'custom-community') {
         this.getGroupList()
       }
-      console.log(this.type)
       this.setCurrentKey(this.currentKey);
     },
     watch: {

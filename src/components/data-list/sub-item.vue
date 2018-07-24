@@ -65,6 +65,7 @@
         <el-popover
           v-else
           placement="top"
+          popper-class="nick_name--popover"
           @show="showPopover"
           v-model="data.popover"
           trigger="click">
@@ -535,7 +536,7 @@
       &.close, &.disable, &.reset, &.reboot, &.upgrade, &.ongoing {
         height: 30px;
         padding: 8px 15px;
-        background-size: contain;
+        background-size: cover;
         border: none;
         background-color: transparent;
       }

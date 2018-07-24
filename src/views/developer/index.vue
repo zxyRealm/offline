@@ -18,7 +18,7 @@
                  form-class="user-info-form"
                  :rules="editable?rules:{}"
                  :readonly="!editable"
-                 :subText="!editable?'':buttonText"
+                 :subText="buttonText"
                  @handle-submit="submitForm"
                  v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
@@ -48,7 +48,7 @@
 </template>
 <script>
   import area from '@/components/area-select/area-select'
-  import { mapState,mapGetters } from 'vuex'
+  import {mapState,mapGetters} from 'vuex'
   import axios from 'axios';
   import { validPhone } from '@/utils/validate'
   export default {
@@ -110,11 +110,7 @@
         delete  data.pca;
         this.$http("/merchant/usercenter/update", data).then(res => {
           if (res.result) {
-            if (type === 'update') {
-              this.$tip("编辑成功")
-            } else {
-              this.$tip('保存成功')
-            }
+            this.$tip('保存成功');
             this.$store.dispatch('GET_USER_INFO')
           }
         });
@@ -215,7 +211,8 @@
         }
       },
       buttonText(){
-        return this.userInfo.company?'编辑':'保存'
+        console.log(this.$route.name)
+        return this.userInfo.company&&this.$route.name==='personEdit'?'保存':''
       }
     }
   }

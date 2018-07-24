@@ -24,120 +24,122 @@
           <ob-group-nav
             ref="groupNav"
             only-checked
+            :expanded-keys="expandedKeys"
             v-model="groupList"
             type="community"
+            @refresh="getGroupList"
             :current-key="currentKey"
             @current-change="currentChange"></ob-group-nav>
         </div>
         <div class="community--main">
           <!--<el-scrollbar>-->
-            <div class="cmm-top dashed-border">
-              <h2 class="cmm-sub-title">
-                <span>社群信息</span>
-                <p class="handle fr fs14" v-if="!isSon && communityInfo.guid">
-                  <a href="javascript:void (0)" class="danger mr-10" @click="disbandGroup">解散</a>
-                  <router-link :to="'/community/edit/'+communityInfo.guid">编辑</router-link>
+          <div class="cmm-top dashed-border">
+            <h2 class="cmm-sub-title">
+              <span>社群信息</span>
+              <p class="handle fr fs14" v-if="!isSon && communityInfo.guid">
+                <a href="javascript:void (0)" class="danger mr-10" @click="disbandGroup">解散</a>
+                <router-link :to="'/community/edit/'+communityInfo.guid">编辑</router-link>
+              </p>
+            </h2>
+            <div class="cm-info-wrap" v-show="communityInfo.guid">
+              <div class="info-detail">
+                <p v-if="isSon">
+                  <span class="fs14">备注名：</span>
+                  <el-popover
+                    popper-class="nick_name--popover"
+                    placement="top"
+                    v-model="nickNamePopover"
+                    trigger="click">
+                    <el-form
+                      @submit.native.prevent
+                      ref="nickNameForm"
+                      :rules="rules"
+                      class="table-form"
+                      :model="communityForm"
+                    >
+                      <el-form-item prop="groupNickName">
+                        <el-input type="text" v-model="communityForm.groupNickName"></el-input>
+                        <uu-icon type="success" @click.native="changeCommunityName('nickNameForm')"></uu-icon>
+                        <uu-icon type="error" @click.native="nickNamePopover = false"></uu-icon>
+                      </el-form-item>
+                    </el-form>
+                    <a href="javascript:void (0)" slot="reference">
+                      {{communityInfo.groupNickName?communityInfo.groupNickName:'暂无昵称'}}
+                    </a>
+                  </el-popover>
                 </p>
-              </h2>
-              <div class="cm-info-wrap" v-show="communityInfo.guid">
-                <div class="info-detail">
-                  <p v-if="isSon">
-                    <span class="fs14">备注名：</span>
-                    <el-popover
-                      popper-class="nick_name--popover"
-                      placement="top"
-                      v-model="nickNamePopover"
-                      trigger="click">
-                      <el-form
-                        @submit.native.prevent
-                        ref="nickNameForm"
-                        :rules="rules"
-                        class="table-form"
-                        :model="communityForm"
-                      >
-                        <el-form-item prop="groupNickName">
-                          <el-input type="text" v-model="communityForm.groupNickName"></el-input>
-                          <uu-icon type="success" @click.native="changeCommunityName('nickNameForm')"></uu-icon>
-                          <uu-icon type="error" @click.native="nickNamePopover = false"></uu-icon>
-                        </el-form-item>
-                      </el-form>
-                      <a href="javascript:void (0)" slot="reference">
-                        {{communityInfo.groupNickName?communityInfo.groupNickName:'暂无昵称'}}
-                      </a>
-                    </el-popover>
-                  </p>
-                  <p>
-                    <span class="fs14">社群名称：</span>{{communityInfo.name}}
-                  </p>
-                  <p>
-                    <span class="fs14">地区：</span>
-                    {{communityInfo.fullAddress}}</p>
-                  <p>
-                    <span class="fs14">联系人：</span>
-                    {{communityInfo.contact}}</p>
-                  <p>
-                    <span class="fs14">联系电话：</span>
-                    {{communityInfo.phone}}</p>
-                  <p>
-                    <span class="fs14"> 索权范围：</span>
-                    {{communityInfo.rule | authority }}</p>
-                </div>
-                <div class="info-qr-code">
-                  <div>社群邀请码：</div>
-                  <div>
-                    <div class="qr-code" id="qr-code"></div>
-                    <p>{{communityInfo.code}}</p>
-                  </div>
+                <p>
+                  <span class="fs14">社群名称：</span>{{communityInfo.name}}
+                </p>
+                <p>
+                  <span class="fs14">地区：</span>
+                  {{communityInfo.fullAddress}}</p>
+                <p>
+                  <span class="fs14">联系人：</span>
+                  {{communityInfo.contact}}</p>
+                <p>
+                  <span class="fs14">联系电话：</span>
+                  {{communityInfo.phone}}</p>
+                <p>
+                  <span class="fs14"> 索权范围：</span>
+                  {{communityInfo.rule | authority }}</p>
+              </div>
+              <div class="info-qr-code">
+                <div>社群邀请码：</div>
+                <div>
+                  <div class="qr-code" id="qr-code"></div>
+                  <p>{{communityInfo.code}}</p>
                 </div>
               </div>
-              <ob-list-empty top="32px" text="请选取社群" size="small" v-if="!communityInfo.guid" ></ob-list-empty>
             </div>
-            <div class="cmm-table dashed-border">
-              <h2 class="cmm-sub-title">设备列表</h2>
-              <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
-              </ob-list-empty>
-              <el-table
-                height="250px"
-                border
-                :data="deviceList"
-                style="width:100%"
-                v-else
+            <ob-list-empty top="32px" text="请选取社群" size="small" v-if="!communityInfo.guid"></ob-list-empty>
+          </div>
+          <div class="cmm-table dashed-border">
+            <h2 class="cmm-sub-title">设备列表</h2>
+            <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
+            </ob-list-empty>
+            <el-table
+              height="250px"
+              border
+              :data="deviceList"
+              style="width:100%"
+              v-else
+            >
+              <el-table-column
+                prop="deviceName"
+                label="设备别名"
+                width="180">
+              </el-table-column>
+              <el-table-column
+                prop="deviceKey"
+                label="序列号"
               >
-                <el-table-column
-                  prop="deviceName"
-                  label="设备别名"
-                  width="180">
-                </el-table-column>
-                <el-table-column
-                  prop="deviceKey"
-                  label="序列号"
-                >
-                </el-table-column>
-                <el-table-column
-                  prop="deviceType"
-                  label="设备类型"
-                >
-                  <template slot-scope="scope">
-                    {{scope.row.deviceType|deviceType}}
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  label="添加时间"
-                >
-                  <template slot-scope="scope">
-                    {{scope.row.createTime|parseTime('{y}/{m}/{d} {h}:{i}')}}
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  prop="date"
-                  label="绑定时间"
-                >
-                  <template slot-scope="scope">
-                    {{scope.row.bindingTime|parseTime('{y}/{m}/{d} {h}:{i}')}}
-                  </template>
-                </el-table-column>
-              </el-table>
-            </div>
+              </el-table-column>
+              <el-table-column
+                prop="deviceType"
+                label="设备类型"
+              >
+                <template slot-scope="scope">
+                  {{scope.row.deviceType|deviceType}}
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="添加时间"
+              >
+                <template slot-scope="scope">
+                  {{scope.row.createTime|parseTime('{y}/{m}/{d} {h}:{i}')}}
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="绑定时间"
+              >
+                <template slot-scope="scope">
+                  {{scope.row.bindingTime|parseTime('{y}/{m}/{d} {h}:{i}')}}
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
           <!--</el-scrollbar>-->
         </div>
       </div>
@@ -147,6 +149,7 @@
 
 <script>
   import {mapState} from 'vuex'
+
   export default {
     name: "index",
     data() {
@@ -178,7 +181,7 @@
         deviceList: [], //社群设备列表
         communityInfo: {}, //社群信息
         currentKey: '',  //当前选中社群id
-        currentCommunity:{}, //当前社群信息
+        currentCommunity: {}, //当前社群信息
         communityForm: {
           groupPid: '',
           groupGuid: '',
@@ -189,7 +192,8 @@
             {required: true, validator: validateName, trigger: 'blur'}
           ]
         },
-        nickNamePopover: false
+        nickNamePopover: false,
+        expandedKeys: []
       }
     },
     methods: {
@@ -198,14 +202,14 @@
         keywords = (keywords || '').trim();
         this.$http("/group/list").then(res => {
           this.groupList = res.data;
-          if(!key&&!res.data[0]){
+          if (!key && !res.data[0]) {
             return
           }
           this.$nextTick(() => {
             this.$refs.groupNav.setCurrentKey((key || res.data[0]).groupGuid);
           });
           this.getCommunityInfo(key || res.data[0]);
-          this.getDeviceList(key||res.data[0]);
+          this.getDeviceList(key || res.data[0]);
         })
       },
       // 获取设备列表
@@ -221,37 +225,48 @@
         if (val) {
           this.$http("/group/list/search", {searchText: val}).then(res => {
             if (res.data[0]) {
-              this.currentKey = res.data[0];
-              let current = this.$restoreArray(this.groupList, 'childGroupList').filter(item => item.groupGuid === res.data[0])[0];
+              let getCurrent = () => {
+                let restoreArray = this.$restoreArray(this.groupList, 'childGroupList');
+                // 多层for循环嵌套只能用return跳出整个循环，break 只能跳出当前循环
+                for (let i = 0, len = restoreArray.length; i < len; i++) {
+                  for (let k = 0, len2 = res.data.length; k < len2; k++) {
+                    if (res.data[k] === restoreArray[i].groupGuid) {
+                      return restoreArray[i];
+                    }
+                  }
+                }
+              };
+              let current = getCurrent();
+              this.expandedKeys = res.data;
               this.$refs.groupNav.setCheckedKeys(res.data);
               this.$nextTick(() => {
-                this.$refs.groupNav.setCurrentKey(current.guid);
+                this.$refs.groupNav.setCurrentKey(current.groupGuid);
               });
               this.getCommunityInfo(current);
               this.getDeviceList(current);
-            }else {
+            } else {
               this.setDefaultData()
             }
           })
-        }else {
+        } else {
           this.setDefaultData()
         }
-
       },
 
       // 设置默认选中值
-      setDefaultData(){
+      setDefaultData() {
         let current = this.groupList[0];
-        console.log('current',current);
+        this.expandedKeys = [];
         this.$nextTick(() => {
           this.$refs.groupNav.setCurrentKey(current.guid || current.groupGuid);
         });
-        this.$refs.groupNav.setCheckedKeys([]);
+        // this.$refs.groupNav.setCheckedKeys([]);
         this.getCommunityInfo(current);
         this.getDeviceList(current);
       },
       // 当前社群发生改变
       currentChange(val) {
+        this.currentKey = val.guid || val.groupGuid;
         this.currentCommunity = val;
         this.insetForm();
         this.getCommunityInfo(val);
@@ -327,7 +342,4 @@
   @import "@/styles/community.scss";
 </style>
 <style>
-  .nick_name--popover{
-    padding: 8px 10px;
-  }
 </style>

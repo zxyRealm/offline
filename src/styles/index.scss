@@ -638,9 +638,9 @@ button, input {
 .el-select__caret {
   background: url("/static/img/select_arrow_icon.png") no-repeat center center;
   background-size: 15px auto;
-  transform: rotateZ(180deg)!important;
+  transform: rotateZ(0deg)!important;
   &.is-reverse{
-    transform: rotateZ(0deg)!important;
+    transform: rotateZ(180deg)!important;
   }
   &:before {
     content: '' !important;
@@ -937,3 +937,8 @@ button, input {
     }
   }
 }
+
+.nick_name--popover{
+  padding: 8px 10px;
+}
+
