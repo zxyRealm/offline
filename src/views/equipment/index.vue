@@ -52,8 +52,13 @@
                 <p><span>应用场景：</span>{{item.deviceScene}}</p>
               </template>
             </ob-list-item>
-            <ob-list-item @refresh="getMineEquipment" style="min-width: 260px" width="20%" :data="item" type="handle"
-                          :showDelete="true">
+            <ob-list-item
+              @refresh="getMineEquipment"
+              :style="{minWidth: '220px'}"
+              width="20%"
+              :data="item"
+              type="handle"
+              :showDelete="true">
             </ob-list-item>
           </ob-list>
         </template>
@@ -82,15 +87,15 @@
   import {mapState} from 'vuex'
 
   export default {
-    name: "index",
-    data() {
+    name: 'index',
+    data () {
       const validateName = (rule, value, callback) => {
         value = value.trim();
         if (!value) {
           callback(new Error('设备别名不能为空'))
         } else {
           if (value.length >= 2 && value.length <= 18) {
-            this.$http("/merchant/device/alias/exist", {deviceName: value}, false).then(res => {
+            this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
               if (res.data) {
                 callback(new Error(res.msg))
               } else {
@@ -100,7 +105,7 @@
               callback(new Error(err.msg || '验证失败'))
             });
           } else {
-            callback(new Error("别名长度为2-18个字符"))
+            callback(new Error('别名长度为2-18个字符'))
           }
         }
       };
@@ -126,31 +131,29 @@
           {title: '子社群设备', index: '/equipment/children'}
         ],
         groupList: [],
-        equipmentList: [
-
-        ],
+        equipmentList: [],
         pagination: {},
         equipmentForm: {
           deviceName: '',
           deviceKey: ''
         },
         rules: [
-          {required: true, validator: validateName, trigger: "blur"}
+          {required: true, validator: validateName, trigger: 'blur'}
         ],
         dialogFormVisible: false,
         isSearch: false
       }
     },
     methods: {
-      search(val) {
+      search (val) {
         this.$router.push(`/equipment/search/mine/${val}`);
       },
-      submitForm(data) {
+      submitForm (data) {
         if (this.dialogOptions.type === 'device') {
           // 添加商户设备
-          this.$http("/merchant/device/create", data).then(res => {
+          this.$http('/merchant/device/create', data).then(res => {
             this.dialogFormVisible = false;
-            this.$tip("创建成功");
+            this.$tip('创建成功');
             this.getMineEquipment()
           }).catch(err => {
             this.dialogFormVisible = false;
@@ -162,12 +165,12 @@
           this.bindCommunity(data)
         }
       },
-      getGroupList() {
-        this.$http("/group/list").then(res => {
+      getGroupList () {
+        this.$http('/group/list').then(res => {
           this.groupList = res.data;
         })
       },
-      showDialog(type, data) {
+      showDialog (type, data) {
         this.dialogFormVisible = false;
         this.dialogOptions.type = type || 'device';
         this.dialogOptions.title = type === 'device' ? '添加设备' : '绑定社群';
@@ -200,7 +203,7 @@
         }
       },
       // 获取自有设备
-      getMineEquipment(page) {
+      getMineEquipment (page) {
         page = page || this.pagination.index || 1;
         this.$http('/device/list', {index: page, searchText: this.$route.params.key || ''}).then(res => {
           this.equipmentList = res.data.content;
@@ -210,7 +213,7 @@
           }
         })
       },
-      deleteEquipment(item) {
+      deleteEquipment (item) {
         this.$affirm({
           confirm: '删除',
           cancel: '取消',
@@ -224,7 +227,7 @@
         }, 'waiting')
       },
       //解 绑社群
-      unBindCommunity(value) {
+      unBindCommunity (value) {
         this.$affirm({
           confirm: '确定',
           cancel: '返回',
@@ -232,11 +235,11 @@
         }, (action, instance, done) => {
           if (action === 'confirm') {
             done();
-            this.$http("/device/unbinding", {
+            this.$http('/device/unbinding', {
               deviceKey: value.deviceKey,
               groupGuid: value.groupGuid
             }).then(res => {
-              this.$tip("解绑成功");
+              this.$tip('解绑成功');
               this.$set(value, 'groupGuid', null)
             });
           } else {
@@ -245,12 +248,12 @@
         })
       },
       // 绑定社群
-      bindCommunity(value) {
+      bindCommunity (value) {
         this.dialogFormVisible = false;
-        this.$load("设备绑定中...");
+        this.$load('设备绑定中...');
         this.$http('/device/binding', {deviceKey: value.deviceKey, groupGuid: value.groupGuid}).then(res => {
           this.$load().close();
-          this.$tip("绑定成功");
+          this.$tip('绑定成功');
           this.getMineEquipment(this.pagination.index);
 
         }).catch(() => {
@@ -258,7 +261,7 @@
         });
       }
     },
-    created() {
+    created () {
       this.isSearch = this.$route.name === 'searchMine';
       this.getMineEquipment()
     },
@@ -275,7 +278,7 @@
       }
     },
     computed: {
-      ...mapState(["loading"])
+      ...mapState(['loading'])
       // isSearch: function () {
       //   return this.$route.name === 'equipment'
       // }
