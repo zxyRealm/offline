@@ -78,7 +78,8 @@
     },
     mounted() {
       //图片宽高自适应
-      if((this.$refs.img.offsetWidth/this.$refs.img.offsetHeight) > (this.$refs.imgFather.offsetWidth/this.$refs.imgFather.offsetHeight)) {
+      //console.info((this.$refs.imgFather.offsetWidth/this.$refs.imgFather.offsetHeight));
+      if((this.$refs.img.offsetWidth/this.$refs.img.offsetHeight) >= (this.$refs.imgFather.offsetWidth/this.$refs.imgFather.offsetHeight)) {
         this.$set(this.styleObj,'height','100%');
       }else {
         this.$set(this.styleObj,'width','100%');
@@ -155,9 +156,9 @@
     height: 100%;
     text-align: center;
     .customer-img {
-      width: 100%;
-      height: calc(100% - 20px);
-      padding: 20px 12px;
+      width: calc(100% - 24px);
+      height: calc(100% - 40px);
+      /*padding: 20px 12px;*/
       margin: auto;
       box-sizing: border-box;
       overflow: hidden;
@@ -193,7 +194,7 @@
     .customer-detail {
       position: absolute;
       bottom: 20px;
-      right: 12px;
+      right: 14px;
       font-size: 12px;
       span {
         text-align: center;
@@ -207,7 +208,7 @@
       }
     }
     .customer-detail-in {
-      right: 12px;
+      right: 14px;
     }
   }
 

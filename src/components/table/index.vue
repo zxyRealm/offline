@@ -58,7 +58,7 @@
           total: 0,         //总条数
           currentPage: 1    //当前第几页
         },
-        layout: 'total, sizes',
+        layout: 'total, sizes, prev, pager, next',
         tableData: []
 
       }
@@ -109,7 +109,8 @@
           if (!table || !tableHead) return;
           let tableEle = 0;
           if (document.body.clientHeight < 720) {
-            tableEle = 206;
+            //tableEle = 206;
+            tableEle = 80;
           } else {
             tableEle = document.body.clientHeight - 631;
           }
@@ -159,6 +160,8 @@
 <style rel="stylesheet/scss" lang="scss">
   .table-wrap {
     width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
     //min-height: 300px;
     .table-search {
       height: 48px;
@@ -187,9 +190,12 @@
     }
     .table-content {
       width: 100%;
-      //min-height: 200px;
+      /*min-height: 200px;*/
       table {
         border-collapse: inherit;
+        th {
+          /*height: 40px!important;*/
+        }
       }
     }
     .table-page {

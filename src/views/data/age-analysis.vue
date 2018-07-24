@@ -103,11 +103,12 @@
     .table-data {
       width: 100%;
       min-width: 1020px;
-      position: absolute;
-      top: 294px;
-      bottom: 0px;
-      left: 0px;
-      box-sizing: border-box;
+      margin-top: 10px;
+      /*position: absolute;*/
+      /*top: 294px;*/
+      /*bottom: 0px;*/
+      /*left: 0px;*/
+      /*box-sizing: border-box;*/
     }
   }
 </style>

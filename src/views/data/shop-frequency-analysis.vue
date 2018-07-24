@@ -8,9 +8,9 @@
           <echarts-pie ref="echartsPie" :pie-params="pieParams"></echarts-pie>
       </div>
     </div>
-    <div class="table-data corner-bg" ref="line">
-       <echarts-line :line-height="tabelHeight" :line-params='lineParams' ref="echartsLine"></echarts-line>
-    </div>
+      <div class="table-data corner-bg" ref="line">
+         <echarts-line :line-height="tabelHeight" :line-params='lineParams' ref="echartsLine"></echarts-line>
+      </div>
   </div>
 </template>
 <script>
@@ -103,10 +103,11 @@
     .table-data {
       width: 100%;
       min-width: 1020px;
-      position: absolute;
-      top: 294px;
-      bottom: 0px;
-      left: 0px;
+      margin-top: 10px;
+      /*position: absolute;*/
+      /*top: 294px;*/
+      /*bottom: 0px;*/
+      /*left: 0px;*/
       box-sizing: border-box;
     }
   }
