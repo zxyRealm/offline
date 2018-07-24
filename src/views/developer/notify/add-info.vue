@@ -76,11 +76,7 @@
         const type = this.$route.name==='addNotifyCallback'?'create':'update';
         this.$http("/dataNotice/"+type,data).then(res=>{
           if(res.result){
-            if(type==='create'){
-              this.$tip("创建成功");
-            }else{
-              this.$tip("编辑成功")
-            }
+            this.$tip("保存成功");
             this.$router.push("/developer/notify")
           }
         })
