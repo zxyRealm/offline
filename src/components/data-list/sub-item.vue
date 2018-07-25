@@ -195,7 +195,7 @@
           if (this.data.deviceStatus !== undefined) {
             this.$tip('刷新成功')
           }
-          this.$set(this.data, 'deviceStatus', 0);
+          this.$set(this.data, 'deviceStatus', res.data);
         })
       },
       handleDevice (type) {
@@ -233,7 +233,7 @@
           if (action === 'confirm') {
             done();
             let subData = {deviceKey: this.data.deviceKey};
-            type === 'run' ? subData.operationCode = value.deviceState ? 0 : 1 : '';
+            type === 'run' ? subData.operationCode = value.deviceStatus===5 ? 0 : 1 : '';
             this.$load(`正在${des}中...`);
             switch (type) {
               case 'reboot':
@@ -246,9 +246,9 @@
                 this.$set(value, 'deviceStatus', 4);
                 break;
               case 'run':
-                if(value.deviceStatus===0){
+                if (value.deviceStatus === 0) {
                   this.$set(value, 'deviceStatus', 6);
-                }else {
+                } else {
                   this.$set(value, 'deviceStatus', 7);
                 }
                 break;
