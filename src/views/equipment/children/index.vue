@@ -42,7 +42,7 @@
                 <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
                 <p><span>应用场景：</span>{{item.deviceScene}}</p>
               </ob-list-item>
-              <ob-list-item style="min-width: 215px" @refresh="getEquipmentList" :data="item" type="handle">
+              <ob-list-item :style="{minWidth:'180px'}" @refresh="getEquipmentList" :data="item" type="handle">
               </ob-list-item>
 
             </ob-list>
