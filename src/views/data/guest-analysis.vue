@@ -18,45 +18,45 @@
   import EchartsLine from '../../components/echarts/line'
   import TableData from '../../components/table/index'
   import {eventObject} from '@/utils/event.js'
+
   export default {
-    name: "guest-analysis",
+    name: 'guest-analysis',
     components: {screening, EchartsLine, TableData},
-    data() {
+    data () {
       return {
         //传递给线型图字段
         lineParams: {
           title: {text: '进/出客流量图'}
         },
-        tableHeight:0
+        tableHeight: 0
       }
     },
     methods: {
-      resizeFunction() {
+      resizeFunction () {
         let me = this;
-        if(!me.$refs.line) return;
-        let line = document.getElementById("echarts-line");
+        if (!me.$refs.line) return;
+        let line = document.getElementById('echarts-line');
         //this.tableHeight = this.$refs.table.offsetHeight;
         //let tableEle = document.body.clientHeight - 420;
-        line.style.height = me.$refs.line.offsetHeight + "px";
+        line.style.height = me.$refs.line.offsetHeight + 'px';
         //宽度
-        line.style.width = me.$refs.line.offsetWidth + "px";
+        line.style.width = me.$refs.line.offsetWidth + 'px';
         me.$refs.echartsLine.resizeEcharts();
         //表格高度
         //if(this.$refs.table)this.$refs.table.initSize();
       }
     },
-    mounted() {
+    mounted () {
       //浏览器窗口监听
       let me = this;
-      window.addEventListener("resize", me.resizeFunction);
+      window.addEventListener('resize', me.resizeFunction);
     },
-    beforeRouteLeave(to, from, next) {
+    beforeRouteLeave (to, from, next) {
       let me = this;
-      window.removeEventListener("resize", me.resizeFunction);
+      window.removeEventListener('resize', me.resizeFunction);
       next();
     },
-    computed:{
-    }
+    computed: {}
   }
 </script>
 
@@ -78,7 +78,7 @@
         position: relative;
       }
       .flow-diagram {
-        width:62.17%;
+        width: 62.17%;
         float: right;
       }
       &::after {
@@ -93,14 +93,9 @@
     .table-data {
       width: 100%;
       min-width: 1020px;
-      position: absolute;
-      top: 386px;
-      left: 0px;
-      box-sizing: border-box;
-      padding: 20px;
-      background-color: rgba(64,58,73,0.30);
-      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
-      //margin-bottom: 20px;
+      margin-top: 10px;
+      background-color: rgba(64, 58, 73, 0.30);
+      box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
     }
   }
 </style>

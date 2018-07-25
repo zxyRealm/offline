@@ -1,5 +1,5 @@
 <template>
-  <div class="data-wrap">
+  <div class="data-wrap" v-if="$route.name!=='guest-analysis'">
       <ul class="data-type">
       <li v-for="(value,index) in dataType" :key="index">
         <router-link :to="value.path">{{value.title}}</router-link>
@@ -9,6 +9,17 @@
       <router-view></router-view>
     </div>
   </div>
+  <el-scrollbar class="guest-analysis" v-else>
+    <div class="data-wrap">
+      <ul class="data-type">
+        <li v-for="(value,index) in dataType" :key="index">
+          <router-link :to="value.path">{{value.title}}</router-link>
+        </li>
+      </ul>
+      <router-view></router-view>
+    </div>
+  </el-scrollbar>
+
 </template>
 
 <script>
@@ -37,27 +48,43 @@
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
+  .guest-analysis{
+    .el-scrollbar__wrap{
+      overflow-x: hidden;
+    }
+    .el-scrollbar__view{
+        height: 100%;
+        .data-guest{
+          height: calc(100% - 40px);
+          padding:12px 0 0;
+          .table-data{
+            min-height: calc(100% - 340px);
+          }
+        }
+      }
+  }
+
+
   .main-container {
-    overflow: hidden;
+    //overflow: hidden;
   }
   /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
   .main-container::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
     background-color: transparent;
   }
   /*定义滚动条轨道 内阴影+圆角*/
   .main-container::-webkit-scrollbar-track {
-    width: 0px;
-    height: 0px;
+    width: 0;
+    height: 0;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    border-radius: 0px;
     background-color: #232027;//#9E9E9E;
-    border-radius: 10px;
+    border-radius: 8px;
   }
   /*定义滑块 内阴影+圆角*/
   .main-container::-webkit-scrollbar-thumb {
-    border-radius: 10px;
+    border-radius: 8px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
     background-color: 	#555;
   }
@@ -104,6 +131,5 @@
       }
     }
     //下面路由使用的公共样式
-
  }
 </style>

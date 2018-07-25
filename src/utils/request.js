@@ -34,7 +34,6 @@ export function fetch(url,params,isTip='数据加载中...') {
     if(isTip){
       Store.state.loading = true;
       load(isTip);
-
     }
     return Promise.reject(error);
   });
@@ -43,7 +42,7 @@ export function fetch(url,params,isTip='数据加载中...') {
       headers:{
         'Content-Type':'application/json'
       },
-      baseURL:'/api',
+      baseURL:process.env.BASE_API,
       method: "POST",
       url: url,
       data: params,
@@ -57,7 +56,9 @@ export function fetch(url,params,isTip='数据加载中...') {
       }
       if (res.status === 200) {
         if(res.data.code==='ERR-110'){
-          reject(res.data)
+          reject(res.data);
+          window.location.href = `${res.data.data}?redirectURL=${window.location.href}`
+          return false
         }else if(res.data.result){
           if(isTip){
             Store.state.loading = false;

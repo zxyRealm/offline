@@ -260,7 +260,7 @@
         this.$nextTick(() => {
           this.$refs.groupNav.setCurrentKey(current.guid || current.groupGuid);
         });
-        this.$refs.groupNav.setCheckedKeys([]);
+        // this.$refs.groupNav.setCheckedKeys([]);
         this.getCommunityInfo(current);
         this.getDeviceList(current);
       },
@@ -340,6 +340,4 @@
 
 <style lang="scss" scoped>
   @import "@/styles/community.scss";
-</style>
-<style>
 </style>

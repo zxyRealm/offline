@@ -42,7 +42,7 @@
     margin-bottom: 10px;
     .ob-list-sub-item{
       position: relative;
-      padding: 14px 28px;
+      padding: 14px 20px;
       box-sizing: border-box;
       text-align: center;
       font-size:12px;

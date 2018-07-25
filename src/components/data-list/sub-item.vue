@@ -19,31 +19,13 @@
       </div>
       <div class="btn-wrap btn-item">
         <el-button
-          :disabled="!btnState(data.deviceStatus,'run').state"
-          @click="handleDevice('run')"
-          class="medium close">
-          {{btnState(data.deviceStatus,'run').text}}
-        </el-button>
-        <el-button
-          :disabled="!btnState(data.deviceStatus,'reboot').state"
-          @click="handleDevice('reboot')"
-          :class="{ongoing:btnState(data.deviceStatus,'reboot').going}"
-          class="medium reboot">
-          {{btnState(data.deviceStatus,'reboot').text}}
-        </el-button>
-        <el-button
-          :disabled="!btnState(data.deviceStatus,'upgrade').state"
-          @click="handleDevice('upgrade')"
-          class="medium upgrade"
-          :class="{ongoing:btnState(data.deviceStatus,'upgrade').going}">
-          {{btnState(data.deviceStatus,'upgrade').text}}
-        </el-button>
-        <el-button
-          :disabled="!btnState(data.deviceStatus,'reset').state"
-          @click="handleDevice('reset')"
-          :class="{ongoing:btnState(data.deviceStatus,'reset').going}"
-          class="medium reset">
-          {{btnState(data.deviceStatus,'reset').text}}
+          v-for="(item,$index) in btnList"
+          :key="$index"
+          :disabled="!btnState(data.deviceStatus,item).state"
+          @click="handleDevice(item)"
+          :class="btnState(data.deviceStatus,item).going?item +' ongoing':item"
+          class="medium">
+          {{btnState(data.deviceStatus,item).text}}
         </el-button>
       </div>
       <el-button
@@ -110,10 +92,13 @@
   import {parseTime} from '@/utils'
 
   export default {
-    name: "ob-list-item",
+    name: 'ob-list-item',
     props: {
       styles: {
-        type: [String, Object]
+        type: [String, Object],
+        default: () => ({
+          'minWidth': '74px'
+        })
       },
       width: {
         type: String,
@@ -159,19 +144,19 @@
         default: false
       }
     },
-    data() {
+    data () {
       const validateName = (rule, value, callback) => {
         if (!value) {
           callback(new Error('设备别名不能为空'))
         } else {
           if (value.length >= 2 && value.length <= 18) {
-            this.$http("/merchant/device/alias/exist", {deviceName: value}, false).then(res => {
+            this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
               !res.data ? callback() : callback('设备别名已存在')
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
             });
           } else {
-            callback(new Error("别名长度为2-18个字符"))
+            callback(new Error('别名长度为2-18个字符'))
           }
         }
       };
@@ -181,13 +166,14 @@
           deviceKey: ''
         },
         rules: [
-          {required: true, validator: validateName, trigger: "blur"}
+          {required: true, validator: validateName, trigger: 'blur'}
         ],
+        btnList: ['run', 'reboot', 'upgrade', 'reset']
       }
     },
     methods: {
       // 格式化内容
-      format(val) {
+      format (val) {
         switch (this.type) {
           case 'type':
             return this.notifyType(val);
@@ -197,22 +183,22 @@
             return val
         }
       },
-      notifyType(type) {
+      notifyType (type) {
         switch (type) {
           default:
             return '到店通知'
         }
       },
-      getDeviceState(value) {
+      getDeviceState (value) {
         // 0为在线，1为离线
-        this.$http("/device/state/use", {deviceKey: value.deviceKey}).then(res => {
+        this.$http('/device/state/use', {deviceKey: value.deviceKey}).then(res => {
           if (this.data.deviceStatus !== undefined) {
-            this.$tip("刷新成功")
+            this.$tip('刷新成功')
           }
           this.$set(this.data, 'deviceStatus', res.data);
         })
       },
-      handleDevice(type) {
+      handleDevice (type) {
         let [des, url, value] = ['', '', this.data];
         switch (type) {
           case 'upgrade':
@@ -228,62 +214,48 @@
             url = '/device/reset';
             break;
           case 'run':
-            if (value.deviceStatus === 1) {
-              des = '开启';
+            if (value.deviceStatus === 0) {
+              des = '禁用';
             } else {
-              des = '关闭'
+              des = '启用'
             }
-            // operationCode  开机为0 ，关机为1
             url = '/device/startOrShutdown';
             break;
           default:
-            des = '开启';
+            des = '启用';
             url = '/device/startOrShutdown'
         }
-        if (value.deviceStatus !== 0&&value.deviceStatus!==1) {
-          this.$tip(`设备【BOX】${des}中，请耐心等待...<br>${des}完成后您将收到站内通知。`, 'waiting');
+        if (value.deviceStatus !== 0 && value.deviceStatus !== 1 && value.deviceStatus !== 5) {
+          this.$tip(`设备正在【BOX】${des}中，请稍后重新获取设备状态`, 'waiting');
           return false;
         }
         this.$affirm({text: '确定' + des + '设备【' + value.deviceName + '】?'}, (action, instance, done) => {
           if (action === 'confirm') {
             done();
             let subData = {deviceKey: this.data.deviceKey};
-            type === 'run' ? subData.operationCode = value.deviceState ? 0 : 1 : '';
+            type === 'run' ? subData.operationCode = value.deviceStatus === 5 ? 0 : 1 : '';
             this.$load(`正在${des}中...`);
-            switch (type){
+            switch (type) {
               case 'reboot':
-                this.$set(value,'deviceStatus',2);
-                break;
-              case 'upgrade':
-                this.$set(value,'deviceStatus',3);
+                this.$set(value, 'deviceStatus', 2);
                 break;
               case 'reset':
-                this.$set(value,'deviceStatus',4);
+                this.$set(value, 'deviceStatus', 3);
+                break;
+              case 'upgrade':
+                this.$set(value, 'deviceStatus', 4);
+                break;
+              case 'run':
+                if (value.deviceStatus === 0) {
+                  this.$set(value, 'deviceStatus', 6);
+                } else {
+                  this.$set(value, 'deviceStatus', 7);
+                }
                 break;
             }
             this.$http(url, subData).then(res => {
               this.$load().close();
-              switch (type) {
-                case 'reboot':
-                  // this.$tip("重启成功");
-                  break;
-                case 'upgrade':
-                  this.$tip("设备【BOX】升级中，请耐心等待...<br>" +
-                    "升级完成后您将收到站内通知。", 'waiting');
-                  break;
-                case 'reset':
-                  // this.$tip("重置成功");
-                  break;
-                case 'run':
-                  if (value.deviceStatus === 1) {
-                    this.$tip("设备开启成功")
-                  } else {
-                    this.$tip('设备已关闭')
-                  }
-                  this.$set(value,'deviceStatus',0);
-                  break;
-                default:
-              }
+              this.$tip(`设备【BOX】${des}中，请稍后重新获取设备状态`, 'waiting');
             }).catch(err => {
               this.$load().close()
             });
@@ -292,10 +264,9 @@
           }
         })
       },
-
       // 操作按钮状态控制
-      btnState(state, type) {
-        //state状态码 0 在线 显示关机 1 离线 显示开机   2重启中 3升级中 4重置中
+      btnState (state, type) {
+        //state状态码 0 在线 默认显示禁用 1 离线 显示启用   2重启中 3重置中 4升级中  5禁用中 6启用中 7 禁用中
         // type 状态值 run 开关机  reboot 重启 upgrade 升级 reset 重置
         let label = (type) => {
           switch (type) {
@@ -306,7 +277,7 @@
             case 'reset':
               return '重置';
             default:
-              return '开机';
+              return '启用';
           }
         };
         let backObj = {
@@ -318,7 +289,7 @@
         switch (state) {
           case 0:
             if (type === 'run') {
-              backObj.text = '关机';
+              backObj.text = '禁用';
               backObj.state = true
             } else {
               backObj.text = label(type);
@@ -327,11 +298,6 @@
             break;
           case 1:
             backObj.text = label(type);
-            if (type === 'run') {
-              backObj.state = true
-            } else {
-              backObj.state = false
-            }
             break;
           case 2:
             if (type === 'reboot') {
@@ -343,7 +309,7 @@
             }
             break;
           case 3:
-            if (type === 'upgrade') {
+            if (type === 'reset') {
               backObj.text = label(type) + '中';
               backObj.going = true;
               backObj.state = true
@@ -352,8 +318,34 @@
             }
             break;
           case 4:
-            if (type === 'reset') {
+            if (type === 'upgrade') {
               backObj.text = label(type) + '中';
+              backObj.going = true;
+              backObj.state = true
+            } else {
+              backObj.state = false
+            }
+            break;
+          case 5:
+            if (type === 'run') {
+              backObj.text = '启用';
+              backObj.state = true
+            } else {
+              backObj.state = false
+            }
+            break;
+          case 6:
+            if (type === 'run') {
+              backObj.text = '禁用中';
+              backObj.going = true;
+              backObj.state = true
+            } else {
+              backObj.state = false
+            }
+            break;
+          case 7:
+            if (type === 'run') {
+              backObj.text = '启用中';
               backObj.going = true;
               backObj.state = true
             } else {
@@ -367,30 +359,32 @@
         return backObj
       },
       // 删除设备
-      deleteEquipment(item) {
+      deleteEquipment (item) {
         this.$affirm({
-          confirm: '删除',
-          cancel: '取消',
-          text: '确定将设备【' + item.deviceName + '】删除？'
-        }, (action, instance, done) => {
-          if (action === 'confirm') {
-            this.$http("/merchant/device/delete", {deviceKey: item.deviceKey}).then(res => {
-              this.$tip("删除成功");
-              this.$emit("refresh");
-            });
-            done();
-          } else {
-            done()
+            confirm: '删除',
+            cancel: '取消',
+            text: '确定将设备【' + item.deviceName + '】删除？'
+          }, (action, instance, done) => {
+            if (action === 'confirm') {
+              this.$http('/merchant/device/delete', {deviceKey: item.deviceKey}).then(res => {
+                this.$tip('删除成功');
+                this.$emit('refresh');
+              });
+              done();
+            }
+            else {
+              done()
+            }
           }
-        })
+        )
       },
       // 修改设备昵称
-      changeEquipmentName() {
+      changeEquipmentName () {
         this.$refs['tableForm'].validate((valid) => {
           if (valid) {
             this.equipmentForm.deviceKey = this.data.deviceKey;
-            this.$http("/merchant/device/alias", this.equipmentForm).then(res => {
-              this.$tip("修改成功");
+            this.$http('/merchant/device/alias', this.equipmentForm).then(res => {
+              this.$tip('修改成功');
               this.$set(this.data, 'popover', false);
               this.data.deviceName = this.equipmentForm.deviceName;
             })
@@ -398,25 +392,24 @@
             console.log('error submit')
           }
         });
-
       },
       // 获取设备操作权限
-      devicePermission(val) {
-        this.$http("/merchant/device/operationPermission", {guid: val.groupGuid}).then(res => {
+      devicePermission (val) {
+        this.$http('/merchant/device/operationPermission', {guid: val.groupGuid}).then(res => {
           res.data ? this.$set(val, 'deviceState', -1) : ''
         })
       },
-      showPopover() {
+      showPopover () {
         this.$set(this.data, 'popover', true);
       }
     },
     computed: {
       propList: function () {
-        const arr = this.prop.split(",");
+        const arr = this.prop.split(',');
         return arr[0] ? arr : []
       },
       labelList: function () {
-        const arr = this.label.split(",");
+        const arr = this.label.split(',');
         return arr[0] ? arr : []
       }
     },
@@ -424,7 +417,7 @@
       filter: function (val) {
         this.format = val
       },
-      "data.popover"(val) {
+      'data.popover' (val) {
         if (!val && this.$refs.tableForm) {
           this.$refs.tableForm.resetFields();
         }
@@ -467,7 +460,7 @@
     }
     &:last-child {
       > .btn-item + .btn-item {
-        margin-left: 30px;
+        margin-left: 18px;
       }
       > div {
         display: inline-block;
@@ -528,6 +521,53 @@
     }
     .uu-icon {
       vertical-align: middle;
+      margin: 3px 0;
+    }
+  }
+
+  .el-button {
+    &.medium {
+      &.run, &.disable, &.reset, &.reboot, &.upgrade, &.ongoing {
+        height: 30px;
+        padding: 8px 15px;
+        background-size: cover;
+        border: none;
+        background-color: transparent;
+      }
+      &.upgrade {
+        background-image: $upgrade;
+      }
+      &.reset {
+        background-image: $reset;
+      }
+      &.run {
+        background-image: $close;
+      }
+      &.reboot {
+        background-image: $reboot;
+      }
+      &.ongoing {
+        position: relative;
+        &:after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: $ongoing repeat-x top left;
+          animation: mymove 3.5s linear infinite;
+          background-size: auto 100%;
+        }
+        @keyframes mymove {
+          from {
+            background-position-x: 0;
+          }
+          to {
+            background-position-x: 100%;
+          }
+        }
+      }
     }
   }
 

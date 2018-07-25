@@ -79,6 +79,7 @@ export default {
   }
 </style>
 <style lang="scss" rel="stylesheet/scss">
+
   .app-wrapper{
     .app-main-content{
       >div{
@@ -86,5 +87,6 @@ export default {
         /*background-color: #0F0E11;*/
       }
     }
+
   }
 </style>

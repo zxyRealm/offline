@@ -211,6 +211,19 @@
         if (this.showCheckbox && !node.data.disabled) {
           if (!this.multiple) {
             this.$refs.GroupTree.setCheckedNodes([node.data]);
+          }else{
+            let nodes = this.$refs.GroupTree.getCheckedNodes();
+            let isChecked = nodes.filter(item => {
+              return item.$treeNodeId === node.data.$treeNodeId
+            })[0];
+            if (isChecked) {
+              this.$refs.GroupTree.setCheckedNodes(nodes.filter(item => {
+                return item.$treeNodeId !== node.data.$treeNodeId
+              }))
+            } else {
+              nodes.push(node.data);
+              this.$refs.GroupTree.setCheckedNodes(nodes)
+            }
           }
         }
       },
