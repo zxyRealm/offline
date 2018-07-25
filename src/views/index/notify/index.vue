@@ -47,16 +47,16 @@
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-  .el-scrollbar .el-scrollbar_wrap {
-
+  .content .el-scrollbar .el-scrollbar__wrap {
+        margin-right: -18px!important;
   }
   /* 滚动条粗细 */
   .content .el-scrollbar__bar.is-vertical {
-    width: 8px;
+   // width: 8px;
   }
   /* 滚动条高度 */
   .content .el-scrollbar__thumb {
-    hieght: 30%!important;
+    //hieght: 30%!important;
   }
   /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
   /*.content ul::-webkit-scrollbar {*/
@@ -95,6 +95,7 @@
       padding-top: 6%;
       box-sizing: border-box;
       ul {
+        cursor: pointer;
         margin: 0 auto;
         width: 72%;
         height: 60%;
