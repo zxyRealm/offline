@@ -138,6 +138,7 @@
             this.$tip("选择时间不能为空！","error");
             return;
           }
+
           eventObject().$emit('screening-params-change','');
           this.dealTime();
           this.changeParams();

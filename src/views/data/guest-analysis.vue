@@ -62,38 +62,12 @@
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   .data-guest {
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 12px 0 12px 0;
     .data-guest-content {
-      width: 100%;
-      min-width: 1020px;
       .screening, .flow-diagram {
         height: 320px;
       }
-      .screening {
-        width: 36.86%;
-        float: left;
-        position: relative;
-      }
-      .flow-diagram {
-        width: 62.17%;
-        float: right;
-      }
-      &::after {
-        content: '';
-        width: 0;
-        height: 0;
-        clear: both;
-        display: block;
-        overflow: hidden;
-      }
     }
     .table-data {
-      width: 100%;
-      min-width: 1020px;
-      margin-top: 10px;
       background-color: rgba(64, 58, 73, 0.30);
       box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
     }

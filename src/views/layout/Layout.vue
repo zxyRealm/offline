@@ -67,11 +67,8 @@ export default {
     width: 100%;
     overflow: hidden;
     .app-main-content{
-      position: absolute;
-      top:20px;
-      left:20px;
-      bottom:20px;
-      right:20px;
+      height: 100%;
+      overflow: hidden;
       box-sizing: border-box;
       background-color: #232027;
       color: #fff;
@@ -84,7 +81,6 @@ export default {
     .app-main-content{
       >div{
         height: 100%;
-        /*background-color: #0F0E11;*/
       }
     }
 

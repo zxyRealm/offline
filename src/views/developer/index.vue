@@ -18,11 +18,7 @@
                  form-class="user-info-form"
                  :rules="editable?rules:{}"
                  :readonly="!editable"
-<<<<<<< HEAD
-                 :subText="!editable?'':buttonText"
-=======
                  :subText="buttonText"
->>>>>>> dev
                  @handle-submit="submitForm"
                  v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
@@ -215,7 +211,6 @@
         }
       },
       buttonText(){
-        console.log(this.$route.name)
         return this.userInfo.company&&this.$route.name==='personEdit'?'保存':''
       }
     }

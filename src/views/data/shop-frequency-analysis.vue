@@ -72,44 +72,6 @@
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .data-guest {
-     width: 100%;
-     height: 100%;
-     box-sizing: border-box;
-     padding: 12px 0 12px 0;
-    .data-guest-content {
-      width: 100%;
-      min-width: 1020px;
-      .screening, .flow-diagram {
-        height: 230px;
-      }
-      .screening {
-        width: 36.86%;
-        float: left;
-      }
-      .flow-diagram {
-        width: 62.17%;
-        float: right;
-      }
-      &::after {
-        content: '';
-        width: 0;
-        height: 0;
-        clear: both;
-        display: block;
-        overflow: hidden;
-      }
-    }
-    .table-data {
-      width: 100%;
-      min-width: 1020px;
-      margin-top: 10px;
-      /*position: absolute;*/
-      /*top: 294px;*/
-      /*bottom: 0px;*/
-      /*left: 0px;*/
-      box-sizing: border-box;
-    }
-  }
+
 </style>
 

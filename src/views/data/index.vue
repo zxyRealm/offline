@@ -9,17 +9,18 @@
       <router-view></router-view>
     </div>
   </div>
-  <el-scrollbar class="guest-analysis" v-else>
-    <div class="data-wrap">
-      <ul class="data-type">
-        <li v-for="(value,index) in dataType" :key="index">
-          <router-link :to="value.path">{{value.title}}</router-link>
-        </li>
-      </ul>
-      <router-view></router-view>
-    </div>
-  </el-scrollbar>
-
+  <div class="guest-analysis" v-else>
+    <el-scrollbar ref="scrollItem">
+      <div class="data-wrap">
+        <ul class="data-type">
+          <li v-for="(value,index) in dataType" :key="index">
+            <router-link :to="value.path">{{value.title}}</router-link>
+          </li>
+        </ul>
+        <router-view></router-view>
+      </div>
+    </el-scrollbar>
+  </div>
 </template>
 
 <script>
@@ -47,10 +48,25 @@
       }
   }
 </script>
+<style lang="scss" scoped>
+
+</style>
 <style rel="stylesheet/scss" lang="scss">
   .guest-analysis{
+    height: 100%;
+    >.el-scrollbar{
+      height: 100%;
+      >.el-scrollbar__wrap{
+        background-color: rgba(0,0,0,0.5);
+
+      }
+    }
+    >.is-horizontal{
+      display: none;
+    }
     .el-scrollbar__wrap{
       overflow-x: hidden;
+      height: 100%;
     }
     .el-scrollbar__view{
         height: 100%;
@@ -58,12 +74,11 @@
           height: calc(100% - 40px);
           padding:12px 0 0;
           .table-data{
-            min-height: calc(100% - 340px);
+            min-height: calc(100% - 330px);
           }
         }
       }
   }
-
 
   .main-container {
     //overflow: hidden;
@@ -132,4 +147,39 @@
     }
     //下面路由使用的公共样式
  }
+
+  .data-guest {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 12px 0 12px 0;
+    .data-guest-content {
+      width: 100%;
+      .screening, .flow-diagram {
+        height: 230px;
+      }
+      .screening {
+        width: 36.86%;
+        float: left;
+      }
+      .flow-diagram {
+        width: 62.17%;
+        float: right;
+      }
+      &::after {
+        content: '';
+        width: 0;
+        height: 0;
+        clear: both;
+        display: block;
+        overflow: hidden;
+      }
+    }
+    .table-data {
+      width: 100%;
+      margin-top: 10px;
+      box-sizing: border-box;
+    }
+  }
+
 </style>
