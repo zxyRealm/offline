@@ -83,6 +83,14 @@
         this.$set(this.styleObj,'height','100%');
       }else {
         this.$set(this.styleObj,'width','100%');
+        this.timer = window.setTimeout(() => {
+            if(this.$refs.img.offsetHeight < this.$refs.imgFather.offsetHeight ) {
+              this.$set(this.styleObj,'height','100%');
+            }
+            window.clearTimeout(this.timer);
+          },
+        300)
+
       }
     },
     watch: {}

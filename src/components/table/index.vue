@@ -59,7 +59,7 @@
           total: 0,         //总条数
           currentPage: 1    //当前第几页
         },
-        layout: 'total, sizes, prev, pager, next',
+        layout: 'total, sizes',
         tableData: []
       }
     },
@@ -94,15 +94,8 @@
         this.$http('/chart/flowCount', filterParams).then(res => {
           if (res.result === 1) {
             this.tableData = res.data.content || [];
-            this.pageParams.total = res.data.pagination.total || 0;
-            this.$set(this.pageParams, 'total', res.data.pagination.total || 0);
-
-            // let barItem = this.$parent.$parent.$parent.$refs.scrollItem;
-            // if (barItem) {
-            //   console.log(barItem);
-            //   barItem.sizeHeight = (100-barItem.moveY)+'%';
-            //   barItem.update()
-            // }
+            //this.pageParams.total = res.data.pagination.total || 0;
+            (!!res.data.pagination) ? this.$set(this.pageParams, "total", res.data.pagination.total || 0) : this.$set(this.pageParams, "total", 0);
           }
         }).catch(error => {
           console.info(error);
