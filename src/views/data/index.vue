@@ -63,30 +63,8 @@
         }
       }
   }
-
-
   .main-container {
     overflow: hidden;
-  }
-  /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
-  .main-container::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-    background-color: transparent;
-  }
-  /*定义滚动条轨道 内阴影+圆角*/
-  .main-container::-webkit-scrollbar-track {
-    width: 0;
-    height: 0;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    background-color: #232027;//#9E9E9E;
-    border-radius: 8px;
-  }
-  /*定义滑块 内阴影+圆角*/
-  .main-container::-webkit-scrollbar-thumb {
-    border-radius: 8px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-    background-color: 	#555;
   }
   /* 防止動效影響路由 */
   .flow-diagram  {
