@@ -58,7 +58,7 @@
           total: 0,         //总条数
           currentPage: 1    //当前第几页
         },
-        layout: 'total, sizes, prev, pager, next',
+        layout: 'total, sizes',
         tableData: []
       }
     },

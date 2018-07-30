@@ -195,14 +195,30 @@
           deviceKey: this.deviceKey
         }).then(res => {
           if(res.data && res.data.length){
-            this.resolveDatad(res.data);
+            this.resolveDatad(res.data);  //假如没走这一步，当你更换设备时记录的是上一个设备的数据
+          }else {
+            this.defaultData();
           }
           this.getwebsocketIp();
           this.resizeFunction();
         }).catch(error => {
-          this.resizeFunction();  //请求失败渲染默认数据
+          this.resizeFunction();   //请求失败渲染默认数据
           console.info(error);
         });
+      },
+      //当请求数据为空时
+      defaultData() {
+        this.pieParams = {   //饼图
+          type: 3,
+            title: {text: '男女流量占比'},
+          seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}],
+        };
+        this.lineParams = { //线图
+          title: {text: '客流量统计'}
+        };
+        this.outNumber = 0;   //出入数
+        this.inNumber = 0;    //进入数
+        this.ageBar = [0, 0, 0, 0, 0, 0]; //柱图
       }
     },
     created() {

@@ -58,7 +58,7 @@
           height: calc(100% - 40px);
           padding:12px 0 0;
           .table-data{
-            min-height: calc(100% - 340px);
+            min-height: calc(100% - 348px);
           }
         }
       }
@@ -66,7 +66,7 @@
 
 
   .main-container {
-    //overflow: hidden;
+    overflow: hidden;
   }
   /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
   .main-container::-webkit-scrollbar {
