@@ -93,8 +93,8 @@
         this.$http('/chart/flowCount', filterParams).then(res => {
           if (res.result == 1) {
             this.tableData = res.data.content || [];
-            this.pageParams.total = res.data.pagination.total || 0;
-            this.$set(this.pageParams, "total", res.data.pagination.total || 0)
+            //this.pageParams.total = res.data.pagination.total || 0;
+            (!!res.data.pagination) ? this.$set(this.pageParams, "total", res.data.pagination.total || 0) : this.$set(this.pageParams, "total", 0);
           }
         }).catch(error => {
           console.info(error);

@@ -49,6 +49,8 @@
 <style rel="stylesheet/scss" lang="scss">
   .content .el-scrollbar .el-scrollbar__wrap {
     margin-right: -18px!important;
+    margin-bottom: -200px!important;
+    overflow: auto;
   }
   /* 滚动条粗细 */
   .content .el-scrollbar__bar.is-vertical {
@@ -57,6 +59,9 @@
   /* 滚动条高度 */
   .content .el-scrollbar__thumb {
     //hieght: 30%!important;
+  }
+  .main-container {
+    overflow: hidden;
   }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -78,10 +83,10 @@
         cursor: pointer;
         margin: 0 auto;
         width: 72%;
-        height: 60%;
+        height: 61%;
         padding: 16px 0;
         overflow-y: auto;
-        border: 2px dashed hsla(0, 0%, 62%, 0.03);
+        /*border: 2px dashed hsla(0, 0%, 62%, 0.03);*/
         /*background: rgba(15, 158, 233, 0.003);*/
         /*border-image: linear-gradient(to right,#1896E6,#813FC5) 20 20;*/
         background-image: url(/static/img/notify_background.png);
