@@ -62,6 +62,7 @@
             </ob-list-item>
           </ob-list>
         </template>
+        <!--<el-button @click="getMineEquipment()">自有设备列表</el-button>-->
         <el-pagination
           v-if="pagination.total && pagination.total>pagination.length"
           @current-change="getMineEquipment"
@@ -207,8 +208,10 @@
       // 获取自有设备
       getMineEquipment (page) {
         page = page || this.pagination.index || 1;
+        console.log(page)
         this.$http('/device/list', {index: page, searchText: this.$route.params.key || ''}).then(res => {
-          this.equipmentList = res.data.content;
+          // this.equipmentList = Math.random()>0.5?res.data.content:res.data.content.concat(res.data.content);
+          this.equipmentList = res.data.content || [];
           this.pagination = res.data.pagination;
           if (!this.groupList.length) {
             this.getGroupList()

@@ -46,11 +46,12 @@
 
 <script>
   import Vue from 'vue'
-  import { mapState } from 'vuex'
-  import { eventObject } from '@/utils/event.js'
+  import {mapState} from 'vuex'
+  import {eventObject} from '@/utils/event.js'
+
   export default {
-    name: "table-index",
-    data() {
+    name: 'table-index',
+    data () {
       return {
         fuzzyQuery: '',     //模糊匹配
         pageParams: {
@@ -64,21 +65,21 @@
     },
     methods: {
       //每页显示条数
-      handleSizeChange(val) {
+      handleSizeChange (val) {
         this.pageParams.pageSize = val;
         this.getData();
       },
       //当前显示第几页
-      handleCurrentChange(val) {
+      handleCurrentChange (val) {
         this.pageParams.currentPage = val;
         this.getData();
       },
       //条件请求数据
-      doSearch() {
+      doSearch () {
         //this.gettableData();
       },
       //请求数据
-      getData() {
+      getData () {
         let params = this.$store.state.filterParams;
         let filterParams = {
           groupGuid: params.groupGuid,
@@ -91,7 +92,7 @@
           index: this.pageParams.currentPage
         };
         this.$http('/chart/flowCount', filterParams).then(res => {
-          if (res.result == 1) {
+          if (res.result === 1) {
             this.tableData = res.data.content || [];
             //this.pageParams.total = res.data.pagination.total || 0;
             (!!res.data.pagination) ? this.$set(this.pageParams, "total", res.data.pagination.total || 0) : this.$set(this.pageParams, "total", 0);
@@ -100,11 +101,11 @@
           console.info(error);
         });
       },
-      initSize() {
+      initSize () {
         //table高度改变
         this.$nextTick(() => {
-          let tableHead = document.getElementsByClassName("table-content")[0];
-          let table = document.getElementsByTagName("table")[0];
+          let tableHead = document.getElementsByClassName('table-content')[0];
+          let table = document.getElementsByTagName('table')[0];
           if (!table || !tableHead) return;
           let tableEle = 0;
           if (document.body.clientHeight < 720) {
@@ -114,14 +115,14 @@
             tableEle = document.body.clientHeight - 631;
           }
           // tableHead.style.minHeight = tableEle + "px";
-          table.style.height = tableEle + "px";
+          table.style.height = tableEle + 'px';
         })
       },
-      removeResize() {
-        window.removeEventListener("resize", this.initSize);
+      removeResize () {
+        window.removeEventListener('resize', this.initSize);
       }
     },
-    mounted() {
+    mounted () {
       //查询条件改变并且确定后，当前页码重置为1
       eventObject().$on('screening-params-change', msg => {
         this.pageParams.currentPage = 1;
@@ -137,19 +138,19 @@
     watch: {
       filterParams: {
         handler: function (val, oldVal) {
-           //console.info(val,11111111);
+          //console.info(val,11111111);
           //this.pageParams.currentPage = 1;
         },
         deep: true
       },
       tableData: {
         handler: function (val, oldVal) {
-          this.layout = val.length == 0 ?  'total, sizes' : 'total, sizes, prev, pager, next';
+          this.layout = val.length == 0 ? 'total, sizes' : 'total, sizes, prev, pager, next';
         },
         deep: true
       }
     },
-    beforeRouteLeave(to, from, next) {
+    beforeRouteLeave (to, from, next) {
       this.removeResize();
       next();
     },
