@@ -168,6 +168,7 @@
       height: calc(100% - 40px);
       /*padding: 20px 12px;*/
       margin: auto;
+      margin-left: 5px;
       box-sizing: border-box;
       overflow: hidden;
       position: relative;
