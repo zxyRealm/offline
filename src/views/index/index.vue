@@ -94,7 +94,7 @@
       text-align: center;
       top: 26.9%;
       left: 29.2%;
-      background: rgba(0, 0, 0, 0.15);
+      //background: rgba(0, 0, 0, 0.15);
       .content-item{
         line-height: 1.5;
         text-align: center;
