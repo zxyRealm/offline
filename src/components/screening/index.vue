@@ -271,9 +271,10 @@
         cursor: pointer;
       }
       .actived {
-        color: #2187DF;
-        border: 1px solid #2187DF;
-        box-shadow: 0 2px 4px 0 rgba(22,20,24,0.50);
+        /*color: #2187DF;*/
+        border: 1px solid ;  /*#2187DF*/
+        border-image: linear-gradient(to right, #0F9DE8, #8440CA) 6;
+        /*box-shadow: 0 2px 4px 0 rgba(22,20,24,0.50);*/
       }
     }
     .normal-from {

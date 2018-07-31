@@ -208,11 +208,12 @@
       },
       //当请求数据为空时
       defaultData() {
-        this.pieParams = {   //饼图
+        let params = {   //饼图
           type: 3,
             title: {text: '男女流量占比'},
-          seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}],
+           seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}],
         };
+        this.pieParams = { ...params };
         this.lineParams = { //线图
           title: {text: '客流量统计'}
         };

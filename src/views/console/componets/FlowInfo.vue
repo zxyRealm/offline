@@ -23,6 +23,7 @@ export default {
     },
     watch: {
         number(val,oldVal) {
+           if(val == 0) return;
             this.isShow = true;
              setTimeout(() => {
                 this.isShow = false;
