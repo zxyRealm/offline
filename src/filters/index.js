@@ -27,12 +27,10 @@ export function authority(str){
 
 export function lineState(state) {
   switch (state){
-    case 1:
-      return '离线';
-    case 0:
-      return '在线';
     case undefined:
       return '';
+    case 1:
+      return '离线';
     default:
       return '在线';
   }

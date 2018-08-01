@@ -9,7 +9,7 @@
           :show-file-list="false"
           :http-request="avatarUpload"
           :before-upload="beforeAvatarUpload">
-          <div v-if="avatar" :style="{ backgroundImage:'url('+avatar+')'}" class="avatar"></div>
+          <div v-if="avatar" :style="{ backgroundImage:'url(' + avatar + ')'}" class="avatar"></div>
           <i class="el-icon-plus avatar-uploader-icon" v-else></i>
         </el-upload>
       </div>
@@ -18,7 +18,7 @@
                  form-class="user-info-form"
                  :rules="editable?rules:{}"
                  :readonly="!editable"
-                 :subText="buttonText"
+                 :subText="editable?'保存':''"
                  @handle-submit="submitForm"
                  v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
@@ -143,7 +143,7 @@
                 let avatarHref = res.data.host + '/merchant/' + uid + '/' + data.file.name;
                 this.$http("/merchant/usercenter/image", {faceImgURL: avatarHref}).then(res => {
                   this.$tip('头像上传成功');
-                  this.$store.state.userInfo.faceImgURL = avatarHref;
+                  this.$store.commit("SET_USER_INFO",{faceImgURL:avatarHref});
                 });
               } else {
                 this.$tip("上传失败，请稍后重试", 'error')
@@ -157,15 +157,16 @@
         });
       },
       beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/jpeg' || 'image/png';
+        const isJPG = file.type === ('image/jpeg' || 'image/png');
         const isLt2M = file.size / 1024 / 1024 < 2;
         if (!isJPG) {
           this.$tip('上传头像图片只能是 JPG/PNG 格式!', 'error');
+          return false
         }
         if (!isLt2M) {
           this.$tip('上传头像图片大小不能超过 2MB!', 'error');
+          return false
         }
-        return isJPG && isLt2M;
       }
     },
     created() {
@@ -178,7 +179,6 @@
       this.initData();
     },
     mounted() {
-      // this.avatarUrl = '/static/img/logo.png';
     },
     watch: {
       "$route": function (val) {
@@ -201,18 +201,7 @@
         "userInfo",
         "loading"
       ]),
-      ...mapGetters(["avatar"]),
-      avatarUrl: {
-        get(val) {
-          return this.userInfo.faceImgURL || '/static/img/logo.png'
-        },
-        set(val) {
-          return this.userInfo.faceImgURL || ''
-        }
-      },
-      buttonText(){
-        return this.userInfo.company&&this.$route.name==='personEdit'?'保存':''
-      }
+      ...mapGetters(["avatar"])
     }
   }
 </script>

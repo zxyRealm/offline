@@ -260,7 +260,7 @@
         this.$nextTick(() => {
           this.$refs.groupNav.setCurrentKey(current.guid || current.groupGuid);
         });
-        // this.$refs.groupNav.setCheckedKeys([]);
+        this.$refs.groupNav.setCheckedKeys([]);
         this.getCommunityInfo(current);
         this.getDeviceList(current);
       },
