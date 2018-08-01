@@ -81,6 +81,13 @@
       //console.info((this.$refs.imgFather.offsetWidth/this.$refs.imgFather.offsetHeight));
       if((this.$refs.img.offsetWidth/this.$refs.img.offsetHeight) >= (this.$refs.imgFather.offsetWidth/this.$refs.imgFather.offsetHeight)) {
         this.$set(this.styleObj,'height','100%');
+        this.timer = window.setTimeout(() => {
+            if(this.$refs.img.offsetWidth < this.$refs.imgFather.offsetWidth ) {
+              this.$set(this.styleObj,'width','100%');
+            }
+            window.clearTimeout(this.timer);
+          },
+          500)
       }else {
         this.$set(this.styleObj,'width','100%');
         this.timer = window.setTimeout(() => {
@@ -89,7 +96,7 @@
             }
             window.clearTimeout(this.timer);
           },
-        300)
+        500)
 
       }
     },
