@@ -35,7 +35,7 @@
         <transition-group name="list-customer" class="transition-wrap left" tag="ul">
           <li
             v-for="(item,$index) in pedestrianInData"
-            :key="item.order"
+            :key="$index"
             class="list-customer-item"
           >
             <customer-info :index="pedestrianInData.length -$index" :detailInfo="item"></customer-info>
@@ -54,7 +54,7 @@
         <transition-group name="list-customer" class="transition-wrap right" tag="ul">
           <li
             v-for="(item,$index) in pedestrianOutData"
-            :key="item.order"
+            :key="$index"
             class="list-customer-item out-li"
           >
             <customer-info :index="pedestrianOutData.length -$index" :detailInfo="item"></customer-info>
@@ -208,11 +208,12 @@
       },
       //当请求数据为空时
       defaultData() {
-        this.pieParams = {   //饼图
+        let params = {   //饼图
           type: 3,
             title: {text: '男女流量占比'},
-          seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}],
+           seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}],
         };
+        this.pieParams = { ...params };
         this.lineParams = { //线图
           title: {text: '客流量统计'}
         };
@@ -229,7 +230,7 @@
     mounted() {
       let me = this;
       window.addEventListener('resize', me.resizeFunction);
-      if (this.$store.state.groupConsoleId != "") {
+      if (this.groupConsoleId != "") {
         this.deviceKey = this.$store.state.groupConsoleId;
         this.state = true;
         this.getData();

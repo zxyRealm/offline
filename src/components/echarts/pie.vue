@@ -304,6 +304,7 @@
       },
       watch: {
         pieParams(val,oldVal) {
+          this.showAgeData();
           return true;
         }
 
