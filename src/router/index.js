@@ -1,8 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import store from '../store'
-import {fetch} from '@/utils/request'
-import {MessageBox} from "element-ui"
+import {fetch,exitMessage} from '@/utils/request'
 
 const board = () => import('@/views/board');
 
@@ -405,16 +404,7 @@ router.beforeEach((to, from, next) => {
     }
   }).catch(err => {
     if (err.code === 'ERR-110') {
-      let html = `
-              <p>您的登录已过期，请重新登录！</p>
-            `;
-      MessageBox.confirm(html, '登录确认', {
-        center: true,
-        dangerouslyUseHTMLString: true,
-        showCancelButton: false
-      }).then(() => {
-        window.location.href = `${err.data}?redirectURL=${window.location.href}`
-      });
+      exitMessage(err.data)
     }
   });
 });
