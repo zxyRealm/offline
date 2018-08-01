@@ -74,33 +74,41 @@
       },
       handleDetail() {
         this.showDialog = true;
+      },
+      //图片宽高自适应
+      AutoSize(Img, maxWidth, maxHeight) {
+         // 当图片比图片框小时不做任何改变
+          if (Img.offsetWidth < maxWidth && Img.offsetHeight < maxHeight) {
+            Img.offsetWidth / Img.offsetHeight >= 1 ? this.$set(this.styleObj,'height', "100%") : this.$set(this.styleObj,'width','100%');
+          } else //原图片宽高比例 大于 图片框宽高比例,则以框的宽为标准缩放，反之以框的高为标准缩放
+          {
+            if (maxWidth/ maxHeight  <= Img.offsetWidth / Img.offsetHeight) //原图片宽高比例 大于 图片框宽高比例
+            {
+              Img.offsetWidth < maxWidth ?  this.$set(this.styleObj,'width', '100%') : this.$set(this.styleObj,'height','100%');;
+            }
+            else {   //原图片宽高比例 小于 图片框宽高比例
+              Img.offsetHeight < maxHeight ?  this.$set(this.styleObj,'height', '100%') : this.$set(this.styleObj,'width', '100%');;
+            }
+          }
+        },
+      getAutoSize() {
+        if(this.$refs.img && this.$refs.imgFather) {
+          this.AutoSize(this.$refs.img,this.$refs.imgFather.offsetWidth,this.$refs.imgFather.offsetHeight);
+        }
       }
     },
     mounted() {
       //图片宽高自适应
-      //console.info((this.$refs.imgFather.offsetWidth/this.$refs.imgFather.offsetHeight));
-      if((this.$refs.img.offsetWidth/this.$refs.img.offsetHeight) >= (this.$refs.imgFather.offsetWidth/this.$refs.imgFather.offsetHeight)) {
-        this.$set(this.styleObj,'height','100%');
-        this.timer = window.setTimeout(() => {
-            if(this.$refs.img.offsetWidth < this.$refs.imgFather.offsetWidth ) {
-              this.$set(this.styleObj,'width','100%');
-            }
-            window.clearTimeout(this.timer);
-          },
-          500)
-      }else {
-        this.$set(this.styleObj,'width','100%');
-        this.timer = window.setTimeout(() => {
-            if(this.$refs.img.offsetHeight < this.$refs.imgFather.offsetHeight ) {
-              this.$set(this.styleObj,'height','100%');
-            }
-            window.clearTimeout(this.timer);
-          },
-        500)
-
-      }
+      this.getAutoSize();
+      window.addEventListener('resize',this.getAutoSize)
     },
-    watch: {}
+    watch: {},
+    beforeRouteLeave (to, from, next) {
+      console.info("你真的离开我吗？");
+      window.removeEventListener('resize',this.getAutoSize)
+      next();
+    }
+
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
@@ -210,7 +218,7 @@
     .customer-detail {
       position: absolute;
       bottom: 20px;
-      right: 14px;
+      right: 12px;
       font-size: 12px;
       span {
         text-align: center;
@@ -224,7 +232,7 @@
       }
     }
     .customer-detail-in {
-      right: 14px;
+      right: 12px;
     }
   }
 
