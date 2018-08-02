@@ -3,7 +3,7 @@
        @click="handleDetail">
     <span class="order" :class="detailInfo.status==0?'':'order-in'">{{`第${detailInfo.order}位`}}</span>
     <div class="customer-img" ref="imgFather">
-      <img :src="detailInfo.img | imgBase"  ref="img" :style="styleObj" >
+      <img :src="detailInfo.img | imgBase"  ref="img"  :style="styleObj" >
     </div>
     <div class="customer-detail" :class="detailInfo.status==0?'customer-detail-in':''">
       <span v-if="detailInfo.status==0">{{detailInfo.gender==0?'女':(detailInfo.gender==1?'男':'')}}</span>
@@ -25,7 +25,8 @@
     data() {
       return {
         styleObj: {
-
+            width: '100%',
+            height: 'auto'
         },
         showDialog:false,
         data: []   //数据
@@ -75,25 +76,31 @@
       handleDetail() {
         this.showDialog = true;
       },
+      imgBase(data) {
+        return `data:image/jpg;base64,${data}`
+      },
       //图片宽高自适应
       AutoSize(Img, maxWidth, maxHeight) {
          // 当图片比图片框小时不做任何改变
-          if (Img.offsetWidth < maxWidth && Img.offsetHeight < maxHeight) {
-            Img.offsetWidth / Img.offsetHeight >= 1 ? this.$set(this.styleObj,'height', "100%") : this.$set(this.styleObj,'width','100%');
+        //console.info(Img.offsetWidth,Img.offsetHeight);
+          if (Img.width < maxWidth && Img.height < maxHeight) {
+            Img.width / Img.height >= 1 ? (this.$set(this.styleObj,'height', "100%") && this.$set(this.styleObj,'width', 'auto') ):(this.$set(this.styleObj,'width', '100%') && this.$set(this.styleObj,'height', 'auto'));
           } else //原图片宽高比例 大于 图片框宽高比例,则以框的宽为标准缩放，反之以框的高为标准缩放
           {
-            if (maxWidth/ maxHeight  <= Img.offsetWidth / Img.offsetHeight) //原图片宽高比例 大于 图片框宽高比例
+            if (maxWidth/ maxHeight  <= Img.width / Img.height) //原图片宽高比例 大于 图片框宽高比例
             {
-              Img.offsetWidth < maxWidth ?  this.$set(this.styleObj,'width', '100%') : this.$set(this.styleObj,'height','100%');;
+              ((Img.width < maxWidth) || (Img.width / Img.height < 1))?  (this.$set(this.styleObj,'width', '100%') && this.$set(this.styleObj,'height', 'auto')) : (this.$set(this.styleObj,'height','100%') && this.$set(this.styleObj,'width', 'auto'));
             }
             else {   //原图片宽高比例 小于 图片框宽高比例
-              Img.offsetHeight < maxHeight ?  this.$set(this.styleObj,'height', '100%') : this.$set(this.styleObj,'width', '100%');;
+              ((Img.height < maxHeight) || (Img.width / Img.height >= 1))?  (this.$set(this.styleObj,'height', '100%') && this.$set(this.styleObj,'width', 'auto') ) : (this.$set(this.styleObj,'width', '100%') && this.$set(this.styleObj,'height', 'auto'));
             }
           }
         },
       getAutoSize() {
-        if(this.$refs.img && this.$refs.imgFather) {
-          this.AutoSize(this.$refs.img,this.$refs.imgFather.offsetWidth,this.$refs.imgFather.offsetHeight);
+        let img  = new Image();
+        img.src = this.imgBase(this.detailInfo.img);
+        if( img.width && this.$refs.imgFather) {
+          this.AutoSize(img,this.$refs.imgFather.offsetWidth,this.$refs.imgFather.offsetHeight);
         }
       }
     },
@@ -104,7 +111,6 @@
     },
     watch: {},
     beforeRouteLeave (to, from, next) {
-      console.info("你真的离开我吗？");
       window.removeEventListener('resize',this.getAutoSize)
       next();
     }

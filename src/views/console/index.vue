@@ -173,7 +173,7 @@
         pedestrian.status?currentList = this.pedestrianOutData:currentList = this.pedestrianInData;
         // 过滤重复数据
         let last = currentList[currentList.length-1];
-        if(last && pedestrian.order===last.order){
+        if(last && (pedestrian.order==last.order)){
           return;
         }
         if(currentList.length>=4){
