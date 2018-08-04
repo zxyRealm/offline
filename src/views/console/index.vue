@@ -71,8 +71,8 @@
   import pie from '@/components/echarts/pie.vue'
   import lineConsole from '@/components/echarts/line.vue'
   import CustomerInfo from './componets/CustomerInfo.vue'
-  import { mapState } from 'vuex'
-  import { eventObject } from '@/utils/event.js'
+  import {mapState} from 'vuex'
+  import {eventObject} from '@/utils/event.js'
 
   export default {
     name: "console",
@@ -167,17 +167,17 @@
       },
       //判断数据类型，并且限定大小4
       typePedestrian(pedestrian) {
-        if(!pedestrian)return;
+        if (!pedestrian) return;
         let currentList = []; //进出客数据列表
         // status 0 进客 1 出客
-        pedestrian.status?currentList = this.pedestrianOutData:currentList = this.pedestrianInData;
+        pedestrian.status ? currentList = this.pedestrianOutData : currentList = this.pedestrianInData;
         // 过滤重复数据
-        let last = currentList[currentList.length-1];
-        if(last && (pedestrian.order==last.order)){
+        let last = currentList[currentList.length - 1];
+        if (last && (pedestrian.order == last.order)) {
           return;
         }
-        if(currentList.length>=4){
-          currentList.splice(currentList.length-1,1)
+        if (currentList.length >= 4) {
+          currentList.splice(currentList.length - 1, 1)
         }
         currentList.unshift(pedestrian);
       },
@@ -194,9 +194,9 @@
         this.$http('/personData', {
           deviceKey: this.deviceKey
         }).then(res => {
-          if(res.data && res.data.length){
+          if (res.data && res.data.length) {
             this.resolveDatad(res.data);  //假如没走这一步，当你更换设备时记录的是上一个设备的数据
-          }else {
+          } else {
             this.defaultData();
           }
           this.getwebsocketIp();
@@ -210,10 +210,10 @@
       defaultData() {
         let params = {   //饼图
           type: 3,
-            title: {text: '男女流量占比'},
-           seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}],
+          title: {text: '男女流量占比'},
+          seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}],
         };
-        this.pieParams = { ...params };
+        this.pieParams = {...params};
         this.lineParams = { //线图
           title: {text: '客流量统计'}
         };
@@ -369,7 +369,7 @@
           }
           li:nth-child(2) {
             margin-top: 10px;
-            height:  calc(100% - 240px);//calc(56% - 10px);
+            height: calc(100% - 240px); //calc(56% - 10px);
             box-sizing: border-box;
           }
         }
@@ -385,7 +385,7 @@
       background-color: rgba(64, 58, 73, 0.30);
       box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
     }
-    .customer-wrap{
+    .customer-wrap {
       display: inline-block;
       width: calc(50% - 170px);
       height: 100%;
@@ -395,9 +395,9 @@
         width: 125%;
         height: 100%;
         overflow: hidden;
-        padding:10px 0;
+        padding: 10px 0;
         box-sizing: border-box;
-        .list-customer-item{
+        .list-customer-item {
           transition: all 1s;
           display: inline-block;
           float: right;
@@ -412,7 +412,7 @@
           padding-left: 10px;
           padding-right: 0px;
         }
-        .list-customer-enter{
+        .list-customer-enter {
           opacity: 0;
           transform: translateX(100%);
         }
@@ -421,7 +421,7 @@
           li {
             float: left;
           }
-          .list-customer-enter{
+          .list-customer-enter {
             opacity: 0;
             transform: translateX(-100%);
           }
@@ -435,7 +435,7 @@
       display: inline-block;
       position: relative;
       left: 8px;
-      margin-right: 10px;  //保持两边的距离优雅
+      margin-right: 10px; //保持两边的距离优雅
       li {
         display: inline-block;
         height: 100%;

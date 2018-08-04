@@ -89,10 +89,10 @@
           {
             if (maxWidth/ maxHeight  <= Img.width / Img.height) //原图片宽高比例 大于 图片框宽高比例
             {
-              ((Img.width < maxWidth) || (Img.width / Img.height < 1))?  (this.$set(this.styleObj,'width', '100%') && this.$set(this.styleObj,'height', 'auto')) : (this.$set(this.styleObj,'height','100%') && this.$set(this.styleObj,'width', 'auto'));
+              ((Img.width < maxWidth) || (Img.width / Img.height < 0.99))?  (this.$set(this.styleObj,'width', '100%') && this.$set(this.styleObj,'height', 'auto')) : (this.$set(this.styleObj,'height','100%') && this.$set(this.styleObj,'width', 'auto'));
             }
             else {   //原图片宽高比例 小于 图片框宽高比例
-              ((Img.height < maxHeight) || (Img.width / Img.height >= 1))?  (this.$set(this.styleObj,'height', '100%') && this.$set(this.styleObj,'width', 'auto') ) : (this.$set(this.styleObj,'width', '100%') && this.$set(this.styleObj,'height', 'auto'));
+              ((Img.height < maxHeight) || (Img.width / Img.height >= 0.99))?  (this.$set(this.styleObj,'height', '100%') && this.$set(this.styleObj,'width', 'auto') ) : (this.$set(this.styleObj,'width', '100%') && this.$set(this.styleObj,'height', 'auto'));
             }
           }
         },
