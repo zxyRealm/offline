@@ -56,7 +56,7 @@
       </el-pagination>
     </div>
     <!-- lwh-到访记录详情 -->
-    <visited-detail-info :state="visitedState" @changeState="changeState"></visited-detail-info>
+    <visited-detail-info :state.sync="visitedState" @changeState="changeState"></visited-detail-info>
   </div>
 </template>
 <script>

@@ -1,7 +1,8 @@
 <template>
-  <transition name="fade">
-  <div class="visited--detail__info" v-if="state">
-    <div class="detail--right__default clearfix">
+
+  <div class="visited--detail__info" v-show="state">
+    <transition name="fade-visited">
+    <div class="detail--right__default clearfix" v-show="state">
       <div class="detail--header">
         <span class="header--title">到访记录详情</span>
         <img class="detail--close clearfix" src="/static/img/face_recoginiton_close_icon.png" @click="close"></img>
@@ -65,9 +66,8 @@
         </div>
       </div>
     </div>
+    </transition>
   </div>
-  </transition>
-
 </template>
 <script>
   import FaceRecognition from "../../components/screening/FaceRecognition.vue";
@@ -81,7 +81,7 @@
     },
     data() {
       return {
-        show: true,
+        show: true,        //是否显示组件
         pageParams: {
           pageSize: '10',
           total: 1,         //总条数
@@ -239,7 +239,8 @@
       },
       //关闭详情页
       close() {
-        this.$emit("changeState",false)
+        //this.$emit("changeState",false)
+        this.$emit('update:state',false)  //第一种方式优化
       },
       getFaceData(params) {
         console.info(params,"detail");
@@ -262,8 +263,10 @@
     z-index: 1111;
     border-radius: 1px;
     .detail--right__default {
+      //position: absolute;
+      height: 100%;
+      //right: 0;
       float: right;
-      height: 720px;
       width: 760px;
       background: #141319;
       border-radius: 1px;
@@ -331,11 +334,10 @@
   }
   /* 可以设置不同的进入和离开动画 */
   /* 设置持续时间和动画函数 */
-  .fade-enter-active, .fade-leave-active {
-    transition: all 2s;
+  .fade-visited-enter-active, .fade-visited-leave-active {
+    transition: all .5s;
   }
-  .fade-enter, .fade-leave-active {
-    opacity: 0;
-    left: 100%;
+  .fade-visited-enter, .fade-visited-leave-active {
+    transform: translateX(760px);
   }
 </style>

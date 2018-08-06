@@ -19,6 +19,7 @@
             placeholder="开始时间"
             :clearable = "false"
             prefix-icon = "''"
+            value-format="yyyy-MM-dd hh:mm:ss"
             class="picker-data">
           </el-date-picker>
           <span>-</span>
@@ -28,6 +29,7 @@
             placeholder="结束时间"
             :clearable = "false"
             prefix-icon = "''"
+            value-format="yyyy-MM-dd hh:mm:ss"
             :picker-options="pickerOptions1"
             class="picker-data">
           </el-date-picker>
@@ -43,11 +45,11 @@
         name: 'FaceRecognition',
         components: {},
         data() {
-          let that = this
+          let that = this;
             return {
               pickerOptions1: {   //不能选择开始时间之前的日期
                 disabledDate(time) {
-                  return time.getTime() < Date.now(parseTime(that.params.startTime));
+                  return time.getTime() < Date.now(that.params.startTime);
                 }
               },
               params: {           //开发条件
