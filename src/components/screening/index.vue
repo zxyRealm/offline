@@ -61,9 +61,9 @@
         data() {
           return {
              pickerOptions1: {   //不能选择当前时间之后的日期
-                disabledDate(time) {
-                  return time.getTime() > Date.now();
-                }
+              disabledDate(time) {
+                return time.getTime() > Date.now();
+              }
             },
             dialogFormVisible: false,  //选择群组
             dialogOptions: {

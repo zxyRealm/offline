@@ -49,6 +49,7 @@
           placement="top"
           popper-class="nick_name--popover"
           @show="showPopover"
+          @hide="hidePopover"
           v-model="data.popover"
           trigger="click">
           <el-form
@@ -201,7 +202,6 @@
       },
       getDeviceState (value,show=true) {
         // 0为在线，1为离线
-        console.log(show)
         if(show===null){
           return
         }
@@ -422,7 +422,13 @@
         })
       },
       showPopover () {
+        this.equipmentForm.deviceName = this.data.deviceName;
         this.$set(this.data, 'popover', true);
+      },
+      hidePopover(){
+        if(this.$refs.tableForm){
+          this.$refs.tableForm.resetFields();
+        }
       }
     },
     computed: {
@@ -438,11 +444,6 @@
     watch: {
       filter: function (val) {
         this.format = val
-      },
-      'data.popover' (val) {
-        if (!val && this.$refs.tableForm) {
-          this.$refs.tableForm.resetFields();
-        }
       }
     },
     filters: {

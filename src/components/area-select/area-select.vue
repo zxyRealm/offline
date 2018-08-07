@@ -266,6 +266,9 @@
             font-size: 12px;
             height: $line24;
             line-height: $line24;
+            &::-webkit-input-placeholder { /* WebKit browsers */
+              color: #999!important;
+            }
           }
           .el-input__suffix {
             display: inline-block;
