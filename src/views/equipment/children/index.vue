@@ -94,7 +94,9 @@
       },
       // 搜索社群设备
       search(value) {
-        this.$router.push(`/equipment/search/children/${value}`);
+        if(value){
+          this.$router.push(`/equipment/search/children/${value}`);
+        }
       },
       currentChange(val) {
         console.log('current',val);

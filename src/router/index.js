@@ -384,11 +384,12 @@ const router = new Router({
   mode: 'history',
   scrollBehavior: () => ({y: 0}),
   routes: constantRouterMap,
-  // 取消掉对query参数 encodeURLComponent编码处理
-  stringifyQuery: query => {
+  // 取消掉对query参数 encodeURIComponent编码处理
+  stringifyQuery: function(query){
+  // console.log(query);
     let str = '';
     for (let item in query) {
-      str += `${item}=${query[item]}&`
+      str += `${item}=${encodeURIComponent(query[item])}&`
     }
     let fullStr = str.replace(/&$/, '');
     return fullStr ? '?' + fullStr : ''
