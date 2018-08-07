@@ -6,7 +6,7 @@
         :sub-btn="{text:'创建'}"
         @handle-btn="$router.push('/community/create')"
       ></uu-sub-tab>
-      <ob-list-empty text="您还没有创建社群"></ob-list-empty>
+      <ob-list-empty top="70px" text="您还没有创建社群"></ob-list-empty>
     </template>
     <template v-if="groupList.length">
       <div class="community--inner">
@@ -24,6 +24,7 @@
           <ob-group-nav
             ref="groupNav"
             only-checked
+            node-key="uniqueKey"
             :expanded-keys="expandedKeys"
             v-model="groupList"
             type="community"
@@ -149,7 +150,7 @@
 
 <script>
   import {mapState} from 'vuex'
-
+ import { uniqueKey } from '@/utils/index'
   export default {
     name: "index",
     data() {
@@ -201,12 +202,12 @@
       getGroupList(keywords, key) {
         keywords = (keywords || '').trim();
         this.$http("/group/list").then(res => {
-          this.groupList = res.data;
+          this.groupList = uniqueKey(res.data);
           if (!key && !res.data[0]) {
             return
           }
           this.$nextTick(() => {
-            this.$refs.groupNav.setCurrentKey((key || res.data[0]).groupGuid);
+            this.$refs.groupNav.setCurrentKey(res.data[0].uniqueKey);
           });
           this.getCommunityInfo(key || res.data[0]);
           this.getDeviceList(key || res.data[0]);
@@ -225,8 +226,8 @@
         if (val) {
           this.$http("/group/list/search", {searchText: val}).then(res => {
             if (res.data[0]) {
+              let restoreArray = this.$restoreArray(this.groupList, 'childGroupList');
               let getCurrent = () => {
-                let restoreArray = this.$restoreArray(this.groupList, 'childGroupList');
                 // 多层for循环嵌套只能用return跳出整个循环，break 只能跳出当前循环
                 for (let i = 0, len = restoreArray.length; i < len; i++) {
                   for (let k = 0, len2 = res.data.length; k < len2; k++) {
@@ -236,11 +237,21 @@
                   }
                 }
               };
+              // 数组去重
+              let setKey = new Set(res.data);
+              let setArr = [];
+              // 获取匹配值列表
+              restoreArray.map(item=>{
+                if(setKey.has(item.groupGuid)){
+                  setArr.push(item.uniqueKey)
+                }
+              });
+
               let current = getCurrent();
-              this.expandedKeys = res.data;
-              this.$refs.groupNav.setCheckedKeys(res.data);
+              this.expandedKeys = setArr;
+              this.$refs.groupNav.setCheckedKeys(setArr);
               this.$nextTick(() => {
-                this.$refs.groupNav.setCurrentKey(current.groupGuid);
+                this.$refs.groupNav.setCurrentKey(current.uniqueKey);
               });
               this.getCommunityInfo(current);
               this.getDeviceList(current);
@@ -258,7 +269,7 @@
         let current = this.groupList[0];
         this.expandedKeys = [];
         this.$nextTick(() => {
-          this.$refs.groupNav.setCurrentKey(current.guid || current.groupGuid);
+          this.$refs.groupNav.setCurrentKey(current.uniqueKey);
         });
         this.$refs.groupNav.setCheckedKeys([]);
         this.getCommunityInfo(current);
@@ -266,7 +277,6 @@
       },
       // 当前社群发生改变
       currentChange(val) {
-        this.currentKey = val.guid || val.groupGuid;
         this.currentCommunity = val;
         this.insetForm();
         this.getCommunityInfo(val);

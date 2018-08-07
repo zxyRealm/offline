@@ -6,7 +6,7 @@
       <el-scrollbar>
         <ob-list v-for="(item,$index) in notifyList" :key="$index">
           <ob-list-item type="type" :data="item" prop="type" label="通知类型"></ob-list-item>
-          <ob-list-item :data="item" prop="intro,tokenURL" label="通知描述,回调地址"></ob-list-item>
+          <ob-list-item tooltip :data="item" prop="intro,tokenURL" label="通知描述,回调地址"></ob-list-item>
           <ob-list-item type="time" :data="item" prop="createTime,lastEditTime" label="创建时间,上次编辑">
           </ob-list-item>
           <ob-list-item>

@@ -20,7 +20,6 @@
         <el-form-item label="社群邀请码：" prop="code">
           <el-input
             type="text"
-            :readonly="step===2"
             placeholder="请输入社群邀请码"
             v-model="joinForm.code"></el-input>
         </el-form-item>
@@ -53,7 +52,6 @@
             2.选择自有社群加入
           </div>
         </el-form-item>
-
         <el-form-item v-if="step===2" label="选择社群：" prop="groupGuid">
           <el-select v-model="joinForm.groupGuid" placeholder="请选择自有社群">
             <el-option
@@ -70,11 +68,11 @@
 
 <script>
   export default {
-    name: "edit-custom",
-    data() {
+    name: 'edit-custom',
+    data () {
       const validateName = (rule, value, callback) => {
         if (!value) {
-          callback(new Error("请填写分组名称"))
+          callback(new Error('请填写分组名称'))
         } else {
           if (value.length >= 2 && value.length <= 18) {
             callback()
@@ -83,16 +81,15 @@
           }
         }
       };
-
       const validateCode = (rule, value, callback) => {
         value = value.trim();
         this.communityInfo = {};
         if (!value) {
           this.step = 1;
-          callback(new Error("请填写社群邀请码"))
+          callback(new Error('请填写社群邀请码'))
         } else {
           if (value.length === 10) {
-            this.$http("/group/code/info", {code: value}, false).then(res => {
+            this.$http('/group/code/info', {code: value}, false).then(res => {
               if (res.data) {
                 this.communityInfo = res.data;
                 if (!this.groupList.length) {
@@ -115,6 +112,7 @@
       return {
         step: 1,
         editable: true,
+        currentCode:'',
         groupList: [],
         communityInfo: {},
         joinForm: {
@@ -130,22 +128,21 @@
             {required: true, message: '请选择自有社群', trigger: 'blur'}
           ],
           code: [
-            {required: true, validator: validateCode, trigger: 'change'}
+            {validator: validateCode, trigger: 'change'}
           ]
         }
       }
     },
     methods: {
-      submitForm(data) {
+      submitForm (data) {
         let join = () => {
           this.$http('/group/join', data).then(res => {
             this.$tip('加入成功');
-            this.$router.push("/community/mine")
+            this.$router.push('/community/mine')
           })
         };
-        console.log('---',this.communityInfo);
-        if (this.communityInfo.rule.split(",").length === 2) {
-          this.$http("/merchant/device/operationPermission", {guid: data.groupGuid}).then(res => {
+        if (this.communityInfo.rule.split(',').length === 2) {
+          this.$http('/merchant/device/operationPermission', {guid: data.groupGuid}).then(res => {
             if (res.data) {
               join()
             } else {
@@ -155,17 +152,16 @@
         } else {
           join()
         }
-
       },
       // 获取自有社群
-      getGroups() {
-        this.$http("/group/list").then(res => {
+      getGroups () {
+        this.$http('/group/list').then(res => {
           this.groupList = res.data
         })
       },
-      ensure() {
+      ensure () {
         this.joinForm.groupPid = this.communityInfo.guid;
-        if (this.communityInfo.rule.split(",").length === 2) {
+        if (this.communityInfo.rule.split(',').length === 2) {
           this.$affirm({
             text: '【设备操作权限】只能授权给一个社群，请谨慎加入。<br>确定加入社群【' + this.communityInfo.name + '】？'
           }, (action, instance, done) => {
@@ -181,7 +177,6 @@
         }
       }
     },
-
     computed: {
       tabTitle: function () {
         return this.$route.name === 'editCustom' ? '编辑社群分组' : '新建分组'
@@ -197,38 +192,38 @@
 </script>
 
 <style lang="scss" scoped>
-  .community-common-form-wrap{
-    .el-form-item{
+  .community-common-form-wrap {
+    .el-form-item {
       .item-title {
         font-size: 14px;
         margin: 30px 0 15px;
       }
-      .info-wrap{
+      .info-wrap {
         float: right;
-        >.txt{
+        > .txt {
           font-size: 14px;
           line-height: 40px;
           margin-top: 10px;
-          .ellipsis{
-            max-width:7em;
+          .ellipsis {
+            max-width: 7em;
             width: auto;
             line-height: 1;
             vertical-align: sub;
           }
         }
-        >.fs12{
-          color: rgba(255,255,255,0.5);
-          p{
+        > .fs12 {
+          color: rgba(255, 255, 255, 0.5);
+          p {
             line-height: 30px;
             text-align: left;
-            >span{
-              font-size:14px;
+            > span {
+              font-size: 14px;
             }
           }
         }
       }
-      &:first-child{
-        .item-title{
+      &:first-child {
+        .item-title {
           margin-top: 0;
         }
       }

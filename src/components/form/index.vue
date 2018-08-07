@@ -1,7 +1,15 @@
 <template>
-  <el-form :model="ruleForm" :readonly="readonly" :style="{width:width}" :rules="rules"
-           ref="submitForm" :label-width="labelWidth"
-           label-position="left" :class="formClass" class="common-form">
+  <el-form
+    :model="ruleForm"
+    :readonly="readonly"
+    :style="{width:width}"
+    :rules="rules"
+    ref="submitForm"
+    :label-width="labelWidth"
+    label-position="left"
+    :class="formClass"
+    @submit.native.prevent
+    class="common-form">
     <slot></slot>
     <el-form-item class="form-item-button" v-if="subText">
       <el-button class="affirm" @click="submitForm('submitForm')">{{subText}}</el-button>
@@ -11,7 +19,7 @@
 
 <script>
   export default {
-    name: "uu-form",
+    name: 'uu-form',
     props: {
       readonly: {
         type: Boolean,
@@ -50,28 +58,28 @@
         default: ''
       }
     },
-    data() {
+    data () {
       return {
         ruleForm: {}
       }
     },
-    created() {
+    created () {
       this.ruleForm = this.value
     },
     methods: {
-      submitForm(callback) {
-          this.$refs['submitForm'].validate((valid) => {
-            if (valid) {
-              let subData = JSON.parse(JSON.stringify(this.ruleForm));
-              if(typeof callback ==='function'){
-                callback(subData);
-              }else {
-                this.$emit('handle-submit',subData)
-              }
+      submitForm (callback) {
+        this.$refs['submitForm'].validate((valid) => {
+          if (valid) {
+            let subData = JSON.parse(JSON.stringify(this.ruleForm));
+            if (typeof callback === 'function') {
+              callback(subData);
             } else {
-              console.warn("validate is not pass,con't submit")
+              this.$emit('handle-submit', subData)
             }
-          })
+          } else {
+            console.warn('validate is not pass,con\'t submit')
+          }
+        })
       }
     },
     watch: {

@@ -2,6 +2,7 @@
   <div class="home-notify-wrapper">
     <div class="title">系统消息</div>
     <ob-list-empty text="暂无消息通知" v-if="state"></ob-list-empty>
+
     <div class="content" v-if="!state">
       <ul>
         <el-scrollbar style="height:100%;">

@@ -1,7 +1,7 @@
 <template>
   <table class="ob-list-item" width="100%" v-if="visible">
     <tr class="ob-list-item-tr">
-     <slot @remove="remove" :scope="data"></slot>
+     <slot></slot>
     </tr>
   </table>
 </template>
