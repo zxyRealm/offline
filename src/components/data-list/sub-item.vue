@@ -10,22 +10,22 @@
             <li v-show="data.deviceStatus===undefined">获取设备状态后，可进行操作</li>
             <li v-show="data.groupGuid">已绑定至社群，无法删除该设备</li>
             <li v-show="data.deviceStatus===1">设备状态异常（离线），无法操作</li>
+            <li v-show="data.isHandle===false">设备操作权限已上送至其他社群，无法操作</li>
           </ul>
           <i slot="reference"
              v-show="!(data.deviceStatus === 0 && !data.groupGuid)"
-             style="margin-top: 10px"
-             class="el-icon-question"></i>
+             class="el-icon-question mt10"></i>
         </el-popover>
       </div>
       <div class="btn-wrap btn-item">
         <el-button
           v-for="(item,$index) in btnList"
           :key="$index"
-          :disabled="!btnState(data.deviceStatus,item).state"
+          :disabled="!btnState(data,item).state"
           @click="handleDevice(item)"
-          :class="btnState(data.deviceStatus,item).going?item +' ongoing':item"
+          :class="btnState(data,item).going?item +' ongoing':item"
           class="medium">
-          {{btnState(data.deviceStatus,item).text}}
+          {{btnState(data,item).text}}
         </el-button>
       </div>
       <el-button
@@ -49,6 +49,7 @@
           placement="top"
           popper-class="nick_name--popover"
           @show="showPopover"
+          @hide="hidePopover"
           v-model="data.popover"
           trigger="click">
           <el-form
@@ -71,17 +72,23 @@
         <span class="error-color">{{data.deviceStatus | lineState}}</span>
         <a href="javascript:void (0)" @click="getDeviceState(data)">
           <i v-if="data.deviceStatus!==undefined" class="el-icon-refresh success-color"></i>
-          <template v-else>获取</template>
+          <span v-else>获取</span>
         </a>
       </p>
     </template>
     <template v-else>
       <p v-if="!router" v-for="(item,$index) in propList" :key="$index">
-        <span>{{labelList[$index]?labelList[$index]+'：':''}}</span><span class="ellipsis">{{format(data[item])}}</span>
+        <span>{{labelList[$index]?labelList[$index]+'：':''}}</span>
+        <el-tooltip v-if="tooltip" :content="format(data[item])" placement="right-start">
+          <span class="ellipsis">{{format(data[item])}}</span>
+        </el-tooltip>
+        <span v-else class="ellipsis">{{format(data[item])}}</span>
       </p>
       <p v-else>
         {{label}}<br>
-        <router-link :to="router">{{text}}</router-link>
+        <router-link :to="router">
+          {{text}}
+        </router-link>
       </p>
     </template>
     <slot></slot>
@@ -142,6 +149,10 @@
       isAmend: {
         type: Boolean,
         default: false
+      },
+      tooltip:{
+        type:Boolean,
+        default:false
       }
     },
     data () {
@@ -189,13 +200,21 @@
             return '到店通知'
         }
       },
-      getDeviceState (value) {
+      getDeviceState (value,show=true) {
         // 0为在线，1为离线
+        if(show===null){
+          return
+        }
         this.$http('/device/state/use', {deviceKey: value.deviceKey}).then(res => {
-          if (this.data.deviceStatus !== undefined) {
+          if (this.data.deviceStatus !== undefined && show) {
             this.$tip('刷新成功')
           }
-          this.$set(this.data, 'deviceStatus', res.data);
+          if(value.groupGuid){
+            this.devicePermission(value);
+          }else{
+            this.$set(value, 'isHandle',true)
+          }
+          this.$set(value,'deviceStatus',res.data)
         })
       },
       handleDevice (type) {
@@ -257,7 +276,8 @@
               this.$load().close();
               this.$tip(`设备【BOX】${des}中，请稍后重新获取设备状态`, 'waiting');
             }).catch(err => {
-              this.$load().close()
+              this.$load().close();
+              this.getDeviceState()
             });
           } else {
             done()
@@ -265,7 +285,7 @@
         })
       },
       // 操作按钮状态控制
-      btnState (state, type) {
+      btnState (val, type) {
         //state状态码 0 在线 默认显示禁用 1 离线 显示启用   2重启中 3重置中 4升级中  5禁用中 6启用中 7 禁用中
         // type 状态值 run 开关机  reboot 重启 upgrade 升级 reset 重置
         let label = (type) => {
@@ -285,8 +305,10 @@
           state: false, //按钮状态
           going: false   //是否进行中
         };
-
-        switch (state) {
+        if(val.isHandle===false){
+          return backObj
+        }
+        switch (val.deviceStatus) {
           case 0:
             if (type === 'run') {
               backObj.text = '禁用';
@@ -395,12 +417,18 @@
       },
       // 获取设备操作权限
       devicePermission (val) {
-        this.$http('/merchant/device/operationPermission', {guid: val.groupGuid}).then(res => {
-          res.data ? this.$set(val, 'deviceState', -1) : ''
+        this.$http('/merchant/device/operationPermission', {guid: val.groupGuid}).then(res2 => {
+          !res2.data ? this.$set(val, 'isHandle', res2.data) : '';
         })
       },
       showPopover () {
+        this.equipmentForm.deviceName = this.data.deviceName;
         this.$set(this.data, 'popover', true);
+      },
+      hidePopover(){
+        if(this.$refs.tableForm){
+          this.$refs.tableForm.resetFields();
+        }
       }
     },
     computed: {
@@ -416,11 +444,6 @@
     watch: {
       filter: function (val) {
         this.format = val
-      },
-      'data.popover' (val) {
-        if (!val && this.$refs.tableForm) {
-          this.$refs.tableForm.resetFields();
-        }
       }
     },
     filters: {

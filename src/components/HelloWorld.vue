@@ -2,49 +2,7 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
+
     <h2>Ecosystem</h2>
     <div class="transition-wrap fl">
       <transition-group name="list-complete" tag="p">
@@ -72,51 +30,65 @@
         </div>
       </transition-group>
     </div>
-    <el-button @click="add">新增</el-button>
-    <p>$set 方法测试{{empty.name}}</p>
+    <el-form
+      :model="formData"
+      :rules="rules"
+    >
+      <el-form-item prop="name">
+        <el-input v-model="formData.name"></el-input>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 <script>
   export default {
     name: 'HelloWorld',
-    components:{
-
-    },
-    data() {
+    components: {},
+    data () {
+      const validateName = (rule, value, callback) => {
+        console.log(rule,value, value.length);
+        callback()
+      };
       return {
+        formData: {
+          name: ''
+        },
+        rules: {
+          name: [
+            {validator: validateName, trigger: 'change'}
+          ]
+        },
         items: [],
         nextNum: 1,
         animation: [1, 2, 3],
         msg: 'Welcome to Your Vue.js App',
-        empty:{
-
-        }
+        empty: {}
       }
     },
     methods: {
       add: function () {
         // let max = Math.max.call(null,this.items)+1;
-        if(this.items.length>=4){
-          this.items.splice(this.items.length-1, 1,);
+        if (this.items.length >= 4) {
+          this.items.splice(this.items.length - 1, 1,);
         }
         this.items.unshift(this.nextNum++);
-        this.$set(this.empty,'name',`${this.nextNum}测试开始`);
+        this.$set(this.empty, 'name', `${this.nextNum}测试开始`);
         // this.empty.name = `${this.nextNum}测试开始`;
         console.log(this.empty)
       },
     },
     watch: {
       data: {
-        handler(val) {
+        handler (val) {
           console.log('changed list', val)
         },
         deep: true
       },
-      empty:{
-        handler(val){
-          console.log('change',val)
+      empty: {
+        handler (val) {
+          console.log('change', val)
         },
-        deep:true
+        deep: true
       }
     }
   }
@@ -127,10 +99,11 @@
   .hello {
     text-align: center;
   }
-  .transition-wrap{
+
+  .transition-wrap {
     width: calc(110px * 4);
     overflow: hidden;
-    p{
+    p {
       float: right;
       width: calc(110px * 5);
       overflow: hidden;
@@ -145,36 +118,36 @@
       height: 180px;
       line-height: 180px;
       box-sizing: border-box;
-      .item-content{
+      .item-content {
         background: #4AB7BD;
         height: 100%;
       }
     }
     /*.list-complete-leave-active{*/
-      /*position: absolute;*/
+    /*position: absolute;*/
     /*}*/
-    &.fr{
-      p{
+    &.fr {
+      p {
         float: left;
       }
-      .list-complete-enter{
+      .list-complete-enter {
         opacity: 0;
         transform: translateX(-100%);
       }
-      .list-complete-item{
+      .list-complete-item {
         float: left;
-        &:last-child{
+        &:last-child {
           margin-right: 0;
         }
       }
     }
-    &.fl{
-      .list-complete-enter{
+    &.fl {
+      .list-complete-enter {
         opacity: 0;
         transform: translateX(100%);
       }
-      .list-complete-item{
-        &:first-child{
+      .list-complete-item {
+        &:first-child {
           margin-right: 0;
         }
       }

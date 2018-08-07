@@ -6,7 +6,7 @@
         :sub-btn="{text:'创建'}"
         @handle-btn="$router.push('/community/create')"
       ></uu-sub-tab>
-      <ob-list-empty text="您还没有创建社群"></ob-list-empty>
+      <ob-list-empty top="70px" text="您还没有创建社群"></ob-list-empty>
     </template>
     <template v-if="groupList.length">
       <div class="community--inner">
@@ -24,6 +24,7 @@
           <ob-group-nav
             ref="groupNav"
             only-checked
+            node-key="uniqueKey"
             :expanded-keys="expandedKeys"
             v-model="groupList"
             type="community"
@@ -34,66 +35,66 @@
 
         <div class="community--main">
           <el-scrollbar ref="faceScrollItem">
-              <div class="cmm-top dashed-border">
-                <h2 class="cmm-sub-title">
-                  <span>社群信息</span>
-                  <p class="handle fr fs14" v-if="!isSon && communityInfo.guid">
-                    <a href="javascript:void (0)" class="danger mr-10" @click="disbandGroup">解散</a>
-                    <router-link :to="'/community/edit/'+communityInfo.guid">编辑</router-link>
+            <div class="cmm-top dashed-border">
+              <h2 class="cmm-sub-title">
+                <span>社群信息</span>
+                <p class="handle fr fs14" v-if="!isSon && communityInfo.guid">
+                  <a href="javascript:void (0)" class="danger mr-10" @click="disbandGroup">解散</a>
+                  <router-link :to="'/community/edit/'+communityInfo.guid">编辑</router-link>
+                </p>
+              </h2>
+              <div class="cm-info-wrap" v-show="communityInfo.guid">
+                <div class="info-detail">
+                  <p v-if="isSon">
+                    <span class="fs14">备注名：</span>
+                    <el-popover
+                      popper-class="nick_name--popover"
+                      placement="top"
+                      @show="showPopover"
+                      @hide="hidePopover"
+                      v-model="nickNamePopover"
+                      trigger="click">
+                      <el-form
+                        @submit.native.prevent
+                        ref="nickNameForm"
+                        :rules="rules"
+                        class="table-form"
+                        :model="communityForm"
+                      >
+                        <el-form-item prop="groupNickName">
+                          <el-input type="text" v-model="communityForm.groupNickName"></el-input>
+                          <uu-icon type="success" @click.native="changeCommunityName('nickNameForm')"></uu-icon>
+                          <uu-icon type="error" @click.native="nickNamePopover = false"></uu-icon>
+                        </el-form-item>
+                      </el-form>
+                      <a href="javascript:void (0)" slot="reference">
+                        {{communityInfo.groupNickName?communityInfo.groupNickName:'暂无昵称'}}
+                      </a>
+                    </el-popover>
                   </p>
-                </h2>
-                <div class="cm-info-wrap" v-show="communityInfo.guid">
-                  <div class="info-detail">
-                    <p v-if="isSon">
-                      <span class="fs14">备注名：</span>
-                      <el-popover
-                        popper-class="nick_name--popover"
-                        placement="top"
-                        v-model="nickNamePopover"
-                        trigger="click">
-                        <el-form
-                          @submit.native.prevent
-                          ref="nickNameForm"
-                          :rules="rules"
-                          class="table-form"
-                          :model="communityForm"
-                        >
-                          <el-form-item prop="groupNickName">
-                            <el-input type="text" v-model="communityForm.groupNickName"></el-input>
-                            <uu-icon type="success" @click.native="changeCommunityName('nickNameForm')"></uu-icon>
-                            <uu-icon type="error" @click.native="nickNamePopover = false"></uu-icon>
-                          </el-form-item>
-                        </el-form>
-                        <a href="javascript:void (0)" slot="reference">
-                          {{communityInfo.groupNickName?communityInfo.groupNickName:'暂无昵称'}}
-                        </a>
-                      </el-popover>
-                    </p>
-                    <p>
-                      <span class="fs14">社群名称：</span>{{communityInfo.name}}
-                    </p>
-                    <p>
-                      <span class="fs14">地区：</span>
-                      {{communityInfo.fullAddress}}</p>
-                    <p>
-                      <span class="fs14">联系人：</span>
-                      {{communityInfo.contact}}</p>
-                    <p>
-                      <span class="fs14">联系电话：</span>
-                      {{communityInfo.phone}}</p>
-                    <p>
-                      <span class="fs14"> 索权范围：</span>
-                      {{communityInfo.rule | authority }}</p>
-                  </div>
-                  <div class="info-qr-code">
-                    <div>社群邀请码：</div>
-                    <div>
-                      <div class="qr-code" id="qr-code"></div>
-                      <p>{{communityInfo.code}}</p>
-                    </div>
+                  <p>
+                    <span class="fs14">社群名称：</span>{{communityInfo.name}}
+                  </p>
+                  <p>
+                    <span class="fs14">地区：</span>
+                    {{communityInfo.fullAddress}}</p>
+                  <p>
+                    <span class="fs14">联系人：</span>
+                    {{communityInfo.contact}}</p>
+                  <p>
+                    <span class="fs14">联系电话：</span>
+                    {{communityInfo.phone}}</p>
+                  <p>
+                    <span class="fs14"> 索权范围：</span>
+                    {{communityInfo.rule | authority }}</p>
+                </div>
+                <div class="info-qr-code">
+                  <div>社群邀请码：</div>
+                  <div>
+                    <div class="qr-code" id="qr-code"></div>
+                    <p>{{communityInfo.code}}</p>
                   </div>
                 </div>
-                <ob-list-empty top="32px" text="请选取社群" size="small" v-if="!communityInfo.guid"></ob-list-empty>
               </div>
               <div class="cmm-table dashed-border lwh--table">
                 <h2 class="cmm-sub-title">设备列表</h2>
@@ -139,10 +140,11 @@
                     </template>
                   </el-table-column>
                 </el-table>
-                </el-scrollbar>
-              </div>
-              <!-- lwh-识别人脸库 -->
-              <face-recognition-store :deviceKye="deviceList"></face-recognition-store>
+              </el-scrollbar>
+            </div>
+            <!-- lwh-识别人脸库 -->
+            <face-recognition-store :deviceKye="deviceList"></face-recognition-store>
+            </div>
           </el-scrollbar>
         </div>
       </div>
@@ -152,16 +154,19 @@
 
 <script>
   import {mapState} from 'vuex'
-  import FaceRecognition from "../../components/screening/FaceRecognition.vue";
-  import VisitedDetailInfo from "./VisitedDetailInfo.vue";
-  import FaceRecognitionStore from "./FaceRecognitionStore";
+  import {uniqueKey} from '@/utils/index'
+  import FaceRecognition from '@/components/screening/FaceRecognition';
+  import VisitedDetailInfo from './VisitedDetailInfo.vue';
+  import FaceRecognitionStore from './FaceRecognitionStore';
+
   export default {
     components: {
       FaceRecognitionStore,
       VisitedDetailInfo,
-      FaceRecognition},
-    name: "index",
-    data() {
+      FaceRecognition
+    },
+    name: 'index',
+    data () {
       const validateName = (rule, value, callback) => {
         value = value.trim();
         if (!value) {
@@ -169,17 +174,17 @@
         } else {
           if (value.length >= 2 && value.length <= 18) {
             if (this.originName === value) {
-              callback(new Error("子社群昵称已存在"))
+              callback(new Error('子社群昵称已存在'))
             } else {
-              this.$http("/group/nickNameExist", {groupNickName: value},
+              this.$http('/group/nickNameExist', {groupNickName: value},
                 false).then(res => {
-                !res.data ? callback() : callback("子社群昵称已存在")
+                !res.data ? callback() : callback('子社群昵称已存在')
               }).catch(err => {
                 callback(err.msg || '验证失败')
               })
             }
           } else {
-            callback(new Error("长度为2-18个字符"))
+            callback(new Error('长度为2-18个字符'))
           }
         }
       };
@@ -207,22 +212,22 @@
     },
     methods: {
       // 获取社群列表
-      getGroupList(keywords, key) {
+      getGroupList (keywords, key) {
         keywords = (keywords || '').trim();
-        this.$http("/group/list").then(res => {
-          this.groupList = res.data;
+        this.$http('/group/list').then(res => {
+          this.groupList = uniqueKey(res.data);
           if (!key && !res.data[0]) {
             return
           }
           this.$nextTick(() => {
-            this.$refs.groupNav.setCurrentKey((key || res.data[0]).groupGuid);
+            this.$refs.groupNav.setCurrentKey(res.data[0].uniqueKey);
           });
           this.getCommunityInfo(key || res.data[0]);
           this.getDeviceList(key || res.data[0]);
         })
       },
       // 获取设备列表
-      getDeviceList(val) {
+      getDeviceList (val) {
         let url = !val.groupPid ? '/group/device ' : '/device/guid/list';
         this.$http(url, {guid: val.groupGuid}).then(res => {
           this.deviceList = res.data.content || res.data || [];
@@ -230,12 +235,12 @@
         })
       },
       // 搜索社群
-      remoteSearch(val) {
+      remoteSearch (val) {
         if (val) {
-          this.$http("/group/list/search", {searchText: val}).then(res => {
+          this.$http('/group/list/search', {searchText: val}).then(res => {
             if (res.data[0]) {
+              let restoreArray = this.$restoreArray(this.groupList, 'childGroupList');
               let getCurrent = () => {
-                let restoreArray = this.$restoreArray(this.groupList, 'childGroupList');
                 // 多层for循环嵌套只能用return跳出整个循环，break 只能跳出当前循环
                 for (let i = 0, len = restoreArray.length; i < len; i++) {
                   for (let k = 0, len2 = res.data.length; k < len2; k++) {
@@ -245,11 +250,21 @@
                   }
                 }
               };
+              // 数组去重
+              let setKey = new Set(res.data);
+              let setArr = [];
+              // 获取匹配值列表
+              restoreArray.map(item => {
+                if (setKey.has(item.groupGuid)) {
+                  setArr.push(item.uniqueKey)
+                }
+              });
+
               let current = getCurrent();
-              this.expandedKeys = res.data;
-              this.$refs.groupNav.setCheckedKeys(res.data);
+              this.expandedKeys = setArr;
+              this.$refs.groupNav.setCheckedKeys(setArr);
               this.$nextTick(() => {
-                this.$refs.groupNav.setCurrentKey(current.groupGuid);
+                this.$refs.groupNav.setCurrentKey(current.uniqueKey);
               });
               this.getCommunityInfo(current);
               this.getDeviceList(current);
@@ -263,27 +278,27 @@
       },
 
       // 设置默认选中值
-      setDefaultData() {
+      setDefaultData () {
         let current = this.groupList[0];
         this.expandedKeys = [];
         this.$nextTick(() => {
-          this.$refs.groupNav.setCurrentKey(current.guid || current.groupGuid);
+          this.$refs.groupNav.setCurrentKey(current.uniqueKey);
         });
         this.$refs.groupNav.setCheckedKeys([]);
         this.getCommunityInfo(current);
         this.getDeviceList(current);
       },
       // 当前社群发生改变
-      currentChange(val) {
-        this.currentKey = val.guid || val.groupGuid;
+      currentChange (val) {
         this.currentCommunity = val;
-        this.insetForm();
+        this.hidePopover();
+        // this.insetForm();
         this.getCommunityInfo(val);
         this.getDeviceList(val)
       },
       // 获取社群详细信息
-      getCommunityInfo(val) {
-        this.$http("/group/getInfo", {guid: val.groupGuid}).then(res => {
+      getCommunityInfo (val) {
+        this.$http('/group/getInfo', {guid: val.groupGuid}).then(res => {
           res.data ? res.data.groupPid = val.groupPid : '';
           res.data.groupNickName = val.groupNickName || this.currentCommunity.groupNickName;
           res.data.groupPid ? this.originName = JSON.parse(JSON.stringify(res.data.groupNickName)) : '';
@@ -294,11 +309,11 @@
         })
       },
       // 解散社群
-      disbandGroup() {
+      disbandGroup () {
         this.$affirm({text: `确认解散【${this.communityInfo.name}】社群？`}, (action, instance, done) => {
           if (action === 'confirm') {
-            this.$http("/group/disbandGroup", {guid: this.communityInfo.guid}).then(res => {
-              this.$tip("解散成功");
+            this.$http('/group/disbandGroup', {guid: this.communityInfo.guid}).then(res => {
+              this.$tip('解散成功');
               this.getGroupList()
             });
             done()
@@ -309,16 +324,17 @@
 
       },
       // 修改社群昵称
-      changeCommunityName(formName) {
+      changeCommunityName (formName) {
         this.$refs[formName].validate(valid => {
           if (valid) {
             let subData = JSON.parse(JSON.stringify(this.communityForm));
             subData.groupGuid = this.communityInfo.guid;
             subData.groupPid = this.communityInfo.groupPid;
             this.$http('/group/nickName/update', subData).then(res => {
-              this.$tip("昵称修改成功");
+              this.$tip('昵称修改成功');
               this.currentCommunity.groupNickName = subData.groupNickName;
-              this.insetForm();
+              this.hidePopover();
+              // this.insetForm();
               this.getGroupList('', {groupGuid: this.communityInfo.guid, groupPid: this.communityInfo.groupPid})
             })
           } else {
@@ -326,16 +342,22 @@
           }
         })
       },
-      insetForm() {
-        this.nickNamePopover = false;
-        if (this.$refs.nickNameForm) {
-          this.$nextTick(() => {
-            this.$refs.nickNameForm.resetFields()
-          })
+
+      // 显示修改昵称表单
+      showPopover(){
+        console.log(this.communityInfo)
+        this.communityForm.groupNickName = this.communityInfo.groupNickName
+      },
+      // 隐藏修改昵称表单  清空表单数据
+      hidePopover(){
+        if(this.$refs.nickNameForm){
+          this.$refs.nickNameForm.resetFields()
         }
+        this.nickNamePopover?this.nickNamePopover=false:''
       }
+
     },
-    created() {
+    created () {
       this.getGroupList()
     },
     computed: {
@@ -350,28 +372,28 @@
   .community--main {
     height: 100%;
 
-    >.el-scrollbar{
+    > .el-scrollbar {
       height: 100%;
-      >.el-scrollbar__wrap{
+      > .el-scrollbar__wrap {
         background-color: #232027;
 
       }
     }
-    >.is-horizontal{
+    > .is-horizontal {
       display: none;
     }
-    .el-scrollbar__wrap{
+    .el-scrollbar__wrap {
       overflow-x: hidden;
       height: 100%;
     }
-    .el-scrollbar__view{
+    .el-scrollbar__view {
       height: 100%;
     }
     .lwh--table {
       .el-scrollbar {
-        height: 242px!important;
+        height: 242px !important;
       }
-      .el-scrollbar__wrap{
+      .el-scrollbar__wrap {
         height: 242px;
       }
     }
@@ -383,6 +405,7 @@
     height: calc(345px);
     margin-bottom: 20px;
   }
+
   .community--main {
     overflow-y: auto;
   }

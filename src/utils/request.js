@@ -59,7 +59,11 @@ export function fetch (url, params, isTip = '数据加载中...') {
       if (res.status === 200) {
         if (res.data.code === 'ERR-110') {
           reject(res.data);
-          exitMessage(res.data.data);
+          let currentRoute = Router.app._route;
+          // 路由变化时不重复显示确认框
+          if(currentRoute.name && currentRoute.path !== window.location.pathname){
+            exitMessage(res.data.data);
+          }
           return false
         } else if (res.data.result) {
           if (isTip) {
@@ -73,7 +77,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
           reject(res.data)
         }
       } else {
-        message('服务器异常，请稍后重试！', 'error', 1500);
+        message('网络异常，请稍后重试！', 'error', 1500);
         reject(res)
       }
     }).catch(error => {
@@ -81,7 +85,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
       if (isTip) {
         load(isTip).close()
       }
-      message(error.response ? error.response.statusText : '服务异常，请稍后重新尝试', 'error');
+      message(error.response ? error.response.statusText : '网络异常，请稍后重新尝试', 'error');
       reject(error.response)
     })
   });

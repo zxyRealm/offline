@@ -24,7 +24,6 @@
       :node-key="nodeKey"
       :data="TreeList"
       :props="defaultProps"
-      :check-on-click-node="true"
       :default-expanded-keys="expandedKeys"
       :default-expand-all="expandedAll"
       @node-click="nodeClick"
@@ -76,7 +75,7 @@
 </template>
 
 <script>
-  import {customType} from '@/utils'
+  import {customType,uniqueKey} from '@/utils'
   export default {
     props: {
       value: {
@@ -88,6 +87,10 @@
         default: 'default'
       },
       nodeKey: {
+        type: String,
+        default: 'uniqueKey'
+      },
+      dataKey: {
         type: String,
         default: 'groupGuid'
       },
@@ -219,10 +222,10 @@
             if (isChecked) {
               this.$refs.GroupTree.setCheckedNodes(nodes.filter(item => {
                 return item.$treeNodeId !== node.data.$treeNodeId
-              }))
+              }));
             } else {
               nodes.push(node.data);
-              this.$refs.GroupTree.setCheckedNodes(nodes)
+              this.$refs.GroupTree.setCheckedNodes(nodes);
             }
           }
         }
@@ -243,7 +246,7 @@
       getGroupList(gid) {
         gid = (gid || '');
         this.$http("/group/list", {searchText: gid}).then(res => {
-          this.GroupList = res.data;
+          this.GroupList = uniqueKey(res.data);
           if (this.type !== 'device') {
             this.TreeList = this.GroupList
           }
@@ -348,9 +351,6 @@
         handler: function (val) {
           if (this.type === 'community' || this.type === 'custom-community') {
             this.TreeList = val;
-            // if(val[0]){
-            //   this.setCurrentKey(val[0][this.nodeKey])
-            // }
           }
           this.$emit("input", val)
         },
@@ -371,11 +371,11 @@
         get() {
           // 设置默认不可选节点
           if (this.isDisabled) {
-            let setKeys = new Set(this.disabledKeys);
-            this.setCheckedKeys(this.disabledKeys);
+            let [setKeys,disabledKeys] = [new Set(this.disabledKeys),[]];
             let setDisabled = (arr) => {
               for (let i = 0, len = arr.length; i < len; i++) {
-                if (setKeys.has(arr[i][this.nodeKey])) {
+                if (setKeys.has(arr[i][this.dataKey])) {
+                  disabledKeys.push(arr[i][this.nodeKey]);
                   this.$set(arr[i], 'disabled', true)
                 } else {
                   if (arr[i].disabled) {
@@ -388,6 +388,7 @@
               }
             };
             setDisabled(this.GroupList);
+            this.setCheckedKeys(disabledKeys);
           }
           if (this.type !== 'device') {
             this.agency = this.GroupList;

@@ -36,17 +36,16 @@
                 </template>
               </p>
             </ob-list-item>
-            <ob-list-item width="23%">
+            <ob-list-item ref="deviceItem" width="23%">
               <p v-if="!item.groupGuid">
                 <span>绑定社群：</span>
                 <a href="javascript:void (0)" @click="showDialog('community',item)">未绑定</a>
-                <span style="display: inline-block;width: 14px;height: 14px;" class="fr"></span>
               </p>
               <template v-else>
                 <p>
                   <span>绑定社群：</span>
                   <span>{{item.groupName}}</span>
-                  <uu-icon type="relieve" class="fr" @click.native="unBindCommunity(item)"></uu-icon>
+                  <uu-icon type="relieve" class="fr" @click.native="unBindCommunity(item,$index)"></uu-icon>
                 </p>
                 <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
                 <p><span>应用场景：</span>{{item.deviceScene}}</p>
@@ -62,7 +61,6 @@
             </ob-list-item>
           </ob-list>
         </template>
-        <!--<el-button @click="getMineEquipment()">自有设备列表</el-button>-->
         <el-pagination
           v-if="pagination.total && pagination.total>pagination.length"
           @current-change="getMineEquipment"
@@ -208,9 +206,7 @@
       // 获取自有设备
       getMineEquipment (page) {
         page = page || this.pagination.index || 1;
-        console.log(page)
         this.$http('/device/list', {index: page, searchText: this.$route.params.key || ''}).then(res => {
-          // this.equipmentList = Math.random()>0.5?res.data.content:res.data.content.concat(res.data.content);
           this.equipmentList = res.data.content || [];
           this.pagination = res.data.pagination;
           if (!this.groupList.length) {
@@ -232,7 +228,7 @@
         }, 'waiting')
       },
       //解 绑社群
-      unBindCommunity (value) {
+      unBindCommunity (value,index) {
         this.$affirm({
           confirm: '确定',
           cancel: '返回',
@@ -245,7 +241,8 @@
               groupGuid: value.groupGuid
             }).then(res => {
               this.$tip('解绑成功');
-              this.$set(value, 'groupGuid', null)
+              this.$set(value, 'groupGuid', null);
+              this.$refs.deviceItem[index].getDeviceState(value,value.deviceStatus===undefined?null:undefined)
             });
           } else {
             done()
@@ -253,14 +250,13 @@
         })
       },
       // 绑定社群
-      bindCommunity (value) {
+      bindCommunity (data) {
         this.dialogFormVisible = false;
         this.$load('设备绑定中...');
-        this.$http('/device/binding', {deviceKey: value.deviceKey, groupGuid: value.groupGuid}).then(res => {
+        this.$http('/device/binding', data).then(res => {
           this.$load().close();
           this.$tip('绑定成功');
           this.getMineEquipment(this.pagination.index);
-
         }).catch(() => {
           this.$load().close()
         });

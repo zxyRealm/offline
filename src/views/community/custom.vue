@@ -106,7 +106,7 @@
 </template>
 
 <script>
-  import {customType} from '@/utils'
+  import {customType,arrayUnique } from '@/utils'
   import { mapState} from 'vuex'
   export default {
     name: "custom",
@@ -182,6 +182,8 @@
       // 添加成员
       addMember(keys) {
         let subData = [];
+
+        keys = arrayUnique(keys,'groupGuid');
         keys.filter(item => !item.disabled).map(item => {
           subData.push({
             groupGuid: item.groupGuid,

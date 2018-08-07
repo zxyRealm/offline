@@ -7,12 +7,14 @@
     class="dialog-form-wrapper vam"
     width="500px" :title="title" :visible.sync="dialogFormVisible">
     <el-scrollbar
+      class="mc"
       v-if="type==='group'"
       :style="customStyle"
     >
       <ob-group-nav
         ref="customGroup"
         :show-checkbox="true"
+        node-key="uniqueKey"
         is-disabled
         :multiple="multiple"
         :disabled-keys="disabledKeys"
@@ -68,6 +70,7 @@
 </template>
 <script>
   import Group from '@/components/group-nav'
+  import { uniqueKey } from '@/utils'
   export default {
     components:{
       'ob-group-nav':Group
@@ -313,6 +316,9 @@
   }
   .el-dialog__body{
     padding:20px 20px 0;
+    .el-scrollbar{
+      margin: 0 auto;
+    }
   }
   .el-button+.el-button{
     margin-left: 0;
