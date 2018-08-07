@@ -96,13 +96,11 @@
                   </div>
                 </div>
               </div>
-              <ob-list-empty top="32px" text="请选取社群" size="small" v-if="!communityInfo.guid"></ob-list-empty>
-            </div>
-            <div class="cmm-table dashed-border">
-              <h2 class="cmm-sub-title">设备列表</h2>
-              <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
-              </ob-list-empty>
-              <el-scrollbar ref="faceScrollItemTable" v-else>
+              <div class="cmm-table dashed-border lwh--table">
+                <h2 class="cmm-sub-title">设备列表</h2>
+                <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
+                </ob-list-empty>
+                <el-scrollbar ref="faceScrollItemTable" v-else>
                 <el-table
                   border
                   :data="deviceList"
@@ -146,6 +144,7 @@
             </div>
             <!-- lwh-识别人脸库 -->
             <face-recognition-store :deviceKye="deviceList"></face-recognition-store>
+            </div>
           </el-scrollbar>
         </div>
       </div>
@@ -391,7 +390,7 @@
     .el-scrollbar__view {
       height: 100%;
     }
-    .cmm-table {
+    .lwh--table {
       .el-scrollbar {
         height: 242px !important;
       }
@@ -411,11 +410,10 @@
     margin-top: -6px;
     color: #F87F21;
   }
-  .community--inner .community--main .cmm-table {
+  .community--inner .community--main .lwh--table {
     height: calc(345px);
     margin-bottom: 20px;
   }
-
   .community--main {
     overflow-y: auto;
   }

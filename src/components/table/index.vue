@@ -209,7 +209,7 @@
           float: left;
         }
         .el-input__inner, .el-input {
-          background: transparent !important;
+          /*background: transparent !important;*/
         }
         .btn-prev, .btn-next {
           background: transparent;
