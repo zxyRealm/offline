@@ -85,9 +85,9 @@
           },
           //获取设备数据
           getDeviceData() {
+            if(!this.guid) return;
             this.$http('/device/guid/list ', {
               guid: this.guid,
-              tag: 'console'
             }).then(res => {
               if (res.result == 1) {
                 this.resolveData(res.data.content)

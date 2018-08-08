@@ -22,9 +22,6 @@
             label="序号"
             width="80"
           >
-            <template slot-scope="scope">
-              <p class="operate--p" @click="getDetailInfo(scope.row)">111</p>
-            </template>
           </el-table-column>
           <el-table-column
             label="抓拍图"
@@ -107,8 +104,9 @@
       getDataInParams(params) {
         let paramsSearch = {
           groupGuid: this.detailInfo.groupGuid,
+          ufaceID: this.detailInfo.ufaceId,
           deviceKey: params.deviceKey,
-          cameraName: 'lwh',
+          cameraName: this.detailInfo.cameraName,
           startTime: params.startTime,
           endTime: params.endTime,
           index: this.pageParams.currentPage,
@@ -116,7 +114,7 @@
         };
         this.$http('/group/faces/search',paramsSearch).then(res => {
           if(res.result == 1){
-            console.info(res,"detail");
+            //console.info(res,"detail");
             this.deviceList = res.data.content;
             this.pageParams.total = res.data.pagination.total;
           }
@@ -135,6 +133,7 @@
         this.$http('/group/faces', params).then(res => {
           if (res.result == 1) {
             this.deviceList = res.data.content;
+            //console.info(this.deviceList,"this.deviceList");
             this.pageParams.total = res.data.pagination.total;
           }
         }).catch(error => {
