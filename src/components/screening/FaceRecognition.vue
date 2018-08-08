@@ -2,7 +2,7 @@
     <div class="face--recognition__wrap">
         <div class="label_div">
           <span>抓拍设备：</span>
-          <el-select v-model="params.device" placeholder="请选择" class="el--select__default">
+          <el-select v-model="params.deviceKey" placeholder="请选择" class="el--select__default">
             <el-option
               v-for="item in options"
               :key="item.value"
@@ -43,6 +43,12 @@
   import { parseTime } from '@/utils/index'
     export default {
         name: 'FaceRecognition',
+        props: {
+          guid: {        //社群guid
+            type: String,
+            default: ''
+          }
+        },
         components: {},
         data() {
           let that = this;
@@ -53,39 +59,58 @@
                 }
               },
               params: {           //开发条件
-                device: '',
+                deviceKey: '',
                 startTime: '',
                 endTime: ''
               },
-              options: [{
-                value: '选项1',
-                label: '黄金糕'
-              }, {
-                value: '选项2',
-                label: '双皮奶'
-              }, {
-                value: '选项3',
-                label: '蚵仔煎'
-              }, {
-                value: '选项4',
-                label: '龙须面'
-              }, {
-                value: '选项5',
-                label: '北京烤鸭'
-              }, {
-                value: '选项6',
-                label: '北京烤鸭'
-              }, {
-                value: '选项7',
-                label: '北京烤鸭'
-              }]
+              options: []       //设备数据
             }
         },
         methods: {
+          //对外开放的条件
           search() {
             this.$emit("search-params", this.params);
-          }
+          },
+          //设备数据转化
+          resolveData(data) {
+            if(!data) {
+              return;
+            }
+            data.forEach(val => {
+              const obj = {};
+              obj.label = val.deviceName;
+              obj.value = val.deviceKey;
+              this.options.push(obj);
+            })
+          },
+          //获取设备数据
+          getDeviceData() {
+            this.$http('/device/guid/list ', {
+              guid: this.guid,
+              tag: 'console'
+            }).then(res => {
+              if (res.result == 1) {
+                this.resolveData(res.data.content)
+              }
+            }).catch(error => {
+              console.info(error);
+            });
+          },
+        },
+      watch: {
+        guid(val,oldVal){
+          this.params = {           //重置开发条件
+            deviceKey: '',
+            startTime: '',
+            endTime: ''
+          },
+          this.options = [];
+          this.getDeviceData();
         }
+      },
+      created() {
+        this.getDeviceData();
+      }
     }
 </script>
 <style  rel="stylesheet/scss" lang="scss">

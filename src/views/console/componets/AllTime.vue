@@ -1,6 +1,6 @@
 <template>
   <div class="all-time-wrap">
-    <div class="identify"><span>身份识别设备</span></div>
+    <div class="identify"><span>客行分析设备</span></div>
     <div class="change-time">
       <span ref="dd">{{this.dd}}</span>
       <span ref="d">{{this.d}}</span>

@@ -144,7 +144,7 @@
               </el-scrollbar>
             </div>
             <!-- lwh-识别人脸库 -->
-            <face-recognition-store :deviceKye="deviceList" v-if="!currentCommunity.groupPid"></face-recognition-store>
+            <face-recognition-store :guid="communityInfo.guid" v-if="!currentCommunity.groupPid"></face-recognition-store>
 
           </el-scrollbar>
         </div>

@@ -8,16 +8,17 @@
         <img class="detail--close clearfix" src="/static/img/face_recoginiton_close_icon.png" @click="close"></img>
       </div>
       <div class="tip--info">
-        <p>Face ID：1234567890123456789012345678909125</p>
-        <p>共计到访101次</p>
+        <p>Face ID：{{detailInfo.ufaceId}}</p>
+        <p>共计到访{{detailInfo.order}}次</p>
       </div>
-      <face-recognition @search-params="getFaceData"></face-recognition>
+      <face-recognition @search-params="getFaceData" :guid="detailInfo.groupGuid"></face-recognition>
       <div  class="detail--info">
         <el-table
           :data="deviceList"
           border
           style="width: 100%">
           <el-table-column
+            prop="order"
             label="序号"
             width="80"
           >
@@ -26,33 +27,27 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="deviceName"
             label="抓拍图"
             width="120">
             <template slot-scope="scope">
-              <img src="http://offline-browser-group-face.oss-cn-hangzhou.aliyuncs.com/2018-08-08/124434C3E2784BD09F69EA1881FD4DE9.jpg" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
+              <img :src="scope.row.imageUrl" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
             </template>
           </el-table-column>
           <el-table-column
-            prop="deviceKey"
+            prop="systemTime"
             label="到访时间"
           >
           </el-table-column>
           <el-table-column
-            prop="deviceType"
+            prop="groupName"
             label="到访社群"
           >
-            <template slot-scope="scope">
-              {{scope.row.deviceType|deviceType}}
-            </template>
           </el-table-column>
           <el-table-column
+            prop="cameraName"
             label="抓拍设备"
-            width="120"
+            width="140"
           >
-            <template slot-scope="scope">
-              {{scope.row.createTime|parseTime('{y}/{m}/{d}')}}
-            </template>
           </el-table-column>
 
         </el-table>
@@ -78,158 +73,20 @@
       state: {
         type: Boolean,
         default: false  //组件是否显示
+      },
+      detailInfo: {
+
       }
     },
     data() {
       return {
         show: true,        //是否显示组件
         pageParams: {
-          pageSize: '10',
-          total: 1,         //总条数
+          pageSize: '10',    //默认每页显示10条
+          total: 0,         //总条数
           currentPage: 1    //当前第几页
         },
-        deviceList: [
-          {
-          bindingTime: "2018-08-03 16:04:40.0",
-          createTime: "2018-08-03 16:04:28",
-          deviceCsys: null,
-          deviceKey: "1234567890654321",
-          deviceName: "MINIPC",
-          deviceScene: null,
-          deviceType: 1,
-          groupGuid: "F1EA2796C86C44B5AB89D5425FEF08D3",
-          groupName: "顺溜刀削面",
-          id: 0,
-          logicDelete: 0,
-          merchantGuid: "DB8C85BC04854398876985181E5F8CA4",
-          useDescribe: null
-        },{
-          bindingTime: "2018-08-03 16:04:40.0",
-          createTime: "2018-08-03 16:04:28",
-          deviceCsys: null,
-          deviceKey: "1234567890654321",
-          deviceName: "MINIPC",
-          deviceScene: null,
-          deviceType: 1,
-          groupGuid: "F1EA2796C86C44B5AB89D5425FEF08D3",
-          groupName: "顺溜刀削面",
-          id: 0,
-          logicDelete: 0,
-          merchantGuid: "DB8C85BC04854398876985181E5F8CA4",
-          useDescribe: null
-        },{
-          bindingTime: "2018-08-03 16:04:40.0",
-          createTime: "2018-08-03 16:04:28",
-          deviceCsys: null,
-          deviceKey: "1234567890654321",
-          deviceName: "MINIPC",
-          deviceScene: null,
-          deviceType: 1,
-          groupGuid: "F1EA2796C86C44B5AB89D5425FEF08D3",
-          groupName: "顺溜刀削面",
-          id: 0,
-          logicDelete: 0,
-          merchantGuid: "DB8C85BC04854398876985181E5F8CA4",
-          useDescribe: null
-        },{
-          bindingTime: "2018-08-03 16:04:40.0",
-          createTime: "2018-08-03 16:04:28",
-          deviceCsys: null,
-          deviceKey: "1234567890654321",
-          deviceName: "MINIPC",
-          deviceScene: null,
-          deviceType: 1,
-          groupGuid: "F1EA2796C86C44B5AB89D5425FEF08D3",
-          groupName: "顺溜刀削面",
-          id: 0,
-          logicDelete: 0,
-          merchantGuid: "DB8C85BC04854398876985181E5F8CA4",
-          useDescribe: null
-        },{
-          bindingTime: "2018-08-03 16:04:40.0",
-          createTime: "2018-08-03 16:04:28",
-          deviceCsys: null,
-          deviceKey: "1234567890654321",
-          deviceName: "MINIPC",
-          deviceScene: null,
-          deviceType: 1,
-          groupGuid: "F1EA2796C86C44B5AB89D5425FEF08D3",
-          groupName: "顺溜刀削面",
-          id: 0,
-          logicDelete: 0,
-          merchantGuid: "DB8C85BC04854398876985181E5F8CA4",
-          useDescribe: null
-        },{
-          bindingTime: "2018-08-03 16:04:40.0",
-          createTime: "2018-08-03 16:04:28",
-          deviceCsys: null,
-          deviceKey: "1234567890654321",
-          deviceName: "MINIPC",
-          deviceScene: null,
-          deviceType: 1,
-          groupGuid: "F1EA2796C86C44B5AB89D5425FEF08D3",
-          groupName: "顺溜刀削面",
-          id: 0,
-          logicDelete: 0,
-          merchantGuid: "DB8C85BC04854398876985181E5F8CA4",
-          useDescribe: null
-        },{
-          bindingTime: "2018-08-03 16:04:40.0",
-          createTime: "2018-08-03 16:04:28",
-          deviceCsys: null,
-          deviceKey: "1234567890654321",
-          deviceName: "MINIPC",
-          deviceScene: null,
-          deviceType: 1,
-          groupGuid: "F1EA2796C86C44B5AB89D5425FEF08D3",
-          groupName: "顺溜刀削面",
-          id: 0,
-          logicDelete: 0,
-          merchantGuid: "DB8C85BC04854398876985181E5F8CA4",
-          useDescribe: null
-        },{
-          bindingTime: "2018-08-03 16:04:40.0",
-          createTime: "2018-08-03 16:04:28",
-          deviceCsys: null,
-          deviceKey: "1234567890654321",
-          deviceName: "MINIPC",
-          deviceScene: null,
-          deviceType: 1,
-          groupGuid: "F1EA2796C86C44B5AB89D5425FEF08D3",
-          groupName: "顺溜刀削面",
-          id: 0,
-          logicDelete: 0,
-          merchantGuid: "DB8C85BC04854398876985181E5F8CA4",
-          useDescribe: null
-        },{
-          bindingTime: "2018-08-03 16:04:40.0",
-          createTime: "2018-08-03 16:04:28",
-          deviceCsys: null,
-          deviceKey: "1234567890654321",
-          deviceName: "MINIPC",
-          deviceScene: null,
-          deviceType: 1,
-          groupGuid: "F1EA2796C86C44B5AB89D5425FEF08D3",
-          groupName: "顺溜刀削面",
-          id: 0,
-          logicDelete: 0,
-          merchantGuid: "DB8C85BC04854398876985181E5F8CA4",
-          useDescribe: null
-        },{
-          bindingTime: "2018-08-03 16:04:40.0",
-          createTime: "2018-08-03 16:04:28",
-          deviceCsys: null,
-          deviceKey: "1234567890654321",
-          deviceName: "MINIPC",
-          deviceScene: null,
-          deviceType: 1,
-          groupGuid: "F1EA2796C86C44B5AB89D5425FEF08D3",
-          groupName: "顺溜刀削面",
-          id: 0,
-          logicDelete: 0,
-          merchantGuid: "DB8C85BC04854398876985181E5F8CA4",
-          useDescribe: null
-        }]   //数据
+        deviceList: []   //数据
       }
     },
     methods: {
@@ -244,11 +101,50 @@
         this.$emit('update:state',false)  //第一种方式优化
       },
       getFaceData(params) {
-        console.info(params,"detail");
+        this.getDataInParams(params)
+      },
+      //根据查询条件查询数据
+      getDataInParams(params) {
+        let paramsSearch = {
+          groupGuid: this.detailInfo.groupGuid,
+          deviceKey: params.deviceKey,
+          cameraName: 'lwh',
+          startTime: params.startTime,
+          endTime: params.endTime,
+          index: this.pageParams.currentPage,
+          length: this.pageParams.pageSize
+        };
+        this.$http('/group/faces/search',paramsSearch).then(res => {
+          if(res.result == 1){
+            console.info(res,"detail");
+            this.deviceList = res.data.content;
+            this.pageParams.total = res.data.pagination.total;
+          }
+        }).catch(error => {
+          console.info(error);
+        });
       },
       //获取数据
       getData() {
-
+        let params = {
+          groupGuid: this.detailInfo.groupGuid,
+          ufaceId: this.detailInfo.ufaceId,
+          index: this.pageParams.currentPage,
+          length: this.pageParams.pageSize
+        };
+        this.$http('/group/faces', params).then(res => {
+          if (res.result == 1) {
+            this.deviceList = res.data.content;
+            this.pageParams.total = res.data.pagination.total;
+          }
+        }).catch(error => {
+          console.info(error);
+        })
+      }
+    },
+    watch: {
+      detailInfo(val,oldVal) {
+        this.getData();
       }
     }
   }
