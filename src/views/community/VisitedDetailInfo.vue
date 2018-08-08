@@ -27,9 +27,10 @@
           </el-table-column>
           <el-table-column
             prop="deviceName"
-            label="抓拍图">
+            label="抓拍图"
+            width="120">
             <template slot-scope="scope">
-              <img src="/static/img/error_tip_icon.png" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
+              <img src="http://offline-browser-group-face.oss-cn-hangzhou.aliyuncs.com/2018-08-08/124434C3E2784BD09F69EA1881FD4DE9.jpg" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
             </template>
           </el-table-column>
           <el-table-column
@@ -306,6 +307,7 @@
         table {
           .table--td__img {
             width: 40px;
+            height: 40px;
           }
           .el-table__row td:nth-child(2) .cell {
             text-align: center;

@@ -102,6 +102,9 @@
       span {
         font-size: 12px;
       }
+      input {
+        cursor: pointer;
+      }
       div.picker-data {
         width: 154px;
         position: relative;

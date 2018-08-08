@@ -96,7 +96,8 @@
                   </div>
                 </div>
               </div>
-              <div class="cmm-table dashed-border lwh--table">
+            </div>
+              <div class="cmm-table dashed-border " :class="(!currentCommunity.groupPid)? 'lwh--table': ''">
                 <h2 class="cmm-sub-title">设备列表</h2>
                 <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
                 </ob-list-empty>
@@ -143,8 +144,8 @@
               </el-scrollbar>
             </div>
             <!-- lwh-识别人脸库 -->
-            <face-recognition-store :deviceKye="deviceList"></face-recognition-store>
-            </div>
+            <face-recognition-store :deviceKye="deviceList" v-if="!currentCommunity.groupPid"></face-recognition-store>
+
           </el-scrollbar>
         </div>
       </div>

@@ -47,7 +47,7 @@
         let me = this;
         me.time();
         this.clearShowTime();
-        this.showTime = window.setTimeout(this.setTime, 10000);  //默认是一分钟60000
+        this.showTime = window.setTimeout(this.setTime, 1000);  //默认是一分钟60000
       },
       clearShowTime () {
         if (this.showTime) window.clearTimeout(this.showTime);
