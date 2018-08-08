@@ -91,9 +91,7 @@
         }
       },
       searchMethod(){
-        // if(this.searchValue){
-          this.$emit("remote-search",(this.searchValue||'').trim())
-        // }
+        this.$emit("remote-search",this.searchValue.toString().trim())
       }
     },
     watch:{

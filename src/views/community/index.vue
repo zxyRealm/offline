@@ -21,6 +21,7 @@
             placeholder="快速查找社群"
             @remote-search="remoteSearch"
             :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
+          <p class="search-empty">{{searchEmpty?'未查询到结果':''}}</p>
           <ob-group-nav
             ref="groupNav"
             only-checked
@@ -32,7 +33,6 @@
             :current-key="currentKey"
             @current-change="currentChange"></ob-group-nav>
         </div>
-
         <div class="community--main">
           <el-scrollbar ref="faceScrollItem">
             <div class="cmm-top dashed-border">
@@ -208,7 +208,8 @@
           ]
         },
         nickNamePopover: false,
-        expandedKeys: []
+        expandedKeys: [],
+        searchEmpty:false
       }
     },
     methods: {
@@ -237,6 +238,7 @@
       },
       // 搜索社群
       remoteSearch (val) {
+        this.searchEmpty = false;
         if (val) {
           this.$http('/group/list/search', {searchText: val}).then(res => {
             if (res.data[0]) {
@@ -270,6 +272,7 @@
               this.getCommunityInfo(current);
               this.getDeviceList(current);
             } else {
+              this.searchEmpty = true;
               this.setDefaultData()
             }
           })
@@ -372,12 +375,10 @@
 <style rel="stylesheet/scss" lang="scss">
   .community--main {
     height: 100%;
-
     > .el-scrollbar {
       height: 100%;
       > .el-scrollbar__wrap {
         background-color: #232027;
-
       }
     }
     > .is-horizontal {
@@ -402,11 +403,18 @@
 </style>
 <style lang="scss" scoped>
   @import "@/styles/community.scss";
+  .search-empty{
+    height: 20px;
+    line-height: 18px;
+    padding: 0 20px 0 40px;
+    font-size:12px ;
+    margin-top: -6px;
+    color: #F87F21;
+  }
   .community--inner .community--main .lwh--table {
     height: calc(345px);
     margin-bottom: 20px;
   }
-
   .community--main {
     overflow-y: auto;
   }

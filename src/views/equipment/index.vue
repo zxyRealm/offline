@@ -147,7 +147,9 @@
     },
     methods: {
       search (val) {
-        this.$router.push(`/equipment/search/mine/${val}`);
+        if(val){
+          this.$router.push(`/equipment/search/mine/${val}`);
+        }
       },
       submitForm (data) {
         if (this.dialogOptions.type === 'device') {

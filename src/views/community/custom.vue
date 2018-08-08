@@ -12,6 +12,7 @@
             placeholder="快速查找分组"
             @remote-search="remoteSearch"
             :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
+          <p class="search-empty">{{searchEmpty?'未查询到结果':''}}</p>
           <ob-group-nav
             ref="customGroup"
             theme="default"
@@ -129,11 +130,13 @@
         ],
         customGroupList: [],
         selectList: [],
+        searchEmpty:false
       }
     },
     methods: {
       // 搜索
       remoteSearch(val) {
+        this.searchEmpty = false;
         if(val){
           this.$http("/groupCustom/info/search", {searchText: val}).then(res => {
             if(this.customGroupList.length){
@@ -145,6 +148,7 @@
                 });
                 this.$refs.customGroup.setCheckedKeys(res.data.map(item => item.guid))
               }else {
+                this.searchEmpty = true;
                 this.setDefaultData();
               }
             }
@@ -284,4 +288,12 @@
 
 <style lang="scss" scoped>
   @import "@/styles/community.scss";
+  .search-empty{
+    height: 20px;
+    line-height: 18px;
+    padding: 0 20px 0 40px;
+    font-size:12px ;
+    margin-top: -6px;
+    color: #F87F21;
+  }
 </style>

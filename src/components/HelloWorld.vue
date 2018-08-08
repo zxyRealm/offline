@@ -30,6 +30,12 @@
         </div>
       </transition-group>
     </div>
+    <div>
+      <router-link :to="{path:'/test#http://www.baidu.com'}">router test</router-link>
+      <br>
+      <router-link :to="{path:'/test'}">origin router</router-link>
+    </div>
+
     <el-form
       :model="formData"
       :rules="rules"
