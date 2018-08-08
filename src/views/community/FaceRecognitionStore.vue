@@ -1,9 +1,9 @@
 <template>
   <div class="cmm-table__face dashed-border">
     <h2 class="cmm-sub-title">识别人脸库</h2>
-    <face-recognition @search-params="getFaceData"></face-recognition>
+    <face-recognition @search-params="getFaceData" :guid="guid"></face-recognition>
     <el-table
-      :data="deviceKye"
+      :data="deviceList"
       border
       style="width: 100%">
       <el-table-column
@@ -12,29 +12,24 @@
         class="table--td"
       >
         <template slot-scope="scope">
-          <img src="http://offline-browser-group-face.oss-cn-hangzhou.aliyuncs.com/2018-08-08/124434C3E2784BD09F69EA1881FD4DE9.jpg" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
+          <img :src="scope.row.imageUrl" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
         </template>
       </el-table-column>
       <el-table-column
-        prop="deviceKey"
+        prop="systemTime"
         label="到访时间"
       >
       </el-table-column>
       <el-table-column
-        prop="deviceType"
+        prop="groupName"
         label="到访社群"
       >
-        <template slot-scope="scope">
-          {{scope.row.deviceType|deviceType}}
-        </template>
       </el-table-column>
       <el-table-column
+        prop="deviceKey"
         label="抓拍设备"
-        width="120"
+        width="150"
       >
-        <template slot-scope="scope">
-          {{scope.row.createTime|parseTime('{y}/{m}/{d}')}}
-        </template>
       </el-table-column>
       <el-table-column
         label="操作"
@@ -56,67 +51,103 @@
       </el-pagination>
     </div>
     <!-- lwh-到访记录详情 -->
-    <visited-detail-info :state.sync="visitedState" @changeState="changeState"></visited-detail-info>
+    <visited-detail-info :state.sync="visitedState" :detailInfo="detailInfo"></visited-detail-info>
   </div>
 </template>
 <script>
     import FaceRecognition from '@/components/screening/FaceRecognition'
     import VisitedDetailInfo from './VisitedDetailInfo'
     export default {
-        name: 'FaceRecognitionStore',
-        components: {
-          FaceRecognition,
-          VisitedDetailInfo
+      name: 'FaceRecognitionStore',
+      components: {
+        FaceRecognition,
+        VisitedDetailInfo
+      },
+      props: {
+        guid: {
+          type: String,
+          default: ''
+        }
+      },
+      data() {
+        return {
+          detailInfo: {},    //详情页
+          deviceList: [],
+          pageParams: {
+            pageSize: 10,      //每页显示条数 = 默认
+            total: 0,         //总条数
+            currentPage: 1    //当前第几页
+          },
+          layout: 'total, sizes',
+          visitedState: false   //到访信息状态
+        }
+      },
+      methods: {
+        //每页显示条数
+        handleSizeChange(val) {
+          this.pageParams.pageSize = val;
+          this.getData();
         },
-        props: {
-          deviceKye: {
-            type: Array,
-            default: []
-          }
+        //当前显示第几页
+        handleCurrentChange(val) {
+          this.pageParams.currentPage = val;
+          this.pageParams.currentPage = 1;
+          this.getData();
         },
-        data() {
-            return {
-              deviceList: [],
-              pageParams: {
-                pageSize: 10,      //每页显示条数
-                total: 2,         //总条数
-                currentPage: 1    //当前第几页
-              },
-              layout: 'total, sizes',
-              visitedState: false   //到访信息状态
+        //触发查询条件
+        getFaceData(params) {
+          this.getDataInParams(params);
+        },
+        //根据查询条件查询数据
+        getDataInParams(params) {
+         let paramsSearch = {
+            groupGuid: this.guid,
+            deviceKey: params.deviceKey,
+            cameraName: 'lwh',
+            startTime: params.startTime,
+            endTime: params.endTime,
+            index: this.pageParams.currentPage,
+            length: this.pageParams.pageSize
+          };
+          this.$http('/group/faceSet/search',paramsSearch).then(res => {
+            if(res.result == 1){
+              this.deviceList = res.data.content;
+              this.pageParams.total = res.data.pagination.total;
             }
+          }).catch(error => {
+            console.info(error);
+          });
         },
-        methods: {
-          //每页显示条数
-          handleSizeChange (val) {
-            this.pageParams.pageSize = val;
-            this.getData();
-          },
-          //当前显示第几页
-          handleCurrentChange (val) {
-            this.pageParams.currentPage = val;
-            this.getData();
-          },
-          //触发查询条件
-          getFaceData(params) {
-            console.info(params,111);
-          },
-          //改变到访详情显示状态
-          changeState(val) {
-            console.info(11111111111,val)
-            this.visitedState = val;
-          },
-          //查看识别记录详情
-          getDetailInfo(info) {
-            console.info(info,this.visitedState = true);
-          },
-          // 获取数据
-          getData() {
+        //查看识别记录详情
+        getDetailInfo(info) {
+          this.detailInfo = info;
+          this.visitedState = true
+        },
+        // 获取数据
+        getData() {
+          let params = {
+            groupGuid: this.guid,
+            index: this.pageParams.currentPage,
+            length: this.pageParams.pageSize
+          };
+          this.$http('/group/faceSet', params).then(res => {
+            if (res.result == 1) {
+              this.deviceList = res.data.content;
+              this.pageParams.total = res.data.pagination.total;
+            }
+          }).catch(error => {
+            console.info(error);
+          })
+        }
 
-          }
-        },
+      },
       watch: {
-        deviceKye: {
+        //监听guid改变
+        guid(val, oldVal) {
+          this.getData();
+        },
+        //监听图片数据
+        deviceList: {
           handler: function (val, oldVal) {
             this.layout = val.length == 0 ? 'total, sizes' : 'total, sizes, prev, pager, next';
           },
