@@ -120,6 +120,7 @@
                   <el-table-column
                     prop="deviceType"
                     label="设备类型"
+                    width="80px"
                   >
                     <template slot-scope="scope">
                       {{scope.row.deviceType|deviceType}}
