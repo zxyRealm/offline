@@ -67,6 +67,10 @@
         guid: {
           type: String,
           default: ''
+        },
+        cameraName: {
+          type: String,
+          default: ''
         }
       },
       data() {
@@ -103,7 +107,7 @@
          let paramsSearch = {
             groupGuid: this.guid,
             deviceKey: params.deviceKey,
-            cameraName: 'lwh',
+            cameraName: '',
             startTime: params.startTime,
             endTime: params.endTime,
             index: this.pageParams.currentPage,
@@ -144,6 +148,7 @@
       watch: {
         //监听guid改变
         guid(val, oldVal) {
+          if(!val) return;
           this.getData();
         },
         //监听图片数据
