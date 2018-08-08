@@ -232,10 +232,14 @@
       // 获取设备列表
       getDeviceList (val) {
         let url = !val.groupPid ? '/group/device ' : '/device/guid/list';
-        this.$http(url, {guid: val.groupGuid}).then(res => {
-          this.deviceList = res.data.content || res.data || [];
-          this.$store.state.loading = false;
-        })
+        console.log(val);
+        if(val.groupGuid){
+          this.$http(url, {guid: val.groupGuid}).then(res => {
+            this.deviceList = res.data.content || res.data || [];
+            this.$store.state.loading = false;
+          })
+        }
+
       },
       // 搜索社群
       remoteSearch (val) {

@@ -80,7 +80,7 @@
       },
       getNotifyList(page) {
         page = page || 1;
-        this.$http("/dataNotice/page/list", {index: page, length: 10}).then(res => {
+        this.$http("/dataNotice/page/list", {index: page, length: 8}).then(res => {
           if (res.result) {
             this.notifyList = res.data.content || [];
             this.pagination = res.data.pagination;

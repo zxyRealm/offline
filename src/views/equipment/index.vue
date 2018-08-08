@@ -208,7 +208,7 @@
       // 获取自有设备
       getMineEquipment (page) {
         page = page || this.pagination.index || 1;
-        this.$http('/device/list', {index: page, searchText: this.$route.params.key || ''}).then(res => {
+        this.$http('/device/list', {index: page, searchText: this.$route.params.key || '',length:8}).then(res => {
           this.equipmentList = res.data.content || [];
           this.pagination = res.data.pagination;
           if (!this.groupList.length) {

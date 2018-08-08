@@ -86,7 +86,7 @@
             this.pagination = res.data.pagination;
           })
         }else {
-          this.$http("/device/search", {searchText:this.$route.params.key||'', index: page}).then(res => {
+          this.$http("/device/search", {searchText:this.$route.params.key||'', index: page,length:8}).then(res => {
             this.equipmentList = res.data.content;
             this.pagination = res.data.pagination;
           })
@@ -99,7 +99,6 @@
         }
       },
       currentChange(val) {
-        console.log('current',val);
         this.currentGroup = val.groupGuid;
       }
     },
