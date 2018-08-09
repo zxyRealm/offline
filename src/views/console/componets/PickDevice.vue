@@ -96,12 +96,12 @@
       },
       //获取设备数据
       getDeviceData() {
-        this.$http('/device/guid/list ', {
+        this.$http('/group/device', {
           guid: this.groupId,
           tag: 'console'
         }).then(res => {
           if (res.result == 1) {
-            this.deviceData = res.data.content;
+            this.deviceData = res.data;
             this.radio = -1;
           }
         }).catch(error => {

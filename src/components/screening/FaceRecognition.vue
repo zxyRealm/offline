@@ -17,7 +17,7 @@
             v-model="params.startTime"
             type="datetime"
             placeholder="开始时间"
-            :clearable = "false"
+            :clearable = "true"
             prefix-icon = "''"
             value-format="yyyy-MM-dd hh:mm:ss"
             class="picker-data">
@@ -27,7 +27,7 @@
             v-model="params.endTime"
             type="datetime"
             placeholder="结束时间"
-            :clearable = "false"
+            :clearable = "true"
             prefix-icon = "''"
             value-format="yyyy-MM-dd hh:mm:ss"
             :picker-options="pickerOptions1"
@@ -47,6 +47,10 @@
           guid: {        //社群guid
             type: String,
             default: ''
+          },
+          deviceList: {
+            type: Array,
+            default: []
           }
         },
         components: {},
@@ -55,7 +59,7 @@
             return {
               pickerOptions1: {   //不能选择开始时间之前的日期
                 disabledDate(time) {
-                  return time.getTime() < Date.now(that.params.startTime);
+                  return time.getTime() < new Date(that.params.startTime);that.params.startTime
                 }
               },
               params: {           //开发条件
@@ -82,11 +86,15 @@
               obj.value = val.deviceKey;
               this.options.push(obj);
             })
+            this.options.unshift({
+              label: '全部',
+              value: ''
+            })
           },
           //获取设备数据
           getDeviceData() {
             if(!this.guid) return;
-            this.$http('/device/guid/list ', {
+            this.$http('/group/device', {
               guid: this.guid,
             }).then(res => {
               if (res.result == 1) {
@@ -105,11 +113,15 @@
             endTime: ''
           },
           this.options = [];
-          this.getDeviceData();
+         // this.getDeviceData();
+        },
+        deviceList(val,oldVal) {
+          this.options = [];
+          this.resolveData(val);
         }
       },
       created() {
-        this.getDeviceData();
+        this.resolveData(this.deviceList);
       }
     }
 </script>
@@ -133,16 +145,16 @@
       div.picker-data {
         width: 154px;
         position: relative;
-        &::after {
-          content: '';
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          width: 14px;
-          height: 16px;
-          background: url(/static/img/face_recognition_date_icon.png) no-repeat center;
-          background-size: 14px;
-        }
+        /*&::after {*/
+          /*content: '';*/
+          /*position: absolute;*/
+          /*top: 8px;*/
+          /*right: 8px;*/
+          /*width: 14px;*/
+          /*height: 16px;*/
+          /*background: url(/static/img/face_recognition_date_icon.png) no-repeat center;*/
+          /*background-size: 14px;*/
+        /*}*/
         .el-input__inner {
           padding-left: 8px;
         }
@@ -166,7 +178,7 @@
         color: #ffffff;
       }
     }
-    .el-input .el-input__inner {
+    .el-date-picker__editor-wrap .el-input .el-input__inner {
       color: #606266;
     }
 </style>

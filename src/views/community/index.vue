@@ -145,7 +145,7 @@
               </el-scrollbar>
             </div>
             <!-- lwh-识别人脸库 -->
-            <face-recognition-store :guid="currentCommunity.groupGuid"v-if="!currentCommunity.groupPid"></face-recognition-store>
+            <face-recognition-store :guid="currentCommunity.groupGuid" :deviceList="deviceList" v-if="!currentCommunity.groupPid"></face-recognition-store>
 
           </el-scrollbar>
         </div>
@@ -232,7 +232,6 @@
       // 获取设备列表
       getDeviceList (val) {
         let url = !val.groupPid ? '/group/device ' : '/device/guid/list';
-        console.log(val);
         if(val.groupGuid){
           this.$http(url, {guid: val.groupGuid}).then(res => {
             this.deviceList = res.data.content || res.data || [];
@@ -391,19 +390,23 @@
     }
     .el-scrollbar__wrap {
       overflow-x: hidden;
-      height: 100%;
+      overflow-y: auto;
+      /*height: 100%;*/
     }
     .el-scrollbar__view {
       height: 100%;
     }
     .lwh--table {
       .el-scrollbar {
-        height: 242px !important;
+        max-height: 242px !important;
       }
       .el-scrollbar__wrap {
-        height: 242px;
+        max-height: 242px;
       }
     }
+  }
+  .el-scrollbar__wrap {
+    overflow: auto;
   }
 </style>
 <style lang="scss" scoped>
@@ -417,10 +420,15 @@
     color: #F87F21;
   }
   .community--inner .community--main .lwh--table {
-    height: calc(345px);
+    max-height: calc(345px);
     margin-bottom: 20px;
   }
-  .community--main {
-    overflow-y: auto;
+  .community--inner{
+    .community--main {
+      overflow-y: auto;
+      .cmm-table {
+        /*height: 0;*/
+      }
+    }
   }
 </style>

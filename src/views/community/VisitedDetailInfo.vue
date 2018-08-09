@@ -9,12 +9,12 @@
       </div>
       <div class="tip--info">
         <p>Face ID：{{detailInfo.ufaceId}}</p>
-        <p>共计到访{{detailInfo.order}}次</p>
+        <p>共计到访{{pageParams.total}}次</p>
       </div>
-      <face-recognition @search-params="getFaceData" :guid="detailInfo.groupGuid"></face-recognition>
+      <face-recognition @search-params="getFaceData" :guid="detailInfo.groupGuid" :deviceList="deviceList"></face-recognition>
       <div  class="detail--info">
         <el-table
-          :data="deviceList"
+          :data="faceData"
           border
           style="width: 100%">
           <el-table-column
@@ -27,7 +27,7 @@
             label="抓拍图"
             width="120">
             <template slot-scope="scope">
-              <img :src="scope.row.imageUrl" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
+              <img :src="scope.row.imageUrl || ''" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
             </template>
           </el-table-column>
           <el-table-column
@@ -43,7 +43,6 @@
           <el-table-column
             prop="cameraName"
             label="抓拍设备"
-            width="140"
           >
           </el-table-column>
 
@@ -73,6 +72,10 @@
       },
       detailInfo: {
 
+      },
+      deviceList: {
+        type: Array,
+        default: []
       }
     },
     data() {
@@ -83,14 +86,17 @@
           total: 0,         //总条数
           currentPage: 1    //当前第几页
         },
-        deviceList: []   //数据
+        paramsInSear: {  //查询条件
+
+        },
+        faceData: []   //数据
       }
     },
     methods: {
       //当前显示第几页
       handleCurrentChange (val) {
         this.pageParams.currentPage = val;
-        this.getData();
+        this.getDataInParams(this.paramsInSear)
       },
       //关闭详情页
       close() {
@@ -98,24 +104,25 @@
         this.$emit('update:state',false)  //第一种方式优化
       },
       getFaceData(params) {
-        this.getDataInParams(params)
+        this.paramsInSear = {...params};
+        this.getDataInParams(this.paramsInSear)
       },
       //根据查询条件查询数据
       getDataInParams(params) {
         let paramsSearch = {
           groupGuid: this.detailInfo.groupGuid,
-          ufaceID: this.detailInfo.ufaceId,
-          deviceKey: params.deviceKey,
+          ufaceId: this.detailInfo.ufaceId,
+          deviceKey: params.deviceKey || '',
           cameraName: this.detailInfo.cameraName,
-          startTime: params.startTime,
-          endTime: params.endTime,
+          startTime: params.startTime || '',
+          endTime: params.endTime || '',
           index: this.pageParams.currentPage,
           length: this.pageParams.pageSize
         };
         this.$http('/group/faces/search',paramsSearch).then(res => {
           if(res.result == 1){
             //console.info(res,"detail");
-            this.deviceList = res.data.content;
+            this.faceData = res.data.content;
             this.pageParams.total = res.data.pagination.total;
           }
         }).catch(error => {
@@ -132,7 +139,7 @@
         };
         this.$http('/group/faces', params).then(res => {
           if (res.result == 1) {
-            this.deviceList = res.data.content;
+            this.faceData = res.data.content;
             //console.info(this.deviceList,"this.deviceList");
             this.pageParams.total = res.data.pagination.total;
           }
@@ -144,6 +151,9 @@
     watch: {
       detailInfo(val,oldVal) {
         this.getData();
+      },
+      deviceList(val,oldVal) {
+//        console.info(val,'详情页')
       }
     }
   }
@@ -182,6 +192,7 @@
            float: right;
            margin-top: 14px;
            margin-right: 22px;
+          cursor: pointer;
         }
       }
       .tip--info {
