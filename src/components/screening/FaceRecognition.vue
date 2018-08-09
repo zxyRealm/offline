@@ -5,9 +5,9 @@
           <el-select v-model="params.deviceKey" placeholder="请选择" class="el--select__default">
             <el-option
               v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              :key="item.deviceKey"
+              :label="item.deviceName"
+              :value="item.deviceKey">
             </el-option>
           </el-select>
         </div>
@@ -41,17 +41,10 @@
 </template>
 <script>
   import { parseTime } from '@/utils/index'
+  import {eventObject} from '@/utils/event'
     export default {
         name: 'FaceRecognition',
         props: {
-          guid: {        //社群guid
-            type: String,
-            default: ''
-          },
-          deviceList: {
-            type: Array,
-            default: []
-          }
         },
         components: {},
         data() {
@@ -75,53 +68,31 @@
           search() {
             this.$emit("search-params", this.params);
           },
-          //设备数据转化
           resolveData(data) {
-            if(!data) {
-              return;
-            }
-            data.forEach(val => {
-              const obj = {};
-              obj.label = val.deviceName;
-              obj.value = val.deviceKey;
-              this.options.push(obj);
-            })
+            this.options = [...data];
             this.options.unshift({
-              label: '全部',
-              value: ''
-            })
-          },
-          //获取设备数据
-          getDeviceData() {
-            if(!this.guid) return;
-            this.$http('/group/device', {
-              guid: this.guid,
-            }).then(res => {
-              if (res.result == 1) {
-                this.resolveData(res.data.content)
-              }
-            }).catch(error => {
-              console.info(error);
+              deviceName: '全部',
+              deviceKey: ''
             });
-          },
+            this.params = {           //重置开发条件
+              deviceKey: '',
+              startTime: '',
+              endTime: ''
+            };
+          }
         },
       watch: {
-        guid(val,oldVal){
-          this.params = {           //重置开发条件
-            deviceKey: '',
-            startTime: '',
-            endTime: ''
-          },
-          this.options = [];
-         // this.getDeviceData();
-        },
-        deviceList(val,oldVal) {
-          this.options = [];
-          this.resolveData(val);
-        }
       },
       created() {
-        this.resolveData(this.deviceList);
+//        eventObject().$on('FaceRecognition',(data) => {
+//          console.info(data,"eee")
+//          this.resolveData(data);
+//        })
+      },
+      mounted() {
+        eventObject().$on('FaceRecognition',(data) => {
+          this.resolveData(data);
+        })
       }
     }
 </script>
@@ -176,6 +147,9 @@
       }
       .el-input .el-input__inner {
         color: #ffffff;
+      }
+      .el-input__suffix {
+        right: 0;
       }
     }
     .el-date-picker__editor-wrap .el-input .el-input__inner {

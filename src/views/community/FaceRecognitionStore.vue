@@ -1,7 +1,7 @@
 <template>
   <div class="cmm-table__face dashed-border">
     <h2 class="cmm-sub-title">识别人脸库</h2>
-    <face-recognition @search-params="getFaceData" :guid="guid" :deviceList="deviceList"></face-recognition>
+    <face-recognition @search-params="getFaceData"  :deviceList="deviceList"></face-recognition>
     <el-table
       :data="faceData"
       border
@@ -56,6 +56,7 @@
 <script>
     import FaceRecognition from '@/components/screening/FaceRecognition'
     import VisitedDetailInfo from './VisitedDetailInfo'
+    import { eventObject } from '@/utils/event'
     export default {
       name: 'FaceRecognitionStore',
       components: {
@@ -129,6 +130,8 @@
         getDetailInfo(info) {
           this.detailInfo = info;
           this.visitedState = true
+          //触发传递设备列表到人脸识别库搜索组件上
+          eventObject().$emit('FaceRecognition',this.deviceList);
         },
         // 获取数据
         getData() {

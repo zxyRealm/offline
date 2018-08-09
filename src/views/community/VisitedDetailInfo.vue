@@ -2,7 +2,7 @@
 
   <div class="visited--detail__info" v-show="state">
     <transition name="fade-visited">
-    <div class="detail--right__default clearfix" v-if="state">
+    <div class="detail--right__default clearfix" v-show="state">
       <div class="detail--header">
         <span class="header--title">到访记录详情</span>
         <img class="detail--close clearfix" src="/static/img/face_recoginiton_close_icon.png" @click="close"></img>
@@ -11,7 +11,7 @@
         <p>Face ID：{{detailInfo.ufaceId}}</p>
         <p>共计到访{{pageParams.total}}次</p>
       </div>
-      <face-recognition @search-params="getFaceData" :guid="detailInfo.groupGuid" :deviceList="deviceList"></face-recognition>
+      <face-recognition @search-params="getFaceData"></face-recognition>
       <div  class="detail--info">
         <el-table
           :data="faceData"

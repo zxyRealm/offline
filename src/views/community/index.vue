@@ -97,11 +97,11 @@
                 </div>
               </div>
             </div>
-              <div class="cmm-table dashed-border " :class="(!currentCommunity.groupPid)? 'lwh--table': ''">
+              <div class="dashed-border " :class="(!currentCommunity.groupPid)? 'lwh--table': 'cmm-table'">
                 <h2 class="cmm-sub-title">设备列表</h2>
                 <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
                 </ob-list-empty>
-                <el-scrollbar ref="faceScrollItemTable" v-else>
+                <el-scrollbar ref="faceScrollItemTable" :class="deviceList.length <= 5 ? 'lwh-scroll': ''" v-else>
                 <el-table
                   border
                   :data="deviceList"
@@ -160,6 +160,7 @@
   import FaceRecognition from '@/components/screening/FaceRecognition';
   import VisitedDetailInfo from './VisitedDetailInfo.vue';
   import FaceRecognitionStore from './FaceRecognitionStore';
+  import { eventObject } from '@/utils/event'
 
   export default {
     components: {
@@ -236,6 +237,8 @@
           this.$http(url, {guid: val.groupGuid}).then(res => {
             this.deviceList = res.data.content || res.data || [];
             this.$store.state.loading = false;
+            //触发传递设备列表到人脸识别库搜索组件上
+            eventObject().$emit('FaceRecognition',this.deviceList);
           })
         }
 
@@ -397,11 +400,19 @@
       height: 100%;
     }
     .lwh--table {
+      .lwh-scroll {
+        .el-scrollbar__wrap {
+          margin-bottom: 0!important;
+          margin-right: 0!important;
+        }
+      }
       .el-scrollbar {
-        max-height: 242px !important;
+        max-height: 260px !important;
+        padding-bottom: 17px;
+        box-sizing: border-box;
       }
       .el-scrollbar__wrap {
-        max-height: 242px;
+        max-height: 243px;
       }
     }
   }
@@ -422,6 +433,7 @@
   .community--inner .community--main .lwh--table {
     max-height: calc(345px);
     margin-bottom: 20px;
+    padding: 20px;
   }
   .community--inner{
     .community--main {
