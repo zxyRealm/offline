@@ -2,7 +2,7 @@
     <div class="face--recognition__wrap">
         <div class="label_div">
           <span>抓拍设备：</span>
-          <el-select v-model="params.deviceKey" placeholder="请选择" class="el--select__default">
+          <el-select v-model="params.deviceKey" clearable placeholder="请选择" class="el--select__default">
             <el-option
               v-for="item in options"
               :key="item.deviceKey"
@@ -14,23 +14,12 @@
         <div class="label_div">
           <span>时间段：</span>
           <el-date-picker
-            v-model="params.startTime"
-            type="datetime"
-            placeholder="开始时间"
-            :clearable = "true"
-            prefix-icon = "''"
+            v-model="arrayTime"
+            type="datetimerange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
             value-format="yyyy-MM-dd hh:mm:ss"
-            class="picker-data">
-          </el-date-picker>
-          <span>-</span>
-          <el-date-picker
-            v-model="params.endTime"
-            type="datetime"
-            placeholder="结束时间"
-            :clearable = "true"
-            prefix-icon = "''"
-            value-format="yyyy-MM-dd hh:mm:ss"
-            :picker-options="pickerOptions1"
             class="picker-data">
           </el-date-picker>
         </div>
@@ -50,6 +39,7 @@
         data() {
           let that = this;
             return {
+              arrayTime: [],
               pickerOptions1: {   //不能选择开始时间之前的日期
                 disabledDate(time) {
                   return time.getTime() < new Date(that.params.startTime);that.params.startTime
@@ -66,14 +56,15 @@
         methods: {
           //对外开放的条件
           search() {
+           if(this.arrayTime.length) {
+             this.params.startTime = this.arrayTime[0];
+             this.params.endTime = this.arrayTime[1];
+           }
+           console.info(this.params,"ffff")
             this.$emit("search-params", this.params);
           },
           resolveData(data) {
             this.options = [...data];
-            this.options.unshift({
-              deviceName: '全部',
-              deviceKey: ''
-            });
             this.params = {           //重置开发条件
               deviceKey: '',
               startTime: '',
@@ -114,8 +105,13 @@
         cursor: pointer;
       }
       div.picker-data {
-        width: 154px;
+        width: 340px;
         position: relative;
+        border: none;
+        background: url(/static/img/input_border_bg.png) no-repeat center;
+        background-size: 100% 100%;
+        background-color: transparent;
+        color: #fff;
         /*&::after {*/
           /*content: '';*/
           /*position: absolute;*/
@@ -126,6 +122,12 @@
           /*background: url(/static/img/face_recognition_date_icon.png) no-repeat center;*/
           /*background-size: 14px;*/
         /*}*/
+        .el-range-input {
+          background: transparent;
+        }
+        el-range-separator {
+          color: #ffffff!important;
+        }
         .el-input__inner {
           padding-left: 8px;
         }
@@ -141,18 +143,26 @@
         height: 32px;
         line-height: 32px;
       }
+      .el-select .el-input .el-select__caret.is-show-close {
+        &:hover {
+          color: #ffffff;
+        }
+        &::before {
+          content: '\E607'!important;
+        }
+      }
       .el-button.medium {
         width: 60px;
         height: 30px;
       }
-      .el-input .el-input__inner {
+      .el-date-editor .el-range-input {
         color: #ffffff;
       }
       .el-input__suffix {
-        right: 0;
+        //right: 0;
       }
     }
-    .el-date-picker__editor-wrap .el-input .el-input__inner {
+    .el-picker-panel__body-wrapper .el-input .el-input__inner {
       color: #606266;
     }
 </style>

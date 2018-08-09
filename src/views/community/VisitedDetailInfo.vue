@@ -229,7 +229,7 @@
       }
     }
     .face--recognition__wrap div.label_div {
-      margin-right: 20px;
+      //margin-right: 20px;
     }
 
   }
