@@ -97,6 +97,9 @@
       div.label_div {
           display: inline-block!important;
           margin-right: 8px;
+        .el-date-editor .el-range-input {
+          width: 140px;
+        }
       }
       span {
         font-size: 12px;
