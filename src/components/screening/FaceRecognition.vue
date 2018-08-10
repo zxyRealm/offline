@@ -166,5 +166,7 @@
     .el-date-editor .el-range-separator {
       color: #ffffff!important;
     }
-
+    div.el-popper {
+      margin-left: -25px;
+    }
 </style>
