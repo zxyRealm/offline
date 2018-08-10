@@ -109,6 +109,7 @@
         }
       },
       getFaceDataDetail(params) {
+        this.pageParams.currentPage = 1;
         this.paramsInSear = {...params};
         this.getDataInParams(this.paramsInSear)
       },
@@ -136,6 +137,8 @@
       },
       //获取数据
       getData() {
+        //默认进来为1
+        this.pageParams.currentPage = 1;
         let params = {
           groupGuid: this.detailInfo.groupGuid,
           ufaceId: this.detailInfo.ufaceId,
@@ -154,8 +157,17 @@
       }
     },
     watch: {
-      detailInfo(val,oldVal) {
-        this.getData();
+      detailInfo: {
+        handler: function (val,oldVal){
+          //this.getData();
+        },
+        deep: true
+      },
+      //监听状态改变刷新数据
+      state(val,oldVal) {
+        if(val) {
+          this.getData();
+        }
       },
       deviceList(val,oldVal) {
 //        console.info(val,'详情页')

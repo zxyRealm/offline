@@ -104,6 +104,7 @@
         //触发查询条件
         getFaceData(params) {
           this.paramsInSear = {...params};
+          this.pageParams.currentPage = 1;
           this.getDataInParams(this.paramsInSear);
         },
         //根据查询条件查询数据
@@ -135,6 +136,8 @@
         },
         // 获取数据
         getData() {
+          //初次进来默为1
+          this.pageParams.currentPage = 1;
           let params = {
             groupGuid: this.guid,
             index: this.pageParams.currentPage,
