@@ -389,7 +389,7 @@ const router = new Router({
   // console.log(query);
     let str = '';
     for (let item in query) {
-      str += `${item}=${encodeURIComponent(query[item])}&`
+      str += `${item}=${(query[item])}&`
     }
     let fullStr = str.replace(/&$/, '');
     return fullStr ? '?' + fullStr : ''
