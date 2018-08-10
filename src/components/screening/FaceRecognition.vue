@@ -24,7 +24,7 @@
           </el-date-picker>
         </div>
       <div class="label_div margin--default">
-        <el-button class="affirm medium" @click="search">搜索</el-button>
+        <el-button class="affirm medium" @click.stop.prevent="search">搜索</el-button>
       </div>
     </div>
 </template>
@@ -60,7 +60,6 @@
              this.params.startTime = this.arrayTime[0];
              this.params.endTime = this.arrayTime[1];
            }
-           console.info(this.params,"ffff")
             this.$emit("search-params", this.params);
           },
           resolveData(data) {
@@ -70,6 +69,7 @@
               startTime: '',
               endTime: ''
             };
+            this.arrayTime = [];
           }
         },
       watch: {
@@ -125,9 +125,7 @@
         .el-range-input {
           background: transparent;
         }
-        el-range-separator {
-          color: #ffffff!important;
-        }
+
         .el-input__inner {
           padding-left: 8px;
         }
@@ -165,4 +163,8 @@
     .el-picker-panel__body-wrapper .el-input .el-input__inner {
       color: #606266;
     }
+    .el-date-editor .el-range-separator {
+      color: #ffffff!important;
+    }
+
 </style>
