@@ -96,7 +96,7 @@
       white-space: nowrap;
       div.label_div {
           display: inline-block!important;
-          margin-right: 13px;
+          margin-right: 8px;
       }
       span {
         font-size: 12px;
@@ -105,7 +105,7 @@
         cursor: pointer;
       }
       div.picker-data {
-        width: 340px;
+        width: 350px;
         position: relative;
         border: none;
         background: url(/static/img/input_border_bg.png) no-repeat center;

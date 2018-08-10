@@ -1,7 +1,7 @@
 <template>
   <div class="cmm-table__face dashed-border">
     <h2 class="cmm-sub-title">识别人脸库</h2>
-    <face-recognition @search-params="getFaceData"  :deviceList="deviceList"></face-recognition>
+    <face-recognition @search-params="getFaceData" ></face-recognition>
     <el-table
       :data="faceData"
       border

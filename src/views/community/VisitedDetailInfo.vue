@@ -1,6 +1,6 @@
 <template>
 
-  <div class="visited--detail__info" v-show="state">
+  <div class="visited--detail__info" v-show="state" @click="closeShade">e
     <transition name="fade-visited">
     <div class="detail--right__default clearfix" v-show="state">
       <div class="detail--header">
@@ -11,7 +11,7 @@
         <p>Face ID：{{detailInfo.ufaceId}}</p>
         <p>共计到访{{pageParams.total}}次</p>
       </div>
-      <face-recognition @search-params="getFaceData"></face-recognition>
+      <face-recognition @search-params="getFaceDataDetail"></face-recognition>
       <div  class="detail--info">
         <el-table
           :data="faceData"
@@ -99,11 +99,16 @@
         this.getDataInParams(this.paramsInSear)
       },
       //关闭详情页
-      close() {
+      close(event) {
         //this.$emit("changeState",false)
         this.$emit('update:state',false)  //第一种方式优化
       },
-      getFaceData(params) {
+      closeShade(event) {
+        if(event.target.className.indexOf("visited--detail__info") >-1){
+          this.$emit('update:state',false)  //第一种方式优化
+        }
+      },
+      getFaceDataDetail(params) {
         this.paramsInSear = {...params};
         this.getDataInParams(this.paramsInSear)
       },
@@ -229,7 +234,7 @@
       }
     }
     .face--recognition__wrap div.label_div {
-      //margin-right: 20px;
+      margin-right: 6px;
     }
 
   }
