@@ -1,9 +1,9 @@
 <template>
   <div class="cmm-table__face dashed-border">
     <h2 class="cmm-sub-title">识别人脸库</h2>
-    <face-recognition @search-params="getFaceData" :guid="guid"></face-recognition>
+    <face-recognition @search-params="getFaceData"  :deviceList="deviceList"></face-recognition>
     <el-table
-      :data="deviceList"
+      :data="faceData"
       border
       style="width: 100%">
       <el-table-column
@@ -12,7 +12,7 @@
         class="table--td"
       >
         <template slot-scope="scope">
-          <img :src="scope.row.imageUrl" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
+          <img :src="scope.row.imageUrl || ''" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
         </template>
       </el-table-column>
       <el-table-column
@@ -28,7 +28,6 @@
       <el-table-column
         prop="deviceKey"
         label="抓拍设备"
-        width="150"
       >
       </el-table-column>
       <el-table-column
@@ -51,12 +50,13 @@
       </el-pagination>
     </div>
     <!-- lwh-到访记录详情 -->
-    <visited-detail-info :state.sync="visitedState" :detailInfo="detailInfo"></visited-detail-info>
+    <visited-detail-info :state.sync="visitedState" :detailInfo="detailInfo" :deviceList="deviceList"></visited-detail-info>
   </div>
 </template>
 <script>
     import FaceRecognition from '@/components/screening/FaceRecognition'
     import VisitedDetailInfo from './VisitedDetailInfo'
+    import { eventObject } from '@/utils/event'
     export default {
       name: 'FaceRecognitionStore',
       components: {
@@ -68,15 +68,18 @@
           type: String,
           default: ''
         },
-        cameraName: {
-          type: String,
-          default: ''
+        deviceList: {
+          type: Array,
+          default: []
         }
       },
       data() {
         return {
+          paramsInSear: {  //查询条件
+
+          },
           detailInfo: {},    //详情页
-          deviceList: [],
+          faceData: [],
           pageParams: {
             pageSize: 10,      //每页显示条数 = 默认
             total: 0,         //总条数
@@ -90,32 +93,33 @@
         //每页显示条数
         handleSizeChange(val) {
           this.pageParams.pageSize = val;
-          this.getData();
+          this.pageParams.currentPage = 1;
+          this.getDataInParams(this.paramsInSear);
         },
         //当前显示第几页
         handleCurrentChange(val) {
           this.pageParams.currentPage = val;
-          this.pageParams.currentPage = 1;
-          this.getData();
+          this.getDataInParams(this.paramsInSear);
         },
         //触发查询条件
         getFaceData(params) {
-          this.getDataInParams(params);
+          this.paramsInSear = {...params};
+          this.getDataInParams(this.paramsInSear);
         },
         //根据查询条件查询数据
         getDataInParams(params) {
          let paramsSearch = {
             groupGuid: this.guid,
-            deviceKey: params.deviceKey,
+            deviceKey: params.deviceKey || '',
             cameraName: '',
-            startTime: params.startTime,
-            endTime: params.endTime,
+            startTime: params.startTime || '',
+            endTime: params.endTime || '',
             index: this.pageParams.currentPage,
             length: this.pageParams.pageSize
           };
           this.$http('/group/faceSet/search',paramsSearch).then(res => {
             if(res.result == 1){
-              this.deviceList = res.data.content;
+              this.faceData = res.data.content;
               this.pageParams.total = res.data.pagination.total;
             }
           }).catch(error => {
@@ -126,6 +130,8 @@
         getDetailInfo(info) {
           this.detailInfo = info;
           this.visitedState = true
+          //触发传递设备列表到人脸识别库搜索组件上
+          eventObject().$emit('FaceRecognition',this.deviceList);
         },
         // 获取数据
         getData() {
@@ -136,7 +142,7 @@
           };
           this.$http('/group/faceSet', params).then(res => {
             if (res.result == 1) {
-              this.deviceList = res.data.content;
+              this.faceData = res.data.content;
               this.pageParams.total = res.data.pagination.total;
             }
           }).catch(error => {
@@ -152,11 +158,15 @@
           this.getData();
         },
         //监听图片数据
-        deviceList: {
+        faceData: {
           handler: function (val, oldVal) {
             this.layout = val.length == 0 ? 'total, sizes' : 'total, sizes, prev, pager, next';
           },
           deep: true
+        },
+        //监听查询条件的改变
+        paramsInSear(val,oldVal) {
+          //console.info(val,"");
         }
       }
     }

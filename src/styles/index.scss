@@ -430,7 +430,13 @@ button, input {
     }
   }
 }
-
+.el-picker-panel{
+    .el-button {
+      &[disabled] {
+        background: #ffffff !important;
+      }
+    }
+}
 //table 中表单样式
 
 .table-form {

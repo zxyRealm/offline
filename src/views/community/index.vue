@@ -97,11 +97,11 @@
                 </div>
               </div>
             </div>
-              <div class="cmm-table dashed-border " :class="(!currentCommunity.groupPid)? 'lwh--table': ''">
+              <div class="dashed-border " :class="(!currentCommunity.groupPid)? 'lwh--table': 'cmm-table'">
                 <h2 class="cmm-sub-title">设备列表</h2>
                 <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
                 </ob-list-empty>
-                <el-scrollbar ref="faceScrollItemTable" v-else>
+                <el-scrollbar ref="faceScrollItemTable" :class="deviceList.length <= 5 ? 'lwh-scroll': ''" v-else>
                 <el-table
                   border
                   :data="deviceList"
@@ -145,7 +145,7 @@
               </el-scrollbar>
             </div>
             <!-- lwh-识别人脸库 -->
-            <face-recognition-store :guid="currentCommunity.groupGuid"v-if="!currentCommunity.groupPid"></face-recognition-store>
+            <face-recognition-store :guid="currentCommunity.groupGuid" :deviceList="deviceList" v-if="!currentCommunity.groupPid"></face-recognition-store>
 
           </el-scrollbar>
         </div>
@@ -160,6 +160,7 @@
   import FaceRecognition from '@/components/screening/FaceRecognition';
   import VisitedDetailInfo from './VisitedDetailInfo.vue';
   import FaceRecognitionStore from './FaceRecognitionStore';
+  import { eventObject } from '@/utils/event'
 
   export default {
     components: {
@@ -232,11 +233,12 @@
       // 获取设备列表
       getDeviceList (val) {
         let url = !val.groupPid ? '/group/device ' : '/device/guid/list';
-        console.log(val);
         if(val.groupGuid){
           this.$http(url, {guid: val.groupGuid}).then(res => {
             this.deviceList = res.data.content || res.data || [];
             this.$store.state.loading = false;
+            //触发传递设备列表到人脸识别库搜索组件上
+            eventObject().$emit('FaceRecognition',this.deviceList);
           })
         }
 
@@ -391,19 +393,31 @@
     }
     .el-scrollbar__wrap {
       overflow-x: hidden;
-      height: 100%;
+      overflow-y: auto;
+      /*height: 100%;*/
     }
     .el-scrollbar__view {
       height: 100%;
     }
     .lwh--table {
+      .lwh-scroll {
+        .el-scrollbar__wrap {
+          margin-bottom: 0!important;
+          margin-right: 0!important;
+        }
+      }
       .el-scrollbar {
-        height: 242px !important;
+        max-height: 260px !important;
+        padding-bottom: 17px;
+        box-sizing: border-box;
       }
       .el-scrollbar__wrap {
-        height: 242px;
+        max-height: 243px;
       }
     }
+  }
+  .el-scrollbar__wrap {
+    overflow: auto;
   }
 </style>
 <style lang="scss" scoped>
@@ -417,10 +431,16 @@
     color: #F87F21;
   }
   .community--inner .community--main .lwh--table {
-    height: calc(345px);
+    max-height: calc(345px);
     margin-bottom: 20px;
+    padding: 20px;
   }
-  .community--main {
-    overflow-y: auto;
+  .community--inner{
+    .community--main {
+      overflow-y: auto;
+      .cmm-table {
+        /*height: 0;*/
+      }
+    }
   }
 </style>
