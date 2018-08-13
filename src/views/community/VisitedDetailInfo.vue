@@ -167,6 +167,8 @@
       state(val,oldVal) {
         if(val) {
           this.getDataInParams();
+        }else {
+          this.pageParams.currentPage = 1;
         }
       },
       deviceList(val,oldVal) {
