@@ -17,38 +17,37 @@
 </template>
 
 <script>
-  import img_404 from '@/assets/404_images/404.png'
-  import img_404_cloud from '@/assets/404_images/404_cloud.png'
-
-  export default {
-    name: 'page404',
-    data() {
-      return {
-        img_404,
-        img_404_cloud,
-        delay: 5,
-        timer: null
+import img_404 from '@/assets/404_images/404.png'
+import img_404_cloud from '@/assets/404_images/404_cloud.png'
+export default {
+  name: 'page404',
+  data () {
+    return {
+      img_404,
+      img_404_cloud,
+      delay: 5,
+      timer: null
+    }
+  },
+  created () {
+    this.delay = 5
+    this.timer = setInterval(() => {
+      this.delay--
+      if (this.delay <= 1) {
+        clearInterval(this.timer)
+        this.timer = null
+        this.$router.push('/')
       }
-    },
-    created() {
-      this.delay = 5;
-      this.timer = setInterval(() => {
-        this.delay--;
-        if(this.delay<=1){
-          clearInterval(this.timer);
-          this.timer = null;
-          this.$router.push("/");
-        }
-      }, 1000)
-    },
-    beforeDestroy() {
-      if (this.timer) {
-        clearInterval(this.timer);
-        this.timer = null;
-        this.delay = 5
-      }
+    }, 1000)
+  },
+  beforeDestroy () {
+    if (this.timer) {
+      clearInterval(this.timer)
+      this.timer = null
+      this.delay = 5
     }
   }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -56,6 +55,7 @@
     background: rgba(0, 0, 0, .9);
     height: 100%;
   }
+
   .wscn-http404 {
     position: relative;
     min-width: 1200px;

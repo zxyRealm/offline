@@ -44,18 +44,17 @@
 </template>
 
 <script>
+export default {
+  components: {},
+  created () {
 
-  export default {
-    components: {},
-    created() {
+  },
+  mounted () {
 
-    },
-    mounted() {
-
-    },
-    computed: {},
-    methods: {}
-  }
+  },
+  computed: {},
+  methods: {}
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -95,7 +94,7 @@
       top: 26.9%;
       left: 29.2%;
       //background: rgba(0, 0, 0, 0.15);
-      .content-item{
+      .content-item {
         line-height: 1.5;
         text-align: center;
       }
@@ -128,7 +127,7 @@
         height: 100px;
         margin-right: 10px;
         background-color: rgba(216, 216, 216, 0.05);
-        &:last-child{
+        &:last-child {
           margin-right: 0;
         }
         a:hover {

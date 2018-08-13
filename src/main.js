@@ -2,7 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 // App 在UI库css 后引用可以避免生产环境与开发环境中样式不一致的问题
-//引用顺序决定打包后css 顺序
+// 引用顺序决定打包后css 顺序
 import 'element-ui/lib/theme-chalk/index.css'
 import App from './App'
 import router from './router'
@@ -19,32 +19,33 @@ import obGroupNav from '@/components/group-nav'
 import obListEmpty from '@/components/list-empty'
 import * as filters from './filters'
 import echarts from 'echarts'
-Vue.prototype.$echarts = echarts;
 
-Vue.use(require("./utils/global"));
-Vue.use(require('vue-wechat-title'));
-Vue.use(Element,{
-  size:'small'
-});
+Vue.prototype.$echarts = echarts
 
-Vue.component(icons.name,icons);
-Vue.component(subTab.name,subTab);
-Vue.component(uuForm.name,uuForm);
-Vue.component(obList.name,obList);
-Vue.component(obListItem.name,obListItem);
-Vue.component(obGroupNav.name,obGroupNav);
-Vue.component(obDialogForm.name,obDialogForm);
-Vue.component(obListEmpty.name,obListEmpty);
+Vue.use(require('./utils/global'))
+Vue.use(require('vue-wechat-title'))
+Vue.use(Element, {
+  size: 'small'
+})
+
+Vue.component(icons.name, icons)
+Vue.component(subTab.name, subTab)
+Vue.component(uuForm.name, uuForm)
+Vue.component(obList.name, obList)
+Vue.component(obListItem.name, obListItem)
+Vue.component(obGroupNav.name, obGroupNav)
+Vue.component(obDialogForm.name, obDialogForm)
+Vue.component(obListEmpty.name, obListEmpty)
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
-});
-Vue.config.productionTip = false;
+})
+Vue.config.productionTip = false
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
   store,
-  components: { App },
+  components: {App},
   template: '<App/>'
-});
+})

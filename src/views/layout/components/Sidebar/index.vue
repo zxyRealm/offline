@@ -15,7 +15,7 @@
         <span slot="title">社群管理</span>
       </el-menu-item>
       <el-menu-item index="/equipment">
-          <i class="ob-icon__equipment"></i>
+        <i class="ob-icon__equipment"></i>
         <span slot="title">设备管理</span>
       </el-menu-item>
       <el-menu-item index="/data">
@@ -31,63 +31,64 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-const { body } = document;
-const WIDTH = 1024;
-const RATIO = 3;
+import {mapGetters} from 'vuex'
+
+const {body} = document
+const WIDTH = 1024
+const RATIO = 3
 export default {
-  mounted(){
+  mounted () {
     // window.addEventListener('resize', ()=> {
     //   this.isMobile()?this.$store.dispatch("DISPATCH_SIDEBAR",true):this.$store.dispatch("DISPATCH_SIDEBAR",false)
     // })
   },
-  methods:{
-      isMobile(){
-        let rect = body.getBoundingClientRect();
-        return rect.width - RATIO < WIDTH
-      }
+  methods: {
+    isMobile () {
+      let rect = body.getBoundingClientRect()
+      return rect.width - RATIO < WIDTH
+    }
   },
   computed: {
     ...mapGetters([
-      "sidebar",
-      "permission_routers"
+      'sidebar',
+      'permission_routers'
     ]),
-    currRouter:function () {
-      let path = this.$route.path;
-      return path.substring(0,path.indexOf('/',1))
+    currRouter: function () {
+      let path = this.$route.path
+      return path.substring(0, path.indexOf('/', 1))
     },
-    isCollapse() {
+    isCollapse () {
       return !this.sidebar.opened
     }
   }
 }
 </script>
 <style lang="scss">
-  .el-menu-item{
-    [class^=ob-icon]{
+  .el-menu-item {
+    [class^=ob-icon] {
       display: inline-block;
       width: 22px;
       height: 22px;
       background-position: center;
       background-repeat: no-repeat;
       background-size: cover;
-      &+span{
+      & + span {
         margin-left: 16px;
       }
-      &.ob-icon__data{
+      &.ob-icon__data {
         background-image: url("../../image/nav_data_icon.png");
       }
-      &.ob-icon__equipment{
+      &.ob-icon__equipment {
         background-image: url("../../image/nav_equipment_icon.png");
       }
-      &.ob-icon__community{
+      &.ob-icon__community {
         background-image: url("../../image/nav_community_icon.png");
       }
-      &.ob-icon__developer{
+      &.ob-icon__developer {
         background-image: url("../../image/nav_developer_icon.png");
       }
     }
-    &.is-active{
+    &.is-active {
       color: #fff;
       background: url("../../image/ob-icon-nav__active.png") no-repeat center center;
       background-size: cover;

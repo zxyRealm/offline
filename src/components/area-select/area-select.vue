@@ -49,143 +49,142 @@
 </template>
 
 <script>
-  let OK_CODE = 1;
-  import {makePy} from '../../utils/initial'
+import {makePy} from '@/utils/initial'
+let OK_CODE = 1
 
-  export default {
-    name: "area-select",
-    props: {
-      readonly: {
-        type: Boolean,
-        default: false
-      },
-      value: {
-        type: [Array, String],
-        default: ''
-      },
-      placeholder: {
-        type: String,
-        default: '请选取地址'
-      }
+export default {
+  name: 'area-select',
+  props: {
+    readonly: {
+      type: Boolean,
+      default: false
     },
-    data() {
-      return {
-        visible: false,
-        currentValue: [],
-        address: '',
-        search: '',
-        currentType: 0,  //分为三个类型 0:province、1:city、2:area
-        currentAddress: '',
-        addressOption: [],
-        originAddress: []
-      }
+    value: {
+      type: [Array, String],
+      default: ''
     },
-    methods: {
-      getAddressList() {
-        this.$http("/area/list", {level: 1}, false).then((res) => {
-          if (res.result === OK_CODE) {
-            this.$set(this.originAddress, 0, res.data[1].map(item => {
-              this.$set(item, 'initial', makePy(item.name));
-              return item
-            }));
-            this.$set(this.originAddress, 1, res.data[2].map(item => {
-              this.$set(item, 'initial', makePy(item.name));
-              return item
-            }));
-            this.$set(this.originAddress, 2, res.data[3].map(item => {
-              this.$set(item, 'initial', makePy(item.name));
-              return item
-            }));
-            if (this.value) {
-              let idArr = this.value.split(',').map(Number);
-              let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()];
-              this.originAddress[0].map(item => pMap.set(item.id, item));
-              this.originAddress[1].map(item => cMap.set(item.id, item));
-              this.originAddress[2].map(item => aMap.set(item.id, item));
-              this.currentValue = [
-                pMap.get(idArr[0]), cMap.get(idArr[1]), aMap.get(idArr[2])
-              ];
-              this.currentAddress = aMap.get(idArr[2]);
-              this.currentType = 2;
-            }
-            this.addressOption = this.originAddress[0]
+    placeholder: {
+      type: String,
+      default: '请选取地址'
+    }
+  },
+  data () {
+    return {
+      visible: false,
+      currentValue: [],
+      address: '',
+      search: '',
+      currentType: 0, // 分为三个类型 0:province、1:city、2:area
+      currentAddress: '',
+      addressOption: [],
+      originAddress: []
+    }
+  },
+  methods: {
+    getAddressList () {
+      this.$http('/area/list', {level: 1}, false).then((res) => {
+        if (res.result === OK_CODE) {
+          this.$set(this.originAddress, 0, res.data[1].map(item => {
+            this.$set(item, 'initial', makePy(item.name))
+            return item
+          }))
+          this.$set(this.originAddress, 1, res.data[2].map(item => {
+            this.$set(item, 'initial', makePy(item.name))
+            return item
+          }))
+          this.$set(this.originAddress, 2, res.data[3].map(item => {
+            this.$set(item, 'initial', makePy(item.name))
+            return item
+          }))
+          if (this.value) {
+            let idArr = this.value.split(',').map(Number)
+            let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()]
+            this.originAddress[0].map(item => pMap.set(item.id, item))
+            this.originAddress[1].map(item => cMap.set(item.id, item))
+            this.originAddress[2].map(item => aMap.set(item.id, item))
+            this.currentValue = [
+              pMap.get(idArr[0]), cMap.get(idArr[1]), aMap.get(idArr[2])
+            ]
+            this.currentAddress = aMap.get(idArr[2])
+            this.currentType = 2
           }
-        });
-      },
-      filterAddress(type) {
-        if (type) {
-          return this.originAddress[type].filter(item => this.currentValue[type - 1].id === item.pid)
-        } else {
-          return this.originAddress[type]
+          this.addressOption = this.originAddress[0]
         }
-      }
+      })
     },
-    mounted() {
-      this.getAddressList();
-    },
-    watch: {
-      currentType: function (val) {
-        this.addressOption = this.filterAddress(val);
-      },
-      address: function (val) {
-        if (!val) {
-          this.currentType = 0;
-          this.currentValue = [];
-        }
-      },
-      currentAddress: function (val, old) {
-        this.$set(this.currentValue, this.currentType, val);
-        if (this.currentType < 2) {
-          this.currentType++
-        } else if (val !== old) {
-          this.visible = false
-        }
-      },
-      currentValue: {
-        handler: function (val) {
-          let [textStr, idStr] = ['', ''];
-          val.map(item => {
-            idStr += idStr ? (',' + item.id) : item.id;
-            textStr += textStr ? ('-' + item.name) : item.name;
-          });
-          this.$emit("input", idStr);
-          this.address = textStr;
-        },
-        deep: true
-      },
-      search(val) {
-        val = val.trim();
-        if (val) {
-          let isChar = /^[a-z]+$/i.test(val);
-          this.addressOption.map(item => {
-            if (item.name.indexOf(val) > -1 || item.initial[0].indexOf(val.toUpperCase()) > -1) {
-              this.$set(item, 'active', 1)
-            } else {
-              this.$set(item, 'active', 0)
-            }
-          });
-        } else {
-          this.addressOption.map(item => {
-            this.$set(item, 'active', 0)
-          });
-        }
-      },
-      visible: function (val) {
-        if (!val) {
-          if (!this.currentValue[2]) {
-            this.address = '';
-            this.search = '';
-            this.$emit("input", '')
-          }
-        }
-      }
-    },
-    computed: {
-      addressText() {
-        return this.address.replace(/\-/g, '')
+    filterAddress (type) {
+      if (type) {
+        return this.originAddress[type].filter(item => this.currentValue[type - 1].id === item.pid)
+      } else {
+        return this.originAddress[type]
       }
     }
+  },
+  mounted () {
+    this.getAddressList()
+  },
+  watch: {
+    currentType: function (val) {
+      this.addressOption = this.filterAddress(val)
+    },
+    address: function (val) {
+      if (!val) {
+        this.currentType = 0
+        this.currentValue = []
+      }
+    },
+    currentAddress: function (val, old) {
+      this.$set(this.currentValue, this.currentType, val)
+      if (this.currentType < 2) {
+        this.currentType++
+      } else if (val !== old) {
+        this.visible = false
+      }
+    },
+    currentValue: {
+      handler: function (val) {
+        let [textStr, idStr] = ['', '']
+        val.map(item => {
+          idStr += idStr ? (',' + item.id) : item.id
+          textStr += textStr ? ('-' + item.name) : item.name
+        })
+        this.$emit('input', idStr)
+        this.address = textStr
+      },
+      deep: true
+    },
+    search (val) {
+      val = val.trim()
+      if (val) {
+        this.addressOption.map(item => {
+          if (item.name.indexOf(val) > -1 || item.initial[0].indexOf(val.toUpperCase()) > -1) {
+            this.$set(item, 'active', 1)
+          } else {
+            this.$set(item, 'active', 0)
+          }
+        })
+      } else {
+        this.addressOption.map(item => {
+          this.$set(item, 'active', 0)
+        })
+      }
+    },
+    visible: function (val) {
+      if (!val) {
+        if (!this.currentValue[2]) {
+          this.address = ''
+          this.search = ''
+          this.$emit('input', '')
+        }
+      }
+    }
+  },
+  computed: {
+    addressText () {
+      return this.address.replace(/-/g, '')
+    }
   }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -208,7 +207,7 @@
       &[readonly] {
         background: transparent;
         cursor: text;
-        &:after{
+        &:after {
           display: none;
         }
       }
@@ -267,7 +266,7 @@
             height: $line24;
             line-height: $line24;
             &::-webkit-input-placeholder { /* WebKit browsers */
-              color: #999!important;
+              color: #999 !important;
             }
           }
           .el-input__suffix {

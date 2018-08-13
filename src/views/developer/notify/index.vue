@@ -23,105 +23,104 @@
   </div>
 </template>
 <script>
-  import {mapState} from 'vuex'
-  export default {
-    name: "notify",
-    components: {
-      'no-callback-info': () => import('./default.vue')
+import {mapState} from 'vuex'
+
+export default {
+  name: 'notify',
+  components: {
+    'no-callback-info': () => import('./default.vue')
+  },
+  data () {
+    return {
+      paste: '',
+      update: '升级',
+      equipmentEmpty: false,
+      btnOption: {
+        text: '创建'
+      },
+      menu: [
+        {title: '消息通知', index: '/developer/notify'},
+        {title: '开放API', index: '/developer/api'}
+      ],
+      notifyList: [
+        // {
+        //   createTime: "2018-07-18 10:45:33",
+        //   intro: "测试通知",
+        //   lastEditTime: null,
+        //   merchantGuid: "12345678901",
+        //   noticeGuid: "EBAC92648D3047119A069FE9AA909E30",
+        //   scene: null,
+        //   state: 1,
+        //   tokenURL: "http://192.168.20.227:8083/test/result",
+        //   type: "1"
+        // }
+      ],
+      pagination: {}
+    }
+  },
+  methods: {
+    delNotifyInfo (id) {
+      this.$affirm({
+        confirm: '删除',
+        cancel: '取消',
+        text: '确认删除本条通知？'
+      }, (action, instance, done) => {
+        if (action === 'confirm') {
+          this.$http('/dataNotice/discard', {noticeGuid: id}).then(res => {
+            if (res.result) {
+              this.$tip('删除成功')
+              this.getNotifyList(this.pagination.index)
+            }
+          })
+          done()
+        } else {
+          done()
+        }
+      })
     },
-    data() {
-      return {
-        paste: '',
-        update: '升级',
-        equipmentEmpty: false,
-        btnOption: {
-          text: '创建'
-        },
-        menu: [
-          {title: '消息通知', index: '/developer/notify'},
-          {title: '开放API', index: '/developer/api'}
-        ],
-        notifyList: [
-          // {
-          //   createTime: "2018-07-18 10:45:33",
-          //   intro: "测试通知",
-          //   lastEditTime: null,
-          //   merchantGuid: "12345678901",
-          //   noticeGuid: "EBAC92648D3047119A069FE9AA909E30",
-          //   scene: null,
-          //   state: 1,
-          //   tokenURL: "http://192.168.20.227:8083/test/result",
-          //   type: "1"
-          // }
-        ],
-        pagination: {}
-      }
+    getNotifyList (page) {
+      page = page || 1
+      this.$http('/dataNotice/page/list', {index: page, length: 8}).then(res => {
+        if (res.result) {
+          this.notifyList = res.data.content || []
+          this.pagination = res.data.pagination
+        }
+      })
     },
-    methods: {
-      delNotifyInfo(id) {
+    addCallbackInfo () {
+      if (!this.equipmentEmpty) {
+        this.$router.push('/developer/notify/add-info')
+      } else {
         this.$affirm({
-          confirm: '删除',
-          cancel: '取消',
-          text: '确认删除本条通知？'
+          confirm: '前往【添加设备】',
+          cancel: '返回',
+          text: '您还没有设备，无法创建消息通知。'
         }, (action, instance, done) => {
           if (action === 'confirm') {
-            this.$http("/dataNotice/discard", {noticeGuid: id}).then(res => {
-              if (res.result) {
-                this.$tip("删除成功");
-                this.getNotifyList(this.pagination.index)
-              }
-            });
-            done();
+            done()
+            this.$router.push('/equipment/mine')
           } else {
             done()
           }
         })
-
-      },
-      getNotifyList(page) {
-        page = page || 1;
-        this.$http("/dataNotice/page/list", {index: page, length: 8}).then(res => {
-          if (res.result) {
-            this.notifyList = res.data.content || [];
-            this.pagination = res.data.pagination;
-          }
-        })
-      },
-      addCallbackInfo() {
-        if (!this.equipmentEmpty) {
-          this.$router.push('/developer/notify/add-info')
-        } else {
-          this.$affirm({
-            confirm: '前往【添加设备】',
-            cancel: '返回',
-            text: '您还没有设备，无法创建消息通知。'
-          }, (action, instance, done) => {
-            if (action === 'confirm') {
-              done();
-              this.$router.push("/equipment/mine");
-            } else {
-              done()
-            }
-          })
-        }
-
       }
-    },
-    created() {
-      this.getNotifyList();
-    },
-    computed:{
-      ...mapState(["loading"])
-    },
-    filters: {
-      type: function (value) {
-        switch (value) {
-          case '1':
-            return '到店通知'
-        }
+    }
+  },
+  created () {
+    this.getNotifyList()
+  },
+  computed: {
+    ...mapState(['loading'])
+  },
+  filters: {
+    type: function (value) {
+      switch (value) {
+        case '1':
+          return '到店通知'
       }
     }
   }
+}
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

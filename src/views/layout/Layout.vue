@@ -11,8 +11,9 @@
 </template>
 
 <script>
-import { Navbar, Sidebar, AppMain } from './components'
-import { mapState } from 'vuex'
+import {Navbar, Sidebar, AppMain} from './components'
+import {mapState} from 'vuex'
+
 export default {
   name: 'layout',
   components: {
@@ -20,39 +21,39 @@ export default {
     Sidebar,
     AppMain
   },
-  created(){
-   this.$store.dispatch('GET_USER_INFO');
+  created () {
+    this.$store.dispatch('GET_USER_INFO')
   },
   computed: {
-    sidebar() {
+    sidebar () {
       return this.$store.state.app.sidebar
     },
-    device() {
+    device () {
       return this.$store.state.app.device
     },
-    classObj() {
+    classObj () {
       return {
         hideSidebar: !this.sidebar.opened,
         withoutAnimation: this.sidebar.withoutAnimation,
         mobile: this.device === 'mobile'
       }
     },
-    cornerBg(){
-      if(/\/data/.test(this.$route.path)){
+    cornerBg () {
+      if (/\/data/.test(this.$route.path)) {
         return ''
       }
       return 'corner-bg'
     },
     ...mapState([
-      "userInfo"
+      'userInfo'
     ]),
-    showBar(){
+    showBar () {
       return this.$route.name !== 'console-lwh'
     }
   },
   methods: {
-    handleClickOutside() {
-      this.$store.dispatch('closeSideBar', { withoutAnimation: false })
+    handleClickOutside () {
+      this.$store.dispatch('closeSideBar', {withoutAnimation: false})
     }
   }
 }
@@ -60,13 +61,14 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import "src/styles/mixin.scss";
+
   .app-wrapper {
     @include clearfix;
     position: relative;
     height: 100%;
     width: 100%;
     overflow: hidden;
-    .app-main-content{
+    .app-main-content {
       height: 100%;
       overflow: hidden;
       box-sizing: border-box;
@@ -77,9 +79,9 @@ export default {
 </style>
 <style lang="scss" rel="stylesheet/scss">
 
-  .app-wrapper{
-    .app-main-content{
-      >div{
+  .app-wrapper {
+    .app-main-content {
+      > div {
         height: 100%;
       }
     }

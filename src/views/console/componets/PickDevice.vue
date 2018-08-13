@@ -12,7 +12,7 @@
       <a href="javascript:void (0)" class="go-forword" @click="forword">上一步</a>
       <template>
         <div class="vam" style="height:400px">
-          <div v-if="deviceData.length == 0">该社群下暂时没有设备可以添加</div>
+          <div v-if="deviceData.length === 0">该社群下暂时没有设备可以添加</div>
           <el-radio-group v-model="radio">
             <el-radio v-for="(val,index) in deviceData" :label="index" :key="index">{{val['deviceName']}}</el-radio>
           </el-radio-group>
@@ -25,113 +25,106 @@
     </div>
   </el-dialog>
 </template>
+
 <script>
-
-  export default {
-    props: {
-      title: {
-        type: [String],
-        default: ''
-      },
-      type: {
-        type: [String],
-        default: 'device'
-      },
-      visible: {
-        type: Boolean,
-        default: false
-      },
-      groupId: {
-        type: String,
-        default: false
+export default {
+  props: {
+    title: {
+      type: [String],
+      default: ''
+    },
+    type: {
+      type: [String],
+      default: 'device'
+    },
+    visible: {
+      type: Boolean,
+      default: false
+    },
+    groupId: {
+      type: String,
+      default: ''
+    }
+  },
+  data () {
+    return {
+      radio: -1, // 不给它默认选择的设备
+      dialogVisible: false,
+      deviceData: []
+    }
+  },
+  watch: {
+    visible: function (val) {
+      this.dialogVisible = val
+    },
+    // 监听群id
+    groupId (val, oldVal) {
+      // this.getDeviceData();
+    },
+    // 子组件通知父组件
+    dialogVisible: function (val) {
+      this.$emit('update:visible', val)
+      if (val) {
+        this.getDeviceData()
       }
+    }
+  },
+  methods: {
+    // 上一步
+    forword () {
+      this.$emit('pick-device', '上一步')
+      this.dialogVisible = false
     },
-    data() {
-      return {
-        radio: -1,      //不给它默认选择的设备
-        dialogVisible: false,
-        deviceData: []
+    // 确定
+    submitDialogForm () {
+      if (this.radio === -1) {
+        this.$tip('请选择您的设备', 'error')
+        return
       }
-
-    },
-    watch: {
-      visible: function (val) {
-        this.dialogVisible = val;
-      },
-      //监听群id
-      groupId(val,oldVal) {
-        //this.getDeviceData();
-      },
-      //子组件通知父组件
-      dialogVisible: function (val) {
-        this.$emit('update:visible', val)
-        if(val) {
-          this.getDeviceData();
-        }
-      },
-    },
-    methods: {
-      //上一步
-      forword() {
-        this.$emit("pick-device", "上一步");
-        this.dialogVisible = false;
-      },
-      //确定
-      submitDialogForm() {
-        if (this.radio == -1) {
-          this.$tip("请选择您的设备",'error');
-//          this.$alert('请选择需要添加设备名称', '提示：', {
-//            confirmButtonText: '确定'
-//          });
-          return;
-        }
-        if (this.type === 'group') {
-          this.$emit("pick-device", this.deviceData[this.radio]);
-        }
-        this.dialogVisible = false;
-        this.$store.commit("SET_GROUP_CONSOLE_ID", this.deviceData[this.radio].deviceKey);
-      },
-      closeDialog() {
-        //console.info("close-device");
-      },
-      //获取设备数据
-      getDeviceData() {
-        this.$http('/group/device', {
-          guid: this.groupId,
-          tag: 'console'
-        }).then(res => {
-          if (res.result == 1) {
-            this.deviceData = res.data;
-            this.radio = -1;
-          }
-        }).catch(error => {
-          console.info(error);
-        });
-      },
-      //重置radio
-      resetRadio() {
-        this.radio = -1;
+      if (this.type === 'group') {
+        this.$emit('pick-device', this.deviceData[this.radio])
       }
+      this.dialogVisible = false
+      this.$store.commit('SET_GROUP_CONSOLE_ID', this.deviceData[this.radio].deviceKey)
     },
-    beforeDestroy() {
+    closeDialog () {
+      // console.info("close-device");
+    },
+    // 获取设备数据
+    getDeviceData () {
+      this.$http('/group/device', {
+        guid: this.groupId,
+        tag: 'console'
+      }).then(res => {
+        this.deviceData = res.data
+        this.radio = -1
+      }).catch(error => {
+        console.info(error)
+      })
+    },
+    // 重置radio
+    resetRadio () {
+      this.radio = -1
+    }
+  },
+  beforeDestroy () {
 
-    },
-    computed: {
-      customStyle: function () {
-        switch (this.type) {
-          case 'group':
-            return {width: '400px', background: '#f8f8f8', height: '400px'};
-          default:
-            return {width: this.width};
-        }
+  },
+  computed: {
+    customStyle: function () {
+      switch (this.type) {
+        case 'group':
+          return {width: '400px', background: '#f8f8f8', height: '400px'}
+        default:
+          return {width: this.width}
       }
     }
   }
+}
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
   @import "@/styles/form.scss";
-
   .lwh {
     .go-forword {
       margin-top: 20px;
@@ -146,7 +139,7 @@
       height: 34px;
     }
     .el-radio + .el-radio {
-      margin-left: 0px;
+      margin-left: 0;
     }
     .el-scrollbar__wrap {
       text-align: center;

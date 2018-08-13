@@ -10,40 +10,41 @@
 
 </template>
 <script>
-  export default {
-    name: "ob-list-empty",
-    props: {
-      top: {
-        type: String,
-        default: '0'
-      },
-      text: {
-        type: String,
-        default: '暂无数据'
-      },
-      size: {
-        type: String,
-        default: ''
-      }
+export default {
+  name: 'ob-list-empty',
+  props: {
+    top: {
+      type: String,
+      default: '0'
     },
-    computed: {
-      loading: function () {
-        return this.$store.state.loading
-      },
-      wrapStyle:function(){
-        let height = this.top;
-        return {
-          height:`calc(100% - ${height})`
-        }
+    text: {
+      type: String,
+      default: '暂无数据'
+    },
+    size: {
+      type: String,
+      default: ''
+    }
+  },
+  computed: {
+    loading: function () {
+      return this.$store.state.loading
+    },
+    wrapStyle: function () {
+      let height = this.top
+      return {
+        height: `calc(100% - ${height})`
       }
     }
   }
+}
 </script>
 
 <style lang="scss" scoped>
-  .ob-list-empty-wrap{
+  .ob-list-empty-wrap {
     height: 100%;
   }
+
   .ob-list-empty {
     text-align: center;
     border: 1px dashed #1f2d3d;

@@ -47,163 +47,164 @@
   </div>
 </template>
 <script>
-  import area from '@/components/area-select/area-select'
-  import {mapState,mapGetters} from 'vuex'
-  import axios from 'axios';
-  import { validPhone } from '@/utils/validate'
-  export default {
-    components: {
-      'area-select': area
-    },
-    name: "index",
-    data() {
-      const validatePhone = (rule, value, callback) => {
-        if (!value) {
-          callback(new Error('请填写手机号'))
+import area from '@/components/area-select/area-select'
+import {mapState, mapGetters} from 'vuex'
+import axios from 'axios'
+import {validPhone} from '@/utils/validate'
+
+export default {
+  components: {
+    'area-select': area
+  },
+  name: 'index',
+  data () {
+    const validatePhone = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请填写手机号'))
+      } else {
+        if (validPhone(value)) {
+          callback()
         } else {
-          if (validPhone(value)) {
-            callback()
-          } else {
-            callback(new Error('请填写正确的手机号'))
-          }
-        }
-      };
-      return {
-        error: '',
-        rules: {
-          company: [
-            {required: true, message: '请输入公司名称', trigger: 'blur'}
-          ],
-          phone: [
-            { validator: validatePhone, trigger: 'blur'}
-          ],
-          address: [
-            {required: true, message: '请输入选取地址', trigger: 'blur'}
-          ],
-          detail: [
-            {required: true, message: '请输入详细地址', trigger: 'blur'}
-          ],
-          contacts: [
-            {required: true, message: '请输入联系人姓名', trigger: 'blur'}
-          ]
-        },
-        subLink: {title: '编辑', index: '/person/edit'},
-        userInfoForm: {
-          contacts: '', //联系人
-          phone: '',
-          pca: '', //省市区id
-          address: '', //详细地址
-          company: ''
-        },
-        editable: false
-      }
-    },
-    methods: {
-      // 编辑修改个人信息
-      submitForm(data) {
-        let pcaArr = data.pca.split(',').map(Number);
-        let type = this.userInfo.merchantGuid ? 'update' : 'create';
-        type === 'update' ? data.merchantGuid = this.userInfo.merchantGuid : '';
-        data.provinceAreaID = pcaArr[0];
-        data.cityAreaID = pcaArr[1];
-        data.districtAreaID = pcaArr[2];
-        delete  data.pca;
-        this.$http("/merchant/usercenter/update", data).then(res => {
-          if (res.result) {
-            this.$tip('保存成功');
-            this.$store.dispatch('GET_USER_INFO')
-          }
-        });
-      },
-      initData() {
-        for (let item in this.userInfoForm) {
-          if ((this.userInfo[item] || item === 'contacts') && item !== 'pca') {
-            this.$set(this.userInfoForm, item, this.userInfo[item])
-          }
-        }
-        this.userInfoForm.pca = this.userInfo.provinceAreaID ? this.userInfo.provinceAreaID + ',' + this.userInfo.cityAreaID + ',' + this.userInfo.districtAreaID : '';
-      },
-      avatarUpload(data) {
-        let uid = this.userInfo.developerId;
-        if (!uid) {
-          this.$tip("请先完善个人信息");
-          return
-        }
-        this.$http("/auth/oss/image/signature").then(res => {
-          if (res.data) {
-            let formData = new FormData();
-            formData.append('key', `merchant/${uid}/${data.file.name}`);
-            formData.append('policy', res.data['policy']);
-            formData.append('OSSAccessKeyId', res.data['accessid']);
-            formData.append('success_action_status', '200');
-            formData.append('signature', res.data['signature']);
-            formData.append('file', data.file, data.file.name);
-            this.$http(res.data.host, formData).then(back => {
-              if (!back.data) {
-                let avatarHref = res.data.host + '/merchant/' + uid + '/' + data.file.name;
-                this.$http("/merchant/usercenter/image", {faceImgURL: avatarHref}).then(res => {
-                  this.$tip('头像上传成功');
-                  this.$store.commit("SET_USER_INFO",{faceImgURL:avatarHref});
-                });
-              } else {
-                this.$tip("上传失败，请稍后重试", 'error')
-              }
-            }).catch(error => {
-              this.error = error;
-            });
-          }
-        }).catch(err => {
-          this.$tip("服务器错误，请重新尝试")
-        });
-      },
-      beforeAvatarUpload(file) {
-        const isJPG = file.type === ('image/jpeg' || 'image/png');
-        const isLt2M = file.size / 1024 / 1024 < 2;
-        if (!isJPG) {
-          this.$tip('上传头像图片只能是 JPG/PNG 格式!', 'error');
-          return false
-        }
-        if (!isLt2M) {
-          this.$tip('上传头像图片大小不能超过 2MB!', 'error');
-          return false
+          callback(new Error('请填写正确的手机号'))
         }
       }
+    }
+    return {
+      error: '',
+      rules: {
+        company: [
+          {required: true, message: '请输入公司名称', trigger: 'blur'}
+        ],
+        phone: [
+          {validator: validatePhone, trigger: 'blur'}
+        ],
+        address: [
+          {required: true, message: '请输入选取地址', trigger: 'blur'}
+        ],
+        detail: [
+          {required: true, message: '请输入详细地址', trigger: 'blur'}
+        ],
+        contacts: [
+          {required: true, message: '请输入联系人姓名', trigger: 'blur'}
+        ]
+      },
+      subLink: {title: '编辑', index: '/person/edit'},
+      userInfoForm: {
+        contacts: '', // 联系人
+        phone: '',
+        pca: '', // 省市区id
+        address: '', // 详细地址
+        company: ''
+      },
+      editable: false
+    }
+  },
+  methods: {
+    // 编辑修改个人信息
+    submitForm (data) {
+      let pcaArr = data.pca.split(',').map(Number)
+      let type = this.userInfo.merchantGuid ? 'update' : 'create'
+      type === 'update' ? data.merchantGuid = this.userInfo.merchantGuid : ''
+      data.provinceAreaID = pcaArr[0]
+      data.cityAreaID = pcaArr[1]
+      data.districtAreaID = pcaArr[2]
+      delete data.pca
+      this.$http('/merchant/usercenter/update', data).then(res => {
+        if (res.result) {
+          this.$tip('保存成功')
+          this.$store.dispatch('GET_USER_INFO')
+        }
+      })
     },
-    created() {
-      if (this.$route.name === 'personEdit') {
-        this.subLink.title = '';
+    initData () {
+      for (let item in this.userInfoForm) {
+        if ((this.userInfo[item] || item === 'contacts') && item !== 'pca') {
+          this.$set(this.userInfoForm, item, this.userInfo[item])
+        }
+      }
+      this.userInfoForm.pca = this.userInfo.provinceAreaID ? this.userInfo.provinceAreaID + ',' + this.userInfo.cityAreaID + ',' + this.userInfo.districtAreaID : ''
+    },
+    avatarUpload (data) {
+      let uid = this.userInfo.developerId
+      if (!uid) {
+        this.$tip('请先完善个人信息')
+        return
+      }
+      this.$http('/auth/oss/image/signature').then(res => {
+        if (res.data) {
+          let formData = new FormData()
+          formData.append('key', `merchant/${uid}/${data.file.name}`)
+          formData.append('policy', res.data['policy'])
+          formData.append('OSSAccessKeyId', res.data['accessid'])
+          formData.append('success_action_status', '200')
+          formData.append('signature', res.data['signature'])
+          formData.append('file', data.file, data.file.name)
+          this.$http(res.data.host, formData).then(back => {
+            if (!back.data) {
+              let avatarHref = res.data.host + '/merchant/' + uid + '/' + data.file.name
+              this.$http('/merchant/usercenter/image', {faceImgURL: avatarHref}).then(res => {
+                this.$tip('头像上传成功')
+                this.$store.commit('SET_USER_INFO', {faceImgURL: avatarHref})
+              });
+            } else {
+              this.$tip('上传失败，请稍后重试', 'error')
+            }
+          }).catch(error => {
+            this.error = error
+          })
+        }
+      }).catch(err => {
+        this.$tip('服务器错误，请重新尝试')
+      })
+    },
+    beforeAvatarUpload (file) {
+      const isJPG = file.type === ('image/jpeg' || 'image/png')
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isJPG) {
+        this.$tip('上传头像图片只能是 JPG/PNG 格式!', 'error')
+        return false
+      }
+      if (!isLt2M) {
+        this.$tip('上传头像图片大小不能超过 2MB!', 'error')
+        return false
+      }
+    }
+  },
+  created () {
+    if (this.$route.name === 'personEdit') {
+      this.subLink.title = ''
+      this.editable = true
+    } else {
+      this.editable = false
+    }
+    this.initData()
+  },
+  mounted () {
+  },
+  watch: {
+    '$route': function (val) {
+      if (val.name === 'personEdit') {
+        this.subLink.title = ''
         this.editable = true
       } else {
+        this.$refs.userInfoForm.$refs.submitForm.resetFields()
+        this.initData()
+        this.subLink.title = '编辑'
         this.editable = false
       }
-      this.initData();
     },
-    mounted() {
-    },
-    watch: {
-      "$route": function (val) {
-        if (val.name === 'personEdit') {
-          this.subLink.title = '';
-          this.editable = true
-        } else {
-          this.$refs.userInfoForm.$refs.submitForm.resetFields();
-          this.initData();
-          this.subLink.title = '编辑';
-          this.editable = false
-        }
-      },
-      "userInfo"(val) {
-        this.initData()
-      }
-    },
-    computed: {
-      ...mapState([
-        "userInfo",
-        "loading"
-      ]),
-      ...mapGetters(["avatar"])
+    'userInfo' (val) {
+      this.initData()
     }
+  },
+  computed: {
+    ...mapState([
+      'userInfo',
+      'loading'
+    ]),
+    ...mapGetters(['avatar'])
   }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

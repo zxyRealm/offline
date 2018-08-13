@@ -28,82 +28,82 @@
   </div>
 </template>
 <script>
-  export default {
-    name: "uu-sub-tab",
-    props: {
-      back:{
-        type:Boolean,
-        default:false
-      },
-      search:{
-        type:Boolean,
-        default:false
-      },
-      showButton:{
-        type:Boolean,
-        default:false
-      },
-      size: {
-        type: [String],
-        default: ''
-      },
-      menuArray: {
-        type: [Array],
-        default: () => [
-          {index: '', title: ''}
-        ]
-      },
-      subLink: {
-        type: [Object],
-        default: () => ({
-          title: ''
-        })
-      },
-      subBtn: {
-        type: [Object],
-        default: () => ({
-          text: ''
-        })
-      },
-      placeholder:{
-        type:String,
-        default:'请输入关键字'
+export default {
+  name: 'uu-sub-tab',
+  props: {
+    back: {
+      type: Boolean,
+      default: false
+    },
+    search: {
+      type: Boolean,
+      default: false
+    },
+    showButton: {
+      type: Boolean,
+      default: false
+    },
+    size: {
+      type: [String],
+      default: ''
+    },
+    menuArray: {
+      type: [Array],
+      default: () => [
+        {index: '', title: ''}
+      ]
+    },
+    subLink: {
+      type: [Object],
+      default: () => ({
+        title: ''
+      })
+    },
+    subBtn: {
+      type: [Object],
+      default: () => ({
+        text: ''
+      })
+    },
+    placeholder: {
+      type: String,
+      default: '请输入关键字'
+    }
+  },
+  data () {
+    return {
+      searchValue: ''
+    }
+  },
+  methods: {
+    handleBtn () {
+      if (this.subBtn.index) {
+        this.$router.push(this.subBtn.index)
+      } else {
+        this.$emit('handle-btn')
       }
     },
-    data(){
-        return{
-          searchValue:''
-        }
-    },
-    methods: {
-      handleBtn() {
-        if (this.subBtn.index) {
-          this.$router.push(this.subBtn.index)
-        } else {
-          this.$emit('handle-btn')
-        }
-      },
-      backPrev(){
-        if(window.history.length){
-          window.history.go(-1)
-        }else {
-          this.$router.push("/")
-        }
-      },
-      searchMethod(){
-        this.$emit("remote-search",this.searchValue.toString().trim())
+    backPrev () {
+      if (window.history.length) {
+        window.history.go(-1)
+      } else {
+        this.$router.push('/')
       }
     },
-    watch:{
-      searchValue(val){
-        console.log('search val',val)
-      }
+    searchMethod () {
+      this.$emit('remote-search', this.searchValue.toString().trim())
+    }
+  },
+  watch: {
+    searchValue (val) {
+      console.log('search val', val)
     }
   }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  //主题内容区tab 菜单样式
+  // 主题内容区tab 菜单样式
   .sub-tab-wrap {
     padding: 20px;
     line-height: 24px;
@@ -113,7 +113,7 @@
       font-size: 16px;
       height: 100%;
       line-height: 24px;
-      .el-icon-arrow-left{
+      .el-icon-arrow-left {
         cursor: pointer;
       }
       > a:not(.router-link-active) {
@@ -137,46 +137,46 @@
     &.medium {
       padding: 0 20px;
       line-height: 28px;
-      .separator{
+      .separator {
         display: none;
       }
-      .sub-tab-main{
-        font-size:14px;
+      .sub-tab-main {
+        font-size: 14px;
         margin-right: 20px;
-        >a{
+        > a {
           height: 28px;
           line-height: 26px;
-          background-color: rgba(0,0,0,.2);
+          background-color: rgba(0, 0, 0, .2);
           padding: 0 20px;
           margin-right: 20px;
-          &:last-child{
+          &:last-child {
             margin-right: 0;
           }
 
         }
       }
     }
-    &.small{
-      padding:5px 20px;
+    &.small {
+      padding: 5px 20px;
       height: auto;
-      .sub-tab-main{
-        font-size:14px;
+      .sub-tab-main {
+        font-size: 14px;
         margin-bottom: 5px;
       }
     }
     /*搜索框*/
-    .nav-search{
+    .nav-search {
       width: 280px;
       max-width: 100%;
       border: none;
-      .el-input__prefix{
-        font-size:24px;
+      .el-input__prefix {
+        font-size: 24px;
       }
-      .el-input__inner{
-        background: transparent!important;
+      .el-input__inner {
+        background: transparent !important;
         background-image: none;
-        border:none;
-        border-bottom:1px solid #ddd;
+        border: none;
+        border-bottom: 1px solid #ddd;
       }
     }
   }
@@ -184,21 +184,22 @@
 </style>
 <style lang="scss" rel="stylesheet/scss">
   @import "@/styles/variables.scss";
-  .nav-search{
+
+  .nav-search {
     width: 280px;
     border: none;
-    .el-input__prefix{
-      font-size:22px;
+    .el-input__prefix {
+      font-size: 22px;
       color: $blue;
       z-index: 999;
       cursor: pointer;
     }
     &.el-input--prefix {
-      .el-input__inner{
-        background: transparent!important;
+      .el-input__inner {
+        background: transparent !important;
         background-image: none;
-        border:none;
-        border-bottom:1px solid rgba(255,255,255,0.3);
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
         padding-left: 35px;
         border-radius: 0;
         color: #fff;

@@ -29,7 +29,8 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="分组描述：" prop="describe">
-          <el-input type="textarea" :readonly="!editable" placeholder="请输入社群描述" v-model="customForm.describe"></el-input>
+          <el-input type="textarea" :readonly="!editable" placeholder="请输入社群描述"
+                    v-model="customForm.describe"></el-input>
         </el-form-item>
       </uu-form>
     </div>
@@ -37,101 +38,101 @@
 </template>
 
 <script>
-  export default {
-    name: "edit-custom",
-    data(){
-      const  validateName = (rule,value,callback)=>{
-        value = value.trim();
-        if(!value){
-          callback(new Error("请填写分组名称"))
-        }else {
-          if(value.length>=2&&value.length<=18){
-            if(this.type==='update'&&this.originName===value){
-              callback()
-            }else {
-              this.$http("/groupCustom/nameExist",{name:value},false).then(res=>{
-                !res.data?callback():callback(new Error("分组名称已存在"));
-              }).catch(err=>{
-                callback(new Error(err.msg||'验证失败'))
-              })
-            }
-          }else {
-            callback(new Error('长度为2-18个字符'))
+export default {
+  name: 'edit-custom',
+  data () {
+    const validateName = (rule, value, callback) => {
+      value = value.trim()
+      if (!value) {
+        callback(new Error('请填写分组名称'))
+      } else {
+        if (value.length >= 2 && value.length <= 18) {
+          if (this.type === 'update' && this.originName === value) {
+            callback()
+          } else {
+            this.$http('/groupCustom/nameExist', {name: value}, false).then(res => {
+              !res.data ? callback() : callback(new Error('分组名称已存在'))
+            }).catch(err => {
+              callback(new Error(err.msg || '验证失败'))
+            })
           }
+        } else {
+          callback(new Error('长度为2-18个字符'))
         }
-      };
-      return {
-        editable:true,
-        originName:'',
-        customForm:{
-          name:'',
-          type:'',
-          describe:''
-        },
-        rules:{
-          name:[
-            {required:true,validator:validateName,trigger:'blur'}
-          ],
-          type:[
-            {required:true,message:'请选取类型',trigger:'blur'}
-          ],
-          describe:[
-            {required:true,message:'请填写描述',trigger:'blur'}
-          ]
-        },
-        customGroupList:[],
-        customGroupInfo:{}
-      }
-    },
-    methods:{
-      submitForm(data){
-        console.log(data);
-        this.$http(`/groupCustom/${this.type}`,data).then(res=>{
-          if(this.type==='create'){
-            this.$tip('创建成功');
-          }else {
-            this.$tip("更新成功")
-          }
-          this.$router.push({path:'/community/custom',params:{cid:this.$route.params.id}})
-        })
-      },
-      getCustomGroupInfo(){
-        this.$http("/groupCustom/info",{groupCustomGuid:this.$route.params.id}).then(res=>{
-          this.originName = JSON.parse(JSON.stringify(res.data.name));
-          this.customForm = res.data
-        })
-      }
-    },
-    created(){
-      if(this.type==='update'){
-        this.getCustomGroupInfo()
-      }
-    },
-    computed: {
-      tabTitle: function () {
-        return this.$route.name === 'editCustom' ? '编辑社群分组' : '新建分组'
-      },
-      subText:function(){
-        return this.$route.name ==='editCustom'?'保存':'新建'
-      },
-      type:function () {
-        return this.$route.name ==='editCustom'?'update':'create'
       }
     }
-  }
-</script>
-
-<style lang="scss" scoped>
-.edit-custom-from-wrap{
-  margin: 0 auto;
-  height: 520px;
-  width: 690px;
-  padding: 40px 0;
-  box-sizing: border-box;
-  .el-radio+.el-radio{
-    &[custom-type]{
-      margin-left:10px;
+    return {
+      editable: true,
+      originName: '',
+      customForm: {
+        name: '',
+        type: '',
+        describe: ''
+      },
+      rules: {
+        name: [
+          {required: true, validator: validateName, trigger: 'blur'}
+        ],
+        type: [
+          {required: true, message: '请选取类型', trigger: 'blur'}
+        ],
+        describe: [
+          {required: true, message: '请填写描述', trigger: 'blur'}
+        ]
+      },
+      customGroupList: [],
+      customGroupInfo: {}
+    }
+  },
+  methods: {
+    submitForm (data) {
+      console.log(data)
+      this.$http(`/groupCustom/${this.type}`, data).then(res => {
+        if (this.type === 'create') {
+          this.$tip('创建成功')
+        } else {
+          this.$tip('更新成功')
+        }
+        this.$router.push({path: '/community/custom', params: {cid: this.$route.params.id}})
+      })
+    },
+    getCustomGroupInfo () {
+      this.$http('/groupCustom/info', {groupCustomGuid: this.$route.params.id}).then(res => {
+        this.originName = JSON.parse(JSON.stringify(res.data.name))
+        this.customForm = res.data
+      })
+    }
+  },
+  created () {
+    if (this.type === 'update') {
+      this.getCustomGroupInfo()
+    }
+  },
+  computed: {
+    tabTitle: function () {
+      return this.$route.name === 'editCustom' ? '编辑社群分组' : '新建分组'
+    },
+    subText: function () {
+      return this.$route.name === 'editCustom' ? '保存' : '新建'
+    },
+    type: function () {
+      return this.$route.name === 'editCustom' ? 'update' : 'create'
     }
   }
 }
+</script>
+
+<style lang="scss" scoped>
+  .edit-custom-from-wrap {
+    margin: 0 auto;
+    height: 520px;
+    width: 690px;
+    padding: 40px 0;
+    box-sizing: border-box;
+    .el-radio + .el-radio {
+      &[custom-type] {
+        margin-left: 10px;
+      }
+    }
+  }
 </style>

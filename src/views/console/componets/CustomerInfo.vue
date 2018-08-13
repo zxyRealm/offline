@@ -3,11 +3,11 @@
        @click="handleDetail">
     <span class="order" :class="detailInfo.status==0?'':'order-in'">{{`第${detailInfo.order}位`}}</span>
     <div class="customer-img" ref="imgFather">
-      <img :src="detailInfo.img | imgBase"  ref="img"  :style="styleObj" >
+      <img :src="detailInfo.img | imgBase" ref="img" :style="styleObj">
     </div>
     <div class="customer-detail" :class="detailInfo.status==0?'customer-detail-in':''">
       <span v-if="detailInfo.status==0">{{detailInfo.gender==0?'女':(detailInfo.gender==1?'男':'')}}</span>
-      <span v-if="detailInfo.status==0">{{detailInfo.age ==-1?"":detailInfo.age}}</span>
+      <span v-if="detailInfo.status==0">{{detailInfo.age ==-1?'':detailInfo.age}}</span>
       <span>{{this.daytime(detailInfo.time)}}</span>
       <span>{{this.time(detailInfo.time)}}</span>
     </div>
@@ -15,107 +15,104 @@
   </div>
 </template>
 <script>
-  import ObDialogInfo from './ObDialogInfo'
-  import { parseTime } from '@/utils/index'
-  export default {
-    components:{
-      ObDialogInfo
+import ObDialogInfo from './ObDialogInfo'
+import {parseTime} from '@/utils/index'
+
+export default {
+  components: {
+    ObDialogInfo
+  },
+  props: ['index', 'detailInfo'],
+  data () {
+    return {
+      styleObj: {
+        width: '100%',
+        height: 'auto'
+      },
+      showDialog: false,
+      data: [] // 数据
+    }
+  },
+  filters: {
+    // 日
+    daytime (date) {
+      date = new Date(date)
+      let m = date.getMonth() + 1
+      m = m < 10 ? ('0' + m) : m
+      let d = date.getDate()
+      d = d < 10 ? ('0' + d) : d
+      return m + '/' + d
     },
-    props: ['index', 'detailInfo'],
-    data() {
-      return {
-        styleObj: {
-            width: '100%',
-            height: 'auto'
-        },
-        showDialog:false,
-        data: []   //数据
-      }
+    // 时分
+    time (date) {
+      date = new Date(date)
+      let h = date.getHours()
+      h = h < 10 ? ('0' + h) : h
+      let minute = date.getMinutes()
+      minute = minute < 10 ? ('0' + minute) : minute
+      return h + ':' + minute
     },
-    filters: {
-      //日
-      daytime(date) {
-        date = new Date(date);
-        let m = date.getMonth() + 1;
-        m = m < 10 ? ('0' + m) : m;
-        let d = date.getDate();
-        d = d < 10 ? ('0' + d) : d;
-        return m + '/' + d;
-      },
-      //时分
-      time(date) {
-        date = new Date(date);
-        let h = date.getHours();
-        h = h < 10 ? ('0' + h) : h;
-        let minute = date.getMinutes();
-        minute = minute < 10 ? ('0' + minute) : minute;
-        return h + ':' + minute;
-      },
-      imgBase(data) {
-        return `data:image/jpg;base64,${data}`
-      }
+    imgBase (data) {
+      return `data:image/jpg;base64,${data}`
+    }
+  },
+  methods: {
+    daytime (date) {
+      date = new Date(date)
+      let m = date.getMonth() + 1
+      m = m < 10 ? ('0' + m) : m
+      let d = date.getDate()
+      d = d < 10 ? ('0' + d) : d
+      return m + '/' + d
     },
-    methods: {
-      daytime(date) {
-        date = new Date(date);
-        let m = date.getMonth() + 1;
-        m = m < 10 ? ('0' + m) : m;
-        let d = date.getDate();
-        d = d < 10 ? ('0' + d) : d;
-        return m + '/' + d;
-      },
-      //时分
-      time(date) {
-        date = new Date(date);
-        let h = date.getHours();
-        h = h < 10 ? ('0' + h) : h;
-        let minute = date.getMinutes();
-        minute = minute < 10 ? ('0' + minute) : minute;
-        return h + ':' + minute;
-      },
-      handleDetail() {
-        this.showDialog = true;
-      },
-      imgBase(data) {
-        return `data:image/jpg;base64,${data}`
-      },
-      //图片宽高自适应
-      AutoSize(Img, maxWidth, maxHeight) {
-         // 当图片比图片框小时不做任何改变
-        //console.info(Img.offsetWidth,Img.offsetHeight);
-          if (Img.width < maxWidth && Img.height < maxHeight) {
-            Img.width / Img.height >= 1 ? (this.$set(this.styleObj,'height', "100%") && this.$set(this.styleObj,'width', 'auto') ):(this.$set(this.styleObj,'width', '100%') && this.$set(this.styleObj,'height', 'auto'));
-          } else //原图片宽高比例 大于 图片框宽高比例,则以框的宽为标准缩放，反之以框的高为标准缩放
-          {
-            if (maxWidth/ maxHeight  <= Img.width / Img.height) //原图片宽高比例 大于 图片框宽高比例
-            {
-              ((Img.width < maxWidth) || (Img.width / Img.height < 0.99))?  (this.$set(this.styleObj,'width', '100%') && this.$set(this.styleObj,'height', 'auto')) : (this.$set(this.styleObj,'height','100%') && this.$set(this.styleObj,'width', 'auto'));
-            }
-            else {   //原图片宽高比例 小于 图片框宽高比例
-              ((Img.height < maxHeight) || (Img.width / Img.height >= 0.99))?  (this.$set(this.styleObj,'height', '100%') && this.$set(this.styleObj,'width', 'auto') ) : (this.$set(this.styleObj,'width', '100%') && this.$set(this.styleObj,'height', 'auto'));
-            }
-          }
-        },
-      getAutoSize() {
-        let img  = new Image();
-        img.src = this.imgBase(this.detailInfo.img);
-        if( img.width && this.$refs.imgFather) {
-          this.AutoSize(img,this.$refs.imgFather.offsetWidth,this.$refs.imgFather.offsetHeight);
+    // 时分
+    time (date) {
+      date = new Date(date)
+      let h = date.getHours()
+      h = h < 10 ? ('0' + h) : h
+      let minute = date.getMinutes()
+      minute = minute < 10 ? ('0' + minute) : minute
+      return h + ':' + minute
+    },
+    handleDetail () {
+      this.showDialog = true
+    },
+    imgBase (data) {
+      return `data:image/jpg;base64,${data}`
+    },
+    // 图片宽高自适应
+    AutoSize (Img, maxWidth, maxHeight) {
+      // 当图片比图片框小时不做任何改变
+      // console.info(Img.offsetWidth,Img.offsetHeight);
+      if (Img.width < maxWidth && Img.height < maxHeight) {
+        Img.width / Img.height >= 1 ? (this.$set(this.styleObj, 'height', '100%') && this.$set(this.styleObj, 'width', 'auto')) : (this.$set(this.styleObj, 'width', '100%') && this.$set(this.styleObj, 'height', 'auto'))
+      } else { // 原图片宽高比例 大于 图片框宽高比例,则以框的宽为标准缩放，反之以框的高为标准缩放
+        if (maxWidth / maxHeight <= Img.width / Img.height) { // 原图片宽高比例 大于 图片框宽高比例
+          ((Img.width < maxWidth) || (Img.width / Img.height < 0.99)) ? (this.$set(this.styleObj, 'width', '100%') && this.$set(this.styleObj, 'height', 'auto')) : (this.$set(this.styleObj, 'height', '100%') && this.$set(this.styleObj, 'width', 'auto'))
+        } else { // 原图片宽高比例 小于 图片框宽高比例
+          ((Img.height < maxHeight) || (Img.width / Img.height >= 0.99)) ? (this.$set(this.styleObj, 'height', '100%') && this.$set(this.styleObj, 'width', 'auto')) : (this.$set(this.styleObj, 'width', '100%') && this.$set(this.styleObj, 'height', 'auto'))
         }
       }
     },
-    mounted() {
-      //图片宽高自适应
-      this.getAutoSize();
-      window.addEventListener('resize',this.getAutoSize)
-    },
-    watch: {},
-    beforeRouteLeave (to, from, next) {
-      window.removeEventListener('resize',this.getAutoSize)
-      next();
+    getAutoSize () {
+      let img = new Image()
+      img.src = this.imgBase(this.detailInfo.img)
+      if (img.width && this.$refs.imgFather) {
+        this.AutoSize(img, this.$refs.imgFather.offsetWidth, this.$refs.imgFather.offsetHeight)
+      }
     }
-
+  },
+  mounted () {
+    // 图片宽高自适应
+    this.getAutoSize()
+    window.addEventListener('resize', this.getAutoSize)
+  },
+  watch: {},
+  beforeRouteLeave (to, from, next) {
+    window.removeEventListener('resize', this.getAutoSize)
+    next()
   }
+}
 </script>
 <style rel="stylesheet/scss" lang="scss">
   /* 遮罩层div */
@@ -133,9 +130,9 @@
       .detail-img-div {
         position: relative;
         background: rgba(16, 156, 231, 0.2);
-        background-repeat:no-repeat,no-repeat,no-repeat,no-repeat;
-        background-position: left top,right top,right bottom,left bottom;
-       background-image: url(/static/img/console-detail-border-icon-top.png),url(/static/img/console-detail-border-icon-right.png),url(/static/img/console-detail-border-icon-bottom.png),url(/static/img/console-detail-border-icon-left.png);
+        background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+        background-position: left top, right top, right bottom, left bottom;
+        background-image: url(/static/img/console-detail-border-icon-top.png), url(/static/img/console-detail-border-icon-right.png), url(/static/img/console-detail-border-icon-bottom.png), url(/static/img/console-detail-border-icon-left.png);
         background-size: 52px auto;
         padding: 40px;
         .detail-content-img {
@@ -147,7 +144,7 @@
           border: 2px solid #6D2EBB;
         }
         .detail-content-div {
-          padding-left:30px;
+          padding-left: 30px;
           text-align: center;
           span {
             color: #ffffff;
@@ -175,10 +172,12 @@
     background: url(/static/img/background-img-in.png) no-repeat center;
     background-size: 100% 100%;
   }
+
   .customer-info-wrap-out {
     background: url(/static/img/background-image.png) no-repeat center;
     background-size: 100% 100%;
   }
+
   .customer-info-wrap {
     position: relative;
     width: 100%;
@@ -199,7 +198,7 @@
       //width: 100%;
       //height: 100%;
       //margin-bottom: 20px;
-     // box-sizing: border-box;
+      // box-sizing: border-box;
       //padding: 20px 12px;
       //margin: auto;
     }

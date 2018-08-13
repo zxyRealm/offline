@@ -9,15 +9,15 @@ export function parseTime (time, cFormat) {
   if (time.toString().lastIndexOf('.') > -1) {
     time = time.toString().substr(0, time.lastIndexOf('.'))
   }
-  const format = cFormat || '{y}-{m}-{d} {h}:{i}:{s}';
-  let date;
+  const format = cFormat || '{y}-{m}-{d} {h}:{i}:{s}'
+  let date
   if (typeof time === 'object') {
     date = time
   } else if (typeof time === 'string') {
     if (Date.parse(time).toString().length === 13) {
-      date = new Date(time.replace(/\-/g, '/'))
+      date = new Date(time.replace(/-/g, '/'))
     } else {
-      return time;
+      return time
     }
   } else if (typeof time === 'number') {
     if (time.toString().length !== 13) {
@@ -34,25 +34,25 @@ export function parseTime (time, cFormat) {
     i: date.getMinutes(),
     s: date.getSeconds(),
     a: date.getDay()
-  };
-  const time_str = format.replace(/{(y|m|d|h|i|s|a)+}/g, (result, key) => {
-    let value = formatObj[key];
-    if (key === 'a') return ['一', '二', '三', '四', '五', '六', '日'][value - 1];
+  }
+  const timeStr = format.replace(/{(y|m|d|h|i|s|a)+}/g, (result, key) => {
+    let value = formatObj[key]
+    if (key === 'a') return ['一', '二', '三', '四', '五', '六', '日'][value - 1]
     if (result.length > 0 && value < 10) {
       value = '0' + value
     }
     return value || 0
-  });
-  return time_str
+  })
+  return timeStr
 }
 
 // 格式化时间
 export function formatTime (time, option) {
-  time = +time * 1000;
-  const d = new Date(time);
-  const now = Date.now();
+  time = +time * 1000
+  const d = new Date(time)
+  const now = Date.now()
 
-  const diff = (now - d) / 1000;
+  const diff = (now - d) / 1000
 
   if (diff < 30) {
     return '刚刚'
@@ -72,17 +72,17 @@ export function formatTime (time, option) {
 
 // 序列化对象
 export function getQueryObject (url) {
-  url = url == null ? window.location.href : url;
-  const search = url.substring(url.lastIndexOf('?') + 1);
-  const obj = {};
-  const reg = /([^?&=]+)=([^?&=]*)/g;
+  url = url == null ? window.location.href : url
+  const search = url.substring(url.lastIndexOf('?') + 1)
+  const obj = {}
+  const reg = /([^?&=]+)=([^?&=]*)/g
   search.replace(reg, (rs, $1, $2) => {
-    const name = decodeURIComponent($1);
-    let val = decodeURIComponent($2);
-    val = String(val);
-    obj[name] = val;
+    const name = decodeURIComponent($1)
+    let val = decodeURIComponent($2)
+    val = String(val)
+    obj[name] = val
     return rs
-  });
+  })
   return obj
 }
 
@@ -90,28 +90,28 @@ export function getQueryObject (url) {
 export function customType (type, txt) {
   switch (type) {
     case 1:
-      return txt ? '地理位置' : 'address';
+      return txt ? '地理位置' : 'address'
     case 2:
-      return txt ? '功能区' : 'action';
+      return txt ? '功能区' : 'action'
     case 3:
-      return txt ? '管理者' : 'manage';
+      return txt ? '管理者' : 'manage'
     default:
-      return txt ? '其他' : 'more';
+      return txt ? '其他' : 'more'
   }
 }
 
 // 多维数组还原一维数组
 export function restoreArray (arr, children) {
-  let newArray = [];
+  let newArray = []
   let restore = (arr, children) => {
     arr.map(item => {
-      newArray.push(item);
+      newArray.push(item)
       if (item[children] && item[children].length) {
         restore(item[children], children)
       }
     })
-  };
-  restore(arr, children);
+  }
+  restore(arr, children)
   return newArray
 }
 
@@ -133,7 +133,7 @@ export function getByteLen (val) {
 }
 
 export function cleanArray (actual) {
-  const newArray = [];
+  const newArray = []
   for (let i = 0; i < actual.length; i++) {
     if (actual[i]) {
       newArray.push(actual[i])
@@ -143,16 +143,16 @@ export function cleanArray (actual) {
 }
 
 export function param (json) {
-  if (!json) return '';
+  if (!json) return ''
   return cleanArray(Object.keys(json).map(key => {
-    if (json[key] === undefined) return '';
+    if (json[key] === undefined) return ''
     return encodeURIComponent(key) + '=' +
       encodeURIComponent(json[key])
   })).join('&')
 }
 
 export function param2Obj (url) {
-  const search = url.split('?')[1];
+  const search = url.split('?')[1]
   if (!search) {
     return {}
   }
@@ -160,8 +160,8 @@ export function param2Obj (url) {
 }
 
 export function html2Text (val) {
-  const div = document.createElement('div');
-  div.innerHTML = val;
+  const div = document.createElement('div')
+  div.innerHTML = val
   return div.textContent || div.innerText
 }
 
@@ -176,24 +176,24 @@ export function objectMerge (target, source) {
     return source.slice()
   }
   Object.keys(source).forEach((property) => {
-    const sourceProperty = source[property];
+    const sourceProperty = source[property]
     if (typeof sourceProperty === 'object') {
       target[property] = objectMerge(target[property], sourceProperty)
     } else {
       target[property] = sourceProperty
     }
-  });
+  })
   return target
 }
 
 export function scrollTo (element, to, duration) {
-  if (duration <= 0) return;
-  const difference = to - element.scrollTop;
-  const perTick = difference / duration * 10;
+  if (duration <= 0) return
+  const difference = to - element.scrollTop
+  const perTick = difference / duration * 10
   setTimeout(() => {
-    console.log(new Date());
-    element.scrollTop = element.scrollTop + perTick;
-    if (element.scrollTop === to) return;
+    console.log(new Date())
+    element.scrollTop = element.scrollTop + perTick
+    if (element.scrollTop === to) return
     scrollTo(element, to, duration - 10)
   }, 10)
 }
@@ -202,8 +202,8 @@ export function toggleClass (element, className) {
   if (!element || !className) {
     return
   }
-  let classString = element.className;
-  const nameIndex = classString.indexOf(className);
+  let classString = element.className
+  const nameIndex = classString.indexOf(className)
   if (nameIndex === -1) {
     classString += '' + className
   } else {
@@ -216,36 +216,36 @@ export const pickerOptions = [
   {
     text: '今天',
     onClick (picker) {
-      const end = new Date();
-      const start = new Date(new Date().toDateString());
-      end.setTime(start.getTime());
+      const end = new Date()
+      const start = new Date(new Date().toDateString())
+      end.setTime(start.getTime())
       picker.$emit('pick', [start, end])
     }
   }, {
     text: '最近一周',
     onClick (picker) {
-      const end = new Date(new Date().toDateString());
-      const start = new Date();
-      start.setTime(end.getTime() - 3600 * 1000 * 24 * 7);
+      const end = new Date(new Date().toDateString())
+      const start = new Date()
+      start.setTime(end.getTime() - 3600 * 1000 * 24 * 7)
       picker.$emit('pick', [start, end])
     }
   }, {
     text: '最近一个月',
     onClick (picker) {
-      const end = new Date(new Date().toDateString());
-      const start = new Date();
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+      const end = new Date(new Date().toDateString())
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
       picker.$emit('pick', [start, end])
     }
   }, {
     text: '最近三个月',
     onClick (picker) {
-      const end = new Date(new Date().toDateString());
-      const start = new Date();
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+      const end = new Date(new Date().toDateString())
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
       picker.$emit('pick', [start, end])
     }
-  }];
+  }]
 
 export function getTime (type) {
   if (type === 'start') {
@@ -256,33 +256,33 @@ export function getTime (type) {
 }
 
 export function debounce (func, wait, immediate) {
-  let timeout, args, context, timestamp, result;
+  let timeout, args, context, timestamp, result
 
   const later = function () {
     // 据上一次触发时间间隔
-    const last = +new Date() - timestamp;
+    const last = +new Date() - timestamp
 
     // 上次被包装函数被调用时间间隔last小于设定时间间隔wait
     if (last < wait && last > 0) {
       timeout = setTimeout(later, wait - last)
     } else {
-      timeout = null;
+      timeout = null
       // 如果设定为immediate===true，因为开始边界已经调用过了此处无需调用
       if (!immediate) {
-        result = func.apply(context, args);
+        result = func.apply(context, args)
         if (!timeout) context = args = null
       }
     }
-  };
+  }
 
   return function (...args) {
-    context = this;
-    timestamp = +new Date();
-    const callNow = immediate && !timeout;
+    context = this
+    timestamp = +new Date()
+    const callNow = immediate && !timeout
     // 如果延时不存在，重新设定延时
-    if (!timeout) timeout = setTimeout(later, wait);
+    if (!timeout) timeout = setTimeout(later, wait)
     if (callNow) {
-      result = func.apply(context, args);
+      result = func.apply(context, args)
       context = args = null
     }
 
@@ -295,15 +295,15 @@ export function deepClone (source) {
   if (!source && typeof source !== 'object') {
     throw new Error('error arguments', 'shallowClone')
   }
-  const targetObj = source.constructor === Array ? [] : {};
+  const targetObj = source.constructor === Array ? [] : {}
   Object.keys(source).forEach((keys) => {
     if (source[keys] && typeof source[keys] === 'object') {
-      targetObj[keys] = source[keys].constructor === Array ? [] : {};
+      targetObj[keys] = source[keys].constructor === Array ? [] : {}
       targetObj[keys] = deepClone(source[keys])
     } else {
       targetObj[keys] = source[keys]
     }
-  });
+  })
   return targetObj
 }
 
@@ -311,29 +311,31 @@ export function deepClone (source) {
 * uniqueKey 修改时请慎重，会影响到group-nav和dialog-form 组件功能
 */
 export function uniqueKey (arr, key = 'childGroupList') {
-  let initKey = 1;
+  let initKey = 1
   let setKey = (val) => {
     for (let i = 0; i < val.length; i++) {
-      val[i].uniqueKey = initKey++;
+      val[i].uniqueKey = initKey++
       if (val[i][key] && val[i][key].length) {
         setKey(val[i][key])
       }
     }
-  };
+  }
   if (Array.isArray(arr) && arr[0].uniqueKey === undefined) {
-    setKey(arr);
+    setKey(arr)
     return arr
   } else {
     return arr
   }
-
 }
 
 // 数组根据对象属性去重
 export function arrayUnique (arr, name) {
-    const hash = {};
-    return arr.reduce(function (item, next) {
-      !hash[next[name]] ? hash[next[name]] = 1 && item.push(next):'';
-      return item;
-    }, []);
+  const hash = {}
+  return arr.reduce(function (item, next) {
+    if (!hash[next[name]]) {
+      hash[next[name]] = 1
+      item.push(next)
+    }
+    return item
+  }, [])
 }
