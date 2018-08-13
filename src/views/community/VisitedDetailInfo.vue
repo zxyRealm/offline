@@ -1,6 +1,6 @@
 <template>
 
-  <div class="visited--detail__info" v-show="state" @click="closeShade">e
+  <div class="visited--detail__info" v-show="state" @click="closeShade">
     <transition name="fade-visited">
       <div class="detail--right__default clearfix" v-show="state">
         <div class="detail--header">
@@ -257,13 +257,11 @@ export default {
     clear: both;
     height: 0;
   }
-
   /* 可以设置不同的进入和离开动画 */
   /* 设置持续时间和动画函数 */
   .fade-visited-enter-active, .fade-visited-leave-active {
     transition: all .5s;
   }
-
   .fade-visited-enter, .fade-visited-leave-active {
     transform: translateX(760px);
   }

@@ -56,9 +56,12 @@ export default {
   methods: {
     // 对外开放的条件
     search () {
-      if (this.arrayTime.length) {
+      if (this.arrayTime && this.arrayTime.length) {
         this.params.startTime = this.arrayTime[0]
         this.params.endTime = this.arrayTime[1]
+      } else {
+        this.params.startTime = ''
+        this.params.endTime = ''
       }
       this.$emit('search-params', this.params)
     },
@@ -92,6 +95,9 @@ export default {
     div.label_div {
       display: inline-block !important;
       margin-right: 8px;
+      .el-date-editor .el-range-input {
+        width: 140px;
+      }
     }
     span {
       font-size: 12px;
@@ -107,16 +113,6 @@ export default {
       background-size: 100% 100%;
       background-color: transparent;
       color: #fff;
-      /*&::after {*/
-      /*content: '';*/
-      /*position: absolute;*/
-      /*top: 8px;*/
-      /*right: 8px;*/
-      /*width: 14px;*/
-      /*height: 16px;*/
-      /*background: url(/static/img/face_recognition_date_icon.png) no-repeat center;*/
-      /*background-size: 14px;*/
-      /*}*/
       .el-range-input {
         background: transparent;
       }
@@ -125,11 +121,11 @@ export default {
         padding-left: 8px;
       }
       .el-input__inner {
-        padding-right: 0px;
+        padding-right: 0;
       }
     }
     div.margin--default {
-      margin-right: 0px;
+      margin-right: 0;
     }
     .el--select__default .el-input--small input.el-input__inner {
       width: 154px;
@@ -155,13 +151,13 @@ export default {
       //right: 0;
     }
   }
-
   .el-picker-panel__body-wrapper .el-input .el-input__inner {
     color: #606266;
   }
-
   .el-date-editor .el-range-separator {
     color: #ffffff !important;
   }
-
+  div.el-popper {
+    margin-left: -25px;
+  }
 </style>

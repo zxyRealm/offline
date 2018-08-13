@@ -145,9 +145,8 @@
               </el-scrollbar>
             </div>
             <!-- lwh-识别人脸库 -->
-            <face-recognition-store :guid="currentCommunity.groupGuid" :deviceList="deviceList"
-                                    v-if="!currentCommunity.groupPid"></face-recognition-store>
-
+            <face-recognition-store :guid="communityInfo.guid" :deviceList="deviceList"
+                                    v-if="!(communityInfo.groupPid)"></face-recognition-store>
           </el-scrollbar>
         </div>
       </div>
@@ -156,12 +155,12 @@
 </template>
 
 <script>
-  import {mapState} from 'vuex'
-  import {uniqueKey} from '@/utils/index'
-  import FaceRecognition from '@/components/screening/FaceRecognition'
-  import VisitedDetailInfo from './VisitedDetailInfo.vue'
-  import FaceRecognitionStore from './FaceRecognitionStore'
-  import {eventObject} from '@/utils/event'
+import {mapState} from 'vuex'
+import {uniqueKey} from '@/utils/index'
+import FaceRecognition from '@/components/screening/FaceRecognition'
+import VisitedDetailInfo from './VisitedDetailInfo.vue'
+import FaceRecognitionStore from './FaceRecognitionStore'
+import {eventObject} from '@/utils/event'
 
 export default {
   components: {
@@ -182,7 +181,7 @@ export default {
           } else {
             this.$http('/group/nickNameExist', {groupNickName: value},
               false).then(res => {
-              !res.data ? callback() : callback('子社群昵称已存在')
+              !res.data ? callback() : callback(new Error('子社群昵称已存在'))
             }).catch(err => {
               callback(err.msg || '验证失败')
             })
@@ -242,7 +241,6 @@ export default {
           eventObject().$emit('FaceRecognition', this.deviceList)
         })
       }
-
     },
     // 搜索社群
     remoteSearch (val) {
@@ -303,6 +301,7 @@ export default {
     // 当前社群发生改变
     currentChange (val) {
       this.currentCommunity = val
+
       this.hidePopover()
       // this.insetForm();
       this.getCommunityInfo(val)
@@ -311,9 +310,9 @@ export default {
     // 获取社群详细信息
     getCommunityInfo (val) {
       this.$http('/group/getInfo', {guid: val.groupGuid}).then(res => {
-        res.data ? res.data.groupPid = val.groupPid : ''
+        if (res.data) res.data.groupPid = val.groupPid
         res.data.groupNickName = val.groupNickName || this.currentCommunity.groupNickName
-        res.data.groupPid ? this.originName = JSON.parse(JSON.stringify(res.data.groupNickName)) : ''
+        if (res.data.groupPid) this.originName = JSON.parse(JSON.stringify(res.data.groupNickName))
         this.communityInfo = res.data || {}
         if (res.data) {
           this.$createQRCode(res.data.code, 'qr-code')
@@ -354,7 +353,6 @@ export default {
         }
       })
     },
-
     // 显示修改昵称表单
     showPopover () {
       console.log(this.communityInfo)

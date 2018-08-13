@@ -26,7 +26,7 @@
       >
       </el-table-column>
       <el-table-column
-        prop="deviceKey"
+        prop="cameraName"
         label="抓拍设备"
       >
       </el-table-column>
@@ -78,7 +78,6 @@ export default {
   data () {
     return {
       paramsInSear: { // 查询条件
-
       },
       detailInfo: {}, // 详情页
       faceData: [],
@@ -113,15 +112,15 @@ export default {
     getDataInParams (params) {
       let paramsSearch = {
         groupGuid: this.guid,
-        deviceKey: params.deviceKey || '',
+        deviceKey: (params && params.deviceKey) || '',
         cameraName: '',
-        startTime: params.startTime || '',
-        endTime: params.endTime || '',
+        startTime: (params && params.startTime) || '',
+        endTime: (params && params.endTime) || '',
         index: this.pageParams.currentPage,
         length: this.pageParams.pageSize
       }
       this.$http('/group/faceSet/search', paramsSearch).then(res => {
-        this.faceData = res.data.content
+        this.faceData = (res.data && res.data.content) || []
         this.pageParams.total = res.data.pagination.total
       }).catch(error => {
         console.info(error)
@@ -144,24 +143,23 @@ export default {
         length: this.pageParams.pageSize
       }
       this.$http('/group/faceSet', params).then(res => {
-        this.faceData = res.data.content
+        this.faceData = (res.data && res.data.content) || []
         this.pageParams.total = res.data.pagination.total
       }).catch(error => {
         console.info(error)
       })
     }
-
   },
   watch: {
     // 监听guid改变
     guid (val, oldVal) {
       if (!val) return
-      this.getData()
+      this.getDataInParams()
     },
     // 监听图片数据
     faceData: {
       handler: function (val, oldVal) {
-        this.layout = val.length === 0 ? 'total, sizes' : 'total, sizes, prev, pager, next'
+        this.layout = val.length == 0 ? 'total, sizes' : 'total, sizes, prev, pager, next'
       },
       deep: true
     },
@@ -169,6 +167,9 @@ export default {
     paramsInSear (val, oldVal) {
       // console.info(val,"");
     }
+  },
+  mounted () {
+
   }
 }
 </script>
