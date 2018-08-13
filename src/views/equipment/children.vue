@@ -17,8 +17,8 @@
       </div>
       <div class="ec-container" :class="{'dashed-border':isSearch}">
         <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
-          <template v-for="(item,$index) in equipmentList" >
-            <ob-list>
+          <template v-for="(item,$index) in equipmentList">
+            <ob-list :key="$index">
               <ob-list-item :data="item" type="state">
               </ob-list-item>
               <ob-list-item>
@@ -62,74 +62,74 @@
   </div>
 </template>
 
-<script>
-  export default {
-    name: "index",
-    data() {
-      return {
-        menu2: [
-          {title: '自有设备', index: '/equipment/mine'},
-          {title: '子社群设备', index: '/equipment/children'}
-        ],
-        currentGroup: '',  //选中社群
-        equipmentList: [], //设备列表
-        pagination: {} //分页参数
+<script type="application/javascript">
+export default {
+  name: 'index',
+  data () {
+    return {
+      menu2: [
+        {title: '自有设备', index: '/equipment/mine'},
+        {title: '子社群设备', index: '/equipment/children'}
+      ],
+      currentGroup: '', // 选中社群
+      equipmentList: [], // 设备列表
+      pagination: {} // 分页参数
+    }
+  },
+  methods: {
+    // 获取社群列表
+    getEquipmentList (page) {
+      page = page || this.pagination.index || 1
+      if (this.isSearch) {
+        this.$http('/device/guid/list', {guid: this.currentGroup, index: page}).then(res => {
+          this.equipmentList = res.data.content
+          this.pagination = res.data.pagination
+        })
+      } else {
+        this.$http('/device/search', {searchText: this.$route.params.key || '', index: page, length: 8}).then(res => {
+          this.equipmentList = res.data.content
+          this.pagination = res.data.pagination
+        })
       }
     },
-    methods: {
-      // 获取社群列表
-      getEquipmentList(page) {
-        page = page || this.pagination.index || 1;
-        if(this.isSearch){
-          this.$http("/device/guid/list", {guid: this.currentGroup, index: page}).then(res => {
-            this.equipmentList = res.data.content;
-            this.pagination = res.data.pagination;
-          })
-        }else {
-          this.$http("/device/search", {searchText:this.$route.params.key||'', index: page,length:8}).then(res => {
-            this.equipmentList = res.data.content;
-            this.pagination = res.data.pagination;
-          })
-        }
-      },
-      // 搜索社群设备
-      search(value) {
-        if(value){
-          this.$router.push(`/equipment/search/children/${value}`);
-        }
-      },
-      currentChange(val) {
-        this.currentGroup = val.groupGuid;
+    // 搜索社群设备
+    search (value) {
+      if (value) {
+        this.$router.push(`/equipment/search/children/${value}`)
       }
     },
-    created() {
-      if(this.$route.name==='searchChildren'){
-        this.getEquipmentList()
-      }
+    currentChange (val) {
+      this.currentGroup = val.groupGuid
+    }
+  },
+  created () {
+    if (this.$route.name === 'searchChildren') {
+      this.getEquipmentList()
+    }
+  },
+  computed: {
+    isSearch: function (val) {
+      return this.$route.name === 'equipmentChildren'
     },
-    computed: {
-      isSearch: function (val) {
-        return this.$route.name === 'equipmentChildren'
-      },
-      tipMsg:function () {
-        return !this.isSearch?'查询不到该设备':!this.currentGroup?'请先在左侧选择自有社群，以查看其下的子社群设备':(!this.equipmentList.length?"该社群尚未绑定设备":'')
-      },
-      small(){
-        return this.currentGroup&&!this.equipmentList.length?'small':''
-      }
+    tipMsg: function () {
+      return !this.isSearch ? '查询不到该设备' : !this.currentGroup ? '请先在左侧选择自有社群，以查看其下的子社群设备' : (!this.equipmentList.length ? '该社群尚未绑定设备' : '')
     },
-    watch: {
-      currentGroup:function () {
-        this.equipmentList = [];
-        this.pagination = {};
-        this.getEquipmentList()
-      },
-      $route: function (val) {
-        this.equipmentList = [];
-        this.getEquipmentList()
-      }
+    small () {
+      return this.currentGroup && !this.equipmentList.length ? 'small' : ''
+    }
+  },
+  watch: {
+    currentGroup: function () {
+      this.equipmentList = []
+      this.pagination = {}
+      this.getEquipmentList()
+    },
+    $route: function (val) {
+      this.equipmentList = []
+      this.getEquipmentList()
     }
   }
+}
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
@@ -160,7 +160,7 @@
       }
       .ec-container {
         height: 100%;
-        &.dashed-border{
+        &.dashed-border {
           margin-left: 160px;
           border: none;
         }

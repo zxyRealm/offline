@@ -45,116 +45,115 @@
 </template>
 
 <script>
-  import Vue from 'vue'
-  import {mapState} from 'vuex'
-  import {eventObject} from '@/utils/event.js'
+import {mapState} from 'vuex'
+import {eventObject} from '@/utils/event.js'
 
-  export default {
-    name: 'table-index',
-    data () {
-      return {
-        fuzzyQuery: '',     //模糊匹配
-        pageParams: {
-          pageSize: 10,      //每页显示条数
-          total: 0,         //总条数
-          currentPage: 1    //当前第几页
-        },
-        layout: 'total, sizes',
-        tableData: []
-      }
+export default {
+  name: 'table-index',
+  data () {
+    return {
+      fuzzyQuery: '', // 模糊匹配
+      pageParams: {
+        pageSize: 10, // 每页显示条数
+        total: 0, // 总条数
+        currentPage: 1 // 当前第几页
+      },
+      layout: 'total, sizes',
+      tableData: []
+    }
+  },
+  methods: {
+    // 每页显示条数
+    handleSizeChange (val) {
+      this.pageParams.pageSize = val
+      this.getData()
     },
-    methods: {
-      //每页显示条数
-      handleSizeChange (val) {
-        this.pageParams.pageSize = val;
-        this.getData();
-      },
-      //当前显示第几页
-      handleCurrentChange (val) {
-        this.pageParams.currentPage = val;
-        this.getData();
-      },
-      //条件请求数据
-      doSearch () {
-        //this.gettableData();
-      },
-      //请求数据
-      getData () {
-        let params = this.$store.state.filterParams;
-        let filterParams = {
-          groupGuid: params.groupGuid,
-          groupName: params.groupGuidName,
-          type: params.type,              //类型
-          dimension: params.dimension,    //维度
-          startTime: params.startTime,    //开始时间
-          endTime: params.endTime,        //结束时间
-          length: this.pageParams.pageSize,
-          index: this.pageParams.currentPage
-        };
-        this.$http('/chart/flowCount', filterParams).then(res => {
-          if (res.result === 1) {
-            this.tableData = res.data.content || [];
-            //this.pageParams.total = res.data.pagination.total || 0;
-            (!!res.data.pagination) ? this.$set(this.pageParams, "total", res.data.pagination.total || 0) : this.$set(this.pageParams, "total", 0);
-          }
-        }).catch(error => {
-          console.info(error);
-        });
-      },
-      initSize () {
-        //table高度改变
-        this.$nextTick(() => {
-          let tableHead = document.getElementsByClassName('table-content')[0];
-          let table = document.getElementsByTagName('table')[0];
-          if (!table || !tableHead) return;
-          let tableEle = 0;
-          if (document.body.clientHeight < 720) {
-            //tableEle = 206;
-            tableEle = 80;
-          } else {
-            tableEle = document.body.clientHeight - 631;
-          }
-          // tableHead.style.minHeight = tableEle + "px";
-          table.style.height = tableEle + 'px';
-        })
-      },
-      removeResize () {
-        window.removeEventListener('resize', this.initSize);
-      }
+    // 当前显示第几页
+    handleCurrentChange (val) {
+      this.pageParams.currentPage = val
+      this.getData()
     },
-    mounted () {
-      //查询条件改变并且确定后，当前页码重置为1
-      eventObject().$on('screening-params-change', msg => {
-        this.pageParams.currentPage = 1;
+    // 条件请求数据
+    doSearch () {
+      // this.gettableData();
+    },
+    // 请求数据
+    getData () {
+      let params = this.$store.state.filterParams
+      let filterParams = {
+        groupGuid: params.groupGuid,
+        groupName: params.groupGuidName,
+        type: params.type, // 类型
+        dimension: params.dimension, // 维度
+        startTime: params.startTime, // 开始时间
+        endTime: params.endTime, // 结束时间
+        length: this.pageParams.pageSize,
+        index: this.pageParams.currentPage
+      }
+      this.$http('/chart/flowCount', filterParams).then(res => {
+        if (res.result === 1) {
+          this.tableData = res.data.content || [];
+          // this.pageParams.total = res.data.pagination.total || 0;
+          (!!res.data.pagination) ? this.$set(this.pageParams, 'total', res.data.pagination.total || 0) : this.$set(this.pageParams, 'total', 0)
+        }
+      }).catch(error => {
+        console.info(error)
       })
-      window.addEventListener('resize', this.initSize);
-      this.initSize();
     },
-    computed: {
-      ...mapState([
-        'filterParams'
-      ])
+    initSize () {
+      // table高度改变
+      this.$nextTick(() => {
+        let tableHead = document.getElementsByClassName('table-content')[0]
+        let table = document.getElementsByTagName('table')[0]
+        if (!table || !tableHead) return
+        let tableEle = 0
+        if (document.body.clientHeight < 720) {
+          // tableEle = 206;
+          tableEle = 80
+        } else {
+          tableEle = document.body.clientHeight - 631
+        }
+        // tableHead.style.minHeight = tableEle + "px";
+        table.style.height = tableEle + 'px'
+      })
     },
-    watch: {
-      filterParams: {
-        handler: function (val, oldVal) {
-          //console.info(val,11111111);
-          //this.pageParams.currentPage = 1;
-        },
-        deep: true
+    removeResize () {
+      window.removeEventListener('resize', this.initSize)
+    }
+  },
+  mounted () {
+    // 查询条件改变并且确定后，当前页码重置为1
+    eventObject().$on('screening-params-change', msg => {
+      this.pageParams.currentPage = 1
+    })
+    window.addEventListener('resize', this.initSize)
+    this.initSize()
+  },
+  computed: {
+    ...mapState([
+      'filterParams'
+    ])
+  },
+  watch: {
+    filterParams: {
+      handler: function (val, oldVal) {
+        // console.info(val,11111111);
+        // this.pageParams.currentPage = 1;
       },
-      tableData: {
-        handler: function (val, oldVal) {
-          this.layout = val.length == 0 ? 'total, sizes' : 'total, sizes, prev, pager, next';
-        },
-        deep: true
-      }
+      deep: true
     },
-    beforeRouteLeave (to, from, next) {
-      this.removeResize();
-      next();
-    },
+    tableData: {
+      handler: function (val, oldVal) {
+        this.layout = val.length === 0 ? 'total, sizes' : 'total, sizes, prev, pager, next'
+      },
+      deep: true
+    }
+  },
+  beforeRouteLeave (to, from, next) {
+    this.removeResize()
+    next()
   }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

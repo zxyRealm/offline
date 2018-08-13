@@ -1,6 +1,6 @@
 <template>
   <div class="data-wrap" v-if="$route.name!=='guest-analysis'">
-      <ul class="data-type">
+    <ul class="data-type">
       <li v-for="(value,index) in dataType" :key="index">
         <router-link :to="value.path">{{value.title}}</router-link>
       </li>
@@ -24,68 +24,71 @@
 </template>
 
 <script>
-  import {eventObject} from '@/utils/event.js'
-  export default {
-      name: "data-index",
-      components: {},
-      data() {
-        return {
-          activeName: '客流分析',
-          dataType: [
-            {title:'客流分析',path: '/data/guest-analysis'},
-            {title:'性别分析',path: '/data/gender-analysis'},
-            {title:'年龄分析',path: '/data/age-analysis'},
-            {title:'到店频次分析',path:'/data/shop-frequency-analysis'}
-            ]
-        };
-      },
-      mounted() {
-            let my = "child";
-      },
-      beforeRouteLeave(to, from, next) {
-        eventObject().$off('resize-echarts-data');
-        next();
-      }
+import {eventObject} from '@/utils/event.js'
+
+export default {
+  name: 'data-index',
+  components: {},
+  data () {
+    return {
+      activeName: '客流分析',
+      dataType: [
+        {title: '客流分析', path: '/data/guest-analysis'},
+        {title: '性别分析', path: '/data/gender-analysis'},
+        {title: '年龄分析', path: '/data/age-analysis'},
+        {title: '到店频次分析', path: '/data/shop-frequency-analysis'}
+      ]
+    }
+  },
+  mounted () {
+  },
+  beforeRouteLeave (to, from, next) {
+    eventObject().$off('resize-echarts-data')
+    next()
   }
+}
 </script>
 <style lang="scss" scoped>
 
 </style>
 <style rel="stylesheet/scss" lang="scss">
-  .guest-analysis{
+  .guest-analysis {
     height: 100%;
-    >.el-scrollbar{
+    > .el-scrollbar {
       height: 100%;
-      >.el-scrollbar__wrap{
-        background-color: rgba(0,0,0,0.5);
+      > .el-scrollbar__wrap {
+        background-color: rgba(0, 0, 0, 0.5);
 
       }
     }
-    >.is-horizontal{
+    > .is-horizontal {
       display: none;
     }
-    .el-scrollbar__wrap{
+    .el-scrollbar__wrap {
       overflow-x: hidden;
       height: 100%;
     }
-    .el-scrollbar__view{
-        height: 100%;
-        .data-guest{
-          height: calc(100% - 40px);
-          padding:12px 0 0;
-          .table-data{
-            min-height: calc(100% - 330px);
-          }
+    .el-scrollbar__view {
+      height: 100%;
+      .data-guest {
+        height: calc(100% - 40px);
+        padding: 12px 0 0;
+        .table-data {
+          min-height: calc(100% - 330px);
         }
       }
+    }
   }
+
   .main-container {
     overflow: hidden;
   }
+
   /* 防止動效影響路由 */
-  .flow-diagram  {
+  .flow-diagram {
     overflow: hidden;
   }
+
   .data-wrap {
     height: 100%;
     background: #0F0E11;
@@ -97,13 +100,13 @@
       height: 40px;
       padding: 0 12px;
       box-sizing: border-box;
-      background: rgba(64,58,73,0.30);
-      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
+      background: rgba(64, 58, 73, 0.30);
+      box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
       .router-link-active {
-         color: #0F9EE9;
-         position: relative;
+        color: #0F9EE9;
+        position: relative;
       }
-     .router-link-active::after {
+      .router-link-active::after {
         content: '';
         background-image: linear-gradient(340deg, #813DC7 5%, #0F9EE9 100%);
         height: 3px;
@@ -125,7 +128,7 @@
       }
     }
     //下面路由使用的公共样式
- }
+  }
 
   .data-guest {
     width: 100%;

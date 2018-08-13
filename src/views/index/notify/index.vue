@@ -16,51 +16,47 @@
   </div>
 </template>
 <script>
-  export default {
-    data() {
-      return {
-        state: false,
-        notifyData: []
-      }
-    },
-    methods: {
-      getData() {
-        this.$http('/siteNotice/list', {}).then(res => {
-          if (res.result == 1) {
-            if (res.data.length > 0) {
-              this.notifyData = res.data
-            } else {
-              this.state = true;
-            }
-          }
-        });
-      }
-    },
-    created() {
-      let notifyState = this.$route.params.notifyState;
-      this.getData();
-//             if(notifyState == "true") {
-//                this.getData();
-//             }else{
-//                this.state = true;
-//             }
+export default {
+  data () {
+    return {
+      state: false,
+      notifyData: []
     }
+  },
+  methods: {
+    getData () {
+      this.$http('/siteNotice/list', {}).then(res => {
+        if (res.data.length > 0) {
+          this.notifyData = res.data
+        } else {
+          this.state = true
+        }
+      })
+    }
+  },
+  created () {
+    let notifyState = this.$route.params.notifyState
+    this.getData()
   }
+}
 </script>
 <style rel="stylesheet/scss" lang="scss">
   .content .el-scrollbar .el-scrollbar__wrap {
-    margin-right: -18px!important;
-    margin-bottom: -200px!important;
+    margin-right: -18px !important;
+    margin-bottom: -200px !important;
     overflow: auto;
   }
+
   /* 滚动条粗细 */
   .content .el-scrollbar__bar.is-vertical {
     // width: 8px;
   }
+
   /* 滚动条高度 */
   .content .el-scrollbar__thumb {
     //hieght: 30%!important;
   }
+
   .main-container {
     overflow: hidden;
   }
@@ -103,10 +99,10 @@
           padding: 0 30px;
           text-align: right;
           //background: url("/static/img/list-icon-green.png") no-repeat left center;
-          span{
+          span {
             display: inline-block;
             vertical-align: middle;
-            &:nth-child(1){
+            &:nth-child(1) {
               float: left;
               width: 60%;
               text-align: left;
@@ -127,7 +123,8 @@
     }
 
   }
+
   .ob-list-empty-wrap {
-    height: calc(100% - 42px)!important;
+    height: calc(100% - 42px) !important;
   }
 </style>

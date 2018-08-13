@@ -22,73 +22,72 @@
 </template>
 
 <script>
-  export default {
-    name: "notify",
-    data(){
-      return {
-        menu:[
-          { title:'消息通知',index:'/developer/notify' },
-          {title:'开放API',index:'/developer/api'}
-        ]
-      }
-    },
-    methods:{
-      createCallback(){
-        this.$http("/device/merchant/exist", false).then(res => {
-          console.log(res);
-          if (res.data) {
-            this.$router.push("/developer/notify/add-info");
-          }else {
-            this.$affirm({
-              confirm:'前往【设备列表】',
-              cancel:'返回',
-              text:'您还没有绑定设备，无法创建消息通知。'
-            },(action,instance,done)=>{
-              if(action==='confirm'){
-                done();
-                this.$router.push("/equipment/mine");
-              }else {
-                done()
-              }
-            })
-          }
-        }).catch(error => {
-
-        })
-
-      }
+export default {
+  name: 'notify',
+  data () {
+    return {
+      menu: [
+        {title: '消息通知', index: '/developer/notify'},
+        {title: '开放API', index: '/developer/api'}
+      ]
+    }
+  },
+  methods: {
+    createCallback () {
+      this.$http('/device/merchant/exist', false).then(res => {
+        console.log(res)
+        if (res.data) {
+          this.$router.push('/developer/notify/add-info')
+        } else {
+          this.$affirm({
+            confirm: '前往【设备列表】',
+            cancel: '返回',
+            text: '您还没有绑定设备，无法创建消息通知。'
+          }, (action, instance, done) => {
+            if (action === 'confirm') {
+              done()
+              this.$router.push('/equipment/mine')
+            } else {
+              done()
+            }
+          })
+        }
+      }).catch(error => {
+        console.log(error)
+      })
     }
   }
+}
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-.notify-default-wrap{
-  >p.tac{
-    margin: 65px 0;
-  }
-  .step-wrap{
-    text-align: center;
-    .step-items{
+  .notify-default-wrap {
+    > p.tac {
+      margin: 65px 0;
+    }
+    .step-wrap {
       text-align: center;
-      >img{
-        width: 122px;
-        height: 122px;
+      .step-items {
+        text-align: center;
+        > img {
+          width: 122px;
+          height: 122px;
+        }
+        /*display: inline-block;*/
+        .des {
+          line-height: 48px;
+        }
       }
-      /*display: inline-block;*/
-      .des{
-        line-height: 48px;
+      .separate {
+        width: 78px;
+        height: 1px;
+        margin: 0 26px 48px;
+        background: #979797;
       }
     }
-    .separate{
-      width: 78px;
-      height: 1px;
-      margin: 0 26px 48px;
-      background: #979797;
+    .affirm {
+      display: block;
+      margin: 46px auto 0;
     }
   }
-  .affirm{
-    display: block;
-    margin: 46px auto 0;
-  }
-}
 </style>

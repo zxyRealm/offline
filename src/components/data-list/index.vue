@@ -1,103 +1,103 @@
 <template>
   <table class="ob-list-item" width="100%" v-if="visible">
     <tr class="ob-list-item-tr">
-     <slot></slot>
+      <slot></slot>
     </tr>
   </table>
 </template>
 
 <script>
-  import subItem from './sub-item'
-    export default {
-    components:{
-      'ob-list-sub-item':subItem
-    },
-      name: "ob-list",
-      props:{
-        data:{
-          type:[Array,Object],
-          default:()=>({})
-        }
-      },
-      data(){
-          return{
-            visible:true
-          }
-      },
-      methods:{
-        remove(){
-          console.log('remove');
-          this.visible = false
-        }
-      }
+import subItem from './sub-item'
+
+export default {
+  components: {
+    'ob-list-sub-item': subItem
+  },
+  name: 'ob-list',
+  props: {
+    data: {
+      type: [Array, Object],
+      default: () => ({})
     }
+  },
+  data () {
+    return {
+      visible: true
+    }
+  },
+  methods: {
+    remove () {
+      this.visible = false
+    }
+  }
+}
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .ob-list-item{
+  .ob-list-item {
     height: 120px;
-    background: rgba(1,8,20,0.10);
-    border: 1px dashed rgba(151,151,151,0.10);
+    background: rgba(1, 8, 20, 0.10);
+    border: 1px dashed rgba(151, 151, 151, 0.10);
     box-sizing: border-box;
     margin-bottom: 10px;
-    .ob-list-sub-item{
+    .ob-list-sub-item {
       position: relative;
       padding: 14px 20px;
       box-sizing: border-box;
       text-align: center;
-      font-size:12px;
+      font-size: 12px;
       &:before {
         content: '';
         position: absolute;
         right: 0;
-        top:50%;
+        top: 50%;
         margin-top: -20px;
         height: 40px;
         width: 1px;
         background: #E7E7E7;
         opacity: 0.25;
       }
-      &:last-child:before{
+      &:last-child:before {
         display: none;
       }
-      p{
+      p {
         line-height: 1.5;
         margin-bottom: 10px;
-        &:last-child{
+        &:last-child {
           margin-bottom: 0;
         }
       }
     }
   }
 
-  .ob-list-items{
-    .item-type{
+  .ob-list-items {
+    .item-type {
       width: 24%;
       line-height: 58px;
-      .ellipsis{
+      .ellipsis {
         /*width: 100px;*/
       }
     }
-    .item-time span{
+    .item-time span {
       display: inline-block;
       min-width: 112px;
     }
-    .item-detail,.item-time{
+    .item-detail, .item-time {
       width: 24%;
       line-height: 28px;
-      .ellipsis{
+      .ellipsis {
         float: left;
         padding: 0 20px;
         text-align: left;
       }
     }
 
-    .item-handel{
+    .item-handel {
       width: 28%;
-      .edit-link{
-        margin: 0  58px 0 36px;
+      .edit-link {
+        margin: 0 58px 0 36px;
       }
-      .delete{
+      .delete {
         margin-top: 2px;
       }
     }

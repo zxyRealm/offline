@@ -52,7 +52,8 @@
               </div>
               <i slot="reference" class="el-icon-question"></i>
             </el-popover>
-            ,可多选)</p>
+            ,可多选)
+          </p>
           <el-checkbox-group v-model="communityForm.rule">
             <el-checkbox disabled :label="0">数据查看权限</el-checkbox>
             <el-checkbox :label="1">设备操作权限</el-checkbox>
@@ -64,143 +65,144 @@
 </template>
 
 <script>
-  import area from '@/components/area-select/area-select'
-  import QRCode from 'qrcodejs2'
-  import { validPhone } from '@/utils/validate'
-  export default {
-    components: {
-      'area-select': area
-    },
-    name: "add-community",
-    data() {
-      const validateName = (rule, value, callback) => {
-        if (!value) {
-          callback(new Error('请填写社群名称'))
-        } else {
-          if (value.length >= 2 && value.length <= 18) {
-            if(this.type==='update' && this.originName===value){
-              callback()
-            }else {
-              this.$http("/group/name/exist",{name:value},false).then(res=>{
-                !res.data?callback():callback(new Error('社群名称已存在'));
-              }).catch(err=>{
-                callback(new Error(err.msg||'验证失败'))
-              })
-            }
-          } else {
-            callback(new Error("长度为2-18个字符"))
-          }
-        }
-      };
-      const validatePhone = (rule, value, callback) => {
-        if (value){
-          if (validPhone(value)) {
+import area from '@/components/area-select/area-select'
+import QRCode from 'qrcodejs2'
+import {validPhone} from '@/utils/validate'
+
+export default {
+  components: {
+    'area-select': area
+  },
+  name: 'add-community',
+  data () {
+    const validateName = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请填写社群名称'))
+      } else {
+        if (value.length >= 2 && value.length <= 18) {
+          if (this.type === 'update' && this.originName === value) {
             callback()
           } else {
-            callback(new Error('请填写正确的手机号'))
+            this.$http('/group/name/exist', {name: value}, false).then(res => {
+              !res.data ? callback() : callback(new Error('社群名称已存在'))
+            }).catch(err => {
+              callback(new Error(err.msg || '验证失败'))
+            })
           }
-        }else {
-          callback()
+        } else {
+          callback(new Error('长度为2-18个字符'))
         }
-      };
-      return {
-        editable: true,
-        originName:'',
-        communityForm: {
-          name:'',
-          code: '',
-          contact: '',
-          phone: '',
-          pca: '',
-          address: '',
-          rule: [0]
-        },
-        rules: {
-          name: [
-            {validator: validateName, trigger: 'blur'}
-          ],
-          code: [
-            {required: true, message: '请获取社群码', trigger: 'blur'}
-          ],
-          pca: [
-            {required: true, message: '请选取省市区', trigger: 'blur'}
-          ],
-          address: [
-            {required: true, message: '请填写详细地址', trigger: 'blur'}
-          ],
-          rule: [
-            {required: true, message: '请选取权限范围', trigger: 'blur'}
-          ],
-          phone: [
-            { validator: validatePhone, trigger: 'blur'}
-          ]
-        }
-      }
-    },
-    methods: {
-      getQrCode(){
-        console.log("blur");
-        this.$http("/group/code").then(res => {
-          if (res.data) {
-            this.communityForm.code = res.data;
-            this.createQrCode(res.data,'community-qrcode')
-          }
-        });
-      },
-      submitForm(data) {
-        let address = data.pca.split(',').map(Number);
-        data.provinceAreaID = address[0];
-        data.cityAreaID = address[1];
-        data.districtAreaID = address[2];
-        data.rule = data.rule.toString();
-        this.$http(`/group/${this.type}`,data).then(res=>{
-          this.$tip("保存成功");
-          this.$router.push("/community/mine");
-        })
-      },
-      createQrCode(url,id){
-        this.$nextTick(()=>{
-          const qrCode = new QRCode(id, {
-            width: 74,
-            height: 74,
-            colorDark: "#000000",
-            correctLevel: QRCode.CorrectLevel.H
-          });
-          qrCode.makeCode(url)
-        })
-      },
-      getCommunityInfo(){
-        this.$http("/group/getInfo",{guid:this.$route.params.gid}).then(res=>{
-          res.data.pca = `${res.data.provinceAreaID},${res.data.cityAreaID},${res.data.districtAreaID}`;
-          res.data.rule = (res.data.rule || '1').split(",").map(Number);
-          this.originName = JSON.parse(JSON.stringify(res.data.name));
-          this.communityForm = res.data;
-          console.log(this.communityForm);
-          this.$createQRCode(res.data.code,'community-qrcode')
-        })
-      }
-    },
-    created(){
-      if(this.$route.name==='editCommunity'){
-        this.getCommunityInfo()
-      }
-    },
-    computed:{
-      menuTitle:function(){
-        return this.$route.name==='editCommunity'?"编辑社群信息":"创建社群"
-      },
-      subText:function () {
-        return this.$route.name==='editCommunity'?"保存":"创建"
-      },
-      type:function(){
-        return this.$route.name==='editCommunity'?"update":"create"
       }
     }
+    const validatePhone = (rule, value, callback) => {
+      if (value) {
+        if (validPhone(value)) {
+          callback()
+        } else {
+          callback(new Error('请填写正确的手机号'))
+        }
+      } else {
+        callback()
+      }
+    }
+    return {
+      editable: true,
+      originName: '',
+      communityForm: {
+        name: '',
+        code: '',
+        contact: '',
+        phone: '',
+        pca: '',
+        address: '',
+        rule: [0]
+      },
+      rules: {
+        name: [
+          {validator: validateName, trigger: 'blur'}
+        ],
+        code: [
+          {required: true, message: '请获取社群码', trigger: 'blur'}
+        ],
+        pca: [
+          {required: true, message: '请选取省市区', trigger: 'blur'}
+        ],
+        address: [
+          {required: true, message: '请填写详细地址', trigger: 'blur'}
+        ],
+        rule: [
+          {required: true, message: '请选取权限范围', trigger: 'blur'}
+        ],
+        phone: [
+          {validator: validatePhone, trigger: 'blur'}
+        ]
+      }
+    }
+  },
+  methods: {
+    getQrCode () {
+      console.log('blur')
+      this.$http('/group/code').then(res => {
+        if (res.data) {
+          this.communityForm.code = res.data
+          this.createQrCode(res.data, 'community-qrcode')
+        }
+      })
+    },
+    submitForm (data) {
+      let address = data.pca.split(',').map(Number)
+      data.provinceAreaID = address[0]
+      data.cityAreaID = address[1]
+      data.districtAreaID = address[2]
+      data.rule = data.rule.toString()
+      this.$http(`/group/${this.type}`, data).then(res => {
+        this.$tip('保存成功')
+        this.$router.push('/community/mine')
+      })
+    },
+    createQrCode (url, id) {
+      this.$nextTick(() => {
+        const qrCode = new QRCode(id, {
+          width: 74,
+          height: 74,
+          colorDark: '#000000',
+          correctLevel: QRCode.CorrectLevel.H
+        })
+        qrCode.makeCode(url)
+      })
+    },
+    getCommunityInfo () {
+      this.$http('/group/getInfo', {guid: this.$route.params.gid}).then(res => {
+        res.data.pca = `${res.data.provinceAreaID},${res.data.cityAreaID},${res.data.districtAreaID}`
+        res.data.rule = (res.data.rule || '1').split(',').map(Number)
+        this.originName = JSON.parse(JSON.stringify(res.data.name))
+        this.communityForm = res.data
+        console.log(this.communityForm)
+        this.$createQRCode(res.data.code, 'community-qrcode')
+      })
+    }
+  },
+  created () {
+    if (this.$route.name === 'editCommunity') {
+      this.getCommunityInfo()
+    }
+  },
+  computed: {
+    menuTitle: function () {
+      return this.$route.name === 'editCommunity' ? '编辑社群信息' : '创建社群'
+    },
+    subText: function () {
+      return this.$route.name === 'editCommunity' ? '保存' : '创建'
+    },
+    type: function () {
+      return this.$route.name === 'editCommunity' ? 'update' : 'create'
+    }
   }
+}
 </script>
 
 <style lang="scss">
-  .community-common-form-wrap{
+  .community-common-form-wrap {
     .qr-code-wrap {
       display: inline-block;
       vertical-align: middle;

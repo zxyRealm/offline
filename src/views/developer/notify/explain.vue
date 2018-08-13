@@ -8,16 +8,16 @@
 </template>
 
 <script>
-  export default {
-    name: "explain",
-    data() {
-      return {
-        menu: [
-          {title: '参数介绍'}
-        ]
-      }
+export default {
+  name: 'explain',
+  data () {
+    return {
+      menu: [
+        {title: '参数介绍'}
+      ]
     }
   }
+}
 </script>
 
 <style scoped>

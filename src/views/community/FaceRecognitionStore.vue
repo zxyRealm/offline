@@ -1,7 +1,7 @@
 <template>
   <div class="cmm-table__face dashed-border">
     <h2 class="cmm-sub-title">识别人脸库</h2>
-    <face-recognition @search-params="getFaceData" ></face-recognition>
+    <face-recognition @search-params="getFaceData"></face-recognition>
     <el-table
       :data="faceData"
       border
@@ -50,129 +50,127 @@
       </el-pagination>
     </div>
     <!-- lwh-到访记录详情 -->
-    <visited-detail-info :state.sync="visitedState" :detailInfo="detailInfo" :deviceList="deviceList"></visited-detail-info>
+    <visited-detail-info :state.sync="visitedState" :detailInfo="detailInfo"
+                         :deviceList="deviceList"></visited-detail-info>
   </div>
 </template>
 <script>
-    import FaceRecognition from '@/components/screening/FaceRecognition'
-    import VisitedDetailInfo from './VisitedDetailInfo'
-    import { eventObject } from '@/utils/event'
-    export default {
-      name: 'FaceRecognitionStore',
-      components: {
-        FaceRecognition,
-        VisitedDetailInfo
-      },
-      props: {
-        guid: {
-          type: String,
-          default: ''
-        },
-        deviceList: {
-          type: Array,
-          default: []
-        }
-      },
-      data() {
-        return {
-          paramsInSear: {  //查询条件
+import FaceRecognition from '@/components/screening/FaceRecognition'
+import VisitedDetailInfo from './VisitedDetailInfo'
+import {eventObject} from '@/utils/event'
 
-          },
-          detailInfo: {},    //详情页
-          faceData: [],
-          pageParams: {
-            pageSize: 10,      //每页显示条数 = 默认
-            total: 0,         //总条数
-            currentPage: 1    //当前第几页
-          },
-          layout: 'total, sizes',
-          visitedState: false   //到访信息状态
-        }
-      },
-      methods: {
-        //每页显示条数
-        handleSizeChange(val) {
-          this.pageParams.pageSize = val;
-          this.pageParams.currentPage = 1;
-          this.getDataInParams(this.paramsInSear);
-        },
-        //当前显示第几页
-        handleCurrentChange(val) {
-          this.pageParams.currentPage = val;
-          this.getDataInParams(this.paramsInSear);
-        },
-        //触发查询条件
-        getFaceData(params) {
-          this.paramsInSear = {...params};
-          this.pageParams.currentPage = 1;
-          this.getDataInParams(this.paramsInSear);
-        },
-        //根据查询条件查询数据
-        getDataInParams(params) {
-         let paramsSearch = {
-            groupGuid: this.guid,
-            deviceKey: params.deviceKey || '',
-            cameraName: '',
-            startTime: params.startTime || '',
-            endTime: params.endTime || '',
-            index: this.pageParams.currentPage,
-            length: this.pageParams.pageSize
-          };
-          this.$http('/group/faceSet/search',paramsSearch).then(res => {
-            if(res.result == 1){
-              this.faceData = res.data.content;
-              this.pageParams.total = res.data.pagination.total;
-            }
-          }).catch(error => {
-            console.info(error);
-          });
-        },
-        //查看识别记录详情
-        getDetailInfo(info) {
-          this.detailInfo = info;
-          this.visitedState = true
-          //触发传递设备列表到人脸识别库搜索组件上
-          eventObject().$emit('FaceRecognition',this.deviceList);
-        },
-        // 获取数据
-        getData() {
-          //初次进来默为1
-          this.pageParams.currentPage = 1;
-          let params = {
-            groupGuid: this.guid,
-            index: this.pageParams.currentPage,
-            length: this.pageParams.pageSize
-          };
-          this.$http('/group/faceSet', params).then(res => {
-            if (res.result == 1) {
-              this.faceData = res.data.content;
-              this.pageParams.total = res.data.pagination.total;
-            }
-          }).catch(error => {
-            console.info(error);
-          })
-        }
-
-      },
-      watch: {
-        //监听guid改变
-        guid(val, oldVal) {
-          if(!val) return;
-          this.getData();
-        },
-        //监听图片数据
-        faceData: {
-          handler: function (val, oldVal) {
-            this.layout = val.length == 0 ? 'total, sizes' : 'total, sizes, prev, pager, next';
-          },
-          deep: true
-        },
-        //监听查询条件的改变
-        paramsInSear(val,oldVal) {
-          //console.info(val,"");
-        }
-      }
+export default {
+  name: 'FaceRecognitionStore',
+  components: {
+    FaceRecognition,
+    VisitedDetailInfo
+  },
+  props: {
+    guid: {
+      type: String,
+      default: ''
+    },
+    deviceList: {
+      type: Array,
+      default: () => []
     }
+  },
+  data () {
+    return {
+      paramsInSear: { // 查询条件
+
+      },
+      detailInfo: {}, // 详情页
+      faceData: [],
+      pageParams: {
+        pageSize: 10, // 每页显示条数 = 默认
+        total: 0, // 总条数
+        currentPage: 1 // 当前第几页
+      },
+      layout: 'total, sizes',
+      visitedState: false // 到访信息状态
+    }
+  },
+  methods: {
+    // 每页显示条数
+    handleSizeChange (val) {
+      this.pageParams.pageSize = val
+      this.pageParams.currentPage = 1
+      this.getDataInParams(this.paramsInSear)
+    },
+    // 当前显示第几页
+    handleCurrentChange (val) {
+      this.pageParams.currentPage = val
+      this.getDataInParams(this.paramsInSear)
+    },
+    // 触发查询条件
+    getFaceData (params) {
+      this.paramsInSear = {...params}
+      this.pageParams.currentPage = 1
+      this.getDataInParams(this.paramsInSear)
+    },
+    // 根据查询条件查询数据
+    getDataInParams (params) {
+      let paramsSearch = {
+        groupGuid: this.guid,
+        deviceKey: params.deviceKey || '',
+        cameraName: '',
+        startTime: params.startTime || '',
+        endTime: params.endTime || '',
+        index: this.pageParams.currentPage,
+        length: this.pageParams.pageSize
+      }
+      this.$http('/group/faceSet/search', paramsSearch).then(res => {
+        this.faceData = res.data.content
+        this.pageParams.total = res.data.pagination.total
+      }).catch(error => {
+        console.info(error)
+      })
+    },
+    // 查看识别记录详情
+    getDetailInfo (info) {
+      this.detailInfo = info
+      this.visitedState = true
+      // 触发传递设备列表到人脸识别库搜索组件上
+      eventObject().$emit('FaceRecognition', this.deviceList)
+    },
+    // 获取数据
+    getData () {
+      // 初次进来默为1
+      this.pageParams.currentPage = 1
+      let params = {
+        groupGuid: this.guid,
+        index: this.pageParams.currentPage,
+        length: this.pageParams.pageSize
+      }
+      this.$http('/group/faceSet', params).then(res => {
+        this.faceData = res.data.content
+        this.pageParams.total = res.data.pagination.total
+      }).catch(error => {
+        console.info(error)
+      })
+    }
+
+  },
+  watch: {
+    // 监听guid改变
+    guid (val, oldVal) {
+      if (!val) return
+      this.getData()
+    },
+    // 监听图片数据
+    faceData: {
+      handler: function (val, oldVal) {
+        this.layout = val.length === 0 ? 'total, sizes' : 'total, sizes, prev, pager, next'
+      },
+      deep: true
+    },
+    // 监听查询条件的改变
+    paramsInSear (val, oldVal) {
+      // console.info(val,"");
+    }
+  }
+}
 </script>
 <style rel="stylesheet/scss" lang="scss">
   .community--main {

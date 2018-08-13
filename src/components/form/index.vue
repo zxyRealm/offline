@@ -18,85 +18,85 @@
 </template>
 
 <script>
-  export default {
-    name: 'uu-form',
-    props: {
-      readonly: {
-        type: Boolean,
-        default: false
-      },
-      width: {
-        type: [String, Number],
-        default: '332px'
-      },
-      labelPosition: {
-        type: [String],
-        default: 'left'
-      },
-      value: {
-        type: [Object],
-        default: () => ({})
-      },
-      labelWidth: {
-        type: String,
-        default: '110px'
-      },
-      rules: {
-        type: [Object],
-        default: () => ({})
-      },
-      refName: {
-        type: String,
-        default: ''
-      },
-      formClass: {
-        type: [String, Object],
-        default: ''
-      },
-      subText: {
-        type: [String],
-        default: ''
-      }
+export default {
+  name: 'uu-form',
+  props: {
+    readonly: {
+      type: Boolean,
+      default: false
     },
-    data () {
-      return {
-        ruleForm: {}
-      }
+    width: {
+      type: [String, Number],
+      default: '332px'
     },
-    created () {
-      this.ruleForm = this.value
+    labelPosition: {
+      type: [String],
+      default: 'left'
     },
-    methods: {
-      submitForm (callback) {
-        this.$refs['submitForm'].validate((valid) => {
-          if (valid) {
-            let subData = JSON.parse(JSON.stringify(this.ruleForm));
-            if (typeof callback === 'function') {
-              callback(subData);
-            } else {
-              this.$emit('handle-submit', subData)
-            }
+    value: {
+      type: [Object],
+      default: () => ({})
+    },
+    labelWidth: {
+      type: String,
+      default: '110px'
+    },
+    rules: {
+      type: [Object],
+      default: () => ({})
+    },
+    refName: {
+      type: String,
+      default: ''
+    },
+    formClass: {
+      type: [String, Object],
+      default: ''
+    },
+    subText: {
+      type: [String],
+      default: ''
+    }
+  },
+  data () {
+    return {
+      ruleForm: {}
+    }
+  },
+  created () {
+    this.ruleForm = this.value
+  },
+  methods: {
+    submitForm (callback) {
+      this.$refs['submitForm'].validate((valid) => {
+        if (valid) {
+          let subData = JSON.parse(JSON.stringify(this.ruleForm))
+          if (typeof callback === 'function') {
+            callback(subData)
           } else {
-            console.warn('validate is not pass,con\'t submit')
+            this.$emit('handle-submit', subData)
           }
-        })
-      }
-    },
-    watch: {
-      value: {
-        handler: function (val) {
-          this.ruleForm = val;
-        },
-        deep: true
+        } else {
+          console.warn('validate is not pass,con\'t submit')
+        }
+      })
+    }
+  },
+  watch: {
+    value: {
+      handler: function (val) {
+        this.ruleForm = val
       },
-      ruleForm: {
-        handler: function (val) {
-          this.$emit('input', val)
-        },
-        deep: true
-      }
+      deep: true
+    },
+    ruleForm: {
+      handler: function (val) {
+        this.$emit('input', val)
+      },
+      deep: true
     }
   }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

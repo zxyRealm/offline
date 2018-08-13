@@ -32,83 +32,83 @@
 </template>
 
 <script>
-  import { validateURL } from '@/utils/validate'
-  export default {
-    name: "notify",
-    data() {
-      const validateUrl =(rule,value,callback)=>{
-        if(!value){
-          callback(new Error("请填写回调地址"))
-        }else {
-          if(validateURL(value)){
-            callback()
-          }else {
-            callback(new Error("回调地址不合法"))
-          }
+import {validateURL} from '@/utils/validate'
+export default {
+  name: 'notify',
+  data () {
+    const validateUrl = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请填写回调地址'))
+      } else {
+        if (validateURL(value)) {
+          callback()
+        } else {
+          callback(new Error('回调地址不合法'))
         }
-      };
-      return {
-        menu: [
-          {title: '消息通知', index: '/developer/notify'},
-          {title: '开放API', index: '/developer/api'}
-        ],
-        rules: {
-          type:[
-            {required:true,message:'请选取类型',trigger:'blur'}
-          ],
-          tokenURL:[
-            {required:true,validator:validateUrl,trigger:'blur'}
-          ],
-          intro:[
-            {required:true,message:'请填写描述',trigger:'blur'}
-          ]
-        },
-        callbackForm: {
-          type: "1",
-          tokenURL: '',
-          intro: ''
-        },
-        editable: true
-      }
-    },
-    methods: {
-      handelCallbackInfo(data) {
-        const type = this.$route.name==='addNotifyCallback'?'create':'update';
-        this.$http("/dataNotice/"+type,data).then(res=>{
-          if(res.result){
-            this.$tip("保存成功");
-            this.$router.push("/developer/notify")
-          }
-        })
-      },
-      getCallbackInfo(){
-        this.$http("/dataNotice/getInfo",{noticeGuid:this.$route.params.id}).then(res=>{
-         this.callbackForm = res.data
-        })
-      }
-    },
-    computed:{
-      notifyTitle:function () {
-        return this.$route.name==='addNotifyCallback'?'创建消息通知':'编辑消息通知'
-      }
-    },
-    mounted(){
-      if(this.$route.name==='editNotifyCallback'){
-        this.getCallbackInfo()
       }
     }
+    return {
+      menu: [
+        {title: '消息通知', index: '/developer/notify'},
+        {title: '开放API', index: '/developer/api'}
+      ],
+      rules: {
+        type: [
+          {required: true, message: '请选取类型', trigger: 'blur'}
+        ],
+        tokenURL: [
+          {required: true, validator: validateUrl, trigger: 'blur'}
+        ],
+        intro: [
+          {required: true, message: '请填写描述', trigger: 'blur'}
+        ]
+      },
+      callbackForm: {
+        type: '1',
+        tokenURL: '',
+        intro: ''
+      },
+      editable: true
+    }
+  },
+  methods: {
+    handelCallbackInfo (data) {
+      const type = this.$route.name === 'addNotifyCallback' ? 'create' : 'update'
+      this.$http('/dataNotice/' + type, data).then(res => {
+        if (res.result) {
+          this.$tip('保存成功')
+          this.$router.push('/developer/notify')
+        }
+      })
+    },
+    getCallbackInfo () {
+      this.$http('/dataNotice/getInfo', {noticeGuid: this.$route.params.id}).then(res => {
+        this.callbackForm = res.data
+      })
+    }
+  },
+  computed: {
+    notifyTitle: function () {
+      return this.$route.name === 'addNotifyCallback' ? '创建消息通知' : '编辑消息通知'
+    }
+  },
+  mounted () {
+    if (this.$route.name === 'editNotifyCallback') {
+      this.getCallbackInfo()
+    }
   }
+}
 </script>
 
 <style lang="scss" scoped>
   .notify-wrap {
     height: 100%;
     .notify-form-wrap {
-      height:520px;
+      height: 520px;
       width: 690px;
       margin: 0 auto;
-      background: rgba(1,8,20,0.10);
-      border: 1px dashed rgba(151,151,151,0.10);
+      background: rgba(1, 8, 20, 0.10);
+      border: 1px dashed rgba(151, 151, 151, 0.10);
     }
   }
 

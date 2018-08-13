@@ -65,215 +65,212 @@
   </div>
 </template>
 <script>
-  import FlowInfo from './componets/FlowInfo.vue'
-  import AllTime from './componets/AllTime.vue'
-  import bar from '@/components/echarts/bar.vue'
-  import pie from '@/components/echarts/pie.vue'
-  import lineConsole from '@/components/echarts/line.vue'
-  import CustomerInfo from './componets/CustomerInfo.vue'
-  import {mapState} from 'vuex'
-  import {eventObject} from '@/utils/event.js'
+import FlowInfo from './componets/FlowInfo.vue'
+import AllTime from './componets/AllTime.vue'
+import bar from '@/components/echarts/bar.vue'
+import pie from '@/components/echarts/pie.vue'
+import lineConsole from '@/components/echarts/line.vue'
+import CustomerInfo from './componets/CustomerInfo.vue'
+import {mapState} from 'vuex'
+import {eventObject} from '@/utils/event.js'
 
-  export default {
-    name: "console",
-    components: {FlowInfo, AllTime, bar, pie, lineConsole, CustomerInfo},
-    data() {
-      return {
-        state: false,    //是否有数据
-        deviceKey: '',   //设备序列号
-        pedestrianInData: [], //进客流
-        pedestrianOutData: [], //出客流
-        pieParams: {   //饼图
-          type: 3,
-          title: {text: '男女流量占比'},
-          seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}],
-          //legendData: ['女', '男']
-        },
-        lineParams: { //线图
-          title: {text: '客流量统计'}
-        },
-        outNumber: 0,   //出入数
-        inNumber: 0,    //进入数
-        ageBar: [0, 0, 0, 0, 0, 0],  //柱图
-        websocket: null,
+export default {
+  name: 'console',
+  components: {FlowInfo, AllTime, bar, pie, lineConsole, CustomerInfo},
+  data () {
+    return {
+      state: false, // 是否有数据
+      deviceKey: '', // 设备序列号
+      pedestrianInData: [], // 进客流
+      pedestrianOutData: [], // 出客流
+      pieParams: { // 饼图
+        type: 3,
+        title: {text: '男女流量占比'},
+        seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}]
+        // legendData: ['女', '男']
+      },
+      lineParams: { // 线图
+        title: {text: '客流量统计'}
+      },
+      outNumber: 0, // 出入数
+      inNumber: 0, // 进入数
+      ageBar: [0, 0, 0, 0, 0, 0], // 柱图
+      websocket: null
+    }
+  },
+  methods: {
+    selectGroupId () {
+      eventObject().$emit('change', '快点操作啊！')
+    },
+    getwebsocket (data) {
+      let me = this
+      let wsServer = 'ws://' + data // 服务器地址
+      this.websocket = new WebSocket(wsServer)
+      this.websocket.onopen = function (evt) {
+        // 已经建立连接
+        me.websocket.send(me.deviceKey + '_channel') // 向服务器发送消息
+        console.info('已经连接')
+      }
+      this.websocket.onmessage = function (evt) {
+        // 收到服务器消息，使用evt.data提取
+        me.resolveDatad(evt.data)
+      }
+      this.websocket.onclose = function (evt) {
+        console.info('已经关闭连接')
+      }
+      this.websocket.onerror = function (evt) {
+        console.info('产生异常')
       }
     },
-    methods: {
-      selectGroupId() {
-        eventObject().$emit('change', '快点操作啊！');
-      },
-      getwebsocket(data) {
-        let me = this;
-        let wsServer = 'ws://' + data; //服务器地址
-        this.websocket = new WebSocket(wsServer);
-        this.websocket.onopen = function (evt) {
-          //已经建立连接
-          me.websocket.send(me.deviceKey + '_channel');  //向服务器发送消息
-          console.info("已经连接");
-        };
-        this.websocket.onmessage = function (evt) {
-          //收到服务器消息，使用evt.data提取
-          me.resolveDatad(evt.data);
-        };
-        this.websocket.onclose = function (evt) {
-          console.info("已经关闭连接");
-        };
-        this.websocket.onerror = function (evt) {
-          console.info("产生异常");
-        };
-
-      },
-      resizeFunction() {
-        let me = this;
-        if (!me.$refs.bar) return;
-        let consoleTimer = null;   //定时器
-        if (consoleTimer) {
-          consoleTimer = null;
-        }
-        consoleTimer = setTimeout(() => {
-          let table = document.getElementById("echarts-bar");
-          table.style.width = me.$refs.bar.offsetWidth + "px";
-          table.style.height = me.$refs.bar.offsetHeight + "px";
-          me.$refs.echartsBar.resizeEcharts();
-
-          let tablePie = document.getElementById("echarts-pie");
-          tablePie.style.width = me.$refs.pie.offsetWidth + "px";
-//          tablePie.style.height = me.$refs.pie.offsetHeight + "px";
-          me.$refs.echartsPie.resizeEcharts();
-
-          let tableLine = document.getElementById("echarts-line");
-          tableLine.style.width = me.$refs.lineConsole.offsetWidth + "px";
-          tableLine.style.height = me.$refs.lineConsole.offsetHeight + "px";
-          me.$refs.echartsLine.resizeEcharts();
-        }, 300)
-      },
-      //解析数据
-      resolveDatad(data) {
-        let obj = JSON.parse(data);
-        //饼图 = 推送实时更新数据
-        this.$set(this.pieParams.seriesData[0], "value", obj.female);
-        this.$set(this.pieParams.seriesData[1], "value", obj.male);
-        //饼图 = 数据更新
-        if (!!this.$refs.echartsPie) {
-          this.$refs.echartsPie.consoleEmit()
-        }
-        //进出人数
-        this.outNumber = obj.outNumber;
-        this.inNumber = obj.inNumber;
-        //柱状图
-        this.ageBar = JSON.parse(obj.age);
-        //图片展示
-        this.typePedestrian(obj.pedestrian[0]);
-      },
-      //判断数据类型，并且限定大小4
-      typePedestrian(pedestrian) {
-        if (!pedestrian) return;
-        let currentList = []; //进出客数据列表
-        // status 0 进客 1 出客
-        pedestrian.status ? currentList = this.pedestrianOutData : currentList = this.pedestrianInData;
-        // 过滤重复数据
-        let last = currentList[currentList.length - 1];
-        if (last && (pedestrian.order == last.order)) {
-          return;
-        }
-        if (currentList.length >= 4) {
-          currentList.splice(currentList.length - 1, 1)
-        }
-        currentList.unshift(pedestrian);
-      },
-      //获取长连接ip（端口号：8083）
-      getwebsocketIp() {
-        this.$http('/getServiceIp').then(res => {
-          this.getwebsocket(res.data);
-        }).catch(error => {
-          console.info(error);
-        });
-      },
-      //请求数据
-      getData() {
-        this.$http('/personData', {
-          deviceKey: this.deviceKey
-        }).then(res => {
-          if (res.data && res.data.length) {
-            this.resolveDatad(res.data);  //假如没走这一步，当你更换设备时记录的是上一个设备的数据
-          } else {
-            this.defaultData();
-          }
-          this.getwebsocketIp();
-          this.resizeFunction();
-        }).catch(error => {
-          this.resizeFunction();   //请求失败渲染默认数据
-          console.info(error);
-        });
-      },
-      //当请求数据为空时
-      defaultData() {
-        let params = {   //饼图
-          type: 3,
-          title: {text: '男女流量占比'},
-          seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}],
-        };
-        this.pieParams = {...params};
-        this.lineParams = { //线图
-          title: {text: '客流量统计'}
-        };
-        this.outNumber = 0;   //出入数
-        this.inNumber = 0;    //进入数
-        this.ageBar = [0, 0, 0, 0, 0, 0]; //柱图
+    resizeFunction () {
+      let me = this
+      if (!me.$refs.bar) return
+      let consoleTimer = null // 定时器
+      if (consoleTimer) {
+        consoleTimer = null
       }
+      consoleTimer = setTimeout(() => {
+        let table = document.getElementById('echarts-bar')
+        table.style.width = me.$refs.bar.offsetWidth + 'px'
+        table.style.height = me.$refs.bar.offsetHeight + 'px'
+        me.$refs.echartsBar.resizeEcharts()
+        let tablePie = document.getElementById('echarts-pie')
+        tablePie.style.width = me.$refs.pie.offsetWidth + 'px'
+        // tablePie.style.height = me.$refs.pie.offsetHeight + "px";
+        me.$refs.echartsPie.resizeEcharts()
+        let tableLine = document.getElementById('echarts-line')
+        tableLine.style.width = me.$refs.lineConsole.offsetWidth + 'px'
+        tableLine.style.height = me.$refs.lineConsole.offsetHeight + 'px'
+        me.$refs.echartsLine.resizeEcharts()
+      }, 300)
     },
-    created() {
-      eventObject().$on('resize-echarts-console', msg => { //eventObject接收事件  == 控制控制台的图表重置
-        this.resizeFunction();
-      });
-    },
-    mounted() {
-      let me = this;
-      window.addEventListener('resize', me.resizeFunction);
-      if (this.groupConsoleId != "") {
-        this.deviceKey = this.$store.state.groupConsoleId;
-        this.state = true;
-        this.getData();
-        //this.getwebsocketIp();
+    // 解析数据
+    resolveDatad (data) {
+      let obj = JSON.parse(data)
+      // 饼图 = 推送实时更新数据
+      this.$set(this.pieParams.seriesData[0], 'value', obj.female)
+      this.$set(this.pieParams.seriesData[1], 'value', obj.male)
+      // 饼图 = 数据更新
+      if (!!this.$refs.echartsPie) {
+        this.$refs.echartsPie.consoleEmit()
       }
+      // 进出人数
+      this.outNumber = obj.outNumber
+      this.inNumber = obj.inNumber
+      // 柱状图
+      this.ageBar = JSON.parse(obj.age)
+      // 图片展示
+      this.typePedestrian(obj.pedestrian[0])
     },
-    computed: {
-      ...mapState([
-        'groupConsoleId'
-      ])
-    },
-    watch: {
-      //监听vuex groupConsoleId是否改变
-      groupConsoleId(val) {
-        if (!val || val == "") {
-          this.state = false;
-          return;
-        }
-        this.pedestrianInData = [];
-        this.pedestrianOutData = [];
-        if (this.websocket) {
-          this.websocket.close()
-        }
-        this.deviceKey = val;
-        this.state = true;
-        this.getData();
+    // 判断数据类型，并且限定大小4
+    typePedestrian (pedestrian) {
+      if (!pedestrian) return
+      let currentList = [] // 进出客数据列表
+      // status 0 进客 1 出客
+      pedestrian.status ? currentList = this.pedestrianOutData : currentList = this.pedestrianInData
+      // 过滤重复数据
+      let last = currentList[currentList.length - 1]
+      if (last && (pedestrian.order === last.order)) {
+        return
       }
+      if (currentList.length >= 4) {
+        currentList.splice(currentList.length - 1, 1)
+      }
+      currentList.unshift(pedestrian)
     },
-    beforeRouteLeave(to, from, next) {
-      let me = this;
-      //路由跳转后，不需要保存控制台的信息
-      this.$store.commit('SET_GROUP_CONSOLE_ID');
-      this.$store.commit('SET_GROUP_SELECT_ID');
-      //解除绑定事件
-      window.removeEventListener("resize", me.resizeFunction);
-      eventObject().$off('resize-echarts-console');
-      //关闭websocket链接
-      if (!!this.websocket) {
+    // 获取长连接ip（端口号：8083）
+    getwebsocketIp () {
+      this.$http('/getServiceIp').then(res => {
+        this.getwebsocket(res.data)
+      }).catch(error => {
+        console.info(error)
+      })
+    },
+    // 请求数据
+    getData () {
+      this.$http('/personData', {
+        deviceKey: this.deviceKey
+      }).then(res => {
+        if (res.data && res.data.length) {
+          this.resolveDatad(res.data) // 假如没走这一步，当你更换设备时记录的是上一个设备的数据
+        } else {
+          this.defaultData()
+        }
+        this.getwebsocketIp()
+        this.resizeFunction()
+      }).catch(error => {
+        this.resizeFunction() // 请求失败渲染默认数据
+        console.info(error)
+      })
+    },
+    // 当请求数据为空时
+    defaultData () {
+      let params = { // 饼图
+        type: 3,
+        title: {text: '男女流量占比'},
+        seriesData: [{value: 0, name: '女'}, {value: 0, name: '男'}]
+      }
+      this.pieParams = {...params}
+      this.lineParams = { // 线图
+        title: {text: '客流量统计'}
+      }
+      this.outNumber = 0 // 出入数
+      this.inNumber = 0 // 进入数
+      this.ageBar = [0, 0, 0, 0, 0, 0] // 柱图
+    }
+  },
+  created () {
+    eventObject().$on('resize-echarts-console', msg => { // eventObject接收事件  == 控制控制台的图表重置
+      this.resizeFunction()
+    })
+  },
+  mounted () {
+    let me = this
+    window.addEventListener('resize', me.resizeFunction)
+    if (this.groupConsoleId !== '') {
+      this.deviceKey = this.$store.state.groupConsoleId
+      this.state = true
+      this.getData()
+      // this.getwebsocketIp();
+    }
+  },
+  computed: {
+    ...mapState([
+      'groupConsoleId'
+    ])
+  },
+  watch: {
+    // 监听vuex groupConsoleId是否改变
+    groupConsoleId (val) {
+      if (!val || val === '') {
+        this.state = false
+        return
+      }
+      this.pedestrianInData = []
+      this.pedestrianOutData = []
+      if (this.websocket) {
         this.websocket.close()
       }
-      next();
+      this.deviceKey = val
+      this.state = true
+      this.getData()
     }
+  },
+  beforeRouteLeave (to, from, next) {
+    let me = this
+    // 路由跳转后，不需要保存控制台的信息
+    this.$store.commit('SET_GROUP_CONSOLE_ID')
+    this.$store.commit('SET_GROUP_SELECT_ID')
+    // 解除绑定事件
+    window.removeEventListener('resize', me.resizeFunction)
+    eventObject().$off('resize-echarts-console')
+    // 关闭websocket链接
+    if (!!this.websocket) {
+      this.websocket.close()
+    }
+    next()
   }
+}
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
   .console-wrap {

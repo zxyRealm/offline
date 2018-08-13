@@ -97,11 +97,11 @@
                 </div>
               </div>
             </div>
-              <div class="dashed-border " :class="(!currentCommunity.groupPid)? 'lwh--table': 'cmm-table'">
-                <h2 class="cmm-sub-title">设备列表</h2>
-                <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
-                </ob-list-empty>
-                <el-scrollbar ref="faceScrollItemTable" :class="deviceList.length <= 5 ? 'lwh-scroll': ''" v-else>
+            <div class="dashed-border " :class="(!currentCommunity.groupPid)? 'lwh--table': 'cmm-table'">
+              <h2 class="cmm-sub-title">设备列表</h2>
+              <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
+              </ob-list-empty>
+              <el-scrollbar ref="faceScrollItemTable" :class="deviceList.length <= 5 ? 'lwh-scroll': ''" v-else>
                 <el-table
                   border
                   :data="deviceList"
@@ -145,7 +145,8 @@
               </el-scrollbar>
             </div>
             <!-- lwh-识别人脸库 -->
-            <face-recognition-store :guid="currentCommunity.groupGuid" :deviceList="deviceList" v-if="!currentCommunity.groupPid"></face-recognition-store>
+            <face-recognition-store :guid="currentCommunity.groupGuid" :deviceList="deviceList"
+                                    v-if="!currentCommunity.groupPid"></face-recognition-store>
 
           </el-scrollbar>
         </div>
@@ -157,227 +158,227 @@
 <script>
   import {mapState} from 'vuex'
   import {uniqueKey} from '@/utils/index'
-  import FaceRecognition from '@/components/screening/FaceRecognition';
-  import VisitedDetailInfo from './VisitedDetailInfo.vue';
-  import FaceRecognitionStore from './FaceRecognitionStore';
-  import { eventObject } from '@/utils/event'
+  import FaceRecognition from '@/components/screening/FaceRecognition'
+  import VisitedDetailInfo from './VisitedDetailInfo.vue'
+  import FaceRecognitionStore from './FaceRecognitionStore'
+  import {eventObject} from '@/utils/event'
 
-  export default {
-    components: {
-      FaceRecognitionStore,
-      VisitedDetailInfo,
-      FaceRecognition
-    },
-    name: 'index',
-    data () {
-      const validateName = (rule, value, callback) => {
-        value = value.trim();
-        if (!value) {
-          callback(new Error('请填写子社群昵称'))
-        } else {
-          if (value.length >= 2 && value.length <= 18) {
-            if (this.originName === value) {
-              callback(new Error('子社群昵称已存在'))
-            } else {
-              this.$http('/group/nickNameExist', {groupNickName: value},
-                false).then(res => {
-                !res.data ? callback() : callback('子社群昵称已存在')
-              }).catch(err => {
-                callback(err.msg || '验证失败')
-              })
-            }
+export default {
+  components: {
+    FaceRecognitionStore,
+    VisitedDetailInfo,
+    FaceRecognition
+  },
+  name: 'index',
+  data () {
+    const validateName = (rule, value, callback) => {
+      value = value.trim()
+      if (!value) {
+        callback(new Error('请填写子社群昵称'))
+      } else {
+        if (value.length >= 2 && value.length <= 18) {
+          if (this.originName === value) {
+            callback(new Error('子社群昵称已存在'))
           } else {
-            callback(new Error('长度为2-18个字符'))
+            this.$http('/group/nickNameExist', {groupNickName: value},
+              false).then(res => {
+              !res.data ? callback() : callback('子社群昵称已存在')
+            }).catch(err => {
+              callback(err.msg || '验证失败')
+            })
           }
+        } else {
+          callback(new Error('长度为2-18个字符'))
         }
-      };
-      return {
-        originName: '',
-        groupList: [], //社群列表
-        tableData: [],
-        deviceList: [], //社群设备列表
-        communityInfo: {}, //社群信息
-        currentKey: '',  //当前选中社群id
-        currentCommunity: {}, //当前社群信息
-        communityForm: {
-          groupPid: '',
-          groupGuid: '',
-          groupNickName: ''
-        },
-        rules: {
-          groupNickName: [
-            {required: true, validator: validateName, trigger: 'blur'}
-          ]
-        },
-        nickNamePopover: false,
-        expandedKeys: [],
-        searchEmpty:false
       }
-    },
-    methods: {
-      // 获取社群列表
-      getGroupList (keywords, key) {
-        keywords = (keywords || '').trim();
-        this.$http('/group/list').then(res => {
-          this.groupList = uniqueKey(res.data);
-          if (!key && !res.data[0]) {
-            return
-          }
-          this.$nextTick(() => {
-            this.$refs.groupNav.setCurrentKey(res.data[0].uniqueKey);
-          });
-          this.getCommunityInfo(key || res.data[0]);
-          this.getDeviceList(key || res.data[0]);
-        })
+    }
+    return {
+      originName: '',
+      groupList: [], // 社群列表
+      tableData: [],
+      deviceList: [], // 社群设备列表
+      communityInfo: {}, // 社群信息
+      currentKey: '', // 当前选中社群id
+      currentCommunity: {}, // 当前社群信息
+      communityForm: {
+        groupPid: '',
+        groupGuid: '',
+        groupNickName: ''
       },
-      // 获取设备列表
-      getDeviceList (val) {
-        let url = !val.groupPid ? '/group/device ' : '/device/guid/list';
-        if(val.groupGuid){
-          this.$http(url, {guid: val.groupGuid}).then(res => {
-            this.deviceList = res.data.content || res.data || [];
-            this.$store.state.loading = false;
-            //触发传递设备列表到人脸识别库搜索组件上
-            eventObject().$emit('FaceRecognition',this.deviceList);
-          })
+      rules: {
+        groupNickName: [
+          {required: true, validator: validateName, trigger: 'blur'}
+        ]
+      },
+      nickNamePopover: false,
+      expandedKeys: [],
+      searchEmpty: false
+    }
+  },
+  methods: {
+    // 获取社群列表
+    getGroupList (keywords, key) {
+      keywords = (keywords || '').trim()
+      this.$http('/group/list').then(res => {
+        this.groupList = uniqueKey(res.data)
+        if (!key && !res.data[0]) {
+          return
         }
+        this.$nextTick(() => {
+          this.$refs.groupNav.setCurrentKey(res.data[0].uniqueKey)
+        })
+        this.getCommunityInfo(key || res.data[0])
+        this.getDeviceList(key || res.data[0])
+      })
+    },
+    // 获取设备列表
+    getDeviceList (val) {
+      let url = !val.groupPid ? '/group/device ' : '/device/guid/list'
+      if (val.groupGuid) {
+        this.$http(url, {guid: val.groupGuid}).then(res => {
+          this.deviceList = res.data.content || res.data || []
+          this.$store.state.loading = false
+          // 触发传递设备列表到人脸识别库搜索组件上
+          eventObject().$emit('FaceRecognition', this.deviceList)
+        })
+      }
 
-      },
-      // 搜索社群
-      remoteSearch (val) {
-        this.searchEmpty = false;
-        if (val) {
-          this.$http('/group/list/search', {searchText: val}).then(res => {
-            if (res.data[0]) {
-              let restoreArray = this.$restoreArray(this.groupList, 'childGroupList');
-              let getCurrent = () => {
-                // 多层for循环嵌套只能用return跳出整个循环，break 只能跳出当前循环
-                for (let i = 0, len = restoreArray.length; i < len; i++) {
-                  for (let k = 0, len2 = res.data.length; k < len2; k++) {
-                    if (res.data[k] === restoreArray[i].groupGuid) {
-                      return restoreArray[i];
-                    }
+    },
+    // 搜索社群
+    remoteSearch (val) {
+      this.searchEmpty = false
+      if (val) {
+        this.$http('/group/list/search', {searchText: val}).then(res => {
+          if (res.data[0]) {
+            let restoreArray = this.$restoreArray(this.groupList, 'childGroupList')
+            let getCurrent = () => {
+              // 多层for循环嵌套只能用return跳出整个循环，break 只能跳出当前循环
+              for (let i = 0, len = restoreArray.length; i < len; i++) {
+                for (let k = 0, len2 = res.data.length; k < len2; k++) {
+                  if (res.data[k] === restoreArray[i].groupGuid) {
+                    return restoreArray[i]
                   }
                 }
-              };
-              // 数组去重
-              let setKey = new Set(res.data);
-              let setArr = [];
-              // 获取匹配值列表
-              restoreArray.map(item => {
-                if (setKey.has(item.groupGuid)) {
-                  setArr.push(item.uniqueKey)
-                }
-              });
-
-              let current = getCurrent();
-              this.expandedKeys = setArr;
-              this.$refs.groupNav.setCheckedKeys(setArr);
-              this.$nextTick(() => {
-                this.$refs.groupNav.setCurrentKey(current.uniqueKey);
-              });
-              this.getCommunityInfo(current);
-              this.getDeviceList(current);
-            } else {
-              this.searchEmpty = true;
-              this.setDefaultData()
+              }
             }
+            // 数组去重
+            let setKey = new Set(res.data)
+            let setArr = []
+            // 获取匹配值列表
+            restoreArray.map(item => {
+              if (setKey.has(item.groupGuid)) {
+                setArr.push(item.uniqueKey)
+              }
+            })
+
+            let current = getCurrent()
+            this.expandedKeys = setArr
+            this.$refs.groupNav.setCheckedKeys(setArr)
+            this.$nextTick(() => {
+              this.$refs.groupNav.setCurrentKey(current.uniqueKey)
+            })
+            this.getCommunityInfo(current)
+            this.getDeviceList(current)
+          } else {
+            this.searchEmpty = true
+            this.setDefaultData()
+          }
+        })
+      } else {
+        this.setDefaultData()
+      }
+    },
+
+    // 设置默认选中值
+    setDefaultData () {
+      let current = this.groupList[0]
+      this.expandedKeys = []
+      this.$nextTick(() => {
+        this.$refs.groupNav.setCurrentKey(current.uniqueKey)
+      })
+      this.$refs.groupNav.setCheckedKeys([])
+      this.getCommunityInfo(current)
+      this.getDeviceList(current)
+    },
+    // 当前社群发生改变
+    currentChange (val) {
+      this.currentCommunity = val
+      this.hidePopover()
+      // this.insetForm();
+      this.getCommunityInfo(val)
+      this.getDeviceList(val)
+    },
+    // 获取社群详细信息
+    getCommunityInfo (val) {
+      this.$http('/group/getInfo', {guid: val.groupGuid}).then(res => {
+        res.data ? res.data.groupPid = val.groupPid : ''
+        res.data.groupNickName = val.groupNickName || this.currentCommunity.groupNickName
+        res.data.groupPid ? this.originName = JSON.parse(JSON.stringify(res.data.groupNickName)) : ''
+        this.communityInfo = res.data || {}
+        if (res.data) {
+          this.$createQRCode(res.data.code, 'qr-code')
+        }
+      })
+    },
+    // 解散社群
+    disbandGroup () {
+      this.$affirm({text: `确认解散【${this.communityInfo.name}】社群？`}, (action, instance, done) => {
+        if (action === 'confirm') {
+          this.$http('/group/disbandGroup', {guid: this.communityInfo.guid}).then(res => {
+            this.$tip('解散成功')
+            this.getGroupList()
+          })
+          done()
+        } else {
+          done()
+        }
+      })
+
+    },
+    // 修改社群昵称
+    changeCommunityName (formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          let subData = JSON.parse(JSON.stringify(this.communityForm))
+          subData.groupGuid = this.communityInfo.guid
+          subData.groupPid = this.communityInfo.groupPid
+          this.$http('/group/nickName/update', subData).then(res => {
+            this.$tip('昵称修改成功')
+            this.currentCommunity.groupNickName = subData.groupNickName
+            this.hidePopover()
+            // this.insetForm();
+            this.getGroupList('', {groupGuid: this.communityInfo.guid, groupPid: this.communityInfo.groupPid})
           })
         } else {
-          this.setDefaultData()
+          console.log('error submit')
         }
-      },
+      })
+    },
 
-      // 设置默认选中值
-      setDefaultData () {
-        let current = this.groupList[0];
-        this.expandedKeys = [];
-        this.$nextTick(() => {
-          this.$refs.groupNav.setCurrentKey(current.uniqueKey);
-        });
-        this.$refs.groupNav.setCheckedKeys([]);
-        this.getCommunityInfo(current);
-        this.getDeviceList(current);
-      },
-      // 当前社群发生改变
-      currentChange (val) {
-        this.currentCommunity = val;
-        this.hidePopover();
-        // this.insetForm();
-        this.getCommunityInfo(val);
-        this.getDeviceList(val)
-      },
-      // 获取社群详细信息
-      getCommunityInfo (val) {
-        this.$http('/group/getInfo', {guid: val.groupGuid}).then(res => {
-          res.data ? res.data.groupPid = val.groupPid : '';
-          res.data.groupNickName = val.groupNickName || this.currentCommunity.groupNickName;
-          res.data.groupPid ? this.originName = JSON.parse(JSON.stringify(res.data.groupNickName)) : '';
-          this.communityInfo = res.data || {};
-          if (res.data) {
-            this.$createQRCode(res.data.code, 'qr-code')
-          }
-        })
-      },
-      // 解散社群
-      disbandGroup () {
-        this.$affirm({text: `确认解散【${this.communityInfo.name}】社群？`}, (action, instance, done) => {
-          if (action === 'confirm') {
-            this.$http('/group/disbandGroup', {guid: this.communityInfo.guid}).then(res => {
-              this.$tip('解散成功');
-              this.getGroupList()
-            });
-            done()
-          } else {
-            done()
-          }
-        });
-
-      },
-      // 修改社群昵称
-      changeCommunityName (formName) {
-        this.$refs[formName].validate(valid => {
-          if (valid) {
-            let subData = JSON.parse(JSON.stringify(this.communityForm));
-            subData.groupGuid = this.communityInfo.guid;
-            subData.groupPid = this.communityInfo.groupPid;
-            this.$http('/group/nickName/update', subData).then(res => {
-              this.$tip('昵称修改成功');
-              this.currentCommunity.groupNickName = subData.groupNickName;
-              this.hidePopover();
-              // this.insetForm();
-              this.getGroupList('', {groupGuid: this.communityInfo.guid, groupPid: this.communityInfo.groupPid})
-            })
-          } else {
-            console.log('error submit')
-          }
-        })
-      },
-
-      // 显示修改昵称表单
-      showPopover(){
-        console.log(this.communityInfo)
-        this.communityForm.groupNickName = this.communityInfo.groupNickName
-      },
-      // 隐藏修改昵称表单  清空表单数据
-      hidePopover(){
-        if(this.$refs.nickNameForm){
-          this.$refs.nickNameForm.resetFields()
-        }
-        this.nickNamePopover?this.nickNamePopover=false:''
+    // 显示修改昵称表单
+    showPopover () {
+      console.log(this.communityInfo)
+      this.communityForm.groupNickName = this.communityInfo.groupNickName
+    },
+    // 隐藏修改昵称表单  清空表单数据
+    hidePopover () {
+      if (this.$refs.nickNameForm) {
+        this.$refs.nickNameForm.resetFields()
       }
-
-    },
-    created () {
-      this.getGroupList()
-    },
-    computed: {
-      isSon: function () {
-        return Boolean(this.communityInfo.groupPid)
-      },
-      ...mapState(['loading'])
+      this.nickNamePopover ? this.nickNamePopover = false : ''
     }
+
+  },
+  created () {
+    this.getGroupList()
+  },
+  computed: {
+    isSon: function () {
+      return Boolean(this.communityInfo.groupPid)
+    },
+    ...mapState(['loading'])
   }
+}
 </script>
 <style rel="stylesheet/scss" lang="scss">
   .community--main {
@@ -402,8 +403,8 @@
     .lwh--table {
       .lwh-scroll {
         .el-scrollbar__wrap {
-          margin-bottom: 0!important;
-          margin-right: 0!important;
+          margin-bottom: 0 !important;
+          margin-right: 0 !important;
         }
       }
       .el-scrollbar {
@@ -416,26 +417,30 @@
       }
     }
   }
+
   .el-scrollbar__wrap {
     overflow: auto;
   }
 </style>
 <style lang="scss" scoped>
   @import "@/styles/community.scss";
-  .search-empty{
+
+  .search-empty {
     height: 20px;
     line-height: 18px;
     padding: 0 20px 0 40px;
-    font-size:12px ;
+    font-size: 12px;
     margin-top: -6px;
     color: #F87F21;
   }
+
   .community--inner .community--main .lwh--table {
     max-height: calc(345px);
     margin-bottom: 20px;
     padding: 20px;
   }
-  .community--inner{
+
+  .community--inner {
     .community--main {
       overflow-y: auto;
       .cmm-table {
