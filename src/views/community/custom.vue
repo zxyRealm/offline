@@ -1,99 +1,99 @@
 <template>
   <div class="community-mine-wrap">
     <div class="community--inner">
-        <div class="community--sidebar dashed-border">
-          <div class="btn-wrap">
-            <el-button disabled class="affirm medium">加入</el-button>
-            <el-button class="affirm medium" @click="$router.push('/community/custom/create')">创建</el-button>
-          </div>
-          <uu-sub-tab
-            size="small"
-            search
-            placeholder="快速查找分组"
-            @remote-search="remoteSearch"
-            :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
-          <p class="search-empty">{{searchEmpty?'未查询到结果':''}}</p>
-          <ob-group-nav
-            ref="customGroup"
-            theme="default"
-            node-key="guid"
-            only-checked
-            :current-key="currentKey"
-            :defaultProps="{label:'name'}"
-            type="custom-community"
-            @current-change="currentChange"
-            v-model="customGroupList">
-          </ob-group-nav>
+      <div class="community--sidebar dashed-border">
+        <div class="btn-wrap">
+          <el-button disabled class="affirm medium">加入</el-button>
+          <el-button class="affirm medium" @click="$router.push('/community/custom/create')">创建</el-button>
         </div>
-        <div class="community--main">
-            <div class="cmm-top dashed-border">
-              <h2 class="cmm-sub-title">
-                <span>分组详情</span>
-                <p class="handle fr fs14" v-show="customGroupInfo.guid && !loading">
-                  <a href="javascript:void (0)" class="danger mr-10" @click="deleteGroup">删除</a>
-                  <router-link :to="'/community/custom/edit/'+customGroupInfo.guid">编辑</router-link>
-                </p>
-              </h2>
-              <div class="cm-info-wrap custom">
-                <div class="info-detail" v-if="customGroupInfo.guid">
-                  <p>
-                    <span class="fs14">分组名称： </span>{{customGroupInfo.name}}
-                  </p>
-                  <p>
-                    <span class="fs14">分组类型： </span>
-                    <span
-                      class="ellipsis"
-                      :custom-type="customType(customGroupInfo.type)"
-                    >
-                    {{customGroupInfo.type|customType(true)}}
-                  </span>
-                  </p>
-                  <p>
-                    <span class="fs14">分组描述： </span>
-                    {{customGroupInfo.describe}}</p>
-                </div>
-                <ob-list-empty text="您尚未创建分组" size="small" v-if="!customGroupInfo.guid&&!loading"></ob-list-empty>
-              </div>
-            </div>
-            <div class="cmm-table dashed-border">
-              <h2 class="cmm-sub-title">
-                <span>社群列表</span>
-                <p class="handle fr fs14" v-if="!loading">
-                  <a href="javascript:void (0)"
-                     v-show="customMemberList.length"
-                     class="danger mr-10"
-                     @click="deleteMember">移除</a>
-                  <a href="javascript:void(0)"
-                     v-show="customGroupInfo.guid"
-                     @click="dialogFormVisible=true">添加</a>
-                </p>
-              </h2>
-              <el-table
-                border
-                ref="customTable"
-                height="250px"
-                :data="customMemberList"
-                style="width:100%"
-                @selection-change="handleSelectionChange"
-                empty-text="您尚未添加社群。"
-                v-if="customGroupInfo.guid"
-              >
-                <el-table-column
-                  align="center"
-                  type="selection"
-                  width="120">
-                </el-table-column>
-                <el-table-column
-                  align="center"
-                  prop="name"
-                  label="社群名称"
+        <uu-sub-tab
+          size="small"
+          search
+          placeholder="快速查找分组"
+          @remote-search="remoteSearch"
+          :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
+        <p class="search-empty">{{searchEmpty ? '未查询到结果' : ''}}</p>
+        <ob-group-nav
+          ref="customGroup"
+          theme="default"
+          node-key="guid"
+          only-checked
+          :current-key="currentKey"
+          :defaultProps="{label:'name'}"
+          type="custom-community"
+          @current-change="currentChange"
+          v-model="customGroupList">
+        </ob-group-nav>
+      </div>
+      <div class="community--main">
+        <div class="cmm-top dashed-border">
+          <h2 class="cmm-sub-title">
+            <span>分组详情</span>
+            <p class="handle fr fs14" v-show="customGroupInfo.guid && !loading">
+              <a href="javascript:void (0)" class="danger mr-10" @click="deleteGroup">删除</a>
+              <router-link :to="'/community/custom/edit/'+customGroupInfo.guid">编辑</router-link>
+            </p>
+          </h2>
+          <div class="cm-info-wrap custom">
+            <div class="info-detail" v-if="customGroupInfo.guid">
+              <p>
+                <span class="fs14">分组名称： </span>{{customGroupInfo.name}}
+              </p>
+              <p>
+                <span class="fs14">分组类型： </span>
+                <span
+                  class="ellipsis"
+                  :custom-type="customType(customGroupInfo.type)"
                 >
-                </el-table-column>
-              </el-table>
-              <ob-list-empty top="32px" text="您尚未添加社群" size="small" v-if="!customGroupInfo.guid&&!loading"></ob-list-empty>
+                    {{customGroupInfo.type | customType(true)}}
+                  </span>
+              </p>
+              <p>
+                <span class="fs14">分组描述： </span>
+                {{customGroupInfo.describe}}</p>
             </div>
+            <ob-list-empty text="您尚未创建分组" size="small" v-if="!customGroupInfo.guid&&!loading"></ob-list-empty>
+          </div>
+        </div>
+        <div class="cmm-table dashed-border">
+          <h2 class="cmm-sub-title">
+            <span>社群列表</span>
+            <p class="handle fr fs14" v-if="!loading">
+              <a href="javascript:void (0)"
+                 v-show="customMemberList.length"
+                 class="danger mr-10"
+                 @click="deleteMember">移除</a>
+              <a href="javascript:void(0)"
+                 v-show="customGroupInfo.guid"
+                 @click="dialogFormVisible=true">添加</a>
+            </p>
+          </h2>
+          <el-table
+            border
+            ref="customTable"
+            height="250px"
+            :data="customMemberList"
+            style="width:100%"
+            @selection-change="handleSelectionChange"
+            empty-text="您尚未添加社群。"
+            v-if="customGroupInfo.guid"
+          >
+            <el-table-column
+              align="center"
+              type="selection"
+              width="120">
+            </el-table-column>
+            <el-table-column
+              align="center"
+              prop="name"
+              label="社群名称"
+            >
+            </el-table-column>
+          </el-table>
+          <ob-list-empty top="32px" text="您尚未添加社群" size="small" v-if="!customGroupInfo.guid&&!loading"></ob-list-empty>
         </div>
       </div>
+    </div>
     <ob-dialog-form
       ref="customForm"
       @remote-submit="remoteSubmit"
@@ -107,8 +107,9 @@
 </template>
 
 <script>
-  import {customType,arrayUnique } from '@/utils'
-  import { mapState} from 'vuex'
+  import {customType, arrayUnique} from '@/utils'
+  import {mapState} from 'vuex'
+
   export default {
     name: "custom",
     data() {
@@ -126,20 +127,19 @@
           type: 1,
           description: ''
         },
-        customMemberList: [
-        ],
+        customMemberList: [],
         customGroupList: [],
         selectList: [],
-        searchEmpty:false
+        searchEmpty: false
       }
     },
     methods: {
       // 搜索
       remoteSearch(val) {
         this.searchEmpty = false;
-        if(val){
+        if (val) {
           this.$http("/groupCustom/info/search", {searchText: val}).then(res => {
-            if(this.customGroupList.length){
+            if (this.customGroupList.length) {
               if (res.data[0]) {
                 let current = res.data[0];
                 this.setData(current);
@@ -147,17 +147,17 @@
                   this.$refs.customGroup.setCurrentKey(current.guid);
                 });
                 this.$refs.customGroup.setCheckedKeys(res.data.map(item => item.guid))
-              }else {
+              } else {
                 this.searchEmpty = true;
                 this.setDefaultData();
               }
             }
           })
-        }else {
+        } else {
           this.setDefaultData();
         }
       },
-      setDefaultData(){
+      setDefaultData() {
         let current = this.customGroupList[0];
         this.setData(current);
         this.$refs.customGroup.setCheckedKeys([]);
@@ -187,7 +187,7 @@
       addMember(keys) {
         let subData = [];
 
-        keys = arrayUnique(keys,'groupGuid');
+        keys = arrayUnique(keys, 'groupGuid');
         keys.filter(item => !item.disabled).map(item => {
           subData.push({
             groupGuid: item.groupGuid,
@@ -202,7 +202,7 @@
             this.getMemberList()
           })
         } else {
-          this.$tip('请选取要添加的社群','error')
+          this.$tip('请选取要添加的社群', 'error')
         }
       },
       // 删除成员
@@ -288,11 +288,12 @@
 
 <style lang="scss" scoped>
   @import "@/styles/community.scss";
-  .search-empty{
+
+  .search-empty {
     height: 20px;
     line-height: 18px;
     padding: 0 20px 0 40px;
-    font-size:12px ;
+    font-size: 12px;
     margin-top: -6px;
     color: #F87F21;
   }
