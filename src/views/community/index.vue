@@ -145,8 +145,7 @@
               </el-scrollbar>
             </div>
             <!-- lwh-识别人脸库 -->
-            <face-recognition-store :guid="currentCommunity.groupGuid" :deviceList="deviceList" v-if="!currentCommunity.groupPid"></face-recognition-store>
-
+            <face-recognition-store :guid="communityInfo.guid" :deviceList="deviceList" v-if="!(communityInfo.groupPid)"></face-recognition-store>
           </el-scrollbar>
         </div>
       </div>
@@ -193,12 +192,12 @@
       };
       return {
         originName: '',
-        groupList: [], //社群列表
+        groupList: [], // 社群列表
         tableData: [],
-        deviceList: [], //社群设备列表
-        communityInfo: {}, //社群信息
-        currentKey: '',  //当前选中社群id
-        currentCommunity: {}, //当前社群信息
+        deviceList: [], // 社群设备列表
+        communityInfo: {}, // 社群信息
+        currentKey: '',  // 当前选中社群id
+        currentCommunity: {}, // 当前社群信息
         communityForm: {
           groupPid: '',
           groupGuid: '',
@@ -302,6 +301,7 @@
       // 当前社群发生改变
       currentChange (val) {
         this.currentCommunity = val;
+
         this.hidePopover();
         // this.insetForm();
         this.getCommunityInfo(val);

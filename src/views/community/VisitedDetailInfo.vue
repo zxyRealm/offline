@@ -1,6 +1,6 @@
 <template>
 
-  <div class="visited--detail__info" v-show="state" @click="closeShade">e
+  <div class="visited--detail__info" v-show="state" @click="closeShade">
     <transition name="fade-visited">
     <div class="detail--right__default clearfix" v-show="state">
       <div class="detail--header">
@@ -118,17 +118,17 @@
         let paramsSearch = {
           groupGuid: this.detailInfo.groupGuid,
           ufaceId: this.detailInfo.ufaceId,
-          deviceKey: params.deviceKey || '',
-          cameraName: this.detailInfo.cameraName,
-          startTime: params.startTime || '',
-          endTime: params.endTime || '',
+          deviceKey: (params && params.deviceKey )|| '',
+          cameraName:  this.detailInfo.cameraName,
+          startTime: (params && params.startTime) || '',
+          endTime: (params && params.endTime) || '',
           index: this.pageParams.currentPage,
           length: this.pageParams.pageSize
         };
         this.$http('/group/faces/search',paramsSearch).then(res => {
           if(res.result == 1){
             //console.info(res,"detail");
-            this.faceData = res.data.content;
+            this.faceData = (res.data && res.data.content) || [];
             this.pageParams.total = res.data.pagination.total;
           }
         }).catch(error => {
@@ -147,7 +147,7 @@
         };
         this.$http('/group/faces', params).then(res => {
           if (res.result == 1) {
-            this.faceData = res.data.content;
+            this.faceData = (res.data && res.data.content) || [];
             //console.info(this.deviceList,"this.deviceList");
             this.pageParams.total = res.data.pagination.total;
           }
@@ -166,7 +166,7 @@
       //监听状态改变刷新数据
       state(val,oldVal) {
         if(val) {
-          this.getData();
+          this.getDataInParams();
         }
       },
       deviceList(val,oldVal) {

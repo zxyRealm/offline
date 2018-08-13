@@ -56,9 +56,12 @@
         methods: {
           //对外开放的条件
           search() {
-           if(this.arrayTime.length) {
+           if(this.arrayTime  && this.arrayTime.length) {
              this.params.startTime = this.arrayTime[0];
              this.params.endTime = this.arrayTime[1];
+           }else {
+             this.params.startTime = '';
+             this.params.endTime = '';
            }
             this.$emit("search-params", this.params);
           },
