@@ -1,5 +1,5 @@
 <template>
-  <div class="uu-icon" :class="type" @click="handleClick">
+  <div class="uu-icon" :class=" type + ' ' + className" @click="handleClick">
   </div>
 </template>
 
@@ -7,8 +7,14 @@
 export default {
   name: 'uu-icon',
   props: {
-    type: [String],
-    default: ''
+    type: {
+      type: String,
+      default: ''
+    },
+    className: {
+      type: [String, Object],
+      default: ''
+    }
   },
   methods: {
     handleClick () {
@@ -24,8 +30,8 @@ export default {
   $s24: 24px;
   .uu-icon {
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: $s16;
+    height: $s16;
     background-repeat: no-repeat;
     background-position: center center;
     background-size: contain;
@@ -52,48 +58,51 @@ export default {
       width: 14px;
     }
     &.success {
-      background-image: url("./image/ob-icon-success.png");
+      background-image: url("../../assets/public/icons/ob-icon-success.png");
     }
     &.relieve {
-      background-image: url("./image/relieve_icon.png");
+      background-image: url("../../assets/public/icons/relieve_icon.png");
     }
     &.error {
-      background-image: url("./image/ob-icon-error.png");
+      background-image: url("../../assets/public/icons/ob-icon-error.png");
     }
     &.action {
-      background-image: url("./image/action_icon@x1.png");
+      background-image: url("../../assets/public/icons/action_icon@x1.png");
     }
     &.address {
-      background-image: url("./image/address_icon@x1.png");
+      background-image: url("../../assets/public/icons/address_icon@x1.png");
     }
     &.manage {
-      background-image: url("./image/manage_icon@x1.png");
+      background-image: url("../../assets/public/icons/manage_icon@x1.png");
     }
     &.more {
-      background-image: url("./image/more_icon@x1.png");
+      background-image: url("../../assets/public/icons/more_icon@x1.png");
     }
     &.back {
-      background-image: url("./image/back_higher_icon.png");
+      background-image: url("../../assets/public/icons/back_higher_icon.png");
     }
     &.data {
-      background-image: url("./image/higher_data_icon.png");
+      background-image: url("../../assets/public/icons/higher_data_icon.png");
       height: $s14;
       width: $s14;
       cursor: initial;
     }
     &.handle {
-      background-image: url("./image/higher_handle_icon.png");
+      background-image: url("../../assets/public/icons/higher_handle_icon.png");
       height: $s14;
       width: $s14;
       cursor: initial;
     }
     &.mine {
-      background-image: url("./image/mine-community_icon.png");
+      background-image: url("../../assets/public/icons/mine-community_icon.png");
     }
     &.quit {
-      background-image: url('./image/back_higher_icon.png');
+      background-image: url('../../assets/public/icons/back_higher_icon.png');
       height: $s14;
       width: $s14;
+    }
+    &.problem {
+      background-image: url('../../assets/public/icons/problem_icon.png');
     }
   }
 </style>

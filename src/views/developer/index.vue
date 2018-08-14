@@ -23,23 +23,23 @@
                  v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
             <el-input type="text" :readonly="!!userInfo.phone" placeholder="添加手机号"
-                      v-model="userInfoForm.phone"></el-input>
+                      v-model.trim="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称：" prop="company">
             <el-input type="text" :readonly="!!userInfo.company" placeholder="添加公司名称"
-                      v-model="userInfoForm.company"></el-input>
+                      v-model.trim="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
             <area-select placeholder="选择商铺所在区域" :readonly="!editable" v-model="userInfoForm.pca"></area-select>
           </el-form-item>
           <el-form-item prop="address">
             <el-input type="text" :readonly="!editable" placeholder="添加商户详细地址"
-                      v-model="userInfoForm.address"></el-input>
+                      v-model.trim="userInfoForm.address"></el-input>
           </el-form-item>
 
           <el-form-item label="联系人：" prop="contacts">
             <el-input type="text" :readonly="!editable" placeholder="添加联系人"
-                      v-model="userInfoForm.contacts"></el-input>
+                      v-model.trim="userInfoForm.contacts"></el-input>
           </el-form-item>
         </uu-form>
       </div>
@@ -49,8 +49,7 @@
 <script>
 import area from '@/components/area-select/area-select'
 import {mapState, mapGetters} from 'vuex'
-import axios from 'axios'
-import {validPhone} from '@/utils/validate'
+import {validPhone, validateRule} from '@/utils/validate'
 
 export default {
   components: {
@@ -58,14 +57,43 @@ export default {
   },
   name: 'index',
   data () {
-    const validatePhone = (rule, value, callback) => {
+    // 验证公司名称
+    const validCompany = (rule, value, callback) => {
       if (!value) {
-        callback(new Error('请填写手机号'))
+        callback(new Error('请添加公司名称'))
       } else {
-        if (validPhone(value)) {
+        if (value.length > 32) {
+          callback(new Error('长度不可超过32个字符'))
+        } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('请填写正确的手机号'))
+          callback(new Error('公司名称由数字、字母或空格构成'))
+        }
+      }
+    }
+    // 验证地址选取
+    const validDetail = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请添加商户详细地址'))
+      } else {
+        if (value.length > 128) {
+          callback(new Error('长度不可超过128个字符'))
+        } else {
+          callback()
+        }
+      }
+    }
+    // 验证联系人
+    const validContacts = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请添加联系人'))
+      } else {
+        if (value.length > 32) {
+          callback(new Error('长度不可超过32个字符'))
+        } else if (validateRule(value, 1)) {
+          callback()
+        } else {
+          callback(new Error('联系人由数字、字母或空格构成'))
         }
       }
     }
@@ -73,19 +101,19 @@ export default {
       error: '',
       rules: {
         company: [
-          {required: true, message: '请输入公司名称', trigger: 'blur'}
+          {validator: validCompany, trigger: 'blur'}
         ],
         phone: [
-          {validator: validatePhone, trigger: 'blur'}
+          {validator: validPhone, trigger: 'blur'}
         ],
         address: [
-          {required: true, message: '请输入选取地址', trigger: 'blur'}
+          {required: true, message: '选择商铺所在区域', trigger: 'blur'}
         ],
         detail: [
-          {required: true, message: '请输入详细地址', trigger: 'blur'}
+          {validator: validDetail, trigger: 'blur'}
         ],
         contacts: [
-          {required: true, message: '请输入联系人姓名', trigger: 'blur'}
+          {validator: validContacts, trigger: 'blur'}
         ]
       },
       subLink: {title: '编辑', index: '/person/edit'},
@@ -104,7 +132,7 @@ export default {
     submitForm (data) {
       let pcaArr = data.pca.split(',').map(Number)
       let type = this.userInfo.merchantGuid ? 'update' : 'create'
-      type === 'update' ? data.merchantGuid = this.userInfo.merchantGuid : ''
+      if (type === 'update') data.merchantGuid = this.userInfo.merchantGuid
       data.provinceAreaID = pcaArr[0]
       data.cityAreaID = pcaArr[1]
       data.districtAreaID = pcaArr[2]
@@ -116,6 +144,7 @@ export default {
         }
       })
     },
+    // 初始化个人信息格式，使其满足自定义组件参数要求
     initData () {
       for (let item in this.userInfoForm) {
         if ((this.userInfo[item] || item === 'contacts') && item !== 'pca') {
@@ -124,12 +153,14 @@ export default {
       }
       this.userInfoForm.pca = this.userInfo.provinceAreaID ? this.userInfo.provinceAreaID + ',' + this.userInfo.cityAreaID + ',' + this.userInfo.districtAreaID : ''
     },
+    // 上传头像
     avatarUpload (data) {
       let uid = this.userInfo.developerId
       if (!uid) {
         this.$tip('请先完善个人信息')
         return
       }
+      // 获取阿里云oss signature
       this.$http('/auth/oss/image/signature').then(res => {
         if (res.data) {
           let formData = new FormData()
@@ -139,13 +170,15 @@ export default {
           formData.append('success_action_status', '200')
           formData.append('signature', res.data['signature'])
           formData.append('file', data.file, data.file.name)
+          // 构建formData 对象，将图片上传至阿里云oss服务
           this.$http(res.data.host, formData).then(back => {
             if (!back.data) {
               let avatarHref = res.data.host + '/merchant/' + uid + '/' + data.file.name
+              // 图片地址提交后台更新个人头像信息
               this.$http('/merchant/usercenter/image', {faceImgURL: avatarHref}).then(res => {
                 this.$tip('头像上传成功')
                 this.$store.commit('SET_USER_INFO', {faceImgURL: avatarHref})
-              });
+              })
             } else {
               this.$tip('上传失败，请稍后重试', 'error')
             }
@@ -153,10 +186,11 @@ export default {
             this.error = error
           })
         }
-      }).catch(err => {
+      }).catch(() => {
         this.$tip('服务器错误，请重新尝试')
       })
     },
+    // 上传前图片格式校验
     beforeAvatarUpload (file) {
       const isJPG = file.type === ('image/jpeg' || 'image/png')
       const isLt2M = file.size / 1024 / 1024 < 2
@@ -179,14 +213,13 @@ export default {
     }
     this.initData()
   },
-  mounted () {
-  },
   watch: {
     '$route': function (val) {
       if (val.name === 'personEdit') {
         this.subLink.title = ''
         this.editable = true
       } else {
+        // 路由变化时清除校验表单校验结果
         this.$refs.userInfoForm.$refs.submitForm.resetFields()
         this.initData()
         this.subLink.title = '编辑'

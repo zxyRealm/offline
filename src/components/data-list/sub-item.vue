@@ -2,7 +2,7 @@
   <td :width="width" :style="styles" class="ob-list-sub-item">
     <template v-if="type==='handle'">
       <div class="handle btn-item">
-        操作：<br>
+        操作:<br>
         <el-popover
           placement="top"
           trigger="hover">
@@ -12,9 +12,10 @@
             <li v-show="data.deviceStatus===1">设备状态异常（离线），无法操作</li>
             <li v-show="data.isHandle===false">设备操作权限已上送至其他社群，无法操作</li>
           </ul>
-          <i slot="reference"
-             v-show="!(data.deviceStatus === 0 && !data.groupGuid)"
-             class="el-icon-question mt10"></i>
+          <uu-icon
+            slot="reference"
+            v-show="!(data.deviceStatus === 0 && !data.groupGuid)"
+            type="problem"></uu-icon>
         </el-popover>
       </div>
       <div class="btn-wrap btn-item">
@@ -456,12 +457,12 @@ export default {
 <style lang="scss" rel="stylesheet/scss">
   @import "@/styles/variables.scss";
 
-  $close: url("./image/close_btn_bg.png");
-  $reset: url("./image/reset_btn_bg.png");
-  $reboot: url("./image/reboot_btn_bg.png");
-  $upgrade: url("./image/upgrade_btn-bg.png");
-  $ongoing: url("./image/upgrading_btn_bg.png");
-  $disable: url('./image/disable_btn_bg.png');
+  $close: url("../../assets/public/data-list/close_btn_bg.png");
+  $reset: url("../../assets/public/data-list/reset_btn_bg.png");
+  $reboot: url("../../assets/public/data-list/reboot_btn_bg.png");
+  $upgrade: url("../../assets/public/data-list/upgrade_btn-bg.png");
+  $ongoing: url("../../assets/public/data-list/upgrading_btn_bg.png");
+  $disable: url('../../assets/public/data-list/disable_btn_bg.png');
   .order-list {
     li {
       box-sizing: border-box;
@@ -479,7 +480,10 @@ export default {
       font-size: 16px;
     }
     .el-icon-question {
+      margin-left: -1px;
+      border-radius: 50%;
       color: #515055;
+      background: #fff;
     }
     &:last-child {
       > .btn-item + .btn-item {
@@ -545,6 +549,9 @@ export default {
     .uu-icon {
       vertical-align: middle;
       margin: 3px 0;
+      &.problem{
+        margin-top: 8px;
+      }
     }
   }
 
