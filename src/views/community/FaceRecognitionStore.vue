@@ -150,10 +150,6 @@ export default {
         this.layout = val.length == 0 ? 'total, sizes' : 'total, sizes, prev, pager, next'
       },
       deep: true
-    },
-    // 监听查询条件的改变
-    paramsInSear (val, oldVal) {
-      // console.info(val,"");
     }
   },
   mounted () {
