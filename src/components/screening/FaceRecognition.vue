@@ -154,10 +154,15 @@ export default {
   .el-picker-panel__body-wrapper .el-input .el-input__inner {
     color: #606266;
   }
-  .el-date-editor .el-range-separator {
+  .picker-data.el-date-editor .el-range-separator {
     color: #ffffff !important;
   }
+  /** 时间控件 **/
   div.el-popper {
     margin-left: -25px;
+  }
+  /** 下拉控件 **/
+  div.el-select-dropdown  {
+    margin-left: 0px;
   }
 </style>

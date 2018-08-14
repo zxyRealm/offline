@@ -178,7 +178,7 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-  .community--main {
+  .community--main  {
     .cmm-table__face {
       .el-table .cell {
         //line-height: 12px;
