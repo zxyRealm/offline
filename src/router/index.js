@@ -241,7 +241,7 @@ export const constantRouterMap = [
             path: '/data/guest-analysis',
             name: 'guest-analysis',
             meta: {
-              title: '客流分析'
+              title: '客流统计'
             },
             component: guestAnalysis
           },
