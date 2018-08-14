@@ -3,7 +3,7 @@
     <ob-list-empty v-if="!state">
       <a href="javascript:void (0)" @click="selectGroupId">请选择您的社群和设备</a>
     </ob-list-empty>
-    <div class="content-top" v-if="state">
+    <div class="content-top" v-if="state" :class="isShow ? '': 'content-top__active'">
       <div class="content-top-left">
         <ul class="left-ul">
           <li class="corner-bg">
@@ -21,16 +21,16 @@
       </div>
       <div class="content-top-right">
         <ul class="bottom-ul">
-          <li ref='pie' class="corner-bg pie-background ">
+          <li ref='pie' class="corner-bg pie-background " :class="isShow ? '': 'pie-background__active'">
             <pie ref="echartsPie" :pieParams="pieParams" class="pie-wrap-circle"></pie>
           </li>
-          <li ref='bar' class="corner-bg">
+          <li ref='bar' class="corner-bg" :class="isShow ? '': 'li--second__child'">
             <bar ref="echartsBar" :ageBar="ageBar"></bar>
           </li>
         </ul>
       </div>
     </div>
-    <div class="content-bottom corner-bg" v-if="state">
+    <div class="content-bottom corner-bg" v-if="state && isShow ">
       <div class="customer-wrap">
         <transition-group name="list-customer" class="transition-wrap left" tag="ul">
           <li
@@ -46,6 +46,7 @@
         <li class="customer-middle-top animation-lwh-show">
         </li>
         <li class="customer-middle-center vam">
+          <p class="custom--button__isShow" @click="hideInformation">收起</p>
         </li>
         <li class="customer-middle-bottom animation-lwh-show">
         </li>
@@ -62,6 +63,13 @@
         </transition-group>
       </div>
     </div>
+    <ul class="content--bottom__leader" v-show="!isShow">
+        <li class="bottom--isShow__top animation-lwh-show">
+        </li>
+        <li class="bottom--isShow__middle" @click="hideInformation"></li>
+        <li class="bottom--isShow__bottom animation-lwh-show">
+        </li>
+    </ul>
   </div>
 </template>
 <script>
@@ -79,6 +87,7 @@ export default {
   components: {FlowInfo, AllTime, bar, pie, lineConsole, CustomerInfo},
   data () {
     return {
+      isShow: true, // 推送消息是否展示
       state: false, // 是否有数据
       deviceKey: '', // 设备序列号
       pedestrianInData: [], // 进客流
@@ -99,9 +108,15 @@ export default {
     }
   },
   methods: {
+    // 隐藏推送消息
+    hideInformation () {
+      this.isShow = !this.isShow
+      this.resizeFunction()
+    },
     selectGroupId () {
       eventObject().$emit('change', '快点操作啊！')
     },
+    // 启动websocket
     getwebsocket (data) {
       let me = this
       let wsServer = 'ws://' + data // 服务器地址
@@ -122,6 +137,7 @@ export default {
         console.info('产生异常')
       }
     },
+    // echarts重新布局
     resizeFunction () {
       let me = this
       if (!me.$refs.bar) return
@@ -265,7 +281,7 @@ export default {
     window.removeEventListener('resize', me.resizeFunction)
     eventObject().$off('resize-echarts-console')
     // 关闭websocket链接
-    if (!!this.websocket) {
+    if (this.websocket) {
       this.websocket.close()
     }
     next()
@@ -304,10 +320,10 @@ export default {
               position: absolute;
             }
             .flow-left {
-              margin-left: 40px;
+              margin-left: calc(50% - 180px);
             }
             .flow-right {
-              right: 52px;
+              right: calc(50% - 180px);
             }
           }
           li:nth-child(2) {
@@ -334,7 +350,15 @@ export default {
         width: calc(40% - 10px);
         box-sizing: border-box;
         .pie-wrap {
-          //background-size: 0%;
+          background-color: transparent;
+          box-shadow: none;
+        }
+        .pie-background {
+          background-color: rgba(64, 58, 73, 0.3);
+          box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+        }
+        .pie-background__active {
+          height: 31%!important;
         }
         .pie-wrap-circle::before {
           content: '';
@@ -369,8 +393,14 @@ export default {
             height: calc(100% - 240px); //calc(56% - 10px);
             box-sizing: border-box;
           }
+          .li--second__child {
+            height: calc(69% - 10px)!important;
+          }
         }
       }
+    }
+    .content-top__active {
+      height: calc(100% - 30px)!important;
     }
     .content-bottom {
       width: 100%;
@@ -381,6 +411,12 @@ export default {
       padding: 10px 20px;
       background-color: rgba(64, 58, 73, 0.30);
       box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
+      .custom--button__isShow {
+        font-size: 12px;
+        color: #0F9EE9;
+        margin-top: 160px;
+        cursor: pointer;
+      }
     }
     .customer-wrap {
       display: inline-block;
@@ -488,6 +524,49 @@ export default {
         100% {
           opacity: 1;
         }
+      }
+    }
+    .content--bottom__leader {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 38px;
+      background: #17151A;
+      li {
+        position: absolute;
+        display: inline-block;
+        height: 100%;
+        cursor: pointer;
+        &:nth-child(1) {
+
+        }
+      }
+      .bottom--isShow__top, .bottom--isShow__bottom {
+        width: 40px;
+        overflow: hidden;
+        background-repeat: no-repeat, no-repeat, no-repeat;
+        background-position: 2px center, 10px center, 17px center;
+        background-size: 11px auto, 12px auto, 13px auto;
+
+      }
+      .bottom--isShow__top {
+        left: 30px;
+        background-image: url("/static/img/in-img-3.png"), url("/static/img/in-img-2.png"), url("/static/img/in-img-1.png");
+      }
+      .bottom--isShow__bottom {
+        right: 18px;
+        background-image: url(/static/img/out-img-1.png), url(/static/img/out-img-2.png), url(/static/img/out-img-3.png);
+        background-position: 0 center, 9px center, 17px center;
+        background-size: 13px auto, 12px auto, 11px auto;
+      }
+      .bottom--isShow__middle {
+        left: calc(50% - 7px);
+        width: 14px;
+        background-repeat: no-repeat;
+        background-position: 0 center;
+        background-image: url(/static/img/console_icon_is_show.png);
+        background-size: 14px;
       }
     }
   }

@@ -74,7 +74,7 @@ export default {
     detailInfo: {},
     deviceList: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
   data () {
