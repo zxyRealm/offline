@@ -153,7 +153,11 @@ export default {
   watch: {
     // 监听guid改变
     guid (val, oldVal) {
-      if (!val) return
+      if (!val) {
+        return
+      }
+      // 初次进来默为1
+      this.pageParams.currentPage = 1
       this.getDataInParams()
     },
     // 监听图片数据
