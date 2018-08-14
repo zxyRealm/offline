@@ -20,11 +20,17 @@
           </el-select>
         </el-form-item>
         <el-form-item label="回调地址：" prop="tokenURL">
-          <el-input type="text" :readonly="!editable" placeholder="请输入回调地址" v-model="callbackForm.tokenURL"></el-input>
+          <el-input
+            type="text" :readonly="!editable"
+            placeholder="请输入回调地址"
+            v-model.trim="callbackForm.tokenURL"></el-input>
         </el-form-item>
         <el-form-item label="描述：" prop="intro">
-          <el-input type="textarea" :readonly="!editable" v-model="callbackForm.intro"
-                    placeholder="旗舰店顾客到店描述"></el-input>
+          <el-input
+            type="textarea"
+            :readonly="!editable"
+            v-model.trim="callbackForm.intro"
+            placeholder="旗舰店顾客到店描述"></el-input>
         </el-form-item>
       </uu-form>
     </div>
@@ -33,9 +39,11 @@
 
 <script>
 import {validateURL} from '@/utils/validate'
+
 export default {
   name: 'notify',
   data () {
+    // 回调地址校验
     const validateUrl = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请填写回调地址'))
@@ -60,7 +68,8 @@ export default {
           {required: true, validator: validateUrl, trigger: 'blur'}
         ],
         intro: [
-          {required: true, message: '请填写描述', trigger: 'blur'}
+          {required: true, message: '请填写描述', trigger: 'blur'},
+          {max: 255, message: '最大长度不可超过255个字符', trigger: 'blur'}
         ]
       },
       callbackForm: {
@@ -72,6 +81,7 @@ export default {
     }
   },
   methods: {
+    // 处理回调信息 根据路由名称确定当前是更新信息或创建信息
     handelCallbackInfo (data) {
       const type = this.$route.name === 'addNotifyCallback' ? 'create' : 'update'
       this.$http('/dataNotice/' + type, data).then(res => {
@@ -81,6 +91,7 @@ export default {
         }
       })
     },
+    // 获取回调信息
     getCallbackInfo () {
       this.$http('/dataNotice/getInfo', {noticeGuid: this.$route.params.id}).then(res => {
         this.callbackForm = res.data
@@ -88,11 +99,13 @@ export default {
     }
   },
   computed: {
+    // 根据路由显示页面标题
     notifyTitle: function () {
       return this.$route.name === 'addNotifyCallback' ? '创建消息通知' : '编辑消息通知'
     }
   },
   mounted () {
+    // 编辑信息路由下先获取信息
     if (this.$route.name === 'editNotifyCallback') {
       this.getCallbackInfo()
     }

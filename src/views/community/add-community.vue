@@ -14,10 +14,10 @@
       >
         <el-form-item label="社群名称：" prop="name">
           <el-input type="text" :readonly="!editable" placeholder="请输入社群名称"
-                    v-model="communityForm.name"></el-input>
+                    v-model.trim="communityForm.name"></el-input>
         </el-form-item>
         <el-form-item label="社群码：" prop="code">
-          <input type="hidden" v-model="communityForm.code"></input>
+          <input type="hidden" v-model.trim="communityForm.code"></input>
           <div class="qr-code-wrap">
             <template v-if="communityForm.code">
               <div id="community-qrcode"></div>
@@ -30,13 +30,16 @@
           <area-select :readonly="!editable" v-model="communityForm.pca"></area-select>
         </el-form-item>
         <el-form-item prop="address">
-          <el-input type="text" :readonly="!editable" placeholder="请输入详细地址" v-model="communityForm.address"></el-input>
+          <el-input type="text" :readonly="!editable" placeholder="请输入详细地址"
+                    v-model.trim="communityForm.address"></el-input>
         </el-form-item>
         <el-form-item label="联系人：" prop="contact">
-          <el-input type="text" :readonly="!editable" placeholder="请输入联系人" v-model="communityForm.contact"></el-input>
+          <el-input type="text" :readonly="!editable" placeholder="请输入联系人"
+                    v-model.trim="communityForm.contact"></el-input>
         </el-form-item>
         <el-form-item label="联系电话：" prop="phone">
-          <el-input type="text" :readonly="!editable" placeholder="请输入联系电话" v-model="communityForm.phone"></el-input>
+          <el-input type="text" :readonly="!editable" placeholder="请输入联系电话"
+                    v-model.trim="communityForm.phone"></el-input>
         </el-form-item>
         <el-form-item label="索权范围：" prop="rule">
           <p class="fcg">(要求子社群授予的设备权限
@@ -47,8 +50,7 @@
               content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。">
               <div class="fs12">
                 1.数据查看权限：查看社群设备的数据分析图表。<br>
-                2.设备操作权限：对子社群设备进行关闭、开启
-                、升级等操作。
+                2.设备操作权限：对子社群设备进行关闭、开启 、升级等操作。
               </div>
               <i slot="reference" class="el-icon-question"></i>
             </el-popover>
@@ -67,7 +69,7 @@
 <script>
 import area from '@/components/area-select/area-select'
 import QRCode from 'qrcodejs2'
-import {validPhone} from '@/utils/validate'
+import {validateRule} from '@/utils/validate'
 
 export default {
   components: {
@@ -96,7 +98,7 @@ export default {
     }
     const validatePhone = (rule, value, callback) => {
       if (value) {
-        if (validPhone(value)) {
+        if (validateRule(value, 5)) {
           callback()
         } else {
           callback(new Error('请填写正确的手机号'))
@@ -128,7 +130,8 @@ export default {
           {required: true, message: '请选取省市区', trigger: 'blur'}
         ],
         address: [
-          {required: true, message: '请填写详细地址', trigger: 'blur'}
+          {required: true, message: '请填写详细地址', trigger: 'blur'},
+          {max: 128, message: '最大长度为128个字符', trigger: 'blur'}
         ],
         rule: [
           {required: true, message: '请选取权限范围', trigger: 'blur'}
@@ -140,8 +143,8 @@ export default {
     }
   },
   methods: {
+    // 获取社群邀请码
     getQrCode () {
-      console.log('blur')
       this.$http('/group/code').then(res => {
         if (res.data) {
           this.communityForm.code = res.data
@@ -149,6 +152,7 @@ export default {
         }
       })
     },
+    // 创建社群或编辑社群信息
     submitForm (data) {
       let address = data.pca.split(',').map(Number)
       data.provinceAreaID = address[0]
@@ -160,6 +164,12 @@ export default {
         this.$router.push('/community/mine')
       })
     },
+    /*
+    * 生成社群码的二维码
+    * @params url 生成二维码的链接
+    * @params id 显示二维码元素id名
+    * @author 张晓元 2018.08.14
+    * */
     createQrCode (url, id) {
       this.$nextTick(() => {
         const qrCode = new QRCode(id, {
@@ -171,13 +181,13 @@ export default {
         qrCode.makeCode(url)
       })
     },
+    // 获取社群信息
     getCommunityInfo () {
       this.$http('/group/getInfo', {guid: this.$route.params.gid}).then(res => {
         res.data.pca = `${res.data.provinceAreaID},${res.data.cityAreaID},${res.data.districtAreaID}`
         res.data.rule = (res.data.rule || '1').split(',').map(Number)
         this.originName = JSON.parse(JSON.stringify(res.data.name))
         this.communityForm = res.data
-        console.log(this.communityForm)
         this.$createQRCode(res.data.code, 'community-qrcode')
       })
     }

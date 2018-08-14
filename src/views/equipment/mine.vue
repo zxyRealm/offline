@@ -88,6 +88,7 @@ import {mapState} from 'vuex'
 export default {
   name: 'index',
   data () {
+    // 校验设备别名
     const validateName = (rule, value, callback) => {
       value = value.trim()
       if (!value) {
@@ -109,33 +110,23 @@ export default {
       }
     }
     return {
-      dialogOptions: {
+      dialogOptions: { // dialog 弹窗配置 类型 标题文本
         type: 'device',
         title: '添加设备'
       },
       equipmentEmpty: false,
-      dialogForm: {
+      dialogForm: { // dialog 表单
         deviceKey: '',
         deviceName: '',
         type: ''
       },
-      btnOption: {
-        text: '创建'
-      },
-      menu: [
-        {title: '设备列表'}
-      ],
-      menu2: [
+      menu2: [ // 导航栏配置信息
         {title: '自有设备', index: '/equipment/mine'},
         {title: '子社群设备', index: '/equipment/children'}
       ],
-      groupList: [],
-      equipmentList: [],
-      pagination: {},
-      equipmentForm: {
-        deviceName: '',
-        deviceKey: ''
-      },
+      groupList: [], // 自有社群列表
+      equipmentList: [], // 设备列表
+      pagination: {}, // 分页信息
       rules: [
         {required: true, validator: validateName, trigger: 'blur'}
       ],

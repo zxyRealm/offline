@@ -49,6 +49,7 @@ export default {
     }
   },
   methods: {
+    // 获取IPC 设备列表信息
     getDeviceList () {
       this.$http('/device/useDescribe', {deviceKey: this.$route.params.key}).then(res => {
         this.deviceList = res.data

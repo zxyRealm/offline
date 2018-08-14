@@ -10,7 +10,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  font-family: "PingFang SC","Heiti SC","Microsoft YaHei",Arial,sans-serif;
+  font-family: "PingFang SC", "Heiti SC", "Microsoft YaHei", Arial, sans-serif;
 }
 
 ul, li {
@@ -40,22 +40,22 @@ html {
 }
 
 //input placeholder 字体颜色设置
-textarea::-webkit-input-placeholder,input::-webkit-input-placeholder { /* WebKit browsers */
+textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
   color: $placeholder-color;
   font-size: 12px;
 }
 
-textarea:-moz-placeholder,input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
   color: $placeholder-color;
   font-size: 12px;
 }
 
-textarea::-moz-placeholder ,input::-moz-placeholder { /* Mozilla Firefox 19+ */
+textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
   color: $placeholder-color;
   font-size: 12px;
 }
 
-textarea:-ms-input-placeholder,input:-ms-input-placeholder { /* Internet Explorer 10+ */
+textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
   color: $placeholder-color;
   font-size: 12px;
 }
@@ -148,16 +148,19 @@ div:focus {
   text-align: center;
 }
 
-.fs12 {
-  font-size: 12px;
+//字体大小
+@each $fs in 12, 14, 16 {
+  .fs#{$fs} {
+    font-size: $fs + px;
+  }
 }
 
-.fs14 {
-  font-size: 14px;
-}
+//元素margin间距
 
-.fs16 {
-  font-size: 16px;
+@each $mt in 5, 8, 10, 16 {
+  .mt#{$mt} {
+    margin-top: $mt + px;
+  }
 }
 
 .fr {
@@ -364,28 +367,26 @@ code, pre {
 
 //element-ui el-select组件样式覆盖
 
-.el-select-dropdown{
-  .el-select-dropdown__list{
-    .el-select-dropdown__item{
+.el-select-dropdown {
+  .el-select-dropdown__list {
+    .el-select-dropdown__item {
       line-height: 20px;
       height: 20px;
-      font-size:12px;
+      font-size: 12px;
       font-weight: 500;
-      &.selected{
+      &.selected {
         background: #EBEBEB;
         color: #333;
       }
-      &:hover{
+      &:hover {
         background-color: #EBEBEB;
       }
-      >span{
-        line-height: 20px!important;
+      > span {
+        line-height: 20px !important;
       }
     }
   }
 }
-
-
 
 button, input {
   &:disabled {
@@ -414,7 +415,7 @@ button, input {
   }
   &.cancel {
     background-image: url("/static/img/input_border_bg.png");
-    background-size: calc(100% - 1px) 100%;
+    background-size: 100% 100%;
     > span {
       color: #0F9EE9;
     }
@@ -430,13 +431,15 @@ button, input {
     }
   }
 }
-.el-picker-panel{
-    .el-button {
-      &[disabled] {
-        background: #ffffff !important;
-      }
+
+.el-picker-panel {
+  .el-button {
+    &[disabled] {
+      background: #ffffff !important;
     }
+  }
 }
+
 //table 中表单样式
 
 .table-form {
@@ -644,9 +647,9 @@ button, input {
 .el-select__caret {
   background: url("/static/img/select_arrow_icon.png") no-repeat center center;
   background-size: 15px auto;
-  transform: rotateZ(0deg)!important;
-  &.is-reverse{
-    transform: rotateZ(180deg)!important;
+  transform: rotateZ(0deg) !important;
+  &.is-reverse {
+    transform: rotateZ(180deg) !important;
   }
   &:before {
     content: '' !important;
@@ -820,9 +823,9 @@ button, input {
   box-shadow: none !important;
 }
 
-.el-tree-node{
-  &.is-current,&.is-checked{
-    [custom-type]{
+.el-tree-node {
+  &.is-current, &.is-checked {
+    [custom-type] {
       &[custom-type='address'] {
         background-image: url("./btn_image/address_icon@x1.png");
       }
@@ -944,7 +947,7 @@ button, input {
   }
 }
 
-.nick_name--popover{
+.nick_name--popover {
   padding: 8px 10px;
 }
 

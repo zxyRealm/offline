@@ -33,9 +33,9 @@ export default {
     }
   },
   methods: {
+    // 根据商户设备存在状态显示提示信息或者直接跳转路由
     createCallback () {
       this.$http('/device/merchant/exist', false).then(res => {
-        console.log(res)
         if (res.data) {
           this.$router.push('/developer/notify/add-info')
         } else {

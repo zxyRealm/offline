@@ -222,7 +222,6 @@ export default {
             }
           ]
         },
-
         {
           title: '返回值说明：',
           info: [
@@ -325,11 +324,11 @@ export default {
             }
           ]
         }
-
       ]
     }
   },
   methods: {
+    // 根据路由显示不同api 文档信息，路由变化时滚动区回到顶部
     routeChange (route) {
       this.$refs.scrollContent.wrap.scrollTop = 0
       if (route.name === 'apiFaceImg') {
@@ -338,6 +337,7 @@ export default {
         this.currentData = this.tokenData
       }
     },
+    // 获取开发者信息 accessKey、accessSecret
     getDeveloperInfo () {
       this.$http('/developer/find').then(res => {
         this.devInfo = res.data
@@ -350,7 +350,6 @@ export default {
   },
   watch: {
     '$route': function (val) {
-      console.log(val)
       this.routeChange(val)
     }
   }
