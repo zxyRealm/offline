@@ -132,22 +132,6 @@ export default {
       this.visitedState = true
       // 触发传递设备列表到人脸识别库搜索组件上
       eventObject().$emit('FaceRecognition', this.deviceList)
-    },
-    // 获取数据
-    getData () {
-      // 初次进来默为1
-      this.pageParams.currentPage = 1
-      let params = {
-        groupGuid: this.guid,
-        index: this.pageParams.currentPage,
-        length: this.pageParams.pageSize
-      }
-      this.$http('/group/faceSet', params).then(res => {
-        this.faceData = (res.data && res.data.content) || []
-        this.pageParams.total = res.data.pagination.total
-      }).catch(error => {
-        console.info(error)
-      })
     }
   },
   watch: {
