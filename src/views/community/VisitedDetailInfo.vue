@@ -5,7 +5,7 @@
       <div class="detail--right__default clearfix" v-show="state">
         <div class="detail--header">
           <span class="header--title">到访记录详情</span>
-          <img class="detail--close clearfix" src="/static/img/face_recoginiton_close_icon.png" @click="close"></img>
+          <img class="detail--close clearfix" src="/static/img/face_recoginiton_close_icon.png" @click="close"/>
         </div>
         <div class="tip--info">
           <p>Face ID：{{detailInfo.ufaceId}}</p>
@@ -62,7 +62,7 @@
   </div>
 </template>
 <script>
-import FaceRecognition from '@/components/screening/FaceRecognition.vue'
+import FaceRecognition from '@/components/screening/FaceRecognition'
 
 export default {
   components: {FaceRecognition},
@@ -102,11 +102,13 @@ export default {
       // this.$emit("changeState",false)
       this.$emit('update:state', false) // 第一种方式优化
     },
+    // 点击遮罩层关闭
     closeShade (event) {
       if (event.target.className.indexOf('visited--detail__info') > -1) {
         this.$emit('update:state', false) // 第一种方式优化
       }
     },
+    // 获取条件查询数据
     getFaceDataDetail (params) {
       this.pageParams.currentPage = 1
       this.paramsInSear = {...params}
@@ -117,37 +119,16 @@ export default {
       let paramsSearch = {
         groupGuid: this.detailInfo.groupGuid,
         ufaceId: this.detailInfo.ufaceId,
-        deviceKey: params.deviceKey || '',
+        deviceKey: (params && params.deviceKey) || '',
         cameraName: this.detailInfo.cameraName,
-        startTime: params.startTime || '',
-        endTime: params.endTime || '',
+        startTime: (params && params.startTime) || '',
+        endTime: (params && params.endTime) || '',
         index: this.pageParams.currentPage,
         length: this.pageParams.pageSize
       }
       this.$http('/group/faces/search', paramsSearch).then(res => {
         if (res.result === 1) {
-          // console.info(res,"detail");
-          this.faceData = res.data.content
-          this.pageParams.total = res.data.pagination.total
-        }
-      }).catch(error => {
-        console.info(error)
-      })
-    },
-    // 获取数据
-    getData () {
-      // 默认进来为1
-      this.pageParams.currentPage = 1
-      let params = {
-        groupGuid: this.detailInfo.groupGuid,
-        ufaceId: this.detailInfo.ufaceId,
-        index: this.pageParams.currentPage,
-        length: this.pageParams.pageSize
-      }
-      this.$http('/group/faces', params).then(res => {
-        if (res.result === 1) {
-          this.faceData = res.data.content
-          // console.info(this.deviceList,"this.deviceList");
+          this.faceData = (res.data && res.data.content) || []
           this.pageParams.total = res.data.pagination.total
         }
       }).catch(error => {
@@ -157,15 +138,16 @@ export default {
   },
   watch: {
     detailInfo: {
-      handler: function (val, oldVal) {
-        // this.getData();
-      },
+      handler: function (val, oldVal) {},
       deep: true
     },
     // 监听状态改变刷新数据
     state (val, oldVal) {
       if (val) {
-        this.getData()
+        this.getDataInParams()
+      } else {
+        // 默认进来为1
+        this.pageParams.currentPage = 1
       }
     },
     deviceList (val, oldVal) {
