@@ -21,7 +21,7 @@ export default {
           textStyle: {
             color: '#ffffff',
             fontSize: '14',
-            fontWeight: 'lighter'
+            fontWeight: 'normal'
           }
         },
         textStyle: { // 总体字体样式

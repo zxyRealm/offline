@@ -24,7 +24,7 @@
           <li ref='pie' class="corner-bg pie-background " :class="isShow ? '': 'pie-background__active'">
             <pie ref="echartsPie" :pieParams="pieParams" class="pie-wrap-circle"></pie>
           </li>
-          <li ref='bar' class="corner-bg" :class="isShow ? '': 'li--second__child'">
+          <li ref='bar' id="barFather" class="corner-bg" :class="isShow ? '': 'li--second__child'">
             <bar ref="echartsBar" :ageBar="ageBar"></bar>
           </li>
         </ul>
@@ -146,14 +146,21 @@ export default {
         consoleTimer = null
       }
       consoleTimer = setTimeout(() => {
-        let table = document.getElementById('echarts-bar')
-        table.style.width = me.$refs.bar.offsetWidth + 'px'
-        table.style.height = me.$refs.bar.offsetHeight + 'px'
-        me.$refs.echartsBar.resizeEcharts()
         let tablePie = document.getElementById('echarts-pie')
+        let barFather = document.getElementById('barFather')
         tablePie.style.width = me.$refs.pie.offsetWidth + 'px'
         // tablePie.style.height = me.$refs.pie.offsetHeight + "px";
         me.$refs.echartsPie.resizeEcharts()
+        let table = document.getElementById('echarts-bar')
+        table.style.width = me.$refs.bar.offsetWidth + 'px'
+        if (me.$refs.pie.offsetHeight === 230) {
+          barFather.style.height = 'calc(100% - 240px)'
+          table.style.height = me.$refs.bar.offsetHeight + 'px'
+        } else {
+          barFather.style.height = 'calc(69% - 10px)'
+          table.style.height = me.$refs.bar.offsetHeight + 'px'
+        }
+        me.$refs.echartsBar.resizeEcharts()
         let tableLine = document.getElementById('echarts-line')
         tableLine.style.width = me.$refs.lineConsole.offsetWidth + 'px'
         tableLine.style.height = me.$refs.lineConsole.offsetHeight + 'px'
@@ -359,6 +366,7 @@ export default {
         }
         .pie-background__active {
           height: 31%!important;
+          min-height: 230px!important;
         }
         .pie-wrap-circle::before {
           content: '';
@@ -390,11 +398,11 @@ export default {
           }
           li:nth-child(2) {
             margin-top: 10px;
-            height: calc(100% - 240px); //calc(56% - 10px);
+            height: calc(100% - 240px);
             box-sizing: border-box;
           }
-          .li--second__child {
-            height: calc(69% - 10px)!important;
+          li.li--second__child {
+            height: calc(69% - 10px);
           }
         }
       }
@@ -412,10 +420,15 @@ export default {
       background-color: rgba(64, 58, 73, 0.30);
       box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
       .custom--button__isShow {
+        width: 30px;
+        height: 20px;
         font-size: 12px;
         color: #0F9EE9;
-        margin-top: 160px;
         cursor: pointer;
+        left: calc(50% - 12px);
+        top: calc(50% + 64px);
+        display: inline-block;
+        position: absolute;
       }
     }
     .customer-wrap {
@@ -567,6 +580,25 @@ export default {
         background-position: 0 center;
         background-image: url(/static/img/console_icon_is_show.png);
         background-size: 14px;
+      }
+    }
+    //动画效果 - 控制台收缩
+    .animation--console__isShow {
+      position: relative;
+      animation-name: show;
+      animation-duration: 2000ms;
+      animation-iteration-count: 1; /*无限循环*/
+      animation-timing-function: linear;
+      @keyframes show {
+        0% {
+          transform: translateY(0%);
+        }
+        50% {
+          transform: translateY(50%);
+        }
+        100% {
+          transform: translateY(100%);
+        }
       }
     }
   }

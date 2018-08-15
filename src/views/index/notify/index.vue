@@ -98,6 +98,8 @@ export default {
           margin-bottom: 16px;
           padding: 0 30px;
           text-align: right;
+          padding-right: 50px;
+          text-align: right;
           //background: url("/static/img/list-icon-green.png") no-repeat left center;
           span {
             display: inline-block;

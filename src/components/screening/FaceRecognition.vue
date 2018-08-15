@@ -20,6 +20,7 @@
         start-placeholder="开始日期"
         end-placeholder="结束日期"
         value-format="yyyy-MM-dd HH:mm:ss"
+        popper-class="picker--data__face"
         class="picker-data">
       </el-date-picker>
     </div>
@@ -158,7 +159,7 @@ export default {
     color: #ffffff !important;
   }
   /** 时间控件 **/
-  div.el-popper {
+  div.picker--data__face{
     margin-left: -25px;
   }
   /** 下拉控件 **/

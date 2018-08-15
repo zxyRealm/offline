@@ -33,7 +33,7 @@ export default {
           textStyle: {
             color: '#ffffff',
             fontSize: '14',
-            fontWeight: 'lighter'
+            fontWeight: 'normal'
           }
         },
         tooltip: { // 鼠标悬浮提示消息
@@ -51,7 +51,7 @@ export default {
           textStyle: {
             color: '#ffffff',
             fontSize: '12',
-            fontWeight: 'lighter'
+            fontWeight: 'normal'
           },
           icon: 'square',
           data: [{
