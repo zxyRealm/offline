@@ -54,7 +54,7 @@ export const constantRouterMap = [
         path: '',
         name: 'index-lwh',
         meta: {
-          title: '首页展示'
+          title: '首页-线下浏览器服务平台'
         },
         component: homePage
       },
@@ -62,7 +62,7 @@ export const constantRouterMap = [
         path: '/index/notify/:notifyState',
         name: 'index-home',
         meta: {
-          title: '首页展示-消息通知'
+          title: '系统消息-首页-线下浏览器服务平台'
         },
         component: homeNotify
       }
@@ -81,7 +81,7 @@ export const constantRouterMap = [
         path: '/',
         name: 'console-lwh',
         meta: {
-          title: '控制台入库'
+          title: '控制台-线下浏览器服务平台'
         },
         component: consoleIndex
       },
@@ -89,7 +89,7 @@ export const constantRouterMap = [
         path: '/test',
         name: 'test-demo',
         meta: {
-          title: '示例'
+          title: '示例-线下浏览器服务平台'
         },
         component: Demo
       }
@@ -233,7 +233,7 @@ export const constantRouterMap = [
         path: 'index',
         name: 'data',
         meta: {
-          title: '我的社群-数据可视化-线下浏览器服务平台'
+          title: '数据可视化-线下浏览器服务平台'
         },
         component: Data,
         children: [
@@ -241,7 +241,7 @@ export const constantRouterMap = [
             path: '/data/guest-analysis',
             name: 'guest-analysis',
             meta: {
-              title: '客流统计'
+              title: '客流统计-数据可视化-线下浏览器服务平台'
             },
             component: guestAnalysis
           },
@@ -249,7 +249,7 @@ export const constantRouterMap = [
             path: '/data/gender-analysis',
             name: 'gender-analysis',
             meta: {
-              title: '性别分析'
+              title: '性别分析-数据可视化-线下浏览器服务平台'
             },
             component: genderAnalysis
           },
@@ -257,7 +257,7 @@ export const constantRouterMap = [
             path: '/data/age-analysis',
             name: 'age-analysis',
             meta: {
-              title: '年龄分析'
+              title: '年龄分析-数据可视化-线下浏览器服务平台'
             },
             component: ageAnalysis
           },
@@ -265,7 +265,7 @@ export const constantRouterMap = [
             path: '/data/shop-frequency-analysis',
             name: 'shop-frequency-analysis',
             meta: {
-              title: '到店频次分析'
+              title: '到店频次分析-数据可视化-线下浏览器服务平台'
             },
             component: shopFrequencyAnalysis
           }

@@ -53,7 +53,7 @@ export default {
           textStyle: {
             color: '#ffffff',
             fontSize: '14',
-            fontWeight: 'lighter'
+            fontWeight: 'normal'
           }
         },
         tooltip: {
@@ -84,7 +84,7 @@ export default {
           textStyle: {  // 字体设置
             // color: '#ffffff',
             fontSize: '12',
-            fontWeight: 'lighter'
+            fontWeight: 'normal'
           },
           icon: 'line',
           data: [
@@ -105,7 +105,7 @@ export default {
         toolbox: {},
         grid: {
           left: '1%',
-          right: '3%',
+          right: '3.6%',
           bottom: '1%',
           containLabel: true
         },

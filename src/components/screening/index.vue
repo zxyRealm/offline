@@ -30,6 +30,7 @@
           class="picker-data"
           :picker-options="pickerOptions1"
           :clearable="false"
+          prefix-icon="''"
         >
         </el-date-picker>
         <el-date-picker
@@ -44,6 +45,7 @@
           value-format="yyyy-MM-dd"
           :picker-options="pickerOptions1"
           :clearable="false"
+          prefix-icon="''"
         >
         </el-date-picker>
         <span class="icon-select"></span>
@@ -81,7 +83,7 @@ export default {
         title: '选择社群',
         type: 'group'
       },
-      dimensionData: ['小时', '日', '周', '月'], // 维度
+      dimensionData: ['小时', '天', '周', '月'], // 维度
       filterParams: {
         groupGuid: '', // 选择社群 6867A6C096844AD4982F19323B6C9574
         type: '', // 类型
@@ -191,11 +193,13 @@ export default {
       display: none;
     }
     .el-range-separator {
-      line-height: 20px;
+      line-height: 18px;
+      font-size: 12px;
     }
     .el-range-editor--small.el-input__inner {
       height: 28px;
       line-height: 28px;
+      padding-left: 4px;
     }
     .picker-data {
       input.el-input__inner {
@@ -204,12 +208,21 @@ export default {
       }
       input {
         border: none;
-        -webkit-background-size: 100% 100%;
-        background-size: 100% 100%;
-        background-color: #fff;
-        border: 1px solid;
-        color: #000;
+        background-image: none;
+        background-color: #ffffff;
+        color: #000000;
       }
+    }
+    label {
+      font-weight: normal;
+    }
+    .el-input--prefix .el-input__inner {
+      padding-left: 12px;
+      color: #000000;
+    }
+    .el-range-editor--small .el-range-input {
+      padding-left: 2px;
+      color: #000000;
     }
   }
 </style>
@@ -240,11 +253,10 @@ export default {
         width: 210px;
         height: 26px !important;
         line-height: 28px;
-        -webkit-border-radius: 3px;
+        font-size: 12px;
         border-radius: 3px;
-        text-indent: 26px;
+        text-indent: 12px;
         border: none;
-        -webkit-background-size: 100% 100%;
         background-size: 100% 100%;
         cursor: pointer;
       }
@@ -284,6 +296,9 @@ export default {
     }
     .normal-from {
       padding: 14px !important;
+    }
+    .el-range-editor--small .el-range-input {
+      font-size: 12px;
     }
   }
 </style>
