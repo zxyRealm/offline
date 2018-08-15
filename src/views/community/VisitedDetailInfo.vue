@@ -81,7 +81,7 @@ export default {
     return {
       show: true, // 是否显示组件
       pageParams: {
-        pageSize: '10', // 默认每页显示10条
+        pageSize: '6', // 默认每页显示10条
         total: 0, // 总条数
         currentPage: 1 // 当前第几页
       },
@@ -210,15 +210,15 @@ export default {
         padding: 0 30px;
         table {
           .table--td__img {
-            width: 40px;
-            height: 40px;
+            width: 80px;
+            height: 80px;
           }
           .el-table__row td:nth-child(2) .cell {
             text-align: center;
             line-height: 12px;
           }
           .el-table__row td {
-            padding: 4px 0;
+            padding: 1px 0;
           }
           thead tr th:nth-child(2) {
             text-align: center;

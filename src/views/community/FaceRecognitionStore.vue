@@ -8,11 +8,11 @@
       style="width: 100%">
       <el-table-column
         label="抓拍图"
-        width="80"
+        width="120"
         class="table--td"
       >
         <template slot-scope="scope">
-          <img :src="scope.row.imageUrl || ''" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
+          <img :src="scope.row.imageUrl || ''" class="table--td__img" @click="getBigImage(scope.row)"/>  <!--//{{scope.row.deviceName}}-->
         </template>
       </el-table-column>
       <el-table-column
@@ -126,6 +126,10 @@ export default {
         console.info(error)
       })
     },
+    // 查看用户大图
+    getBigImage (info) {
+
+    },
     // 查看识别记录详情
     getDetailInfo (info) {
       this.detailInfo = info
@@ -191,8 +195,8 @@ export default {
       cursor: pointer;
     }
     .table--td__img {
-      width: 40px;
-      height: 40px;
+      width: 80px;
+      height: 80px;
     }
     .table-page {
       margin-top: 15px;

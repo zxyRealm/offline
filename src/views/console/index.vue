@@ -30,7 +30,7 @@
         </ul>
       </div>
     </div>
-    <div class="content-bottom corner-bg" v-if="state && isShow ">
+    <div :style="style" class="content-bottom corner-bg" v-show="state && isShow" :class="isShow ? 'animation--console__isShow' : 'animation--console__isHidden'">
       <div class="customer-wrap">
         <transition-group name="list-customer" class="transition-wrap left" tag="ul">
           <li
@@ -87,6 +87,9 @@ export default {
   components: {FlowInfo, AllTime, bar, pie, lineConsole, CustomerInfo},
   data () {
     return {
+      style: {
+        visibility: 'visible'
+      },
       isShow: true, // 推送消息是否展示
       state: false, // 是否有数据
       deviceKey: '', // 设备序列号
@@ -138,7 +141,7 @@ export default {
       }
     },
     // echarts重新布局
-    resizeFunction () {
+    resizeFunction (time) {
       let me = this
       if (!me.$refs.bar) return
       let consoleTimer = null // 定时器
@@ -165,7 +168,7 @@ export default {
         tableLine.style.width = me.$refs.lineConsole.offsetWidth + 'px'
         tableLine.style.height = me.$refs.lineConsole.offsetHeight + 'px'
         me.$refs.echartsLine.resizeEcharts()
-      }, 300)
+      }, time || 50)
     },
     // 解析数据
     resolveDatad (data) {
@@ -411,6 +414,7 @@ export default {
       height: calc(100% - 30px)!important;
     }
     .content-bottom {
+      display: block;
       width: 100%;
       margin-top: 10px;
       height: calc(28% - 10px);
@@ -582,24 +586,50 @@ export default {
         background-size: 14px;
       }
     }
-    //动画效果 - 控制台收缩
+    //动画效果 - 控制台收
     .animation--console__isShow {
       position: relative;
       animation-name: show;
-      animation-duration: 2000ms;
+      animation-duration: 300ms;
       animation-iteration-count: 1; /*无限循环*/
       animation-timing-function: linear;
       @keyframes show {
         0% {
-          transform: translateY(0%);
+          transform: translateY(100%);
         }
         50% {
           transform: translateY(50%);
         }
         100% {
-          transform: translateY(100%);
+          transform: translateY(0%);
         }
       }
+    }
+    //动画效果 - 控制台缩
+    .animation--console__isHidden {
+      position: relative;
+      animation-duration: 3000ms;
+      animation-iteration-count: 1; /*无限循环*/
+      animation-timing-function: linear;
+      @keyframes hidden {
+        100%  {
+          transform: translateY(-100%);
+        }
+        50% {
+          transform: translateY(-50%);
+        }
+        0% {
+          transform: translateY(0%);
+        }
+      }
+    }
+    /* 可以设置不同的进入和离开动画 */
+    /* 设置持续时间和动画函数 */
+    .fade-visited-enter-active, .fade-visited-leave-active {
+      transition: all .3s;
+    }
+    .fade-visited-enter, .fade-visited-leave-active {
+      transform: translateY(100%);
     }
   }
 </style>

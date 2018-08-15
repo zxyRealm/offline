@@ -160,7 +160,10 @@ export default {
   }
   /** 时间控件 **/
   div.picker--data__face{
-    margin-left: -25px;
+    margin-left: -1px;
+    .el-time-panel {
+      margin: 5px -20px;
+    }
   }
   /** 下拉控件 **/
   div.el-select-dropdown  {
