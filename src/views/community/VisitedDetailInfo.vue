@@ -25,7 +25,7 @@
             </el-table-column>
             <el-table-column
               label="抓拍图"
-              width="120">
+              width="160">
               <template slot-scope="scope">
                 <img :src="scope.row.imageUrl || ''" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
               </template>
