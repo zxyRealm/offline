@@ -8,6 +8,7 @@
 export default {
   name: 'App',
   created () {
+    this.$store.dispatch('GET_USER_INFO')
     if (!this.userInfo.company) {
       this.$http('/merchant/getInfo').then(res => {
         this.$store.commit('SET_USER_INFO', res.data)
@@ -15,8 +16,6 @@ export default {
         console.log(err)
       })
     }
-  },
-  mounted () {
   },
   computed: {
     userInfo: function () {

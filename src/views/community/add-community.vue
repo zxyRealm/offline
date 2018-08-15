@@ -227,7 +227,7 @@ export default {
         height: 84px;
         background: #fff;
         padding: 5px;
-
+        margin-right: 6px;
       }
     }
     .qr-code-wrap {

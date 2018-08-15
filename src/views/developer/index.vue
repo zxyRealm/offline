@@ -1,6 +1,6 @@
 <template>
   <div class="developer-center clearfix">
-    <uu-sub-tab back :menu-array="[{title: '个人中心'}]" :sub-link="subLink"></uu-sub-tab>
+    <uu-sub-tab :menu-array="[{title: '个人中心'}]" :sub-link="subLink"></uu-sub-tab>
     <div class="user-info-wrap">
       <div class="avatar-wrap">
         <el-upload
@@ -14,19 +14,20 @@
         </el-upload>
       </div>
       <div class="form-filed vam">
-        <uu-form ref="userInfoForm"
-                 form-class="user-info-form"
-                 :rules="editable?rules:{}"
-                 :readonly="!editable"
-                 :subText="editable?'保存':''"
-                 @handle-submit="submitForm"
-                 v-model="userInfoForm">
+        <uu-form
+          ref="userInfoForm"
+          form-class="user-info-form"
+          :rules="editable?rules:{}"
+          :readonly="!editable"
+          :subText="editable?'保存':''"
+          @handle-submit="submitForm"
+          v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
             <el-input type="text" :readonly="!!userInfo.phone" placeholder="添加手机号"
                       v-model.trim="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称：" prop="company">
-            <el-input type="text" :readonly="!!userInfo.company" placeholder="添加公司名称"
+            <el-input type="text" :readonly="!!userInfo.company"  placeholder="添加公司名称"
                       v-model.trim="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
@@ -62,6 +63,7 @@ export default {
       if (!value) {
         callback(new Error('请添加公司名称'))
       } else {
+        console.log(value.length)
         if (value.length > 32) {
           callback(new Error('长度不可超过32个字符'))
         } else if (validateRule(value, 1)) {
@@ -140,7 +142,9 @@ export default {
       this.$http('/merchant/usercenter/update', data).then(res => {
         if (res.result) {
           this.$tip('保存成功')
-          this.$store.dispatch('GET_USER_INFO')
+          this.$store.dispatch('GET_USER_INFO').then(() => {
+            this.$router.push('/person/center')
+          })
         }
       })
     },
@@ -152,6 +156,13 @@ export default {
         }
       }
       this.userInfoForm.pca = this.userInfo.provinceAreaID ? this.userInfo.provinceAreaID + ',' + this.userInfo.cityAreaID + ',' + this.userInfo.districtAreaID : ''
+      if (this.$route.name === 'personEdit') {
+        this.$nextTick(() => {
+          if (this.$refs.userInfoForm.$refs.submitForm) {
+            this.$refs.userInfoForm.$refs.submitForm.clearValidate()
+          }
+        })
+      }
     },
     // 上传头像
     avatarUpload (data) {
@@ -209,6 +220,9 @@ export default {
       this.subLink.title = ''
       this.editable = true
     } else {
+      if (!this.userInfo.company || !this.userInfo.phone) {
+        this.$router.push('/person/edit')
+      }
       this.editable = false
     }
     this.initData()
@@ -220,14 +234,18 @@ export default {
         this.editable = true
       } else {
         // 路由变化时清除校验表单校验结果
-        this.$refs.userInfoForm.$refs.submitForm.resetFields()
-        this.initData()
         this.subLink.title = '编辑'
         this.editable = false
       }
+      this.$nextTick(() => {
+        this.$refs.userInfoForm.$refs.submitForm.clearValidate()
+      })
     },
-    'userInfo' (val) {
-      this.initData()
+    'userInfo': {
+      handler (val) {
+        this.initData()
+      },
+      deep: true
     }
   },
   computed: {
@@ -271,10 +289,8 @@ export default {
       width: 720px;
       height: 300px;
       margin: 15px auto;
-      /*border: 1px solid chocolate;*/
       background: url("/static/img/textarea_border2_bg.png") no-repeat;
       background-size: 100% 100%;
-
     }
   }
 </style>

@@ -33,13 +33,17 @@
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span
           v-if="type==='custom-community'"
-          class="ellipsis"
+          :class="{ellipsis:true,'dialog-tree':type === 'custom'}"
           :custom-type="customType(data.type)"
           :style="{maxWidth:''}"
         >
           {{data[defaultProps.label]}}
         </span>
-        <span v-if="type!=='custom-community'" class="ellipsis">{{ data[defaultProps.label] }}</span>
+        <span
+          v-if="type!=='custom-community'"
+          :class="{ellipsis:true,'dialog-tree':type === 'custom'}">
+          {{ data[defaultProps.label] }}
+        </span>
         <uu-icon
           type="mine" v-if="!data.groupPid && type==='community'||type==='custom'"
           style=""></uu-icon>
@@ -413,6 +417,7 @@
     .custom-tree-node {
       > .ellipsis {
         max-width: 154px;
+        margin: 7px 0;
       }
     }
   }
@@ -423,16 +428,19 @@
     width: 100%;
     > .ellipsis {
       float: left;
-      /*max-width: calc(100% - 100px);*/
+      max-width: 94px;
       width: auto;
       vertical-align: middle;
       font-size: 12px;
+      &.dialog-tree{
+        max-width: calc(100% - 100px);
+      }
     }
-    .mine{
+    .mine {
       float: left;
       margin: 8px 0 8px 12px;
     }
-    .popover-wrap{
+    .popover-wrap {
       float: right;
       height: 18px;
       margin: 7px 0;

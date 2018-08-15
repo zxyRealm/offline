@@ -22,7 +22,6 @@ export default {
     AppMain
   },
   created () {
-    this.$store.dispatch('GET_USER_INFO')
   },
   computed: {
     sidebar () {

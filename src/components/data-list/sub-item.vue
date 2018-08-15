@@ -39,7 +39,7 @@
     </template>
     <template v-else-if="type==='state'">
       <p>
-        <span>设备别名：</span>
+        <span class="label__title">设备别名：</span>
         <el-tooltip v-if="!isAmend" :content="data.deviceName" placement="top">
            <span class="ellipsis">
          {{data.deviceName}}
@@ -69,8 +69,8 @@
         </el-popover>
       </p>
       <p>
-        <span>运行状态：</span>
-        <span class="error-color">{{data.deviceStatus | lineState}}</span>
+        <span class="label__title">运行状态：</span>
+        <span :class="data.deviceStatus===1?'error-color':'success-color'">{{data.deviceStatus | lineState}}</span>
         <a href="javascript:void (0)" @click="getDeviceState(data)">
           <i v-if="data.deviceStatus!==undefined" class="el-icon-refresh success-color"></i>
           <span v-else>获取</span>
@@ -79,7 +79,7 @@
     </template>
     <template v-else>
       <p v-if="!router" v-for="(item,$index) in propList" :key="$index">
-        <span>{{labelList[$index]?labelList[$index]+'：':''}}</span>
+        <span class="label__title">{{labelList[$index]?labelList[$index]+'：':''}}</span>
         <el-tooltip v-if="tooltip" :content="format(data[item])" placement="right-start">
           <span class="ellipsis">{{format(data[item])}}</span>
         </el-tooltip>

@@ -70,12 +70,12 @@
           </h2>
           <el-table
             border
+            class="community-table"
             ref="customTable"
-            height="250px"
             :data="customMemberList"
             style="width:100%"
             @selection-change="handleSelectionChange"
-            empty-text="您尚未添加社群。"
+            empty-text="您尚未添加社群"
             v-if="customGroupInfo.guid"
           >
             <el-table-column

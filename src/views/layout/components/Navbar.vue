@@ -10,8 +10,11 @@
       </router-link>
       <div class="right-menu vam tal">
         <div class="navbar-console">
-          <hamburger class="hamburger-container vam" v-show="showBar" :toggleClick="toggleSideBar"
-                     :isActive="sidebar.opened"></hamburger>
+          <hamburger
+            class="hamburger-container vam"
+            v-show="showBar"
+            :toggleClick="toggleSideBar"
+            :isActive="sidebar.opened"></hamburger>
           <router-link to="/console">控制台</router-link>
         </div>
         <div class="navbar-console-select" v-if="$route.name  === 'console-lwh'" @click="getGropId">
@@ -21,7 +24,7 @@
           <router-link :to="'/index/notify/'+notifState" class="system-notify">
             <uu-icon type="notify" :class="notifState?'notify-have':''"></uu-icon>
           </router-link>
-          <router-link to="/person/center" class="user-info">
+          <router-link to="/person" class="user-info">
             <div class="avatar-wrap">
               <div class="avatar" :style="{backgroundImage:'url('+avatar+')'}"></div>
             </div>
@@ -34,18 +37,20 @@
       </div>
     </el-menu>
     <!-- 选择社群 -->
-    <ob-dialog-form ref="dialog"
-                    @remote-submit="remoteSubmit"
-                    :type="dialogOptions.type"
-                    :title="dialogOptions.title"
-                    :visible.sync="dialogFormVisible">
+    <ob-dialog-form
+      ref="dialog"
+      @remote-submit="remoteSubmit"
+      :type="dialogOptions.type"
+      :title="dialogOptions.title"
+      :visible.sync="dialogFormVisible">
     </ob-dialog-form>
-    <pick-device ref="device"
-                 @pick-device="pickDeviceHandler"
-                 :type="'group'"
-                 :title="'选择设备'"
-                 :groupId="groupSelectId"
-                 :visible.sync="dialogDeviceVisible">
+    <pick-device
+      ref="device"
+      @pick-device="pickDeviceHandler"
+      :type="'group'"
+      :title="'选择设备'"
+      :groupId="groupSelectId"
+      :visible.sync="dialogDeviceVisible">
     </pick-device>
   </div>
 </template>
@@ -63,7 +68,7 @@ export default {
   },
   data () {
     return {
-      notifState: false,  //是否有站内消息
+      notifState: false, // 是否有站内消息
       groupSelectId: '',
       selectName: '请选择您的社群',
       dialogFormVisible: false,
@@ -97,13 +102,13 @@ export default {
   },
   watch: {
     $route (to, from) {
-      if (to.path == '/console') this.selectName = '请选择您的社群'
+      if (to.path === '/console') this.selectName = '请选择您的社群'
       if (to.path.indexOf('index/notify') > -1) this.notifyToggle()
     },
     groupConsoleId (val, oldVal) {
 
     },
-    //当消失的时候不记录上次选择
+    // 当消失的时候不记录上次选择
     dialogFormVisible (val, oldVal) {
       if (!val) this.$refs.dialog.setCheckedNodes()
     },
@@ -112,11 +117,11 @@ export default {
     }
   },
   methods: {
-    //只要点击了通知消息就为false
+    // 只要点击了通知消息就为false
     notifyToggle () {
       this.notifState = false
     },
-    //设备返回数据
+    // 设备返回数据
     pickDeviceHandler (val) {
       if (val == '上一步') {
 
@@ -125,54 +130,49 @@ export default {
         this.selectName = val.deviceName
       }
     },
-    //点击选择社群
+    // 点击选择社群
     getGropId () {
       this.dialogFormVisible = true
     },
-    //获取当前设备
+    // 获取当前设备
     remoteSubmit (data) {
-      if (!data || data.length == 0) {
+      if (!data || data.length === 0) {
         this.$tip('请选择您的社群', 'error')
-//          this.$alert('请选择需要添加社群名称', '提示：', {
-//          confirmButtonText: '确定'
-//        });
         return
       }
       this.groupSelectId = data[0].groupGuid
       this.$store.commit('SET_GROUP_SELECT_ID', this.groupSelectId)
       this.dialogFormVisible = false
-      window.setTimeout(() => {  //解决闪现
+      window.setTimeout(() => { // 解决闪现
         this.dialogDeviceVisible = true
       }, 300)
     },
     toggleSideBar () {
       this.$store.dispatch('DISPATCH_SIDEBAR')
-      eventObject().$emit('resize-echarts-console', '')  //触发控制台图表重置
-      eventObject().$emit('resize-echarts-data', '')  //触发数据可视化图表重置
+      eventObject().$emit('resize-echarts-console', '') // 触发控制台图表重置
+      eventObject().$emit('resize-echarts-data', '') // 触发数据可视化图表重置
     },
     logout () {
       this.$store.dispatch('LogOut').then(() => {
-        location.reload()// In order to re-instantiate the vue-router object to avoid bugs
+        location.reload() // In order to re-instantiate the vue-router object to avoid bugs
       })
     }
   },
   created () {
-    //是否有新的消息
+    // 是否有新的消息
     this.$http('/siteNotice/unRead').then(res => {
-      if (res.result == 1) {
-        this.notifState = res.data > 0 ? true : false
-      }
+      this.notifState = res.data > 0 ? true : false
     }).catch(error => {
       console.info(error)
     })
   },
   mounted () {
-    eventObject().$on('change', msg => { //eventObject接收事件
+    eventObject().$on('change', msg => { // eventObject接收事件
       this.dialogFormVisible = true
     })
   },
   beforeRouteLeave (to, from, next) {
-    //路由跳转后，不需要保存控制台群的信息
+    // 路由跳转后，不需要保存控制台群的信息
     this.$store.commit('SET_GROUP_SELECT_ID')
     next()
   }
@@ -186,6 +186,7 @@ export default {
     left: 0;
     width: 100%;
     height: 70px;
+    z-index: 1010;
     background-color: #232027;
     box-shadow: 3px 3px 5px 0 rgba(1, 7, 17, 0.60);
     border-radius: 0 !important;
@@ -268,6 +269,7 @@ export default {
           height: 34px;
           line-height: 34px;
           font-size: 14px;
+          color: #fff;
           .avatar-wrap {
             display: inline-block;
             height: 34px;
@@ -317,8 +319,8 @@ export default {
         cursor: pointer;
         &::after {
           content: "";
-          width: 0px;
-          height: 0px;
+          width: 0;
+          height: 0;
           border-right: 8px solid transparent;
           border-left: 8px solid transparent;
           border-top: 8px solid #ffffff;

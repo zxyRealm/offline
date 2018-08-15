@@ -5,9 +5,10 @@
       :menu-array="[{title:tabTitle}]"></uu-sub-tab>
     <div class="community-common-form-wrap dashed-border vam">
       <uu-form
-        formClass="error266"
+        formClass="error278"
         label-width="84px"
-        :sub-text="subText"
+        sub-text="确定"
+        width="364px"
         @handle-submit="submitForm"
         :readonly="!editable"
         v-model="customForm"
@@ -29,7 +30,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="分组描述：" prop="describe">
-          <el-input type="textarea" :readonly="!editable" placeholder="请输入社群描述"
+          <el-input type="textarea" :readonly="!editable" placeholder="请输入分组描述"
                     v-model="customForm.describe"></el-input>
         </el-form-item>
       </uu-form>
@@ -44,14 +45,14 @@ export default {
     const validateName = (rule, value, callback) => {
       value = value.trim()
       if (!value) {
-        callback(new Error('请填写分组名称'))
+        callback(new Error('请输入分组名称'))
       } else {
         if (value.length >= 2 && value.length <= 18) {
           if (this.type === 'update' && this.originName === value) {
             callback()
           } else {
             this.$http('/groupCustom/nameExist', {name: value}, false).then(res => {
-              !res.data ? callback() : callback(new Error('分组名称已存在'))
+              !res.data ? callback() : callback(new Error('该名称已存在，请重新输入'))
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
             })
@@ -74,10 +75,11 @@ export default {
           {required: true, validator: validateName, trigger: 'blur'}
         ],
         type: [
-          {required: true, message: '请选取类型', trigger: 'blur'}
+          {required: true, message: '请选择分组类型', trigger: 'blur'}
         ],
         describe: [
-          {required: true, message: '请填写描述', trigger: 'blur'}
+          {required: true, message: '请输入分组描述', trigger: 'blur'},
+          {max: 255, message: '超出最大长度限制', trigger: 'blur'}
         ]
       },
       customGroupList: [],
@@ -110,10 +112,7 @@ export default {
   },
   computed: {
     tabTitle: function () {
-      return this.$route.name === 'editCustom' ? '编辑社群分组' : '新建分组'
-    },
-    subText: function () {
-      return this.$route.name === 'editCustom' ? '保存' : '新建'
+      return this.$route.name === 'editCustom' ? '编辑社群分组' : '创建社群分组'
     },
     type: function () {
       return this.$route.name === 'editCustom' ? 'update' : 'create'

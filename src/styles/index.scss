@@ -583,7 +583,13 @@ button, input {
   margin: 0 20px;
 }
 
+
 .el-table {
+  &.community-table{
+    .el-table__empty-block{
+      min-height: 42px;
+    }
+  }
   .el-table__header {
     background-color: rgba(151, 151, 151, 0.03);
     .cell {
@@ -680,6 +686,9 @@ button, input {
 
 //默认主题 黑色
 .el-tree {
+  .el-tree__empty-block{
+    font-size: 12px;
+  }
   .el-tree-node__content > .el-tree-node__expand-icon {
     padding: 4px;
   }
@@ -872,15 +881,17 @@ button, input {
       cursor: text !important;
     }
   }
-  .el-radio__inner {
-    border: none;
-    background-position: center center !important;
-    background-repeat: no-repeat;
-    background-size: contain !important;
-    border-radius: 0;
-    background-color: transparent !important;
-    &:after {
-      display: none;
+  .el-radio__input{
+    .el-radio__inner {
+      border: none;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      border-radius: 0;
+      background-color: transparent;
+      &:after {
+        display: none;
+      }
     }
   }
   .el-radio__label {
@@ -942,7 +953,7 @@ button, input {
   box-sizing: border-box;
   .el-radio + .el-radio {
     &[custom-type] {
-      margin-left: 10px;
+      margin-left: 22px;
     }
   }
 }

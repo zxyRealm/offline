@@ -321,6 +321,10 @@ export const constantRouterMap = [
         component: sysNotify
       },
       {
+        path: '/person',
+        redirect: '/person/center'
+      },
+      {
         path: '/person/center',
         name: 'personCenter',
         meta: {
@@ -383,7 +387,6 @@ const router = new Router({
   routes: constantRouterMap,
   // 取消掉对query参数 encodeURIComponent编码处理
   stringifyQuery: function (query) {
-    // console.log(query);
     let str = ''
     for (let item in query) {
       str += `${item}=${(query[item])}&`
@@ -395,11 +398,7 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   fetch('/loginCheck', false).then(res => {
-    if (to.name === 'personCenter' && (!store.state.userInfo.company || !store.state.userInfo.phone)) {
-      next('/person/edit')
-    } else {
-      next()
-    }
+    next()
   }).catch(err => {
     if (err.code === 'ERR-110') {
       exitMessage(err.data)

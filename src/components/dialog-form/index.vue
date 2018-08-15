@@ -126,6 +126,7 @@ export default {
     }
   },
   data () {
+    // 校验设备序列号
     const validateKey = (rule, value, callback) => {
       value = value.trim()
       if (!value) {
@@ -158,6 +159,7 @@ export default {
         }
       }
     }
+    // 校验设备别名
     const validateName = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请输入别名'))

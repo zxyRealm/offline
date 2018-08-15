@@ -30,7 +30,7 @@
             type="textarea"
             :readonly="!editable"
             v-model.trim="callbackForm.intro"
-            placeholder="旗舰店顾客到店描述"></el-input>
+            placeholder="请输入描述内容"></el-input>
         </el-form-item>
       </uu-form>
     </div>
