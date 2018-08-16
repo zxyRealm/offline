@@ -22,9 +22,9 @@
               <ob-list-item :data="item" type="state">
               </ob-list-item>
               <ob-list-item>
-                <p><span>序列号：</span><span>{{item.deviceKey}}</span></p>
-                <p><span>设备类型：</span>{{item.deviceType|deviceType}}</p>
-                <p><span>添加时间：</span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</p>
+                <p><span class="table__label">序列号：</span><span>{{item.deviceKey}}</span></p>
+                <p><span class="table__label">设备类型：</span>{{item.deviceType|deviceType}}</p>
+                <p><span class="table__label">添加时间：</span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</p>
               </ob-list-item>
               <ob-list-item>
                 <p><span>用途：</span><br>

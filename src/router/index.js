@@ -62,7 +62,7 @@ export const constantRouterMap = [
         path: '/index/notify/:notifyState',
         name: 'index-home',
         meta: {
-          title: '系统消息-首页-线下浏览器服务平台'
+          title: '系统消息-线下浏览器服务平台'
         },
         component: homeNotify
       }

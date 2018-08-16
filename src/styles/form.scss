@@ -128,8 +128,10 @@
         }
       }
       .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner{
-        background-color: #409EFF;
-        border-color: #409EFF;
+        background-color: #ddd;
+        &:after{
+          border-color: #999;
+        }
       }
     }
   }

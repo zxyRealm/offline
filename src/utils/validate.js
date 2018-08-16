@@ -90,8 +90,9 @@ export function validPhone (rule, value, callback) {
   if (typeof value === 'string') {
     value = value.trim()
   }
+  console.log(validateRule(value, 6))
   if (value) {
-    if (validateRule(value, 5)) {
+    if (!validateRule(value, 6)) {
       callback(new Error('请添加正确的手机号'))
     } else {
       callback()

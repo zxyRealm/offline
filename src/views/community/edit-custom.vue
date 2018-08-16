@@ -19,7 +19,7 @@
             type="text"
             :readonly="!editable"
             placeholder="请输入分组名称"
-            v-model="customForm.name"></el-input>
+            v-model.trim="customForm.name"></el-input>
         </el-form-item>
         <el-form-item label="分组类型：" prop="type">
           <el-radio-group class="custom-checkbox-group" v-model="customForm.type">
@@ -31,7 +31,7 @@
         </el-form-item>
         <el-form-item label="分组描述：" prop="describe">
           <el-input type="textarea" :readonly="!editable" placeholder="请输入分组描述"
-                    v-model="customForm.describe"></el-input>
+                    v-model.trim="customForm.describe"></el-input>
         </el-form-item>
       </uu-form>
     </div>
@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import {validateRule} from '@/utils/validate'
 export default {
   name: 'edit-custom',
   data () {
@@ -47,7 +48,9 @@ export default {
       if (!value) {
         callback(new Error('请输入分组名称'))
       } else {
-        if (value.length >= 2 && value.length <= 18) {
+        if (value.length > 32) {
+          callback(new Error('分组名称为1-32个字符'))
+        } else if (validateRule(value, 2)) {
           if (this.type === 'update' && this.originName === value) {
             callback()
           } else {
@@ -58,7 +61,7 @@ export default {
             })
           }
         } else {
-          callback(new Error('长度为2-18个字符'))
+          callback(new Error('请输入正确的分组名称'))
         }
       }
     }

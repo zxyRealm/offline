@@ -19,10 +19,18 @@
   }
   .community--main {
     height: 100%;
-    margin-left: 250px;
+    margin-left: 242px;
     .el-scrollbar{
       height: 100%;
+      //width: 100%;
     }
+    .mine--table__wrap{
+      .table--scrollbar__warp{
+        height: calc(100% - 297px);
+      }
+    }
+
+    //自有社群设备列表样式
     //overflow-y: auto;
     .cmm-top, .cmm-table {
       padding: 20px;
@@ -30,7 +38,7 @@
     }
     .cmm-top {
       height: 260px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       .cm-info-wrap {
         font-size: 12px;
         padding: 0 40px;
@@ -69,12 +77,15 @@
         }
       }
     }
-    .cmm-table {
-      height: calc(100% - 297px);
-    }
     .cmm-sub-title {
       font-size: 16px;
       margin-bottom: 10px;
+    }
+  }
+  .cmm-table {
+    height: calc(100% - 270px);
+    .el-table{
+      width: calc(100% - 17px);
     }
   }
 }

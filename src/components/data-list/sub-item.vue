@@ -9,7 +9,7 @@
           <ul class="order-list">
             <li v-show="data.deviceStatus===undefined">获取设备状态后，可进行操作</li>
             <li v-show="data.groupGuid">已绑定至社群，无法删除该设备</li>
-            <li v-show="data.deviceStatus===1">设备状态异常（离线），无法操作</li>
+            <li v-show="data.deviceStatus!==undefined && data.isHandle">{{data.deviceStatus | handleMsg}}</li>
             <li v-show="data.isHandle===false">设备操作权限已上送至其他社群，无法操作</li>
           </ul>
           <uu-icon
@@ -42,8 +42,8 @@
         <span class="label__title">设备别名：</span>
         <el-tooltip v-if="!isAmend" :content="data.deviceName" placement="top">
            <span class="ellipsis">
-         {{data.deviceName}}
-        </span>
+             {{data.deviceName}}
+            </span>
         </el-tooltip>
         <el-popover
           v-else
@@ -60,12 +60,14 @@
             :model="equipmentForm"
           >
             <el-form-item :rules="rules" prop="deviceName">
-              <el-input type="text" v-model="equipmentForm.deviceName"></el-input>
+              <el-input type="text" v-model.trim="equipmentForm.deviceName"></el-input>
               <uu-icon type="success" @click.native="changeEquipmentName"></uu-icon>
               <uu-icon type="error" @click.native="data.popover=false"></uu-icon>
             </el-form-item>
           </el-form>
-          <a href="javascript:void (0)" slot="reference">{{data.deviceName?data.deviceName:'暂无昵称'}}</a>
+          <el-tooltip slot="reference" :content="data.deviceName" placement="top">
+            <a class="ellipsis" href="javascript:void (0)">{{data.deviceName?data.deviceName:'暂无昵称'}}</a>
+          </el-tooltip>
         </el-popover>
       </p>
       <p>
@@ -98,7 +100,7 @@
 
 <script>
 import {parseTime} from '@/utils'
-
+import {validateRule} from '@/utils/validate'
 export default {
   name: 'ob-list-item',
   props: {
@@ -159,16 +161,18 @@ export default {
   data () {
     const validateName = (rule, value, callback) => {
       if (!value) {
-        callback(new Error('设备别名不能为空'))
+        callback(new Error('请输入设备别名'))
       } else {
-        if (value.length >= 2 && value.length <= 18) {
+        if (value.length > 32) {
+          callback(new Error('别名为1-32个字符'))
+        } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
             res.data ? callback(new Error('设备别名已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
           })
         } else {
-          callback(new Error('别名长度为2-18个字符'))
+          callback(new Error('请输入正确的设备别名'))
         }
       }
     }
@@ -206,17 +210,26 @@ export default {
       if (show === null) {
         return
       }
-      this.$http('/device/state/use', {deviceKey: value.deviceKey}).then(res => {
-        if (this.data.deviceStatus !== undefined && show) {
-          this.$tip('刷新成功')
-        }
-        if (value.groupGuid) {
-          this.devicePermission(value)
-        } else {
-          this.$set(value, 'isHandle', true)
-        }
-        this.$set(value, 'deviceStatus', res.data)
-      })
+      let getState = () => {
+        this.$http('/device/state/use', {deviceKey: value.deviceKey}).then(res => {
+          if (this.data.deviceStatus !== undefined && show) {
+            this.$tip('刷新成功')
+          }
+          this.$set(value, 'deviceStatus', 0)
+        })
+      }
+      if (value.groupGuid) {
+        // 获取设备操作权限，已授权其他社群后自己不可操作
+        this.$http('/merchant/device/operationPermission', {guid: value.groupGuid}).then(res2 => {
+          if (!res2.data) {
+            this.$set(this.data, 'isHandle', res2.data)
+          }
+          getState()
+        })
+      } else {
+        getState()
+        this.$set(value, 'isHandle', true)
+      }
     },
     handleDevice (type) {
       let [des, url, value] = ['', '', this.data]
@@ -287,7 +300,7 @@ export default {
     },
     // 操作按钮状态控制
     btnState (val, type) {
-      // state状态码 0 在线 默认显示禁用 1 离线 显示启用   2重启中 3重置中 4升级中  5禁用 6启用中 7 禁用中
+      // state状态码 0 在线 默认显示禁用 1 离线 显示启用   2重启中 3重置中 4升级中  5禁用 6禁用中 7 启用中
       // type 状态值 run 开关机  reboot 重启 upgrade 升级 reset 重置
       let label = (type) => {
         switch (type) {
@@ -385,9 +398,9 @@ export default {
     deleteEquipment (item) {
       this.$affirm(
         {
-          confirm: '删除',
-          cancel: '取消',
-          text: '确定将设备【' + item.deviceName + '】删除？'
+          confirm: '确定',
+          cancel: '返回',
+          text: '确定删除设备【' + item.deviceName + '】？'
         }, (action, instance, done) => {
           if (action === 'confirm') {
             this.$http('/merchant/device/delete', {deviceKey: item.deviceKey}).then(res => {
@@ -418,8 +431,9 @@ export default {
     },
     // 获取设备操作权限
     devicePermission (val) {
-      this.$http('/merchant/device/operationPermission', {guid: val.groupGuid}).then(res2 => {
-        if (!res2.data) this.$set(val, 'isHandle', res2.data)
+      this.$http('/merchant/device/operationPermission', {guid: val.groupGuid}, false).then(res2 => {
+        if (!res2.data) this.$set(this.data, 'isHandle', res2.data)
+        console.log(this.data)
       })
     },
     showPopover () {
@@ -450,6 +464,35 @@ export default {
   filters: {
     time: function (val) {
       return parseTime(val, '{y}/{m}/{d} {h}:{i}')
+    },
+    handleMsg (val) {
+      let msg = ''
+      switch (val) {
+        case 1:
+          msg = '设备状态异常（离线），无法操作'
+          break
+        case 2:
+          msg = '设备重启中，无法操作'
+          break
+        case 3:
+          msg = '设备重置中，无法操作'
+          break
+        case 4:
+          msg = '设备升级中，无法操作'
+          break
+        case 5:
+          msg = '设备未启用，无法操作'
+          break
+        case 6:
+          msg = '设备禁用中，无法操作'
+          break
+        case 7:
+          msg = '设备启用用中，无法操作'
+          break
+        default:
+          msg = ''
+      }
+      return msg
     }
   }
 }
@@ -462,7 +505,7 @@ export default {
   $reboot: url("../../assets/public/data-list/reboot_btn_bg.png");
   $upgrade: url("../../assets/public/data-list/upgrade_btn-bg.png");
   $ongoing: url("../../assets/public/data-list/upgrading_btn_bg.png");
-  $disable: url('../../assets/public/data-list/disable_btn_bg.png');
+  $disable: rgba(81, 80, 85, .25);
   .order-list {
     li {
       box-sizing: border-box;
@@ -471,6 +514,10 @@ export default {
   }
 
   .ob-list-sub-item {
+    .table__label{
+      display: inline-block;
+      width: 70px;
+    }
     &:first-child {
       .ellipsis {
         width: 48px;
@@ -478,6 +525,7 @@ export default {
     }
     [class^=el-icon] {
       font-size: 16px;
+      vertical-align: text-bottom;
     }
     .el-icon-question {
       margin-left: -1px;
@@ -506,7 +554,7 @@ export default {
           margin-bottom: 0;
         }
         &[disabled] {
-          background: #515055;
+          background: $disable;
         }
       }
     }
@@ -533,7 +581,6 @@ export default {
       line-height: 1.5;
       margin-bottom: 12px;
       span {
-        vertical-align: middle;
         &.ellipsis {
           width: 106px;
         }
@@ -548,8 +595,8 @@ export default {
     }
     .uu-icon {
       vertical-align: middle;
-      margin: 3px 0;
-      &.problem{
+      margin: 1px 0;
+      &.problem {
         margin-top: 8px;
       }
     }
@@ -571,52 +618,6 @@ export default {
         background-image: $reset;
       }
       &.run {
-        background-image: $close;
-      }
-      &.reboot {
-        background-image: $reboot;
-      }
-      &.ongoing {
-        position: relative;
-        &:after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: $ongoing repeat-x top left;
-          animation: mymove 3.5s linear infinite;
-          background-size: auto 100%;
-        }
-        @keyframes mymove {
-          from {
-            background-position-x: 0;
-          }
-          to {
-            background-position-x: 100%;
-          }
-        }
-      }
-    }
-  }
-
-  .el-button {
-    &.medium {
-      &.close, &.disable, &.reset, &.reboot, &.upgrade, &.ongoing {
-        height: 30px;
-        padding: 8px 15px;
-        background-size: cover;
-        border: none;
-        background-color: transparent;
-      }
-      &.upgrade {
-        background-image: $upgrade;
-      }
-      &.reset {
-        background-image: $reset;
-      }
-      &.close {
         background-image: $close;
       }
       &.reboot {

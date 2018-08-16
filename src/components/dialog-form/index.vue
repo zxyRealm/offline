@@ -34,16 +34,20 @@
     >
       <template v-if="type==='device'">
         <el-form-item label="设备序列号：" prop="deviceKey" :label-width="formLabelWidth">
-          <el-input type="text" v-model="dialogForm.deviceKey" placeholder="请输入设备序列号" auto-complete="off"></el-input>
+          <el-input
+            v-model.trim="dialogForm.deviceKey"
+            placeholder="请输入设备序列号"></el-input>
         </el-form-item>
         <el-form-item label="设备别名：" prop="deviceName" :label-width="formLabelWidth">
-          <el-input type="text" v-model="dialogForm.deviceName" placeholder="请输入设备别名" auto-complete="off"></el-input>
+          <el-input
+            v-model.trim="dialogForm.deviceName"
+            placeholder="请输入设备别名"></el-input>
         </el-form-item>
         <el-form-item label="设备类型：" prop="type" :label-width="formLabelWidth">
           <el-radio-group v-model="dialogForm.type" disabled size="small">
             <el-radio-button :label="1">分析终端</el-radio-button>
             <el-radio-button :label="2">客行分析一体机</el-radio-button>
-            <el-radio-button :label="3">身份识别一体机</el-radio-button>
+            <el-radio-button :label="3">人脸抓拍一体机</el-radio-button>
           </el-radio-group>
         </el-form-item>
         <el-form-item class="tac">
@@ -59,7 +63,8 @@
           </el-select>
         </el-form-item>
         <el-form-item label="应用场景：" :label-width="formLabelWidth" prop="deviceScene">
-          <el-input type="textarea" v-model="dialogForm.deviceScene" placeholder="请填写描述" auto-complete="off"></el-input>
+          <el-input type="textarea" v-model.trim="dialogForm.deviceScene" placeholder="请填写描述"
+                    auto-complete="off"></el-input>
         </el-form-item>
       </template>
     </el-form>
@@ -72,6 +77,7 @@
 <script>
 import Group from '@/components/group-nav'
 import {uniqueKey} from '@/utils'
+import {validateRule} from '@/utils/validate'
 
 export default {
   components: {
@@ -128,10 +134,9 @@ export default {
   data () {
     // 校验设备序列号
     const validateKey = (rule, value, callback) => {
-      value = value.trim()
       if (!value) {
         this.dialogForm.type = ''
-        callback(new Error('请填写设备序列号'))
+        callback(new Error('请输入设备序列号'))
       } else {
         if (value.length === 16) {
           // 校验设备是否被绑定过
@@ -147,7 +152,7 @@ export default {
               })
             } else {
               this.dialogForm.type = ''
-              callback(new Error('设备已经绑定，请更换其他设备'))
+              callback(new Error('该设备已添加'))
             }
           }).catch(err => {
             this.dialogForm.type = ''
@@ -155,19 +160,21 @@ export default {
           })
         } else {
           this.dialogForm.type = ''
-          callback(new Error('请填写合法的设备序列号'))
+          callback(new Error('序列号错误'))
         }
       }
     }
     // 校验设备别名
     const validateName = (rule, value, callback) => {
       if (!value) {
-        callback(new Error('请输入别名'))
+        callback(new Error('请输入设备别名'))
       } else {
-        if (value.length >= 2 && value.length <= 18) {
+        if (value.length > 32) {
+          callback(new Error('别名长度为1-32个字符'))
+        } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
             if (res.data) {
-              callback(new Error('别名已存在，请重新输入'))
+              callback(new Error('名称重复'))
             } else {
               callback()
             }
@@ -175,7 +182,7 @@ export default {
             callback(new Error(err.msg || '验证失败'))
           })
         } else {
-          callback(new Error('别名长度为2-18个字符'))
+          callback(new Error('请输入正确的别名'))
         }
       }
     }

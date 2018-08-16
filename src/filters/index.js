@@ -16,7 +16,7 @@ export function deviceType (type) {
     case 2:
       return '客行分析'
     default:
-      return '身份识别'
+      return '人脸抓拍'
   }
 }
 

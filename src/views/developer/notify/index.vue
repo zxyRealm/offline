@@ -17,6 +17,14 @@
             <el-button icon="el-icon-delete" @click="delNotifyInfo(item.noticeGuid)" circle></el-button>
           </ob-list-item>
         </ob-list>
+        <el-pagination
+          v-if="pagination.total && pagination.total>pagination.length"
+          @current-change="getNotifyList"
+          :current-page="pagination.index"
+          :page-size="pagination.length"
+          layout="total,prev, pager, next, jumper"
+          :total="pagination.total">
+        </el-pagination>
       </el-scrollbar>
     </div>
     <no-callback-info v-if="!notifyList.length && !loading"></no-callback-info>
@@ -61,14 +69,14 @@ export default {
   methods: {
     delNotifyInfo (id) {
       this.$affirm({
-        confirm: '删除',
-        cancel: '取消',
-        text: '确认删除本条通知？'
+        confirm: '确定',
+        cancel: '返回',
+        text: '确定废弃该通知？'
       }, (action, instance, done) => {
         if (action === 'confirm') {
           this.$http('/dataNotice/discard', {noticeGuid: id}).then(res => {
             if (res.result) {
-              this.$tip('删除成功')
+              this.$tip('操作成功')
               this.getNotifyList(this.pagination.index)
             }
           })

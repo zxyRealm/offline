@@ -60,6 +60,50 @@ textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explor
   font-size: 12px;
 }
 
+.el-textarea, .el-input {
+  textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
+    color: $placeholder-color;
+    font-size: 12px;
+  }
+
+  textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: $placeholder-color;
+    font-size: 12px;
+  }
+
+  textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: $placeholder-color;
+    font-size: 12px;
+  }
+
+  textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color: $placeholder-color;
+    font-size: 12px;
+  }
+}
+$placeholder: #999;
+.white .el-textarea, .el-input {
+  textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
+    color: $placeholder;
+    font-size: 12px;
+  }
+
+  textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: $placeholder;
+    font-size: 12px;
+  }
+
+  textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: $placeholder;
+    font-size: 12px;
+  }
+
+  textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color: $placeholder;
+    font-size: 12px;
+  }
+}
+
 #app {
   height: 100%;
   min-width: 1280px;
@@ -163,6 +207,13 @@ div:focus {
   }
 }
 
+@each $ml in 5, 8, 10, 94 {
+  .ml#{$ml} {
+    margin-left: $ml + px;
+  }
+}
+
+
 .fr {
   float: right;
 }
@@ -180,7 +231,7 @@ div:focus {
 }
 
 .fcg {
-  color: $disable;
+  color: rgb(81, 80, 85);
 }
 
 .pr-5 {
@@ -397,7 +448,7 @@ button, input {
 //确定按钮样式
 .el-button {
   &[disabled] {
-    background: #515055 !important;
+    background: rgba(81, 80, 85, 0.25);
   }
   &.affirm, &.cancel {
     border: none;
@@ -426,7 +477,7 @@ button, input {
       color: #fff;
     }
     &.disable {
-      background: #515055;
+      background: rgba(81, 80, 85, 0.25);
       //background-image: $disable;
     }
   }
@@ -484,7 +535,8 @@ button, input {
       vertical-align: middle;
       .el-input__inner {
         height: 22px;
-        line-height: 20px;
+        padding: 0 10px;
+        line-height: 22px;
         font-size: 12px;
         color: #333;
       }
@@ -571,6 +623,7 @@ button, input {
   text-overflow: ellipsis;
   white-space: nowrap;
   box-sizing: border-box;
+  vertical-align: sub;
 }
 
 .text-btn {
@@ -583,10 +636,9 @@ button, input {
   margin: 0 20px;
 }
 
-
 .el-table {
-  &.community-table{
-    .el-table__empty-block{
+  &.community-table {
+    .el-table__empty-block {
       min-height: 42px;
     }
   }
@@ -652,7 +704,7 @@ button, input {
 
 .el-select__caret {
   background: url("/static/img/select_arrow_icon.png") no-repeat center center;
-  background-size: 15px auto;
+  background-size: 10px auto;
   transform: rotateZ(0deg) !important;
   &.is-reverse {
     transform: rotateZ(180deg) !important;
@@ -686,7 +738,7 @@ button, input {
 
 //默认主题 黑色
 .el-tree {
-  .el-tree__empty-block{
+  .el-tree__empty-block {
     font-size: 12px;
   }
   .el-tree-node__content > .el-tree-node__expand-icon {
@@ -803,16 +855,12 @@ button, input {
 }
 
 .el-scrollbar {
-  //margin: auto;
   .el-scrollbar__wrap {
-    //overflow-x: hidden;
-    height: calc(100% + 17px);
+    overflow-y: scroll;
+    overflow-x: hidden;
   }
   &.ob-scrollbar {
     height: 100%;
-    .el-scrollbar__wrap {
-      overflow-x: hidden;
-    }
   }
 }
 
@@ -881,7 +929,7 @@ button, input {
       cursor: text !important;
     }
   }
-  .el-radio__input{
+  .el-radio__input {
     .el-radio__inner {
       border: none;
       background-position: center center;
@@ -962,3 +1010,14 @@ button, input {
   padding: 8px 10px;
 }
 
+//复选框样式
+.el-checkbox__inner{
+  border: 1px solid #979797;
+  background: transparent;
+}
+.el-checkbox__input{
+
+  //&.is-focus .el-checkbox__inner{
+  //  @extend .el-checkbox__inner
+  //}
+}

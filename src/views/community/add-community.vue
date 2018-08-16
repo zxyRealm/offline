@@ -17,7 +17,7 @@
                     v-model.trim="communityForm.name"></el-input>
         </el-form-item>
         <el-form-item label="社群码：" prop="code">
-          <input type="hidden" v-model.trim="communityForm.code"></input>
+          <input type="hidden" v-model.trim="communityForm.code"/>
           <div class="qr-code-wrap">
             <template v-if="communityForm.code">
               <div id="community-qrcode"></div>
@@ -50,9 +50,9 @@
               content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。">
               <div class="fs12">
                 1.数据查看权限：查看社群设备的数据分析图表。<br>
-                2.设备操作权限：对子社群设备进行关闭、开启 、升级等操作。
+                2.设备操作权限：对子社群设备进行禁用、启用 、升级等操作。
               </div>
-              <i slot="reference" class="el-icon-question"></i>
+              <uu-icon slot="reference" size="small" type="problem"></uu-icon>
             </el-popover>
             ,可多选)
           </p>
@@ -81,7 +81,9 @@ export default {
       if (!value) {
         callback(new Error('请填写社群名称'))
       } else {
-        if (value.length >= 2 && value.length <= 18) {
+        if (value.length > 32) {
+          callback(new Error('社群名称为1-32个字符'))
+        } else if (validateRule(value, 2)) {
           if (this.type === 'update' && this.originName === value) {
             callback()
           } else {
@@ -92,13 +94,13 @@ export default {
             })
           }
         } else {
-          callback(new Error('长度为2-18个字符'))
+          callback(new Error('请输入正确的社群名称'))
         }
       }
     }
     const validatePhone = (rule, value, callback) => {
       if (value) {
-        if (validateRule(value, 5)) {
+        if (validateRule(value, 6)) {
           callback()
         } else {
           callback(new Error('请填写正确的手机号'))
@@ -124,7 +126,7 @@ export default {
           {validator: validateName, trigger: 'blur'}
         ],
         code: [
-          {required: true, message: '请获取社群码', trigger: 'blur'}
+          {required: true, message: '请获取社群邀请码', trigger: 'blur'}
         ],
         pca: [
           {required: true, message: '请选取省市区', trigger: 'blur'}

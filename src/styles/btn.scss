@@ -78,15 +78,18 @@
 input:disabled{
   cursor: default;
 }
-.is-disabled{
-  cursor: default!important;
-  .el-checkbox__inner{
-    cursor: default!important;
+.el-checkbox__input.is-disabled {
+  + span.el-checkbox__label{
+    cursor: default;
   }
-  +.el-checkbox__label{
-    cursor: default!important;
+  .el-checkbox__inner{
+    cursor: default;
+    &:after{
+      cursor: default;
+    }
   }
 }
+
 .custom-button {
   display: inline-block;
   line-height: 1;

@@ -21,7 +21,7 @@
           <el-input
             type="text"
             placeholder="请输入社群邀请码"
-            v-model="joinForm.code"></el-input>
+            v-model.trim="joinForm.code"></el-input>
         </el-form-item>
         <el-form-item v-if="communityInfo.guid && step!==2" label-width="0">
           <div class="info-wrap">
@@ -34,7 +34,6 @@
                 {{communityInfo.name}}
               </span>
               </el-tooltip>
-
               】社群？
             </div>
             <div class="fs12">
@@ -70,17 +69,6 @@
 export default {
   name: 'edit-custom',
   data () {
-    const validateName = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请填写分组名称'))
-      } else {
-        if (value.length >= 2 && value.length <= 18) {
-          callback()
-        } else {
-          callback(new Error('长度为2-18个字符'))
-        }
-      }
-    }
     const validateCode = (rule, value, callback) => {
       value = value.trim()
       this.communityInfo = {}
@@ -88,7 +76,7 @@ export default {
         this.step = 1
         callback(new Error('请填写社群邀请码'))
       } else {
-        if (value.length === 10) {
+        if (/[\da-zA-Z]{10}/.test(value)) {
           this.$http('/group/code/info', {code: value}, false).then(res => {
             if (res.data) {
               this.communityInfo = res.data
@@ -122,7 +110,7 @@ export default {
       },
       rules: {
         groupPid: [
-          {required: true, validator: validateName, trigger: 'blur'}
+          {required: true, message: '请选择自有社群', trigger: 'blur'}
         ],
         groupGuid: [
           {required: true, message: '请选择自有社群', trigger: 'blur'}

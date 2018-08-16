@@ -30,7 +30,6 @@
             v-model="groupList"
             type="community"
             @refresh="getGroupList"
-            :current-key="currentKey"
             @current-change="currentChange"></ob-group-nav>
         </div>
         <div class="community--main">
@@ -97,15 +96,14 @@
                 </div>
               </div>
             </div>
-            <div class="dashed-border " :class="(!currentCommunity.groupPid)? 'lwh--table': 'cmm-table'">
+            <div class="dashed-border cmm-table mine--table__wrap" :style="{height: tableHeight+96+'px'}">
               <h2 class="cmm-sub-title">设备列表</h2>
               <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
               </ob-list-empty>
-              <el-scrollbar ref="faceScrollItemTable" :class="deviceList.length <= 5 ? 'lwh-scroll': ''" v-else>
+              <el-scrollbar :style="{height: tableHeight+'px'}" class="table--scrollbar__warp" ref="faceScrollItemTable" :class="deviceList.length <= 5 ? 'lwh-scroll': ''" v-else>
                 <el-table
                   border
                   :data="deviceList"
-                  style="width:100%"
                 >
                   <el-table-column
                     prop="deviceName"
@@ -115,12 +113,12 @@
                   <el-table-column
                     prop="deviceKey"
                     label="序列号"
+                    width="140px"
                   >
                   </el-table-column>
                   <el-table-column
                     prop="deviceType"
                     label="设备类型"
-                    width="80px"
                   >
                     <template slot-scope="scope">
                       {{scope.row.deviceType|deviceType}}
@@ -161,6 +159,7 @@ import FaceRecognition from '@/components/screening/FaceRecognition'
 import VisitedDetailInfo from './VisitedDetailInfo.vue'
 import FaceRecognitionStore from './FaceRecognitionStore'
 import {eventObject} from '@/utils/event'
+import {validateRule} from '@/utils/validate'
 
 export default {
   components: {
@@ -173,21 +172,23 @@ export default {
     const validateName = (rule, value, callback) => {
       value = value.trim()
       if (!value) {
-        callback(new Error('请填写子社群昵称'))
+        callback(new Error('请填写子社群备注名'))
       } else {
-        if (value.length >= 2 && value.length <= 18) {
+        if (value.length > 32) {
+          callback(new Error('备注名为1-32个字符'))
+        } else if (validateRule(value, 2)) {
           if (this.originName === value) {
-            callback(new Error('子社群昵称已存在'))
+            callback(new Error('子社群备注名已存在'))
           } else {
             this.$http('/group/nickNameExist', {groupNickName: value},
               false).then(res => {
-              !res.data ? callback() : callback(new Error('子社群昵称已存在'))
+              !res.data ? callback() : callback(new Error('子社群备注名已存在'))
             }).catch(err => {
               callback(err.msg || '验证失败')
             })
           }
         } else {
-          callback(new Error('长度为2-18个字符'))
+          callback(new Error('请输入正确的备注名'))
         }
       }
     }
@@ -215,6 +216,11 @@ export default {
     }
   },
   methods: {
+    addItem () {
+      if (this.deviceList.length) {
+        this.deviceList.push(this.deviceList[0])
+      }
+    },
     // 获取社群列表
     getGroupList (keywords, key) {
       keywords = (keywords || '').trim()
@@ -223,8 +229,9 @@ export default {
         if (!key && !res.data[0]) {
           return
         }
+        console.log(key)
         this.$nextTick(() => {
-          this.$refs.groupNav.setCurrentKey(res.data[0].uniqueKey)
+          this.$refs.groupNav.setCurrentKey(key ? key.uniqueKey : res.data[0].uniqueKey)
         })
         this.getCommunityInfo(key || res.data[0])
         this.getDeviceList(key || res.data[0])
@@ -301,9 +308,7 @@ export default {
     // 当前社群发生改变
     currentChange (val) {
       this.currentCommunity = val
-
       this.hidePopover()
-      // this.insetForm();
       this.getCommunityInfo(val)
       this.getDeviceList(val)
     },
@@ -332,7 +337,6 @@ export default {
           done()
         }
       })
-
     },
     // 修改社群昵称
     changeCommunityName (formName) {
@@ -345,8 +349,11 @@ export default {
             this.$tip('昵称修改成功')
             this.currentCommunity.groupNickName = subData.groupNickName
             this.hidePopover()
-            // this.insetForm();
-            this.getGroupList('', {groupGuid: this.communityInfo.guid, groupPid: this.communityInfo.groupPid})
+            this.getGroupList('', {
+              groupGuid: this.communityInfo.guid,
+              groupPid: this.communityInfo.groupPid,
+              uniqueKey: this.currentCommunity.uniqueKey
+            })
           })
         } else {
           console.log('error submit')
@@ -363,9 +370,8 @@ export default {
       if (this.$refs.nickNameForm) {
         this.$refs.nickNameForm.resetFields()
       }
-      this.nickNamePopover ? this.nickNamePopover = false : ''
+      if (this.nickNamePopover) this.nickNamePopover = false
     }
-
   },
   created () {
     this.getGroupList()
@@ -374,7 +380,10 @@ export default {
     isSon: function () {
       return Boolean(this.communityInfo.groupPid)
     },
-    ...mapState(['loading'])
+    ...mapState(['loading']),
+    tableHeight () {
+      return this.deviceList.length ? (this.deviceList.length >= 5 ? 246 : (this.deviceList.length + 1) * 41) : 60
+    }
   }
 }
 </script>
@@ -390,29 +399,15 @@ export default {
     > .is-horizontal {
       display: none;
     }
+    .mine--table__wrap{
+      margin-bottom: 20px;
+    }
     .el-scrollbar__wrap {
       overflow-x: hidden;
       overflow-y: auto;
-      /*height: 100%;*/
     }
     .el-scrollbar__view {
       height: 100%;
-    }
-    .lwh--table {
-      .lwh-scroll {
-        .el-scrollbar__wrap {
-          margin-bottom: 0 !important;
-          margin-right: 0 !important;
-        }
-      }
-      .el-scrollbar {
-        max-height: 260px !important;
-        padding-bottom: 17px;
-        box-sizing: border-box;
-      }
-      .el-scrollbar__wrap {
-        max-height: 243px;
-      }
     }
   }
 
@@ -431,13 +426,10 @@ export default {
     margin-top: -6px;
     color: #F87F21;
   }
-
-  .community--inner .community--main .lwh--table {
-    max-height: calc(345px);
-    margin-bottom: 20px;
+  .mine--table__wrap{
     padding: 20px;
+    margin-bottom: 10px;
   }
-
   .community--inner {
     .community--main {
       overflow-y: auto;

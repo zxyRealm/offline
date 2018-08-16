@@ -5,6 +5,7 @@
   >
     <el-select
       v-if="type==='device'"
+      placeholder="请选取社群"
       @change="selectChange"
       v-model="currentGroup">
       <el-option

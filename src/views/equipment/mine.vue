@@ -24,9 +24,9 @@
             <ob-list-item width="16%" type="state" :data="item" :isAmend="true">
             </ob-list-item>
             <ob-list-item width="23%">
-              <p><span>序列号：</span><span>{{item.deviceKey}}</span></p>
-              <p><span>设备类型：</span>{{item.deviceType|deviceType}}</p>
-              <p><span>添加时间：</span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</p>
+              <p><span class="table__label">序列号：</span><span>{{item.deviceKey}}</span></p>
+              <p><span class="table__label">设备类型：</span>{{item.deviceType|deviceType}}</p>
+              <p><span class="table__label">添加时间：</span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</p>
             </ob-list-item>
             <ob-list-item width="8%">
               <p class="tac"><span>用途：</span><br>
@@ -147,7 +147,7 @@ export default {
           this.dialogFormVisible = false
           this.$tip('创建成功')
           this.getMineEquipment()
-        }).catch(err => {
+        }).catch(() => {
           this.dialogFormVisible = false
         })
       } else {
@@ -205,20 +205,7 @@ export default {
         }
       })
     },
-    deleteEquipment (item) {
-      this.$affirm({
-        confirm: '删除',
-        cancel: '取消',
-        text: '确定将设备【' + item.deviceName + '】删除？'
-      }, (action, instance, done) => {
-        if (action === 'confirm') {
-          done()
-        } else {
-          done()
-        }
-      }, 'waiting')
-    },
-    //解 绑社群
+    // 解绑社群
     unBindCommunity (value, index) {
       this.$affirm({
         confirm: '确定',
@@ -265,7 +252,7 @@ export default {
         case 2:
           return '客行分析一体机'
         default:
-          return '身份识别一体机'
+          return '人脸抓拍一体机'
       }
     }
   },

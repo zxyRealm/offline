@@ -2,9 +2,8 @@
   <div class="community-mine-wrap">
     <div class="community--inner">
       <div class="community--sidebar dashed-border">
-        <div class="btn-wrap">
-          <el-button disabled class="affirm medium">加入</el-button>
-          <el-button class="affirm medium" @click="$router.push('/community/custom/create')">创建</el-button>
+        <div class="btn-wrap clearfix">
+          <el-button class="affirm medium ml94" @click="$router.push('/community/custom/create')">创建</el-button>
         </div>
         <uu-sub-tab
           size="small"
@@ -60,7 +59,7 @@
             <span>社群列表</span>
             <p class="handle fr fs14" v-if="!loading">
               <a href="javascript:void (0)"
-                 v-show="customMemberList.length"
+                 v-show="customMemberList.length && customGroupInfo.guid"
                  class="danger mr-10"
                  @click="deleteMember">移除</a>
               <a href="javascript:void(0)"
@@ -68,28 +67,29 @@
                  @click="dialogFormVisible=true">添加</a>
             </p>
           </h2>
-          <el-table
-            border
-            class="community-table"
-            ref="customTable"
-            :data="customMemberList"
-            style="width:100%"
-            @selection-change="handleSelectionChange"
-            empty-text="您尚未添加社群"
-            v-if="customGroupInfo.guid"
-          >
-            <el-table-column
-              align="center"
-              type="selection"
-              width="120">
-            </el-table-column>
-            <el-table-column
-              align="center"
-              prop="name"
-              label="社群名称"
+          <el-scrollbar class="table--scrollbar__warp">
+            <el-table
+              border
+              class="community-table"
+              ref="customTable"
+              :data="customMemberList"
+              @selection-change="handleSelectionChange"
+              empty-text="您尚未添加社群"
+              v-if="customGroupInfo.guid"
             >
-            </el-table-column>
-          </el-table>
+              <el-table-column
+                align="center"
+                type="selection"
+                width="120">
+              </el-table-column>
+              <el-table-column
+                align="center"
+                prop="name"
+                label="社群名称"
+              >
+              </el-table-column>
+            </el-table>
+          </el-scrollbar>
           <ob-list-empty top="32px" text="您尚未添加社群" size="small" v-if="!customGroupInfo.guid&&!loading"></ob-list-empty>
         </div>
       </div>
@@ -109,7 +109,6 @@
 <script>
 import {customType, arrayUnique} from '@/utils'
 import {mapState} from 'vuex'
-
 export default {
   name: 'custom',
   data () {

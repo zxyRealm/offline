@@ -1,5 +1,5 @@
 <template>
-  <div class="uu-icon" :class=" type + ' ' + className" @click="handleClick">
+  <div class="uu-icon" :class=" type + ' ' + className + ' ' + size" @click="handleClick">
   </div>
 </template>
 
@@ -13,6 +13,10 @@ export default {
     },
     className: {
       type: [String, Object],
+      default: ''
+    },
+    size: {
+      type: [String],
       default: ''
     }
   },
@@ -36,7 +40,7 @@ export default {
     background-position: center center;
     background-size: contain;
     cursor: pointer;
-    vertical-align: middle;
+    vertical-align: sub;
     &.exit {
       background-image: url("/static/img/exit_icon.png");
       height: $s24;
@@ -103,6 +107,10 @@ export default {
     }
     &.problem {
       background-image: url('../../assets/public/icons/problem_icon.png');
+      &.small{
+        height: $s14;
+        width: $s14;
+      }
     }
   }
 </style>
