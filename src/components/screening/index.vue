@@ -83,7 +83,7 @@ export default {
         title: '选择社群',
         type: 'group'
       },
-      dimensionData: ['小时', '天', '周', '月'], // 维度
+      dimensionData: ['小时', '日', '周', '月'], // 维度
       filterParams: {
         groupGuid: '', // 选择社群 6867A6C096844AD4982F19323B6C9574
         type: '', // 类型
