@@ -57,6 +57,7 @@ export default {
     }
   },
   methods: {
+    // 月日
     daytime (date) {
       date = new Date(date)
       let m = date.getMonth() + 1
@@ -74,9 +75,11 @@ export default {
       minute = minute < 10 ? ('0' + minute) : minute
       return h + ':' + minute
     },
+    // 显示详情
     handleDetail () {
       this.showDialog = true
     },
+    // base64处理图片
     imgBase (data) {
       return `data:image/jpg;base64,${data}`
     },
@@ -94,6 +97,7 @@ export default {
         }
       }
     },
+    // 设置图片自适应容器
     getAutoSize () {
       let img = new Image()
       img.src = this.imgBase(this.detailInfo.img)
