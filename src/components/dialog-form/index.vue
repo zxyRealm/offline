@@ -174,7 +174,7 @@ export default {
         } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
             if (res.data) {
-              callback(new Error('名称重复'))
+              callback(new Error('别名重复'))
             } else {
               callback()
             }
@@ -201,6 +201,9 @@ export default {
         ],
         groupGuid: [
           {required: true, message: '请选取自有社群', trigger: 'blur'}
+        ],
+        deviceScene: [
+          {max: 255, message: '超出最大长度限制', trigger: 'blur'}
         ]
       },
       optionsGroup: [],

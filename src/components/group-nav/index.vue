@@ -81,336 +81,292 @@
 </template>
 
 <script>
-  import {customType, uniqueKey} from '@/utils'
+import {customType, uniqueKey} from '@/utils'
 
-  export default {
-    props: {
-      value: {
-        type: [Array, Object],
-        default: () => []
-      },
-      theme: {
-        type: String,
-        default: 'default'
-      },
-      nodeKey: {
-        type: String,
-        default: 'uniqueKey'
-      },
-      dataKey: {
-        type: String,
-        default: 'groupGuid'
-      },
-      onlyChecked: {
-        type: Boolean,
-        default: false
-      },
-      expandedAll: {
-        type: Boolean,
-        default: true
-      },
-      showCheckbox: {
-        type: Boolean,
-        default: false
-      },
-      checkStrictly: {
-        type: Boolean,
-        default: true
-      },
-      expandedKeys: {
-        type: Array,
-        default: () => []
-      },
-      currentKey: {
-        type: [String, Number],
-        default: ''
-      },
-      disabledKeys: {
-        type: Array,
-        default: () => []
-      },
-      isDisabled: {
-        type: [Boolean],
-        default: false
-      },
-      type: {
-        type: [String],
-        default: 'device' // device 设备导航 community 社群导航 custom-community 自定义社群导航
-      },
-      multiple: { // 是否可多选 当type为custom时有效
-        type: Boolean,
-        default: false
-      },
-      // 默认子类键名、显示文本键名
-      defaultProps: {
-        type: Object,
-        default: () => ({
-          children: 'childGroupList',
-          label: 'groupNickName'
-        })
-      }
+export default {
+  props: {
+    value: { // 社群列表数组对象
+      type: [Array, Object],
+      default: () => []
     },
-    name: 'ob-group-nav',
-    data () {
-      return {
-        currentGroup: '',
-        GroupList: [],
-        currentNode: '',
-        testList: {
-          'data': [
-            {
-              'childGroupList': [
-                {
-                  'childGroupList': [
-                    {
-                      'childGroupList': [
-                        {
-                          'childGroupList': [],
-                          'createTime': '2018-06-11 11:24:17',
-                          'groupGuid': '16B9EADCC5854772B9B96D130BE5C0BB',
-                          'groupNickName': '创新科技园11',
-                          'groupPid': '26241D572B924A3E9008A95904C27561',
-                          'id': 18
-                        }
-                      ],
-                      'createTime': '2018-06-11 11:24:17',
-                      'groupGuid': '16B9EADCC5854772B9B96D130BE5C8BB',
-                      'groupNickName': '创新科技园22',
-                      'groupPid': '26241D572B924A3E9008A95904C27651',
-                      'id': 15
-                    }
-                  ],
-                  'createTime': '2018-06-11 11:24:17',
-                  'groupGuid': '16B9EADCC5854772B9B96D130BE5C9BB',
-                  'groupNickName': '创新科技园',
-                  'groupPid': '26241D572B924A3E9008A95904C27551',
-                  'id': 11
-                }
-              ],
-              'createTime': null,
-              'groupGuid': '26241D572B924A3E9008A95904C27551',
-              'groupNickName': '星巴克2',
-              'groupPid': null,
-              'id': 0
-            },
-            {
-              'childGroupList': [
-                {
-                  'childGroupList': [],
-                  'createTime': '2018-06-23 18:15:47',
-                  'groupGuid': 'FB933CD184404F9682A2B996BCD833EB',
-                  'groupNickName': '星巴克3',
-                  'groupPid': '6DE174522B9942C783739ABEF5E81E28',
-                  'id': 14
-                }
-              ],
-              'createTime': null,
-              'groupGuid': '6DE174522B9942C783739ABEF5E81E28',
-              'groupNickName': '星巴克1',
-              'groupPid': null,
-              'id': 0
-            }
-          ]
-        },
-        checkedKeys: [],
-        agency: []
-      }
+    theme: { // 主题样式
+      type: String,
+      default: 'default'
     },
-    methods: {
-      nodeClick (val, node) {
-        if (this.showCheckbox && !node.data.disabled) {
-          if (!this.multiple) {
-            this.$refs.GroupTree.setCheckedNodes([node.data])
-          } else {
-            let nodes = this.$refs.GroupTree.getCheckedNodes()
-            let isChecked = nodes.filter(item => {
-              return item.$treeNodeId === node.data.$treeNodeId
-            })[0]
-            if (isChecked) {
-              this.$refs.GroupTree.setCheckedNodes(nodes.filter(item => {
-                return item.$treeNodeId !== node.data.$treeNodeId
-              }))
-            } else {
-              nodes.push(node.data)
-              this.$refs.GroupTree.setCheckedNodes(nodes)
-            }
-          }
-        }
-      },
-      currentChange (val, node) {
-        if (val[this.nodeKey] !== this.currentNode) {
-          this.$emit('current-change', val, node)
-          this.currentNode = val[this.nodeKey]
-        }
-      },
-      selectChange (index) {
-        this.TreeList = this.GroupList[index][this.defaultProps.children]
-        this.$emit('current-change', '')
-      },
-      isHandle (val) {
-        return (val || '').split(',').length === 2
-      },
-      getGroupList (gid) {
-        gid = (gid || '')
-        this.$http('/group/list', {searchText: gid}).then(res => {
-          this.GroupList = uniqueKey(res.data)
-          if (this.type !== 'device') {
-            this.TreeList = this.GroupList
-          }
-        })
-      },
-      getParentList (value) {
-        if (!value[this.dataKey]) {
-          this.$tip('社群id不存在')
-        } else {
-          if (!value.parentList) {
-            this.$http('/group/fatherGruop', {guid: value[this.dataKey]}, false).then(res => {
-              if (res.data) {
-                this.$set(value, 'parentList', res.data)
-              }
-            })
-          }
-        }
-      },
-      customType (type, txt) {
-        return customType(type, txt)
-      },
-      // 离开社群
-      leaveCommunity (type, current, parent) {
-        // type 可选类型 quit、kick
-        let [url, des] = ['/group/exit', '']
-        let params = {
-          groupPid: parent.guid || parent.groupGuid,
-          groupGuid: current.groupGuid,
-          groupNickName: current.groupNickName,
-          parentGroupNickName: parent.groupNickName || parent.name
-        }
-        switch (type) {
-          case 'quit':
-            des = `确定要退出【${params.parentGroupNickName}】社群？`
-            url = '/group/exit'
-            break
-          default:
-            des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>确定要移除子社群【${params.groupNickName}】？`
-            url = '/group/remove'
-        }
-        this.$affirm({text: `${des}`}, (action, instance, done) => {
-          if (action === 'confirm') {
-            this.$http(url, params).then(res => {
-              this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
-              this.$emit('refresh')
-            })
-            done()
-          } else {
-            done()
-          }
-        })
-      },
-      // 设置当前节点
-      setCurrentKey (key) {
-        this.$nextTick(() => {
-          this.$refs.GroupTree.setCurrentKey(key)
-        })
-      },
-      // 设置选中节点
-      setCheckedKeys (keys) {
-        this.$nextTick(() => {
-          this.$refs.GroupTree.setCheckedKeys(keys)
-        })
-      },
-      setCheckedNodes (nodes) {
-        this.$nextTick(() => {
-          this.$refs.GroupTree.setCheckedNodes(nodes)
-        })
-      },
-      // 设置不可选节点
-      getCheckedNodes () {
-        return this.$refs.GroupTree.getCheckedNodes()
-      },
-      nodeCheck (nodes) {
+    nodeKey: { // 节点唯一标识键值
+      type: String,
+      default: 'uniqueKey'
+    },
+    dataKey: { // 数组对象自有唯一标识
+      type: String,
+      default: 'groupGuid'
+    },
+    onlyChecked: { //
+      type: Boolean,
+      default: false
+    },
+    expandedAll: { // 节点是否全部展开
+      type: Boolean,
+      default: true
+    },
+    showCheckbox: { // 是否显示多选按钮
+      type: Boolean,
+      default: false
+    },
+    checkStrictly: { // 父子节点是否关联
+      type: Boolean,
+      default: true
+    },
+    expandedKeys: { // 默认展开的节点的 key 的数组
+      type: Array,
+      default: () => []
+    },
+    currentKey: { // 当前选中节点 key
+      type: [String, Number],
+      default: ''
+    },
+    disabledKeys: { // 默认不可选中的节点的 key 的数组
+      type: Array,
+      default: () => []
+    },
+    isDisabled: { // 是否开启节点不可选中
+      type: [Boolean],
+      default: false
+    },
+    type: { // 树型控件类型
+      type: [String],
+      default: 'device' // device 设备导航 community 社群导航 custom-community 自定义社群导航
+    },
+    multiple: { // 是否可多选 当type为custom时有效
+      type: Boolean,
+      default: false
+    },
+    defaultProps: { // 默认子类键名、显示文本键名
+      type: Object,
+      default: () => ({
+        children: 'childGroupList',
+        label: 'groupNickName'
+      })
+    }
+  },
+  name: 'ob-group-nav',
+  data () {
+    return {
+      currentGroup: '',
+      GroupList: [],
+      currentNode: '',
+      checkedKeys: [],
+      agency: []
+    }
+  },
+  methods: {
+    /*
+    * 节点被点击时的回调
+    * multiple 是否多选
+    * 已选中节点在点击事件中状态不会被清除
+    * */
+    nodeClick (val, node) {
+      if (this.showCheckbox && !node.data.disabled) {
         if (!this.multiple) {
-          this.$refs.GroupTree.setCheckedNodes([nodes])
-        }
-      },
-      getCheckedKeys () {
-        return this.$refs.GroupTree.getCheckedKeys()
-      },
-      checkedAll (val) {
-        if (val) {
-          this.$refs.GroupTree.setCheckedNodes(this.originList)
+          this.$refs.GroupTree.setCheckedNodes([node.data])
         } else {
-          this.$refs.GroupTree.setCheckedNodes(this.originList.filter(item => item.disabled))
+          let nodes = this.$refs.GroupTree.getCheckedNodes()
+          let isChecked = nodes.filter(item => {
+            return item.$treeNodeId === node.data.$treeNodeId
+          })[0]
+          if (isChecked) {
+            this.$refs.GroupTree.setCheckedNodes(nodes.filter(item => {
+              return item.$treeNodeId !== node.data.$treeNodeId
+            }))
+          } else {
+            nodes.push(node.data)
+            this.$refs.GroupTree.setCheckedNodes(nodes)
+          }
         }
       }
     },
-    mounted () {
-      this.GroupList = this.value || []
-      if (this.type !== 'community' && this.type !== 'custom-community') {
-        this.getGroupList()
-      }
-      this.setCurrentKey(this.currentKey)
-    },
-    watch: {
-      value: function (val) {
-        this.GroupList = val || []
-      },
-      GroupList: {
-        handler: function (val) {
-          if (this.type === 'community' || this.type === 'custom-community') {
-            this.TreeList = val
-          }
-          this.$emit('input', val)
-        },
-        deep: true
-      },
-      currentKey: function (key) {
-        this.setCurrentKey(key)
+    // 当前选中节点变化时触发的事件
+    currentChange (val, node) {
+      if (val[this.nodeKey] !== this.currentNode) {
+        this.$emit('current-change', val, node)
+        this.currentNode = val[this.nodeKey]
       }
     },
-    computed: {
-      isCheckAll: function () {
-        return this.multiple
-      },
-      showChecked: function () {
-        return this.onlyChecked ? this.onlyChecked : this.showCheckbox
-      },
-      TreeList: {
-        get () {
-          // 设置默认不可选节点
-          if (this.isDisabled) {
-            let [setKeys, disabledKeys] = [new Set(this.disabledKeys), []]
-            let setDisabled = (arr) => {
-              for (let i = 0, len = arr.length; i < len; i++) {
-                if (setKeys.has(arr[i][this.dataKey])) {
-                  disabledKeys.push(arr[i][this.nodeKey])
-                  this.$set(arr[i], 'disabled', true)
-                } else {
-                  if (arr[i].disabled) {
-                    this.$set(arr[i], 'disabled', false)
-                  }
-                }
-                if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
-                  setDisabled(arr[i][this.defaultProps.children])
-                }
-              }
+    // el-select 组件value 值变化时通知父组件
+    selectChange (index) {
+      this.TreeList = this.GroupList[index][this.defaultProps.children]
+      this.currentNode = ''
+      this.$emit('current-change', '')
+    },
+    isHandle (val) {
+      return (val || '').split(',').length === 2
+    },
+    // 获取社群列表
+    getGroupList (gid) {
+      gid = (gid || '')
+      this.$http('/group/list', {searchText: gid}).then(res => {
+        this.GroupList = uniqueKey(res.data)
+        if (this.type !== 'device') {
+          this.TreeList = this.GroupList
+        }
+      })
+    },
+    // 获取父社群列表
+    getParentList (value) {
+      if (!value[this.dataKey]) {
+        this.$tip('社群id不存在')
+      } else {
+        if (!value.parentList) {
+          this.$http('/group/fatherGruop', {guid: value[this.dataKey]}, false).then(res => {
+            if (res.data) {
+              this.$set(value, 'parentList', res.data)
             }
-            setDisabled(this.GroupList)
-            this.setCheckedKeys(disabledKeys)
-          }
-          if (this.type !== 'device') {
-            this.agency = this.GroupList
-          }
-          return this.agency
-        },
-        set (model) {
-          this.agency = model
+          })
         }
-      },
-      originList: function () {
-        return this.$restoreArray(this.TreeList, this.defaultProps.children)
+      }
+    },
+    customType (type, txt) {
+      return customType(type, txt)
+    },
+    // 离开社群
+    leaveCommunity (type, current, parent) {
+      // type 可选类型 quit、kick
+      let [url, des] = ['/group/exit', '']
+      let params = {
+        groupPid: parent.guid || parent.groupGuid,
+        groupGuid: current.groupGuid,
+        groupNickName: current.groupNickName,
+        parentGroupNickName: parent.groupNickName || parent.name
+      }
+      switch (type) {
+        case 'quit':
+          des = `确定要退出【${params.parentGroupNickName}】社群？`
+          url = '/group/exit'
+          break
+        default:
+          des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>确定要移除子社群【${params.groupNickName}】？`
+          url = '/group/remove'
+      }
+      this.$affirm({text: `${des}`}, (action, instance, done) => {
+        if (action === 'confirm') {
+          this.$http(url, params).then(res => {
+            this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
+            this.$emit('refresh')
+          })
+          done()
+        } else {
+          done()
+        }
+      })
+    },
+    // 设置当前节点
+    setCurrentKey (key) {
+      this.$nextTick(() => {
+        this.$refs.GroupTree.setCurrentKey(key || '')
+      })
+    },
+    // 设置选中节点（node-key值）
+    setCheckedKeys (keys) {
+      this.$nextTick(() => {
+        this.$refs.GroupTree.setCheckedKeys(keys)
+      })
+    },
+    // 设置选中节点 （node节点对象）
+    setCheckedNodes (nodes) {
+      this.$nextTick(() => {
+        this.$refs.GroupTree.setCheckedNodes(nodes)
+      })
+    },
+    // 获取已选中节点
+    getCheckedNodes () {
+      return this.$refs.GroupTree.getCheckedNodes()
+    },
+    nodeCheck (nodes) {
+      if (!this.multiple) {
+        this.$refs.GroupTree.setCheckedNodes([nodes])
+      }
+    },
+    // 获取已选中对象 键值数组
+    getCheckedKeys () {
+      return this.$refs.GroupTree.getCheckedKeys()
+    },
+    // 一键全选
+    checkedAll (val) {
+      if (val) {
+        this.$refs.GroupTree.setCheckedNodes(this.originList)
+      } else {
+        this.$refs.GroupTree.setCheckedNodes(this.originList.filter(item => item.disabled))
       }
     }
+  },
+  mounted () {
+    this.GroupList = this.value || []
+    if (this.type !== 'community' && this.type !== 'custom-community') {
+      this.getGroupList()
+    }
+    this.setCurrentKey(this.currentKey)
+  },
+  watch: {
+    value: function (val) {
+      this.GroupList = val || []
+    },
+    GroupList: {
+      handler: function (val) {
+        if (this.type === 'community' || this.type === 'custom-community') {
+          this.TreeList = val
+        }
+        this.$emit('input', val)
+      },
+      deep: true
+    },
+    currentKey: function (key) {
+      this.setCurrentKey(key)
+    }
+  },
+  computed: {
+    isCheckAll: function () {
+      return this.multiple
+    },
+    showChecked: function () {
+      return this.onlyChecked ? this.onlyChecked : this.showCheckbox
+    },
+    TreeList: {
+      get () {
+        // 设置默认不可选节点
+        if (this.isDisabled) {
+          let [setKeys, disabledKeys] = [new Set(this.disabledKeys), []]
+          let setDisabled = (arr) => {
+            for (let i = 0, len = arr.length; i < len; i++) {
+              if (setKeys.has(arr[i][this.dataKey])) {
+                disabledKeys.push(arr[i][this.nodeKey])
+                this.$set(arr[i], 'disabled', true)
+              } else {
+                if (arr[i].disabled) {
+                  this.$set(arr[i], 'disabled', false)
+                }
+              }
+              if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
+                setDisabled(arr[i][this.defaultProps.children])
+              }
+            }
+          }
+          setDisabled(this.GroupList)
+          this.setCheckedKeys(disabledKeys)
+        }
+        if (this.type !== 'device') {
+          this.agency = this.GroupList
+        }
+        return this.agency
+      },
+      set (model) {
+        this.agency = model
+      }
+    },
+    originList: function () {
+      return this.$restoreArray(this.TreeList, this.defaultProps.children)
+    }
   }
+}
 </script>
 
 <style lang="scss" scoped>

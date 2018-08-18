@@ -216,12 +216,7 @@ export default {
     }
   },
   methods: {
-    addItem () {
-      if (this.deviceList.length) {
-        this.deviceList.push(this.deviceList[0])
-      }
-    },
-    // 获取社群列表
+    // 获取社群列表 （添加自定义唯一key）
     getGroupList (keywords, key) {
       keywords = (keywords || '').trim()
       this.$http('/group/list').then(res => {
@@ -294,7 +289,7 @@ export default {
       }
     },
 
-    // 设置默认选中值
+    // 初始化默认选中值
     setDefaultData () {
       let current = this.groupList[0]
       this.expandedKeys = []
@@ -360,9 +355,8 @@ export default {
         }
       })
     },
-    // 显示修改昵称表单
+    // 显示修改昵称表单时回显昵称
     showPopover () {
-      console.log(this.communityInfo)
       this.communityForm.groupNickName = this.communityInfo.groupNickName
     },
     // 隐藏修改昵称表单  清空表单数据

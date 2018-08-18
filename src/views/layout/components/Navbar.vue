@@ -26,7 +26,9 @@
           </router-link>
           <router-link to="/person" class="user-info">
             <div class="avatar-wrap">
-              <div class="avatar" :style="{backgroundImage:'url('+avatar+')'}"></div>
+              <div class="avatar vam">
+                <img :src="avatar" alt="">
+              </div>
             </div>
             <span>{{userInfo.phone?userInfo.phone:userInfo.email}}</span>
           </router-link>
@@ -280,15 +282,17 @@ export default {
             background-size: contain;
             vertical-align: middle;
             margin-right: 10px;
-            padding: 2px;
+            padding: 3px;
             box-sizing: border-box;
             .avatar {
               height: 100%;
               width: 100%;
               border-radius: 50%;
-              background-repeat: no-repeat;
-              background-position: center center;
-              background-size: contain;
+              overflow: hidden;
+              >img{
+                max-width: 100%;
+                height: 100%;
+              }
             }
           }
         }

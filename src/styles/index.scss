@@ -213,6 +213,13 @@ div:focus {
   }
 }
 
+@each $maxw in 110, 8, 10, 94 {
+  .maxw#{$maxw} {
+    max-width: $maxw + px;
+    width: auto;
+  }
+}
+
 
 .fr {
   float: right;
@@ -1017,7 +1024,16 @@ button, input {
 }
 .el-checkbox__input{
 
-  //&.is-focus .el-checkbox__inner{
-  //  @extend .el-checkbox__inner
-  //}
+}
+
+// el-tooltip
+[role=tooltip].el-tooltip__popper{
+  max-width: 60%;
+  word-break: break-all;
+}
+p>.ellipsis{
+  vertical-align: bottom;
+  &[class^=maxw]{
+    width: auto;
+  }
 }

@@ -32,7 +32,7 @@ export default {
   name: 'uu-sub-tab',
   props: {
     back: {
-      type: Boolean,
+      type: [Boolean, String],
       default: false
     },
     search: {
@@ -76,6 +76,7 @@ export default {
     }
   },
   methods: {
+    // @handle-btn subBtn未提供index参数是触发
     handleBtn () {
       if (this.subBtn.index) {
         this.$router.push(this.subBtn.index)
@@ -83,13 +84,16 @@ export default {
         this.$emit('handle-btn')
       }
     },
+    // 返回上一页 back为字符串时返回指定路径
     backPrev () {
       if (window.history.length) {
-        window.history.go(-1)
+        console.log(this.back)
+        this.back && typeof this.back === 'string' ? this.$router.push(this.back) : this.$router.go(-1)
       } else {
         this.$router.push('/')
       }
     },
+    // @remote-search 点击图标或回车是触发
     searchMethod () {
       this.$emit('remote-search', this.searchValue.toString().trim())
     }

@@ -30,7 +30,7 @@
             type="textarea"
             :readonly="!editable"
             v-model.trim="callbackForm.intro"
-            placeholder="请输入描述内容"></el-input>
+            placeholder="请输入描述"></el-input>
         </el-form-item>
       </uu-form>
     </div>
@@ -46,12 +46,12 @@ export default {
     // 回调地址校验
     const validateUrl = (rule, value, callback) => {
       if (!value) {
-        callback(new Error('请填写回调地址'))
+        callback(new Error('请输入回调地址'))
       } else {
         if (validateURL(value)) {
           callback()
         } else {
-          callback(new Error('回调地址不合法'))
+          callback(new Error('请输入正确的回调地址'))
         }
       }
     }
@@ -68,8 +68,8 @@ export default {
           {required: true, validator: validateUrl, trigger: 'blur'}
         ],
         intro: [
-          {required: true, message: '请填写描述', trigger: 'blur'},
-          {max: 255, message: '最大长度不可超过255个字符', trigger: 'blur'}
+          {required: true, message: '请输入描述', trigger: 'blur'},
+          {max: 255, message: '输入内容超过字符限制', trigger: 'blur'}
         ]
       },
       callbackForm: {

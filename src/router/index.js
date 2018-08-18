@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import store from '../store'
 import {fetch, exitMessage} from '@/utils/request'
+
 const Layout = () => import('@/views/layout/Layout.vue')
 const Community = () => import('@/views/community/index.vue')
 const customCommunity = () => import('@/views/community/custom.vue')
@@ -101,15 +102,15 @@ export const constantRouterMap = [
     redirect: '/community/mine',
     meta: {
       auth: true,
-      title: '社群管理',
-      roles: ['admin']
+      title: '社群管理'
     },
     children: [
       {
         path: 'mine',
         name: 'community',
         meta: {
-          title: '我的社群-社群管理-线下浏览器服务平台'
+          title: '我的社群-社群管理-线下浏览器服务平台',
+          keepAlive: true
         },
         component: Community
       },
@@ -117,7 +118,8 @@ export const constantRouterMap = [
         path: 'custom',
         name: 'customCommunity',
         meta: {
-          title: '自定义分组-社群管理-线下浏览器服务平台'
+          title: '自定义分组-社群管理-线下浏览器服务平台',
+          keepAlive: true
         },
         component: customCommunity
       },
@@ -192,7 +194,7 @@ export const constantRouterMap = [
         component: EquipmentChildren
       },
       {
-        path: 'more/:key([0-9A-Z-_]{16})',
+        path: 'more/:key', // ([0-9A-Z-_]{16})
         name: 'equipmentMore',
         meta: {
           title: '分析终端用途-设备管理-线下浏览器服务平台',
@@ -397,6 +399,20 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+  if (to.name === 'customCommunity') {
+    if (from.meta === 'editCustom' || !from.name) {
+      to.meta.keepAlive = true
+    } else {
+      to.meta.keepAlive = false
+    }
+  }
+  if (to.name === 'community') {
+    if (from.meta === 'editCommunity' || !from.name) {
+      to.meta.keepAlive = true
+    } else {
+      to.meta.keepAlive = false
+    }
+  }
   fetch('/loginCheck', false).then(res => {
     next()
   }).catch(err => {

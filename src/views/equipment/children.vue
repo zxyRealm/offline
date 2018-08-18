@@ -13,7 +13,10 @@
     <div class="equipment-children-container" :style="{top:isSearch?'92px':'64px'}">
       <div class="ec-side-nav dashed-border" v-if="isSearch">
         <h2>选择子社群</h2>
-        <ob-group-nav @current-change="currentChange"></ob-group-nav>
+        <ob-group-nav
+          ref="childGroup"
+          @current-change="currentChange">
+        </ob-group-nav>
       </div>
       <div class="ec-container" :class="{'dashed-border':isSearch}">
         <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
@@ -40,7 +43,12 @@
                   <span>{{item.groupName}}</span>
                 </p>
                 <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
-                <p><span>应用场景：</span>{{item.deviceScene}}</p>
+                <p>
+                  <span>应用场景：</span>
+                  <el-tooltip :content="item.deviceScene" placement="top">
+                    <span class="ellipsis">{{item.deviceScene}}</span>
+                  </el-tooltip>
+                </p>
               </ob-list-item>
               <ob-list-item :style="{minWidth:'180px'}" @refresh="getEquipmentList" :data="item" type="handle">
               </ob-list-item>
@@ -81,10 +89,12 @@ export default {
     getEquipmentList (page) {
       page = page || this.pagination.index || 1
       if (this.isSearch) {
-        this.$http('/device/guid/list', {guid: this.currentGroup, index: page}).then(res => {
-          this.equipmentList = res.data.content
-          this.pagination = res.data.pagination
-        })
+        if (this.currentGroup) {
+          this.$http('/device/guid/list', {guid: this.currentGroup, index: page, length: 8}).then(res => {
+            this.equipmentList = res.data.content
+            this.pagination = res.data.pagination
+          })
+        }
       } else {
         this.$http('/device/search', {searchText: this.$route.params.key || '', index: page, length: 8}).then(res => {
           this.equipmentList = res.data.content
@@ -99,6 +109,8 @@ export default {
       }
     },
     currentChange (val) {
+      console.log('current group', val)
+      console.log(this.$refs.childGroup)
       this.currentGroup = val.groupGuid
     }
   },
@@ -161,7 +173,7 @@ export default {
       .ec-container {
         height: 100%;
         &.dashed-border {
-          margin-left: 160px;
+          margin-left: 152px;
           border: none;
         }
       }
