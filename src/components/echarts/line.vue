@@ -164,7 +164,7 @@ export default {
     },
     // 自适应图表
     resizeEcharts () {
-      if (!!this.myChart) {
+      if (this.myChart) {
         this.myChart.resize()
       }
     },

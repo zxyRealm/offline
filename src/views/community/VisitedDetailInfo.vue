@@ -51,7 +51,7 @@
             <el-pagination
               @current-change="handleCurrentChange"
               :current-page="pageParams.currentPage"
-              :page-size="10"
+              :page-size="pageParams.pageSize"
               layout="prev, pager, next"
               :total="pageParams.total">
             </el-pagination>
@@ -81,7 +81,7 @@ export default {
     return {
       show: true, // 是否显示组件
       pageParams: {
-        pageSize: '6', // 默认每页显示10条
+        pageSize: 6, // 默认每页显示10条
         total: 0, // 总条数
         currentPage: 1 // 当前第几页
       },
