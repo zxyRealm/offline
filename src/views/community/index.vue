@@ -96,7 +96,10 @@
                 </div>
               </div>
             </div>
-            <div class="dashed-border cmm-table mine--table__wrap" :style="{height: tableHeight+96+'px'}">
+            <div
+              class="dashed-border cmm-table"
+              :class="{'mine--table__wrap':!communityInfo.groupPid}"
+              :style="{height: !communityInfo.groupPid?tableHeight+68+'px':''}">
               <h2 class="cmm-sub-title">设备列表</h2>
               <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
               </ob-list-empty>
@@ -108,6 +111,7 @@
                   <el-table-column
                     prop="deviceName"
                     label="设备别名"
+                    show-overflow-tooltip
                     width="180">
                   </el-table-column>
                   <el-table-column
@@ -212,7 +216,8 @@ export default {
       },
       nickNamePopover: false,
       expandedKeys: [],
-      searchEmpty: false
+      searchEmpty: false,
+      keepAlive: false
     }
   },
   methods: {
@@ -224,7 +229,6 @@ export default {
         if (!key && !res.data[0]) {
           return
         }
-        console.log(key)
         this.$nextTick(() => {
           this.$refs.groupNav.setCurrentKey(key ? key.uniqueKey : res.data[0].uniqueKey)
         })
@@ -404,7 +408,6 @@ export default {
       height: 100%;
     }
   }
-
   .el-scrollbar__wrap {
     overflow: auto;
   }

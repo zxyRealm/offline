@@ -215,7 +215,7 @@ export default {
           if (this.data.deviceStatus !== undefined && show) {
             this.$tip('刷新成功')
           }
-          this.$set(value, 'deviceStatus', 0)
+          this.$set(value, 'deviceStatus', res.data)
         })
       }
       if (value.groupGuid) {

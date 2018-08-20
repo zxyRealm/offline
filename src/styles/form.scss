@@ -78,13 +78,13 @@
         border-radius: 5px;
         .el-input__inner {
           background-color: #232027;
-          background-image: url("/static/img/input_border_bg.png");
+          background-image: url(/static/img/input_border_bg@2x.png);
           background-repeat: no-repeat;
           background-size: 100% 100%;
           border: none;
           margin: 1px;
           color: #fff;
-          width: calc(100% - 2px);
+          width: calc(100%);
           line-height: 30px;
           height: 30px;
           font-size:12px;
@@ -115,7 +115,7 @@
         position: absolute;
         right:0;
         top:0;
-        left:220px;
+        left:222px;
         color:#F87F21;
         line-height: 30px;
         padding-left:8px;
@@ -167,13 +167,15 @@
           height: 30px;
           border-radius: 5px;
           .el-input__inner {
-            background-color: $white;
+            background-color: #F9F9F9;
+            box-shadow: inset 0 1px 3px 0 rgba(5,20,28,0.30);
             color:#333;
           }
         }
         .el-textarea{
           .el-textarea__inner{
-            background-color: $white;
+            background-color: #F9F9F9;
+            box-shadow: inset 0 1px 3px 0 rgba(5,20,28,0.30);
             color: #333;
           }
           &.el-input--medium{

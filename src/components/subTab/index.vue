@@ -87,8 +87,7 @@ export default {
     // 返回上一页 back为字符串时返回指定路径
     backPrev () {
       if (window.history.length) {
-        console.log(this.back)
-        this.back && typeof this.back === 'string' ? this.$router.push(this.back) : this.$router.go(-1)
+        this.$router.go(-1)
       } else {
         this.$router.push('/')
       }

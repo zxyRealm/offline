@@ -1,6 +1,6 @@
 <template>
   <div class="equipment-more-wrap">
-    <uu-sub-tab back="/equipment/mine" :menu-array="[{title:'分析终端用途'}]"></uu-sub-tab>
+    <uu-sub-tab back :menu-array="[{title:'分析终端用途'}]"></uu-sub-tab>
     <div class="ob-table-wrap">
       <el-table
         :data="deviceList"
@@ -49,6 +49,10 @@
           align="center"
           width="130px"
           label="用途">
+          <template slot-scope="scope">
+            <!--1 客行分析  2 人脸抓拍-->
+            {{scope.row.type == 1 ? '客行分析' : '人脸抓拍'}}
+          </template>
         </el-table-column>
         <el-table-column
           align="center"
@@ -88,7 +92,9 @@ export default {
     return {
       deviceList: [],
       ipcListForm: {
-        name: ''
+        name: '',
+        deviceKey: '',
+        cameraKey: ''
       },
       rules: {
         name: [
@@ -106,10 +112,13 @@ export default {
     },
     // 修改IPC设备别名
     changeIpcName (index) {
-      console.log(this.$refs, index)
       this.$refs.nickNameForm.validate(valid => {
         if (valid) {
           console.log(this.ipcListForm)
+          this.$http('/device/deviceCamera/name/update', this.ipcListForm).then(res => {
+            this.getDeviceList()
+            this.$tip('修改成功')
+          })
           this.deviceList[index].nickNamePopover = false
         } else {
           console.log('validate fail')

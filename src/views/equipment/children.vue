@@ -109,8 +109,6 @@ export default {
       }
     },
     currentChange (val) {
-      console.log('current group', val)
-      console.log(this.$refs.childGroup)
       this.currentGroup = val.groupGuid
     }
   },
