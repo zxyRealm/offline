@@ -6,10 +6,13 @@
         <el-upload
           class="avatar-uploader"
           action=""
+          accept="jpg/png"
           :show-file-list="false"
           :http-request="avatarUpload"
           :before-upload="beforeAvatarUpload">
-          <div v-if="avatar" :style="{ backgroundImage:'url(' + avatar + ')'}" class="avatar"></div>
+          <div v-if="avatar" class="avatar vam">
+            <img :src="avatar" alt="">
+          </div>
           <i class="el-icon-plus avatar-uploader-icon" v-else></i>
         </el-upload>
       </div>
@@ -27,7 +30,7 @@
                       v-model.trim="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称：" prop="company">
-            <el-input type="text" :readonly="!!userInfo.company"  placeholder="添加公司名称"
+            <el-input type="text" placeholder="添加公司名称"
                       v-model.trim="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
@@ -63,9 +66,8 @@ export default {
       if (!value) {
         callback(new Error('请添加公司名称'))
       } else {
-        console.log(value.length)
         if (value.length > 32) {
-          callback(new Error('长度不可超过32个字符'))
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 1)) {
           callback()
         } else {
@@ -79,7 +81,7 @@ export default {
         callback(new Error('请添加商户详细地址'))
       } else {
         if (value.length > 128) {
-          callback(new Error('长度不可超过128个字符'))
+          callback(new Error('请输入1-128位字符'))
         } else {
           callback()
         }
@@ -91,7 +93,7 @@ export default {
         callback(new Error('请添加联系人'))
       } else {
         if (value.length > 32) {
-          callback(new Error('长度不可超过32个字符'))
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 1)) {
           callback()
         } else {
@@ -164,27 +166,23 @@ export default {
         })
       }
     },
-    // 上传头像
+    // 上传头像 (未完善信息也可以上传头像)
     avatarUpload (data) {
       let uid = this.userInfo.developerId
-      if (!uid) {
-        this.$tip('请先完善个人信息')
-        return
-      }
       // 获取阿里云oss signature
       this.$http('/auth/oss/image/signature').then(res => {
         if (res.data) {
           let formData = new FormData()
-          formData.append('key', `merchant/${uid}/${data.file.name}`)
+          formData.append('key', `merchant/${uid}/${encodeURIComponent(data.file.name)}`)
           formData.append('policy', res.data['policy'])
           formData.append('OSSAccessKeyId', res.data['accessid'])
           formData.append('success_action_status', '200')
           formData.append('signature', res.data['signature'])
-          formData.append('file', data.file, data.file.name)
+          formData.append('file', data.file, encodeURIComponent(data.file.name))
           // 构建formData 对象，将图片上传至阿里云oss服务
           this.$http(res.data.host, formData).then(back => {
             if (!back.data) {
-              let avatarHref = res.data.host + '/merchant/' + uid + '/' + data.file.name
+              let avatarHref = res.data.host + '/merchant/' + uid + '/' + encodeURIComponent(data.file.name)
               // 图片地址提交后台更新个人头像信息
               this.$http('/merchant/usercenter/image', {faceImgURL: avatarHref}).then(res => {
                 this.$tip('头像上传成功')
@@ -203,7 +201,7 @@ export default {
     },
     // 上传前图片格式校验
     beforeAvatarUpload (file) {
-      const isJPG = file.type === ('image/jpeg' || 'image/png')
+      const isJPG = (file.type === 'image/jpeg' || file.type === 'image/png')
       const isLt2M = file.size / 1024 / 1024 < 2
       if (!isJPG) {
         this.$tip('上传头像图片只能是 JPG/PNG 格式!', 'error')
@@ -306,9 +304,11 @@ export default {
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          background-position: center center;
-          background-repeat: no-repeat;
-          background-size: contain;
+          overflow: hidden;
+          >img{
+            max-width: 100%;
+            max-height: 100%;
+          }
         }
       }
     }

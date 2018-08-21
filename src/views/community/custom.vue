@@ -67,30 +67,31 @@
                  @click="dialogFormVisible=true">添加</a>
             </p>
           </h2>
-          <el-scrollbar class="table--scrollbar__warp">
-            <el-table
-              border
-              class="community-table"
-              ref="customTable"
-              :data="customMemberList"
-              @selection-change="handleSelectionChange"
-              empty-text="您尚未添加社群"
-              v-if="customGroupInfo.guid"
-            >
-              <el-table-column
-                align="center"
-                type="selection"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                align="center"
-                prop="name"
-                label="社群名称"
+          <div v-if="customGroupInfo.guid" class="table--scrollbar__warp">
+            <el-scrollbar :style="{height:scrollbarHeight}">
+              <el-table
+                border
+                class="community-table"
+                ref="customTable"
+                :data="customMemberList"
+                @selection-change="handleSelectionChange"
+                empty-text="您尚未添加社群"
               >
-              </el-table-column>
-            </el-table>
-          </el-scrollbar>
-          <ob-list-empty top="32px" text="您尚未添加社群" size="small" v-if="!customGroupInfo.guid&&!loading"></ob-list-empty>
+                <el-table-column
+                  align="center"
+                  type="selection"
+                  width="120">
+                </el-table-column>
+                <el-table-column
+                  align="center"
+                  prop="name"
+                  label="社群名称"
+                >
+                </el-table-column>
+              </el-table>
+            </el-scrollbar>
+          </div>
+          <ob-list-empty top="32px" text="您尚未添加社群" size="small" v-if="!customGroupInfo.guid && !loading"></ob-list-empty>
         </div>
       </div>
     </div>
@@ -133,7 +134,7 @@ export default {
     }
   },
   methods: {
-    // 搜索
+    // 自定义分组搜索
     remoteSearch (val) {
       this.searchEmpty = false
       if (val) {
@@ -171,6 +172,7 @@ export default {
     currentChange (data) {
       this.setData(data)
     },
+    // 设置分组信息 、获取自定义分组成员列表
     setData (data) {
       this.customGroupInfo = data
       this.getMemberList(data.guid)
@@ -178,14 +180,13 @@ export default {
     customType (type, txt) {
       return customType(type, txt)
     },
-    // 设置多选项值
+    // el-select值改变时触发
     handleSelectionChange (val) {
       this.selectList = val
     },
-    // 添加成员
+    // 添加成员 （可同时添加多个）
     addMember (keys) {
       let subData = []
-
       keys = arrayUnique(keys, 'groupGuid')
       keys.filter(item => !item.disabled).map(item => {
         subData.push({
@@ -204,7 +205,7 @@ export default {
         this.$tip('请选取要添加的社群', 'error')
       }
     },
-    // 删除成员
+    // 删除成员（确认弹窗确定）
     deleteMember () {
       if (!this.selectList.length) {
         this.$tip('请选择要移除的社群')
@@ -220,7 +221,6 @@ export default {
             this.$tip('移除成功')
             this.getMemberList()
           })
-
           done()
         } else {
           done()
@@ -242,7 +242,7 @@ export default {
         }
       })
     },
-    // 获取自定义分组列表
+    // 接口获取自定义分组列表
     getCustomGroupList () {
       this.$http('/groupCustom/list').then(res => {
         this.customGroupList = res.data
@@ -255,7 +255,7 @@ export default {
         }
       })
     },
-    // 获取自定义分组成员列表
+    // 接口获取自定义分组成员列表
     getMemberList (id) {
       id = id || this.customGroupInfo.guid
       if (!id) {
@@ -280,7 +280,10 @@ export default {
         this.customMemberList = val
       }
     },
-    ...mapState(['loading'])
+    ...mapState(['loading']),
+    scrollbarHeight () {
+      return this.customMemberList.length >= 5 ? '247px' : '100%'
+    }
   }
 }
 </script>

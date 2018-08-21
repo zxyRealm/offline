@@ -81,6 +81,7 @@ export default {
     }
   },
   methods: {
+    // 获取省市区数据列表，并设置首字母缩写
     getAddressList () {
       this.$http('/area/list', {level: 1}, false).then((res) => {
         if (res.result === OK_CODE) {
@@ -112,6 +113,7 @@ export default {
         }
       })
     },
+    // 过滤出当前需要显示的数据列表（省/市/区）
     filterAddress (type) {
       if (type) {
         return this.originAddress[type].filter(item => this.currentValue[type - 1].id === item.pid)
@@ -133,6 +135,7 @@ export default {
         this.currentValue = []
       }
     },
+    // 选取地址改变时，改变当前选取类型 0：省 1：市 2 区
     currentAddress: function (val, old) {
       this.$set(this.currentValue, this.currentType, val)
       if (this.currentType < 2) {
@@ -141,6 +144,7 @@ export default {
         this.visible = false
       }
     },
+    // v-model 数据绑定 拼接地址并显示
     currentValue: {
       handler: function (val) {
         let [textStr, idStr] = ['', '']
@@ -153,6 +157,7 @@ export default {
       },
       deep: true
     },
+    // 查询过滤（支持首字母查询）
     search (val) {
       val = val.trim()
       if (val) {
@@ -180,6 +185,7 @@ export default {
     }
   },
   computed: {
+    // 格式化地址
     addressText () {
       return this.address.replace(/-/g, '')
     }
@@ -200,7 +206,7 @@ export default {
       border: none;
       padding: 0 15px;
       background-color: #232027;
-      background-image: url("/static/img/input_border_bg.png");
+      background-image: url(/static/img/input_border_bg@2x.png);
       background-repeat: no-repeat;
       background-size: 100% 100%;
       text-align: left;

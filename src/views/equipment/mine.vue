@@ -45,10 +45,16 @@
                 <p>
                   <span>绑定社群：</span>
                   <span>{{item.groupName}}</span>
-                  <uu-icon type="relieve" class="fr" @click.native="unBindCommunity(item,$index)"></uu-icon>
+                  <el-tooltip content="解绑社群" placement="top">
+                    <uu-icon type="relieve" class="fr" @click.native="unBindCommunity(item,$index)"></uu-icon>
+                  </el-tooltip>
                 </p>
                 <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
-                <p><span>应用场景：</span>{{item.deviceScene}}</p>
+                <p><span>应用场景：</span>
+                  <el-tooltip :content="item.deviceScene" placement="top">
+                    <span class="ellipsis">{{item.deviceScene}}</span>
+                  </el-tooltip>
+                </p>
               </template>
             </ob-list-item>
             <ob-list-item
@@ -82,7 +88,6 @@
   </div>
 </template>
 <script>
-// import {parseTime} from '@/utils'
 import {mapState} from 'vuex'
 
 export default {
@@ -210,7 +215,7 @@ export default {
       this.$affirm({
         confirm: '确定',
         cancel: '返回',
-        text: '将设备从社群解绑，您将无法查看该设备数据/无法操作设备。<br>确定要将【' + value.deviceName + '】设备从【' + value.groupName + '】社群解绑？'
+        text: '将设备从社群解绑，您将无法查看该设备数据/无法操作设备。<br>确定要将【<span class="maxw110 ellipsis">' + value.deviceName + '</span>】设备从【<span class="maxw110 ellipsis">' + value.groupName + '</span>】社群解绑？'
       }, (action, instance, done) => {
         if (action === 'confirm') {
           done()
@@ -220,7 +225,8 @@ export default {
           }).then(res => {
             this.$tip('解绑成功')
             this.$set(value, 'groupGuid', null)
-            this.$refs.deviceItem[mine].getDeviceState(value, value.deviceStatus === undefined ? null : undefined)
+            console.log(this.$refs.deviceItem)
+            this.$refs.deviceItem[index].getDeviceState(value, value.deviceStatus === undefined ? null : undefined)
           })
         } else {
           done()
@@ -231,6 +237,7 @@ export default {
     bindCommunity (data) {
       this.dialogFormVisible = false
       this.$load('设备绑定中...')
+      console.log(data, data.deviceScene.length)
       this.$http('/device/binding', data).then(res => {
         this.$load().close()
         this.$tip('绑定成功')

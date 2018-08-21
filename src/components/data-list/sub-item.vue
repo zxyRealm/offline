@@ -7,10 +7,10 @@
           placement="top"
           trigger="hover">
           <ul class="order-list">
-            <li v-show="data.deviceStatus===undefined">获取设备状态后，可进行操作</li>
-            <li v-show="data.groupGuid">已绑定至社群，无法删除该设备</li>
+            <li v-show="data.deviceStatus===undefined">尚未【获取】设备状态，无法操作</li>
+            <li v-show="data.groupGuid">已绑定至社群，无法删除</li>
             <li v-show="data.deviceStatus!==undefined && data.isHandle">{{data.deviceStatus | handleMsg}}</li>
-            <li v-show="data.isHandle===false">设备操作权限已上送至其他社群，无法操作</li>
+            <li v-show="data.isHandle===false">设备操作权限已上送，无法操作</li>
           </ul>
           <uu-icon
             slot="reference"
@@ -215,7 +215,7 @@ export default {
           if (this.data.deviceStatus !== undefined && show) {
             this.$tip('刷新成功')
           }
-          this.$set(value, 'deviceStatus', 0)
+          this.$set(value, 'deviceStatus', res.data)
         })
       }
       if (value.groupGuid) {
@@ -280,9 +280,9 @@ export default {
               break
             case 'run':
               if (value.deviceStatus === 0) {
-                this.$set(value, 'deviceStatus', 6)
-              } else {
                 this.$set(value, 'deviceStatus', 7)
+              } else {
+                this.$set(value, 'deviceStatus', 6)
               }
               break
           }
@@ -300,7 +300,7 @@ export default {
     },
     // 操作按钮状态控制
     btnState (val, type) {
-      // state状态码 0 在线 默认显示禁用 1 离线 显示启用   2重启中 3重置中 4升级中  5禁用 6禁用中 7 启用中
+      // state状态码 0 在线 默认显示禁用 1 离线 显示启用   2重启中 3重置中 4升级中  5禁用 6启用中 7 禁用中
       // type 状态值 run 开关机  reboot 重启 upgrade 升级 reset 重置
       let label = (type) => {
         switch (type) {
@@ -372,7 +372,7 @@ export default {
           break
         case 6:
           if (type === 'run') {
-            backObj.text = '禁用中'
+            backObj.text = '启用中'
             backObj.going = true
             backObj.state = true
           } else {
@@ -381,7 +381,7 @@ export default {
           break
         case 7:
           if (type === 'run') {
-            backObj.text = '启用中'
+            backObj.text = '禁用中'
             backObj.going = true
             backObj.state = true
           } else {
@@ -484,10 +484,10 @@ export default {
           msg = '设备未启用，无法操作'
           break
         case 6:
-          msg = '设备禁用中，无法操作'
+          msg = '设备启用中，无法操作'
           break
         case 7:
-          msg = '设备启用用中，无法操作'
+          msg = '设备禁用中，无法操作'
           break
         default:
           msg = ''

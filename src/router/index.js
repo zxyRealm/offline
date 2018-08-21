@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import store from '../store'
 import {fetch, exitMessage} from '@/utils/request'
+
 const Layout = () => import('@/views/layout/Layout.vue')
 const Community = () => import('@/views/community/index.vue')
 const customCommunity = () => import('@/views/community/custom.vue')
@@ -45,16 +46,15 @@ export const constantRouterMap = [
     path: '/index',
     component: Layout,
     meta: {
-      auth: true,
-      title: '首页',
-      roles: ['admin']
+      title: '首页'
     },
     children: [
       {
         path: '',
         name: 'index-lwh',
         meta: {
-          title: '首页-线下浏览器服务平台'
+          title: '首页-线下浏览器服务平台',
+          keepAlive: false
         },
         component: homePage
       },
@@ -62,7 +62,8 @@ export const constantRouterMap = [
         path: '/index/notify/:notifyState',
         name: 'index-home',
         meta: {
-          title: '系统消息-线下浏览器服务平台'
+          title: '系统消息-线下浏览器服务平台',
+          keepAlive: false
         },
         component: homeNotify
       }
@@ -72,16 +73,15 @@ export const constantRouterMap = [
     path: '/console',
     component: Layout,
     meta: {
-      auth: true,
-      title: '控制台',
-      roles: ['admin']
+      title: '控制台'
     },
     children: [
       {
         path: '/',
         name: 'console-lwh',
         meta: {
-          title: '控制台-线下浏览器服务平台'
+          title: '控制台-线下浏览器服务平台',
+          keepAlive: false
         },
         component: consoleIndex
       },
@@ -89,7 +89,8 @@ export const constantRouterMap = [
         path: '/test',
         name: 'test-demo',
         meta: {
-          title: '示例-线下浏览器服务平台'
+          title: '示例-线下浏览器服务平台',
+          keepAlive: false
         },
         component: Demo
       }
@@ -100,16 +101,15 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/community/mine',
     meta: {
-      auth: true,
-      title: '社群管理',
-      roles: ['admin']
+      title: '社群管理'
     },
     children: [
       {
         path: 'mine',
         name: 'community',
         meta: {
-          title: '我的社群-社群管理-线下浏览器服务平台'
+          title: '我的社群-社群管理-线下浏览器服务平台',
+          keepAlive: true
         },
         component: Community
       },
@@ -117,7 +117,8 @@ export const constantRouterMap = [
         path: 'custom',
         name: 'customCommunity',
         meta: {
-          title: '自定义分组-社群管理-线下浏览器服务平台'
+          title: '自定义分组-社群管理-线下浏览器服务平台',
+          keepAlive: true
         },
         component: customCommunity
       },
@@ -125,7 +126,8 @@ export const constantRouterMap = [
         path: 'custom/create',
         name: 'createCustom',
         meta: {
-          title: '创建分组-社群管理-线下浏览器服务平台'
+          title: '创建分组-社群管理-线下浏览器服务平台',
+          keepAlive: false
         },
         component: editCustom
       },
@@ -133,7 +135,8 @@ export const constantRouterMap = [
         path: 'custom/edit/:id([0-9A-Z]{32})',
         name: 'editCustom',
         meta: {
-          title: '编辑分组信息-社群管理-线下浏览器服务平台'
+          title: '编辑分组信息-社群管理-线下浏览器服务平台',
+          keepAlive: false
         },
         component: editCustom
       },
@@ -141,7 +144,8 @@ export const constantRouterMap = [
         path: 'create',
         name: 'createCommunity',
         meta: {
-          title: '新建社群-社群管理-线下浏览器服务平台'
+          title: '新建社群-社群管理-线下浏览器服务平台',
+          keepAlive: false
         },
         component: addCommunity
       },
@@ -149,7 +153,8 @@ export const constantRouterMap = [
         path: 'edit/:gid([0-9A-Z]{32})',
         name: 'editCommunity',
         meta: {
-          title: '编辑社群信息-社群管理-线下浏览器服务平台'
+          title: '编辑社群信息-社群管理-线下浏览器服务平台',
+          keepAlive: false
         },
         component: addCommunity
       },
@@ -157,7 +162,8 @@ export const constantRouterMap = [
         path: 'join',
         name: 'joinCommunity',
         meta: {
-          title: '编辑社群信息-社群管理-线下浏览器服务平台'
+          title: '编辑社群信息-社群管理-线下浏览器服务平台',
+          keepAlive: false
         },
         component: joinCommunity
       }
@@ -168,9 +174,7 @@ export const constantRouterMap = [
     path: '/equipment',
     component: Layout,
     meta: {
-      auth: true,
-      title: '设备管理-线下浏览器服务平台',
-      roles: ['admin']
+      title: '设备管理-线下浏览器服务平台'
     },
     children: [
       {
@@ -178,7 +182,7 @@ export const constantRouterMap = [
         name: 'equipment',
         meta: {
           title: '自有设备-设备管理-线下浏览器服务平台',
-          auth: true
+          keepAlive: true
         },
         component: Equipment
       },
@@ -187,16 +191,17 @@ export const constantRouterMap = [
         name: 'equipmentChildren',
         meta: {
           title: '子社群设备-设备管理-线下浏览器服务平台',
-          auth: true
+          auth: true,
+          keepAlive: false
         },
         component: EquipmentChildren
       },
       {
-        path: 'more/:key([0-9A-Z-_]{16})',
+        path: 'more/:key', // ([0-9A-Z-_]{16})
         name: 'equipmentMore',
         meta: {
           title: '分析终端用途-设备管理-线下浏览器服务平台',
-          auth: true
+          keepAlive: false
         },
         component: EquipmentMore
       },
@@ -205,7 +210,7 @@ export const constantRouterMap = [
         name: 'searchChildren',
         meta: {
           title: '子社群设备搜索-设备管理-线下浏览器服务平台',
-          auth: true
+          keepAlive: false
         },
         component: EquipmentChildren
       },
@@ -213,7 +218,8 @@ export const constantRouterMap = [
         path: 'search/mine/:key',
         name: 'searchMine',
         meta: {
-          title: '自有社群设备搜索-设备管理-线下浏览器服务平台'
+          title: '自有社群设备搜索-设备管理-线下浏览器服务平台',
+          keepAlive: false
         },
         component: Equipment
       }
@@ -224,16 +230,15 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/data/index',
     meta: {
-      auth: true,
-      title: '数据可视化',
-      roles: ['admin']
+      title: '数据可视化'
     },
     children: [
       {
         path: 'index',
         name: 'data',
         meta: {
-          title: '数据可视化-线下浏览器服务平台'
+          title: '数据可视化-线下浏览器服务平台',
+          keepAlive: false
         },
         component: Data,
         children: [
@@ -241,7 +246,8 @@ export const constantRouterMap = [
             path: '/data/guest-analysis',
             name: 'guest-analysis',
             meta: {
-              title: '客流统计-数据可视化-线下浏览器服务平台'
+              title: '客流统计-数据可视化-线下浏览器服务平台',
+              keepAlive: false
             },
             component: guestAnalysis
           },
@@ -249,7 +255,8 @@ export const constantRouterMap = [
             path: '/data/gender-analysis',
             name: 'gender-analysis',
             meta: {
-              title: '性别分析-数据可视化-线下浏览器服务平台'
+              title: '性别分析-数据可视化-线下浏览器服务平台',
+              keepAlive: false
             },
             component: genderAnalysis
           },
@@ -257,7 +264,8 @@ export const constantRouterMap = [
             path: '/data/age-analysis',
             name: 'age-analysis',
             meta: {
-              title: '年龄分析-数据可视化-线下浏览器服务平台'
+              title: '年龄分析-数据可视化-线下浏览器服务平台',
+              keepAlive: false
             },
             component: ageAnalysis
           },
@@ -265,7 +273,8 @@ export const constantRouterMap = [
             path: '/data/shop-frequency-analysis',
             name: 'shop-frequency-analysis',
             meta: {
-              title: '到店频次分析-数据可视化-线下浏览器服务平台'
+              title: '到店频次分析-数据可视化-线下浏览器服务平台',
+              keepAlive: false
             },
             component: shopFrequencyAnalysis
           }
@@ -289,7 +298,8 @@ export const constantRouterMap = [
         name: 'developer',
         meta: {
           auth: true,
-          title: '个人信息-开发者中心-线下浏览器服务平台'
+          title: '个人信息-开发者中心-线下浏览器服务平台',
+          keepAlive: false
         },
         component: Developer
       },
@@ -298,7 +308,8 @@ export const constantRouterMap = [
         name: 'addNotifyCallback',
         meta: {
           auth: true,
-          title: '创建回调信息-开发者中心-线下浏览器服务平台'
+          title: '创建回调信息-开发者中心-线下浏览器服务平台',
+          keepAlive: false
         },
         component: notifyCallback
       },
@@ -307,7 +318,8 @@ export const constantRouterMap = [
         name: 'editNotifyCallback',
         meta: {
           auth: true,
-          title: '编辑回调信息-开发者中心-线下浏览器服务平台'
+          title: '编辑回调信息-开发者中心-线下浏览器服务平台',
+          keepAlive: false
         },
         component: notifyCallback
       },
@@ -316,7 +328,8 @@ export const constantRouterMap = [
         name: 'sysNotify',
         meta: {
           auth: true,
-          title: '消息通知-开发者中心-线下浏览器服务平台'
+          title: '消息通知-开发者中心-线下浏览器服务平台',
+          keepAlive: false
         },
         component: sysNotify
       },
@@ -329,7 +342,8 @@ export const constantRouterMap = [
         name: 'personCenter',
         meta: {
           auth: true,
-          title: '个人信息-开发者中心-线下浏览器服务平台'
+          title: '个人信息-开发者中心-线下浏览器服务平台',
+          keepAlive: false
         },
         component: Developer
       },
@@ -338,7 +352,8 @@ export const constantRouterMap = [
         name: 'personEdit',
         meta: {
           auth: true,
-          title: '编辑信息-开发者中心-线下浏览器服务平台'
+          title: '编辑信息-开发者中心-线下浏览器服务平台',
+          keepAlive: false
         },
         component: Developer
       },
@@ -351,7 +366,8 @@ export const constantRouterMap = [
         name: 'apiToken',
         meta: {
           auth: true,
-          title: '开放API-开发者中心-线下浏览器服务平台'
+          title: '开放API-开发者中心-线下浏览器服务平台',
+          keepAlive: false
         },
         component: apiIndex
       },
@@ -360,7 +376,8 @@ export const constantRouterMap = [
         name: 'apiFaceImg',
         meta: {
           auth: true,
-          title: '开放API-开发者中心-线下浏览器服务平台'
+          title: '开放API-开发者中心-线下浏览器服务平台',
+          keepAlive: false
         },
         component: apiIndex
       },
@@ -369,7 +386,8 @@ export const constantRouterMap = [
         name: 'paramExplain',
         meta: {
           auth: true,
-          title: '参数说明-开发者中心-线下浏览器服务平台'
+          title: '参数说明-开发者中心-线下浏览器服务平台',
+          keepAlive: false
         },
         component: paramExplain
       }
@@ -397,7 +415,23 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  fetch('/loginCheck', false).then(res => {
+  let aliveObj = {
+    'customCommunity': 'editCustom',
+    'editCommunity': 'community',
+    'equipmentMore': 'equipment'
+  }
+  // console.log('before ----------', to.name, from.name, to.meta.keepAlive, from.meta.keepAlive)
+  fetch('/loginCheck', false).then(() => {
+    if (aliveObj[to.name]) {
+      if (from.name === aliveObj[to.name]) {
+        from.meta.keepAlive = true
+      } else {
+        from.meta.keepAlive = false
+      }
+    } else {
+      from.meta.keepAlive = false
+    }
+    // console.log(to.name, from.name, to.meta.keepAlive, from.meta.keepAlive)
     next()
   }).catch(err => {
     if (err.code === 'ERR-110') {

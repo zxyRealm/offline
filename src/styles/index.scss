@@ -40,67 +40,64 @@ html {
 }
 
 //input placeholder 字体颜色设置
-textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
-  color: $placeholder-color;
-  font-size: 12px;
-}
-
-textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-  color: $placeholder-color;
-  font-size: 12px;
-}
-
-textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
-  color: $placeholder-color;
-  font-size: 12px;
-}
-
-textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
-  color: $placeholder-color;
-  font-size: 12px;
-}
+//textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
+//  color: $placeholder-color;
+//  font-size: 12px;
+//}
+//
+//textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+//  color: $placeholder-color;
+//  font-size: 12px;
+//}
+//
+//textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
+//  color: $placeholder-color;
+//  font-size: 12px;
+//}
+//
+//textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
+//  color: $placeholder-color;
+//  font-size: 12px;
+//}
 
 .el-textarea, .el-input {
   textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
     color: $placeholder-color;
     font-size: 12px;
   }
-
   textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
     color: $placeholder-color;
     font-size: 12px;
   }
-
   textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
     color: $placeholder-color;
     font-size: 12px;
   }
-
   textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
     color: $placeholder-color;
     font-size: 12px;
   }
 }
 $placeholder: #999;
-.white .el-textarea, .el-input {
-  textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
-    color: $placeholder;
-    font-size: 12px;
-  }
 
-  textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color: $placeholder;
-    font-size: 12px;
-  }
-
-  textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color: $placeholder;
-    font-size: 12px;
-  }
-
-  textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
-    color: $placeholder;
-    font-size: 12px;
+.white {
+  .el-textarea, .el-input {
+    textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
+      color: $placeholder;
+      font-size: 12px;
+    }
+    textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+      color: $placeholder;
+      font-size: 12px;
+    }
+    textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
+      color: $placeholder;
+      font-size: 12px;
+    }
+    textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
+      color: $placeholder;
+      font-size: 12px;
+    }
   }
 }
 
@@ -210,6 +207,13 @@ div:focus {
 @each $ml in 5, 8, 10, 94 {
   .ml#{$ml} {
     margin-left: $ml + px;
+  }
+}
+
+@each $maxw in 110, 8, 10, 94 {
+  .maxw#{$maxw} {
+    max-width: $maxw + px;
+    width: auto;
   }
 }
 
@@ -465,7 +469,7 @@ button, input {
     background-size: 110% 156%;
   }
   &.cancel {
-    background-image: url("/static/img/input_border_bg.png");
+    background-image: url("../assets/public/button_border_bg@2x.png");
     background-size: 100% 100%;
     > span {
       color: #0F9EE9;
@@ -813,7 +817,7 @@ button, input {
   background-color: $default;
   .el-input__inner {
     border: none;
-    background: url("/static/img/input_border_bg.png") no-repeat center;
+    background: url(/static/img/input_border_bg@2x.png) no-repeat center;
     background-size: 100% 100%;
     background-color: $default;
     color: #fff;
@@ -1017,7 +1021,16 @@ button, input {
 }
 .el-checkbox__input{
 
-  //&.is-focus .el-checkbox__inner{
-  //  @extend .el-checkbox__inner
-  //}
+}
+
+// el-tooltip
+[role=tooltip].el-tooltip__popper{
+  max-width: 60%;
+  word-break: break-all;
+}
+p>.ellipsis{
+  vertical-align: bottom;
+  &[class^=maxw]{
+    width: auto;
+  }
 }
