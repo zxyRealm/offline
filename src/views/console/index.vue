@@ -38,7 +38,7 @@
             :key="$index"
             class="list-customer-item"
           >
-            <customer-info :index="pedestrianInData.length -$index" :detailInfo="item"></customer-info>
+            <customer-info :index="pedestrianInData.length -$index" :detailInfo="item" @handleDetailData="showDetailInfo"></customer-info>
           </li>
         </transition-group>
       </div>
@@ -58,11 +58,12 @@
             :key="$index"
             class="list-customer-item out-li"
           >
-            <customer-info :index="pedestrianOutData.length -$index" :detailInfo="item"></customer-info>
+            <customer-info :index="pedestrianOutData.length -$index" :detailInfo="item" @handleDetailData="showDetailInfo"></customer-info>
           </li>
         </transition-group>
       </div>
     </div>
+    <ob-dialog-info :visible.sync="showDialog" :data="showDialogData"></ob-dialog-info>
     <ul class="content--bottom__leader" v-show="!isShow">
         <li class="bottom--isShow__top animation-lwh-show">
         </li>
@@ -81,12 +82,14 @@ import lineConsole from '@/components/echarts/line.vue'
 import CustomerInfo from './componets/CustomerInfo.vue'
 import {mapState} from 'vuex'
 import {eventObject} from '@/utils/event.js'
-
+import ObDialogInfo from './componets/ObDialogInfo'
 export default {
   name: 'console',
-  components: {FlowInfo, AllTime, bar, pie, lineConsole, CustomerInfo},
+  components: {FlowInfo, AllTime, bar, pie, lineConsole, CustomerInfo, ObDialogInfo},
   data () {
     return {
+      showDialogData: {},
+      showDialog: false, // 显示图片详细信息
       style: {
         visibility: 'visible'
       },
@@ -111,6 +114,11 @@ export default {
     }
   },
   methods: {
+    // 展示图片详细信息
+    showDetailInfo (val) {
+      this.showDialog = true
+      this.showDialogData = JSON.parse(JSON.stringify(val)) // this.templateData是父组件传递的对象
+    },
     // 隐藏推送消息
     hideInformation () {
       this.isShow = !this.isShow
@@ -268,6 +276,9 @@ export default {
     ])
   },
   watch: {
+    showDialog (val, oldVal) {
+      // console.info(val)
+    },
     // 监听vuex groupConsoleId是否改变
     groupConsoleId (val) {
       if (!val || val === '') {
