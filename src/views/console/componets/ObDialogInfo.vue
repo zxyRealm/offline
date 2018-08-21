@@ -1,5 +1,5 @@
 <template>
-  <div class="ob-dialog-info-wrap vam" v-show="isShow">
+  <div class="ob-dialog-info-wrap vam" v-if="isShow">
     <div class="ob-dialog-info-main">
       <div class="ob-dialog-info-content vam" :class="type">
         <img :src="'data:image/jpg;base64,'+data.img" alt="访客图像">

@@ -16,7 +16,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="systemTime"
+        prop="createTime"
         label="到访时间"
       >
       </el-table-column>

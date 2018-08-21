@@ -11,17 +11,13 @@
       <span>{{this.daytime(detailInfo.time)}}</span>
       <span>{{this.time(detailInfo.time)}}</span>
     </div>
-    <ob-dialog-info :visible.sync="showDialog" :data="detailInfo"></ob-dialog-info>
   </div>
 </template>
 <script>
-import ObDialogInfo from './ObDialogInfo'
-import {parseTime} from '@/utils/index'
+import { parseTime } from '@/utils/index'
 
 export default {
-  components: {
-    ObDialogInfo
-  },
+  components: {},
   props: ['index', 'detailInfo'],
   data () {
     return {
@@ -77,7 +73,7 @@ export default {
     },
     // 显示详情
     handleDetail () {
-      this.showDialog = true
+      this.$emit('handleDetailData', this.detailInfo)
     },
     // base64处理图片
     imgBase (data) {
@@ -111,7 +107,6 @@ export default {
     this.getAutoSize()
     window.addEventListener('resize', this.getAutoSize)
   },
-  watch: {},
   beforeRouteLeave (to, from, next) {
     window.removeEventListener('resize', this.getAutoSize)
     next()
