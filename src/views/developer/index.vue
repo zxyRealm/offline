@@ -30,7 +30,7 @@
                       v-model.trim="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称：" prop="company">
-            <el-input type="text" placeholder="添加公司名称"
+            <el-input type="text" :readonly="!editable" placeholder="添加公司名称"
                       v-model.trim="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
@@ -63,9 +63,7 @@ export default {
   data () {
     // 验证公司名称
     const validCompany = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请添加公司名称'))
-      } else {
+      if (value) {
         if (value.length > 32) {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 1)) {
@@ -73,25 +71,25 @@ export default {
         } else {
           callback(new Error('公司名称由数字、字母或空格构成'))
         }
+      } else {
+        callback()
       }
     }
     // 验证地址选取
     const validDetail = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请添加商户详细地址'))
-      } else {
+      if (value) {
         if (value.length > 128) {
           callback(new Error('请输入1-128位字符'))
         } else {
           callback()
         }
+      } else {
+        callback()
       }
     }
     // 验证联系人
     const validContacts = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请添加联系人'))
-      } else {
+      if (value) {
         if (value.length > 32) {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 1)) {
@@ -99,6 +97,8 @@ export default {
         } else {
           callback(new Error('联系人由数字、字母或空格构成'))
         }
+      } else {
+        callback()
       }
     }
     return {
@@ -110,10 +110,10 @@ export default {
         phone: [
           {validator: validPhone, trigger: 'blur'}
         ],
-        address: [
-          {required: true, message: '选择商铺所在区域', trigger: 'blur'}
+        pca: [
+          {message: '选择商铺所在区域', trigger: 'blur'}
         ],
-        detail: [
+        address: [
           {validator: validDetail, trigger: 'blur'}
         ],
         contacts: [
@@ -137,9 +137,9 @@ export default {
       let pcaArr = data.pca.split(',').map(Number)
       let type = this.userInfo.merchantGuid ? 'update' : 'create'
       if (type === 'update') data.merchantGuid = this.userInfo.merchantGuid
-      data.provinceAreaID = pcaArr[0]
-      data.cityAreaID = pcaArr[1]
-      data.districtAreaID = pcaArr[2]
+      data.provinceAreaID = pcaArr[0] || 0
+      data.cityAreaID = pcaArr[1] || 0
+      data.districtAreaID = pcaArr[2] || 0
       delete data.pca
       this.$http('/merchant/usercenter/update', data).then(res => {
         if (res.result) {
@@ -173,16 +173,17 @@ export default {
       this.$http('/auth/oss/image/signature').then(res => {
         if (res.data) {
           let formData = new FormData()
-          formData.append('key', `merchant/${uid}/${encodeURIComponent(data.file.name)}`)
+          let customName = 'avatar_' + new Date().getTime()
+          formData.append('key', `merchant/${uid}/${customName}`)
           formData.append('policy', res.data['policy'])
           formData.append('OSSAccessKeyId', res.data['accessid'])
           formData.append('success_action_status', '200')
           formData.append('signature', res.data['signature'])
-          formData.append('file', data.file, encodeURIComponent(data.file.name))
+          formData.append('file', data.file, customName)
           // 构建formData 对象，将图片上传至阿里云oss服务
           this.$http(res.data.host, formData).then(back => {
             if (!back.data) {
-              let avatarHref = res.data.host + '/merchant/' + uid + '/' + encodeURIComponent(data.file.name)
+              let avatarHref = res.data.host + '/merchant/' + uid + '/' + customName
               // 图片地址提交后台更新个人头像信息
               this.$http('/merchant/usercenter/image', {faceImgURL: avatarHref}).then(res => {
                 this.$tip('头像上传成功')
@@ -305,7 +306,7 @@ export default {
           height: 100%;
           border-radius: 50%;
           overflow: hidden;
-          >img{
+          > img {
             max-width: 100%;
             max-height: 100%;
           }

@@ -97,8 +97,8 @@ export default {
             this.$set(item, 'initial', makePy(item.name))
             return item
           }))
-          if (this.value) {
-            let idArr = this.value.split(',').map(Number)
+          let idArr = this.value.split(',').map(Number)
+          if (this.value && idArr[0] && idArr[1] && idArr[2]) {
             let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()]
             this.originAddress[0].map(item => pMap.set(item.id, item))
             this.originAddress[1].map(item => cMap.set(item.id, item))
@@ -116,9 +116,9 @@ export default {
     // 过滤出当前需要显示的数据列表（省/市/区）
     filterAddress (type) {
       if (type) {
-        return this.originAddress[type].filter(item => this.currentValue[type - 1].id === item.pid)
+        return this.originAddress[type].filter(item => this.currentValue[type - 1].id === item.pid) || ''
       } else {
-        return this.originAddress[type]
+        return this.originAddress[type] || ''
       }
     }
   },
@@ -150,7 +150,7 @@ export default {
         let [textStr, idStr] = ['', '']
         val.map(item => {
           idStr += idStr ? (',' + item.id) : item.id
-          textStr += textStr ? ('-' + item.name) : item.name
+          textStr += (textStr ? ('-' + item.name) : item.name) || ''
         })
         this.$emit('input', idStr)
         this.address = textStr

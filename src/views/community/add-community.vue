@@ -129,10 +129,10 @@ export default {
           {required: true, message: '请获取社群邀请码', trigger: 'blur'}
         ],
         pca: [
-          {required: true, message: '请选取省市区', trigger: 'blur'}
+          {message: '请选取省市区', trigger: 'blur'}
         ],
         address: [
-          {required: true, message: '请填写详细地址', trigger: 'blur'},
+          {message: '请填写详细地址', trigger: 'blur'},
           {max: 128, message: '最大长度为128个字符', trigger: 'blur'}
         ],
         rule: [
@@ -157,9 +157,9 @@ export default {
     // 创建社群或编辑社群信息
     submitForm (data) {
       let address = data.pca.split(',').map(Number)
-      data.provinceAreaID = address[0]
-      data.cityAreaID = address[1]
-      data.districtAreaID = address[2]
+      data.provinceAreaID = address[0] || 0
+      data.cityAreaID = address[1] || 0
+      data.districtAreaID = address[2] || 0
       data.rule = data.rule.toString()
       this.$http(`/group/${this.type}`, data).then(res => {
         this.$tip('保存成功')

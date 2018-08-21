@@ -87,12 +87,13 @@ export default {
       })
     },
     getNotifyList (page) {
-      page = page || 1
+      page = (this.$route.meta.keepAlive && this.aliveState.pagination ? this.aliveState.pagination.index : false) || page || 1
       this.$http('/dataNotice/page/list', {index: page, length: 8}).then(res => {
         if (res.result) {
           this.notifyList = res.data.content || []
           this.pagination = res.data.pagination
         }
+        this.$route.meta.keepAlive = false
       })
     },
     addCallbackInfo () {
@@ -118,7 +119,7 @@ export default {
     this.getNotifyList()
   },
   computed: {
-    ...mapState(['loading'])
+    ...mapState(['loading', 'aliveState'])
   },
   filters: {
     type: function (value) {
@@ -127,6 +128,9 @@ export default {
           return '到店通知'
       }
     }
+  },
+  beforeDestroy () {
+    this.$store.commit('SET_ALIVE_STATE', {pagination: this.pagination})
   }
 }
 </script>

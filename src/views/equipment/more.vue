@@ -1,6 +1,6 @@
 <template>
   <div class="equipment-more-wrap">
-    <uu-sub-tab back :menu-array="[{title:'分析终端用途'}]"></uu-sub-tab>
+    <uu-sub-tab back :menu-array="[{title:'用途详情'}]"></uu-sub-tab>
     <div class="ob-table-wrap">
       <el-table
         :data="deviceList"

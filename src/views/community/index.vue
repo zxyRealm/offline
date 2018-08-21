@@ -229,11 +229,14 @@ export default {
         if (!key && !res.data[0]) {
           return
         }
+        // 编辑页返回时记住当前页状态
+        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || res.data[0]
         this.$nextTick(() => {
-          this.$refs.groupNav.setCurrentKey(key ? key.uniqueKey : res.data[0].uniqueKey)
+          this.$refs.groupNav.setCurrentKey(currentNode.uniqueKey)
         })
-        this.getCommunityInfo(key || res.data[0])
-        this.getDeviceList(key || res.data[0])
+        this.getCommunityInfo(currentNode)
+        this.getDeviceList(currentNode)
+        this.$route.meta.keepAlive = false
       })
     },
     // 获取设备列表
@@ -378,10 +381,13 @@ export default {
     isSon: function () {
       return Boolean(this.communityInfo.groupPid)
     },
-    ...mapState(['loading']),
+    ...mapState(['loading', 'aliveState']),
     tableHeight () {
       return this.deviceList.length ? (this.deviceList.length >= 5 ? 246 : (this.deviceList.length + 1) * 41) : 60
     }
+  },
+  beforeDestroy () {
+    this.$store.commit('SET_ALIVE_STATE', {currentCommunity: this.currentCommunity})
   }
 }
 </script>
@@ -414,7 +420,6 @@ export default {
 </style>
 <style lang="scss" scoped>
   @import "@/styles/community.scss";
-
   .search-empty {
     height: 20px;
     line-height: 18px;
