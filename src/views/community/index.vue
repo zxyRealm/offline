@@ -176,17 +176,17 @@ export default {
     const validateName = (rule, value, callback) => {
       value = value.trim()
       if (!value) {
-        callback(new Error('请填写子社群备注名'))
+        callback(new Error('请输入备注名'))
       } else {
         if (value.length > 32) {
-          callback(new Error('备注名为1-32个字符'))
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           if (this.originName === value) {
-            callback(new Error('子社群备注名已存在'))
+            callback(new Error('备注名已存在'))
           } else {
             this.$http('/group/nickNameExist', {groupNickName: value},
               false).then(res => {
-              !res.data ? callback() : callback(new Error('子社群备注名已存在'))
+              !res.data ? callback() : callback(new Error('备注名已存在'))
             }).catch(err => {
               callback(err.msg || '验证失败')
             })
@@ -203,7 +203,7 @@ export default {
       deviceList: [], // 社群设备列表
       communityInfo: {}, // 社群信息
       currentKey: '', // 当前选中社群id
-      currentCommunity: {}, // 当前社群信息
+      currentCommunity: '', // 当前社群信息
       communityForm: {
         groupPid: '',
         groupGuid: '',
@@ -318,7 +318,7 @@ export default {
     getCommunityInfo (val) {
       this.$http('/group/getInfo', {guid: val.groupGuid}).then(res => {
         if (res.data) res.data.groupPid = val.groupPid
-        res.data.groupNickName = val.groupNickName || this.currentCommunity.groupNickName
+        res.data.groupNickName = val.groupNickName || (this.currentCommunity || this.groupList[0]).groupNickName
         if (res.data.groupPid) this.originName = JSON.parse(JSON.stringify(res.data.groupNickName))
         this.communityInfo = res.data || {}
         if (res.data) {
@@ -328,7 +328,7 @@ export default {
     },
     // 解散社群
     disbandGroup () {
-      this.$affirm({text: `确认解散【${this.communityInfo.name}】社群？`}, (action, instance, done) => {
+      this.$affirm({text: `确认解散【<span class="maxw200 ellipsis">${this.communityInfo.name}</span>】社群？`}, (action, instance, done) => {
         if (action === 'confirm') {
           this.$http('/group/disbandGroup', {guid: this.communityInfo.guid}).then(res => {
             this.$tip('解散成功')
@@ -340,7 +340,7 @@ export default {
         }
       })
     },
-    // 修改社群昵称
+    // 修改子社群备注名
     changeCommunityName (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -348,7 +348,7 @@ export default {
           subData.groupGuid = this.communityInfo.guid
           subData.groupPid = this.communityInfo.groupPid
           this.$http('/group/nickName/update', subData).then(res => {
-            this.$tip('昵称修改成功')
+            this.$tip('修改成功')
             this.currentCommunity.groupNickName = subData.groupNickName
             this.hidePopover()
             this.getGroupList('', {
@@ -366,7 +366,7 @@ export default {
     showPopover () {
       this.communityForm.groupNickName = this.communityInfo.groupNickName
     },
-    // 隐藏修改昵称表单  清空表单数据
+    // 隐藏修改备注名表单  清空表单数据
     hidePopover () {
       if (this.$refs.nickNameForm) {
         this.$refs.nickNameForm.resetFields()
@@ -387,7 +387,7 @@ export default {
     }
   },
   beforeDestroy () {
-    this.$store.commit('SET_ALIVE_STATE', {currentCommunity: this.currentCommunity})
+    this.$store.commit('SET_ALIVE_STATE', {currentCommunity: this.currentCommunity || this.groupList[0]})
   }
 }
 </script>

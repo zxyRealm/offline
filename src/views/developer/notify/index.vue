@@ -77,7 +77,7 @@ export default {
           this.$http('/dataNotice/discard', {noticeGuid: id}).then(res => {
             if (res.result) {
               this.$tip('操作成功')
-              this.getNotifyList(this.pagination.index)
+              this.getNotifyList(this.notifyList.length === 1 ? this.pagination.index - 1 : this.pagination.index)
             }
           })
           done()

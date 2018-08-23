@@ -20,29 +20,33 @@
         <uu-form
           ref="userInfoForm"
           form-class="user-info-form"
-          :rules="editable?rules:{}"
+          :rules="rules"
           :readonly="!editable"
           :subText="editable?'保存':''"
           @handle-submit="submitForm"
           v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
-            <el-input type="text" :readonly="!!userInfo.phone" placeholder="添加手机号"
+            <p class="readonly__text" v-if="!!userInfo.phone">{{userInfoForm.phone}}</p>
+            <el-input type="text" v-show="!userInfo.phone" placeholder="添加手机号"
                       v-model.trim="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称：" prop="company">
-            <el-input type="text" :readonly="!editable" placeholder="添加公司名称"
+            <p class="readonly__text" v-if="!editable">{{userInfoForm.company}}</p>
+            <el-input type="text" v-show="editable" placeholder="添加公司名称"
                       v-model.trim="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
             <area-select placeholder="选择商铺所在区域" :readonly="!editable" v-model="userInfoForm.pca"></area-select>
           </el-form-item>
           <el-form-item prop="address">
-            <el-input type="text" :readonly="!editable" placeholder="添加商户详细地址"
+            <p class="readonly__text" v-if="!editable">{{userInfoForm.address}}</p>
+            <el-input type="text" v-show="editable" placeholder="添加商户详细地址"
                       v-model.trim="userInfoForm.address"></el-input>
           </el-form-item>
 
           <el-form-item label="联系人：" prop="contacts">
-            <el-input type="text" :readonly="!editable" placeholder="添加联系人"
+            <p class="readonly__text" v-if="!editable">{{userInfoForm.contacts}}</p>
+            <el-input type="text" v-show="editable" placeholder="添加联系人"
                       v-model.trim="userInfoForm.contacts"></el-input>
           </el-form-item>
         </uu-form>
@@ -69,7 +73,7 @@ export default {
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('公司名称由数字、字母或空格构成'))
+          callback(new Error('请输入正确的公司名称'))
         }
       } else {
         callback()
@@ -95,7 +99,7 @@ export default {
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('联系人由数字、字母或空格构成'))
+          callback(new Error('请输入正确的联系人'))
         }
       } else {
         callback()
@@ -236,6 +240,7 @@ export default {
         this.subLink.title = '编辑'
         this.editable = false
       }
+      this.initData()
       this.$nextTick(() => {
         this.$refs.userInfoForm.$refs.submitForm.clearValidate()
       })
@@ -288,7 +293,7 @@ export default {
       width: 720px;
       height: 300px;
       margin: 15px auto;
-      background: url("/static/img/textarea_border2_bg.png") no-repeat;
+      background: url("/static/img/form_border2_bg.png") no-repeat;
       background-size: 100% 100%;
     }
   }

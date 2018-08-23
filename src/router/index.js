@@ -419,6 +419,7 @@ router.beforeEach((to, from, next) => {
     'editCustom': 'customCommunity',
     'editCommunity': 'community',
     'equipmentMore': 'equipment',
+    'equipmentMore': 'equipmentChildren',
     'paramExplain': 'sysNotify',
     'editNotifyCallback': 'sysNotify'
   }

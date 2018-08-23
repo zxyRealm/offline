@@ -9,8 +9,8 @@
           <ul class="order-list">
             <li v-show="data.deviceStatus===undefined">尚未【获取】设备状态，无法操作</li>
             <li v-show="data.groupGuid">已绑定至社群，无法删除</li>
-            <li v-show="data.deviceStatus!==undefined && data.isHandle">{{data.deviceStatus | handleMsg}}</li>
-            <li v-show="data.isHandle===false">设备操作权限已上送，无法操作</li>
+            <li v-if="data.isHandle===false">设备操作权限已上送，无法操作</li>
+            <li v-else-if="data.deviceStatus!==undefined">{{data.deviceStatus | handleMsg}}</li>
           </ul>
           <uu-icon
             slot="reference"
@@ -142,19 +142,23 @@ export default {
       type: [Object],
       default: () => ({})
     },
-    filter: {
+    filter: { // 自定义过滤方法
       type: [Function]
     },
-    showDelete: {
+    showDelete: { // 列表是否显示删除图标
       type: Boolean,
       default: false
     },
-    isAmend: {
+    isAmend: { // 设备别名是否可修改
       type: Boolean,
       default: false
     },
-    tooltip: {
+    tooltip: { // 文本内容超出隐藏
       type: Boolean,
+      default: false
+    },
+    isChild: { // 是否是子社群设备列表
+      type: [Boolean],
       default: false
     }
   },
@@ -164,7 +168,7 @@ export default {
         callback(new Error('请输入设备别名'))
       } else {
         if (value.length > 32) {
-          callback(new Error('别名为1-32个字符'))
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
             res.data ? callback(new Error('设备别名已存在')) : callback()
@@ -210,26 +214,28 @@ export default {
       if (show === null) {
         return
       }
-      let getState = () => {
-        this.$http('/device/state/use', {deviceKey: value.deviceKey}).then(res => {
-          if (this.data.deviceStatus !== undefined && show) {
-            this.$tip('刷新成功')
+      this.$http('/device/state/use', {deviceKey: value.deviceKey}).then(res => {
+        if (this.data.deviceStatus !== undefined && show) {
+          this.$tip('刷新成功')
+        }
+        // res.data = Math.floor(Math.random() * 7)
+        // console.log('state', res.data)
+        if (res.data !== 1) {
+          if (value.groupGuid) {
+            // 获取设备操作权限，已授权其他社群后自己不可操作
+            let url = '/merchant/device/operationPermission'
+            if (this.isChild) url = '/merchant/device/permission/search'
+            this.$http(url, {guid: value.groupGuid}).then(res2 => {
+              if (!res2.data) {
+                this.$set(this.data, 'isHandle', res2.data)
+              }
+            })
+          } else {
+            this.$set(value, 'isHandle', true)
           }
-          this.$set(value, 'deviceStatus', res.data)
-        })
-      }
-      if (value.groupGuid) {
-        // 获取设备操作权限，已授权其他社群后自己不可操作
-        this.$http('/merchant/device/operationPermission', {guid: value.groupGuid}).then(res2 => {
-          if (!res2.data) {
-            this.$set(this.data, 'isHandle', res2.data)
-          }
-          getState()
-        })
-      } else {
-        getState()
-        this.$set(value, 'isHandle', true)
-      }
+        }
+        this.$set(value, 'deviceStatus', res.data)
+      })
     },
     handleDevice (type) {
       let [des, url, value] = ['', '', this.data]
@@ -259,10 +265,10 @@ export default {
           url = '/device/startOrShutdown'
       }
       if (value.deviceStatus !== 0 && value.deviceStatus !== 1 && value.deviceStatus !== 5) {
-        this.$tip(`设备正在【BOX】${des}中，请稍后重新获取设备状态`, 'waiting')
+        this.$tip(`设备【<span class="maxw110 ellipsis">${value.deviceName}</span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
         return false
       }
-      this.$affirm({text: '确定' + des + '设备【' + value.deviceName + '】?'}, (action, instance, done) => {
+      this.$affirm({text: `确定${des}设备【<span class="maxw200 ellipsis">${value.deviceName}</span>】?`}, (action, instance, done) => {
         if (action === 'confirm') {
           done()
           let subData = {deviceKey: this.data.deviceKey}
@@ -288,7 +294,7 @@ export default {
           }
           this.$http(url, subData).then(res => {
             this.$load().close()
-            this.$tip(`设备【BOX】${des}中，请稍后重新获取设备状态`, 'waiting')
+            this.$tip(`设备【<span class="maxw110 ellipsis">${value.deviceName}</span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
           }).catch(() => {
             this.$load().close()
             this.getDeviceState()
@@ -400,12 +406,12 @@ export default {
         {
           confirm: '确定',
           cancel: '返回',
-          text: '确定删除设备【' + item.deviceName + '】？'
+          text: `确定删除设备【<span class="maxw200 ellipsis">${item.deviceName}</span>】？`
         }, (action, instance, done) => {
           if (action === 'confirm') {
             this.$http('/merchant/device/delete', {deviceKey: item.deviceKey}).then(res => {
               this.$tip('删除成功')
-              this.$emit('refresh')
+              this.$emit('refresh', 'delete')
             })
             done()
           } else {
@@ -427,13 +433,6 @@ export default {
         } else {
           console.log('error submit')
         }
-      })
-    },
-    // 获取设备操作权限
-    devicePermission (val) {
-      this.$http('/merchant/device/operationPermission', {guid: val.groupGuid}, false).then(res2 => {
-        if (!res2.data) this.$set(this.data, 'isHandle', res2.data)
-        console.log(this.data)
       })
     },
     showPopover () {
@@ -505,7 +504,6 @@ export default {
   $reboot: url("../../assets/public/data-list/reboot_btn_bg.png");
   $upgrade: url("../../assets/public/data-list/upgrade_btn-bg.png");
   $ongoing: url("../../assets/public/data-list/upgrading_btn_bg.png");
-  $disable: rgba(81, 80, 85, .25);
   .order-list {
     li {
       box-sizing: border-box;
@@ -516,7 +514,7 @@ export default {
   .ob-list-sub-item {
     .table__label{
       display: inline-block;
-      width: 70px;
+      width: 62px;
     }
     &:first-child {
       .ellipsis {
@@ -550,11 +548,55 @@ export default {
         height: 28px;
         margin-left: 0 !important;
         margin-bottom: 4px;
+        &.medium {
+          &.run, &.disable, &.reset, &.reboot, &.upgrade, &.ongoing {
+            height: 30px;
+            padding: 8px 15px;
+            background-size: cover;
+            border: none;
+            background-color: transparent;
+          }
+          &.upgrade {
+            background-image: $upgrade;
+          }
+          &.reset {
+            background-image: $reset;
+          }
+          &.run {
+            background-image: $close;
+          }
+          &.reboot {
+            background-image: $reboot;
+          }
+          &.ongoing {
+            position: relative;
+            &:after {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background: $ongoing repeat-x top left;
+              animation: mymove 3.5s linear infinite;
+              background-size: auto 100%;
+            }
+            @keyframes mymove {
+              from {
+                background-position-x: 0;
+              }
+              to {
+                background-position-x: 100%;
+              }
+            }
+          }
+          &[disabled] {
+            background: $disable;
+            box-shadow: 0 2px 4px 0 #161418;
+          }
+        }
         &:last-child {
           margin-bottom: 0;
-        }
-        &[disabled] {
-          background: $disable;
         }
       }
     }
@@ -602,49 +644,4 @@ export default {
     }
   }
 
-  .el-button {
-    &.medium {
-      &.run, &.disable, &.reset, &.reboot, &.upgrade, &.ongoing {
-        height: 30px;
-        padding: 8px 15px;
-        background-size: cover;
-        border: none;
-        background-color: transparent;
-      }
-      &.upgrade {
-        background-image: $upgrade;
-      }
-      &.reset {
-        background-image: $reset;
-      }
-      &.run {
-        background-image: $close;
-      }
-      &.reboot {
-        background-image: $reboot;
-      }
-      &.ongoing {
-        position: relative;
-        &:after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: $ongoing repeat-x top left;
-          animation: mymove 3.5s linear infinite;
-          background-size: auto 100%;
-        }
-        @keyframes mymove {
-          from {
-            background-position-x: 0;
-          }
-          to {
-            background-position-x: 100%;
-          }
-        }
-      }
-    }
-  }
 </style>

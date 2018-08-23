@@ -130,7 +130,6 @@ export default {
         margin: 0 10px;
         height: 18px;
         background-image: linear-gradient(to top, #813FC5, #1896E6);
-        /*background: url("/static/img/s");*/
       }
     }
     .sub-tab-link {
@@ -172,12 +171,12 @@ export default {
       width: 280px;
       max-width: 100%;
       border: none;
+      background: transparent;
       .el-input__prefix {
         font-size: 24px;
       }
       .el-input__inner {
         background: transparent !important;
-        background-image: none;
         border: none;
         border-bottom: 1px solid #ddd;
       }

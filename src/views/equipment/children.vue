@@ -15,6 +15,7 @@
         <h2>选择子社群</h2>
         <ob-group-nav
           ref="childGroup"
+          :select="selectValue"
           @current-change="currentChange">
         </ob-group-nav>
       </div>
@@ -22,7 +23,7 @@
         <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
           <template v-for="(item,$index) in equipmentList">
             <ob-list :key="$index">
-              <ob-list-item :data="item" type="state">
+              <ob-list-item is-child :data="item" type="state">
               </ob-list-item>
               <ob-list-item>
                 <p><span class="table__label">序列号：</span><span>{{item.deviceKey}}</span></p>
@@ -50,9 +51,11 @@
                   </el-tooltip>
                 </p>
               </ob-list-item>
-              <ob-list-item :style="{minWidth:'180px'}" @refresh="getEquipmentList" :data="item" type="handle">
+              <ob-list-item
+                :style="{minWidth:'180px'}"
+                @refresh="getEquipmentList"
+                :data="item" type="handle">
               </ob-list-item>
-
             </ob-list>
           </template>
           <el-pagination
@@ -71,6 +74,7 @@
 </template>
 
 <script type="application/javascript">
+import {mapState} from 'vuex'
 export default {
   name: 'index',
   data () {
@@ -81,7 +85,8 @@ export default {
       ],
       currentGroup: '', // 选中社群
       equipmentList: [], // 设备列表
-      pagination: {} // 分页参数
+      pagination: {}, // 分页参数
+      selectValue: {}
     }
   },
   methods: {
@@ -93,10 +98,16 @@ export default {
           this.$http('/device/guid/list', {guid: this.currentGroup, index: page, length: 8}).then(res => {
             this.equipmentList = res.data.content
             this.pagination = res.data.pagination
+            this.$route.meta.keepAlive ? this.$refs.childGroup.setCurrentKey(this.currentGroup) : ''
+            this.$route.meta.keepAlive = false
           })
         }
       } else {
-        this.$http('/device/search', {searchText: this.$route.params.key || '', index: page, length: 8}).then(res => {
+        this.$http('/device/search', {
+          searchText: this.$route.params.key || '',
+          index: page,
+          length: 8
+        }).then(res => {
           this.equipmentList = res.data.content
           this.pagination = res.data.pagination
         })
@@ -109,15 +120,33 @@ export default {
       }
     },
     currentChange (val) {
-      this.currentGroup = val.groupGuid
+      this.selectValue = val
+      this.currentGroup = val.currentNode.groupGuid
+    },
+    // 保存当前页面
+    saveState () {
+      if (this.$route.name === 'equipmentChildren') {
+        this.$store.commit('SET_ALIVE_STATE', {
+          pagination: this.pagination
+        })
+      } else {
+        this.$store.commit('SET_ALIVE_STATE', {
+          selectValue: this.selectValue,
+          pagination: this.pagination
+        })
+      }
     }
   },
   created () {
-    if (this.$route.name === 'searchChildren') {
-      this.getEquipmentList()
+    if (this.$route.meta.keepAlive) {
+      this.selectValue = this.aliveState.selectValue
+      this.currentGroup = this.aliveState.selectValue ? this.aliveState.selectValue.currentNode.groupGuid : ''
+      this.pagination = this.aliveState.pagination ? this.aliveState.pagination : {}
     }
+    this.getEquipmentList()
   },
   computed: {
+    ...mapState(['aliveState']),
     isSearch: function (val) {
       return this.$route.name === 'equipmentChildren'
     },
@@ -135,9 +164,13 @@ export default {
       this.getEquipmentList()
     },
     $route: function (val) {
+      this.saveState()
       this.equipmentList = []
       this.getEquipmentList()
     }
+  },
+  beforeDestroy () {
+    this.saveState()
   }
 }
 </script>

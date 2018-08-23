@@ -3,7 +3,8 @@
     <div class="community--inner">
       <div class="community--sidebar dashed-border">
         <div class="btn-wrap clearfix">
-          <el-button class="affirm medium ml94" @click="$router.push('/community/custom/create')">创建</el-button>
+          <el-button  class="affirm medium disable">加入</el-button>
+          <el-button class="affirm medium" @click="$router.push('/community/custom/create')">创建</el-button>
         </div>
         <uu-sub-tab
           size="small"

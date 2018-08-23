@@ -1,7 +1,5 @@
 @import './variables.scss';
 
-
-
 .common-form {
   margin: 0 auto;
   //默认黑色主题背景
@@ -41,6 +39,9 @@
   .el-form-item {
     margin-bottom: 10px;
     line-height: 30px;
+    .readonly__text{
+      padding: 0 15px;
+    }
     &.form-item-button{
       margin: 20px 0 0 0;
     }
@@ -75,14 +76,15 @@
       font-size:12px;
       .el-input {
         height: 30px;
+        line-height: 0;
         border-radius: 5px;
+        background-image: url('/static/img/input_border_bg@2x.png');
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-color: #232027;
         .el-input__inner {
-          background-color: #232027;
-          background-image: url(/static/img/input_border_bg@2x.png);
-          background-repeat: no-repeat;
-          background-size: 100% 100%;
+          background-color: transparent;
           border: none;
-          margin: 1px;
           color: #fff;
           width: calc(100%);
           line-height: 30px;
@@ -92,17 +94,21 @@
       }
       .el-textarea{
         height: 70px;
+        line-height: 0;
+        padding: 2px;
+        box-sizing: border-box;
+        background-image: url('/static/img/textarea_border_bg.png');
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-color: #232027;
         .el-textarea__inner{
           height: 100%;
           width: 100%;
-          background-color: #232027;
-          background-image: url("/static/img/textarea_border_bg.png");
-          background-repeat: no-repeat;
-          background-size: 100% 100%;
           border: none;
           resize: none;
           color: #fff;
           font-size:12px;
+          background-color: transparent;
         }
         &.el-input--medium{
           height: 300px;
@@ -117,7 +123,7 @@
         top:0;
         left:222px;
         color:#F87F21;
-        line-height: 30px;
+        line-height: 28px;
         padding-left:8px;
         white-space: nowrap;
       }
@@ -125,12 +131,6 @@
         .el-checkbox__label{
           font-size:12px;
           color: #fff;
-        }
-      }
-      .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner{
-        background-color: #ddd;
-        &:after{
-          border-color: #999;
         }
       }
     }
@@ -166,17 +166,19 @@
         .el-input {
           height: 30px;
           border-radius: 5px;
+          background-color: #F9F9F9;
           .el-input__inner {
-            background-color: #F9F9F9;
             box-shadow: inset 0 1px 3px 0 rgba(5,20,28,0.30);
             color:#333;
           }
         }
         .el-textarea{
+          background-color: #F9F9F9;
           .el-textarea__inner{
-            background-color: #F9F9F9;
+            border-radius: 0;
             box-shadow: inset 0 1px 3px 0 rgba(5,20,28,0.30);
             color: #333;
+
           }
           &.el-input--medium{
             .el-textarea__inner{

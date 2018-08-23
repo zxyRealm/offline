@@ -8,14 +8,16 @@
       popper-class="address-popover"
       v-model="visible">
       <div class="select-wrap">
-        <el-input
-          type="text"
-          class="search-input"
-          v-model="search"
-          placeholder="拼音支持首字母输入">
-          <span slot="suffix" class="el-input__icon" @click="address=''">重置</span>
-          <span slot="suffix" class="el-input__icon el-icon-close" @click="visible=false"></span>
-        </el-input>
+        <div class="white">
+          <el-input
+            type="text"
+            class="search-input"
+            v-model="search"
+            placeholder="拼音支持首字母输入">
+            <span slot="suffix" class="el-input__icon" @click="address=''">重置</span>
+            <span slot="suffix" class="el-input__icon el-icon-close" @click="visible=false"></span>
+          </el-input>
+        </div>
         <el-input
           type="text" readonly
           class="address-text-input"
@@ -41,9 +43,8 @@
         :placeholder="!addressText"
         :class="{'popover-icon':visible}"
         class="address-btn">
-        {{addressText?addressText:placeholder}}
+        {{addressText||readonly?addressText:placeholder}}
       </el-button>
-
     </el-popover>
   </div>
 </template>
@@ -65,7 +66,7 @@ export default {
     },
     placeholder: {
       type: String,
-      default: '请选取地址'
+      default: '请选择地址'
     }
   },
   data () {
@@ -194,6 +195,7 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+  @import '../../styles/variables';
   .address-input {
     width: 100%;
     display: inline-block;
@@ -218,7 +220,7 @@ export default {
         }
       }
       &[placeholder] {
-        color: rgba(255, 255, 255, .4);
+        color: $placeholder-color;
       }
       &:after {
         position: absolute;
@@ -271,9 +273,9 @@ export default {
             font-size: 12px;
             height: $line24;
             line-height: $line24;
-            &::-webkit-input-placeholder { /* WebKit browsers */
-              color: #999 !important;
-            }
+            /*&::-webkit-input-placeholder { !* WebKit browsers *!*/
+              /*color: #999;*/
+            /*}*/
           }
           .el-input__suffix {
             display: inline-block;
@@ -305,7 +307,6 @@ export default {
         }
         &.address-text-input {
           height: $line28;
-
           background: url("/static/img/area_select_bg.png") no-repeat center;
           .el-input__inner {
             height: $line28;

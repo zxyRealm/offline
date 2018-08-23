@@ -147,6 +147,10 @@ export default {
         children: 'childGroupList',
         label: 'groupNickName'
       })
+    },
+    select: { // 社群设备默认值
+      type: Object,
+      default: () => ({})
     }
   },
   name: 'ob-group-nav',
@@ -188,7 +192,11 @@ export default {
     // 当前选中节点变化时触发的事件
     currentChange (val, node) {
       if (val[this.nodeKey] !== this.currentNode) {
-        this.$emit('current-change', val, node)
+        if (this.type === 'device') {
+          this.$emit('current-change', {selectNode: this.currentGroup, currentNode: val})
+        } else {
+          this.$emit('current-change', val, node)
+        }
         this.currentNode = val[this.nodeKey]
       }
     },
@@ -196,7 +204,7 @@ export default {
     selectChange (index) {
       this.TreeList = this.GroupList[index][this.defaultProps.children]
       this.currentNode = ''
-      this.$emit('current-change', '')
+      this.$emit('current-change', {selectNode: index, currentNode: ''})
     },
     isHandle (val) {
       return (val || '').split(',').length === 2
@@ -240,11 +248,13 @@ export default {
       }
       switch (type) {
         case 'quit':
-          des = `确定要退出【${params.parentGroupNickName}】社群？`
+          des = `确定要退出【<span class="maxw200 ellipsis">${params.parentGroupNickName}</span>】社群？`
           url = '/group/exit'
           break
         default:
-          des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>确定要移除子社群【${params.groupNickName}】？`
+          des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>
+                确定要移除子社群【<span class="maxw200 ellipsis">
+                ${params.groupNickName}</span>】？`
           url = '/group/remove'
       }
       this.$affirm({text: `${des}`}, (action, instance, done) => {
@@ -304,6 +314,9 @@ export default {
     if (this.type !== 'community' && this.type !== 'custom-community') {
       this.getGroupList()
     }
+    if (this.type === 'device') {
+      this.currentGroup = this.select.selectNode
+    }
     this.setCurrentKey(this.currentKey)
   },
   watch: {
@@ -321,6 +334,11 @@ export default {
     },
     currentKey: function (key) {
       this.setCurrentKey(key)
+    },
+    TreeList (val) {
+      if (this.type === 'device') {
+        this.setCurrentKey(this.select.currentNode ? this.select.currentNode.uniqueKey : '')
+      }
     }
   },
   computed: {
@@ -355,6 +373,8 @@ export default {
         }
         if (this.type !== 'device') {
           this.agency = this.GroupList
+        } else {
+          return this.GroupList[this.currentGroup] ? this.GroupList[this.currentGroup][this.defaultProps.children] : []
         }
         return this.agency
       },

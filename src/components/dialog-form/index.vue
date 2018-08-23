@@ -52,7 +52,7 @@
         </el-form-item>
         <el-form-item class="tac">
           <img v-if="dialogForm.type===1" src="./image/analysis_terminal_icon.png" alt="分析终端">
-          <img v-if="dialogForm.type===(2||3)" src="./image/all_in_one_icon.png" alt="一体机">
+          <img v-if="dialogForm.type===2 || dialogForm.type===3" src="./image/all_in_one_icon.png" alt="一体机">
         </el-form-item>
       </template>
       <template v-if="type==='community'">
@@ -63,7 +63,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="应用场景：" :label-width="formLabelWidth" prop="deviceScene">
-          <el-input type="textarea" v-model.trim="dialogForm.deviceScene" placeholder="请填写描述"
+          <el-input type="textarea" v-model.trim="dialogForm.deviceScene" placeholder="请输入应用场景"
                     auto-complete="off"></el-input>
         </el-form-item>
       </template>
@@ -160,7 +160,7 @@ export default {
           })
         } else {
           this.dialogForm.type = ''
-          callback(new Error('序列号错误'))
+          callback(new Error('请输入16位设备序列号'))
         }
       }
     }
@@ -170,7 +170,7 @@ export default {
         callback(new Error('请输入设备别名'))
       } else {
         if (value.length > 32) {
-          callback(new Error('别名长度为1-32个字符'))
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
             if (res.data) {
@@ -182,7 +182,7 @@ export default {
             callback(new Error(err.msg || '验证失败'))
           })
         } else {
-          callback(new Error('请输入正确的别名'))
+          callback(new Error('请输入正确的设备别名'))
         }
       }
     }
@@ -200,10 +200,10 @@ export default {
           {validator: validateName, trigger: 'blur'}
         ],
         groupGuid: [
-          {required: true, message: '请选取自有社群', trigger: 'blur'}
+          {required: true, message: '请选择一个自有社群', trigger: 'change'}
         ],
         deviceScene: [
-          {max: 255, message: '超出最大长度限制', trigger: 'blur'}
+          {max: 255, message: '请输入0-255位字符', trigger: 'blur'}
         ]
       },
       optionsGroup: [],
