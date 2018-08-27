@@ -182,6 +182,7 @@ export default {
     resolveDatad (data) {
       let obj = JSON.parse(data)
       // 判断是否是同一台数据推送的数据
+      console.info(obj, this.deviceKey)
       if (obj.deviceKey !== this.deviceKey) return
       // 饼图 = 推送实时更新数据
       this.$set(this.pieParams.seriesData[0], 'value', obj.female)

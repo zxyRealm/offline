@@ -6,14 +6,13 @@
     <div class="community-common-form-wrap dashed-border">
       <uu-form
         label-width="106px"
-        sub-text="保存"
+        sub-text="确定"
         @handle-submit="submitForm"
-        :readonly="!editable"
         v-model="communityForm"
-        :rules="editable?rules:{}"
+        :rules="rules"
       >
         <el-form-item label="社群名称：" prop="name">
-          <el-input type="text" :readonly="!editable" placeholder="请输入社群名称"
+          <el-input type="text" placeholder="请输入社群名称"
                     v-model.trim="communityForm.name"></el-input>
         </el-form-item>
         <el-form-item label="社群码：" prop="code">
@@ -27,18 +26,18 @@
           </div>
         </el-form-item>
         <el-form-item label="地区：" prop="pca">
-          <area-select :readonly="!editable" v-model="communityForm.pca"></area-select>
+          <area-select placeholder="请选择地区" v-model="communityForm.pca"></area-select>
         </el-form-item>
         <el-form-item prop="address">
-          <el-input type="text" :readonly="!editable" placeholder="请输入详细地址"
+          <el-input type="text" placeholder="请输入详细地址"
                     v-model.trim="communityForm.address"></el-input>
         </el-form-item>
         <el-form-item label="联系人：" prop="contact">
-          <el-input type="text" :readonly="!editable" placeholder="请输入联系人"
+          <el-input type="text" placeholder="请输入联系人"
                     v-model.trim="communityForm.contact"></el-input>
         </el-form-item>
         <el-form-item label="联系电话：" prop="phone">
-          <el-input type="text" :readonly="!editable" placeholder="请输入联系电话"
+          <el-input type="text" placeholder="请输入联系电话"
                     v-model.trim="communityForm.phone"></el-input>
         </el-form-item>
         <el-form-item label="索权范围：" prop="rule">
@@ -46,8 +45,7 @@
             <el-popover
               placement="top"
               width="268"
-              trigger="hover"
-              content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。">
+              trigger="hover">
               <div class="fs12">
                 1.数据查看权限：查看社群设备的数据分析图表。<br>
                 2.设备操作权限：对子社群设备进行禁用、启用 、升级等操作。
@@ -58,7 +56,7 @@
           </p>
           <el-checkbox-group v-model="communityForm.rule">
             <el-checkbox disabled :label="0">数据查看权限</el-checkbox>
-            <el-checkbox :label="1">设备操作权限</el-checkbox>
+            <el-checkbox :disabled="type==='update'" :label="1">设备操作权限</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </uu-form>
@@ -79,10 +77,10 @@ export default {
   data () {
     const validateName = (rule, value, callback) => {
       if (!value) {
-        callback(new Error('请填写社群名称'))
+        callback(new Error('请输入社群名称'))
       } else {
         if (value.length > 32) {
-          callback(new Error('社群名称为1-32个字符'))
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           if (this.type === 'update' && this.originName === value) {
             callback()
@@ -98,19 +96,31 @@ export default {
         }
       }
     }
+    const validateContact = (rule, value, callback) => {
+      if (value) {
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
+        } else if (validateRule(value, 1)) {
+          callback()
+        } else {
+          callback(new Error('请输入正确的联系人'))
+        }
+      } else {
+        callback()
+      }
+    }
     const validatePhone = (rule, value, callback) => {
       if (value) {
         if (validateRule(value, 6)) {
           callback()
         } else {
-          callback(new Error('请填写正确的手机号'))
+          callback(new Error('请输入正确的联系电话'))
         }
       } else {
         callback()
       }
     }
     return {
-      editable: true,
       originName: '',
       communityForm: {
         name: '',
@@ -129,14 +139,17 @@ export default {
           {required: true, message: '请获取社群邀请码', trigger: 'blur'}
         ],
         pca: [
-          {required: true, message: '请选取省市区', trigger: 'blur'}
+          {message: '请选择省市区', trigger: 'blur'}
         ],
         address: [
-          {required: true, message: '请填写详细地址', trigger: 'blur'},
-          {max: 128, message: '最大长度为128个字符', trigger: 'blur'}
+          {message: '请输入详细地址', trigger: 'blur'},
+          {max: 128, message: '请输入0-128位字符', trigger: 'blur'}
+        ],
+        contact: [
+          {validator: validateContact, trigger: 'blur'}
         ],
         rule: [
-          {required: true, message: '请选取权限范围', trigger: 'blur'}
+          {required: true, message: '请选择索权范围', trigger: 'blur'}
         ],
         phone: [
           {validator: validatePhone, trigger: 'blur'}
@@ -157,12 +170,12 @@ export default {
     // 创建社群或编辑社群信息
     submitForm (data) {
       let address = data.pca.split(',').map(Number)
-      data.provinceAreaID = address[0]
-      data.cityAreaID = address[1]
-      data.districtAreaID = address[2]
+      data.provinceAreaID = address[0] || 0
+      data.cityAreaID = address[1] || 0
+      data.districtAreaID = address[2] || 0
       data.rule = data.rule.toString()
       this.$http(`/group/${this.type}`, data).then(res => {
-        this.$tip('保存成功')
+        this.$tip('操作成功')
         this.$router.push('/community/mine')
       })
     },

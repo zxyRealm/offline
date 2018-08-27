@@ -9,11 +9,10 @@
         :rules="rules"
         width="306px"
         label-width="84px"
-        :readonly="!editable"
         @handle-submit="handelCallbackInfo"
         v-model="callbackForm">
         <el-form-item label="类型：" prop="type">
-          <el-select v-model="callbackForm.type" placeholder="请选取类型">
+          <el-select v-model="callbackForm.type" placeholder="请选择类型">
             <el-option value="1" label="到店通知">
               到店通知
             </el-option>
@@ -21,14 +20,13 @@
         </el-form-item>
         <el-form-item label="回调地址：" prop="tokenURL">
           <el-input
-            type="text" :readonly="!editable"
+            type="text"
             placeholder="请输入回调地址"
             v-model.trim="callbackForm.tokenURL"></el-input>
         </el-form-item>
         <el-form-item label="描述：" prop="intro">
           <el-input
             type="textarea"
-            :readonly="!editable"
             v-model.trim="callbackForm.intro"
             placeholder="请输入描述"></el-input>
         </el-form-item>
@@ -48,7 +46,9 @@ export default {
       if (!value) {
         callback(new Error('请输入回调地址'))
       } else {
-        if (validateURL(value)) {
+        if (value.length > 2038) {
+          callback(new Error('请输入1-2083位字符'))
+        } else if (validateURL(value)) {
           callback()
         } else {
           callback(new Error('请输入正确的回调地址'))
@@ -62,7 +62,7 @@ export default {
       ],
       rules: {
         type: [
-          {required: true, message: '请选取类型', trigger: 'blur'}
+          {required: true, message: '请选择类型', trigger: 'blur'}
         ],
         tokenURL: [
           {required: true, validator: validateUrl, trigger: 'blur'}
@@ -76,8 +76,7 @@ export default {
         type: '1',
         tokenURL: '',
         intro: ''
-      },
-      editable: true
+      }
     }
   },
   methods: {
@@ -86,7 +85,7 @@ export default {
       const type = this.$route.name === 'addNotifyCallback' ? 'create' : 'update'
       this.$http('/dataNotice/' + type, data).then(res => {
         if (res.result) {
-          this.$tip('保存成功')
+          this.$tip('操作成功')
           this.$router.push('/developer/notify')
         }
       })

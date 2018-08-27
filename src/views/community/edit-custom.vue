@@ -10,14 +10,12 @@
         sub-text="确定"
         width="364px"
         @handle-submit="submitForm"
-        :readonly="!editable"
         v-model="customForm"
-        :rules="editable?rules:{}"
+        :rules="rules"
       >
         <el-form-item label="分组名称：" prop="name">
           <el-input
             type="text"
-            :readonly="!editable"
             placeholder="请输入分组名称"
             v-model.trim="customForm.name"></el-input>
         </el-form-item>
@@ -30,7 +28,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="分组描述：" prop="describe">
-          <el-input type="textarea" :readonly="!editable" placeholder="请输入分组描述"
+          <el-input type="textarea" placeholder="请输入分组描述"
                     v-model.trim="customForm.describe"></el-input>
         </el-form-item>
       </uu-form>
@@ -49,7 +47,7 @@ export default {
         callback(new Error('请输入分组名称'))
       } else {
         if (value.length > 32) {
-          callback(new Error('分组名称为1-32个字符'))
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           if (this.type === 'update' && this.originName === value) {
             callback()
@@ -66,7 +64,6 @@ export default {
       }
     }
     return {
-      editable: true,
       originName: '',
       customForm: {
         name: '',
@@ -82,7 +79,7 @@ export default {
         ],
         describe: [
           {required: true, message: '请输入分组描述', trigger: 'blur'},
-          {max: 255, message: '超出最大长度限制', trigger: 'blur'}
+          {max: 255, message: '请输入0-255位字符', trigger: 'blur'}
         ]
       },
       customGroupList: [],
@@ -91,13 +88,8 @@ export default {
   },
   methods: {
     submitForm (data) {
-      console.log(data)
       this.$http(`/groupCustom/${this.type}`, data).then(res => {
-        if (this.type === 'create') {
-          this.$tip('创建成功')
-        } else {
-          this.$tip('更新成功')
-        }
+        this.$tip('操作成功')
         this.$router.push({path: '/community/custom', params: {cid: this.$route.params.id}})
       })
     },

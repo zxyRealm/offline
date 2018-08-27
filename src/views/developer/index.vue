@@ -20,29 +20,33 @@
         <uu-form
           ref="userInfoForm"
           form-class="user-info-form"
-          :rules="editable?rules:{}"
+          :rules="rules"
           :readonly="!editable"
           :subText="editable?'保存':''"
           @handle-submit="submitForm"
           v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
-            <el-input type="text" :readonly="!!userInfo.phone" placeholder="添加手机号"
+            <p class="readonly__text" v-if="!!userInfo.phone">{{userInfoForm.phone}}</p>
+            <el-input type="text" v-show="!userInfo.phone" placeholder="添加手机号"
                       v-model.trim="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称：" prop="company">
-            <el-input type="text" placeholder="添加公司名称"
+            <p class="readonly__text" v-if="!editable">{{userInfoForm.company}}</p>
+            <el-input type="text" v-show="editable" placeholder="添加公司名称"
                       v-model.trim="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
             <area-select placeholder="选择商铺所在区域" :readonly="!editable" v-model="userInfoForm.pca"></area-select>
           </el-form-item>
           <el-form-item prop="address">
-            <el-input type="text" :readonly="!editable" placeholder="添加商户详细地址"
+            <p class="readonly__text" v-if="!editable">{{userInfoForm.address}}</p>
+            <el-input type="text" v-show="editable" placeholder="添加商户详细地址"
                       v-model.trim="userInfoForm.address"></el-input>
           </el-form-item>
 
           <el-form-item label="联系人：" prop="contacts">
-            <el-input type="text" :readonly="!editable" placeholder="添加联系人"
+            <p class="readonly__text" v-if="!editable">{{userInfoForm.contacts}}</p>
+            <el-input type="text" v-show="editable" placeholder="添加联系人"
                       v-model.trim="userInfoForm.contacts"></el-input>
           </el-form-item>
         </uu-form>
@@ -63,42 +67,42 @@ export default {
   data () {
     // 验证公司名称
     const validCompany = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请添加公司名称'))
-      } else {
+      if (value) {
         if (value.length > 32) {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('公司名称由数字、字母或空格构成'))
+          callback(new Error('请输入正确的公司名称'))
         }
+      } else {
+        callback()
       }
     }
     // 验证地址选取
     const validDetail = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请添加商户详细地址'))
-      } else {
+      if (value) {
         if (value.length > 128) {
           callback(new Error('请输入1-128位字符'))
         } else {
           callback()
         }
+      } else {
+        callback()
       }
     }
     // 验证联系人
     const validContacts = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请添加联系人'))
-      } else {
+      if (value) {
         if (value.length > 32) {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('联系人由数字、字母或空格构成'))
+          callback(new Error('请输入正确的联系人'))
         }
+      } else {
+        callback()
       }
     }
     return {
@@ -110,10 +114,10 @@ export default {
         phone: [
           {validator: validPhone, trigger: 'blur'}
         ],
-        address: [
-          {required: true, message: '选择商铺所在区域', trigger: 'blur'}
+        pca: [
+          {message: '选择商铺所在区域', trigger: 'blur'}
         ],
-        detail: [
+        address: [
           {validator: validDetail, trigger: 'blur'}
         ],
         contacts: [
@@ -137,9 +141,9 @@ export default {
       let pcaArr = data.pca.split(',').map(Number)
       let type = this.userInfo.merchantGuid ? 'update' : 'create'
       if (type === 'update') data.merchantGuid = this.userInfo.merchantGuid
-      data.provinceAreaID = pcaArr[0]
-      data.cityAreaID = pcaArr[1]
-      data.districtAreaID = pcaArr[2]
+      data.provinceAreaID = pcaArr[0] || 0
+      data.cityAreaID = pcaArr[1] || 0
+      data.districtAreaID = pcaArr[2] || 0
       delete data.pca
       this.$http('/merchant/usercenter/update', data).then(res => {
         if (res.result) {
@@ -173,16 +177,17 @@ export default {
       this.$http('/auth/oss/image/signature').then(res => {
         if (res.data) {
           let formData = new FormData()
-          formData.append('key', `merchant/${uid}/${encodeURIComponent(data.file.name)}`)
+          let customName = 'avatar_' + new Date().getTime()
+          formData.append('key', `merchant/${uid}/${customName}`)
           formData.append('policy', res.data['policy'])
           formData.append('OSSAccessKeyId', res.data['accessid'])
           formData.append('success_action_status', '200')
           formData.append('signature', res.data['signature'])
-          formData.append('file', data.file, encodeURIComponent(data.file.name))
+          formData.append('file', data.file, customName)
           // 构建formData 对象，将图片上传至阿里云oss服务
           this.$http(res.data.host, formData).then(back => {
             if (!back.data) {
-              let avatarHref = res.data.host + '/merchant/' + uid + '/' + encodeURIComponent(data.file.name)
+              let avatarHref = res.data.host + '/merchant/' + uid + '/' + customName
               // 图片地址提交后台更新个人头像信息
               this.$http('/merchant/usercenter/image', {faceImgURL: avatarHref}).then(res => {
                 this.$tip('头像上传成功')
@@ -235,6 +240,7 @@ export default {
         this.subLink.title = '编辑'
         this.editable = false
       }
+      this.initData()
       this.$nextTick(() => {
         this.$refs.userInfoForm.$refs.submitForm.clearValidate()
       })
@@ -287,7 +293,7 @@ export default {
       width: 720px;
       height: 300px;
       margin: 15px auto;
-      background: url("/static/img/textarea_border2_bg.png") no-repeat;
+      background: url("/static/img/form_border2_bg.png") no-repeat;
       background-size: 100% 100%;
     }
   }
@@ -305,7 +311,7 @@ export default {
           height: 100%;
           border-radius: 50%;
           overflow: hidden;
-          >img{
+          > img {
             max-width: 100%;
             max-height: 100%;
           }

@@ -45,7 +45,7 @@
                 <p>
                   <span>绑定社群：</span>
                   <span>{{item.groupName}}</span>
-                  <el-tooltip content="解绑社群" placement="top">
+                  <el-tooltip content="解绑社群" v-model="item.tipShow" placement="top">
                     <uu-icon type="relieve" class="fr" @click.native="unBindCommunity(item,$index)"></uu-icon>
                   </el-tooltip>
                 </p>
@@ -229,6 +229,8 @@ export default {
             this.$refs.deviceItem[index].getDeviceState(value, value.deviceStatus === undefined ? null : undefined)
           })
         } else {
+          // 隐藏hover 提示信息
+          setTimeout(() => { value.tipShow = false }, 5)
           done()
         }
       })

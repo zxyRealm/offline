@@ -20,7 +20,8 @@ const state = {
   groupConsoleId: '', // 控制台社群设备id
   groupSelectId: '', // 選擇群id
   loading: true,
-  showBar: true // 是否显示侧边栏
+  showBar: true, // 是否显示侧边栏
+  aliveState: {} // 保存上一页状态值
 }
 
 const actions = {
@@ -49,6 +50,9 @@ const mutations = {
   },
   SET_GROUP_SELECT_ID: (state, data) => {
     state.groupSelectId = data || ''
+  },
+  SET_ALIVE_STATE: (state, data) => {
+    state.aliveState = data || {}
   }
 }
 

@@ -3,7 +3,8 @@
     <div class="community--inner">
       <div class="community--sidebar dashed-border">
         <div class="btn-wrap clearfix">
-          <el-button class="affirm medium ml94" @click="$router.push('/community/custom/create')">创建</el-button>
+          <el-button  class="affirm medium disable">加入</el-button>
+          <el-button class="affirm medium" @click="$router.push('/community/custom/create')">创建</el-button>
         </div>
         <uu-sub-tab
           size="small"
@@ -174,7 +175,7 @@ export default {
     },
     // 设置分组信息 、获取自定义分组成员列表
     setData (data) {
-      this.customGroupInfo = data
+      this.customGroupInfo = this.customGroupList.filter(item => { return item.guid === data.guid })[0] || {}
       this.getMemberList(data.guid)
     },
     customType (type, txt) {
@@ -247,11 +248,13 @@ export default {
       this.$http('/groupCustom/list').then(res => {
         this.customGroupList = res.data
         this.$store.state.loading = false
+        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.customGroupInfo : false) || res.data[0]
         if (res.data[0]) {
           this.$nextTick(() => {
-            this.$refs.customGroup.setCurrentKey(res.data[0].guid)
+            this.$refs.customGroup.setCurrentKey(currentNode.guid)
           })
-          this.setData(res.data[0])
+          this.setData(currentNode)
+          this.$route.meta.keepAlive = false
         }
       })
     },
@@ -280,10 +283,13 @@ export default {
         this.customMemberList = val
       }
     },
-    ...mapState(['loading']),
+    ...mapState(['loading', 'aliveState']),
     scrollbarHeight () {
       return this.customMemberList.length >= 5 ? '247px' : '100%'
     }
+  },
+  beforeDestroy () {
+    this.$store.commit('SET_ALIVE_STATE', {customGroupInfo: this.customGroupInfo})
   }
 }
 </script>

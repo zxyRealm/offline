@@ -136,7 +136,7 @@ export const constantRouterMap = [
         name: 'editCustom',
         meta: {
           title: '编辑分组信息-社群管理-线下浏览器服务平台',
-          keepAlive: false
+          keepAlive: true
         },
         component: editCustom
       },
@@ -416,9 +416,12 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   let aliveObj = {
-    'customCommunity': 'editCustom',
+    'editCustom': 'customCommunity',
     'editCommunity': 'community',
-    'equipmentMore': 'equipment'
+    'equipmentMore': 'equipment',
+    'equipmentMore': 'equipmentChildren',
+    'paramExplain': 'sysNotify',
+    'editNotifyCallback': 'sysNotify'
   }
   // console.log('before ----------', to.name, from.name, to.meta.keepAlive, from.meta.keepAlive)
   fetch('/loginCheck', false).then(() => {
@@ -431,7 +434,6 @@ router.beforeEach((to, from, next) => {
     } else {
       from.meta.keepAlive = false
     }
-    // console.log(to.name, from.name, to.meta.keepAlive, from.meta.keepAlive)
     next()
   }).catch(err => {
     if (err.code === 'ERR-110') {

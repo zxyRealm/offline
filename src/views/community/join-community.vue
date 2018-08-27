@@ -44,7 +44,6 @@
               <p><span>索权范围：</span>{{communityInfo.rule | authority}}</p>
             </div>
           </div>
-
         </el-form-item>
         <el-form-item label-width="86px" v-if="step===2">
           <div class="item-title">
@@ -74,32 +73,36 @@ export default {
       this.communityInfo = {}
       if (!value) {
         this.step = 1
-        callback(new Error('请填写社群邀请码'))
+        callback(new Error('请输入社群邀请码'))
       } else {
-        if (/[\da-zA-Z]{10}/.test(value)) {
-          this.$http('/group/code/info', {code: value}, false).then(res => {
-            if (res.data) {
-              this.communityInfo = res.data
-              if (!this.groupList.length) {
-                this.getGroups()
+        if (value.length === 10) {
+          if (/^[\da-zA-Z]{10}$/.test(value)) {
+            this.$http('/group/code/info', {code: value}, false).then(res => {
+              if (res.data) {
+                this.communityInfo = res.data
+                if (!this.groupList.length) {
+                  this.getGroups()
+                }
+                callback()
+              } else {
+                callback(new Error('邀请码不存在，请重新输入'))
               }
-              callback()
-            } else {
-              callback(new Error('邀请码不存在，请重新输入'))
-            }
-          }).catch(err => {
+            }).catch(err => {
+              this.step = 1
+              callback(new Error(err.msg || '邀请码不存在'))
+            })
+          } else {
             this.step = 1
-            callback(new Error(err.msg || '邀请码不存在'))
-          })
+            callback(new Error('请输入正确的社群邀请码'))
+          }
         } else {
           this.step = 1
-          callback(new Error('请输入正确格式的邀请码'))
+          callback(new Error('请输入10位社群邀请码'))
         }
       }
     }
     return {
       step: 1,
-      editable: true,
       currentCode: '',
       groupList: [],
       communityInfo: {},
@@ -110,10 +113,10 @@ export default {
       },
       rules: {
         groupPid: [
-          {required: true, message: '请选择自有社群', trigger: 'blur'}
+          {required: true, message: '请选择一个自有社群', trigger: 'blur'}
         ],
         groupGuid: [
-          {required: true, message: '请选择自有社群', trigger: 'blur'}
+          {required: true, message: '请选择一个自有社群', trigger: 'blur'}
         ],
         code: [
           {validator: validateCode, trigger: 'change'}
@@ -134,7 +137,10 @@ export default {
           if (res.data) {
             join()
           } else {
-            this.$tip(`您已将【设备操作权限】授权给其他社群,<br>无法加入【${this.communityInfo.name}】`, 'caution')
+            this.$tip(`您已将【设备操作权限】授权给其他社群,
+              <br>无法加入【
+              <span class="maxw200 ellipsis">${this.communityInfo.name}</span>】`,
+            'caution')
           }
         })
       } else {
@@ -163,17 +169,6 @@ export default {
       } else {
         this.step = 2
       }
-    }
-  },
-  computed: {
-    tabTitle: function () {
-      return this.$route.name === 'editCustom' ? '编辑社群分组' : '新建分组'
-    },
-    subText: function () {
-      return this.$route.name === 'editCustom' ? '保存' : '新建'
-    },
-    type: function () {
-      return this.$route.name === 'editCustom' ? 'update' : 'create'
     }
   }
 }

@@ -80,7 +80,6 @@ export function fetch (url, params, isTip = '数据加载中...') {
         reject(res)
       }
     }).catch(error => {
-      // Store.state.loading = false;
       if (isTip) {
         load(isTip).close()
       }

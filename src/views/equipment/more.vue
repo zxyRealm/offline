@@ -1,6 +1,6 @@
 <template>
   <div class="equipment-more-wrap">
-    <uu-sub-tab back :menu-array="[{title:'分析终端用途'}]"></uu-sub-tab>
+    <uu-sub-tab back :menu-array="[{title:'用途详情'}]"></uu-sub-tab>
     <div class="ob-table-wrap">
       <el-table
         :data="deviceList"
@@ -79,7 +79,7 @@ export default {
     const validateName = (rule, value, callback) => {
       if (value) {
         if (value.length > 32) {
-          callback(new Error('别名为1-32个字符'))
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           callback()
         } else {
@@ -114,7 +114,6 @@ export default {
     changeIpcName (index) {
       this.$refs.nickNameForm.validate(valid => {
         if (valid) {
-          console.log(this.ipcListForm)
           this.$http('/device/deviceCamera/name/update', this.ipcListForm).then(res => {
             this.getDeviceList()
             this.$tip('修改成功')
