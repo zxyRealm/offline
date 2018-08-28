@@ -5,7 +5,7 @@
       <div class="detail--right__default clearfix" v-show="state">
         <div class="detail--header">
           <span class="header--title">到访记录详情</span>
-          <img class="detail--close clearfix" src="/static/img/face_recoginiton_close_icon.png" @click="close"/>
+          <img class="detail--close clearfix" src="/static/img/face_recoginiton_close_icon.png" @click="closeShade($event,'你的一哥')"/>
         </div>
         <div class="tip--info">
           <p>Face ID：{{detailInfo.ufaceId}}</p>
@@ -97,14 +97,10 @@ export default {
       this.pageParams.currentPage = val
       this.getDataInParams(this.paramsInSear)
     },
-    // 关闭详情页
-    close (event) {
-      // this.$emit("changeState",false)
-      this.$emit('update:state', false) // 第一种方式优化
-    },
     // 点击遮罩层关闭
-    closeShade (event) {
-      if (event.target.className.indexOf('visited--detail__info') > -1) {
+    closeShade (event, lwh) {
+      event.cancelBubble = true
+      if (event.target.className.indexOf('visited--detail__info') > -1 || event.target.className.indexOf('detail--close') > -1) {
         this.$emit('update:state', false) // 第一种方式优化
       }
     },
