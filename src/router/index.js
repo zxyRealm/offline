@@ -108,8 +108,7 @@ export const constantRouterMap = [
         path: 'mine',
         name: 'community',
         meta: {
-          title: '我的社群-社群管理-线下浏览器服务平台',
-          keepAlive: true
+          title: '我的社群-社群管理-线下浏览器服务平台'
         },
         component: Community
       },
@@ -117,8 +116,7 @@ export const constantRouterMap = [
         path: 'custom',
         name: 'customCommunity',
         meta: {
-          title: '自定义分组-社群管理-线下浏览器服务平台',
-          keepAlive: true
+          title: '自定义分组-社群管理-线下浏览器服务平台'
         },
         component: customCommunity
       },
@@ -423,7 +421,7 @@ router.beforeEach((to, from, next) => {
     'paramExplain': 'sysNotify',
     'editNotifyCallback': 'sysNotify'
   }
-  // console.log('before ----------', to.name, from.name, to.meta.keepAlive, from.meta.keepAlive)
+
   fetch('/loginCheck', false).then(() => {
     if (aliveObj[to.name]) {
       if (from.name === aliveObj[to.name]) {

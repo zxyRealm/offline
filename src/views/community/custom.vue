@@ -6,12 +6,15 @@
           <el-button  class="affirm medium disable">加入</el-button>
           <el-button class="affirm medium" @click="$router.push('/community/custom/create')">创建</el-button>
         </div>
+        <router-link :to="'/community/mine'">我的社群</router-link>
+        <br>
+        <router-link :to="'/community/custom'">自定义分组</router-link>
         <uu-sub-tab
           size="small"
           search
           placeholder="快速查找分组"
           @remote-search="remoteSearch"
-          :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
+          :menu-array="subMenu"></uu-sub-tab>
         <p class="search-empty">{{searchEmpty?'未查询到结果':''}}</p>
         <ob-group-nav
           ref="customGroup"
@@ -115,6 +118,10 @@ export default {
   name: 'custom',
   data () {
     return {
+      subMenu: [
+        {title: '我的社群', index: '/community/mine'},
+        {title: '自定义分组', index: '/community/custom'}
+      ],
       notHave: false,
       dialogFormVisible: false,
       dialogOptions: {

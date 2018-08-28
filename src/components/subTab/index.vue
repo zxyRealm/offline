@@ -3,14 +3,14 @@
     <div class="sub-tab-main vam">
       <i v-if="back" @click="backPrev" class="el-icon-arrow-left"></i>
       <template v-for="(item,$index) in menuArray">
-        <router-link v-if="item.index" :to="item.index">{{item.title}}</router-link>
-        <a href="javascript:void (0)" class="text" v-else>{{item.title}}</a>
+        <router-link v-if="item.index" :key="$index" :to="item.index">{{item.title}}</router-link>
+        <a href="javascript:void (0)" class="text" v-else >{{item.title}}</a>
         <span v-if="$index!==menuArray.length-1" class="separator"></span>
       </template>
     </div>
     <template v-if="subLink.title">
-      <router-link v-if="subLink.index" :to="subLink.index" class="sub-tab-link">{{subLink.title}}</router-link>
-      <a href="javascript:void (0)" class="sub-tab-link" v-else>{{subLink.title}}</a>
+      <!--<router-link v-if="subLink.index" :to="subLink.index" class="sub-tab-link">{{subLink.title}}</router-link>-->
+      <a href="javascript:void (0)" class="sub-tab-link" @click="routeChange(subLink.index)">{{subLink.title}}</a>
     </template>
     <template v-if="showButton && !search">
       <el-button class="affirm medium fr" @click="handleBtn">{{subBtn.text}}</el-button>
@@ -95,6 +95,9 @@ export default {
     // @remote-search 点击图标或回车是触发
     searchMethod () {
       this.$emit('remote-search', this.searchValue.toString().trim())
+    },
+    routeChange (link) {
+      if (link) this.$router.push(link)
     }
   },
   watch: {

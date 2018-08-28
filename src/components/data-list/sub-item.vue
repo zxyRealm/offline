@@ -8,13 +8,13 @@
           trigger="hover">
           <ul class="order-list">
             <li v-show="data.deviceStatus===undefined">尚未【获取】设备状态，无法操作</li>
-            <li v-show="data.groupGuid">已绑定至社群，无法删除</li>
+            <li v-show="data.groupGuid && showDelete">已绑定至社群，无法删除</li>
             <li v-if="data.isHandle===false">设备操作权限已上送，无法操作</li>
             <li v-else-if="data.deviceStatus!==undefined">{{data.deviceStatus | handleMsg}}</li>
           </ul>
           <uu-icon
             slot="reference"
-            v-show="!(data.deviceStatus === 0 && !data.groupGuid)"
+            v-show="data.deviceStatus !== 0 || data.groupGuid || showDelete"
             type="problem"></uu-icon>
         </el-popover>
       </div>
@@ -82,7 +82,7 @@
     <template v-else>
       <p v-if="!router" v-for="(item,$index) in propList" :key="$index">
         <span class="label__title">{{labelList[$index]?labelList[$index]+'：':''}}</span>
-        <el-tooltip v-if="tooltip" :content="format(data[item])" placement="right-start">
+        <el-tooltip v-if="tooltip" :content="format(data[item])" placement="top">
           <span class="ellipsis">{{format(data[item])}}</span>
         </el-tooltip>
         <span v-else class="ellipsis">{{format(data[item])}}</span>

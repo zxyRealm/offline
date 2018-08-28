@@ -8,7 +8,7 @@
       ></uu-sub-tab>
       <ob-list-empty top="70px" text="您还没有创建社群"></ob-list-empty>
     </template>
-    <template v-if="groupList.length">
+    <template v-show="groupList.length">
       <div class="community--inner">
         <div class="community--sidebar dashed-border">
           <div class="btn-wrap">
@@ -20,7 +20,7 @@
             search
             placeholder="快速查找社群"
             @remote-search="remoteSearch"
-            :menu-array="[{title:'我的社群',index:'/community/mine'},{title:'自定义分组',index:'/community/custom'}]"></uu-sub-tab>
+            :menu-array="subMenu"></uu-sub-tab>
           <p class="search-empty">{{searchEmpty?'未查询到结果':''}}</p>
           <ob-group-nav
             ref="groupNav"
@@ -197,6 +197,10 @@ export default {
       }
     }
     return {
+      subMenu: [
+        {title: '我的社群', index: '/community/mine'},
+        {title: '自定义分组', index: '/community/custom'}
+      ],
       originName: '',
       groupList: [], // 社群列表
       tableData: [],
