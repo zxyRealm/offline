@@ -120,7 +120,6 @@ export default {
       }
     },
     currentChange (val) {
-      console.log(val)
       this.selectValue = val
       this.currentGroup = val.currentNode.groupGuid
     },
@@ -162,7 +161,6 @@ export default {
       } else if (!this.equipmentList.length) {
         txt = '该社群尚未绑定设备'
       }
-      // return !this.isSearch ? '查询不到该设备' : !this.currentGroup ? '请先在左侧选择自有社群，以查看其下的子社群设备' : (!this.equipmentList.length ? '该社群尚未绑定设备' : '')
       return txt
     },
     small () {

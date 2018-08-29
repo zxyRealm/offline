@@ -101,6 +101,7 @@
 <script>
 import {parseTime} from '@/utils'
 import {validateRule} from '@/utils/validate'
+
 export default {
   name: 'ob-list-item',
   props: {
@@ -218,8 +219,8 @@ export default {
         if (this.data.deviceStatus !== undefined && show) {
           this.$tip('刷新成功')
         }
-        // res.data = Math.floor(Math.random() * 7)
-        // console.log('state', res.data)
+        res.data = Math.floor(Math.random() * 7)
+        console.log('state', res.data)
         if (res.data !== 1) {
           if (value.groupGuid) {
             // 获取设备操作权限，已授权其他社群后自己不可操作
@@ -235,6 +236,10 @@ export default {
           }
         }
         this.$set(value, 'deviceStatus', res.data)
+      }).catch(error => {
+        console.log(error)
+        if (error.code) {
+        }
       })
     },
     handleDevice (type) {
@@ -265,44 +270,50 @@ export default {
           url = '/device/startOrShutdown'
       }
       if (value.deviceStatus !== 0 && value.deviceStatus !== 1 && value.deviceStatus !== 5) {
-        this.$tip(`设备【<span class="maxw110 ellipsis">${value.deviceName}</span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
+        this.$tip(`设备【<span class="maxw110 ellipsis">
+              ${value.deviceName}
+            </span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
         return false
       }
-      this.$affirm({text: `确定${des}设备【<span class="maxw200 ellipsis">${value.deviceName}</span>】?`}, (action, instance, done) => {
-        if (action === 'confirm') {
-          done()
-          let subData = {deviceKey: this.data.deviceKey}
-          if (type === 'run') subData.operationCode = value.deviceStatus === 5 ? 0 : 1
-          this.$load(`正在${des}中...`)
-          switch (type) {
-            case 'reboot':
-              this.$set(value, 'deviceStatus', 2)
-              break
-            case 'reset':
-              this.$set(value, 'deviceStatus', 3)
-              break
-            case 'upgrade':
-              this.$set(value, 'deviceStatus', 4)
-              break
-            case 'run':
-              if (value.deviceStatus === 0) {
-                this.$set(value, 'deviceStatus', 7)
-              } else {
-                this.$set(value, 'deviceStatus', 6)
+      this.$affirm({text: `确定${des}设备【<span class="maxw200 ellipsis">${value.deviceName}</span>】?`},
+        (action, instance, done) => {
+          if (action === 'confirm') {
+            done()
+            let subData = {deviceKey: this.data.deviceKey}
+            if (type === 'run') subData.operationCode = value.deviceStatus === 5 ? 0 : 1
+            this.$load(`正在${des}中...`)
+            // switch (type) {
+            //   case 'reboot':
+            //     this.$set(value, 'deviceStatus', 2)
+            //     break
+            //   case 'reset':
+            //     this.$set(value, 'deviceStatus', 3)
+            //     break
+            //   case 'upgrade':
+            //     this.$set(value, 'deviceStatus', 4)
+            //     break
+            //   case 'run':
+            //     if (value.deviceStatus === 0) {
+            //       this.$set(value, 'deviceStatus', 7)
+            //     } else {
+            //       this.$set(value, 'deviceStatus', 6)
+            //     }
+            //     break
+            // }
+            this.$http(url, subData).then(res => {
+              this.$load().close()
+              this.$set(value, 'deviceStatus', res.data)
+              this.$tip(`设备【<span class="maxw110 ellipsis">${value.deviceName}</span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
+            }).catch(error => {
+              this.$load().close()
+              if (error.code && error.msg) {
+                this.$set(value, 'deviceStatus', error.data === null ? 1 : error.data)
               }
-              break
+            })
+          } else {
+            done()
           }
-          this.$http(url, subData).then(res => {
-            this.$load().close()
-            this.$tip(`设备【<span class="maxw110 ellipsis">${value.deviceName}</span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
-          }).catch(() => {
-            this.$load().close()
-            this.getDeviceState()
-          })
-        } else {
-          done()
-        }
-      })
+        })
     },
     // 操作按钮状态控制
     btnState (val, type) {
@@ -512,7 +523,7 @@ export default {
   }
 
   .ob-list-sub-item {
-    .table__label{
+    .table__label {
       display: inline-block;
       width: 62px;
     }
