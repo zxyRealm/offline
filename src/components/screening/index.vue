@@ -103,7 +103,7 @@ export default {
     // 确定弹框
     remoteSubmit (data) {
       if ((!data || data.length === 0)) {
-        this.$tip('请输入社群名称', 'error')
+        this.$tip('请选择社群', 'error')
         return
       }
       this.dialogFormVisible = false
@@ -139,11 +139,11 @@ export default {
     // 查询
     submitForm () {
       if (this.filterParams.groupGuid === '') {
-        this.$tip('请输入社群名称', 'error')
+        this.$tip('请选择社群', 'error')
         return
       }
       if (this.filterParams.dimension > 1 && this.filterParams.timeArray.length == 0) {
-        this.$tip('请输入时间', 'error')
+        this.$tip('请选择时间', 'error')
         return
       }
 
