@@ -143,7 +143,7 @@ export default {
         ],
         address: [
           {message: '请输入详细地址', trigger: 'blur'},
-          {max: 128, message: '请输入0-128位字符', trigger: 'blur'}
+          {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
         ],
         contact: [
           {validator: validateContact, trigger: 'blur'}

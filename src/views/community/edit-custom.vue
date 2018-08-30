@@ -79,7 +79,7 @@ export default {
         ],
         describe: [
           {required: true, message: '请输入分组描述', trigger: 'blur'},
-          {max: 255, message: '请输入0-255位字符', trigger: 'blur'}
+          {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
         ]
       },
       customGroupList: [],

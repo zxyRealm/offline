@@ -193,7 +193,10 @@ export default {
     currentChange (val, node) {
       if (val[this.nodeKey] !== this.currentNode) {
         if (this.type === 'device') {
-          this.$emit('current-change', {selectNode: this.currentGroup, currentNode: val})
+          this.$emit('current-change', {
+            selectNode: this.currentGroup,
+            currentNode: val,
+            node: this.GroupList[this.currentGroup][this.defaultProps.children]})
         } else {
           this.$emit('current-change', val, node)
         }
@@ -204,7 +207,7 @@ export default {
     selectChange (index) {
       this.TreeList = this.GroupList[index][this.defaultProps.children]
       this.currentNode = ''
-      this.$emit('current-change', {selectNode: index, currentNode: ''})
+      this.$emit('current-change', {selectNode: index, currentNode: '', node: this.GroupList[index][this.defaultProps.children]})
     },
     isHandle (val) {
       return (val || '').split(',').length === 2

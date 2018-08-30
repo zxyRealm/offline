@@ -203,7 +203,7 @@ export default {
           {required: true, message: '请选择一个自有社群', trigger: 'change'}
         ],
         deviceScene: [
-          {max: 255, message: '请输入0-255位字符', trigger: 'blur'}
+          {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
         ]
       },
       optionsGroup: [],
