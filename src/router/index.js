@@ -416,15 +416,15 @@ router.beforeEach((to, from, next) => {
   let aliveObj = {
     'editCustom': 'customCommunity',
     'editCommunity': 'community',
-    'equipmentMore': 'equipment',
-    'equipmentMore': 'equipmentChildren',
+    'equipmentMore': 'equipmentChildren,equipment',
     'paramExplain': 'sysNotify',
     'editNotifyCallback': 'sysNotify'
   }
 
   fetch('/loginCheck', false).then(() => {
     if (aliveObj[to.name]) {
-      if (from.name === aliveObj[to.name]) {
+      let nameSet = new Set(aliveObj[to.name].split(','))
+      if (nameSet.has(from.name)) {
         from.meta.keepAlive = true
       } else {
         from.meta.keepAlive = false

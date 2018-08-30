@@ -201,7 +201,7 @@ export default {
     },
     // 获取自有设备
     getMineEquipment (page) {
-      page = page || this.pagination.index || 1
+      page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : 1) || 1
       this.$http('/device/list', {index: page, searchText: this.$route.params.key || '', length: 8}).then(res => {
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination
@@ -225,7 +225,6 @@ export default {
           }).then(res => {
             this.$tip('解绑成功')
             this.$set(value, 'groupGuid', null)
-            console.log(this.$refs.deviceItem)
             this.$refs.deviceItem[index].getDeviceState(value, value.deviceStatus === undefined ? null : undefined)
           })
         } else {
@@ -239,7 +238,6 @@ export default {
     bindCommunity (data) {
       this.dialogFormVisible = false
       this.$load('设备绑定中...')
-      console.log(data, data.deviceScene.length)
       this.$http('/device/binding', data).then(res => {
         this.$load().close()
         this.$tip('绑定成功')
@@ -266,14 +264,27 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loading'])
+    ...mapState(['loading', 'aliveState'])
   },
   watch: {
-    $route: function (val) {
-      this.isSearch = (val.name === 'searchMine')
-      this.equipmentList = []
-      this.getMineEquipment()
+    '$route': {
+      handler (val) {
+        // if (val.name === 'equipment') {
+        //   this.$store.commit('SET_ALIVE_STATE', {
+        //     pagination: this.pagination
+        //   })
+        // }
+        this.isSearch = (val.name === 'searchMine')
+        this.equipmentList = []
+        this.getMineEquipment()
+      },
+      deep: true
     }
+  },
+  beforeDestroy () {
+    this.$store.commit('SET_ALIVE_STATE', {
+      pagination: this.pagination
+    })
   }
 }
 </script>

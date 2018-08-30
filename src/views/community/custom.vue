@@ -6,9 +6,6 @@
           <el-button  class="affirm medium disable">加入</el-button>
           <el-button class="affirm medium" @click="$router.push('/community/custom/create')">创建</el-button>
         </div>
-        <router-link :to="'/community/mine'">我的社群</router-link>
-        <br>
-        <router-link :to="'/community/custom'">自定义分组</router-link>
         <uu-sub-tab
           size="small"
           search
