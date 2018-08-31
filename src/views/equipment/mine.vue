@@ -140,11 +140,13 @@ export default {
     }
   },
   methods: {
+    // 自有设备搜索
     search (val) {
       if (val) {
         this.$router.push(`/equipment/search/mine/${val}`)
       }
     },
+    // 弹窗表单提交
     submitForm (data) {
       if (this.dialogOptions.type === 'device') {
         // 添加商户设备
@@ -162,6 +164,7 @@ export default {
         this.bindCommunity(data)
       }
     },
+    // 获取社群树形结构数据
     getGroupList () {
       this.$http('/group/list').then(res => {
         this.groupList = res.data

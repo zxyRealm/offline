@@ -219,8 +219,8 @@ export default {
         if (this.data.deviceStatus !== undefined && show) {
           this.$tip('刷新成功')
         }
-        res.data = Math.floor(Math.random() * 7)
-        console.log('state', res.data)
+        // res.data = Math.floor(Math.random() * 7)
+        // console.log('state', res.data)
         if (res.data !== 1) {
           if (value.groupGuid) {
             // 获取设备操作权限，已授权其他社群后自己不可操作

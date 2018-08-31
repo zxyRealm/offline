@@ -50,7 +50,7 @@
             <el-radio-button :label="3">人脸抓拍一体机</el-radio-button>
           </el-radio-group>
         </el-form-item>
-        <el-form-item class="tac">
+        <el-form-item v-show="dialogForm.type" class="tac">
           <img v-if="dialogForm.type===1" src="./image/analysis_terminal_icon.png" alt="分析终端">
           <img v-if="dialogForm.type===2 || dialogForm.type===3" src="./image/all_in_one_icon.png" alt="一体机">
         </el-form-item>
@@ -64,6 +64,12 @@
         </el-form-item>
         <el-form-item label="应用场景：" :label-width="formLabelWidth" prop="deviceScene">
           <el-input type="textarea" v-model.trim="dialogForm.deviceScene" placeholder="请输入应用场景"
+                    auto-complete="off"></el-input>
+        </el-form-item>
+      </template>
+      <template v-if="type==='apply'">
+        <el-form-item label="申请理由：" :label-width="formLabelWidth" prop="intro">
+          <el-input type="textarea" v-model.trim="dialogForm.intro" placeholder="请输入申请理由"
                     auto-complete="off"></el-input>
         </el-form-item>
       </template>
@@ -94,7 +100,7 @@ export default {
       type: [Object],
       default: () => ({})
     },
-    type: {
+    type: { // group 自定义分组添加社群/控制台选择社群 community 绑定社群 device 添加设备 apply 申请开发者
       type: [String],
       default: 'device'
     },
@@ -204,6 +210,10 @@ export default {
         ],
         deviceScene: [
           {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
+        ],
+        intro: [
+          {required: true, message: '请输入申请理由', trigger: 'blur'},
+          {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
         ]
       },
       optionsGroup: [],
@@ -275,6 +285,7 @@ export default {
     }
   },
   created () {
+    if (this.type === 'apply') this.dialogForm = this.value
     // this.getDisabledKeys = this.disabledKeys
   },
   beforeDestroy () {
@@ -330,6 +341,9 @@ export default {
       .el-scrollbar {
         margin: 0 auto;
       }
+    }
+    .el-dialog__footer{
+      padding-bottom: 30px;
     }
     .el-button + .el-button {
       margin-left: 0;

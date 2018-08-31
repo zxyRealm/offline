@@ -3,11 +3,13 @@
     <uu-sub-tab :menu-array="menu"></uu-sub-tab>
     <div class="developer-api-inner">
       <div class="developer-api-header">
-        <h3>开发者信息</h3>
+        <h3 :class="{fl:!devInfo || !devInfo.accessKey}">{{(devInfo && devInfo.accessKey) ? '开发者信息': '开发者申请'}}</h3>
         <div class="developer-detail fs12 clearfix">
-          <p>AccessKey：{{devInfo.accessKey}}</p>
-          <p>AccessSecret：{{devInfo.accessSecret}}
-          </p>
+          <template v-if="devInfo && devInfo.accessKey">
+            <p>AccessKey：{{devInfo.accessKey}}</p>
+            <p>AccessSecret：{{devInfo.accessSecret}}</p>
+          </template>
+          <el-button class="affirm medium fr" @click="dialogFormVisible = true" v-if="loading && !devInfo">申请</el-button>
         </div>
       </div>
       <div class="developer-api-container clearfix">
@@ -55,10 +57,19 @@
         </div>
       </div>
     </div>
+
+    <ob-dialog-form
+      v-model="applyForm"
+      @remote-submit="applyDeveloper"
+      :type="dialogOptions.type"
+      :title="dialogOptions.title"
+      :visible.sync="dialogFormVisible">
+    </ob-dialog-form>
   </div>
 </template>
 
 <script>
+import {mapState} from 'vuex'
 export default {
   name: 'api',
   data () {
@@ -69,6 +80,14 @@ export default {
       ],
       isShow: false,
       devInfo: {},
+      applyForm: { // 申请开发者
+        intro: '' // 申请原因
+      },
+      dialogOptions: { // 弹窗组件配置信息
+        type: 'apply', // 弹窗类型
+        title: '开发者申请' // 弹窗标题
+      },
+      dialogFormVisible: false, // 表单弹窗是否显示
       currentData: [],
       tokenData: [
         {title: '描述', info: '线下浏览器云端服务器需要鉴定用户是否有权调用业务接口，token为接口调用凭证，是线下浏览器接口请求的基本参数之一。'},
@@ -342,6 +361,16 @@ export default {
       this.$http('/developer/find').then(res => {
         this.devInfo = res.data
       })
+    },
+    // 申请开发者
+    applyDeveloper (data) {
+      this.$http('/developer/apply', data).then(res => {
+        this.$tip('申请成功')
+        this.dialogFormVisible = false
+        this.getDeveloperInfo()
+      }).catch(() => {
+        this.dialogFormVisible = false
+      })
     }
   },
   mounted () {
@@ -352,6 +381,9 @@ export default {
     '$route': function (val) {
       this.routeChange(val)
     }
+  },
+  computed: {
+    ...mapState(['loading'])
   }
 }
 </script>
