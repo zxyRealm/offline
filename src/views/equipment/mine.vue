@@ -241,6 +241,7 @@ export default {
     bindCommunity (data) {
       this.dialogFormVisible = false
       this.$load('设备绑定中...')
+      data.name = data.deviceName
       this.$http('/device/binding', data).then(res => {
         this.$load().close()
         this.$tip('绑定成功')

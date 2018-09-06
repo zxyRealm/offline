@@ -281,7 +281,6 @@ export default {
                 setArr.push(item.uniqueKey)
               }
             })
-
             let current = getCurrent()
             this.expandedKeys = setArr
             this.$refs.groupNav.setCheckedKeys(setArr)
