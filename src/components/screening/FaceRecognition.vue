@@ -47,6 +47,7 @@ export default {
         }
       },
       params: { // 开发条件
+        groupGuid: '', // 新曾设备匹配groupGuid
         deviceKey: '',
         startTime: '',
         endTime: ''
@@ -64,11 +65,22 @@ export default {
         this.params.startTime = ''
         this.params.endTime = ''
       }
+      this.addGroupGuid()
       this.$emit('search-params', this.params)
     },
+    // 新增上传设备guid
+    addGroupGuid () {
+      this.options.forEach((val, index) => {
+        if (val.deviceKey === this.params.deviceKey) {
+          this.params.groupGuid = val.groupGuid
+        }
+      })
+    },
+    // 转化参数
     resolveData (data) {
       this.options = [...data]
       this.params = { // 重置开发条件
+        groupGuid: '',
         deviceKey: '',
         startTime: '',
         endTime: ''

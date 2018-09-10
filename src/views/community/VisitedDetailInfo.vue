@@ -79,6 +79,7 @@ export default {
   },
   data () {
     return {
+      groupGuid: '', // 新增设备groupGuid
       show: true, // 是否显示组件
       pageParams: {
         pageSize: 6, // 默认每页显示10条
@@ -113,7 +114,7 @@ export default {
     // 根据查询条件查询数据
     getDataInParams (params) {
       let paramsSearch = {
-        groupGuid: this.detailInfo.groupGuid,
+        groupGuid: (params && params.groupGuid) || this.detailInfo.groupGuid, // 新增设备绑定groupgGuid
         ufaceId: this.detailInfo.ufaceId,
         deviceKey: (params && params.deviceKey) || '',
         cameraName: this.detailInfo.cameraName,
