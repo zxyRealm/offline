@@ -9,7 +9,7 @@
             <p>AccessKey：{{devInfo.accessKey}}</p>
             <p>AccessSecret：{{devInfo.accessSecret}}</p>
           </template>
-          <el-button class="affirm medium fr" @click="dialogFormVisible = true" v-if="loading && !devInfo">申请</el-button>
+          <el-button class="affirm medium fr" @click="dialogFormVisible = true" v-if="!loading && (!devInfo || ! devInfo.accessKey)">申请</el-button>
         </div>
       </div>
       <div class="developer-api-container clearfix">
