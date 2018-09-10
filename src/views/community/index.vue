@@ -146,9 +146,12 @@
                 </el-table>
               </el-scrollbar>
             </div>
-            <!-- lwh-识别人脸库 -->
-            <face-recognition-store :guid="communityInfo.guid" :deviceList="deviceList"
-                                    v-if="!(communityInfo.groupPid)"></face-recognition-store>
+            <!-- lwh-识别人脸库   v-if="!(communityInfo.groupPid)"-->
+            <face-recognition-store
+              :guid="communityInfo.guid"
+              :deviceList="deviceList"
+            v-if="!communityInfo.groupPid">
+            </face-recognition-store>
           </el-scrollbar>
         </div>
       </div>

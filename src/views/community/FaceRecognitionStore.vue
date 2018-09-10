@@ -77,6 +77,7 @@ export default {
   },
   data () {
     return {
+      groupGuid: '', // 新增设备groupGuid
       paramsInSear: { // 查询条件
       },
       detailInfo: {}, // 详情页
@@ -104,6 +105,7 @@ export default {
     },
     // 触发查询条件
     getFaceData (params) {
+      this.groupGuid = params.groupGuid  // 新曾需求
       this.paramsInSear = {...params}
       this.pageParams.currentPage = 1
       this.getDataInParams(this.paramsInSear)
@@ -111,7 +113,7 @@ export default {
     // 根据查询条件查询数据
     getDataInParams (params) {
       let paramsSearch = {
-        groupGuid: this.guid,
+        groupGuid: this.groupGuid || this.guid,
         deviceKey: (params && params.deviceKey) || '',
         cameraName: '',
         startTime: (params && params.startTime) || '',
@@ -145,6 +147,7 @@ export default {
         return
       }
       // 初次进来默为1
+      this.groupGuid = this.guid
       this.pageParams.currentPage = 1
       this.getDataInParams()
     },
