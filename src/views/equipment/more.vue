@@ -56,7 +56,7 @@
         </el-table-column>
         <el-table-column
           align="center"
-          prop="deviceKey"
+          prop="cameraKey"
           label="序列号"
           width="150px">
         </el-table-column>

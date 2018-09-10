@@ -93,27 +93,6 @@ import {mapState} from 'vuex'
 export default {
   name: 'index',
   data () {
-    // 校验设备别名
-    const validateName = (rule, value, callback) => {
-      value = value.trim()
-      if (!value) {
-        callback(new Error('设备别名不能为空'))
-      } else {
-        if (value.length >= 2 && value.length <= 18) {
-          this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
-            if (res.data) {
-              callback(new Error(res.msg))
-            } else {
-              callback()
-            }
-          }).catch(err => {
-            callback(new Error(err.msg || '验证失败'))
-          })
-        } else {
-          callback(new Error('别名长度为2-18个字符'))
-        }
-      }
-    }
     return {
       dialogOptions: { // dialog 弹窗配置 类型 标题文本
         type: 'device',
@@ -132,9 +111,6 @@ export default {
       groupList: [], // 自有社群列表
       equipmentList: [], // 设备列表
       pagination: {}, // 分页信息
-      rules: [
-        {required: true, validator: validateName, trigger: 'blur'}
-      ],
       dialogFormVisible: false,
       isSearch: false
     }
