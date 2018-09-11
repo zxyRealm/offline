@@ -10,9 +10,9 @@
             <li v-show="data.deviceStatus===undefined">尚未【获取】设备状态，无法操作</li>
             <li v-show="data.groupGuid && showDelete">已绑定至社群，无法删除</li>
             <li v-if="data.isHandle===false">
-              {{data.groupPid ? '尚无该设备的操作权限，无法操作' : '设备操作权限已上送，无法操作'}}
+              {{!showDelete ? '尚无该设备的操作权限，无法操作' : '设备操作权限已上送，无法操作'}}
             </li>
-            <li v-else-if="data.deviceStatus!==undefined">{{data.deviceStatus | handleMsg}}</li>
+            <li v-else-if="data.deviceStatus">{{data.deviceStatus | handleMsg}}</li>
           </ul>
           <uu-icon
             slot="reference"
@@ -221,7 +221,7 @@ export default {
         if (this.data.deviceStatus !== undefined && show) {
           this.$tip('刷新成功')
         }
-        res.data = Math.floor(Math.random() * 7)
+        // res.data = Math.floor(Math.random() * 7)
         console.log('state', res.data)
         if (res.data !== 1) {
           if (value.groupGuid) {
@@ -229,13 +229,13 @@ export default {
             let url = '/merchant/device/operationPermission'
             if (this.isChild) url = '/merchant/device/permission/search'
             this.$http(url, {guid: value.groupGuid}).then(res2 => {
-              if (!res2.data) {
-                this.$set(this.data, 'isHandle', res2.data)
-              }
+              this.$set(this.data, 'isHandle', res2.data)
             })
           } else {
             this.$set(value, 'isHandle', true)
           }
+        } else {
+          this.$set(value, 'isHandle', true)
         }
         this.$set(value, 'deviceStatus', res.data)
       }).catch(error => {
@@ -480,7 +480,7 @@ export default {
       let msg = ''
       switch (val) {
         case 1:
-          msg = '设备状态异常（离线），无法操作'
+          msg = '设备状态异常，无法操作'
           break
         case 2:
           msg = '设备重启中，无法进行其他操作'
