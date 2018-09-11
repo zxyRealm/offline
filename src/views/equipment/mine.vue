@@ -180,7 +180,7 @@ export default {
     },
     // 获取自有设备
     getMineEquipment (page) {
-      page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : 1) || 1
+      page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
       this.$http('/device/list', {index: page, searchText: this.$route.params.key || '', length: 8}).then(res => {
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination

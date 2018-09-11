@@ -104,7 +104,7 @@ export function message (txt, type, delay = 1500) {
     dangerouslyUseHTMLString: true,
     duration: delay,
     type: type
-  })
+  }).startTimer()
 }
 
 // 重新登录确认框
