@@ -5,6 +5,10 @@
       <el-form-item label="选择社群：" prop="groupGuidName">
         <input
           class="group-name-input"
+          :autofocus="false"
+          :clearable="false"
+          :clear-icon="''"
+          :prefix-icon="''"
           type="text"
           v-model="filterParams.groupGuidName"
           @click="groupGuidNameClick"
@@ -30,7 +34,8 @@
           class="picker-data"
           :picker-options="pickerOptions1"
           :clearable="false"
-          prefix-icon="''"
+          :clear-icon="''"
+          :prefix-icon="''"
         >
         </el-date-picker>
         <el-date-picker
@@ -198,7 +203,8 @@ export default {
     }
     .el-range-editor--small.el-input__inner {
       height: 28px;
-      line-height: 28px;
+      /*line-height: 28px;*/
+      line-height: 1;
       padding-left: 4px;
     }
     .picker-data {
@@ -220,9 +226,9 @@ export default {
       padding-left: 12px;
       color: #000000;
     }
-    .el-range-editor--small .el-range-input {
+    .el-range-editor--small .el-range-input, .group-name-input {
       padding-left: 2px;
-      color: #000000;
+      color: rgba(0, 0, 0, 0.72);
     }
   }
 </style>
@@ -271,7 +277,7 @@ export default {
           border-left: 6px solid transparent;
           border-top: 6px solid rgba(0, 0, 0, 0.6);
           top: -6px;
-          left: -32px;
+          left: -30px;
           cursor: pointer;
           position: absolute;
         }
@@ -295,6 +301,7 @@ export default {
       .dimension-button {
         width: 48px;
         height: 28px;
+        line-height: 16px;
         background: transparent;
         border: 1px solid #ffffff;
         color: #ffffff;
@@ -304,7 +311,7 @@ export default {
         cursor: pointer;
       }
       .actived {
-        /*color: #2187DF;*/
+        color: #2187DF;
         border: 1px solid; /*#2187DF*/
         border-image: linear-gradient(to right, #0F9DE8, #8440CA) 6;
         /*box-shadow: 0 2px 4px 0 rgba(22,20,24,0.50);*/

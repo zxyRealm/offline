@@ -98,16 +98,31 @@ export default {
   }
 }
 </script>
+<style>
+  .face--recognition__wrap  .el-input__inner {
+    line-height: 30px;
+  }
+  :-ms-input-placeholder{color:#ffffff;}
+  .placeholder {position: absolute;top: 0;z-index: 10;color: #ffffff;}
+</style>
 <style rel="stylesheet/scss" lang="scss">
   .face--recognition__wrap {
     width: 100%;
     height: 50px;
-    padding: 10px 0;
+    padding: 10px 0 !important;
     box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
     white-space: nowrap;
     div.label_div {
       display: inline-block !important;
+      -moz-display: inline-block;
+      -ms-display: inline-block;
+      display: inline-block;
       margin-right: 8px;
+      height: 32px;
+      line-height: 32px;
+      boder:0;overflow:hidden;
       .el-date-editor .el-range-input {
         width: 140px;
       }
@@ -143,7 +158,7 @@ export default {
     .el--select__default .el-input--small input.el-input__inner {
       width: 154px;
       height: 32px;
-      line-height: 32px;
+      line-height: 34px;
     }
     .el-select .el-input .el-select__caret.is-show-close {
       &:hover {

@@ -114,6 +114,9 @@ export default {
           tableEle = document.body.clientHeight - 631
         }
         // tableHead.style.minHeight = tableEle + "px";
+        if (this.tableData.length === 0) {
+          tableEle = 0
+        }
         table.style.height = tableEle + 'px'
       })
     },
