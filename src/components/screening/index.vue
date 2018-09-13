@@ -48,7 +48,7 @@
           prefix-icon="''"
         >
         </el-date-picker>
-        <span class="icon-select"></span>
+        <span class="time--position"></span>
       </el-form-item>
       <el-form-item>
         <el-button class="affirm" @click.stop.prevent="submitForm()">查询</el-button>
@@ -259,6 +259,22 @@ export default {
         border: none;
         background-size: 100% 100%;
         cursor: pointer;
+      }
+      .time--position {
+        display: inline-block;
+        position: relative;
+        &::after {
+          content: "";
+          width: 0px;
+          height: 0px;
+          border-right: 6px solid transparent;
+          border-left: 6px solid transparent;
+          border-top: 6px solid rgba(0, 0, 0, 0.6);
+          top: -6px;
+          left: -32px;
+          cursor: pointer;
+          position: absolute;
+        }
       }
       .icon-select {
         display: inline-block;
