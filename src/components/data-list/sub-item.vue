@@ -9,12 +9,12 @@
           <ul class="order-list">
             <li v-show="data.deviceStatus===undefined">尚未【获取】设备状态，无法操作</li>
             <li v-show="data.groupGuid && showDelete">已绑定至社群，无法删除</li>
-            <li v-if="data.isHandle===false">设备操作权限已上送，无法操作</li>
-            <li v-else-if="data.deviceStatus!==undefined">{{data.deviceStatus | handleMsg}}</li>
+            <li v-if="data.isHandle===false">{{!showDelete ? '尚无该设备的操作权限，无法操作' : '设备操作权限已上送，无法操作'}}</li>
+            <li v-else-if="data.deviceStatus">{{data.deviceStatus | handleMsg}}</li>
           </ul>
           <uu-icon
             slot="reference"
-            v-show="data.deviceStatus !== 0 || data.groupGuid || showDelete"
+            v-show="!(data.deviceStatus === 0 && !data.groupGuid) || (data.groupGuid && showDelete)"
             type="problem"></uu-icon>
         </el-popover>
       </div>
@@ -41,9 +41,7 @@
       <p>
         <span class="label__title">设备别名：</span>
         <el-tooltip v-if="!isAmend" :content="data.deviceName" placement="top">
-           <span class="ellipsis">
-             {{data.deviceName}}
-            </span>
+           <span class="ellipsis">{{data.deviceName}}</span>
         </el-tooltip>
         <el-popover
           v-else
@@ -220,20 +218,20 @@ export default {
           this.$tip('刷新成功')
         }
         // res.data = Math.floor(Math.random() * 7)
-        // console.log('state', res.data)
+        console.log('state', res.data)
         if (res.data !== 1) {
           if (value.groupGuid) {
             // 获取设备操作权限，已授权其他社群后自己不可操作
             let url = '/merchant/device/operationPermission'
             if (this.isChild) url = '/merchant/device/permission/search'
             this.$http(url, {guid: value.groupGuid}).then(res2 => {
-              if (!res2.data) {
-                this.$set(this.data, 'isHandle', res2.data)
-              }
+              this.$set(this.data, 'isHandle', res2.data)
             })
           } else {
             this.$set(value, 'isHandle', true)
           }
+        } else {
+          this.$set(value, 'isHandle', true)
         }
         this.$set(value, 'deviceStatus', res.data)
       }).catch(error => {
@@ -282,27 +280,26 @@ export default {
             let subData = {deviceKey: this.data.deviceKey}
             if (type === 'run') subData.operationCode = value.deviceStatus === 5 ? 0 : 1
             this.$load(`正在${des}中...`)
-            // switch (type) {
-            //   case 'reboot':
-            //     this.$set(value, 'deviceStatus', 2)
-            //     break
-            //   case 'reset':
-            //     this.$set(value, 'deviceStatus', 3)
-            //     break
-            //   case 'upgrade':
-            //     this.$set(value, 'deviceStatus', 4)
-            //     break
-            //   case 'run':
-            //     if (value.deviceStatus === 0) {
-            //       this.$set(value, 'deviceStatus', 7)
-            //     } else {
-            //       this.$set(value, 'deviceStatus', 6)
-            //     }
-            //     break
-            // }
             this.$http(url, subData).then(res => {
               this.$load().close()
-              this.$set(value, 'deviceStatus', res.data)
+              switch (type) {
+                case 'reboot':
+                  this.$set(value, 'deviceStatus', 2)
+                  break
+                case 'reset':
+                  this.$set(value, 'deviceStatus', 3)
+                  break
+                case 'upgrade':
+                  this.$set(value, 'deviceStatus', 4)
+                  break
+                case 'run':
+                  if (value.deviceStatus === 0) {
+                    this.$set(value, 'deviceStatus', 7)
+                  } else {
+                    this.$set(value, 'deviceStatus', 6)
+                  }
+                  break
+              }
               this.$tip(`设备【<span class="maxw110 ellipsis">${value.deviceName}</span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
             }).catch(error => {
               this.$load().close()
@@ -422,7 +419,7 @@ export default {
           if (action === 'confirm') {
             this.$http('/merchant/device/delete', {deviceKey: item.deviceKey}).then(res => {
               this.$tip('删除成功')
-              this.$emit('refresh', 'delete')
+              this.$emit('refresh')
             })
             done()
           } else {
@@ -479,25 +476,25 @@ export default {
       let msg = ''
       switch (val) {
         case 1:
-          msg = '设备状态异常（离线），无法操作'
+          msg = '设备状态异常，无法操作'
           break
         case 2:
-          msg = '设备重启中，无法操作'
+          msg = '设备重启中，无法进行其他操作'
           break
         case 3:
-          msg = '设备重置中，无法操作'
+          msg = '设备重置中，无法进行其他操作'
           break
         case 4:
-          msg = '设备升级中，无法操作'
+          msg = '设备升级中，无法进行其他操作'
           break
         case 5:
           msg = '设备未启用，无法操作'
           break
         case 6:
-          msg = '设备启用中，无法操作'
+          msg = '设备启用中，无法进行其他操作'
           break
         case 7:
-          msg = '设备禁用中，无法操作'
+          msg = '设备禁用中，无法进行其他操作'
           break
         default:
           msg = ''

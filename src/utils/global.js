@@ -25,6 +25,12 @@ exports.install = function (Vue, options) {
           localStorage.clear()
           Cookies.remove('guid')
           window.location.href = `${res.data}?redirectURL=${window.location.href}`
+        }).catch(error => {
+          if (!error.code) {
+            localStorage.clear()
+            Cookies.remove('guid')
+            window.location.href = `${error.data}?redirectURL=${window.location.href}`
+          }
         })
         done()
       } else {

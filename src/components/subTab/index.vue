@@ -99,11 +99,6 @@ export default {
     routeChange (link) {
       if (link) this.$router.push(link)
     }
-  },
-  watch: {
-    searchValue (val) {
-      console.log('search val', val)
-    }
   }
 }
 </script>

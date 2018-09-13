@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import store from '../store'
 import {fetch, exitMessage} from '@/utils/request'
 
 const Layout = () => import('@/views/layout/Layout.vue')
@@ -34,7 +33,6 @@ const consoleIndex = () => import('@/views/console/index.vue')
 const homePage = () => import('@/views/index/index')
 const homeNotify = () => import('@/views/index/notify/index')
 
-const Demo = () => import('@/components/HelloWorld')
 const error404 = () => import('@/views/errorPage/404')
 Vue.use(Router)
 export const constantRouterMap = [
@@ -84,15 +82,6 @@ export const constantRouterMap = [
           keepAlive: false
         },
         component: consoleIndex
-      },
-      {
-        path: '/test',
-        name: 'test-demo',
-        meta: {
-          title: '示例-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: Demo
       }
     ]
   },
