@@ -1,9 +1,7 @@
-
 import axios from 'axios/index'
 import {Message, Loading, MessageBox} from 'element-ui'
 import Store from '@/store'
 import Router from '@/router'
-
 // 加载层
 export function load (text, target) {
   // target 必须用id
@@ -38,6 +36,19 @@ export function fetch (url, params, isTip = '数据加载中...') {
     }
     return Promise.reject(error)
   })
+  instance.interceptors.response.use(
+    response => { // ie9下responseType：'json'时response.data = undefined
+      // IE 8-9
+      if (response.data == null && response.config.responseType === 'json' && response.request.responseText != null) {
+        try {
+          // eslint-disable-next-line no-param-reassign
+          response.data = JSON.parse(response.request.responseText)
+        } catch (e) {
+          // ignored
+        }
+      }
+      return response
+    })
   const promise = new Promise((resolve, reject) => {
     instance({
       headers: {
@@ -80,7 +91,6 @@ export function fetch (url, params, isTip = '数据加载中...') {
         reject(res)
       }
     }).catch(error => {
-      console.log('error callback------------', error)
       if (isTip) {
         load(isTip).close()
       }
