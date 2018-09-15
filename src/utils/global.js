@@ -1,5 +1,4 @@
 import Cookies from 'js-cookie'
-import Clipboard from 'clipboard'
 import QRCode from 'qrcodejs2'
 import {fetch, message} from '@/utils/request'
 import {restoreArray} from '@/utils'
@@ -47,59 +46,6 @@ exports.install = function (Vue, options) {
       spinner: 'el-icon-loading',
       background: 'transparent'
     })
-  }
-
-  // 发送验证码
-  Vue.prototype.$sendCode = function (data) {
-    if (!data.phone) {
-      this.$tip('请先填写手机号', 'error', 2000)
-      return false
-    }
-    // console.log(this.timer);
-    if (!this.sending && !this.timer) {
-      let setTime = 60
-      this.iconTxt = '60s后可重新发送'
-      this.timer = setInterval(() => {
-        setTime--
-        this.iconTxt = setTime + 's后可重新发送'
-        if (setTime <= 0) {
-          clearInterval(this.timer)
-          this.timer = null
-          this.iconTxt = '发送验证码'
-        }
-      }, 1000)
-      this.sending = true
-      this.$http('/access/user/phone/code', {phone: data.phone}).then(res => {
-        this.sending = false
-        if (res.result === 1) {
-          this.$tip('发送成功')
-        } else {
-          clearInterval(this.timer)
-          this.timer = null
-          this.iconTxt = '发送验证码'
-        }
-      })
-    }
-  }
-
-  // 复制内容到粘贴板
-  Vue.prototype.$clip = function (text, event) {
-    const clipboard = new Clipboard(event.target, {
-      text: () => text
-    })
-    clipboard.on('success', () => {
-      this.$tip('复制成功')
-      clipboard.off('error')
-      clipboard.off('success')
-      clipboard.destroy()
-    })
-    clipboard.on('error', () => {
-      this.$tip('复制失败')
-      clipboard.off('error')
-      clipboard.off('success')
-      clipboard.destroy()
-    })
-    clipboard.onClick(event)
   }
   // 确认操作框
   Vue.prototype.$affirm = function (text, callback, type, showCancel = true) {

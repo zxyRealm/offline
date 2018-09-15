@@ -33,71 +33,50 @@ h1, h2, h3 {
 label {
   font-weight: 700;
 }
-
+image{
+  border: none;
+}
 html {
   height: 100%;
   box-sizing: border-box;
 }
 
 //input placeholder 字体颜色设置
-//textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
-//  color: $placeholder-color;
-//  font-size: 12px;
-//}
-//
-//textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-//  color: $placeholder-color;
-//  font-size: 12px;
-//}
-//
-//textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
-//  color: $placeholder-color;
-//  font-size: 12px;
-//}
-//
-//textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
-//  color: $placeholder-color;
-//  font-size: 12px;
-//}
+textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
+    color: $placeholder-color!important;
+    font-size: 12px;
+  }
+textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: $placeholder-color!important;
+    font-size: 12px;
+  }
+textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: $placeholder-color!important;
+    font-size: 12px;
+  }
+textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color: $placeholder-color!important;
+    font-size: 12px!important;
+  }
 
-.el-textarea, .el-input {
-  textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
-    color: $placeholder-color;
-    font-size: 12px;
-  }
-  textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color: $placeholder-color;
-    font-size: 12px;
-  }
-  textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color: $placeholder-color;
-    font-size: 12px;
-  }
-  textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
-    color: $placeholder-color;
-    font-size: 12px;
-  }
-}
 $placeholder: #999;
 
 .white {
-  .el-textarea, .el-input {
-    textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
-      color: $placeholder;
-      font-size: 12px;
-    }
-    textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-      color: $placeholder;
-      font-size: 12px;
-    }
-    textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
-      color: $placeholder;
-      font-size: 12px;
-    }
-    textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
-      color: $placeholder;
-      font-size: 12px;
-    }
+  textarea::-webkit-input-placeholder, input::-webkit-input-placeholder { /* WebKit browsers */
+    color: $placeholder!important;
+    font-size: 12px;
+  }
+  textarea:-moz-placeholder, input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: $placeholder!important;
+    font-size: 12px;
+  }
+  textarea::-moz-placeholder, input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: $placeholder!important;
+    font-size: 12px;
+  }
+  textarea:-ms-input-placeholder, input:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color: $placeholder!important;
+    font-size: 12px!important;
   }
 }
 
@@ -131,7 +110,7 @@ $placeholder: #999;
     height: 100%;
     width: 0;
   }
-  > div, > img, > a, > span, > form, > p, > h1, > h2, > h3 {
+  > *{
     text-align: left;
     display: inline-block;
     vertical-align: middle;
@@ -484,6 +463,7 @@ button, input {
     &.disable {
       background: $disable;
       box-shadow: 0 2px 4px 0 #161418;
+      cursor: default;
       //background-image: $disable;
     }
   }
@@ -752,7 +732,7 @@ button, input {
   }
   .el-tree-node__children {
     .el-tree-node__expand-icon.is-leaf {
-      padding: 0px !important;
+      padding: 0!important;
     }
   }
   .el-tree-node__expand-icon.is-leaf {
@@ -816,11 +796,15 @@ button, input {
 }
 
 .el-input {
-  line-height: 0;
   background: url(/static/img/input_border_bg@2x.png) no-repeat center;
   background-size: 100% 100%;
   background-color: $default;
+  &.el-pagination__editor{
+    background-position: center;
+    background-size: 99% 100%;
+  }
   .el-input__inner {
+    line-height: 30px;
     border: none;
     background-color: transparent;
     color: #fff;
@@ -836,7 +820,7 @@ button, input {
 
 .el-textarea {
   background-color: $default;
-  background: url("/static/img/textarea_border_bg.png") no-repeat center;
+  background: url("/static/img/textarea_border_bg.png") no-repeat left top;
   background-size: 100% 100%;
   .el-textarea__inner {
     border: none !important;

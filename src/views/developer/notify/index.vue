@@ -1,7 +1,10 @@
 <template>
   <div class="notify-wrap">
-    <uu-sub-tab :menu-array="menu" :show-button="!!notifyList.length && !loading" :sub-btn="btnOption"
-                @handle-btn="addCallbackInfo"></uu-sub-tab>
+    <uu-sub-tab
+      :menu-array="menu"
+      :show-button="!!notifyList.length && !loading"
+      :sub-btn="btnOption"
+      @handle-btn="addCallbackInfo"></uu-sub-tab>
     <div class="data-list-wrap" v-if="notifyList && notifyList.length">
       <el-scrollbar>
         <ob-list v-for="(item,$index) in notifyList" :key="$index">
@@ -13,7 +16,7 @@
             <router-link to="/developer/param/explain">
               参数介绍
             </router-link>
-            <router-link style="margin: 0 36px" :to="'/developer/notify/'+item.noticeGuid">编辑</router-link>
+            <router-link style="margin: 0px 36px" :to="'/developer/notify/'+item.noticeGuid">编辑</router-link>
             <el-button icon="el-icon-delete" @click="delNotifyInfo(item.noticeGuid)" circle></el-button>
           </ob-list-item>
         </ob-list>
@@ -50,19 +53,7 @@ export default {
         {title: '消息通知', index: '/developer/notify'},
         {title: '开放API', index: '/developer/api'}
       ],
-      notifyList: [
-        // {
-        //   createTime: "2018-07-18 10:45:33",
-        //   intro: "测试通知",
-        //   lastEditTime: null,
-        //   merchantGuid: "12345678901",
-        //   noticeGuid: "EBAC92648D3047119A069FE9AA909E30",
-        //   scene: null,
-        //   state: 1,
-        //   tokenURL: "http://192.168.20.227:8083/test/result",
-        //   type: "1"
-        // }
-      ],
+      notifyList: [],
       pagination: {}
     }
   },

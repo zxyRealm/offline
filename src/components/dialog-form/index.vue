@@ -2,6 +2,7 @@
   <el-dialog
     :type="type"
     center
+    :lock-scroll="false"
     top="auto"
     @close="closeDialog"
     class="dialog-form-wrapper vam"

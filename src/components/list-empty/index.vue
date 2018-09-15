@@ -15,7 +15,7 @@ export default {
   props: {
     top: {
       type: String,
-      default: '0'
+      default: '0px'
     },
     text: {
       type: String,

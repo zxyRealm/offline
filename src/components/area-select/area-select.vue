@@ -269,13 +269,11 @@ export default {
         }
         &.search-input {
           height: $line24;
+          background: none;
           .el-input__inner {
             font-size: 12px;
             height: $line24;
             line-height: $line24;
-            /*&::-webkit-input-placeholder { !* WebKit browsers *!*/
-              /*color: #999;*/
-            /*}*/
           }
           .el-input__suffix {
             display: inline-block;

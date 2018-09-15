@@ -76,7 +76,7 @@
       font-size:12px;
       .el-input {
         height: 30px;
-        line-height: 0;
+        line-height: 30px;
         border-radius: 5px;
         background-image: url('/static/img/input_border_bg@2x.png');
         background-repeat: no-repeat;
@@ -94,7 +94,6 @@
       }
       .el-textarea{
         height: 70px;
-        line-height: 0;
         padding: 2px;
         box-sizing: border-box;
         background-image: url('/static/img/textarea_border_bg.png');

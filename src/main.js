@@ -1,6 +1,6 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import 'babel-polyfill'
+import promise from 'es6-promise'
 import Vue from 'vue'
 // App 在UI库css 后引用可以避免生产环境与开发环境中样式不一致的问题
 // 引用顺序决定打包后css 顺序
@@ -20,7 +20,7 @@ import obGroupNav from '@/components/group-nav'
 import obListEmpty from '@/components/list-empty'
 import * as filters from './filters'
 import echarts from 'echarts'
-
+promise.polyfill() // 使Axios兼容ie9
 Vue.prototype.$echarts = echarts
 
 Vue.use(require('./utils/global'))

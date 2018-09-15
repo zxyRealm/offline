@@ -124,7 +124,7 @@ export default {
       line-height: 32px;
       boder:0;overflow:hidden;
       .el-date-editor .el-range-input {
-        width: 140px;
+          width: 140px;
       }
     }
     span {

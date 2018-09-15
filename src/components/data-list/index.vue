@@ -41,25 +41,9 @@ export default {
     box-sizing: border-box;
     margin-bottom: 10px;
     .ob-list-sub-item {
-      position: relative;
-      padding: 14px 20px;
       box-sizing: border-box;
       text-align: center;
       font-size: 12px;
-      &:before {
-        content: '';
-        position: absolute;
-        right: 0;
-        top: 50%;
-        margin-top: -20px;
-        height: 40px;
-        width: 1px;
-        background: #E7E7E7;
-        opacity: 0.25;
-      }
-      &:last-child:before {
-        display: none;
-      }
       p {
         line-height: 1.5;
         margin-bottom: 10px;

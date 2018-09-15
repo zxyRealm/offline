@@ -80,6 +80,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
         reject(res)
       }
     }).catch(error => {
+      console.log('error callback------------', error)
       if (isTip) {
         load(isTip).close()
       }
@@ -97,7 +98,7 @@ export function message (txt, type, delay = 1500) {
   return Message({
     message: `<div class="tip_message_content ${type}">
         <img class="tip_img_icon" src="/static/img/${icon}_tip_icon.png" alt="">
-        <p style="padding:0" class="text">${txt}</p>
+        <p style="padding:0px" class="text">${txt}</p>
       </div>`,
     center: true,
     customClass: `tip_message ${cs}`,

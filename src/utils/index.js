@@ -14,6 +14,7 @@ export function parseTime (time, cFormat) {
   if (typeof time === 'object') {
     date = time
   } else if (typeof time === 'string') {
+    time = time.replace(/-/g, '/') // ie无法处理2018-10-13 15:30:45 格式的时间 必需使用/为分隔符
     if (Date.parse(time).toString().length === 13) {
       date = new Date(time.replace(/-/g, '/'))
     } else {

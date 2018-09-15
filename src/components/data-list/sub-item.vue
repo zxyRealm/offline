@@ -1,98 +1,101 @@
 <template>
   <td :width="width" :style="styles" class="ob-list-sub-item">
-    <template v-if="type==='handle'">
-      <div class="handle btn-item">
-        操作:<br>
-        <el-popover
-          placement="top"
-          trigger="hover">
-          <ul class="order-list">
-            <li v-show="data.deviceStatus===undefined">尚未【获取】设备状态，无法操作</li>
-            <li v-show="data.groupGuid && showDelete">已绑定至社群，无法删除</li>
-            <li v-if="data.isHandle===false">{{!showDelete ? '尚无该设备的操作权限，无法操作' : '设备操作权限已上送，无法操作'}}</li>
-            <li v-else-if="data.deviceStatus">{{data.deviceStatus | handleMsg}}</li>
-          </ul>
-          <uu-icon
-            slot="reference"
-            v-show="!(data.deviceStatus === 0 && !data.groupGuid) || (data.groupGuid && showDelete)"
-            type="problem"></uu-icon>
-        </el-popover>
-      </div>
-      <div class="btn-wrap btn-item">
+    <div class="sub-item__inner">
+      <template v-if="type==='handle'">
+        <div class="handle btn-item">
+          操作:<br>
+          <el-popover
+            placement="top"
+            trigger="hover">
+            <ul class="order-list">
+              <li v-show="data.deviceStatus===undefined">尚未【获取】设备状态，无法操作</li>
+              <li v-show="data.groupGuid && showDelete">已绑定至社群，无法删除</li>
+              <li v-if="data.isHandle===false">{{!showDelete ? '尚无该设备的操作权限，无法操作' : '设备操作权限已上送，无法操作'}}</li>
+              <li v-else-if="data.deviceStatus">{{data.deviceStatus | handleMsg}}</li>
+            </ul>
+            <uu-icon
+              slot="reference"
+              v-show="!(data.deviceStatus === 0 && !data.groupGuid) || (data.groupGuid && showDelete)"
+              type="problem"></uu-icon>
+          </el-popover>
+        </div>
+        <div class="btn-wrap btn-item">
+          <el-button
+            v-for="(item,$index) in btnList"
+            :key="$index"
+            :disabled="!btnState(data,item).state"
+            @click="handleDevice(item)"
+            :class="btnState(data,item).going?item +' ongoing':item"
+            class="medium">
+            {{btnState(data,item).text}}
+          </el-button>
+        </div>
         <el-button
-          v-for="(item,$index) in btnList"
-          :key="$index"
-          :disabled="!btnState(data,item).state"
-          @click="handleDevice(item)"
-          :class="btnState(data,item).going?item +' ongoing':item"
-          class="medium">
-          {{btnState(data,item).text}}
+          v-if="showDelete"
+          class="btn-item"
+          :disabled="!!data.groupGuid"
+          icon="el-icon-delete"
+          @click="deleteEquipment(data)" circle>
         </el-button>
-      </div>
-      <el-button
-        v-if="showDelete"
-        class="btn-item"
-        :disabled="!!data.groupGuid"
-        icon="el-icon-delete"
-        @click="deleteEquipment(data)" circle>
-      </el-button>
-    </template>
-    <template v-else-if="type==='state'">
-      <p>
-        <span class="label__title">设备别名：</span>
-        <el-tooltip v-if="!isAmend" :content="data.deviceName" placement="top">
-           <span class="ellipsis">{{data.deviceName}}</span>
-        </el-tooltip>
-        <el-popover
-          v-else
-          placement="top"
-          popper-class="nick_name--popover"
-          @show="showPopover"
-          @hide="hidePopover"
-          v-model="data.popover"
-          trigger="click">
-          <el-form
-            @submit.native.prevent
-            ref="tableForm"
-            class="table-form"
-            :model="equipmentForm"
-          >
-            <el-form-item :rules="rules" prop="deviceName">
-              <el-input type="text" v-model.trim="equipmentForm.deviceName"></el-input>
-              <uu-icon type="success" @click.native="changeEquipmentName"></uu-icon>
-              <uu-icon type="error" @click.native="data.popover=false"></uu-icon>
-            </el-form-item>
-          </el-form>
-          <el-tooltip slot="reference" :content="data.deviceName" placement="top">
-            <a class="ellipsis" href="javascript:void (0)">{{data.deviceName?data.deviceName:'暂无昵称'}}</a>
+      </template>
+      <template v-else-if="type==='state'">
+        <p>
+          <span class="label__title">设备别名：</span>
+          <el-tooltip v-if="!isAmend" :content="data.deviceName" placement="top">
+             <span class="ellipsis">{{data.deviceName}}</span>
           </el-tooltip>
-        </el-popover>
-      </p>
-      <p>
-        <span class="label__title">运行状态：</span>
-        <span :class="data.deviceStatus===1?'error-color':'success-color'">{{data.deviceStatus | lineState}}</span>
-        <a href="javascript:void (0)" @click="getDeviceState(data)">
-          <i v-if="data.deviceStatus!==undefined" class="el-icon-refresh success-color"></i>
-          <span v-else>获取</span>
-        </a>
-      </p>
-    </template>
-    <template v-else>
-      <p v-if="!router" v-for="(item,$index) in propList" :key="$index">
-        <span class="label__title">{{labelList[$index]?labelList[$index]+'：':''}}</span>
-        <el-tooltip v-if="tooltip" :content="format(data[item])" placement="top">
-          <span class="ellipsis">{{format(data[item])}}</span>
-        </el-tooltip>
-        <span v-else class="ellipsis">{{format(data[item])}}</span>
-      </p>
-      <p v-else>
-        {{label}}<br>
-        <router-link :to="router">
-          {{text}}
-        </router-link>
-      </p>
-    </template>
-    <slot></slot>
+          <el-popover
+            v-else
+            placement="top"
+            popper-class="nick_name--popover"
+            @show="showPopover"
+            @hide="hidePopover"
+            v-model="data.popover"
+            trigger="click">
+            <el-form
+              @submit.native.prevent
+              ref="tableForm"
+              class="table-form"
+              :model="equipmentForm"
+            >
+              <el-form-item :rules="rules" prop="deviceName">
+                <el-input type="text" v-model.trim="equipmentForm.deviceName"></el-input>
+                <uu-icon type="success" @click.native="changeEquipmentName"></uu-icon>
+                <uu-icon type="error" @click.native="data.popover=false"></uu-icon>
+              </el-form-item>
+            </el-form>
+            <el-tooltip slot="reference" :content="data.deviceName" placement="top">
+              <a class="ellipsis" href="javascript:void (0)">{{data.deviceName?data.deviceName:'暂无昵称'}}</a>
+            </el-tooltip>
+          </el-popover>
+        </p>
+        <p>
+          <span class="label__title">运行状态：</span>
+          <span>
+             <span :class="data.deviceStatus===1?'error-color':'success-color'">{{data.deviceStatus | lineState}}</span>
+          <a href="javascript:void (0)" @click="getDeviceState(data)"><i v-if="data.deviceStatus!==undefined" class="el-icon-refresh success-color"></i><span v-else>获取</span>
+          </a>
+          </span>
+
+        </p>
+      </template>
+      <template v-else>
+        <p v-if="!router" v-for="(item,$index) in propList" :key="$index">
+          <span class="label__title">{{labelList[$index]?labelList[$index]+'：':''}}</span>
+          <el-tooltip v-if="tooltip" :content="format(data[item])" placement="top">
+            <span class="ellipsis">{{format(data[item])}}</span>
+          </el-tooltip>
+          <span v-else class="ellipsis">{{format(data[item])}}</span>
+        </p>
+        <p v-else>
+          <span class="label__title">{{label}}</span><br>
+          <router-link :to="router">
+            {{text}}
+          </router-link>
+        </p>
+      </template>
+      <slot></slot>
+    </div>
   </td>
 </template>
 
@@ -520,6 +523,38 @@ export default {
   }
 
   .ob-list-sub-item {
+    .sub-item__inner{
+      position: relative;
+      width: 100%;
+      padding: 14px 20px;
+      box-sizing: border-box;
+      &:before {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        margin-top: -20px;
+        height: 40px;
+        width: 1px;
+        background: #E7E7E7;
+        opacity: 0.25;
+      }
+    }
+    /*设备操作列样式控制*/
+    &:last-child{
+      .sub-item__inner{
+        > .btn-item + .btn-item {
+          margin-left: 18px;
+        }
+        > *{
+          display: inline-block;
+          vertical-align: middle;
+        }
+        &:before {
+          display: none;
+        }
+      }
+    }
     .table__label {
       display: inline-block;
       width: 62px;
@@ -538,15 +573,6 @@ export default {
       border-radius: 50%;
       color: #515055;
       background: #fff;
-    }
-    &:last-child {
-      > .btn-item + .btn-item {
-        margin-left: 18px;
-      }
-      > div {
-        display: inline-block;
-        vertical-align: middle;
-      }
     }
     .btn-wrap {
       display: inline-block;
@@ -628,8 +654,13 @@ export default {
     }
     p {
       text-align: left;
-      line-height: 1.5;
+      line-height: 0;
       margin-bottom: 12px;
+      > *{
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 18px;
+      }
       span {
         &.ellipsis {
           width: 106px;

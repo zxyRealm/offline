@@ -2,15 +2,13 @@
   <div class="screening-wrap">
     <div>筛选</div>
     <el-form v-model="filterParams" class="demo-ruleForm" label-width="90px" :class="type!=1?'normal-from':'' ">
-      <el-form-item label="选择社群：" prop="groupGuidName">
+      <el-form-item label="选择社群：" class="white" prop="groupGuidName">
         <input
           class="group-name-input"
-          :autofocus="false"
           :clearable="false"
-          :clear-icon="''"
-          :prefix-icon="''"
-          type="text"
-          v-model="filterParams.groupGuidName"
+          readonly
+          placeholder="请选择社群"
+          v-model.trim="filterParams.groupGuidName"
           @click="groupGuidNameClick"
           auto-complete="off"/>
         <span class="icon-select"></span>
@@ -24,7 +22,7 @@
           </button>
         </template>
       </el-form-item>
-      <el-form-item label="时间：" prop="startTime">
+      <el-form-item label="时间：" class="white" prop="startTime">
         <el-date-picker
           v-show="filterParams.dimension == 1"
           type="date"
@@ -96,7 +94,7 @@ export default {
         startTime: '', // 开始时间
         endTime: '', // 结束时间
         timeArray: [],
-        groupGuidName: '请选择社群'
+        groupGuidName: ''
       }
     }
   },
@@ -187,6 +185,17 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
+  .screening-wrap{
+    .el-form-item{
+      .el-form-item__label{
+        line-height: 28px;
+      }
+      .el-form-item__content{
+        height: 28px;
+        line-height: 28px;
+      }
+    }
+  }
   .demo-ruleForm {
     input {
       cursor: pointer;
@@ -244,10 +253,14 @@ export default {
       box-sizing: border-box;
       padding: 40px 14px;
       .el-form-item--small.el-form-item {
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+      }
+      .el-input-editor{
+        line-height: 28px;
       }
       .el-date-editor.el-input, .el-date-editor.el-input__inner {
         width: 210px;
+        vertical-align: top;
       }
       .picker-data {
         .el-input--small .el-input__inner {
@@ -257,7 +270,7 @@ export default {
       }
       .group-name-input {
         width: 210px;
-        height: 26px !important;
+        height: 28px !important;
         line-height: 28px;
         font-size: 12px;
         border-radius: 3px;
@@ -265,6 +278,7 @@ export default {
         border: none;
         background-size: 100% 100%;
         cursor: pointer;
+        vertical-align: top;
       }
       .time--position {
         display: inline-block;

@@ -217,10 +217,10 @@ export default {
           line-height: 1.4;
         }
         > p {
-          width: 125%;
+          width: 132%;
           font-size: 12px;
           transform-origin: left top;
-          transform: scale(0.8);
+          transform: scale(0.74);
           *font-size: 8px;
         }
       }
