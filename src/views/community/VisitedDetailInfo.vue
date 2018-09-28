@@ -1,5 +1,4 @@
 <template>
-
   <div class="visited--detail__info" v-show="state" @click="closeShade">
     <transition name="fade-visited">
       <div class="detail--right__default clearfix" v-show="state">
@@ -8,7 +7,7 @@
           <img class="detail--close clearfix" src="/static/img/face_recoginiton_close_icon.png" @click="closeShade($event,'你的一哥')"/>
         </div>
         <div class="tip--info">
-          <p>Face ID：{{detailInfo.ufaceId}}</p>
+          <p>Face ID：{{detailInfo.personGuid}}</p>
           <p>共计到访{{pageParams.total}}次</p>
         </div>
         <face-recognition @search-params="getFaceDataDetail"></face-recognition>
@@ -27,7 +26,7 @@
               label="抓拍图"
               width="160">
               <template slot-scope="scope">
-                <img :src="scope.row.imageUrl || ''" class="table--td__img"/>  <!--//{{scope.row.deviceName}}-->
+                <img @click="showPreviewDialog(scope.row.imageUrl)" :src="scope.row.imageUrl || ''" class="table--td__img"/>
               </template>
             </el-table-column>
             <el-table-column
@@ -59,13 +58,14 @@
         </div>
       </div>
     </transition>
+    <image-preview :visible.sync="dialogPreviewShow" :src="imageSrc"></image-preview>
   </div>
 </template>
 <script>
 import FaceRecognition from '@/components/screening/FaceRecognition'
-
+import ImagePreview from '@/components/preview'
 export default {
-  components: {FaceRecognition},
+  components: {FaceRecognition, ImagePreview},
   props: {
     state: {
       type: Boolean,
@@ -79,6 +79,8 @@ export default {
   },
   data () {
     return {
+      dialogPreviewShow: false,
+      imageSrc: '',
       groupGuid: '', // 新增设备groupGuid
       show: true, // 是否显示组件
       pageParams: {
@@ -115,7 +117,7 @@ export default {
     getDataInParams (params) {
       let paramsSearch = {
         groupGuid: (params && params.groupGuid) || this.detailInfo.groupGuid, // 新增设备绑定groupgGuid
-        ufaceId: this.detailInfo.ufaceId,
+        personGuid: this.detailInfo.personGuid,
         deviceKey: (params && params.deviceKey) || '',
         cameraName: this.detailInfo.cameraName,
         startTime: (params && params.startTime) || '',
@@ -131,6 +133,11 @@ export default {
       }).catch(error => {
         console.info(error)
       })
+    },
+    // 显示是大图弹框
+    showPreviewDialog (src) {
+      this.dialogPreviewShow = true
+      this.imageSrc = src
     }
   },
   watch: {
@@ -145,6 +152,7 @@ export default {
       } else {
         // 默认进来为1
         this.pageParams.currentPage = 1
+        this.faceData = []
       }
     },
     deviceList (val, oldVal) {
@@ -209,6 +217,7 @@ export default {
           .table--td__img {
             width: 80px;
             height: 80px;
+            cursor: pointer;
           }
           .el-table__row td:nth-child(2) .cell {
             text-align: center;

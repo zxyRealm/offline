@@ -105,7 +105,7 @@ export default {
     },
     // 触发查询条件
     getFaceData (params) {
-      this.groupGuid = params.groupGuid  // 新曾需求
+      this.groupGuid = params.groupGuid // 新曾需求
       this.paramsInSear = {...params}
       this.pageParams.currentPage = 1
       this.getDataInParams(this.paramsInSear)

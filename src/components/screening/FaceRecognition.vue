@@ -34,7 +34,12 @@ import {eventObject} from '@/utils/event'
 
 export default {
   name: 'FaceRecognition',
-  props: {},
+  props: {
+    paddingLeft: {
+      type: [String, Number],
+      default: '0px'
+    }
+  },
   components: {},
   data () {
     let that = this
@@ -109,20 +114,18 @@ export default {
   .face--recognition__wrap {
     width: 100%;
     height: 50px;
-    padding: 10px 0 !important;
+    padding: 10px 0;
     box-sizing: border-box;
     -ms-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     white-space: nowrap;
     div.label_div {
       display: inline-block !important;
-      -moz-display: inline-block;
-      -ms-display: inline-block;
       display: inline-block;
       margin-right: 8px;
       height: 32px;
       line-height: 32px;
-      boder:0;overflow:hidden;
+      border:0;overflow:hidden;
       .el-date-editor .el-range-input {
           width: 140px;
       }
