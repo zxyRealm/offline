@@ -10,6 +10,10 @@
       text-color="#fff"
       active-text-color="#fff"
     >
+      <el-menu-item index="/console">
+        <i class="ob-icon__community"></i>
+        <span slot="title">控制台</span>
+      </el-menu-item>
       <el-menu-item index="/community">
         <i class="ob-icon__community"></i>
         <span slot="title">社群管理</span>
@@ -17,6 +21,10 @@
       <el-menu-item index="/equipment">
         <i class="ob-icon__equipment"></i>
         <span slot="title">设备管理</span>
+      </el-menu-item>
+      <el-menu-item index="/member">
+        <i class="ob-icon__equipment"></i>
+        <span slot="title">人员管理</span>
       </el-menu-item>
       <el-menu-item index="/data">
         <i class="ob-icon__data"></i>

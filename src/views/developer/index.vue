@@ -58,7 +58,7 @@
 import area from '@/components/area-select/area-select'
 import {mapState, mapGetters} from 'vuex'
 import {validPhone, validateRule} from '@/utils/validate'
-
+import axios from 'axios'
 export default {
   components: {
     'area-select': area
@@ -177,7 +177,8 @@ export default {
       this.$http('/auth/oss/image/signature').then(res => {
         if (res.data) {
           let formData = new FormData()
-          let customName = 'avatar_' + new Date().getTime()
+          let customName = 'avatar_' + uid + '.' + (data.file.type.split('/')[1] === 'png' ? 'png' : 'jpg')
+          console.log('file name', customName)
           formData.append('key', `merchant/${uid}/${customName}`)
           formData.append('policy', res.data['policy'])
           formData.append('OSSAccessKeyId', res.data['accessid'])
@@ -185,19 +186,19 @@ export default {
           formData.append('signature', res.data['signature'])
           formData.append('file', data.file, customName)
           // 构建formData 对象，将图片上传至阿里云oss服务
-          this.$http(res.data.host, formData).then(back => {
+          axios.post(res.data.host, formData).then(back => {
             if (!back.data) {
               let avatarHref = res.data.host + '/merchant/' + uid + '/' + customName
               // 图片地址提交后台更新个人头像信息
               this.$http('/merchant/usercenter/image', {faceImgURL: avatarHref}).then(res => {
                 this.$tip('头像上传成功')
-                this.$store.commit('SET_USER_INFO', {faceImgURL: avatarHref})
+                this.$store.commit('SET_USER_INFO', {faceImgURL: avatarHref + '?time_stamp=' + new Date().getTime()})
               })
             } else {
               this.$tip('上传失败，请稍后重试', 'error')
             }
-          }).catch(error => {
-            this.error = error
+          }).catch(() => {
+            this.$tip('网络异常，请稍后重新尝试', 'error')
           })
         }
       }).catch(() => {

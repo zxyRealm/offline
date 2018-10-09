@@ -15,8 +15,28 @@
             <all-time class="li-all-time"></all-time>
           </li>
         </ul>
-        <div class="left-div corner-bg" ref="lineConsole">
-          <line-console ref="echartsLine" :line-params='lineParams'></line-console>
+        <div class="left-div" ref="lineConsole">
+          <div class="passenger-flow--wrap corner-bg">
+            <line-console ref="echartsLine" :line-params='lineParams'></line-console>
+          </div>
+          <!--会员信息-->
+          <div class="corner-bg associator--wrap">
+            <div class="associator--inner">
+              <h3>***欢迎您</h3>
+              <div class="detail-info--wrap">
+                <div class="associator__avatar--wrap">
+                  <img class="associator__avatar" src="" alt="">
+                </div>
+                <div class="base-info">
+                  <p>银泰会员</p>
+                  <p>女</p>
+                  <p>23</p>
+                  <p>{{ new Date() | parseTime('{m}/{d}')}}</p>
+                  <p>{{new Date() | parseTime('{h}:{i}')}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="content-top-right">
@@ -172,30 +192,32 @@ export default {
           table.style.height = me.$refs.bar.offsetHeight + 'px'
         }
         me.$refs.echartsBar.resizeEcharts()
-        let tableLine = document.getElementById('echarts-line')
-        tableLine.style.width = me.$refs.lineConsole.offsetWidth + 'px'
-        tableLine.style.height = me.$refs.lineConsole.offsetHeight + 'px'
+        // let tableLine = document.getElementById('echarts-line')
+        // tableLine.style.width = me.$refs.lineConsole.offsetWidth + 'px'
+        // tableLine.style.height = me.$refs.lineConsole.offsetHeight + 'px'
         me.$refs.echartsLine.resizeEcharts()
       }, time || 50)
     },
     // 解析数据
     resolveDatad (data) {
       let obj = JSON.parse(data)
+      console.log('data', obj)
       // 判断是否是同一台数据推送的数据
       if (obj.deviceKey !== this.deviceKey) return
-      console.log('after---')
       // 饼图 = 推送实时更新数据
       this.$set(this.pieParams.seriesData[0], 'value', obj.female)
       this.$set(this.pieParams.seriesData[1], 'value', obj.male)
       // 饼图 = 数据更新
-      if (!!this.$refs.echartsPie) {
+      if (this.$refs.echartsPie) {
         this.$refs.echartsPie.consoleEmit()
       }
       // 进出人数
       this.outNumber = obj.outNumber
       this.inNumber = obj.inNumber
       // 柱状图
-      this.ageBar = JSON.parse(obj.age)
+      if (Array.isArray(obj.age)) {
+        this.ageBar = JSON.parse(obj.age)
+      }
       // 图片展示
       this.typePedestrian(obj.pedestrian[0])
     },
@@ -320,6 +342,7 @@ export default {
       .content-top-left, .content-top-right {
         float: left;
       }
+      /*客流汇总信息/客流量统计/会员信息*/
       .content-top-left {
         height: 100%;
         width: 60%;
@@ -366,6 +389,51 @@ export default {
           margin-top: 10px;
           height: calc(69% - 10px);
           box-sizing: border-box;
+          .passenger-flow--wrap{
+            float: left;
+            position: relative;
+            width: 60%;
+            height: 100%;
+            margin-right: 10px;
+          }
+          /*会员信息*/
+          .associator--wrap{
+            float: left;
+            width: calc(40% - 10px);
+            height: 100%;
+            padding: 24px 14px 40px;
+            box-sizing: border-box;
+            text-align: center;
+            h3{
+              font-size: 20px;
+            }
+            .detail-info--wrap{
+              overflow: hidden;
+            }
+            .associator__avatar--wrap{
+              float: left;
+              width: 100%;
+              height: 100%;
+              margin-left: -100px;
+              .associator__avatar{
+                width: 100%;
+                height: 100%;
+              }
+            }
+            .base-info{
+              float: right;
+              width: 100px;
+              overflow: hidden;
+              height: 100%;
+              margin-top: 14px;
+              p{
+                line-height: 2;
+                font-size: 12px;
+                border-bottom: 1px dashed #ddd;
+                margin:0 0 15px 14px;
+              }
+            }
+          }
         }
       }
       .content-top-right {

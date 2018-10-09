@@ -3,24 +3,29 @@ import Router from 'vue-router'
 import {fetch, exitMessage} from '@/utils/request'
 
 const Layout = () => import('@/views/layout/Layout.vue')
+// 社群管理
 const Community = () => import('@/views/community/index.vue')
 const customCommunity = () => import('@/views/community/custom.vue')
 const editCustom = () => import('@/views/community/edit-custom.vue')
 const addCommunity = () => import('@/views/community/add-community.vue')
 const joinCommunity = () => import('@/views/community/join-community.vue')
-
+// 设备管理
 const Equipment = () => import('@/views/equipment/mine.vue')
 const EquipmentMore = () => import('@/views/equipment/more.vue')
 const EquipmentChildren = () => import('@/views/equipment/children.vue')
+// 人员管理
+const Member = () => import('@/views/member/index.vue')
 
+// 开发者中心
 const Developer = () => import('@/views/developer/index.vue')
+// 消息通知
 const notifyCallback = () => import('@/views/developer/notify/add-info')
 const sysNotify = () => import('@/views/developer/notify/index')
 const apiIndex = () => import('@/views/developer/api/index.vue')
 const paramExplain = () => import('@/views/developer/notify/explain.vue')
-const Data = () => import('@/views/data/index.vue')
 
 /* 数据可视化的路由 */
+const Data = () => import('@/views/data/index.vue')
 const guestAnalysis = () => import('@/views/data/guest-analysis')
 const genderAnalysis = () => import('@/views/data/gender-analysis')
 const ageAnalysis = () => import('@/views/data/age-analysis')
@@ -31,6 +36,7 @@ const consoleIndex = () => import('@/views/console/index.vue')
 
 /** 首页+消息 **/
 const homePage = () => import('@/views/index/index')
+// 系统通知
 const homeNotify = () => import('@/views/index/notify/index')
 
 const error404 = () => import('@/views/errorPage/404')
@@ -209,6 +215,19 @@ export const constantRouterMap = [
           keepAlive: false
         },
         component: Equipment
+      }
+    ]
+  },
+  // 人员管理路由
+  {
+    path: '/member',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'MemberMine',
+        meta: {title: '人员管理-线下浏览器服务平台'},
+        component: Member
       }
     ]
   },

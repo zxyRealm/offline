@@ -1,6 +1,5 @@
 <template>
   <div id="echarts-line" class="line-wrap" :style="{height: lineHeight}">
-
   </div>
 </template>
 
@@ -45,7 +44,7 @@ export default {
         }],
       option: {
         color: ['#F1BB13', '#7FC16A', '#EE6C4B', '#6D2EBB', '#2187DF', '#DDDDDD'],
-        textStyle: {   // 总体字体样式
+        textStyle: { // 总体字体样式
           color: '#ffffff'
         },
         title: {
@@ -73,15 +72,15 @@ export default {
           axisPointer: {
             type: 'cross',
             label: {
-              backgroundColor: 'rgba(114,116,118,1)',// '#6a7985',
+              backgroundColor: 'rgba(114,116,118,1)', // '#6a7985',
               fontSize: 11
               // padding: [15, 17, 15, 17]
             }
           }
         },
         legend: {
-          right: 0,  // 排序方式
-          textStyle: {  // 字体设置
+          right: 0, // 排序方式
+          textStyle: { // 字体设置
             // color: '#ffffff',
             fontSize: '12',
             fontWeight: 'normal'
@@ -293,7 +292,7 @@ export default {
         if (res.result == 1) {
           this.data = res.data
           this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis)  //这个yAxis是对象形式
+          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
           this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
           this.changeSeries()
           // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
@@ -317,7 +316,7 @@ export default {
         if (res.result == 1) {
           this.data = res.data
           this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis)  //这个yAxis是对象形式
+          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
           this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
           this.changeSeries()
           // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
@@ -422,6 +421,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
   .line-wrap {
     width: 100%;
+    height: 100%;
     box-sizing: border-box;
     padding: 20px;
     background-color: rgba(64, 58, 73, 0.30);

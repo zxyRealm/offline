@@ -2,6 +2,7 @@ import axios from 'axios/index'
 import {Message, Loading, MessageBox} from 'element-ui'
 import Store from '@/store'
 import Router from '@/router'
+
 // 加载层
 export function load (text, target) {
   // target 必须用id
@@ -21,7 +22,13 @@ export function fetch (url, params, isTip = '数据加载中...') {
     params = null
   }
   params = params || {}
-  let instance = axios.create()
+  let instance = axios.create({
+    baseURL: process.env.BASE_API,
+    url: url,
+    data: params,
+    method: 'POST',
+    responseType: 'json'
+  })
   instance.interceptors.request.use(config => {
     if (isTip) {
       Store.state.loading = true
@@ -39,7 +46,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
   instance.interceptors.response.use(
     response => { // ie9下responseType：'json'时response.data = undefined
       // IE 8-9
-      if (response.data == null && response.config.responseType === 'json' && response.request.responseText != null) {
+      if (response.data === null && response.config.responseType === 'json' && response.request.responseText !== null) {
         try {
           // eslint-disable-next-line no-param-reassign
           response.data = JSON.parse(response.request.responseText)
@@ -49,7 +56,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
       }
       return response
     })
-  const promise = new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     instance({
       headers: {
         'Content-Type': 'application/json'
@@ -98,7 +105,6 @@ export function fetch (url, params, isTip = '数据加载中...') {
       reject(error.response)
     })
   })
-  return promise
 }
 
 // 消息提示

@@ -15,7 +15,7 @@
             v-show="showBar"
             :toggleClick="toggleSideBar"
             :isActive="sidebar.opened"></hamburger>
-          <router-link to="/console">控制台</router-link>
+          <!--<router-link to="/console">控制台</router-link>-->
         </div>
         <div class="navbar-console-select" v-if="$route.name  === 'console-lwh'" @click="getGropId">
           <span>{{selectName}}</span>
@@ -126,7 +126,6 @@ export default {
     // 设备返回数据
     pickDeviceHandler (val) {
       if (val == '上一步') {
-
         this.dialogFormVisible = true
       } else {
         this.selectName = val.deviceName
