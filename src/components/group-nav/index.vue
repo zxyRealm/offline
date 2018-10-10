@@ -17,6 +17,7 @@
     </el-select>
     <el-checkbox v-if="type==='custom' && isCheckAll" @change="checkedAll">全选</el-checkbox>
     <el-tree
+      :multiple="multiple"
       :only-checked="onlyChecked"
       :check-strictly="checkStrictly"
       :show-checkbox="showChecked"
@@ -45,9 +46,11 @@
           :class="{ellipsis:true,'dialog-tree':type === 'custom'}">
           {{ data[defaultProps.label] }}
         </span>
-        <uu-icon
-          type="mine" v-if="!data.groupPid && type==='community'||type==='custom'"
-          style=""></uu-icon>
+        <span v-if="!data.groupPid" class="identify-icon">管理员</span>
+        <span v-else class="identify-icon">子社群</span>
+        <!--<uu-icon-->
+          <!--type="mine" v-if="!data.groupPid && type==='community'||type==='custom'"-->
+          <!--style=""></uu-icon>-->
         <template>
            <el-popover
              placement="right"
@@ -196,7 +199,8 @@ export default {
           this.$emit('current-change', {
             selectNode: this.currentGroup,
             currentNode: val,
-            node: this.GroupList[this.currentGroup][this.defaultProps.children]})
+            node: this.GroupList[this.currentGroup][this.defaultProps.children]
+          })
         } else {
           this.$emit('current-change', val, node)
         }
@@ -207,7 +211,11 @@ export default {
     selectChange (index) {
       this.TreeList = this.GroupList[index][this.defaultProps.children]
       this.currentNode = ''
-      this.$emit('current-change', {selectNode: index, currentNode: '', node: this.GroupList[index][this.defaultProps.children]})
+      this.$emit('current-change', {
+        selectNode: index,
+        currentNode: '',
+        node: this.GroupList[index][this.defaultProps.children]
+      })
     },
     isHandle (val) {
       return (val || '').split(',').length === 2
@@ -256,8 +264,8 @@ export default {
           break
         default:
           des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>
-                确定要移除子社群【<span class="maxw200 ellipsis">
-                ${params.groupNickName}</span>】？`
+              确定要移除子社群【<span class="maxw200 ellipsis">
+              ${params.groupNickName}</span>】？`
           url = '/group/remove'
       }
       this.$affirm({text: `${des}`}, (action, instance, done) => {
@@ -275,6 +283,7 @@ export default {
     // 设置当前节点
     setCurrentKey (key) {
       this.$nextTick(() => {
+        this.currentNode = ''
         this.$refs.GroupTree.setCurrentKey(key || '')
       })
     },
@@ -412,7 +421,7 @@ export default {
       width: auto;
       vertical-align: middle;
       font-size: 12px;
-      &.dialog-tree{
+      &.dialog-tree {
         max-width: calc(100% - 100px);
       }
     }
@@ -470,11 +479,55 @@ export default {
       }
     }
   }
-
   .el-tree {
+    &.white{
+      background: transparent;
+    }
     &[only-checked] {
       .el-checkbox {
         display: none;
+      }
+    }
+    .el-checkbox__input.is-checked .el-checkbox__inner::after {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .el-checkbox__inner {
+      border-radius: 50%;
+      &:after {
+        content: "";
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        left: 50%;
+        top: 50%;
+        border-radius: 100%;
+        box-sizing: content-box;
+        transition: transform .15s cubic-bezier(.71, -.46, .88, .6);
+        background-color: #fff;
+      }
+    }
+    &[multiple] {
+      .el-tree-node{
+        .el-checkbox__input.is-checked .el-checkbox__inner::after {
+          transform: rotate(45deg) scaleY(1);
+        }
+        .el-checkbox__inner {
+          border-radius: 0;
+          &:after {
+            border: 1px solid #fff;
+            border-left: 0;
+            border-top: 0;
+            height: 7px;
+            border-radius: 0;
+            width: 3px;
+            left: 4px;
+            top: 1px;
+            background-color: transparent;
+            transform: rotate(45deg) scaleY(0);
+            transition: transform .15s cubic-bezier(.71, -.46, .88, .6) 50ms;
+            transform-origin: center;
+          }
+        }
       }
     }
   }

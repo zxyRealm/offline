@@ -75,7 +75,7 @@
         </el-form-item>
       </template>
     </el-form>
-    <div slot="footer" class="dialog-footer">
+    <div slot="footer" v-if="showButton" class="dialog-footer">
       <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
       <el-button class="affirm" type="primary" @click="submitDialogForm('dialogForm')">确 定</el-button>
     </div>
@@ -136,6 +136,10 @@ export default {
     disabledKeys: {
       type: Array,
       default: () => []
+    },
+    showButton: { // 是否显示操作按钮（返回/取消）
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -319,7 +323,7 @@ export default {
   .dialog-form-wrapper {
     &[type=group] {
       .el-dialog__body {
-        padding: 0 20px 0;
+        padding: 0 20px 25px;
       }
       .el-tree.white {
         background: transparent;
@@ -344,6 +348,7 @@ export default {
       }
     }
     .el-dialog__footer{
+      padding-top: 0;
       padding-bottom: 30px;
     }
     .el-button + .el-button {

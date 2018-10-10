@@ -384,55 +384,6 @@ export default {
         this.$refs.nickNameForm.resetFields()
       }
       if (this.nickNamePopover) this.nickNamePopover = false
-    },
-    // 绘制图像（根据坐标）
-    customDrawImage (url) {
-      let _this = this
-      let canvas = document.createElement('canvas')
-      canvas.width = 200
-      canvas.height = 300
-      let ctx = canvas.getContext('2d')
-      let xhr = new XMLHttpRequest()
-      xhr.withCredentials = false
-      if ('withCredentials' in xhr) {
-        console.log('current support cros')
-        // 此时即支持CORS的情况
-        // 检查XMLHttpRequest对象是否有“withCredentials”属性
-        // “withCredentials”仅存在于XMLHTTPRequest level 2对象里
-      } else {
-        // 否则检查是否支持XDomainRequest
-        // XDomainRequest仅存在于IE中，是IE用于支持CORS请求的方式
-        console.log('this is ie')
-        xhr = new XDomainRequest()
-      }
-      xhr.onload = function () {
-        let url = URL.createObjectURL(this.response)
-        let img = new Image()
-        img.crossOrigin = ''
-        img.onload = function () {
-          // 此时你就可以使用canvas对img为所欲为了(画图尺寸不可超出原图尺寸范围，IE上会报错 IndexSizeError)
-          ctx.drawImage(img, 60, 10, 200, 310, 0, 0, 200, 310)
-          _this.customImageUrl = canvas.toDataURL('image/png', 1)
-          // console.log(customUrl)
-          // 图片用完后记得释放内存
-          URL.revokeObjectURL(url)
-        }
-        img.src = url
-      }
-      xhr.open('GET', url, true)
-      xhr.responseType = 'blob'
-      xhr.send()
-      // let img = new Image()
-      // // 处理图片资源跨域是 toDataURL()方法不可用问题
-      // img.crossOrigin = 'anonymous'
-      // console.log(img)
-      // img.onload = () => {
-      //   ctx.drawImage(img, 60, 10, 400, 600, 0, 0, 400, 600)
-      //   let customUrl = canvas.toDataURL('image/png', 1)
-      //   this.customImageUrl = customUrl
-      //   console.log(customUrl)
-      // }
-      // img.src = `${url}?timeStamp=${new Date().getTime()}`
     }
   },
   created () {

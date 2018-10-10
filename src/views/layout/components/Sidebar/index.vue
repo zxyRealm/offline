@@ -11,7 +11,7 @@
       active-text-color="#fff"
     >
       <el-menu-item index="/console">
-        <i class="ob-icon__community"></i>
+        <i class="ob-icon__console"></i>
         <span slot="title">控制台</span>
       </el-menu-item>
       <el-menu-item index="/community">
@@ -91,6 +91,12 @@ export default {
       }
       &.ob-icon__developer {
         background-image: url("../../image/nav_developer_icon.png");
+      }
+      &.ob-icon__console {
+        background-image: url("../../image/nav_console_icon.png");
+      }
+      &.ob-icon__member {
+        background-image: url("../../image/nav_console_icon.png");
       }
     }
     &.is-active {

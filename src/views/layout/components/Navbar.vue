@@ -15,9 +15,8 @@
             v-show="showBar"
             :toggleClick="toggleSideBar"
             :isActive="sidebar.opened"></hamburger>
-          <!--<router-link to="/console">控制台</router-link>-->
         </div>
-        <div class="navbar-console-select" v-if="$route.name  === 'console-lwh'" @click="getGropId">
+        <div class="navbar-console-select" v-if="$route.name  === 'console-lwh'" @click="dialogFormVisible = true">
           <span>{{selectName}}</span>
         </div>
         <div class="right-menu-item vam">
@@ -39,37 +38,83 @@
       </div>
     </el-menu>
     <!-- 选择社群 -->
-    <ob-dialog-form
-      ref="dialog"
-      @remote-submit="remoteSubmit"
-      :type="dialogOptions.type"
-      :title="dialogOptions.title"
-      :visible.sync="dialogFormVisible">
-    </ob-dialog-form>
-    <pick-device
-      ref="device"
-      @pick-device="pickDeviceHandler"
-      :type="'group'"
-      :title="'选择设备'"
-      :groupId="groupSelectId"
-      :visible.sync="dialogDeviceVisible">
-    </pick-device>
+    <console-dialog :visible.sync="dialogFormVisible">
+      <div class="dialog__item--wrap">
+        <div class="dialog__item--title">
+          <h3>选择社群</h3>
+          <i class="el-icon-close" @click="dialogFormVisible = false"></i>
+        </div>
+        <div class="dialog__item--content">
+          <el-scrollbar>
+            <ob-group-nav
+              ref="consoleGroup"
+              @current-change="handleChange"
+              :show-checkbox="true"
+              node-key="uniqueKey"
+              is-disabled
+              theme="white"
+              type="custom"
+            ></ob-group-nav>
+          </el-scrollbar>
+        </div>
+      </div>
+      <transition name="dialog-fade"></transition>
+      <div v-show="dialogDeviceVisible" class="dialog__item--wrap">
+        <div class="dialog__item--title">
+          <h3>选择设备</h3>
+        </div>
+        <div class="dialog__item--content vam">
+          <!--<el-scrollbar>-->
+            <el-radio-group v-model="deviceInfo">
+              <el-radio
+                v-for="(val,index) in deviceList"
+                :label="val"
+                :key="index">{{val['deviceName']}}</el-radio>
+            </el-radio-group>
+          <!--</el-scrollbar>-->
+        </div>
+        <div class="dialog__item--footer">
+          <el-button class="affirm" @click="getDeviceDetail">确定</el-button>
+        </div>
+      </div>
+    </console-dialog>
+    <!--<ob-dialog-form-->
+      <!--ref="dialog"-->
+      <!--:show-button="false"-->
+      <!--@remote-submit="remoteSubmit"-->
+      <!--:type="dialogOptions.type"-->
+      <!--:title="dialogOptions.title"-->
+      <!--:visible.sync="dialogFormVisible">-->
+    <!--</ob-dialog-form>-->
+    <!--<pick-device-->
+      <!--ref="device"-->
+      <!--@pick-device="pickDeviceHandler"-->
+      <!--:type="'group'"-->
+      <!--:title="'选择设备'"-->
+      <!--:groupId="groupSelectId"-->
+      <!--:visible.sync="dialogDeviceVisible">-->
+    <!--</pick-device>-->
   </div>
 </template>
 
 <script>
 import {mapGetters, mapState} from 'vuex'
 import Hamburger from '@/components/Hamburger'
-import PickDevice from '../../console/componets/PickDevice.vue'
+import Group from '@/components/group-nav'
+// import PickDevice from '../../console/componets/PickDevice.vue'
 import {eventObject} from '@/utils/event.js'
-
+import ConsoleDialog from '@/components/console'
 export default {
   components: {
     Hamburger,
-    PickDevice
+    Group,
+    // PickDevice,
+    ConsoleDialog
   },
   data () {
     return {
+      deviceInfo: '', // 设备信息
+      deviceList: [], // 设备列表
       notifState: false, // 是否有站内消息
       groupSelectId: '',
       selectName: '请选择您的社群',
@@ -111,29 +156,27 @@ export default {
 
     },
     // 当消失的时候不记录上次选择
-    dialogFormVisible (val, oldVal) {
-      if (!val) this.$refs.dialog.setCheckedNodes()
+    dialogFormVisible (val) {
+      if (!val) {
+        if (this.$refs.consoleGroup) {
+          this.$nextTick(() => {
+            this.$refs.consoleGroup.setCurrentKey()
+            // 清空已选择状态
+            this.$refs.consoleGroup.setCheckedKeys([])
+          })
+        }
+        this.deviceList = []
+        this.dialogDeviceVisible = false
+      }
     },
     dialogDeviceVisible (val, oldVal) {
-      if (!val) this.$refs.device.resetRadio()
+      // if (!val) this.$refs.device.resetRadio()
     }
   },
   methods: {
     // 只要点击了通知消息就为false
     notifyToggle () {
       this.notifState = false
-    },
-    // 设备返回数据
-    pickDeviceHandler (val) {
-      if (val == '上一步') {
-        this.dialogFormVisible = true
-      } else {
-        this.selectName = val.deviceName
-      }
-    },
-    // 点击选择社群
-    getGropId () {
-      this.dialogFormVisible = true
     },
     // 获取当前设备
     remoteSubmit (data) {
@@ -157,6 +200,30 @@ export default {
       this.$store.dispatch('LogOut').then(() => {
         location.reload() // In order to re-instantiate the vue-router object to avoid bugs
       })
+    },
+    // 选取社群时回调
+    handleChange (val) {
+      console.log('current ---', val)
+      this.deviceInfo = ''
+      this.$http('/group/device', {
+        guid: val.groupGuid,
+        tag: 'console'
+      }).then(res => {
+        this.deviceList = res.data || []
+        this.dialogDeviceVisible = !!res.data.length
+      }).catch(error => {
+        console.info(error)
+      })
+    },
+    // 获取设备详细信息 （商户综合信息、设备推送信息）
+    getDeviceDetail () {
+      if (!this.deviceInfo) {
+        this.$tip('请选取设备', 'error')
+        return
+      }
+      this.dialogFormVisible = false
+      this.selectName = this.deviceInfo.deviceName
+      this.$store.commit('SET_GROUP_CONSOLE_ID', this.deviceInfo.deviceKey)
     }
   },
   created () {
@@ -361,6 +428,59 @@ export default {
           }
         }
       }
+    }
+  }
+  .dialog__item--wrap{
+    display: inline-block;
+    float: left;
+    width: 500px;
+    height: 538px;
+    background: #fff;
+    border-radius: 5px;
+    .dialog__item--title{
+      position: relative;
+      overflow: hidden;
+      padding: 30px 0 12px;
+      text-align: center;
+      > h3{
+        font-size: 16px;
+      }
+      .el-icon-close{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+        cursor: pointer;
+      }
+    }
+    .dialog__item--content{
+      width: 400px;
+      height: 404px;
+      margin: 0 auto;
+      background:  #F8F8F8;
+      border-radius: 4px;
+      .el-scrollbar{
+        height: 100%;
+      }
+      .el-radio{
+        display: block;
+        overflow: hidden;
+        height: 16px;
+        margin-bottom: 20px;
+        &:last-child{
+          margin-bottom: 0;
+        }
+        +.el-radio{
+          margin-left: 0;
+        }
+      }
+    }
+    .dialog__item--footer{
+      margin-top: 15px;
+      text-align: center;
+    }
+    &:nth-child(2){
+      margin-left: 20px
     }
   }
 </style>

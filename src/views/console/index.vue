@@ -11,7 +11,7 @@
             <flow-info :type="'left'" :number="inNumber" class="flow-left"></flow-info>
             <flow-info :type="'right'" :number="outNumber" class="flow-right"></flow-info>
           </li>
-          <li class="corner-bg">
+          <li class="corner-bg vam">
             <all-time class="li-all-time"></all-time>
           </li>
         </ul>
@@ -20,22 +20,23 @@
             <line-console ref="echartsLine" :line-params='lineParams'></line-console>
           </div>
           <!--会员信息-->
-          <div class="corner-bg associator--wrap">
-            <div class="associator--inner">
+          <div class="corner-bg associator--wrap vam">
+            <div class="associator--inner" v-if="memberInfo.imgUrl">
               <h3>***欢迎您</h3>
               <div class="detail-info--wrap">
-                <div class="associator__avatar--wrap">
-                  <img class="associator__avatar" src="" alt="">
-                </div>
                 <div class="base-info">
-                  <p>银泰会员</p>
+                  <p><span class="ellipsis">银泰会员</span></p>
                   <p>女</p>
                   <p>23</p>
                   <p>{{ new Date() | parseTime('{m}/{d}')}}</p>
                   <p>{{new Date() | parseTime('{h}:{i}')}}</p>
                 </div>
+                <div class="associator__avatar--wrap">
+                  <img class="associator__avatar" :src="imageUrl" alt="">
+                </div>
               </div>
             </div>
+            <img v-else style="max-width: 100%;" src="/static/img/logo@2x.png" alt="">
           </div>
         </div>
       </div>
@@ -108,6 +109,8 @@ export default {
   components: {FlowInfo, AllTime, bar, pie, lineConsole, CustomerInfo, ObDialogInfo},
   data () {
     return {
+      memberInfo: {}, // 会员信息
+      imageUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1538981069997&di=50d38992576e0148cf82d71cbef50da9&imgtype=0&src=http%3A%2F%2Fh.hiphotos.baidu.com%2Fimage%2Fpic%2Fitem%2F5fdf8db1cb134954068359695b4e9258d1094a19.jpg',
       showDialogData: {},
       showDialog: false, // 显示图片详细信息
       style: {
@@ -202,6 +205,7 @@ export default {
     resolveDatad (data) {
       let obj = JSON.parse(data)
       console.log('data', obj)
+      this.setMemberInfo(data.memberInfoList)
       // 判断是否是同一台数据推送的数据
       if (obj.deviceKey !== this.deviceKey) return
       // 饼图 = 推送实时更新数据
@@ -215,7 +219,7 @@ export default {
       this.outNumber = obj.outNumber
       this.inNumber = obj.inNumber
       // 柱状图
-      if (Array.isArray(obj.age)) {
+      if (Array.isArray(JSON.parse(obj.age))) {
         this.ageBar = JSON.parse(obj.age)
       }
       // 图片展示
@@ -276,6 +280,55 @@ export default {
       this.outNumber = 0 // 出入数
       this.inNumber = 0 // 进入数
       this.ageBar = [0, 0, 0, 0, 0, 0] // 柱图
+    },
+    // 获取会员信息，并对图像进行剪裁显示
+    setMemberInfo (data) {
+      if (!data || !data[0]) return
+      data = data[0]
+      let coordinate = data.extendFaceBox
+      let [url, startX, startY, width, height] = [data.imgUrl, coordinate.upperX, coordinate.upperY, coordinate.lowerX - coordinate.upperX, coordinate.lowerY - coordinate.upperY]
+      let newUrl = this.customDrawImage(url, startX, startY, width, height)
+      console.log(newUrl)
+      data.cropUrl = newUrl
+      this.memberInfo = data
+    },
+    // 绘制图像（根据坐标）
+    customDrawImage (url, startX, startY, width, height) {
+      let _this = this
+      let canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      let ctx = canvas.getContext('2d')
+      let xhr = new XMLHttpRequest()
+      xhr.withCredentials = false
+      if ('withCredentials' in xhr) {
+        console.log('current support cros')
+        // 此时即支持CORS的情况
+        // 检查XMLHttpRequest对象是否有“withCredentials”属性
+        // “withCredentials”仅存在于XMLHTTPRequest level 2对象里
+      } else {
+        // 否则检查是否支持XDomainRequest
+        // XDomainRequest仅存在于IE中，是IE用于支持CORS请求的方式
+        console.log('this is ie')
+        xhr = new XDomainRequest()
+      }
+      xhr.onload = function () {
+        let url = URL.createObjectURL(this.response)
+        let img = new Image()
+        img.crossOrigin = ''
+        img.onload = function () {
+          // 此时你就可以使用canvas对img为所欲为了(画图尺寸不可超出原图尺寸范围，IE上会报错 IndexSizeError)
+          ctx.drawImage(img, startX, startY, width, height, 0, 0, width, height)
+          URL.revokeObjectURL(url)
+          return canvas.toDataURL('image/png', 1)
+          // console.log(customUrl)
+          // 图片用完后记得释放内存
+        }
+        img.src = url
+      }
+      xhr.open('GET', url, true)
+      xhr.responseType = 'blob'
+      xhr.send()
     }
   },
   created () {
@@ -349,8 +402,6 @@ export default {
         box-sizing: border-box;
         .left-ul {
           height: 31%;
-          /*background-color: rgba(64, 58, 73, 0.30);*/
-          /*box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);*/
           li {
             float: left;
             background-color: rgba(64, 58, 73, 0.30);
@@ -380,8 +431,6 @@ export default {
             height: 100%;
             box-sizing: border-box;
             .li-all-time {
-              position: absolute;
-              top: calc(50% - 41px);
             }
           }
         }
@@ -403,34 +452,34 @@ export default {
             height: 100%;
             padding: 24px 14px 40px;
             box-sizing: border-box;
-            text-align: center;
             h3{
               font-size: 20px;
+              text-align: center;
             }
             .detail-info--wrap{
+              margin-top: 14px;
               overflow: hidden;
             }
             .associator__avatar--wrap{
-              float: left;
-              width: 100%;
-              height: 100%;
-              margin-left: -100px;
+              margin-right: 100px;
+              height: 186px;
               .associator__avatar{
-                width: 100%;
-                height: 100%;
+                max-width: 100%;
               }
             }
             .base-info{
               float: right;
               width: 100px;
-              overflow: hidden;
               height: 100%;
-              margin-top: 14px;
+              text-align: center;
               p{
                 line-height: 2;
                 font-size: 12px;
                 border-bottom: 1px dashed #ddd;
                 margin:0 0 15px 14px;
+                &:last-child{
+                  margin-bottom: 0;
+                }
               }
             }
           }

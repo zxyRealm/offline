@@ -724,6 +724,19 @@ button, input {
 
 //默认主题 黑色
 .el-tree {
+  .identify-icon{
+    //background:;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1;
+    transform: scale(0.66);
+    zoom: 0.66;
+    transform-origin: center center;
+    padding: 6px 6px;
+    color: #fff;
+    background: #0f9ce7;
+    border-radius: 4px;
+  }
   .el-tree__empty-block {
     font-size: 12px;
   }
@@ -736,7 +749,6 @@ button, input {
     }
   }
   .el-tree-node__expand-icon.is-leaf {
-    //padding: 4px!important;
     color: transparent !important;
   }
   .el-tree-node__content {
@@ -1033,6 +1045,12 @@ button, input {
   }
 }
 
+//控制台dialog弹窗 radio-group 组件样式
+.dialog__item--content{
+  .el-radio__label{
+    font-size: 12px;
+  }
+}
 
 // el-tooltip
 [role=tooltip].el-tooltip__popper{
