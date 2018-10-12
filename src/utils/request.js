@@ -26,8 +26,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
     baseURL: process.env.BASE_API,
     url: url,
     data: params,
-    method: 'POST',
-    responseType: 'json'
+    method: 'POST'
   })
   instance.interceptors.request.use(config => {
     if (isTip) {

@@ -12,30 +12,35 @@
         class="form__position"
         ref="userInfoForm"
         form-class="user-info-form"
+        @handle-submit="addPerson"
         :subText="'保存'">
 
         <el-form-item label="照片：" prop="phone">
           <el-upload
+            v-show="!personMessge.faceImgUrl"
             class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            action=""
             :show-file-list="false"
-            :on-success="handleAvatarSuccess"
+            :http-request="avatarUpload"
             :before-upload="beforeAvatarUpload">
-            <!-- <img v-if="imageUrl" :src="imageUrl" class="avatar"> -->
             <div class="form__button">添加<span class="f-grey">（400Kb以内）</span></div>
           </el-upload>
+          <div v-if="personMessge.faceImgUrl" class="avatar__border">
+            <img :src="personMessge.faceImgUrl" class="avatar">
+          </div>
+          <div class="station" v-if="personMessge.faceImgUrl"></div>
         </el-form-item>
 
         <el-form-item label="姓名：" prop="company">
-          <el-input type="text" placeholder="32位字符以内"></el-input>
+          <el-input type="text" placeholder="32位字符以内" v-model="personMessge.name"></el-input>
         </el-form-item>
 
         <el-form-item label="手机号：" prop="company">
-          <el-input type="text" placeholder="11位手机号码"></el-input>
+          <el-input type="text" placeholder="11位手机号码" v-model="personMessge.phone"></el-input>
         </el-form-item>
 
         <el-form-item label="性别：" prop="company">
-          <el-radio-group v-model="radio2">
+          <el-radio-group v-model="personMessge.gender">
             <el-radio :label="1">男</el-radio>
             <el-radio :label="2">女</el-radio>
           </el-radio-group>
@@ -43,20 +48,21 @@
 
         <el-form-item label="生日：" prop="company">
           <el-date-picker
-            v-model="value1"
+            v-model="personMessge.birthday"
             type="date"
+            value-format="timestamp"
             placeholder="选择日期">
           </el-date-picker>
         </el-form-item>
 
         <el-form-item label="人员类型：" prop="company">
           <div class="pcb__cont">
-            <el-select class="popupCont__choose" ref="select" v-model="popupCont.problemTypeGuid" filterable clearable placeholder="请选择操作类型">
+            <el-select class="popupCont__choose" ref="select" v-model="personMessge.level" filterable clearable placeholder="请选择操作类型">
               <el-option
-                v-for="item in issuesList"
-                :key="item.memberLibraryGuid"
+                v-for="(item,index) in issuesList"
+                :key="index"
                 :label="item.typeValue"
-                :value="item.memberLibraryGuid">
+                :value="item.typeNo">
               </el-option>
               <el-option :disabled="true" :value="''"></el-option>
               <div class="popupCont__edit" @click="showPopup">编辑</div>
@@ -102,15 +108,11 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: 'person',
   data () {
     return {
-      value1: '',
-      checkList: [],
-      questionList: [],
-      popupCont: '',
-      radio2: 1,
       // 展示问题列表
       popupShow: false,
       // 问题列表
@@ -126,7 +128,23 @@ export default {
       // 修改的内容
       changeCont: '',
       // 错误提示信息
-      errorMessage: ''
+      errorMessage: '',
+      // 人员数据
+      personMessge: {
+        // 展示的图片
+        faceImgUrl: '',
+        // 姓名
+        name: '',
+        // 手机号
+        phone: '',
+        // 性别
+        gender: 1,
+        // 生日
+        birthday: '',
+        // 人员等级
+        level: ''
+      }
+
     }
   },
   methods: {
@@ -178,6 +196,7 @@ export default {
       this.errorMessage = ''
       let data = {}
       data.typeValue = this.input
+      data.memberLibraryGuid = this.$route.query.guid
       this.issuesList.push(data)
       this.input = ''
       this.$nextTick(() => {
@@ -228,6 +247,15 @@ export default {
     operationHide (e) {
       this.hover = ''
     },
+    // 列表恢复状态
+    recoverState () {
+      this.show = ''
+      this.input = ''
+      this.errorMessage = ''
+      this.$refs.questionList.scrollTop = 0
+      this.popupShow = false
+      this.getList()
+    },
     // 确定二级弹出框
     surePopup () {
       let data = {
@@ -235,34 +263,102 @@ export default {
       }
       this.$http('/memberType/operate', data).then(res => {
         if (res.result) {
-          this.show = ''
-          this.input = ''
-          this.errorMessage = ''
-          this.$refs.questionList.scrollTop = 0
-          this.getList()
+          this.recoverState()
         }
       })
     },
     // 取消二级弹出框
     closePopup () {
-      this.show = ''
-      this.input = ''
-      this.errorMessage = ''
-      this.issuesList = [...this.questionList]
-      this.$refs.questionList.scrollTop = 0
-      this.popupShow = false
-      this.getList()
+      this.recoverState()
     },
     // 图片上传事件
-    handleAvatarSuccess () {
-
+    // 调接口
+    avatarUpload (file) {
+      let uid = this.$store.state.userInfo.developerId
+      let catalog = `member/${uid}`
+      let name = (new Date()).valueOf()
+      let data = {
+        superKey: catalog
+      }
+      // 获取阿里云oss signature
+      this.$http('/auth/oss/image/signature', data).then(res => {
+        if (res.data) {
+          let formData = new FormData()
+          let customName = 'photo_' + name + '.' + (file.file.type.split('/')[1] === 'png' ? 'png' : 'jpg')
+          console.log('file name', customName)
+          formData.append('key', `${catalog}/${customName}`)
+          formData.append('policy', res.data['policy'])
+          formData.append('OSSAccessKeyId', res.data['accessid'])
+          formData.append('success_action_status', '200')
+          formData.append('signature', res.data['signature'])
+          formData.append('file', file.file, customName)
+          // 构建formData 对象，将图片上传至阿里云oss服务
+          axios.post(res.data.host, formData).then(back => {
+            if (!back.data) {
+              this.personMessge.faceImgUrl = res.data.host + '/member/' + uid + '/' + customName
+            } else {
+              this.$tip('上传失败，请稍后重试', 'error')
+            }
+          }).catch(() => {
+            this.$tip('网络异常，请稍后重新尝试', 'error')
+          })
+        }
+      }).catch(() => {
+        this.$tip('服务器错误，请重新尝试')
+      })
     },
-    beforeAvatarUpload () {
-
+    // 上传前图片格式校验
+    beforeAvatarUpload (file) {
+      const isJPG = (file.type === 'image/jpeg' || file.type === 'image/png')
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isJPG) {
+        this.$tip('上传头像图片只能是 JPG/PNG 格式!', 'error')
+        return false
+      }
+      if (!isLt2M) {
+        this.$tip('上传头像图片大小不能超过 2MB!', 'error')
+        return false
+      }
+    },
+    // 添加人员
+    addPerson () {
+      let data = {
+        guid: this.$route.query.personId,
+        memberLibraryGuid: this.$route.query.guid,
+        faceImgUrl: this.personMessge.faceImgUrl,
+        name: this.personMessge.name,
+        phone: this.personMessge.phone,
+        gender: this.personMessge.gender,
+        birthday: this.personMessge.birthday,
+        level: this.personMessge.level
+      }
+      if (this.$route.query.personId) {
+        this.$http('/member/update', data).then(res => {
+          if (res.result) {
+            this.recoverState()
+          }
+        })
+      } else {
+        this.$http('/member/create', data).then(res => {
+          if (res.result) {
+            this.recoverState()
+          }
+        })
+      }
     }
   },
   created () {
     this.getList()
+    if (this.$route.query.personId) {
+      let data = {
+        guid: this.$route.query.personId
+      }
+      this.$http('/member/details', data).then(res => {
+        if (res.result) {
+          this.personMessge = res.data
+        }
+      })
+    }
   }
 }
 </script>
@@ -430,5 +526,21 @@ export default {
   }
   .f-balck{
     color: #000 !important;
+  }
+  .avatar{
+    margin: 10px  auto 0 auto;
+    width: 100px;
+    height: 100px;
+  }
+  .avatar__border{
+    position: absolute;
+    bottom: 0px;
+    width: 222px;
+    height: 120px;
+    background: #333333;
+    border-radius: 2px;
+  }
+  .station{
+    height: 70px;
   }
 </style>
