@@ -3,60 +3,56 @@
     class="ob-group-nav"
     :type="type"
   >
-    <el-scrollbar>
-      <el-select
-        v-if="type==='device'"
-        placeholder="请选取社群"
-        @change="selectChange"
-        v-model="currentGroup">
-        <el-option
-          v-for="(item,$index) in GroupList"
-          :key="item.groupGuid"
-          :label="item.groupNickName"
-          :value="$index">
-        </el-option>
-      </el-select>
-      <el-checkbox v-if="type==='custom' && isCheckAll" @change="checkedAll">全选</el-checkbox>
-      <el-tree
-        :multiple="multiple"
-        :only-checked="onlyChecked"
-        :check-strictly="checkStrictly"
-        :show-checkbox="showChecked"
-        :class="theme"
-        class="filter-tree"
-        :node-key="nodeKey"
-        :data="TreeList"
-        :props="defaultProps"
-        :default-expanded-keys="expandedKeys"
-        :default-expand-all="expandedAll"
-        @node-click="nodeClick"
-        @check="nodeCheck"
-        @current-change="currentChange"
-        ref="GroupTree">
-        <span class="custom-tree-node" slot-scope="{ node, data }">
-          <span
-            v-if="type==='custom-community'"
-            :class="{ellipsis:true,'dialog-tree':type === 'custom'}"
-            :custom-type="customType(data.type)"
-            :style="{maxWidth:''}"
-          >
-            {{data[defaultProps.label]}}
-          </span>
-          <span
-            v-if="type!=='custom-community'"
-            :class="{ellipsis:true,'dialog-tree':type === 'custom'}">
-            {{ data[defaultProps.label] }}
-          </span>
-          <img v-if="data.role === 0 && node.level === 1" class="role__icon--img" src="./image/manager_icon.png" alt="">
-          <img v-else-if="data.role === 1 && node.level === 1" class="role__icon--img" src="./image/children_icon.png" alt="">
-          <img v-else-if="data.type === 3 && node.level === 1" class="role__icon--img" src="./image/single_icon.png" alt="">
-          <img v-if="data.type" class="role__icon--img" src="./image/data_icon@2x.png" alt="">
-          <img v-if="data.type" class="role__icon--img" src="./image/manage_icon@2x.png" alt="">
-          <i v-if="type==='community'&& node.level===2" class="el-icon-remove-outline danger fr"
-             @click="leaveCommunity('kick',data,node.parent.data)"></i>
-        </span>
-      </el-tree>
-    </el-scrollbar>
+    <el-tree
+      style="width: 400px;"
+      :multiple="multiple"
+      :only-checked="onlyChecked"
+      :check-strictly="checkStrictly"
+      :show-checkbox="showChecked"
+      :class="theme"
+      class="filter-tree"
+      :node-key="nodeKey"
+      :data="GroupList"
+      :props="defaultProps"
+      :default-expanded-keys="expandedKeys"
+      :default-expand-all="expandedAll"
+      @node-click="nodeClick"
+      @check="nodeCheck"
+      @current-change="currentChange"
+      ref="GroupTree">
+      <span class="custom-tree-node" slot-scope="{ node, data }">
+        <span>{{data[defaultProps.label]}}</span>
+       <img class="role-icon-img" v-if="data.memberItem && node.level === 1" src="./image/manager_icon.png" alt="">
+       <img src="./image/children_icon.png" alt="" v-else-if="node.level===1">
+        <template>
+           <el-popover
+             placement="right"
+             class="popover-wrap"
+             @show='()=>getParentList(data)'
+             trigger="hover">
+              <div v-if="data.parentList&&data.parentList.length" class="clearfix">
+                <div class="parent-item clearfix" v-for="(item,$index) in data.parentList" :key="$index">
+                  <div style="width: 36px;margin-right: 5px;">
+                    <el-tooltip class="fl" effect="dark" content="数据查看权限" placement="top">
+                      <uu-icon type="data"></uu-icon>
+                    </el-tooltip>
+                    <el-tooltip class="fl" v-show="isHandle(item.rule)" effect="dark" content="设备操作权限" placement="top">
+                      <uu-icon type="handle"></uu-icon>
+                    </el-tooltip>
+                  </div>
+                  <div class="name">{{item.name}}</div>
+                  <uu-icon type="quit" @click.native="()=>leaveCommunity('quit',data,item)"></uu-icon>
+                </div>
+              </div>
+              <div class="tac fs12" v-else>暂未加入社群</div>
+          <el-button v-if="node.level===1 && !data.groupPid && type==='community'" type="text" class="popover fr"
+                     size="mini" slot="reference">上级</el-button>
+        </el-popover>
+        </template>
+        <i v-if="type==='community'&& node.level===2" class="el-icon-remove-outline danger fr"
+           @click="leaveCommunity('kick',data,node.parent.data)"></i>
+      </span>
+    </el-tree>
   </div>
 </template>
 
@@ -133,14 +129,42 @@ export default {
       default: () => ({})
     }
   },
-  name: 'ob-group-nav',
+  name: 'obGroupTree',
   data () {
     return {
       currentGroup: '',
       GroupList: [],
       currentNode: '',
       checkedKeys: [],
-      agency: []
+      agency: [],
+      treeData: [{
+        id: 1,
+        label: '一级 2',
+        children: [{
+          id: 3,
+          label: '二级 2-1',
+          children: [{
+            id: 4,
+            label: '三级 3-1-1'
+          }, {
+            id: 5,
+            label: '三级 3-1-2',
+            disabled: true
+          }]
+        }, {
+          id: 2,
+          label: '二级 2-2',
+          disabled: true,
+          children: [{
+            id: 6,
+            label: '三级 3-2-1'
+          }, {
+            id: 7,
+            label: '三级 3-2-2',
+            disabled: true
+          }]
+        }]
+      }]
     }
   },
   methods: {
@@ -171,8 +195,10 @@ export default {
     },
     // 当前选中节点变化时触发的事件
     currentChange (val, node) {
+      console.log(val[this.nodeKey], node)
       if (val[this.nodeKey] !== this.currentNode) {
         if (this.type === 'device') {
+          console.log('emit event', this.currentGroup)
           this.$emit('current-change', {
             selectNode: this.currentGroup,
             currentNode: val,
@@ -186,7 +212,7 @@ export default {
     },
     // el-select 组件value 值变化时通知父组件
     selectChange (index) {
-      this.TreeList = this.GroupList[index][this.defaultProps.children]
+      // this.TreeList = this.GroupList[index][this.defaultProps.children]
       this.currentNode = ''
       this.$emit('current-change', {
         selectNode: index,
@@ -201,7 +227,7 @@ export default {
     getGroupList (gid) {
       gid = (gid || '')
       this.$http('/group/list', {searchText: gid}).then(res => {
-        this.GroupList = uniqueKey(res.data, this.defaultProps.children)
+        this.GroupList = uniqueKey(res.data, 'memberItem')
         if (this.type !== 'device') {
           this.TreeList = this.GroupList
         }
@@ -241,8 +267,8 @@ export default {
           break
         default:
           des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>
-              确定要移除子社群【<span class="maxw200 ellipsis">
-              ${params.groupNickName}</span>】？`
+            确定要移除子社群【<span class="maxw200 ellipsis">
+            ${params.groupNickName}</span>】？`
           url = '/group/remove'
       }
       this.$affirm({text: `${des}`}, (action, instance, done) => {
@@ -299,13 +325,7 @@ export default {
     }
   },
   mounted () {
-    this.GroupList = this.value || []
-    if (this.type !== 'community' && this.type !== 'custom-community') {
-      this.getGroupList()
-    }
-    if (this.type === 'device') {
-      this.currentGroup = this.select.selectNode
-    }
+    this.getGroupList()
     this.setCurrentKey(this.currentKey)
   },
   watch: {
@@ -337,40 +357,40 @@ export default {
     showChecked: function () {
       return this.onlyChecked ? this.onlyChecked : this.showCheckbox
     },
-    TreeList: {
-      get () {
-        // 设置默认不可选节点
-        if (this.isDisabled) {
-          let [setKeys, disabledKeys] = [new Set(this.disabledKeys), []]
-          let setDisabled = (arr) => {
-            for (let i = 0, len = arr.length; i < len; i++) {
-              if (setKeys.has(arr[i][this.dataKey])) {
-                disabledKeys.push(arr[i][this.nodeKey])
-                this.$set(arr[i], 'disabled', true)
-              } else {
-                if (arr[i].disabled) {
-                  this.$set(arr[i], 'disabled', false)
-                }
-              }
-              if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
-                setDisabled(arr[i][this.defaultProps.children])
-              }
-            }
-          }
-          setDisabled(this.GroupList)
-          this.setCheckedKeys(disabledKeys)
-        }
-        if (this.type !== 'device') {
-          this.agency = this.GroupList
-        } else {
-          return this.GroupList[this.currentGroup] ? this.GroupList[this.currentGroup][this.defaultProps.children] : []
-        }
-        return this.agency
-      },
-      set (model) {
-        this.agency = model
-      }
-    },
+    // TreeList: {
+    //   get () {
+    //     // 设置默认不可选节点
+    //     if (this.isDisabled) {
+    //       let [setKeys, disabledKeys] = [new Set(this.disabledKeys), []]
+    //       let setDisabled = (arr) => {
+    //         for (let i = 0, len = arr.length; i < len; i++) {
+    //           if (setKeys.has(arr[i][this.dataKey])) {
+    //             disabledKeys.push(arr[i][this.nodeKey])
+    //             this.$set(arr[i], 'disabled', true)
+    //           } else {
+    //             if (arr[i].disabled) {
+    //               this.$set(arr[i], 'disabled', false)
+    //             }
+    //           }
+    //           if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
+    //             setDisabled(arr[i][this.defaultProps.children])
+    //           }
+    //         }
+    //       }
+    //       setDisabled(this.GroupList)
+    //       this.setCheckedKeys(disabledKeys)
+    //     }
+    //     if (this.type !== 'device') {
+    //       this.agency = this.GroupList
+    //     } else {
+    //       return this.GroupList[this.currentGroup] ? this.GroupList[this.currentGroup][this.defaultProps.children] : []
+    //     }
+    //     return this.agency
+    //   },
+    //   set (model) {
+    //     this.agency = model
+    //   }
+    // },
     originList: function () {
       return this.$restoreArray(this.TreeList, this.defaultProps.children)
     }
@@ -394,7 +414,7 @@ export default {
     width: 100%;
     > .ellipsis {
       float: left;
-      max-width: 90px;
+      max-width: 94px;
       width: auto;
       vertical-align: middle;
       font-size: 12px;
@@ -450,13 +470,6 @@ export default {
   @import "@/styles/variables.scss";
 
   .ob-group-nav {
-    height: 100%;
-    >.el-scrollbar{
-      height: 100%;
-      .el-scrollbar__wrap{
-        overflow-x: hidden;
-      }
-    }
     &[type=custom-community] {
       .el-icon-caret-right {
         width: 8px;
@@ -567,18 +580,6 @@ export default {
   }
 
   .custom-tree-node {
-    > * {
-      display: inline-block;
-      vertical-align: middle;
-    }
-    .role__icon--img{
-      margin-right: -3px;
-      height: 12px;
-      margin-left: 10px;
-      &:first-child{
-        margin-right: 0;
-      }
-    }
     .el-button {
       &.el-popover__reference {
         span {

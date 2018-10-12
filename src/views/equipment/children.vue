@@ -1,15 +1,11 @@
 <template>
-  <div class="equipment-children-wrap">
+  <div class="equipment-children-wrap g-prl20">
     <uu-sub-tab
-      :back="!isSearch"
-      :search="isSearch"
+      search
       @remote-search="search"
-      :menu-array="[{title:$route.params.key? $route.params.key:'设备列表'}]">
+      placeholder="快速查找设备"
+      :menu-array="menu2">
     </uu-sub-tab>
-    <uu-sub-tab
-      v-if="isSearch"
-      size="medium"
-      :menu-array="menu2"></uu-sub-tab>
     <div class="equipment-children-container" :style="{top:isSearch?'92px':'64px'}">
       <div class="ec-side-nav dashed-border" v-if="isSearch">
         <h2>选择子社群</h2>
@@ -80,7 +76,7 @@ export default {
     return {
       menu2: [
         {title: '自有设备', index: '/equipment/mine'},
-        {title: '子社群设备', index: '/equipment/children'}
+        {title: '非自有设备', index: '/equipment/children'}
       ],
       currentGroup: '', // 选中社群
       equipmentList: [], // 设备列表

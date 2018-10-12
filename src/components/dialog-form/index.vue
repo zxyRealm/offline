@@ -6,7 +6,9 @@
     top="auto"
     @close="closeDialog"
     class="dialog-form-wrapper vam"
-    width="500px" :title="title" :visible.sync="dialogFormVisible">
+    :width="width"
+    :title="title"
+    :visible.sync="dialogFormVisible">
     <el-scrollbar
       class="mc"
       v-if="type==='group'"
@@ -23,6 +25,12 @@
         type="custom"
       ></ob-group-nav>
     </el-scrollbar>
+    <template v-if="$slots.form">
+      <slot name="form"></slot>
+    </template>
+    <template v-if="$slots.content">
+      <slot name="content"></slot>
+    </template>
     <el-form
       block-message
       style="width: 330px"
@@ -75,9 +83,12 @@
         </el-form-item>
       </template>
     </el-form>
-    <div slot="footer" v-if="showButton" class="dialog-footer">
+    <div slot="footer" v-if="showButton && !$slots.footer" class="dialog-footer">
       <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
       <el-button class="affirm" type="primary" @click="submitDialogForm('dialogForm')">确 定</el-button>
+    </div>
+    <div class="el-dialog__footer" v-if="$slots.footer">
+      <slot name="footer"></slot>
     </div>
   </el-dialog>
 </template>
@@ -123,7 +134,7 @@ export default {
     },
     width: {
       type: [Number, String],
-      default: '330px'
+      default: '500px'
     },
     multiple: { // 当type为group是设置有效 是否可多选
       type: Boolean,
@@ -221,8 +232,7 @@ export default {
           {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
         ]
       },
-      optionsGroup: [],
-      dialogFormVisible: false
+      optionsGroup: []
     }
   },
   watch: {
@@ -231,15 +241,6 @@ export default {
         this.optionsGroup = val || []
       },
       deep: true
-    },
-    visible: function (val) {
-      this.dialogFormVisible = val
-    },
-    dialogFormVisible: function (val) {
-      this.$emit('update:visible', val)
-      if (val && this.$refs.customGroup) {
-        this.$refs.customGroup.getGroupList()
-      }
     },
     value: {
       handler: function (val) {
@@ -279,6 +280,7 @@ export default {
       }
     },
     closeDialog () {
+      this.$emit('update:visible', false)
       if (this.$refs.dialogForm) {
         this.$refs.dialogForm.resetFields()
       }
@@ -311,6 +313,17 @@ export default {
       },
       set () {
         return this.disabledKeys
+      }
+    },
+    dialogFormVisible: {
+      get () {
+        if (this.visible && this.$refs.customGroup) {
+          this.$refs.customGroup.getGroupList()
+        }
+        return this.visible
+      },
+      set (val) {
+        this.$emit('update:visible', val)
       }
     }
   }
@@ -363,7 +376,6 @@ export default {
         }
       }
     }
-
     .el-radio-group {
       .el-radio-button {
         float: left;

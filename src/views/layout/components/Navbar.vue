@@ -211,6 +211,7 @@ export default {
       }).then(res => {
         this.deviceList = res.data || []
         this.dialogDeviceVisible = !!res.data.length
+        if (!this.deviceList.length) this.$tip('该社群下暂时没有设备可以添加')
       }).catch(error => {
         console.info(error)
       })
@@ -218,7 +219,7 @@ export default {
     // 获取设备详细信息 （商户综合信息、设备推送信息）
     getDeviceDetail () {
       if (!this.deviceInfo) {
-        this.$tip('请选取设备', 'error')
+        this.$tip('请选择您的设备', 'error')
         return
       }
       this.dialogFormVisible = false

@@ -23,7 +23,7 @@
         <span slot="title">设备管理</span>
       </el-menu-item>
       <el-menu-item index="/member">
-        <i class="ob-icon__equipment"></i>
+        <i class="ob-icon__member"></i>
         <span slot="title">人员管理</span>
       </el-menu-item>
       <el-menu-item index="/data">
@@ -60,7 +60,7 @@ export default {
     ]),
     currRouter: function () {
       let path = this.$route.path
-      return path.substring(0, path.indexOf('/', 1))
+      return `/${path.split('/')[1]}`
     },
     isCollapse () {
       return !this.sidebar.opened
@@ -76,7 +76,7 @@ export default {
       height: 22px;
       background-position: center;
       background-repeat: no-repeat;
-      background-size: cover;
+      background-size: contain;
       & + span {
         margin-left: 16px;
       }
@@ -96,7 +96,7 @@ export default {
         background-image: url("../../image/nav_console_icon.png");
       }
       &.ob-icon__member {
-        background-image: url("../../image/nav_console_icon.png");
+        background-image: url("../../image/nav_member_icon.png");
       }
     }
     &.is-active {

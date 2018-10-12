@@ -1,12 +1,12 @@
 <template>
-  <div class="edit-community-wrap">
+  <div class="edit-community-wrap g-prl20">
     <uu-sub-tab
       back
       :menu-array="[{title:menuTitle}]"></uu-sub-tab>
-    <div class="community-common-form-wrap dashed-border">
+    <div class="community-common-form-wrap dashed-border mt18">
       <uu-form
         label-width="106px"
-        sub-text="确定"
+        sub-text="保存"
         @handle-submit="submitForm"
         v-model="communityForm"
         :rules="rules"
@@ -14,16 +14,6 @@
         <el-form-item label="社群名称：" prop="name">
           <el-input type="text" placeholder="请输入社群名称"
                     v-model.trim="communityForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="社群码：" prop="code">
-          <input type="hidden" v-model.trim="communityForm.code"/>
-          <div class="qr-code-wrap">
-            <template v-if="communityForm.code">
-              <div id="community-qrcode"></div>
-              <div>{{communityForm.code}}</div>
-            </template>
-            <a href="javascript:void (0)" @click="getQrCode" v-else>获取社群二维码</a>
-          </div>
         </el-form-item>
         <el-form-item label="地区：" prop="pca">
           <area-select placeholder="请选择地区" v-model="communityForm.pca"></area-select>
@@ -37,28 +27,24 @@
                     v-model.trim="communityForm.contact"></el-input>
         </el-form-item>
         <el-form-item label="联系电话：" prop="phone">
-          <el-input type="text" placeholder="请输入联系电话"
+          <el-input type="text" placeholder="11位手机号"
                     v-model.trim="communityForm.phone"></el-input>
         </el-form-item>
-        <el-form-item label="索权范围：" prop="rule">
-          <p class="fcg">(要求子社群授予的设备权限
-            <el-popover
-              placement="top"
-              width="268"
-              trigger="hover">
-              <div class="fs12">
-                1.数据查看权限：查看社群设备的数据分析图表。<br>
-                2.设备操作权限：对子社群设备进行禁用、启用 、升级等操作。
-              </div>
-              <uu-icon slot="reference" size="small" type="problem"></uu-icon>
-            </el-popover>
-            ,可多选)
-          </p>
-          <el-checkbox-group v-model="communityForm.rule">
-            <el-checkbox disabled :label="0">数据查看权限</el-checkbox>
-            <el-checkbox :disabled="type==='update'" :label="1">设备操作权限</el-checkbox>
+        <el-form-item v-if="communityType === 'manage'" label="索权范围：" prop="rule">
+          <el-checkbox-group class="g-pt10" v-model="communityForm.rule">
+            <div>
+              <el-checkbox :disabled="type==='update'" :label="1">设备操作权限
+                <p class="form__item--des">查看应用层社群的客流数据（必选项）</p>
+              </el-checkbox>
+            </div>
+            <div>
+              <el-checkbox disabled :label="0">数据查看权限
+                <p class="form__item--des">对应用层社群的设备进行添加、升级等所有操作</p>
+              </el-checkbox>
+            </div>
           </el-checkbox-group>
         </el-form-item>
+        <p class="form__item--des g-pl106">备注：带有" * "标记的标签为必填内容。</p>
       </uu-form>
     </div>
   </div>
@@ -133,7 +119,7 @@ export default {
       },
       rules: {
         name: [
-          {validator: validateName, trigger: 'blur'}
+          {required: true, validator: validateName, trigger: 'blur'}
         ],
         code: [
           {required: true, message: '请获取社群邀请码', trigger: 'blur'}
@@ -149,7 +135,7 @@ export default {
           {validator: validateContact, trigger: 'blur'}
         ],
         rule: [
-          {required: true, message: '请选择索权范围', trigger: 'blur'}
+          {message: '请选择索权范围', trigger: 'blur'}
         ],
         phone: [
           {validator: validatePhone, trigger: 'blur'}
@@ -213,14 +199,37 @@ export default {
     }
   },
   computed: {
+    // 页面面包屑标题
     menuTitle: function () {
-      return this.$route.name === 'editCommunity' ? '编辑社群信息' : '创建社群'
+      let txt = '社群管理 / '
+      switch (this.$route.name) {
+        case 'editCommunity':
+          txt += '编辑管理层社群'
+          break
+        case 'createCommunity':
+          txt += '新建管理层社群'
+          break
+        case 'editApplyCommunity':
+          txt += '编辑子社群'
+          break
+        case 'editSingleCommunity':
+          txt += '编辑单店社群'
+          break
+        case 'singleCommunity':
+          txt += '编辑单店社群'
+          break
+        default:
+          txt += '新建子社群'
+      }
+      return txt
     },
-    subText: function () {
-      return this.$route.name === 'editCommunity' ? '保存' : '创建'
-    },
+    // 编辑/创建
     type: function () {
-      return this.$route.name === 'editCommunity' ? 'update' : 'create'
+      return (this.$route.name === 'editCommunity' || this.$route.name === 'applyCommunity') ? 'update' : 'create'
+    },
+    // 社区类型 管理/应用
+    communityType () {
+      return (this.$route.name === 'editApplyCommunity' || this.$route.name === 'applyCommunity') ? 'apply' : 'manage'
     }
   }
 }

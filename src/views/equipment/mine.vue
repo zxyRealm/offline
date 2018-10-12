@@ -1,17 +1,26 @@
 <template>
-  <div class="equipment-list-wrap">
+  <div class="equipment-list-wrap g-prl20">
     <uu-sub-tab
-      :back="isSearch"
-      :search="!isSearch"
+      search
+      show-button
+      :sub-btn="{text: '创建社群'}"
       @remote-search="search"
-      :menu-array="[{title: $route.params.key?$route.params.key:'设备列表'}]"></uu-sub-tab>
-    <uu-sub-tab
-      v-if="!isSearch"
-      size="medium"
-      :show-button="!equipmentEmpty"
-      :sub-btn="{text:'添加'}"
-      @handle-btn="showDialog('device')"
-      :menu-array="menu2"></uu-sub-tab>
+      placeholder="输入社群名称"
+      :btn-array="btnArray"
+      :menu-array="menu2">
+    </uu-sub-tab>
+    <!--<uu-sub-tab-->
+      <!--:back="isSearch"-->
+      <!--:search="!isSearch"-->
+      <!--@remote-search="search"-->
+      <!--:menu-array="[{title: $route.params.key?$route.params.key:'设备列表'}]"></uu-sub-tab>-->
+    <!--<uu-sub-tab-->
+      <!--v-if="!isSearch"-->
+      <!--size="medium"-->
+      <!--:show-button="!equipmentEmpty"-->
+      <!--:sub-btn="{text:'添加'}"-->
+      <!--@handle-btn="showDialog('device')"-->
+      <!--:menu-array="menu2"></uu-sub-tab>-->
     <ob-list-empty
       top="106px"
       v-if="!equipmentList.length"
@@ -105,9 +114,13 @@ export default {
         deviceName: '',
         type: ''
       },
+      btnArray: [
+        {text: '添加设备'},
+        {text: '添加服务器'}
+      ],
       menu2: [ // 导航栏配置信息
         {title: '自有设备', index: '/equipment/mine'},
-        {title: '子社群设备', index: '/equipment/children'}
+        {title: '非自有设备', index: '/equipment/children'}
       ],
       groupList: [], // 自有社群列表
       equipmentList: [], // 设备列表
@@ -273,7 +286,7 @@ export default {
 <style scoped>
   .data-list-wrap {
     padding-top: 24px;
-    height: calc(100% - 134px);
+    height: calc(100% - 80px);
   }
 
   .data-list-wrap > .el-scrollbar {

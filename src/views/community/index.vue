@@ -1,9 +1,5 @@
 <template>
   <div class="community-mine-wrap">
-    <!--<img style="maxWidth:400px" :src="imageUrl" alt="">-->
-    <!--<img :src="customImageUrl" alt="">-->
-    <!--<input type="text" v-model="imageUrl">-->
-    <!--<button @click="customDrawImage(imageUrl)">绘制</button>-->
     <template v-if="!groupList.length && !loading">
       <uu-sub-tab
         show-button

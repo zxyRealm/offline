@@ -2,9 +2,10 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import {fetch, exitMessage} from '@/utils/request'
 
+const Test = () => import('@/views/test.vue')
 const Layout = () => import('@/views/layout/Layout.vue')
 // 社群管理
-const Community = () => import('@/views/community/index.vue')
+const Community = () => import('@/views/community/mine.vue')
 const customCommunity = () => import('@/views/community/custom.vue')
 const editCustom = () => import('@/views/community/edit-custom.vue')
 const addCommunity = () => import('@/views/community/add-community.vue')
@@ -74,6 +75,16 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/test',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        component: Test
+      }
+    ]
+  },
+  {
     path: '/console',
     component: Layout,
     meta: {
@@ -134,10 +145,46 @@ export const constantRouterMap = [
         component: editCustom
       },
       {
+        path: 'single',
+        name: 'singleCommunity',
+        meta: {
+          title: '新建单店社群-社群管理-线下浏览器服务平台',
+          keepAlive: false
+        },
+        component: addCommunity
+      },
+      {
+        path: 'single/:gid([0-9A-Z]{32})',
+        name: 'editSingleCommunity',
+        meta: {
+          title: '编辑单店社群-社群管理-线下浏览器服务平台',
+          keepAlive: false
+        },
+        component: addCommunity
+      },
+      {
+        path: 'apply',
+        name: 'applyCommunity',
+        meta: {
+          title: '新建子社群-社群管理-线下浏览器服务平台',
+          keepAlive: false
+        },
+        component: addCommunity
+      },
+      {
+        path: 'apply/:gid([0-9A-Z]{32})',
+        name: 'editApplyCommunity',
+        meta: {
+          title: '编辑子社群-社群管理-线下浏览器服务平台',
+          keepAlive: false
+        },
+        component: addCommunity
+      },
+      {
         path: 'create',
         name: 'createCommunity',
         meta: {
-          title: '新建社群-社群管理-线下浏览器服务平台',
+          title: '新建管理员社群-社群管理-线下浏览器服务平台',
           keepAlive: false
         },
         component: addCommunity

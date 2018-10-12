@@ -177,13 +177,13 @@ div:focus {
 
 //元素margin间距
 
-@each $mt in 5, 8, 10, 16 {
+@each $mt in 5, 8, 10, 16{
   .mt#{$mt} {
     margin-top: $mt + px;
   }
 }
 
-@each $ml in 5, 8, 10, 94 {
+@each $ml in 5, 8, 10, 20, 50, 94 {
   .ml#{$ml} {
     margin-left: $ml + px;
   }
@@ -195,8 +195,22 @@ div:focus {
     width: auto;
   }
 }
+ //标签间padding 值
+@each $pt in 5, 8, 10, 16 {
+  .g-pt#{$pt} {
+    padding-top: $pt + px;
+  }
+}
 
+@each $pl in 5, 8, 10, 16, 100, 106 {
+  .g-pl#{$pl} {
+    padding-left: $pl + px;
+  }
+}
 
+.g-prl20{
+  padding: 0 20px;
+}
 .fr {
   float: right;
 }
@@ -437,7 +451,7 @@ button, input {
   &.affirm, &.cancel {
     border: none;
     height: 30px;
-    width: 130px;
+    width: 150px;
     background-position: center center;
     background-repeat: no-repeat;
     > span {
@@ -468,7 +482,10 @@ button, input {
     }
   }
 }
-
+.g-custom__button{
+  background: url("../assets/public/button_border_bg@2x.png") no-repeat center center;
+  background-size: 100% 100%;
+}
 .el-picker-panel {
   .el-button {
     &[disabled] {
@@ -657,14 +674,15 @@ button, input {
 }
 
 .data-list-wrap {
-  padding-left: 20px;
-  padding-right: 20px;
   height: calc(100% - 84px);
   overflow: hidden;
   width: 100%;
   box-sizing: border-box;
   > .el-scrollbar {
     height: 100%;
+    .el-scrollbar__wrap{
+      overflow-x: hidden;
+    }
   }
 }
 
@@ -817,6 +835,7 @@ button, input {
   }
   .el-input__inner {
     line-height: 30px;
+    height: 30px;
     border: none;
     background-color: transparent;
     color: #fff;
@@ -860,7 +879,6 @@ button, input {
 .el-scrollbar {
   .el-scrollbar__wrap {
     overflow-y: scroll;
-    overflow-x: hidden;
   }
   &.ob-scrollbar {
     height: 100%;
@@ -997,7 +1015,7 @@ button, input {
 }
 
 .community-common-form-wrap {
-  margin: 0 auto;
+  margin: 18px auto 0;
   height: 520px;
   width: 690px;
   padding: 40px 0;

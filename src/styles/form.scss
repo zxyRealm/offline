@@ -18,6 +18,16 @@
   .el-radio-button__orig-radio:disabled+.el-radio-button__inner{
     cursor: text;
   }
+  .el-checkbox__input.is-disabled.is-checked{
+    .el-checkbox__inner{
+      background: url(/static/img/disabled__checked.png) no-repeat left center;
+      background-size: cover;
+      border: none;
+      &:after{
+        border: transparent;
+      }
+    }
+  }
   .el-select{
     width: 100%;
   }
@@ -36,9 +46,21 @@
       }
     }
   }
+  .form__item--des{
+    margin-top: 10px;
+    font-size: 12px;
+    word-break: break-all;
+    color: rgba(255,255,255,0.4);
+  }
   .el-form-item {
     margin-bottom: 10px;
     line-height: 30px;
+    .el-checkbox__input{
+      vertical-align: top;
+    }
+    .el-checkbox__label{
+      line-height: 1;
+    }
     .readonly__text{
       padding: 0 15px;
     }
@@ -67,7 +89,7 @@
       font-weight: 500;
       color: #fff;
       &:before {
-        display: none;
+        //display: none;
       }
     }
     .el-form-item__content {
