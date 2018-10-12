@@ -15,6 +15,9 @@ const EquipmentMore = () => import('@/views/equipment/more.vue')
 const EquipmentChildren = () => import('@/views/equipment/children.vue')
 // 人员管理
 const Member = () => import('@/views/member/index.vue')
+const Library = () => import('@/views/member/library.vue')
+const Person = () => import('@/views/member/person.vue')
+const Details = () => import('@/views/member/details.vue')
 
 // 开发者中心
 const Developer = () => import('@/views/developer/index.vue')
@@ -228,6 +231,24 @@ export const constantRouterMap = [
         name: 'MemberMine',
         meta: {title: '人员管理-线下浏览器服务平台'},
         component: Member
+      },
+      {
+        path: 'library',
+        name: 'Library',
+        meta: {title: '人员管理-线下浏览器服务平台'},
+        component: Library
+      },
+      {
+        path: 'person',
+        name: 'Person',
+        meta: {title: '人员管理-线下浏览器服务平台'},
+        component: Person
+      },
+      {
+        path: 'details',
+        name: 'Details',
+        meta: {title: '人员管理-线下浏览器服务平台'},
+        component: Details
       }
     ]
   },

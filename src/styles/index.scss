@@ -1063,3 +1063,34 @@ p>.ellipsis{
     width: auto;
   }
 }
+
+// 人员面包屑样式
+.menber .el-breadcrumb__inner{
+  font-size: 14px;
+  line-height: 30px;
+  color: #FFFFFF !important;
+  letter-spacing: 0;
+}
+.menber .el-table th{
+  padding-left: 30px;
+  font-size: 14px;
+}
+ /* 上传框 */
+.menber .avatar {
+  width: 222px;
+  height: 30px;
+  display: block;
+}
+.menber .avatar-uploader {
+  box-sizing: border-box;
+  width: 222px;
+  height: 30px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  background-image:url("/static/img/input_border_bg@2x.png");
+  background-size: 100% 100%;
+}
+.editProblem .el-input .el-input__inner{
+  color: #000;
+}
