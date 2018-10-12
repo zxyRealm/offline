@@ -26,8 +26,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
     baseURL: process.env.BASE_API,
     url: url,
     data: params,
-    method: 'POST',
-    responseType: 'json'
+    method: 'POST'
   })
   instance.interceptors.request.use(config => {
     if (isTip) {
@@ -58,14 +57,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
     })
   return new Promise((resolve, reject) => {
     instance({
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      baseURL: process.env.BASE_API,
-      method: 'POST',
-      url: url,
-      data: params,
-      responseType: 'json'
+
     }).then(res => {
       if (isTip) {
         load(isTip).close()
