@@ -12,7 +12,7 @@
         :btn-array="btnArray"
         :menu-array="menu2">
       </uu-sub-tab>
-      <div class="table">
+      <el-scrollbar class="table">
         <el-table
           :data="tableData"
           border
@@ -44,7 +44,7 @@
 
           <el-table-column label="生日">
             <template slot-scope="scope">
-              <span>{{scope.row.birthday || '—'}}</span>
+              <span>{{scope.row.birthdayStamp | parseTime('{y}-{m}-{d}') || '—'}}</span>
             </template>
           </el-table-column>
 
@@ -61,7 +61,7 @@
             </template>
           </el-table-column>
         </el-table>
-      </div>
+      </el-scrollbar>
       <div>
         <el-pagination
           layout="total, sizes, prev, pager, next"
@@ -97,11 +97,20 @@ export default {
     }
   }),
   created () {
+    let data = {
+      guid: this.$route.query.guid
+    }
     this.getList()
+    this.$http('/memberLibrary/find', data).then(res => {
+      if (res.result) {
+        this.menu2[0].title = `人员管理  /  ${res.data.name}`
+      }
+    })
   },
   mounted () {
   },
-  computed: {},
+  computed: {
+  },
   methods: {
     // 添加人员
     addPerson () {
@@ -119,6 +128,9 @@ export default {
       this.$http('/member/search', data).then(res => {
         if (res.result) {
           this.tableData = res.data.content
+          this.pageData.index = res.data.pagination.index
+          this.pageData.length = res.data.pagination.length
+          this.pageData.total = res.data.pagination.total
         }
       })
     },
@@ -203,7 +215,14 @@ export default {
     cursor: pointer;
   }
   .table{
-    margin-top: 13px;
+    margin: 13px 0 10px 0;
     height: calc(100% - 59px - 60px);
+  }
+
+</style>
+
+<style>
+  .menber .el-scrollbar__wrap{
+    overflow-x:hidden;
   }
 </style>

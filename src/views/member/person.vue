@@ -1,10 +1,12 @@
 <template>
   <div class="menber">
     <div class="member__title">
-        <div class="el-icon-arrow-left retrun"></div>
+      <div class="el-icon-arrow-left retrun" @click="returnLast"></div>
       <el-breadcrumb separator="/" class="fl">
-        <el-breadcrumb-item :to="{ path: '/member' }">人员管理</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/member/person' }">添加人员</el-breadcrumb-item>
+        <el-breadcrumb-item>人员管理</el-breadcrumb-item>
+        <el-breadcrumb-item>{{titleName}}</el-breadcrumb-item>
+        <el-breadcrumb-item v-if="!this.$route.query.personId">添加人员</el-breadcrumb-item>
+        <el-breadcrumb-item v-else>编辑人员</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="member__form">
@@ -17,17 +19,21 @@
 
         <el-form-item label="照片：" prop="phone">
           <el-upload
-            v-show="!personMessge.faceImgUrl"
+            ref="upload"
             class="avatar-uploader"
             action=""
             :show-file-list="false"
             :http-request="avatarUpload"
             :before-upload="beforeAvatarUpload">
-            <div class="form__button">添加<span class="f-grey">（400Kb以内）</span></div>
+            <div class="form__button" v-if="!personMessge.faceImgUrl">添加<span class="f-grey">（400Kb以内）</span></div>
+            <div v-if="personMessge.faceImgUrl" class="avatar__border">
+              <div class="img__border">
+                <img :src="personMessge.faceImgUrl" class="avatar">
+                <div class="el-icon-error img__close" @click.stop="colseImg"></div>
+                <div class="changePhoto">更换照片</div>
+              </div>
+            </div>
           </el-upload>
-          <div v-if="personMessge.faceImgUrl" class="avatar__border">
-            <img :src="personMessge.faceImgUrl" class="avatar">
-          </div>
           <div class="station" v-if="personMessge.faceImgUrl"></div>
         </el-form-item>
 
@@ -48,7 +54,7 @@
 
         <el-form-item label="生日：" prop="company">
           <el-date-picker
-            v-model="personMessge.birthday"
+            v-model="personMessge.birthdayStamp"
             type="date"
             value-format="timestamp"
             placeholder="选择日期">
@@ -113,6 +119,8 @@ export default {
   name: 'person',
   data () {
     return {
+      // 面包屑名称
+      titleName: '',
       // 展示问题列表
       popupShow: false,
       // 问题列表
@@ -140,7 +148,7 @@ export default {
         // 性别
         gender: 1,
         // 生日
-        birthday: '',
+        birthdayStamp: '',
         // 人员等级
         level: ''
       }
@@ -329,25 +337,41 @@ export default {
         name: this.personMessge.name,
         phone: this.personMessge.phone,
         gender: this.personMessge.gender,
-        birthday: this.personMessge.birthday,
+        birthday: this.personMessge.birthdayStamp,
         level: this.personMessge.level
       }
       if (this.$route.query.personId) {
         this.$http('/member/update', data).then(res => {
           if (res.result) {
-            this.recoverState()
+            this.$router.go(-1)
           }
         })
       } else {
         this.$http('/member/create', data).then(res => {
           if (res.result) {
-            this.recoverState()
+            this.$router.go(-1)
           }
         })
       }
+    },
+    // 返回上一级
+    returnLast () {
+      this.$router.go(-1)
+    },
+    // 删除照片
+    colseImg () {
+      this.personMessge.faceImgUrl = ''
     }
   },
   created () {
+    let data = {
+      guid: this.$route.query.guid
+    }
+    this.$http('/memberLibrary/find', data).then(res => {
+      if (res.result) {
+        this.titleName = res.data.name
+      }
+    })
     this.getList()
     if (this.$route.query.personId) {
       let data = {
@@ -397,6 +421,7 @@ export default {
   }
   .retrun{
     float: left;
+    cursor: pointer;
     line-height: 30px;
   }
   .pcb__cont{
@@ -534,7 +559,7 @@ export default {
   }
   .avatar__border{
     position: absolute;
-    bottom: 0px;
+    bottom: -50px;
     width: 222px;
     height: 120px;
     background: #333333;
@@ -542,5 +567,36 @@ export default {
   }
   .station{
     height: 70px;
+  }
+  .img__border{
+    position: relative;
+    margin: 10px  auto 0 auto;
+    width: 100px;
+    height: 100px;
+  }
+  .img__close{
+    cursor: pointer;
+    color: #FF6660;
+    font-size: 20px;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+  }
+  .changePhoto{
+    cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    width: 100%;
+    height: 28px;
+    line-height: 28px;
+    opacity: 0.8;
+    background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
+  }
+</style>
+
+<style>
+  .menber .avatar-uploader{
+    overflow: visible;
   }
 </style>
