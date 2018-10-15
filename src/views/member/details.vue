@@ -1,15 +1,18 @@
 <template>
     <div class="menber">
-      <div class="member__title">
-        <div class="el-icon-arrow-left retrun"></div>
-        <el-breadcrumb separator="/" class="fl">
-          <el-breadcrumb-item :to="{ path: '/member' }">人员管理</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ path: '/member/person'}">西溪银泰会员库</el-breadcrumb-item>
-        </el-breadcrumb>
-        <el-button class="affirm medium fr">导入</el-button>
-        <el-button class="affirm medium fr hand" @click="addPerson">手动添加</el-button>
-      </div>
-      <div>
+      <uu-sub-tab
+        search
+        back
+        show-button
+        btn-size="small"
+        :sub-btn="{text: '创建社群'}"
+        placeholder="输入人员姓名、手机号"
+        @remote-search="search"
+        @handle-btn="button"
+        :btn-array="btnArray"
+        :menu-array="menu2">
+      </uu-sub-tab>
+      <el-scrollbar class="table">
         <el-table
           :data="tableData"
           border
@@ -41,7 +44,7 @@
 
           <el-table-column label="生日">
             <template slot-scope="scope">
-              <span>{{scope.row.birthday || '—'}}</span>
+              <span>{{scope.row.birthdayStamp | parseTime('{y}-{m}-{d}') || '—'}}</span>
             </template>
           </el-table-column>
 
@@ -58,16 +61,16 @@
             </template>
           </el-table-column>
         </el-table>
-      </div>
+      </el-scrollbar>
       <div>
         <el-pagination
+          layout="total, sizes, prev, pager, next"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
-          layout="total, sizes, prev, pager, next"
-          :total="400">
+          :current-page="pageData.index"
+          :page-sizes="[10, 20, 30]"
+          :page-size="pageData.length"
+          :total="pageData.total">
         </el-pagination>
       </div>
     </div>
@@ -77,6 +80,13 @@
 export default {
   name: 'index',
   data: () => ({
+    btnArray: [
+      {text: '手动添加'},
+      {text: '导入'}
+    ],
+    menu2: [
+      {title: `人员管理  /  西溪银泰会员库`}
+    ],
     tableData: [],
     pageData: {
       index: 1,
@@ -87,26 +97,21 @@ export default {
     }
   }),
   created () {
+    let data = {
+      guid: this.$route.query.guid
+    }
     this.getList()
+    this.$http('/memberLibrary/find', data).then(res => {
+      if (res.result) {
+        this.menu2[0].title = `人员管理  /  ${res.data.name}`
+      }
+    })
   },
   mounted () {
   },
-  computed: {},
+  computed: {
+  },
   methods: {
-    // 空内容提醒
-    emptyHint () {
-      this.$affirm({
-        confirm: '前往【社群管理】',
-        cancel: '知道了',
-        text: '需满足条件：</br>该账号下有管理员社群/单店社群/子社群（已加入管理员社群）'
-      }, (action, instance, done) => {
-        if (action === 'confirm') {
-          done()
-        } else {
-          done()
-        }
-      })
-    },
     // 添加人员
     addPerson () {
       this.$router.push({path: '/member/person', query: {guid: this.$route.query.guid}})
@@ -116,11 +121,16 @@ export default {
       let data = {
         memberLibraryGuid: this.$route.query.guid,
         index: this.pageData.index,
-        length: this.pageData.length
+        length: this.pageData.length,
+        name: this.pageData.name,
+        phone: this.pageData.phone
       }
       this.$http('/member/search', data).then(res => {
         if (res.result) {
           this.tableData = res.data.content
+          this.pageData.index = res.data.pagination.index
+          this.pageData.length = res.data.pagination.length
+          this.pageData.total = res.data.pagination.total
         }
       })
     },
@@ -138,6 +148,35 @@ export default {
           this.getList()
         }
       })
+    },
+    // 按钮点击
+    button (e) {
+      if (!e) {
+        this.addPerson()
+      } else {
+        console.log('导入')
+      }
+    },
+    // 搜索事件
+    search (e) {
+      this.pageData.phone = ''
+      this.pageData.name = ''
+      if (e.length === 11) {
+        this.pageData.phone = e
+      } else {
+        this.pageData.name = e
+      }
+      this.getList()
+    },
+    // 页码改变
+    handleCurrentChange (e) {
+      this.pageData.index = e
+      this.getList()
+    },
+    // 长度改变
+    handleSizeChange (e) {
+      this.pageData.length = e
+      this.getList()
     }
   },
   watch: {}
@@ -174,5 +213,16 @@ export default {
     margin-left:40px;
     color: #FF6660;
     cursor: pointer;
+  }
+  .table{
+    margin: 13px 0 10px 0;
+    height: calc(100% - 59px - 60px);
+  }
+
+</style>
+
+<style>
+  .menber .el-scrollbar__wrap{
+    overflow-x:hidden;
   }
 </style>

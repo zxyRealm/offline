@@ -6,40 +6,55 @@
         </el-breadcrumb>
         <el-button class="affirm medium fr" @click="addNew">添加库</el-button>
       </div>
-      <el-table
-        :data="tableData"
-        border
-        style="width: 100%">
-        <el-table-column
-          prop="name"
-          label="库名">
-        </el-table-column>
-        <el-table-column
-          prop="remark"
-          label="备注">
-          <template slot-scope="scope">
-            <span>{{scope.row.remark || '—'}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="memberCount"
-          label="人员数">
-        </el-table-column>
-        <el-table-column
-          label="关联社群">
-          <template slot-scope="scope">
-            <div class="fl hand edit">关联</div>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="操作">
-          <template slot-scope="scope">
-            <div class="fl hand edit" @click="editNew(scope.row.guid)">编辑</div>
-            <div class="fl hand manage" @click="goDetails(scope.row.guid)">人员管理</div>
-            <div class="fl hand del" @click="del(scope.row.guid)">删除</div>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-scrollbar class="table">
+        <el-table
+          :data="tableData"
+          border
+          style="width: 100%">
+          <el-table-column label="库名">
+            <template slot-scope="scope">
+              <span>{{scope.row.name || '—'}}</span>
+
+              <el-popover
+                placement="top"
+                width="160">
+                <input type="text" class="changeText">
+                <span class="el-icon-success sure" @click="sureChange"></span>
+                <span class="el-icon-error close"></span>
+                <span class="el-icon-edit name__edit" slot="reference"></span>
+              </el-popover>
+
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="remark"
+            label="备注">
+            <template slot-scope="scope">
+              <span>{{scope.row.remark || '—'}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="memberCount"
+            label="人员数">
+          </el-table-column>
+          <el-table-column
+            label="关联社群">
+            <template slot-scope="scope">
+              <div class="fl hand edit">关联</div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            width="350"
+            label="操作">
+            <template slot-scope="scope">
+              <div class="fl hand edit" @click="editNew(scope.row.guid)">编辑</div>
+              <div class="fl hand manage" @click="goDetails(scope.row.guid)">人员管理</div>
+              <div class="fl hand del" @click="del(scope.row.guid)">删除</div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-scrollbar>
+
     </div>
 </template>
 
@@ -48,7 +63,8 @@ export default {
   name: 'index',
   data: () => ({
     // 列表内容
-    tableData: []
+    tableData: [],
+    visible2: false
   }),
   created () {
     // this.emptyHint()
@@ -56,7 +72,9 @@ export default {
   },
   mounted () {
   },
-  computed: {},
+  computed: {
+
+  },
   methods: {
     emptyHint () {
       this.$affirm({
@@ -105,6 +123,10 @@ export default {
     // 人员管理
     goDetails (e) {
       this.$router.push({path: '/member/details', query: {guid: e}})
+    },
+    // 确定改变库名称
+    sureChange () {
+
     }
   },
   watch: {}
@@ -135,5 +157,34 @@ export default {
   .del{
     margin-left: 40px;
     color: #FF6660;
+  }
+  .table{
+    height: calc(100% - 63px - 40px);
+    overflow: hidden;
+  }
+  .name__edit{
+    color: #0F9EE9;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .changeText{
+    width: 115px;
+    height: 16px;
+  }
+  .sure{
+    cursor: pointer;
+    color: #0F9EE9;
+    font-size: 16px;
+  }
+  .close{
+    cursor: pointer;
+    color: #EE6C4B;
+    font-size: 16px;
+  }
+</style>
+
+<style>
+  .menber .el-scrollbar__wrap{
+    overflow-x:hidden;
   }
 </style>

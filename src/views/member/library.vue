@@ -1,10 +1,11 @@
 <template>
   <div class="menber">
     <div class="member__title">
-      <div class="el-icon-arrow-left retrun"></div>
+      <div class="el-icon-arrow-left retrun" @click="returnLast"></div>
       <el-breadcrumb separator="/" class="fl">
-        <el-breadcrumb-item :to="{ path: '/member' }">人员管理</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/member/library' }">新建库</el-breadcrumb-item>
+        <el-breadcrumb-item>人员管理</el-breadcrumb-item>
+        <el-breadcrumb-item v-if="!this.$route.query.guid">新建库</el-breadcrumb-item>
+        <el-breadcrumb-item v-else>编辑库</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="member__form">
@@ -58,16 +59,20 @@ export default {
       if (this.$route.query.guid) {
         this.$http('/memberLibrary/update', data).then(res => {
           if (res.result) {
-            console.log(res)
+            this.$router.go(-1)
           }
         })
       } else {
         this.$http('/memberLibrary/create', data).then(res => {
           if (res.result) {
-            console.log(res)
+            this.$router.go(-1)
           }
         })
       }
+    },
+    // 返回上一级
+    returnLast () {
+      this.$router.go(-1)
     }
   },
   created () {
@@ -105,6 +110,7 @@ export default {
   .form__button{
     width: 222px;
     height: 30px;
+    cursor: pointer;
     color: #1896E6;
     text-align: center;
     background-image:url("/static/img/input_border_bg@2x.png");
@@ -116,6 +122,7 @@ export default {
   }
   .retrun{
     float: left;
+    cursor: pointer;
     line-height: 30px;
   }
 </style>
