@@ -19,11 +19,11 @@
         :subText="'保存'">
 
         <el-form-item label="库名称：" prop="name">
-          <el-input type="text"  placeholder="添加库名称" v-model="formData.name"></el-input>
+          <el-input type="text"  placeholder="添加库名称" maxlength="20" v-model.trim="formData.name"></el-input>
         </el-form-item>
 
         <el-form-item label="备注：" prop="remark">
-          <el-input type="text" placeholder="添加备注" v-model="formData.remark"></el-input>
+          <el-input type="text" placeholder="添加备注" maxlength="20" v-model.trim="formData.remark"></el-input>
         </el-form-item>
 
         <el-form-item label="关联社区：">

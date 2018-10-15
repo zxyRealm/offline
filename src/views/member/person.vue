@@ -11,13 +11,15 @@
     </div>
     <div class="member__form">
       <uu-form
+        :rules="rules"
+        v-model="personMessge"
         class="form__position"
         ref="userInfoForm"
         form-class="user-info-form"
         @handle-submit="addPerson"
         :subText="'保存'">
 
-        <el-form-item label="照片：" prop="phone">
+        <el-form-item label="照片：">
           <el-upload
             ref="upload"
             class="avatar-uploader"
@@ -37,22 +39,22 @@
           <div class="station" v-if="personMessge.faceImgUrl"></div>
         </el-form-item>
 
-        <el-form-item label="姓名：" prop="company">
-          <el-input type="text" placeholder="32位字符以内" v-model="personMessge.name"></el-input>
+        <el-form-item label="姓名：" prop="name">
+          <el-input type="text" placeholder="32位字符以内" maxlength="32" v-model.trim="personMessge.name"></el-input>
         </el-form-item>
 
-        <el-form-item label="手机号：" prop="company">
-          <el-input type="text" placeholder="11位手机号码" v-model="personMessge.phone"></el-input>
+        <el-form-item label="手机号：" prop="phone">
+          <el-input type="text" placeholder="11位手机号码" maxlength="11" v-model.trim="personMessge.phone"></el-input>
         </el-form-item>
 
-        <el-form-item label="性别：" prop="company">
+        <el-form-item label="性别：">
           <el-radio-group v-model="personMessge.gender">
             <el-radio :label="1">男</el-radio>
             <el-radio :label="2">女</el-radio>
           </el-radio-group>
         </el-form-item>
 
-        <el-form-item label="生日：" prop="company">
+        <el-form-item label="生日：">
           <el-date-picker
             v-model="personMessge.birthdayStamp"
             type="date"
@@ -61,7 +63,7 @@
           </el-date-picker>
         </el-form-item>
 
-        <el-form-item label="人员类型：" prop="company">
+        <el-form-item label="人员类型：">
           <div class="pcb__cont">
             <el-select class="popupCont__choose" ref="select" v-model="personMessge.level" filterable clearable placeholder="请选择操作类型">
               <el-option
@@ -115,10 +117,35 @@
 
 <script>
 import axios from 'axios'
+import {validateRule} from '@/utils/validate'
 export default {
   name: 'person',
   data () {
+    // 姓名校验规则
+    const validateName = (rule, value, callback) => {
+      if (validateRule(value, 1)) {
+        callback()
+      } else {
+        callback(new Error('姓名格式不正确'))
+      }
+    }
+    // 姓名校验规则
+    const validatePhone = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入手机号'))
+      } else {
+        if (validateRule(value, 6)) {
+          callback()
+        } else {
+          callback(new Error('手机号格式不正确'))
+        }
+      }
+    }
     return {
+      rules: {
+        name: [{validator: validateName, trigger: 'blur'}],
+        phone: [{required: true, validator: validatePhone, trigger: 'blur'}]
+      },
       // 面包屑名称
       titleName: '',
       // 展示问题列表

@@ -16,12 +16,13 @@
               <span>{{scope.row.name || '—'}}</span>
 
               <el-popover
+                v-model="scope.row.showPopver"
                 placement="top"
-                width="160">
-                <input type="text" class="changeText">
-                <span class="el-icon-success sure" @click="sureChange"></span>
-                <span class="el-icon-error close"></span>
-                <span class="el-icon-edit name__edit" slot="reference"></span>
+                width="220">
+                <input type="text" v-model="changeName" class="changeText">
+                <span class="el-icon-circle-check-outline sure" @click="sureChange(scope.row)"></span>
+                <span class="el-icon-circle-close-outline close" @click="closeChange"></span>
+                <span class="el-icon-edit name__edit" slot="reference" @click="getName(scope.row.name)"></span>
               </el-popover>
 
             </template>
@@ -64,7 +65,9 @@ export default {
   data: () => ({
     // 列表内容
     tableData: [],
-    visible2: false
+    // 要改变的库名称
+    changeName: '',
+    showPopver: false
   }),
   created () {
     // this.emptyHint()
@@ -97,6 +100,9 @@ export default {
       }
       this.$http('/memberLibrary/search', data).then(res => {
         if (res.result) {
+          for (let i = 0; i < res.data.content.length; i++) {
+            res.data.content[i].showPopver = false
+          }
           this.tableData = res.data.content
         }
       })
@@ -114,9 +120,20 @@ export default {
       let data = {
         guid: e
       }
-      this.$http('/memberLibrary/delete', data).then(res => {
-        if (res.result) {
-          this.getList()
+      this.$affirm({
+        confirm: '确定',
+        cancel: '返回',
+        text: '确定删除该人员库信息？'
+      }, (action, instance, done) => {
+        if (action === 'confirm') {
+          this.$http('/memberLibrary/delete', data).then(res => {
+            if (res.result) {
+              this.getList()
+              done()
+            }
+          })
+        } else {
+          done()
         }
       })
     },
@@ -125,8 +142,30 @@ export default {
       this.$router.push({path: '/member/details', query: {guid: e}})
     },
     // 确定改变库名称
-    sureChange () {
-
+    sureChange (e) {
+      let data = e
+      e.name = this.changeName
+      this.$http('/memberLibrary/update', data).then(res => {
+        if (res.result) {
+          this.getList()
+          this.removeState()
+        }
+      })
+    },
+    // 关闭改变库名称
+    closeChange () {
+      this.changeName = ''
+      this.removeState()
+    },
+    // 恢复弹窗状态
+    removeState () {
+      for (let i = 0; i < this.tableData.length; i++) {
+        this.tableData[i].showPopver = false
+      }
+    },
+    // 获取库名称
+    getName (e) {
+      this.changeName = e
     }
   },
   watch: {}
@@ -168,18 +207,18 @@ export default {
     cursor: pointer;
   }
   .changeText{
-    width: 115px;
+    width: 165px;
     height: 16px;
   }
   .sure{
     cursor: pointer;
     color: #0F9EE9;
-    font-size: 16px;
+    font-size: 20px;
   }
   .close{
     cursor: pointer;
     color: #EE6C4B;
-    font-size: 16px;
+    font-size: 20px;
   }
 </style>
 
