@@ -1,5 +1,5 @@
 <template>
-  <div class="notify-wrap">
+  <div class="notify-wrap g-prl20">
     <uu-sub-tab
       :menu-array="menu"
       :show-button="!!notifyList.length && !loading"

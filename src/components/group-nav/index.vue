@@ -202,6 +202,7 @@ export default {
       gid = (gid || '')
       this.$http('/group/list', {searchText: gid}).then(res => {
         this.GroupList = uniqueKey(res.data, this.defaultProps.children)
+        console.log(this.GroupList)
         if (this.type !== 'device') {
           this.TreeList = this.GroupList
         }
@@ -298,6 +299,9 @@ export default {
       }
     }
   },
+  create () {
+    this.$emit('input', uniqueKey(this.value, this.defaultProps.children))
+  },
   mounted () {
     this.GroupList = this.value || []
     if (this.type !== 'community' && this.type !== 'custom-community') {
@@ -317,7 +321,7 @@ export default {
         if (this.type === 'community' || this.type === 'custom-community') {
           this.TreeList = val
         }
-        this.$emit('input', val)
+        this.$emit('input', uniqueKey(val, this.defaultProps.children))
       },
       deep: true
     },
@@ -448,13 +452,15 @@ export default {
 </style>
 <style lang="scss">
   @import "@/styles/variables.scss";
-
   .ob-group-nav {
     height: 100%;
     >.el-scrollbar{
       height: 100%;
       .el-scrollbar__wrap{
         overflow-x: hidden;
+      }
+      .el-scrollbar__bar.is-horizontal{
+        display: none;
       }
     }
     &[type=custom-community] {
@@ -522,6 +528,7 @@ export default {
   }
 
   .ob-group-nav {
+    box-sizing: border-box;
     &[type=custom] {
       padding: 15px 20px;
       > .el-checkbox {
@@ -574,7 +581,7 @@ export default {
     .role__icon--img{
       margin-right: -3px;
       height: 12px;
-      margin-left: 10px;
+      margin-left: 7px;
       &:first-child{
         margin-right: 0;
       }

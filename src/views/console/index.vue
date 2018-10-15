@@ -205,7 +205,7 @@ export default {
     resolveDatad (data) {
       let obj = JSON.parse(data)
       console.log('data', obj)
-      this.setMemberInfo(data.memberInfoList)
+      this.setMemberInfo(obj.pedestrian)
       // 判断是否是同一台数据推送的数据
       if (obj.deviceKey !== this.deviceKey) return
       // 饼图 = 推送实时更新数据
@@ -283,6 +283,7 @@ export default {
     },
     // 获取会员信息，并对图像进行剪裁显示
     setMemberInfo (data) {
+      console.log('member info', data)
       if (!data || !data[0]) return
       data = data[0]
       let coordinate = data.extendFaceBox

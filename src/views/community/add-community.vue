@@ -149,7 +149,6 @@ export default {
       this.$http('/group/code').then(res => {
         if (res.data) {
           this.communityForm.code = res.data
-          this.createQrCode(res.data, 'community-qrcode')
         }
       })
     },
@@ -189,7 +188,6 @@ export default {
         res.data.rule = (res.data.rule || '1').split(',').map(Number)
         this.originName = JSON.parse(JSON.stringify(res.data.name))
         this.communityForm = res.data
-        this.$createQRCode(res.data.code, 'community-qrcode')
       })
     }
   },
@@ -201,7 +199,7 @@ export default {
   computed: {
     // 页面面包屑标题
     menuTitle: function () {
-      let txt = '社群管理 / '
+      let txt = '社群管理&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;'
       switch (this.$route.name) {
         case 'editCommunity':
           txt += '编辑管理层社群'

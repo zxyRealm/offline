@@ -1,5 +1,5 @@
 <template>
-  <div class="developer-center clearfix">
+  <div class="developer-center clearfix g-prl20">
     <uu-sub-tab :menu-array="[{title: '个人中心'}]" :sub-link="subLink"></uu-sub-tab>
     <div class="user-info-wrap">
       <div class="avatar-wrap">

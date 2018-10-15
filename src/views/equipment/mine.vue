@@ -285,7 +285,6 @@ export default {
 
 <style scoped>
   .data-list-wrap {
-    padding-top: 24px;
     height: calc(100% - 80px);
   }
 

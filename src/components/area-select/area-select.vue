@@ -37,14 +37,25 @@
           </el-tooltip>
         </el-radio-group>
       </div>
-      <el-button
-        :readonly="readonly"
+      <div
         slot="reference"
-        :placeholder="!addressText"
+        class="address-btn"
         :class="{'popover-icon':visible}"
-        class="address-btn">
-        {{addressText||readonly?addressText:placeholder}}
-      </el-button>
+        :readonly="readonly">
+        <el-input
+          readonly
+          :placeholder="placeholder"
+          v-model="addressText">
+        </el-input>
+      </div>
+      <!--<el-button-->
+        <!--:readonly="readonly"-->
+        <!--slot="reference"-->
+        <!--:placeholder="!addressText"-->
+        <!--:class="{'popover-icon':visible}"-->
+        <!--class="address-btn">-->
+        <!--{{addressText||readonly?addressText:placeholder}}-->
+      <!--</el-button>-->
     </el-popover>
   </div>
 </template>
@@ -206,7 +217,7 @@ export default {
       line-height: 30px;
       color: #fff;
       border: none;
-      padding: 0 15px;
+      /*padding: 0 15px;*/
       background-color: #232027;
       background-image: url(/static/img/input_border_bg@2x.png);
       background-repeat: no-repeat;

@@ -677,6 +677,7 @@ button, input {
   height: calc(100% - 84px);
   overflow: hidden;
   width: 100%;
+  padding-top: 24px;
   box-sizing: border-box;
   > .el-scrollbar {
     height: 100%;

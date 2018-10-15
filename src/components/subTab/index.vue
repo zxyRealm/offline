@@ -4,8 +4,8 @@
       <i v-if="back" @click="backPrev" class="el-icon-arrow-left"></i>
       <template v-for="(item,$index) in menuArray">
         <span :key="$index" class="tab__link--item">
-           <router-link v-if="item.index" :key="$index" :to="item.index">{{item.title}}</router-link>
-          <a href="javascript:void (0)" class="text" v-else >{{item.title}}</a>
+          <router-link v-if="item.index" :key="$index" :to="item.index" v-html="item.title"></router-link>
+          <a class="text" v-html="item.title" v-else ></a>
         </span>
       </template>
       <slot name="reference"></slot>
@@ -15,15 +15,18 @@
     </template>
     <template v-if="showButton">
       <div class="fr ml50">
-        <custom-popover
-          v-for="(item,index) in btnArray"
-          :key="index"
-          :size="btnSize"
-          :class="{ml10:index}"
-          :show-popover="showPopover"
-          :content="popover"
-          :text="item.text"
-          @click.native="handleBtn(index)"></custom-popover>
+        <template v-for="(item,index) in btnArray">
+          <slot v-if="$slots.file && item.type === 'file'" name="file"></slot>
+          <custom-popover
+            v-else
+            :key="index"
+            :size="btnSize"
+            :class="{ml10:index}"
+            :show-popover="showPopover"
+            :content="popover"
+            :text="item.text"
+            @click.native="handleBtn(index)"></custom-popover>
+        </template>
       </div>
     </template>
     <el-input
@@ -165,6 +168,9 @@ export default {
       a{
         display: inline-block;
         line-height: 30px;
+        &:not([href]){
+          cursor: text;
+        }
       }
       a.router-link-active{
         position: relative;

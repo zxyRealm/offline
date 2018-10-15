@@ -15,7 +15,7 @@
       </uu-sub-tab>
       <div class="mine__community--main" :class="{'data-empty': !groupList.length || searchEmpty}">
         <ob-list-empty v-if="!groupList.length || searchEmpty" top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
-        <div class="mine__community--content">
+        <div class="mine__community--content" v-else>
           <div class="community--sidebar dashed-border">
             <ob-group-nav
               ref="groupNav"
@@ -31,7 +31,7 @@
             <el-scrollbar ref="faceScrollItem">
               <div class="cmm-top dashed-border">
                 <h2 class="cmm-sub-title">
-                  <span>社群信息{{communityInfo.nickName?`(${communityInfo.nickName})`:''}}
+                  <span>{{communityInfo.name}}{{communityInfo.nickName?`(${communityInfo.nickName})`:''}}
                     <a slot="reference" class="fs12" @click="showDialog" href="javascript:void (0)">
                       <i class="el-icon-edit"></i>{{dialogTitle}}
                     </a>
@@ -41,7 +41,7 @@
                     <a href="javascript:void (0)" class="danger ml20" @click="disbandGroup">删除</a>
                   </p>
                 </h2>
-                <div class="cm-info-wrap" v-show="communityInfo.guid">
+                <div class="cm-info-wrap" v-show="communityInfo.createTime">
                   <div class="info-detail">
                     <!--<p v-if="isSon">-->
                       <!--<span class="fs14">备注名：</span>-->
@@ -82,19 +82,40 @@
                     <p>
                       <span class="">联系人：</span>
                       {{communityInfo.contact}}</p>
-                    <p>
+                    <p v-if="communityInfo.role === 0">
                       <span class=""> 索权范围：</span>
                       {{communityInfo.rule | authority }}</p>
-                    <p>
+                    <p v-if="communityInfo.role === 0">
                       <span class=""> 邀请码：</span>
                       {{communityInfo.code}}
                       <a href="javascript:void (0)">复制</a>
                     </p>
+                    <div v-if="communityInfo.role === 1">
+                      已加入：
+                      <div
+                        v-if="communityInfo.parentGroups"
+                        v-for="(item,$index) in communityInfo.parentGroups"
+                        :key="$index"
+                        class="parents-item">
+                        <span>{{'hhhh'}}</span>
+                        <!--<img height="12" src="/static/img/data_icon@2x.png" alt="">-->
+                        <!--<img height="12" src="/static/img/manage_icon@2x.png" alt="">-->
+                        <uu-icon type="handle"></uu-icon>
+                        <uu-icon type="data"></uu-icon>
+                        <uu-icon size="mini" type="quit" @click="leaveCommunity('exit',communityInfo, item)"></uu-icon>
+                        <!--<img height="12" src="@/assets/public/icons/back_higher_icon.png/" alt="">-->
+                      </div>
+                    </div>
                   </div>
                   <div class="fr">
                     <el-button
+                      v-if="communityInfo.role === 0"
                       class="affirm"
-                      @click="$router.push({path: '/community/apply',query: {pid: '0B967E4B8D0F41FFA63A163811FA26F8'}})">创建自有子社群</el-button>
+                      @click="$router.push({path: '/community/apply',query: {pid: communityInfo.guid}})">创建自有子社群</el-button>
+                    <el-button
+                    v-if="communityInfo.role === 1"
+                    class="affirm"
+                    @click="$router.push({path: '/community/apply',query: {pid: communityInfo.guid}})">加入其他管理员社群</el-button>
                   </div>
                 </div>
               </div>
@@ -239,6 +260,8 @@ import CustomPopover from '@/components/CustomPopover'
 import FaceRecognition from '@/components/screening/FaceRecognition'
 import VisitedDetailInfo from './VisitedDetailInfo.vue'
 import FaceRecognitionStore from './FaceRecognitionStore'
+import {eventObject} from '@/utils/event'
+import {uniqueKey} from '@/utils/index'
 export default {
   name: 'mineCommunity',
   components: {
@@ -306,8 +329,9 @@ export default {
     // 获取设备列表
     getDeviceList (val) {
       let url = !val.groupPid ? '/group/device ' : '/device/guid/list'
-      if (val.groupGuid) {
-        this.$http(url, {guid: val.groupGuid}).then(res => {
+      let id = val.groupGuid || val.guid
+      if (id) {
+        this.$http(url, {guid: id}).then(res => {
           this.deviceList = res.data.content || res.data || []
           this.$store.state.loading = false
           // 触发传递设备列表到人脸识别库搜索组件上
@@ -317,14 +341,12 @@ export default {
     },
     // 获取社群详细信息
     getCommunityInfo (val) {
-      this.$http('/group/getInfo', {guid: val.groupGuid}).then(res => {
+      this.$http('/group/getInfo', {guid: val.groupGuid || val.guid}).then(res => {
+        console.log('communityInfo', res.data)
         if (res.data) res.data.groupPid = val.groupPid
         res.data.groupNickName = val.groupNickName || (this.currentCommunity || this.groupList[0]).groupNickName
         if (res.data.groupPid) this.originName = JSON.parse(JSON.stringify(res.data.groupNickName))
         this.communityInfo = res.data || {}
-        if (res.data) {
-          this.$createQRCode(res.data.code, 'qr-code')
-        }
       })
     },
     // 切换
@@ -332,7 +354,10 @@ export default {
       console.log(node)
       this.currentCommunity = node
       // this.hidePopover()
-      this.getCommunityInfo(node)
+      // 查询社群详细信息
+      if (node.groupGuid) this.getCommunityInfo(node)
+      // 分组信息直接设置，不再查询
+      if (node.guid) this.communityInfo = node
       this.getDeviceList(node)
     },
     // 删除社群
@@ -351,6 +376,39 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           console.log(this.nameForm)
+        }
+      })
+    },
+    // 离开社群
+    leaveCommunity (type, current, parent) {
+      // type 可选类型 quit、kick
+      let [url, des] = ['/group/exit', '']
+      let params = {
+        groupPid: parent.guid || parent.groupGuid,
+        groupGuid: current.groupGuid,
+        groupNickName: current.groupNickName,
+        parentGroupNickName: parent.groupNickName || parent.name
+      }
+      switch (type) {
+        case 'quit':
+          des = `确定要退出【<span class="maxw200 ellipsis">${params.parentGroupNickName}</span>】社群？`
+          url = '/group/exit'
+          break
+        default:
+          des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>
+              确定要移除子社群【<span class="maxw200 ellipsis">
+              ${params.groupNickName}</span>】？`
+          url = '/group/remove'
+      }
+      this.$affirm({text: `${des}`}, (action, instance, done) => {
+        if (action === 'confirm') {
+          this.$http(url, params).then(res => {
+            this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
+            this.$emit('refresh')
+          })
+          done()
+        } else {
+          done()
         }
       })
     }
@@ -373,7 +431,7 @@ export default {
     width: 230px;
     height: calc(100vh - 220px);
     .ob-group-nav{
-      padding: 0 20px;
+      padding: 20px 16px;
       .el-tree-node__content{
       }
     }
@@ -428,6 +486,13 @@ export default {
             margin-bottom: 10px;
             &:nth-child(2n + 1) {
               padding-right: 20px;
+            }
+          }
+          .parents-item{
+            display: inline-block;
+            >*{
+              display: inline-block;
+              vertical-align: middle;
             }
           }
         }

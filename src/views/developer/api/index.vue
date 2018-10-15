@@ -1,10 +1,10 @@
 <template>
-  <div class="developer-api-wrap">
+  <div class="developer-api-wrap g-prl20">
     <uu-sub-tab :menu-array="menu"></uu-sub-tab>
     <div class="developer-api-inner">
       <div class="developer-api-header">
         <h3 :class="{fl:!devInfo || !devInfo.accessKey}">{{(devInfo && devInfo.accessKey) ? '开发者信息': '开发者申请'}}</h3>
-        <div class="developer-detail fs12 clearfix">
+        <div class="developer-detail fs12 clearfix mt10">
           <template v-if="devInfo && devInfo.accessKey">
             <p>AccessKey：{{devInfo.accessKey}}</p>
             <p>AccessSecret：{{devInfo.accessSecret}}</p>
@@ -391,7 +391,7 @@ export default {
 <style lang="scss" rel="stylesheet/scss" scoped>
   .developer-api-inner {
     height: calc(100% - 64px);
-    padding: 0 20px;
+    /*padding: 0 20px;*/
     .developer-api-header {
       padding-bottom: 10px;
       border-bottom: 1px dashed rgba(151, 151, 151, 0.10);

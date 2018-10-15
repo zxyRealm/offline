@@ -45,7 +45,7 @@
           <i class="el-icon-close" @click="dialogFormVisible = false"></i>
         </div>
         <div class="dialog__item--content">
-          <el-scrollbar>
+          <!--<el-scrollbar>-->
             <ob-group-nav
               ref="consoleGroup"
               @current-change="handleChange"
@@ -55,7 +55,7 @@
               theme="white"
               type="custom"
             ></ob-group-nav>
-          </el-scrollbar>
+          <!--</el-scrollbar>-->
         </div>
       </div>
       <transition name="dialog-fade"></transition>
@@ -460,6 +460,7 @@ export default {
       margin: 0 auto;
       background:  #F8F8F8;
       border-radius: 4px;
+      overflow: hidden;
       .el-scrollbar{
         height: 100%;
       }
