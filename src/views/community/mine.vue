@@ -320,10 +320,18 @@ export default {
       }, 1000)
     },
     // 获取社群列表
-    getGroupList () {
+    getGroupList (key) {
       this.$http('/group/list').then(res => {
         console.log(res.data)
         this.groupList = res.data || []
+        // 编辑页返回时记住当前页状态
+        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || res.data[0]
+        this.$nextTick(() => {
+          this.$refs.groupNav.setCurrentKey(currentNode.uniqueKey)
+        })
+        this.getCommunityInfo(currentNode)
+        this.getDeviceList(currentNode)
+        this.$route.meta.keepAlive = false
       })
     },
     // 获取设备列表

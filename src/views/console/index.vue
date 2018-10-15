@@ -25,14 +25,14 @@
               <h3>***欢迎您</h3>
               <div class="detail-info--wrap">
                 <div class="base-info">
-                  <p><span class="ellipsis">银泰会员</span></p>
-                  <p>女</p>
-                  <p>23</p>
-                  <p>{{ new Date() | parseTime('{m}/{d}')}}</p>
-                  <p>{{new Date() | parseTime('{h}:{i}')}}</p>
+                  <p><span class="ellipsis">{{memberInfo.memberLabelList[0].memberLibraryName}}</span></p>
+                  <p>{{memberInfo.gender?'女':'男'}}</p>
+                  <p>{{memberInfo.age}}</p>
+                  <p>{{ memberInfo.appearanceDate | parseTime('{m}/{d}')}}</p>
+                  <p>{{ memberInfo.appearanceDate | parseTime('{h}:{i}')}}</p>
                 </div>
                 <div class="associator__avatar--wrap">
-                  <img class="associator__avatar" :src="imageUrl" alt="">
+                  <img class="associator__avatar" :src="memberInfo.cropUrl" alt="">
                 </div>
               </div>
             </div>
@@ -204,8 +204,7 @@ export default {
     // 解析数据
     resolveDatad (data) {
       let obj = JSON.parse(data)
-      console.log('data', obj)
-      this.setMemberInfo(obj.pedestrian)
+      this.setMemberInfo(obj.memberInfoList)
       // 判断是否是同一台数据推送的数据
       if (obj.deviceKey !== this.deviceKey) return
       // 饼图 = 推送实时更新数据
@@ -283,19 +282,20 @@ export default {
     },
     // 获取会员信息，并对图像进行剪裁显示
     setMemberInfo (data) {
-      console.log('member info', data)
+      console.log('data---', data)
       if (!data || !data[0]) return
       data = data[0]
-      let coordinate = data.extendFaceBox
+      let coordinate = data.extendedFaceBox
       let [url, startX, startY, width, height] = [data.imgUrl, coordinate.upperX, coordinate.upperY, coordinate.lowerX - coordinate.upperX, coordinate.lowerY - coordinate.upperY]
-      let newUrl = this.customDrawImage(url, startX, startY, width, height)
-      console.log(newUrl)
-      data.cropUrl = newUrl
-      this.memberInfo = data
+      // 返回剪裁图片路径属于一个异步过程，因此使用回调方式返回url
+      this.customDrawImage(url, startX, startY, width, height, url => {
+        data.cropUrl = url
+        this.memberInfo = data
+      })
+      // console.log(newUrl)
     },
     // 绘制图像（根据坐标）
-    customDrawImage (url, startX, startY, width, height) {
-      let _this = this
+    customDrawImage (url, startX, startY, width, height, callback) {
       let canvas = document.createElement('canvas')
       canvas.width = width
       canvas.height = height
@@ -321,7 +321,11 @@ export default {
           // 此时你就可以使用canvas对img为所欲为了(画图尺寸不可超出原图尺寸范围，IE上会报错 IndexSizeError)
           ctx.drawImage(img, startX, startY, width, height, 0, 0, width, height)
           URL.revokeObjectURL(url)
-          return canvas.toDataURL('image/png', 1)
+          if (typeof callback === 'function') {
+            callback(canvas.toDataURL('image/png', 1))
+          } else {
+            console.error('callback is not a function')
+          }
           // console.log(customUrl)
           // 图片用完后记得释放内存
         }

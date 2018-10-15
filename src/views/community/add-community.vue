@@ -30,7 +30,7 @@
           <el-input type="text" placeholder="11位手机号"
                     v-model.trim="communityForm.phone"></el-input>
         </el-form-item>
-        <el-form-item v-if="communityType === 'manage'" label="索权范围：" prop="rule">
+        <el-form-item v-if="communityType.role === 0" label="索权范围：" prop="rule">
           <el-checkbox-group class="g-pt10" v-model="communityForm.rule">
             <div>
               <el-checkbox :disabled="type==='update'" :label="1">设备操作权限
@@ -135,7 +135,7 @@ export default {
           {validator: validateContact, trigger: 'blur'}
         ],
         rule: [
-          {message: '请选择索权范围', trigger: 'blur'}
+          {type: 'array', message: '请选择索权范围', trigger: 'blur'}
         ],
         phone: [
           {validator: validatePhone, trigger: 'blur'}
@@ -154,6 +154,7 @@ export default {
     },
     // 创建社群或编辑社群信息
     submitForm (data) {
+      console.log(data)
       let address = data.pca.split(',').map(Number)
       data.provinceAreaID = address[0] || 0
       data.cityAreaID = address[1] || 0
@@ -192,6 +193,7 @@ export default {
     }
   },
   created () {
+    console.log(this.$route.name)
     if (this.$route.name === 'editCommunity') {
       this.getCommunityInfo()
     }
@@ -223,11 +225,38 @@ export default {
     },
     // 编辑/创建
     type: function () {
-      return (this.$route.name === 'editCommunity' || this.$route.name === 'applyCommunity') ? 'update' : 'create'
+      return (this.$route.name === 'editCommunity' || this.$route.name === 'editApplyCommunity' || this.$route.name === 'editSingleCommunity') ? 'update' : 'create'
     },
     // 社区类型 管理/应用
     communityType () {
-      return (this.$route.name === 'editApplyCommunity' || this.$route.name === 'applyCommunity') ? 'apply' : 'manage'
+      let type, role
+      switch (this.$route.name) {
+        case 'editApplyCommunity':
+          type = 1
+          role = 1
+          break
+        case 'applyCommunity':
+          type = 1
+          role = 1
+          break
+        case 'editCommunity':
+          type = 1
+          role = 0
+          break
+        case 'createCommunity':
+          type = 1
+          role = 0
+          break
+        case 'editSingleCommunity':
+          type = 3
+          role = 1
+          break
+        case 'singleCommunity':
+          type = 3
+          role = 1
+          break
+      }
+      return {type: type, role: role}
     }
   }
 }

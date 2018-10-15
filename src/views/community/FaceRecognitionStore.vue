@@ -19,6 +19,9 @@
         prop="createTime"
         label="到访时间"
       >
+        <template slot-scope="scope">
+          {{scope.row.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}
+        </template>
       </el-table-column>
       <el-table-column
         prop="groupName"
@@ -27,7 +30,7 @@
       </el-table-column>
       <el-table-column
         prop="cameraName"
-        label="抓拍设备"
+        label="所属人员库"
       >
       </el-table-column>
       <el-table-column
