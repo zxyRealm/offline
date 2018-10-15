@@ -77,12 +77,13 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: 'index',
   data: () => ({
     btnArray: [
       {text: '手动添加'},
-      {text: '导入'}
+      {text: '下载模板'}
     ],
     menu2: [
       {title: `人员管理  /  西溪银泰会员库`}
@@ -143,9 +144,20 @@ export default {
       let data = {
         guid: e
       }
-      this.$http('/member/del', data).then(res => {
-        if (res.result) {
-          this.getList()
+      this.$affirm({
+        confirm: '确定',
+        cancel: '返回',
+        text: '确定删除该人员信息？'
+      }, (action, instance, done) => {
+        if (action === 'confirm') {
+          this.$http('/member/del', data).then(res => {
+            if (res.result) {
+              this.getList()
+              done()
+            }
+          })
+        } else {
+          done()
         }
       })
     },
@@ -154,7 +166,7 @@ export default {
       if (!e) {
         this.addPerson()
       } else {
-        console.log('导入')
+        window.location.href = 'http://192.168.11.170:8001/member/template/download'
       }
     },
     // 搜索事件
