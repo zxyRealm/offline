@@ -45,7 +45,7 @@
           <i class="el-icon-close" @click="dialogFormVisible = false"></i>
         </div>
         <div class="dialog__item--content">
-          <!--<el-scrollbar>-->
+          <div class="fl">
             <ob-group-nav
               ref="consoleGroup"
               @current-change="handleChange"
@@ -55,28 +55,32 @@
               theme="white"
               type="custom"
             ></ob-group-nav>
-          <!--</el-scrollbar>-->
-        </div>
-      </div>
-      <transition name="dialog-fade"></transition>
-      <div v-show="dialogDeviceVisible" class="dialog__item--wrap">
-        <div class="dialog__item--title">
-          <h3>选择设备</h3>
-        </div>
-        <div class="dialog__item--content vam">
-          <!--<el-scrollbar>-->
+          </div>
+          <div class="fl">
+            <el-scrollbar>
             <el-radio-group v-model="deviceInfo">
               <el-radio
                 v-for="(val,index) in deviceList"
                 :label="val"
                 :key="index">{{val['deviceName']}}</el-radio>
             </el-radio-group>
-          <!--</el-scrollbar>-->
+            </el-scrollbar>
+          </div>
         </div>
         <div class="dialog__item--footer">
-          <el-button class="affirm" @click="getDeviceDetail">确定</el-button>
+          <el-button class="affirm" :disabled="!deviceList.length" @click="getDeviceDetail">确定</el-button>
         </div>
       </div>
+      <!--<transition name="dialog-fade"></transition>-->
+      <!--<div v-show="dialogDeviceVisible" class="dialog__item&#45;&#45;wrap">-->
+        <!--<div class="dialog__item&#45;&#45;title">-->
+          <!--<h3>选择设备</h3>-->
+        <!--</div>-->
+        <!--<div class="dialog__item&#45;&#45;content vam">-->
+          <!---->
+        <!--</div>-->
+
+      <!--</div>-->
     </console-dialog>
     <!--<ob-dialog-form-->
       <!--ref="dialog"-->
@@ -457,10 +461,27 @@ export default {
     .dialog__item--content{
       width: 400px;
       height: 404px;
+      padding: 15px 0;
       margin: 0 auto;
       background:  #F8F8F8;
       border-radius: 4px;
       overflow: hidden;
+      box-sizing: border-box;
+      .ob-group-nav{
+        padding: 0;
+        padding-left: 20px;
+      }
+      >div{
+        width: 50%;
+        height: 100%;
+        box-sizing: border-box;
+        &:first-child{
+          border-right: 1px dashed #ddd;
+        }
+        &:last-child{
+          text-align: center;
+        }
+      }
       .el-scrollbar{
         height: 100%;
       }
@@ -485,4 +506,42 @@ export default {
       margin-left: 20px
     }
   }
+</style>
+<style lang="scss">
+.dialog__item--content{
+  .el-scrollbar__wrap{
+    overflow-x: hidden;
+  }
+  .ob-group-nav[type=custom]{
+    .el-tree{
+      padding-right: 0;
+    }
+  }
+  >div{
+    &:last-child{
+      .el-scrollbar__view{
+        min-height: 100%;
+        &:after{
+          display: inline-block;
+          content: '';
+          min-height: 374px;
+          width: 0;
+          vertical-align: middle;
+        }
+        .el-radio-group{
+          max-width: 80%;
+        }
+      }
+    }
+  }
+}
+.dialog__item--footer{
+  .is-disabled{
+    background: #CBCBCB;
+    box-shadow: none;
+    &:hover{
+      background: #CBCBCB;
+    }
+  }
+}
 </style>

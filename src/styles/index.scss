@@ -177,7 +177,7 @@ div:focus {
 
 //元素margin间距
 
-@each $mt in 5, 8, 10, 16{
+@each $mt in 5, 8, 10, 16, 50{
   .mt#{$mt} {
     margin-top: $mt + px;
   }
@@ -878,8 +878,14 @@ button, input {
 }
 
 .el-scrollbar {
+  &.scroll-x{
+    .el-scrollbar__wrap {
+      overflow-x: scroll;
+    }
+  }
   .el-scrollbar__wrap {
     overflow-y: scroll;
+    overflow-x: hidden;
   }
   &.ob-scrollbar {
     height: 100%;

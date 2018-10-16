@@ -28,7 +28,7 @@
     <template v-if="$slots.form">
       <slot name="form"></slot>
     </template>
-    <template v-if="$slots.content">
+    <template v-else-if="$slots.content">
       <slot name="content"></slot>
     </template>
     <el-form

@@ -29,6 +29,7 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+  $s12: 12px;
   $s14: 14px;
   $s16: 16px;
   $s24: 24px;
@@ -87,14 +88,10 @@ export default {
     }
     &.data {
       background-image: url("../../assets/public/icons/higher_data_icon.png");
-      height: $s14;
-      width: $s14;
       cursor: initial;
     }
     &.handle {
       background-image: url("../../assets/public/icons/higher_handle_icon.png");
-      height: $s14;
-      width: $s14;
       cursor: initial;
     }
     &.mine {
@@ -111,6 +108,14 @@ export default {
         height: $s14;
         width: $s14;
       }
+    }
+    &.small{
+      height: $s14;
+      width: $s14;
+    }
+    &.mini{
+      height: $s12;
+      width: $s12;
     }
   }
 </style>

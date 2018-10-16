@@ -30,7 +30,7 @@
           <el-input type="text" placeholder="11位手机号"
                     v-model.trim="communityForm.phone"></el-input>
         </el-form-item>
-        <el-form-item v-if="communityType.role === 0" label="索权范围：" prop="rule">
+        <el-form-item v-if="communityMore.role === 0" label="索权范围：" prop="rule">
           <el-checkbox-group class="g-pt10" v-model="communityForm.rule">
             <div>
               <el-checkbox :disabled="type==='update'" :label="1">设备操作权限
@@ -156,14 +156,33 @@ export default {
     submitForm (data) {
       console.log(data)
       let address = data.pca.split(',').map(Number)
+      let url = `/group/${this.type}`
+      if (this.$route.query.pid) {
+        url = `/group/create/subGroup`
+        data.groupPid = this.$route.query.pid
+      }
       data.provinceAreaID = address[0] || 0
       data.cityAreaID = address[1] || 0
       data.districtAreaID = address[2] || 0
       data.rule = data.rule.toString()
-      this.$http(`/group/${this.type}`, data).then(res => {
+      data.type = data.type || this.communityMore.type
+      data.role = data.role || this.communityMore.role
+      this.$http(url, data).then(res => {
         this.$tip('操作成功')
         this.$router.push('/community/mine')
       })
+      // if (data.role === 0) {
+      //   this.$http('/group/code').then(res => {
+      //     if (res.data) {
+      //       data.code = res.data
+      //       this.$http(url, data).then(res => {
+      //         this.$tip('操作成功')
+      //         this.$router.push('/community/mine')
+      //       })
+      //     }
+      //   })
+      // } else {
+      // }
     },
     /*
     * 生成社群码的二维码
@@ -228,7 +247,7 @@ export default {
       return (this.$route.name === 'editCommunity' || this.$route.name === 'editApplyCommunity' || this.$route.name === 'editSingleCommunity') ? 'update' : 'create'
     },
     // 社区类型 管理/应用
-    communityType () {
+    communityMore () {
       let type, role
       switch (this.$route.name) {
         case 'editApplyCommunity':

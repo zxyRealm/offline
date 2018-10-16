@@ -8,7 +8,7 @@
         popover="社群添加点这里"
         :sub-btn="{text: '创建社群'}"
         @handle-btn="() =>  createFormVisible = true"
-        @remote-search="search"
+        @remote-search="remoteSearch"
         placeholder="输入社群名称"
         :btn-array="[{text: '创建社群'}]"
         :menu-array="[{title: '我的社群'}]">
@@ -31,13 +31,14 @@
             <el-scrollbar ref="faceScrollItem">
               <div class="cmm-top dashed-border">
                 <h2 class="cmm-sub-title">
-                  <span>{{communityInfo.name}}{{communityInfo.nickName?`(${communityInfo.nickName})`:''}}
-                    <a slot="reference" class="fs12" @click="showDialog" href="javascript:void (0)">
+                  <span>{{communityInfo.name}}{{communityInfo.groupNickName?`(${communityInfo.groupNickName})`:''}}
+                   <!--v-if="communityInfo.groupNickName !== undefined"-->
+                    <a  class="fs12" @click="showDialog" href="javascript:void (0)">
                       <i class="el-icon-edit"></i>{{dialogTitle}}
                     </a>
                   </span>
                   <p class="handle fr fs14" v-if="!isSon && communityInfo.guid">
-                    <router-link :to="'/community/edit/'+communityInfo.guid">编辑</router-link>
+                    <router-link :to="activeUrl">编辑</router-link>
                     <a href="javascript:void (0)" class="danger ml20" @click="disbandGroup">删除</a>
                   </p>
                 </h2>
@@ -88,26 +89,23 @@
                     <p v-if="communityInfo.role === 0">
                       <span class=""> 邀请码：</span>
                       {{communityInfo.code}}
-                      <a href="javascript:void (0)">复制</a>
+                      <a href="javascript:void (0)" @click="clipboard($event)">复制</a>
                     </p>
-                    <div v-if="communityInfo.role === 1">
-                      已加入：
+                    <!--&& communityInfo.parentGroups && communityInfo.parentGroups.length-->
+                    <div class="fl" v-if="communityInfo.role === 1 && communityInfo.type!==3">
+                      <span>已加入：</span>
                       <div
-                        v-if="communityInfo.parentGroups"
                         v-for="(item,$index) in communityInfo.parentGroups"
                         :key="$index"
                         class="parents-item">
-                        <span>{{'hhhh'}}</span>
-                        <!--<img height="12" src="/static/img/data_icon@2x.png" alt="">-->
-                        <!--<img height="12" src="/static/img/manage_icon@2x.png" alt="">-->
-                        <uu-icon type="handle"></uu-icon>
-                        <uu-icon type="data"></uu-icon>
-                        <uu-icon size="mini" type="quit" @click="leaveCommunity('exit',communityInfo, item)"></uu-icon>
-                        <!--<img height="12" src="@/assets/public/icons/back_higher_icon.png/" alt="">-->
+                        <span>{{item.name}}</span>
+                        <uu-icon size="small" type="data"></uu-icon>
+                        <uu-icon v-if="item.role.length > 2" type="handle"></uu-icon>
+                        <uu-icon size="small" type="quit" @click.native="leaveCommunity('quit',communityInfo, item)"></uu-icon>
                       </div>
                     </div>
                   </div>
-                  <div class="fr">
+                  <div class="fr" v-if="communityInfo.type !== 3">
                     <el-button
                       v-if="communityInfo.role === 0"
                       class="affirm"
@@ -125,7 +123,7 @@
                 <h2 class="cmm-sub-title">设备列表</h2>
                 <!--<ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">-->
                 <!--</ob-list-empty>-->
-                <el-scrollbar class="table--scrollbar__warp" ref="faceScrollItemTable">
+                <el-scrollbar class="table--scrollbar__warp scroll-x" ref="faceScrollItemTable">
                   <el-table
                     border
                     :data="deviceList"
@@ -207,7 +205,7 @@
             <el-input placeholder="请输入社群昵称" v-model="nameForm.name"></el-input>
           </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer">
+        <div slot="footer" class="dialog-footer mt50">
           <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
           <el-button class="affirm" type="primary" @click="setNickName('nameForm')">{{communityInfo.nickName?'加 入':'添 加'}}</el-button>
         </div>
@@ -252,6 +250,7 @@
           </div>
         </div>
       </ob-dialog-form>
+
     </div>
 </template>
 
@@ -262,6 +261,8 @@ import VisitedDetailInfo from './VisitedDetailInfo.vue'
 import FaceRecognitionStore from './FaceRecognitionStore'
 import {eventObject} from '@/utils/event'
 import {uniqueKey} from '@/utils/index'
+import {mapState} from 'vuex'
+import Clipboard from '@/utils/clipboard'
 export default {
   name: 'mineCommunity',
   components: {
@@ -306,18 +307,78 @@ export default {
         return txt
       },
       set () {}
+    },
+    ...mapState(['loading', 'aliveState']),
+    activeUrl: {
+      get () {
+        let type = 'edit'
+        if (this.communityInfo.type === 3) {
+          type = 'single'
+        } else if (this.communityInfo.role === 1) {
+          type = 'apply'
+        }
+        return `/community/${type}/${this.communityInfo.guid}`
+      },
+      set () {}
     }
   },
   methods: {
     // 社群搜索
-    search (val) {
-      console.log(val)
+    // 搜索社群
+    remoteSearch (val) {
       this.searchEmpty = false
-      setTimeout(() => {
-        this.searchEmpty = true
-        this.tipMsg = `搜不到包含“${val}”的内容啊`
-        this.supply = '设备请到左侧［设备管理］中添加'
-      }, 1000)
+      if (val) {
+        this.$http('/group/list/search', {searchText: val}).then(res => {
+          if (res.data[0]) {
+            let restoreArray = this.$restoreArray(this.groupList, 'memberItem')
+            let getCurrent = () => {
+              // 多层for循环嵌套只能用return跳出整个循环，break 只能跳出当前循环
+              for (let i = 0, len = restoreArray.length; i < len; i++) {
+                for (let k = 0, len2 = res.data.length; k < len2; k++) {
+                  if (res.data[k] === restoreArray[i].groupGuid) {
+                    return restoreArray[i]
+                  }
+                }
+              }
+            }
+            // 数组去重
+            let setKey = new Set(res.data)
+            let setArr = []
+            // 获取匹配值列表
+            restoreArray.map(item => {
+              if (setKey.has(item.groupGuid)) {
+                setArr.push(item.uniqueKey)
+              }
+            })
+            let current = getCurrent()
+            this.expandedKeys = setArr
+            this.$refs.groupNav.setCheckedKeys(setArr)
+            this.$nextTick(() => {
+              this.$refs.groupNav.setCurrentKey(current.uniqueKey)
+            })
+            this.getCommunityInfo(current)
+            this.getDeviceList(current)
+          } else {
+            this.searchEmpty = true
+            this.tipMsg = `搜不到包含“${val}”的内容啊`
+            this.supply = '设备请到左侧［设备管理］中添加'
+            this.setDefaultData()
+          }
+        })
+      } else {
+        this.setDefaultData()
+      }
+    },
+    // 初始化默认选中值
+    setDefaultData () {
+      let current = this.groupList[0]
+      this.expandedKeys = []
+      this.$nextTick(() => {
+        this.$refs.groupNav.setCurrentKey(current.uniqueKey)
+      })
+      this.$refs.groupNav.setCheckedKeys([])
+      this.getCommunityInfo(current)
+      this.getDeviceList(current)
     },
     // 获取社群列表
     getGroupList (key) {
@@ -365,11 +426,26 @@ export default {
       // 查询社群详细信息
       if (node.groupGuid) this.getCommunityInfo(node)
       // 分组信息直接设置，不再查询
-      if (node.guid) this.communityInfo = node
+      if (!node.guid && !node.groupPid) this.communityInfo = node
       this.getDeviceList(node)
     },
-    // 删除社群
+    // 解散社群
     disbandGroup () {
+      let msg = `确认删除【<span class="maxw200 ellipsis">${this.communityInfo.name}</span>】社群？`
+      if (this.communityInfo.role === 0) {
+        msg += `<br/><span class="fs12" style="color: #FF6660">该管理层下创建的应用层社群也将被删除。</span>`
+      }
+      this.$affirm({text: msg}, (action, instance, done) => {
+        if (action === 'confirm') {
+          this.$http('/group/disbandGroup', {guid: this.communityInfo.guid}).then(res => {
+            this.$tip('删除成功')
+            this.getGroupList()
+          })
+          done()
+        } else {
+          done()
+        }
+      })
     },
     // 显示修改昵称dialog
     showDialog () {
@@ -390,7 +466,7 @@ export default {
     // 离开社群
     leaveCommunity (type, current, parent) {
       // type 可选类型 quit、kick
-      let [url, des] = ['/group/exit', '']
+      let [url, des, again] = ['/group/exit', '', '']
       let params = {
         groupPid: parent.guid || parent.groupGuid,
         groupGuid: current.groupGuid,
@@ -399,13 +475,13 @@ export default {
       }
       switch (type) {
         case 'quit':
-          des = `确定要退出【<span class="maxw200 ellipsis">${params.parentGroupNickName}</span>】社群？`
+          des = `确定退出该管理员社群？`
+          again = '退出将丢失已输入的内容，确定退出吗？'
           url = '/group/exit'
           break
         default:
-          des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>
-              确定要移除子社群【<span class="maxw200 ellipsis">
-              ${params.groupNickName}</span>】？`
+          des = `确定删除该社群？`
+          again = `确定删除该社群？`
           url = '/group/remove'
       }
       this.$affirm({text: `${des}`}, (action, instance, done) => {
@@ -414,11 +490,13 @@ export default {
             this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
             this.$emit('refresh')
           })
-          done()
-        } else {
-          done()
         }
+        done()
       })
+    },
+    // 复制邀请码
+    clipboard (event) {
+      Clipboard(this.communityInfo.code,event)
     }
   },
   watch: {}
@@ -448,10 +526,12 @@ export default {
     }
   }
   .community--main {
-    height: 100%;
+    height: calc(100vh - 220px);
     margin-left: 242px;
     .el-scrollbar{
       height: 100%;
+      .el-scrollbar__wrap{
+      }
     }
     .table--scrollbar__warp{
       height: calc(100% - 32px);
@@ -487,17 +567,24 @@ export default {
           float: left;
           width: calc(100% - 180px);
           line-height: 1;
+          overflow: hidden;
           >p{
             float: left;
             width: 50%;
             box-sizing: border-box;
             margin-bottom: 10px;
+            line-height: 16px;
             &:nth-child(2n + 1) {
               padding-right: 20px;
             }
           }
           .parents-item{
             display: inline-block;
+            vertical-align: bottom;
+            line-height: 16px;
+            .uu-icon{
+              margin-left: 10px;
+            }
             >*{
               display: inline-block;
               vertical-align: middle;

@@ -21,8 +21,8 @@
           </div>
           <!--会员信息-->
           <div class="corner-bg associator--wrap vam">
-            <div class="associator--inner" v-if="memberInfo.imgUrl">
-              <h3>***欢迎您</h3>
+            <div class="associator--inner" v-if="memberInfo.imgUrl && memberInfo.memberLabelList[0]">
+              <h3>{{memberInfo.memberLabelList[0].name}}{{memberInfo.memberLabelList[0].gender ? '女士':'先生'}}欢迎您</h3>
               <div class="detail-info--wrap">
                 <div class="base-info">
                   <p><span class="ellipsis">{{memberInfo.memberLabelList[0].memberLibraryName}}</span></p>
@@ -457,6 +457,8 @@ export default {
             height: 100%;
             padding: 24px 14px 40px;
             box-sizing: border-box;
+            background-color: rgba(64, 58, 73, 0.3);
+            box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
             h3{
               font-size: 20px;
               text-align: center;

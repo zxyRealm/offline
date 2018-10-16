@@ -115,9 +115,10 @@ export default {
     },
     // 根据查询条件查询数据
     getDataInParams (params) {
+      console.log(this.detailInfo)
       let paramsSearch = {
         groupGuid: (params && params.groupGuid) || this.detailInfo.groupGuid, // 新增设备绑定groupgGuid
-        personGuid: this.detailInfo.personGuid,
+        ufaceId: this.detailInfo.ufaceId,
         deviceKey: (params && params.deviceKey) || '',
         cameraName: this.detailInfo.cameraName,
         startTime: (params && params.startTime) || '',
