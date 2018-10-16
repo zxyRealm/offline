@@ -166,7 +166,59 @@ export default {
       if (!e) {
         this.addPerson()
       } else {
-        window.location.href = 'http://192.168.11.170:8001/member/template/download'
+        window.location.href = ''
+        // axios({
+        //   method: 'post',
+        //   url: '/api/member/download',
+        //   responseType: 'blob',
+        //   headers: {
+        //     'Content-Type': 'application/vnd.ms-excel'
+        //   }
+        // }).then(res => {
+        //   // let headers = res.headers
+        //   // let blob = new Blob([res.data], {
+        //   //   type: headers['content-type']
+        //   // })
+        //   console.log(res.data)
+        //   let link = document.createElement('a')
+        //   link.href = window.URL.createObjectURL(res.data)
+        //   link.click()
+        // }).catch(err => {
+        //   console.log(err)
+        // })
+        let xhr = new XMLHttpRequest()
+        let fileName = '测试文件.xls' // 文件名称
+        xhr.open('POST', '/api/member/download', true)
+        xhr.responseType = 'arraybuffer'
+        xhr.onload = function () {
+          if (this.status === 200) {
+            let type = xhr.getResponseHeader('Content-Type')
+            let blob = new Blob([this.response], {type: type})
+            if (typeof window.navigator.msSaveBlob !== 'undefined') {
+              // IE
+              window.navigator.msSaveBlob(blob, fileName)
+            } else {
+              let URL = window.URL || window.webkitURL
+              let objectUrl = URL.createObjectURL(blob)
+              if (fileName) {
+                var a = document.createElement('a')
+                // safari doesn't support this yet
+                if (typeof a.download === 'undefined') {
+                  window.location = objectUrl
+                } else {
+                  a.href = objectUrl
+                  a.download = fileName
+                  document.body.appendChild(a)
+                  a.click()
+                  a.remove()
+                }
+              } else {
+                window.location = objectUrl
+              }
+            }
+          }
+        }
+        xhr.send()
       }
     },
     // 搜索事件
