@@ -8,7 +8,7 @@
     </uu-sub-tab>
     <div class="equipment-children-container" :style="{top:isSearch?'92px':'64px'}">
       <div class="ec-side-nav dashed-border" v-if="isSearch">
-        <h2>选择子社群</h2>
+        <h2>选择成员社群</h2>
         <ob-group-nav
           ref="childGroup"
           :select="selectValue"
@@ -150,9 +150,9 @@ export default {
       if (!this.isSearch) {
         txt = '查询不到该设备'
       } else if (this.selectValue.node && !this.selectValue.node.length) {
-        txt = '您还没有子社群'
+        txt = '您还没有成员社群'
       } else if (!this.currentGroup) {
-        txt = '请先在左侧选择自有社群，以查看其下的子社群设备'
+        txt = '请先在左侧选择自有社群，以查看其下的成员社群设备'
       } else if (!this.equipmentList.length) {
         txt = '该社群尚未绑定设备'
       }

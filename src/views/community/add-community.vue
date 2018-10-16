@@ -213,7 +213,7 @@ export default {
   },
   created () {
     console.log(this.$route.name)
-    if (this.$route.name === 'editCommunity') {
+    if (this.type === 'update') {
       this.getCommunityInfo()
     }
   },
@@ -229,7 +229,7 @@ export default {
           txt += '新建管理层社群'
           break
         case 'editApplyCommunity':
-          txt += '编辑子社群'
+          txt += '编辑成员社群'
           break
         case 'editSingleCommunity':
           txt += '编辑单店社群'
@@ -238,7 +238,7 @@ export default {
           txt += '编辑单店社群'
           break
         default:
-          txt += '新建子社群'
+          txt += '新建成员社群'
       }
       return txt
     },

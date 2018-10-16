@@ -266,8 +266,8 @@ export default {
           url = '/group/exit'
           break
         default:
-          des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>
-            确定要移除子社群【<span class="maxw200 ellipsis">
+          des = `移除成员社群将失去对该社群设备的数据查看权限/操作权限。<br>
+            确定要移除成员社群【<span class="maxw200 ellipsis">
             ${params.groupNickName}</span>】？`
           url = '/group/remove'
       }

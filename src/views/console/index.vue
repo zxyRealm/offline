@@ -240,7 +240,7 @@ export default {
       }
       currentList.unshift(pedestrian)
     },
-    // 获取长连接ip（端口号：8083）
+    // 获取长连接ip（端口号：8085）
     getwebsocketIp () {
       this.$http('/getServiceIp').then(res => {
         this.getwebsocket(res.data)

@@ -83,7 +83,7 @@ export default {
       this.$affirm({
         confirm: '前往【社群管理】',
         cancel: '知道了',
-        text: '需满足条件：</br>该账号下有管理员社群/单店社群/子社群（已加入管理员社群）'
+        text: '需满足条件：</br>该账号下有管理员社群/单店社群/成员社群（已加入管理员社群）'
       }, (action, instance, done) => {
         if (action === 'confirm') {
           done()

@@ -100,7 +100,7 @@
                         class="parents-item">
                         <span>{{item.name}}</span>
                         <uu-icon size="small" type="data"></uu-icon>
-                        <uu-icon v-if="item.role.length > 2" type="handle"></uu-icon>
+                        <uu-icon v-if="item.rule.length > 2" size="small" type="handle"></uu-icon>
                         <uu-icon size="small" type="quit" @click.native="leaveCommunity('quit',communityInfo, item)"></uu-icon>
                       </div>
                     </div>
@@ -109,11 +109,11 @@
                     <el-button
                       v-if="communityInfo.role === 0"
                       class="affirm"
-                      @click="$router.push({path: '/community/apply',query: {pid: communityInfo.guid}})">创建自有子社群</el-button>
+                      @click="$router.push({path: '/community/apply',query: {pid: communityInfo.guid}})">创建自有成员社群</el-button>
                     <el-button
                     v-if="communityInfo.role === 1"
                     class="affirm"
-                    @click="$router.push({path: '/community/apply',query: {pid: communityInfo.guid}})">加入其他管理员社群</el-button>
+                    @click="joinFormVisible = true">加入其他管理员社群</el-button>
                   </div>
                 </div>
               </div>
@@ -226,12 +226,12 @@
               <div class="content__text--wrap">
                 <div class="content--text">
                   <p class="g-custom__button" @click="$router.push({path: '/community/create'})">管理员社群</p>
-                  1、可生成邀请码，以邀请子社群加入，并查看其客流数据，操作其设备（可选）；<br>
-                  2、创建自有子社群；<br>
+                  1、可生成邀请码，以邀请成员社群加入，并查看其客流数据，操作其设备（可选）；<br>
+                  2、创建自有成员社群；<br>
                   3、添加设备、人员库。
                 </div>
                 <div class="content--text">
-                  <p class="g-custom__button" @click="$router.push({path: '/community/apply'})">子社群</p>
+                  <p class="g-custom__button" @click="$router.push({path: '/community/apply'})">成员社群</p>
                   1、可通过邀请码加入管理社群，对其开放数据查看权限，设备操作权限（可选）；<br>
                   2、添加设备、人员库。
                 </div>
@@ -250,7 +250,41 @@
           </div>
         </div>
       </ob-dialog-form>
-
+      <!--加入其他管理员社群-->
+      <ob-dialog-form
+        width="500px"
+        :show-button="false"
+        title="输入邀请码"
+        :visible.sync="joinFormVisible">
+        <el-form
+          slot="form"
+          ref="joinForm"
+          block-message
+          style="width: 330px"
+          label-position="left"
+          class="common-form white"
+          label-width="82px"
+          :model="joinForm"
+          :rules="joinRules"
+        >
+          <el-form-item label="邀请码：" prop="code">
+            <el-input placeholder="请输入10位数字、字母" v-model="joinForm.code"></el-input>
+          </el-form-item>
+          <el-form-item label-width="0">
+            <div class="name--text" :class="textState">{{textState ==='danger'?'已加入社群：':''}}{{joinCommunityInfo.name}}</div>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button class="cancel" @click="joinFormVisible = false">返 回</el-button>
+          <el-button class="affirm" :disabled="textState!=='safe'" type="primary" @click="joinManageCommunity('joinForm')">加入</el-button>
+        </div>
+      </ob-dialog-form>
+      <!--添加社群-->
+      <ob-dialog-form
+        multiple
+        type="group"
+        :visible.sync="addCommunityVisible"
+      ></ob-dialog-form>
     </div>
 </template>
 
@@ -271,27 +305,69 @@ export default {
     VisitedDetailInfo,
     FaceRecognition
   },
-  data: () => ({
-    isSon: false, // 是否是子社群
-    tipMsg: '暂无社群', // 空数据是页面提示信息
-    supply: '',
-    searchEmpty: false, // 是否是search状态
-    showPopover: false, // 创建社群引导提示显示状态
-    groupList: [], // 社群列表
-    searchList: [], // 社群搜索结果
-    currentCommunity: {}, // 当前社群信息
-    communityInfo: {
-      guid: '05E71B8A375946528615F8362D750231'
-    },
-    deviceList: [],
-    expandedKeys: [], // 展开项
-    rules: {},
-    createFormVisible: false, // 创建社群dialog显示状态
-    dialogFormVisible: false, // 修改社群昵称dialog 显示状态
-    nameForm: {
-      name: ''
+  data () {
+    const validateCode = (rule, value, callback) => {
+      value = value.trim()
+      this.joinCommunityInfo = {}
+      if (!value) {
+        callback(new Error('请输入社群邀请码'))
+      } else {
+        if (value.length === 10) {
+          if (/^[\da-zA-Z]{10}$/.test(value)) {
+            this.$http('/group/info/code', {code: value}, false).then(res => {
+              if (res.data) {
+                this.joinCommunityInfo = res.data
+                // if (!this.groupList.length) {
+                //   this.getGroups()
+                // }
+                callback()
+              } else {
+                callback(new Error('邀请码不存在，请重新输入'))
+              }
+            }).catch(err => {
+              callback(new Error(err.msg || '邀请码不存在'))
+            })
+          } else {
+            callback(new Error('请输入正确的社群邀请码'))
+          }
+        } else {
+          callback(new Error('请输入10位社群邀请码'))
+        }
+      }
     }
-  }),
+    return {
+      isSon: false, // 是否是成员社群
+      tipMsg: '暂无社群', // 空数据是页面提示信息
+      supply: '',
+      searchEmpty: false, // 是否是search状态
+      showPopover: false, // 创建社群引导提示显示状态
+      groupList: [], // 社群列表
+      searchList: [], // 社群搜索结果
+      currentCommunity: {}, // 当前社群信息
+      communityInfo: {
+        guid: '05E71B8A375946528615F8362D750231'
+      },
+      joinCommunityInfo: {},
+      joinForm: { // 创建分组form数据对象
+        code: ''
+      },
+      joinRules: {
+        code: [
+          {validator: validateCode, trigger: 'change'}
+        ]
+      },
+      deviceList: [],
+      expandedKeys: [], // 展开项
+      rules: {},
+      createFormVisible: false, // 创建社群dialog显示状态
+      dialogFormVisible: false, // 修改社群昵称dialog 显示状态
+      joinFormVisible: false, // 加入其他管理员社群 dialog显示状态
+      addCommunityVisible: false, // 添加社群
+      nameForm: {
+        name: ''
+      }
+    }
+  },
   created () {
     this.getGroupList()
   },
@@ -318,6 +394,28 @@ export default {
           type = 'apply'
         }
         return `/community/${type}/${this.communityInfo.guid}`
+      },
+      set () {}
+    },
+    textState: {
+      get () {
+        let className = ''
+        if (this.communityInfo.parentGroups && this.joinCommunityInfo.guid) {
+          let cName = ''
+          for (let item of this.communityInfo.parentGroups) {
+            if (item.rule.length > 2) {
+              cName = item.name
+              break
+            }
+          }
+          if (this.joinCommunityInfo.rule.length > 2 && cName) {
+            this.$set(this.joinCommunityInfo, 'name', cName)
+            className = 'danger'
+          } else {
+            className = 'safe'
+          }
+        }
+        return className
       },
       set () {}
     }
@@ -384,10 +482,21 @@ export default {
     getGroupList (key) {
       this.$http('/group/list').then(res => {
         console.log(res.data)
+        res.data.map(item => {
+          if (item.role === 0 && item.memberItem && item.memberItem.length) {
+            item.memberItem.unshift({button: 'groups', parentNode: item})
+            item.memberItem.map(item2 => {
+              if (!item2.button && item2.groupPid) {
+                item2.memberItem.unshift({button: 'community', parentNode: item2})
+              }
+            })
+          }
+        })
         this.groupList = res.data || []
         // 编辑页返回时记住当前页状态
         let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || res.data[0]
         this.$nextTick(() => {
+          if (!this.communityInfo.uniqueKey) this.communityInfo.uniqueKey = currentNode
           this.$refs.groupNav.setCurrentKey(currentNode.uniqueKey)
         })
         this.getCommunityInfo(currentNode)
@@ -419,15 +528,28 @@ export default {
       })
     },
     // 切换
-    currentChange (node) {
-      console.log(node)
-      this.currentCommunity = node
-      // this.hidePopover()
-      // 查询社群详细信息
-      if (node.groupGuid) this.getCommunityInfo(node)
-      // 分组信息直接设置，不再查询
-      if (!node.guid && !node.groupPid) this.communityInfo = node
-      this.getDeviceList(node)
+    currentChange (data) {
+      console.log('tree ----', data)
+      if (!data.button) {
+        this.currentCommunity = data
+        // this.hidePopover()
+        // 查询社群详细信息
+        if (data.groupGuid) this.getCommunityInfo(data)
+        // 分组信息直接设置，不再查询
+        if (!data.groupGuid) this.communityInfo = data
+        this.getDeviceList(data)
+      } else {
+        // 点击新建分组是默认选中状态值不改变
+        this.$refs.groupNav.setCurrentKey(this.currentCommunity.uniqueKey)
+        // 根据定义的button 属性值 判定新建分组或者添加社群
+        if (data.button === 'groups') {
+          this.$http('/groupCustom/create', {name: `分组${data.parentNode.memberItem.length - 1}`, groupPid: data.parentNode.groupGuid}).then(res => {
+            this.getGroupList(this.currentCommunity)
+          })
+        } else {
+          this.addCommunityVisible = true
+        }
+      }
     },
     // 解散社群
     disbandGroup () {
@@ -466,11 +588,12 @@ export default {
     // 离开社群
     leaveCommunity (type, current, parent) {
       // type 可选类型 quit、kick
+      console.log('current', current, 'parent', parent)
       let [url, des, again] = ['/group/exit', '', '']
       let params = {
         groupPid: parent.guid || parent.groupGuid,
-        groupGuid: current.groupGuid,
-        groupNickName: current.groupNickName,
+        groupGuid: current.groupGuid || current.guid,
+        groupNickName: current.groupNickName || current.name,
         parentGroupNickName: parent.groupNickName || parent.name
       }
       switch (type) {
@@ -488,18 +611,43 @@ export default {
         if (action === 'confirm') {
           this.$http(url, params).then(res => {
             this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
-            this.$emit('refresh')
+            this.getGroupList()
           })
         }
         done()
       })
     },
+    // 加入其他管理员社群
+    joinManageCommunity (formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          let subData = {
+            groupPid: this.joinCommunityInfo.guid,
+            groupGuid: this.communityInfo.guid,
+            groupName: this.communityInfo.name
+          }
+          this.$http('/group/join', subData).then(res => {
+            this.$tip('加入成功')
+            this.joinFormVisible = false
+            this.getGroupList(this.currentCommunity)
+            // this.$router.push('/community/mine')
+          })
+        }
+      })
+    },
     // 复制邀请码
     clipboard (event) {
-      Clipboard(this.communityInfo.code,event)
+      Clipboard(this.communityInfo.code, event)
     }
   },
-  watch: {}
+  watch: {
+    joinFormVisible (val) {
+      if (!val) {
+        this.joinForm.code = ''
+        this.joinCommunityInfo = {}
+      }
+    }
+  }
 }
 </script>
 
@@ -515,7 +663,7 @@ export default {
   .community--sidebar {
     float: left;
     width: 230px;
-    height: calc(100vh - 220px);
+    height: calc(100vh - 200px);
     .ob-group-nav{
       padding: 20px 16px;
       .el-tree-node__content{
@@ -526,7 +674,7 @@ export default {
     }
   }
   .community--main {
-    height: calc(100vh - 220px);
+    height: calc(100vh - 200px);
     margin-left: 242px;
     .el-scrollbar{
       height: 100%;
@@ -566,14 +714,13 @@ export default {
         .info-detail {
           float: left;
           width: calc(100% - 180px);
-          line-height: 1;
+          line-height: 14px;
           overflow: hidden;
           >p{
             float: left;
             width: 50%;
             box-sizing: border-box;
             margin-bottom: 10px;
-            line-height: 16px;
             &:nth-child(2n + 1) {
               padding-right: 20px;
             }
@@ -581,7 +728,7 @@ export default {
           .parents-item{
             display: inline-block;
             vertical-align: bottom;
-            line-height: 16px;
+            margin-right: 25px;
             .uu-icon{
               margin-left: 10px;
             }
@@ -681,4 +828,30 @@ export default {
     }
   }
 }
+  .name--text {
+    height: 40px;
+    line-height: 40px;
+    border-radius: 2px;
+    text-align: center;
+    &.safe, &.danger{
+      position: relative;
+      background: #EDEDED;
+      &:after{
+        position:absolute;
+        top: 0;
+        left: 0;
+        content: '';
+        width:0;
+        height:0;
+        border-top: 20px solid #F85650;
+        border-right: 20px solid transparent;
+        border-bottom: 20px solid transparent;
+      }
+    }
+    &.safe{
+      &:after{
+        border-top: 20px solid #58D431;
+      }
+    }
+  }
 </style>

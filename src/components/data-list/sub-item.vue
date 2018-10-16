@@ -159,7 +159,7 @@ export default {
       type: Boolean,
       default: false
     },
-    isChild: { // 是否是子社群设备列表
+    isChild: { // 是否是成员社群设备列表
       type: [Boolean],
       default: false
     }

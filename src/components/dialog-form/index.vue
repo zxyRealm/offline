@@ -9,7 +9,7 @@
     :width="width"
     :title="title"
     :visible.sync="dialogFormVisible">
-    <el-scrollbar
+    <div
       class="mc"
       v-if="type==='group'"
       :style="customStyle"
@@ -24,7 +24,7 @@
         theme="white"
         type="custom"
       ></ob-group-nav>
-    </el-scrollbar>
+    </div>
     <template v-if="$slots.form">
       <slot name="form"></slot>
     </template>
@@ -363,6 +363,10 @@ export default {
     .el-dialog__footer{
       padding-top: 0;
       padding-bottom: 30px;
+      .el-button[disabled]{
+        background: #B4B4B7;
+        box-shadow: none;
+      }
     }
     .el-button + .el-button {
       margin-left: 0;

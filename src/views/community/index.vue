@@ -348,7 +348,7 @@ export default {
         }
       })
     },
-    // 修改子社群备注名
+    // 修改成员社群备注名
     changeCommunityName (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {

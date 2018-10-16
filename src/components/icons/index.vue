@@ -41,7 +41,7 @@ export default {
     background-position: center center;
     background-size: contain;
     cursor: pointer;
-    vertical-align: sub;
+    vertical-align: middle;
     &.exit {
       background-image: url("/static/img/exit_icon.png");
       height: $s24;
@@ -101,6 +101,11 @@ export default {
       background-image: url('../../assets/public/icons/back_higher_icon.png');
       height: $s14;
       width: $s14;
+    }
+    &.groups {
+      background-image: url('../../assets/public/icons/groups_icon@2x.png');
+      height: $s12;
+      width: $s12;
     }
     &.problem {
       background-image: url('../../assets/public/icons/problem_icon.png');

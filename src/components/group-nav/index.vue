@@ -34,25 +34,33 @@
         @current-change="currentChange"
         ref="GroupTree">
         <span class="custom-tree-node" slot-scope="{ node, data }">
-          <span
-            v-if="type==='custom-community'"
-            :class="{ellipsis:true,'dialog-tree':type === 'custom'}"
-            :custom-type="customType(data.type)"
-            :style="{maxWidth:''}"
-          >
-            {{data[defaultProps.label]}}
-          </span>
-          <span
-            v-if="type!=='custom-community'"
-            :class="{ellipsis:true,'dialog-tree':type === 'custom'}">
-            {{ data[defaultProps.label] }}
-          </span>
+          <template v-if="data.button">
+            <span class="group__custom--btn">
+              <i class="el-icon-plus"></i>{{data.button === 'groups' ? '新建分组': '添加社群'}}
+            </span>
+          </template>
+          <template v-else>
+             <span
+               v-if="type==='custom-community'"
+               :class="{ellipsis:true,'dialog-tree':type === 'custom'}"
+               :custom-type="customType(data.type)"
+               :style="{maxWidth:''}"
+             >
+              {{data[defaultProps.label]}}
+            </span>
+            <span
+              v-if="type!=='custom-community'"
+              :class="{ellipsis:true,'dialog-tree':type === 'custom'}">
+              {{ data[defaultProps.label] }}
+            </span>
+          </template>
           <img v-if="data.role === 0 && node.level === 1" class="role__icon--img" src="./image/manager_icon.png" alt="">
           <img v-else-if="data.type !== 3 && data.role === 1 && node.level === 1" class="role__icon--img" src="./image/children_icon.png" alt="">
           <img v-else-if="data.type === 3 && node.level === 1" class="role__icon--img" src="./image/single_icon.png" alt="">
-          <img v-if="data.role === 0" class="role__icon--img" src="./image/data_icon@2x.png" alt="">
-          <img v-if="data.role === 0 && data.rule && data.rule.length > 2" class="role__icon--img" src="./image/manage_icon@2x.png" alt="">
-          <i v-if="type==='community'&& node.level===2" class="el-icon-remove-outline danger fr"
+          <uu-icon v-if="data.role === 0" class="role__icon--img" type="data"></uu-icon>
+          <uu-icon v-if="data.role === 0 && data.rule && data.rule.length > 2" class="role__icon--img" type="handle"></uu-icon>
+          <uu-icon v-if="node.level === 2 && data.memberItem" type="groups" class="ml10"></uu-icon>
+          <i v-if="type==='community' && node.level > 2" class="el-icon-remove-outline danger fr"
              @click="leaveCommunity('kick',data,node.parent.data)"></i>
         </span>
       </el-tree>
@@ -202,7 +210,6 @@ export default {
       gid = (gid || '')
       this.$http('/group/list', {searchText: gid}).then(res => {
         this.GroupList = uniqueKey(res.data, this.defaultProps.children)
-        console.log(this.GroupList)
         if (this.type !== 'device') {
           this.TreeList = this.GroupList
         }
@@ -241,9 +248,7 @@ export default {
           url = '/group/exit'
           break
         default:
-          des = `移除子社群将失去对该社群设备的数据查看权限/操作权限。<br>
-              确定要移除子社群【<span class="maxw200 ellipsis">
-              ${params.groupNickName}</span>】？`
+          des = `确定将社群从分组移除？`
           url = '/group/remove'
       }
       this.$affirm({text: `${des}`}, (action, instance, done) => {
@@ -426,7 +431,19 @@ export default {
         border: 1px solid #0F9EE9;
       }
     }
-
+    /*新建分组/添加社群 按钮*/
+    .group__custom--btn{
+      display: inline-block;
+      width: 138px;
+      margin-left: -10px;
+      color: #fff;
+      font-size: 12px;
+      .el-icon-plus {
+        margin-right: 5px;
+        color: #3a8ee6;
+        font-weight: bold;
+      }
+    }
   }
 
   .parent-item {
