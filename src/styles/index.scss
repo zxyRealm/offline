@@ -653,7 +653,7 @@ button, input {
     }
   }
   .el-table__body tr:hover > td {
-    background-color: transparent !important;
+    background-color: rgba(255,255,255,.05);
   }
   &:after, &:before {
     background-color: $border !important;

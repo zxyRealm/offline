@@ -32,13 +32,12 @@
               <div class="cmm-top dashed-border">
                 <h2 class="cmm-sub-title">
                   <span>{{communityInfo.name}}{{communityInfo.groupNickName?`(${communityInfo.groupNickName})`:''}}
-                   <!--v-if="communityInfo.groupNickName !== undefined"-->
-                    <a  class="fs12" @click="showDialog" href="javascript:void (0)">
+                    <a v-if="communityInfo.groupNickName !== undefined || communityInfo.groupPid"  class="fs12" @click="showDialog" href="javascript:void (0)">
                       <i class="el-icon-edit"></i>{{dialogTitle}}
                     </a>
                   </span>
-                  <p class="handle fr fs14" v-if="!isSon && communityInfo.guid">
-                    <router-link :to="activeUrl">编辑</router-link>
+                  <p class="handle fr fs14" v-if="communityInfo.guid">
+                    <router-link v-show="!communityInfo.groupPid" :to="activeUrl">编辑</router-link>
                     <a href="javascript:void (0)" class="danger ml20" @click="disbandGroup">删除</a>
                   </p>
                 </h2>
@@ -93,7 +92,7 @@
                     </p>
                     <!--&& communityInfo.parentGroups && communityInfo.parentGroups.length-->
                     <div class="fl" v-if="communityInfo.role === 1 && communityInfo.type!==3">
-                      <span>已加入：</span>
+                      <span class="fl">已加入：</span>
                       <div
                         v-for="(item,$index) in communityInfo.parentGroups"
                         :key="$index"
@@ -210,6 +209,32 @@
           <el-button class="affirm" type="primary" @click="setNickName('nameForm')">{{communityInfo.nickName?'加 入':'添 加'}}</el-button>
         </div>
       </ob-dialog-form>
+      <!--自定义分组名-->
+      <ob-dialog-form
+        title="编辑分组名"
+        :visible.sync="groupsNameFormVisible"
+      >
+        <el-form
+          slot="form"
+          ref="groupsNameForm"
+          block-message
+          style="width: 330px"
+          label-position="left"
+          class="common-form white"
+          label-width="82px"
+          :model="groupsNameForm"
+          :rules="rules"
+        >
+          <el-form-item label="分组名：" prop="name">
+            <el-input placeholder="请输入分组名" v-model="groupsNameForm.name"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer mt50">
+          <el-button class="cancel" @click="groupsNameFormVisible = false">返 回</el-button>
+          <el-button class="affirm" type="primary" @click="setGroupsName('groupsNameForm')">确定</el-button>
+        </div>
+      </ob-dialog-form>
+
       <!--创建社群-->
       <ob-dialog-form
         width="660px"
@@ -347,6 +372,8 @@ export default {
       communityInfo: {
         guid: '05E71B8A375946528615F8362D750231'
       },
+      groupsNameForm: {
+      },
       joinCommunityInfo: {},
       joinForm: { // 创建分组form数据对象
         code: ''
@@ -361,6 +388,7 @@ export default {
       rules: {},
       createFormVisible: false, // 创建社群dialog显示状态
       dialogFormVisible: false, // 修改社群昵称dialog 显示状态
+      groupsNameFormVisible: false, // 修改自定义分组名dialog 显示状态
       joinFormVisible: false, // 加入其他管理员社群 dialog显示状态
       addCommunityVisible: false, // 添加社群
       nameForm: {
@@ -377,8 +405,10 @@ export default {
     dialogTitle: {
       get () {
         let txt = '添加昵称'
-        if (this.communityInfo.nickName) {
+        if (this.communityInfo.groupNickName) {
           txt = '编辑昵称'
+        } else if (this.communityInfo.groupPid) {
+          txt = '编辑分组名'
         }
         return txt
       },
@@ -484,22 +514,26 @@ export default {
         console.log(res.data)
         res.data.map(item => {
           if (item.role === 0 && item.memberItem && item.memberItem.length) {
-            item.memberItem.unshift({button: 'groups', parentNode: item})
             item.memberItem.map(item2 => {
               if (!item2.button && item2.groupPid) {
-                item2.memberItem.unshift({button: 'community', parentNode: item2})
+                item2.memberItem.unshift({button: 'community', parentNode: JSON.parse(JSON.stringify(item2))})
               }
             })
+            item.memberItem.unshift({button: 'groups', parentNode: JSON.parse(JSON.stringify(item))})
           }
         })
         this.groupList = res.data || []
+        console.log(this.groupList)
         // 编辑页返回时记住当前页状态
-        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || res.data[0]
+        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || res.data[0]
         this.$nextTick(() => {
           if (!this.communityInfo.uniqueKey) this.communityInfo.uniqueKey = currentNode
           this.$refs.groupNav.setCurrentKey(currentNode.uniqueKey)
+          if (!this.currentCommunity.uniqueKey) this.currentCommunity = currentNode
         })
-        this.getCommunityInfo(currentNode)
+        if (currentNode.groupGuid) {
+          this.getCommunityInfo(currentNode)
+        }
         this.getDeviceList(currentNode)
         this.$route.meta.keepAlive = false
       })
@@ -544,7 +578,7 @@ export default {
         // 根据定义的button 属性值 判定新建分组或者添加社群
         if (data.button === 'groups') {
           this.$http('/groupCustom/create', {name: `分组${data.parentNode.memberItem.length - 1}`, groupPid: data.parentNode.groupGuid}).then(res => {
-            this.getGroupList(this.currentCommunity)
+            this.getGroupList()
           })
         } else {
           this.addCommunityVisible = true
@@ -554,13 +588,23 @@ export default {
     // 解散社群
     disbandGroup () {
       let msg = `确认删除【<span class="maxw200 ellipsis">${this.communityInfo.name}</span>】社群？`
+      let url = `/group/disbandGroup` // 解散/删除社群
+      let subData = {guid: this.communityInfo.guid}
       if (this.communityInfo.role === 0) {
         msg += `<br/><span class="fs12" style="color: #FF6660">该管理层下创建的应用层社群也将被删除。</span>`
       }
+      // 删除分组
+      if (this.communityInfo.groupPid && this.communityInfo.guid) {
+        url = `/groupCustom/delete`
+        subData = {
+          groupCustomGuid: this.communityInfo.guid
+        }
+      }
       this.$affirm({text: msg}, (action, instance, done) => {
         if (action === 'confirm') {
-          this.$http('/group/disbandGroup', {guid: this.communityInfo.guid}).then(res => {
+          this.$http(url, subData).then(res => {
             this.$tip('删除成功')
+            this.currentCommunity = {}
             this.getGroupList()
           })
           done()
@@ -571,17 +615,33 @@ export default {
     },
     // 显示修改昵称dialog
     showDialog () {
-      this.dialogTitle = '添加昵称'
-      if (this.communityInfo.nickName) {
-        this.dialogTitle = '编辑昵称'
+      // 编辑分组名
+      console.log(this.communityInfo)
+      if (this.communityInfo.groupPid) {
+        this.groupsNameForm = JSON.parse(JSON.stringify(this.communityInfo))
+        this.groupsNameFormVisible = true
+      } else {
+        this.dialogFormVisible = true
       }
-      this.dialogFormVisible = true
     },
     // 设置昵称
     setNickName (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           console.log(this.nameForm)
+        }
+      })
+    },
+    // 编辑自定义分组名称
+    setGroupsName (formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          delete this.groupsNameForm.memberItem
+          this.$http('/groupCustom/update', this.groupsNameForm).then(res => {
+            this.$tip('修改成功')
+            this.groupsNameFormVisible = false
+            this.getGroupList()
+          })
         }
       })
     },
@@ -729,6 +789,9 @@ export default {
             display: inline-block;
             vertical-align: bottom;
             margin-right: 25px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            line-height: 10px;
             .uu-icon{
               margin-left: 10px;
             }

@@ -57,9 +57,9 @@
           <img v-if="data.role === 0 && node.level === 1" class="role__icon--img" src="./image/manager_icon.png" alt="">
           <img v-else-if="data.type !== 3 && data.role === 1 && node.level === 1" class="role__icon--img" src="./image/children_icon.png" alt="">
           <img v-else-if="data.type === 3 && node.level === 1" class="role__icon--img" src="./image/single_icon.png" alt="">
-          <uu-icon v-if="data.role === 0" class="role__icon--img" type="data"></uu-icon>
-          <uu-icon v-if="data.role === 0 && data.rule && data.rule.length > 2" class="role__icon--img" type="handle"></uu-icon>
-          <uu-icon v-if="node.level === 2 && data.memberItem" type="groups" class="ml10"></uu-icon>
+          <uu-icon v-if="data.role === 0" class="role__icon--img" size="mini" type="data"></uu-icon>
+          <uu-icon v-if="data.role === 0 && data.rule && data.rule.length > 2" size="mini" class="role__icon--img" type="handle"></uu-icon>
+          <uu-icon v-if="node.level === 2 && data.memberItem" type="groups" size="mini" class="ml10"></uu-icon>
           <i v-if="type==='community' && node.level > 2" class="el-icon-remove-outline danger fr"
              @click="leaveCommunity('kick',data,node.parent.data)"></i>
         </span>
