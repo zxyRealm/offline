@@ -18,7 +18,7 @@
                 v-model="scope.row.showPopver"
                 placement="top"
                 width="220">
-                <input type="text" v-model="changeName" class="changeText">
+                <input type="text" maxlength="20" v-model.trim="changeName" class="changeText">
                 <span class="el-icon-circle-check-outline sure" @click="sureChange(scope.row)"></span>
                 <span class="el-icon-circle-close-outline close" @click="closeChange"></span>
                 <span class="el-icon-edit name__edit" slot="reference" @click="getName(scope.row.name)"></span>
