@@ -293,7 +293,7 @@ export default {
         if (res.result == 1) {
           this.data = res.data
           this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis)  //这个yAxis是对象形式
+          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
           this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
           this.changeSeries()
           // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
@@ -317,7 +317,7 @@ export default {
         if (res.result == 1) {
           this.data = res.data
           this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis)  //这个yAxis是对象形式
+          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
           this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
           this.changeSeries()
           // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);

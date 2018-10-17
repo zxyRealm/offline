@@ -16,7 +16,29 @@
           </li>
         </ul>
         <div class="left-div corner-bg" ref="lineConsole">
-          <line-console ref="echartsLine" :line-params='lineParams'></line-console>
+          <div class="passenger-flow--wrap corner-bg">
+            <line-console ref="echartsLine" :line-params='lineParams'></line-console>
+          </div>
+          <!--<line-console ref="echartsLine" :line-params='lineParams'></line-console>-->
+          <!--会员信息-->
+          <div class="corner-bg associator--wrap vam">
+            <div class="associator--inner" v-if="memberInfo.imgUrl && memberInfo.memberLabelList[0]">
+              <h3>{{memberInfo.memberLabelList[0].name}}{{memberInfo.memberLabelList[0].gender===1? '先生':'女士'}}欢迎您</h3>
+              <div class="detail-info--wrap">
+                <div class="base-info">
+                  <p><span class="ellipsis">{{memberInfo.memberLabelList[0].memberLibraryName}}</span></p>
+                  <p>{{memberInfo.gender===1?'男':'女'}}</p>
+                  <p>{{memberInfo.age}}</p>
+                  <p>{{ memberInfo.appearanceDate | parseTime('{m}/{d}')}}</p>
+                  <p>{{ memberInfo.appearanceDate | parseTime('{h}:{i}')}}</p>
+                </div>
+                <div class="associator__avatar--wrap">
+                  <img class="associator__avatar" :src="memberInfo.cropUrl" alt="">
+                </div>
+              </div>
+            </div>
+            <img v-else style="max-width: 100%;" src="/static/img/logo@2x.png" alt="">
+          </div>
         </div>
       </div>
       <div class="content-top-right">
@@ -93,6 +115,7 @@ export default {
       style: {
         visibility: 'visible'
       },
+      memberInfo: {}, // 会员信息
       isShow: true, // 推送消息是否展示
       state: false, // 是否有数据
       deviceKey: '', // 设备序列号
@@ -173,7 +196,7 @@ export default {
         }
         me.$refs.echartsBar.resizeEcharts()
         let tableLine = document.getElementById('echarts-line')
-        tableLine.style.width = me.$refs.lineConsole.offsetWidth + 'px'
+        // tableLine.style.width = me.$refs.lineConsole.offsetWidth + 'px'
         tableLine.style.height = me.$refs.lineConsole.offsetHeight + 'px'
         me.$refs.echartsLine.resizeEcharts()
       }, time || 50)
@@ -181,9 +204,10 @@ export default {
     // 解析数据
     resolveDatad (data) {
       let obj = JSON.parse(data)
+      // console.log('push message ----', obj)
+      this.setMemberInfo(obj.memberInfoList)
       // 判断是否是同一台数据推送的数据
       if (obj.deviceKey !== this.deviceKey) return
-      console.log('after---')
       // 饼图 = 推送实时更新数据
       this.$set(this.pieParams.seriesData[0], 'value', obj.female)
       this.$set(this.pieParams.seriesData[1], 'value', obj.male)
@@ -254,6 +278,65 @@ export default {
       this.outNumber = 0 // 出入数
       this.inNumber = 0 // 进入数
       this.ageBar = [0, 0, 0, 0, 0, 0] // 柱图
+    },
+    // 获取会员信息，并对图像进行剪裁显示
+    setMemberInfo (data) {
+      // console.log('data---', data)
+      if (!data || !data[0]) return
+      data = data[0]
+      let coordinate = data.extendedFaceBox
+      let [url, startX, startY, width, height] = [data.imgUrl, coordinate.upperX, coordinate.upperY, coordinate.lowerX - coordinate.upperX, coordinate.lowerY - coordinate.upperY]
+      // 返回剪裁图片路径属于一个异步过程，因此使用回调方式返回url
+      if (coordinate) {
+        this.customDrawImage(url, startX, startY, width, height, url => {
+          data.cropUrl = url
+          this.memberInfo = data
+        })
+      } else {
+        data.cropUrl = url
+        this.memberInfo = data
+      }
+      // console.log(newUrl)
+    },
+    // 绘制图像（根据坐标）
+    customDrawImage (url, startX, startY, width, height, callback) {
+      let canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      let ctx = canvas.getContext('2d')
+      let xhr = new XMLHttpRequest()
+      xhr.withCredentials = false
+      if ('withCredentials' in xhr) {
+        // console.log('current support cros')
+        // 此时即支持CORS的情况
+        // 检查XMLHttpRequest对象是否有“withCredentials”属性
+        // “withCredentials”仅存在于XMLHTTPRequest level 2对象里
+      } else {
+        // 否则检查是否支持XDomainRequest
+        // XDomainRequest仅存在于IE中，是IE用于支持CORS请求的方式
+        // console.log('this is ie')
+        xhr = new XDomainRequest()
+      }
+      xhr.onload = function () {
+        let url = URL.createObjectURL(this.response)
+        let img = new Image()
+        img.crossOrigin = ''
+        img.onload = function () {
+          // 此时你就可以使用canvas对img为所欲为了(画图尺寸不可超出原图尺寸范围，IE上会报错 IndexSizeError)
+          ctx.drawImage(img, startX, startY, width, height, 0, 0, width, height)
+          URL.revokeObjectURL(url)
+          if (typeof callback === 'function') {
+            callback(canvas.toDataURL('image/png', 1))
+          } else {
+            console.error('callback is not a function')
+          }
+          // 图片用完后记得释放内存
+        }
+        img.src = url
+      }
+      xhr.open('GET', url, true)
+      xhr.responseType = 'blob'
+      xhr.send()
     }
   },
   created () {
@@ -366,6 +449,53 @@ export default {
           margin-top: 10px;
           height: calc(69% - 10px);
           box-sizing: border-box;
+          .passenger-flow--wrap{
+            float: left;
+            position: relative;
+            width: 60%;
+            height: 100%;
+            margin-right: 10px;
+          }
+          .associator--wrap{
+            float: left;
+            width: calc(40% - 10px);
+            height: 100%;
+            padding: 24px 14px 40px;
+            box-sizing: border-box;
+            background-color: rgba(64, 58, 73, 0.3);
+            box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+            h3{
+              font-size: 20px;
+              text-align: center;
+            }
+            .detail-info--wrap{
+              margin-top: 14px;
+              overflow: hidden;
+            }
+            .associator__avatar--wrap{
+              margin-right: 100px;
+              height: 186px;
+              .associator__avatar{
+                max-width: 100%;
+                max-height: 100%;
+              }
+            }
+            .base-info{
+              float: right;
+              width: 100px;
+              height: 100%;
+              text-align: center;
+              p{
+                line-height: 2;
+                font-size: 12px;
+                border-bottom: 1px dashed #ddd;
+                margin:0 0 15px 14px;
+                &:last-child{
+                  margin-bottom: 0;
+                }
+              }
+            }
+          }
         }
       }
       .content-top-right {
