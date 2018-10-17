@@ -29,10 +29,10 @@
             :before-upload="beforeAvatarUpload">
             <div class="form__button" v-if="!personMessge.faceImgUrl">添加<span class="f-grey">（400Kb以内）</span></div>
             <div v-if="personMessge.faceImgUrl" class="avatar__border">
-              <div class="img__border">
-                <img :src="personMessge.faceImgUrl" class="avatar">
-                <div class="el-icon-error img__close" @click.stop="colseImg"></div>
-                <div class="changePhoto">更换照片</div>
+              <div class="img__border" @mouseover="Imghover = true" @mouseout="Imghover = false">
+                <img :src="personMessge.faceImgUrl" class="avatar" @click.stop="bubbling">
+                <div class="el-icon-error img__close" @click.stop="colseImg" v-show="Imghover"></div>
+                <div class="changePhoto" v-show="Imghover">更换照片</div>
               </div>
             </div>
           </el-upload>
@@ -178,7 +178,9 @@ export default {
         birthdayStamp: '',
         // 人员等级
         level: ''
-      }
+      },
+      // hover状态
+      Imghover: false
 
     }
   },
@@ -388,6 +390,10 @@ export default {
     // 删除照片
     colseImg () {
       this.personMessge.faceImgUrl = ''
+    },
+    // 阻止事件冒泡
+    bubbling () {
+      console.log(123)
     }
   },
   created () {
@@ -610,6 +616,7 @@ export default {
     top: 2px;
   }
   .changePhoto{
+    z-index: 5;
     cursor: pointer;
     position: absolute;
     bottom: 0;

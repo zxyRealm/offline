@@ -4,17 +4,16 @@
         <el-breadcrumb separator="/" class="fl">
           <el-breadcrumb-item :to="{ path: '/member' }">人员管理</el-breadcrumb-item>
         </el-breadcrumb>
-        <el-button class="affirm medium fr" @click="addNew">添加库</el-button>
+        <el-button class="affirm medium fr add__button" @click="addNew">添加库<div @click.stop="add__hint" class="first__enter" v-show="firstEnter">人员库添加点这里</div></el-button>
       </div>
       <el-scrollbar class="table">
         <el-table
           :data="tableData"
           border
           style="width: 100%">
-          <el-table-column label="库名">
+          <el-table-column label="库名" min-width="200" :show-overflow-tooltip="true">
             <template slot-scope="scope">
               <span>{{scope.row.name || '—'}}</span>
-
               <el-popover
                 v-model="scope.row.showPopver"
                 placement="top"
@@ -28,6 +27,7 @@
             </template>
           </el-table-column>
           <el-table-column
+            min-width="200"
             prop="remark"
             label="备注">
             <template slot-scope="scope">
@@ -45,7 +45,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            width="350"
+            min-width="200"
             label="操作">
             <template slot-scope="scope">
               <div class="fl hand edit" @click="editNew(scope.row.guid)">编辑</div>
@@ -67,13 +67,22 @@ export default {
     tableData: [],
     // 要改变的库名称
     changeName: '',
-    showPopver: false
+    showPopver: false,
+    firstEnter: false
   }),
   created () {
     // this.emptyHint()
     this.getList()
+    this.$http('firstCheck', {name: 'insight_member_list_first'}).then(res => {
+      if (res.result) {
+        if (res.data) {
+          this.firstEnter = true
+        }
+      }
+    })
   },
   mounted () {
+
   },
   computed: {
 
@@ -166,6 +175,9 @@ export default {
     // 获取库名称
     getName (e) {
       this.changeName = e
+    },
+    add__hint () {
+      console.log(123)
     }
   },
   watch: {}
@@ -186,7 +198,6 @@ export default {
     cursor: pointer;
   }
   .edit{
-    margin-left: 30px;
     color: #0F9EE9;
   }
   .manage{
@@ -202,6 +213,8 @@ export default {
     overflow: hidden;
   }
   .name__edit{
+    position: absolute;
+    right: 20px;
     color: #0F9EE9;
     font-size: 16px;
     cursor: pointer;
@@ -219,6 +232,39 @@ export default {
     cursor: pointer;
     color: #EE6C4B;
     font-size: 20px;
+  }
+  .add__button{
+    position: relative;
+  }
+  .first__enter{
+    z-index: 10;
+    font-size: 12px;
+    color: #191919;
+    letter-spacing: 0;
+    position: absolute;
+    right: 0;
+    top: 40px;
+    width: 150px;
+    height: 35px;
+    line-height: 35px;
+    background-color: #fff;
+    border-radius: 3px;
+  }
+  .first__enter::before{
+    box-sizing: content-box;
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    top: -10px;
+    right:40px;
+    padding:0;
+    border-bottom:5px solid #FFFFFF;
+    border-top:5px solid transparent;
+    border-left:5px solid transparent;
+    border-right:5px solid transparent;
+    display: block;
+    content:'';
+    z-index: 12;
   }
 </style>
 
