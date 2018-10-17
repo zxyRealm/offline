@@ -23,9 +23,9 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="姓名">
+          <el-table-column label="姓名" :show-overflow-tooltip="true">
             <template slot-scope="scope">
-              <span>{{scope.row.name || '—'}}</span>
+              <span class="libraryName">{{scope.row.name || '—'}}</span>
             </template>
           </el-table-column>
 
@@ -77,7 +77,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   name: 'index',
   data: () => ({
@@ -86,7 +85,7 @@ export default {
       {text: '下载模板'}
     ],
     menu2: [
-      {title: `人员管理  /  西溪银泰会员库`}
+      {title: ''}
     ],
     tableData: [],
     pageData: {
@@ -104,7 +103,7 @@ export default {
     this.getList()
     this.$http('/memberLibrary/find', data).then(res => {
       if (res.result) {
-        this.menu2[0].title = `人员管理  /  ${res.data.name}`
+        this.menu2[0].title = `人员管理&nbsp;&nbsp;&nbsp/&nbsp;&nbsp;&nbsp;${res.data.name}`
       }
     })
   },
@@ -166,59 +165,11 @@ export default {
       if (!e) {
         this.addPerson()
       } else {
-        window.location.href = ''
-        // axios({
-        //   method: 'post',
-        //   url: '/api/member/download',
-        //   responseType: 'blob',
-        //   headers: {
-        //     'Content-Type': 'application/vnd.ms-excel'
-        //   }
-        // }).then(res => {
-        //   // let headers = res.headers
-        //   // let blob = new Blob([res.data], {
-        //   //   type: headers['content-type']
-        //   // })
-        //   console.log(res.data)
-        //   let link = document.createElement('a')
-        //   link.href = window.URL.createObjectURL(res.data)
-        //   link.click()
-        // }).catch(err => {
-        //   console.log(err)
-        // })
-        let xhr = new XMLHttpRequest()
-        let fileName = '测试文件.xls' // 文件名称
-        xhr.open('POST', '/api/member/download', true)
-        xhr.responseType = 'arraybuffer'
-        xhr.onload = function () {
-          if (this.status === 200) {
-            let type = xhr.getResponseHeader('Content-Type')
-            let blob = new Blob([this.response], {type: type})
-            if (typeof window.navigator.msSaveBlob !== 'undefined') {
-              // IE
-              window.navigator.msSaveBlob(blob, fileName)
-            } else {
-              let URL = window.URL || window.webkitURL
-              let objectUrl = URL.createObjectURL(blob)
-              if (fileName) {
-                var a = document.createElement('a')
-                // safari doesn't support this yet
-                if (typeof a.download === 'undefined') {
-                  window.location = objectUrl
-                } else {
-                  a.href = objectUrl
-                  a.download = fileName
-                  document.body.appendChild(a)
-                  a.click()
-                  a.remove()
-                }
-              } else {
-                window.location = objectUrl
-              }
-            }
-          }
-        }
-        xhr.send()
+        var a = document.createElement('a')
+        a.href = 'https://offline-browser-data-test.oss-cn-hangzhou.aliyuncs.com/member-info/member-template/%E4%BA%BA%E5%91%98%E5%AF%BC%E5%85%A5%E6%A8%A1%E6%9D%BF.xlsx?OSSAccessKeyId=LTAIGTWnewQMxSd5&Expires=1539745432&Signature=np87kk9SqbjAY8KK5VxSMt2X3ok%3D'
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
       }
     },
     // 搜索事件
@@ -269,12 +220,11 @@ export default {
     height: 48px;
   }
   .edit{
-    margin-left: 20px;
     color: #0F9EE9;
     cursor: pointer;
   }
   .del{
-    margin-left:40px;
+    margin-left:30px;
     color: #FF6660;
     cursor: pointer;
   }
@@ -282,7 +232,13 @@ export default {
     margin: 13px 0 10px 0;
     height: calc(100% - 59px - 60px);
   }
-
+  .libraryName{
+    float: left;
+    width: calc(100% - 50px);
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+  }
 </style>
 
 <style>
