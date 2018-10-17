@@ -19,7 +19,8 @@
           style="width: 100%">
           <el-table-column label="照片">
             <template slot-scope="scope">
-              <img :src="scope.row.faceImgUrl" class="tableImg">
+              <img v-show="scope.row.faceImgUrl" :src="scope.row.faceImgUrl" class="tableImg">
+              <div v-show="!scope.row.faceImgUrl" class="tableImg">—</div>
             </template>
           </el-table-column>
 
@@ -218,6 +219,7 @@ export default {
   .tableImg{
     width: 48px;
     height: 48px;
+    line-height: 48px;
   }
   .edit{
     color: #0F9EE9;
