@@ -23,9 +23,9 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="姓名">
+          <el-table-column label="姓名" :show-overflow-tooltip="true">
             <template slot-scope="scope">
-              <span>{{scope.row.name || '—'}}</span>
+              <span class="libraryName">{{scope.row.name || '—'}}</span>
             </template>
           </el-table-column>
 
@@ -232,7 +232,13 @@ export default {
     margin: 13px 0 10px 0;
     height: calc(100% - 59px - 60px);
   }
-
+  .libraryName{
+    float: left;
+    width: calc(100% - 50px);
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+  }
 </style>
 
 <style>

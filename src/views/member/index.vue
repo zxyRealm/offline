@@ -13,7 +13,7 @@
           style="width: 100%">
           <el-table-column label="库名" min-width="200" :show-overflow-tooltip="true">
             <template slot-scope="scope">
-              <span>{{scope.row.name || '—'}}</span>
+              <span class="libraryName">{{scope.row.name || '—'}}</span>
               <el-popover
                 v-model="scope.row.showPopver"
                 placement="top"
@@ -29,9 +29,10 @@
           <el-table-column
             min-width="200"
             prop="remark"
+            :show-overflow-tooltip="true"
             label="备注">
             <template slot-scope="scope">
-              <span>{{scope.row.remark || '—'}}</span>
+              <span class="libraryName">{{scope.row.remark || '—'}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -265,6 +266,13 @@ export default {
     display: block;
     content:'';
     z-index: 12;
+  }
+  .libraryName{
+    float: left;
+    width: calc(100% - 50px);
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
   }
 </style>
 
