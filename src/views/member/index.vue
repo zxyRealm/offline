@@ -153,8 +153,10 @@ export default {
     },
     // 确定改变库名称
     sureChange (e) {
-      let data = e
-      e.name = this.changeName
+      let data = {
+        guid: e.guid,
+        name: this.changeName
+      }
       this.$http('/memberLibrary/update', data).then(res => {
         if (res.result) {
           this.getList()
