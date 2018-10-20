@@ -23,7 +23,7 @@
           <!--会员信息-->
           <div class="corner-bg__2x associator--wrap vam">
             <div class="associator--inner" v-if="memberInfo.imgUrl && memberInfo.memberLabelList[0]">
-              <h3>{{memberInfo.memberLabelList[0].name}}{{memberInfo.memberLabelList[0].gender===undefined ? memberInfo.gender? '先生' : '女士' : memberInfo.memberLabelList[0].gender ? '先生' : '女士'}}欢迎您</h3>
+              <h3>{{memberInfo.memberLabelList[0].name || '尊敬的'}}{{memberInfo.memberLabelList[0].gender===undefined ? memberInfo.gender? '先生' : '女士' : memberInfo.memberLabelList[0].gender ? '先生' : '女士'}}，您好</h3>
               <div class="detail-info--wrap">
                 <div class="base-info">
                   <p><span class="ellipsis">{{memberInfo.memberLabelList[0].memberLibraryName || '嘉宾'}}</span></p>
