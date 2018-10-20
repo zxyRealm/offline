@@ -1,6 +1,5 @@
 <template>
   <div id="echarts-line" class="line-wrap" :style="{height: lineHeight}">
-
   </div>
 </template>
 
@@ -45,7 +44,7 @@ export default {
         }],
       option: {
         color: ['#F1BB13', '#7FC16A', '#EE6C4B', '#6D2EBB', '#2187DF', '#DDDDDD'],
-        textStyle: {   // 总体字体样式
+        textStyle: { // 总体字体样式
           color: '#ffffff'
         },
         title: {
@@ -80,8 +79,8 @@ export default {
           }
         },
         legend: {
-          right: 0,  // 排序方式
-          textStyle: {  // 字体设置
+          right: 0, // 排序方式
+          textStyle: { // 字体设置
             // color: '#ffffff',
             fontSize: '12',
             fontWeight: 'normal'
@@ -255,7 +254,7 @@ export default {
       let me = this
       me.showGenderData()
       this.cleanTimer()
-      this.timer = window.setTimeout(this.timing, 3600000)// 3600000
+      this.timer = window.setTimeout(this.timing, 5 * 60 * 1000)// 3600000
     },
     cleanTimer () {
       if (this.timer) {
@@ -289,16 +288,18 @@ export default {
         dimension: 1,
         startTime: this.$getNowFormatDate(),
         endTime: this.$getNowFormatDate()
-      }).then(res => {
-        if (res.result == 1) {
-          this.data = res.data
-          this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
-          this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
-          this.changeSeries()
-          // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
-          this.drawLine()
-        }
+      }, false).then(res => {
+        // let emptyIndex = this.backMinIndex(res.data.seriesGroup[0].data, res.data.seriesGroup[1].data) - 1
+        // res.data.xAxisGroup[0].data = res.data.xAxisGroup[0].data.slice(emptyIndex)
+        // res.data.seriesGroup[0].data = res.data.seriesGroup[0].data.slice(emptyIndex)
+        // res.data.seriesGroup[1].data = res.data.seriesGroup[1].data.slice(emptyIndex)
+        this.data = res.data
+        this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
+        this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
+        this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
+        this.changeSeries()
+        // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
+        this.drawLine()
       }).catch(error => {
         console.info(error)
       })
@@ -314,24 +315,22 @@ export default {
         startTime: params.startTime,
         endTime: params.endTime
       }).then(res => {
-        if (res.result == 1) {
-          this.data = res.data
-          this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
-          this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
-          this.changeSeries()
-          // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
-          if (this.$store.state.filterParams.type == 3) {
-            this.option.legend['data'] = this.addColor(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
-          }
-          if (this.$store.state.filterParams.type == 2) {
-            this.option.legend['data'] = this.genderLegend
-          }
-          if (this.$store.state.filterParams.type == 4) {
-            this.option.legend['data'] = this.shopLegend
-          }
-          this.drawLine()
+        this.data = res.data
+        this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
+        this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
+        this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
+        this.changeSeries()
+        // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
+        if (this.$store.state.filterParams.type == 3) {
+          this.option.legend['data'] = this.addColor(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
         }
+        if (this.$store.state.filterParams.type == 2) {
+          this.option.legend['data'] = this.genderLegend
+        }
+        if (this.$store.state.filterParams.type == 4) {
+          this.option.legend['data'] = this.shopLegend
+        }
+        this.drawLine()
       }).catch(error => {
         console.info(error)
       })
@@ -381,12 +380,29 @@ export default {
         this.option.legend['data'] = this.shopLegend
         this.option.series = this.simulateSeries(['多次', '单次'])
       }
+    },
+    // 校对两个数组中前n个值都为0,返回最小值序列号
+    backMinIndex (arr, arr2) {
+      arr = arr || []
+      arr2 = arr2 || []
+      let [index1, index2] = [0, 0]
+      for (let i = 0, len = arr.length; i < len; i++) {
+        if (arr[i] > 0) {
+          index1 = i
+          break
+        }
+      }
+      for (let j = 0, len2 = arr2.length; j < len2; j++) {
+        if (arr2[j] > 0) {
+          index2 = j
+          break
+        }
+      }
+      return index1 > index2 ? index2 : index1
     }
   },
   mounted () {
-    // this.drawLine();
     if (this.lineParams.title.text == '客流量统计') {
-      this.showGenderData()
       this.timing() // 定时刷新数据，一个小时一次
     } else {
       this.changeColor()
@@ -405,7 +421,6 @@ export default {
   watch: {
     // 监听vuex groupConsoleId是否改变
     groupConsoleId (val) {
-      this.showGenderData()
       this.timing() // 定时刷新数据，一个小时一次
     }
   },
@@ -426,7 +441,8 @@ export default {
     padding: 20px;
     background-color: rgba(64, 58, 73, 0.30);
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
-    // background: rgba(35,32,39,0.30);
-    // box-shadow: 0 0 4px 0 rgba(0,0,0,1);
+  }
+  .console__main .line-wrap{
+    background-color: rgba(0,0,0,0);
   }
 </style>

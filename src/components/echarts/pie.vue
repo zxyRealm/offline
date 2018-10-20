@@ -321,7 +321,9 @@ export default {
     background-color: rgba(64, 58, 73, 0.30);
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
   }
-
+  .console__main .pie-wrap{
+    background-color: rgba(0,0,0,0);
+  }
   .pie-wrap-circle::before {
     content: '';
     width: 100%;

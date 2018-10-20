@@ -66,6 +66,8 @@ export default {
       this.$emit('update:visible', val)
       if (val) {
         this.getDeviceData()
+      } else {
+        this.radio = -1
       }
     }
   },

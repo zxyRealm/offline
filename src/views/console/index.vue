@@ -1,36 +1,36 @@
 <template>
-  <div class="console-wrap" :style="{backgroundColor:!state?'':'#0F0E11' }">
+  <div class="console-wrap" >
     <ob-list-empty v-if="!state">
       <a href="javascript:void (0)" @click="selectGroupId">请选择您的社群和设备</a>
     </ob-list-empty>
     <div class="content-top" v-if="state" :class="isShow ? '': 'content-top__active'">
       <div class="content-top-left">
         <ul class="left-ul">
-          <li class="corner-bg">
+          <li class="corner-bg__2x">
             <p>客流汇总信息 </p>
             <flow-info :type="'left'" :number="inNumber" class="flow-left"></flow-info>
             <flow-info :type="'right'" :number="outNumber" class="flow-right"></flow-info>
           </li>
-          <li class="corner-bg">
+          <li class="corner-bg__2x vam">
             <all-time class="li-all-time"></all-time>
           </li>
         </ul>
-        <div class="left-div corner-bg" ref="lineConsole">
-          <div class="passenger-flow--wrap corner-bg">
+        <div class="left-div" ref="lineConsole">
+          <div class="passenger-flow--wrap corner-bg__2x">
             <line-console ref="echartsLine" :line-params='lineParams'></line-console>
           </div>
           <!--<line-console ref="echartsLine" :line-params='lineParams'></line-console>-->
           <!--会员信息-->
-          <div class="corner-bg associator--wrap vam">
+          <div class="corner-bg__2x associator--wrap vam">
             <div class="associator--inner" v-if="memberInfo.imgUrl && memberInfo.memberLabelList[0]">
-              <h3>{{memberInfo.memberLabelList[0].name}}{{memberInfo.memberLabelList[0].gender===1? '先生':'女士'}}欢迎您</h3>
+              <h3>{{memberInfo.memberLabelList[0].name}}{{memberInfo.memberLabelList[0].gender===undefined ? memberInfo.gender? '先生' : '女士' : memberInfo.memberLabelList[0].gender ? '先生' : '女士'}}欢迎您</h3>
               <div class="detail-info--wrap">
                 <div class="base-info">
-                  <p><span class="ellipsis">{{memberInfo.memberLabelList[0].memberLibraryName}}</span></p>
-                  <p>{{memberInfo.gender===1?'男':'女'}}</p>
-                  <p>{{memberInfo.age}}</p>
-                  <p>{{ memberInfo.appearanceDate | parseTime('{m}/{d}')}}</p>
-                  <p>{{ memberInfo.appearanceDate | parseTime('{h}:{i}')}}</p>
+                  <p><span class="ellipsis">{{memberInfo.memberLabelList[0].memberLibraryName || '嘉宾'}}</span></p>
+                  <p>{{memberInfo.memberLabelList[0].gender===undefined ? memberInfo.gender ? '男': '女' : memberInfo.memberLabelList[0].gender ? '男' : '女'}}</p>
+                  <p>{{memberInfo.memberLabelList[0].age || memberInfo.age}}</p>
+                  <p>{{ memberInfo.memberLabelList[0].appearanceDate || memberInfo.appearanceDate | parseTime('{m}/{d}')}}</p>
+                  <p>{{ memberInfo.memberLabelList[0].appearanceDate || memberInfo.appearanceDate | parseTime('{h}:{i}')}}</p>
                 </div>
                 <div class="associator__avatar--wrap">
                   <img class="associator__avatar" :src="memberInfo.cropUrl" alt="">
@@ -43,16 +43,16 @@
       </div>
       <div class="content-top-right">
         <ul class="bottom-ul">
-          <li ref='pie' class="corner-bg pie-background " :class="isShow ? '': 'pie-background__active'">
+          <li ref='pie' class="corner-bg__2x pie-background " :class="isShow ? '': 'pie-background__active'">
             <pie ref="echartsPie" :pieParams="pieParams" class="pie-wrap-circle"></pie>
           </li>
-          <li ref='bar' id="barFather" class="corner-bg" :class="isShow ? '': 'li--second__child'">
+          <li ref='bar' id="barFather" class="corner-bg__2x" :class="isShow ? '': 'li--second__child'">
             <bar ref="echartsBar" :ageBar="ageBar"></bar>
           </li>
         </ul>
       </div>
     </div>
-    <div :style="style" class="content-bottom corner-bg" v-show="state && isShow" :class="isShow ? 'animation--console__isShow' : 'animation--console__isHidden'">
+    <div :style="style" class="content-bottom corner-bg__2x" v-show="state && isShow" :class="isShow ? 'animation--console__isShow' : 'animation--console__isHidden'">
       <div class="customer-wrap">
         <transition-group name="list-customer" class="transition-wrap left" tag="ul">
           <li
@@ -204,10 +204,11 @@ export default {
     // 解析数据
     resolveDatad (data) {
       let obj = JSON.parse(data)
-      // console.log('push message ----', obj)
-      this.setMemberInfo(obj.memberInfoList)
       // 判断是否是同一台数据推送的数据
       if (obj.deviceKey !== this.deviceKey) return
+      // console.log('push message ----', obj)
+      // 设置会员信息
+      this.setMemberInfo(obj.memberInfoList)
       // 饼图 = 推送实时更新数据
       this.$set(this.pieParams.seriesData[0], 'value', obj.female)
       this.$set(this.pieParams.seriesData[1], 'value', obj.male)
@@ -284,18 +285,20 @@ export default {
       // console.log('data---', data)
       if (!data || !data[0]) return
       data = data[0]
-      let coordinate = data.extendedFaceBox
-      let [url, startX, startY, width, height] = [data.imgUrl, coordinate.upperX, coordinate.upperY, coordinate.lowerX - coordinate.upperX, coordinate.lowerY - coordinate.upperY]
+      // let coordinate = data.extendedFaceBox
+      // let [url, startX, startY, width, height] = [data.memberLabelList[0].memberPictureUrl, coordinate.upperX, coordinate.upperY, coordinate.lowerX - coordinate.upperX, coordinate.lowerY - coordinate.upperY]
       // 返回剪裁图片路径属于一个异步过程，因此使用回调方式返回url
-      if (coordinate) {
-        this.customDrawImage(url, startX, startY, width, height, url => {
-          data.cropUrl = url
-          this.memberInfo = data
-        })
-      } else {
-        data.cropUrl = url
-        this.memberInfo = data
-      }
+      // let url = 'https://offline-browser-images-test.oss-cn-hangzhou.aliyuncs.com/offline-browser-face/91-01-8102/0847978399351_0B94EFF6734D4F3095E88AAF7C1E30CA.png'
+      data.cropUrl = data.imgUrl
+      this.memberInfo = data
+      // 取消图片截取功能
+      // if (coordinate && data.memberLabelList[0] && !data.memberLabelList[0].memberPictureUrl) {
+      //   this.customDrawImage(url, startX, startY, width, height, url => {
+      //     data.cropUrl = url
+      //     this.memberInfo = data
+      //   })
+      // } else {
+      // }
       // console.log(newUrl)
     },
     // 绘制图像（根据坐标）
@@ -337,9 +340,20 @@ export default {
       xhr.open('GET', url, true)
       xhr.responseType = 'blob'
       xhr.send()
+    },
+    test () {
+      let obj = {
+        sex: 1,
+        person: {
+          sex: 0
+        }
+      }
+      let aa = obj.person.sex === undefined ? obj.sex ? '男' : '女' : obj.person.sex ? '男' : '女'
+      console.log(aa)
     }
   },
   created () {
+    // this.test()
     eventObject().$on('resize-echarts-console', msg => { // eventObject接收事件  == 控制控制台的图表重置
       this.resizeFunction()
     })
@@ -396,8 +410,14 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
+  @import "@/styles/variables.scss";
   .console-wrap {
     overflow: hidden;
+    .corner-bg__2x{
+      background-color: rgba(20,24,71,0.5)!important;
+      box-shadow: 0 0 7px 2px #223270 inset!important;
+      box-sizing: border-box;
+    }
     .content-top {
       height: 72%;
       .content-top-left, .content-top-right {
@@ -440,8 +460,8 @@ export default {
             height: 100%;
             box-sizing: border-box;
             .li-all-time {
-              position: absolute;
-              top: calc(50% - 41px);
+              /*position: absolute;*/
+              /*top: calc(50% - 41px);*/
             }
           }
         }
@@ -462,8 +482,10 @@ export default {
             height: 100%;
             padding: 24px 14px 40px;
             box-sizing: border-box;
-            background-color: rgba(64, 58, 73, 0.3);
-            box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+            background-color: rgba(20,24,71,.5);
+            box-shadow: 0 0 7px 2px #223270 inset;
+            /*background: url(/static/img/background-img-in.png) no-repeat center;*/
+            /*background-size: 100% 100%;*/
             h3{
               font-size: 20px;
               text-align: center;
@@ -474,7 +496,6 @@ export default {
             }
             .associator__avatar--wrap{
               margin-right: 100px;
-              height: 186px;
               .associator__avatar{
                 max-width: 100%;
                 max-height: 100%;
@@ -486,10 +507,15 @@ export default {
               height: 100%;
               text-align: center;
               p{
-                line-height: 2;
-                font-size: 12px;
+                line-height: 34px;
+                font-size: 14px;
                 border-bottom: 1px dashed #ddd;
-                margin:0 0 15px 14px;
+                margin-left: 14px;
+                margin-bottom: 20px;
+                @media screen and (max-width: 1600px){
+                  font-size: 12px;
+                  margin-bottom: 15px;
+                }
                 &:last-child{
                   margin-bottom: 0;
                 }
@@ -693,7 +719,7 @@ export default {
       bottom: 0;
       width: 100%;
       height: 38px;
-      background: #17151A;
+      box-shadow: 0 0 7px 2px #223270 inset;
       li {
         position: absolute;
         display: inline-block;

@@ -300,7 +300,9 @@ export default {
 
 <style lang="scss" scoped>
   @import "@/styles/community.scss";
-
+  .community-mine-wrap{
+    height: 100%;
+  }
   .search-empty {
     height: 20px;
     line-height: 18px;

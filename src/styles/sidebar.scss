@@ -1,3 +1,4 @@
+@import "./variables.scss";
 #app {
   // 主体区域
   .main-container {
@@ -5,9 +6,14 @@
     height: 100%;
     transition: all .28s;
     padding: 90px 20px 20px 240px;
-    background: #0F0E11;
+    background-color: #0F0E11;
     overflow-y: auto;
     box-sizing: border-box;
+    background-image: url(/static/img/main_bg_icon.png);
+    &.console__main{
+      background-image: url(/static/img/main_bg_icon@2x.png);
+      background-size: 10px auto;
+    }
     &.no-bar{
       padding:90px 20px 20px;
       transition: none;

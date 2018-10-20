@@ -302,7 +302,7 @@ export default {
     },
     getDisabledKeys: {
       get () {
-        console.log('child', this.disabledKeys)
+        // console.log('child', this.disabledKeys)
         return this.disabledKeys
       },
       set () {

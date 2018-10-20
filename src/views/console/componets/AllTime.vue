@@ -98,19 +98,15 @@ export default {
   .all-time-wrap {
     width: 100%;
     text-align: center;
-    height: 82px;
     div.identify {
-      line-height: 34px;
-      height: 34px;
-      width: 164px;
-      margin-left: calc(50% - 82px);
-      background: url(/static/img/identify.png) no-repeat center;
+      line-height: 80px;
+      height: 80px;
+      width: 180px;
+      margin: 0 auto;
+      background: url(../../../assets/console/device-name-bg@2x.png) no-repeat center;
       background-size: 100% 100%;
       span {
         padding: 3px 26px;
-        background: rgba(12, 80, 207, 0.3);
-        //background: #0C50CF;
-        // opacity: 0.5;
       }
     }
     .change-time {
@@ -123,7 +119,6 @@ export default {
         border-radius: 1px;
         text-align: center;
         line-height: 30px;
-        //transform: rotate3d(1,0,0,-360deg) scale(1);
       }
       div {
         display: inline;

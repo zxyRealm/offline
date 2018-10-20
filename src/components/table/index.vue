@@ -90,15 +90,19 @@ export default {
         length: this.pageParams.pageSize,
         index: this.pageParams.currentPage
       }
-      this.$http('/chart/flowCount', filterParams).then(res => {
-        if (res.result === 1) {
-          this.tableData = res.data.content || [];
-          // this.pageParams.total = res.data.pagination.total || 0;
-          (!!res.data.pagination) ? this.$set(this.pageParams, 'total', res.data.pagination.total || 0) : this.$set(this.pageParams, 'total', 0)
-        }
-      }).catch(error => {
-        console.info(error)
-      })
+      if (filterParams.groupGuid) {
+        this.$http('/chart/flowCount', filterParams).then(res => {
+          if (res.result === 1) {
+            this.tableData = res.data.content || [];
+            // this.pageParams.total = res.data.pagination.total || 0;
+            (!!res.data.pagination) ? this.$set(this.pageParams, 'total', res.data.pagination.total || 0) : this.$set(this.pageParams, 'total', 0)
+          }
+        }).catch(error => {
+          console.info(error)
+        })
+      } else {
+        this.$tip('请您先选择社群', 'error')
+      }
     },
     initSize () {
       // table高度改变

@@ -2,7 +2,7 @@
   <div class="app-wrapper" :class="classObj">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"></div>
     <navbar></navbar>
-    <div class="main-container" :class="{'no-bar':!showBar}">
+    <div class="main-container" :class="{'no-bar':!showBar,'console__main': $route.name === 'console-lwh'}">
       <sidebar v-show="showBar" class="sidebar-container"></sidebar>
       <app-main class="app-main-content" :class="cornerBg" id="app_main--content">
       </app-main>
@@ -38,7 +38,7 @@ export default {
       }
     },
     cornerBg () {
-      if (/\/data/.test(this.$route.path)) {
+      if (/\/data/.test(this.$route.path) || this.$route.name === 'console-lwh') {
         return ''
       }
       return 'corner-bg'
@@ -60,7 +60,6 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import "src/styles/mixin.scss";
-
   .app-wrapper {
     @include clearfix;
     position: relative;
@@ -77,13 +76,25 @@ export default {
   }
 </style>
 <style lang="scss" rel="stylesheet/scss">
-
-  .app-wrapper {
-    .app-main-content {
-      > div {
-        height: 100%;
+  @import "@/styles/variables.scss";
+  #app{
+    .app-wrapper {
+      .main-container{
+        &.console__main{
+          background-color: $console-main;
+          .app-main-content{
+            background-color: $console-main;
+            background-image: url(/static/img/main_bg_icon@2x.png);
+            background-size: 10px auto;
+          }
+        }
       }
-    }
+      .app-main-content {
+        > div {
+          height: 100%;
+        }
+      }
 
+    }
   }
 </style>
