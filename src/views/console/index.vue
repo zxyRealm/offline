@@ -222,7 +222,12 @@ export default {
       // 柱状图
       this.ageBar = JSON.parse(obj.age)
       // 图片展示
-      this.typePedestrian(obj.pedestrian[0])
+      let imgObject = JSON.parse(JSON.stringify(obj.pedestrian[0]))
+      if (obj.memberInfoList[0] && obj.memberInfoList[0].memberLabelList[0].name) {
+        imgObject.age = obj.memberInfoList[0].memberLabelList[0].age
+        imgObject.gender = obj.memberInfoList[0].memberLabelList[0].gender
+      }
+      this.typePedestrian(imgObject)
     },
     // 判断数据类型，并且限定大小4
     typePedestrian (pedestrian) {
