@@ -31,6 +31,9 @@ const actions = {
     }).catch(error => {
       console.log(error)
     })
+  },
+  GET_GROUPS_LIST: ({commit}) => {
+
   }
 }
 

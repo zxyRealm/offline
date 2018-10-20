@@ -107,6 +107,11 @@ export default {
       height: $s12;
       width: $s12;
     }
+    &.help {
+      background-image: url('../../assets/public/icons/help_icon.png');
+      height: 24px;
+      width: 24px;
+    }
     &.problem {
       background-image: url('../../assets/public/icons/problem_icon.png');
       &.small{

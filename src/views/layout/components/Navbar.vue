@@ -20,6 +20,7 @@
           <span>{{selectName}}</span>
         </div>
         <div class="right-menu-item vam">
+          <uu-icon type="help" @click.native="helpDialogVisible = true"></uu-icon>
           <router-link :to="'/index/notify/'+notifState" class="system-notify">
             <uu-icon type="notify" :class="notifState?'notify-have':''"></uu-icon>
           </router-link>
@@ -71,33 +72,35 @@
           <el-button class="affirm" :disabled="!deviceList.length" @click="getDeviceDetail">确定</el-button>
         </div>
       </div>
-      <!--<transition name="dialog-fade"></transition>-->
-      <!--<div v-show="dialogDeviceVisible" class="dialog__item&#45;&#45;wrap">-->
-        <!--<div class="dialog__item&#45;&#45;title">-->
-          <!--<h3>选择设备</h3>-->
-        <!--</div>-->
-        <!--<div class="dialog__item&#45;&#45;content vam">-->
-          <!---->
-        <!--</div>-->
-
-      <!--</div>-->
     </console-dialog>
-    <!--<ob-dialog-form-->
-      <!--ref="dialog"-->
-      <!--:show-button="false"-->
-      <!--@remote-submit="remoteSubmit"-->
-      <!--:type="dialogOptions.type"-->
-      <!--:title="dialogOptions.title"-->
-      <!--:visible.sync="dialogFormVisible">-->
-    <!--</ob-dialog-form>-->
-    <!--<pick-device-->
-      <!--ref="device"-->
-      <!--@pick-device="pickDeviceHandler"-->
-      <!--:type="'group'"-->
-      <!--:title="'选择设备'"-->
-      <!--:groupId="groupSelectId"-->
-      <!--:visible.sync="dialogDeviceVisible">-->
-    <!--</pick-device>-->
+    <el-dialog
+      width="660px"
+      top="calc(50vh - 170px)"
+      :show-close="false"
+      title="欢迎使用线下浏览器服务平台"
+      :visible.sync="helpDialogVisible"
+      custom-class="help__dialog--wrap"
+    >
+      <div class="dialog__content">
+        <p>平台使用指引：</p>
+        <div class="step__item">
+          <h3>第1步：创建社群</h3>
+          <p class="item--supply">（可选：管理员社群创建成员社群/成员社群加入其它管理员社群等）</p>
+        </div>
+        <div class="step__item">
+          <h3>第2步：添加设备并关联社群</h3>
+        </div>
+        <div class="step__item">
+          <h3>第3步（可选）：创建人员库并导入人员</h3>
+        </div>
+        <div class="step__item">
+          <h3>第4步：完成，查看数据</h3>
+        </div>
+      </div>
+      <div class="dialog__footer tac mt24">
+        <el-button class="affirm" @click="helpDialogVisible = false">收起</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -122,8 +125,8 @@ export default {
       notifState: false, // 是否有站内消息
       groupSelectId: '',
       selectName: '请选择您的社群',
-      dialogFormVisible: false,
-      dialogDeviceVisible: false,
+      dialogFormVisible: false, // 选择社群弹框显示状态
+      helpDialogVisible: false, // 操作指导提示框 显示状态
       dialogOptions: {
         title: '选择社群',
         type: 'group'
@@ -156,9 +159,6 @@ export default {
       if (to.path === '/console') this.selectName = '请选择您的社群'
       if (to.path.indexOf('index/notify') > -1) this.notifyToggle()
     },
-    groupConsoleId (val, oldVal) {
-
-    },
     // 当消失的时候不记录上次选择
     dialogFormVisible (val) {
       if (!val) {
@@ -170,11 +170,7 @@ export default {
           })
         }
         this.deviceList = []
-        this.dialogDeviceVisible = false
       }
-    },
-    dialogDeviceVisible (val, oldVal) {
-      // if (!val) this.$refs.device.resetRadio()
     }
   },
   methods: {
@@ -191,9 +187,6 @@ export default {
       this.groupSelectId = data[0].groupGuid
       this.$store.commit('SET_GROUP_SELECT_ID', this.groupSelectId)
       this.dialogFormVisible = false
-      window.setTimeout(() => { // 解决闪现
-        this.dialogDeviceVisible = true
-      }, 300)
     },
     toggleSideBar () {
       this.$store.dispatch('DISPATCH_SIDEBAR')
@@ -205,7 +198,7 @@ export default {
         location.reload() // In order to re-instantiate the vue-router object to avoid bugs
       })
     },
-    // 选取社群时回调
+    // 选取社群时回调，获取社群下设备列表并展示
     handleChange (val) {
       console.log('current ---', val)
       this.deviceInfo = ''
@@ -214,7 +207,6 @@ export default {
         tag: 'console'
       }).then(res => {
         this.deviceList = res.data || []
-        this.dialogDeviceVisible = !!res.data.length
         if (!this.deviceList.length) this.$tip('该社群下暂时没有设备可以添加')
       }).catch(error => {
         console.info(error)
@@ -234,7 +226,7 @@ export default {
   created () {
     // 是否有新的消息
     this.$http('/siteNotice/unRead').then(res => {
-      this.notifState = res.data > 0 ? true : false
+      this.notifState = res.data > 0
     }).catch(error => {
       console.info(error)
     })
@@ -324,9 +316,9 @@ export default {
         float: right;
         display: inline-block;
         margin: 0 8px;
-        > a {
+        > * {
           display: inline-block;
-          margin: 0 5px;
+          margin: 0 8px;
         }
         .notify-have {
           position: relative;
@@ -541,6 +533,41 @@ export default {
     box-shadow: none;
     &:hover{
       background: #CBCBCB;
+    }
+  }
+}
+.help__dialog--wrap{
+  border-radius: 2px;
+  overflow: hidden;
+  .el-dialog__header{
+    padding: 12px;
+    text-align: center;
+    font-size: 16px;
+    background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
+    border-radius: 2px;
+    .el-dialog__title{
+      color: #fff;
+    }
+  }
+  .dialog__content{
+    color: #191919;
+    > p {
+      font-size: 14px;
+      text-align: center;
+    }
+    .item--supply{
+      font-size: 12px;
+      color: #B4B4B7;
+    }
+    .step__item{
+      margin: 10px 0;
+      padding-left: 120px;
+      h3{
+        font-size: 16px;
+      }
+      .item--supply{
+        padding-left: 50px;
+      }
     }
   }
 }

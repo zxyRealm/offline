@@ -225,8 +225,7 @@ export default {
       },
       nickNamePopover: false,
       expandedKeys: [],
-      searchEmpty: false,
-      keepAlive: false
+      searchEmpty: false
     }
   },
   methods: {

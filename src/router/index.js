@@ -492,6 +492,8 @@ router.beforeEach((to, from, next) => {
   let aliveObj = {
     'editCustom': 'customCommunity',
     'editCommunity': 'community',
+    'editApplyCommunity': 'community',
+    'editSingleCommunity': 'community',
     'equipmentMore': 'equipmentChildren,equipment',
     'paramExplain': 'sysNotify',
     'editNotifyCallback': 'sysNotify'

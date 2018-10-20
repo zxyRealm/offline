@@ -177,7 +177,7 @@ div:focus {
 
 //元素margin间距
 
-@each $mt in 5, 8, 10, 16, 50{
+@each $mt in 5, 8, 10, 16, 24, 50{
   .mt#{$mt} {
     margin-top: $mt + px;
   }
@@ -186,6 +186,12 @@ div:focus {
 @each $ml in 5, 8, 10, 20, 50, 94 {
   .ml#{$ml} {
     margin-left: $ml + px;
+  }
+}
+
+@each $mr in 5, 8, 10, 15, 20, 50, 94 {
+  .g-mr#{$mr} {
+    margin-right: $mr + px;
   }
 }
 

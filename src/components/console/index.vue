@@ -52,7 +52,7 @@ export default {
   height: 100%;
   min-width: 1280px;
   background: rgba(0,0,0,0.5);
-  z-index: 999;
+  z-index: 9999;
   .dialog__body{
     overflow: hidden;
   }

@@ -15,6 +15,8 @@
       :style="customStyle"
     >
       <ob-group-nav
+        :filter="filter"
+        v-model="optionsGroup"
         ref="customGroup"
         :show-checkbox="true"
         node-key="uniqueKey"
@@ -151,6 +153,10 @@ export default {
     showButton: { // 是否显示操作按钮（返回/取消）
       type: Boolean,
       default: true
+    },
+    filter: { // 是否添加过滤功能(只在社群列表是设置有效)
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -231,17 +237,10 @@ export default {
           {required: true, message: '请输入申请理由', trigger: 'blur'},
           {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
         ]
-      },
-      optionsGroup: []
+      }
     }
   },
   watch: {
-    group: {
-      handler: function (val) {
-        this.optionsGroup = val || []
-      },
-      deep: true
-    },
     value: {
       handler: function (val) {
         this.dialogForm = val
@@ -251,12 +250,6 @@ export default {
     dialogForm: {
       handler: function (val) {
         this.$emit('input', val)
-      },
-      deep: true
-    },
-    disabledKeys: {
-      handler: function (val) {
-
       },
       deep: true
     }
@@ -317,14 +310,17 @@ export default {
     },
     dialogFormVisible: {
       get () {
-        if (this.visible && this.$refs.customGroup) {
-          this.$refs.customGroup.getGroupList()
-        }
         return this.visible
       },
       set (val) {
         this.$emit('update:visible', val)
       }
+    },
+    optionsGroup: {
+      get () {
+        return this.group
+      },
+      set () {}
     }
   }
 }

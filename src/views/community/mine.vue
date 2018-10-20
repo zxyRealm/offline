@@ -24,6 +24,7 @@
               :expanded-keys="expandedKeys"
               v-model="groupList"
               type="community"
+              @handle-plus="showAddDialog"
               @refresh="getGroupList"
               @current-change="currentChange"></ob-group-nav>
           </div>
@@ -43,33 +44,6 @@
                 </h2>
                 <div class="cm-info-wrap" v-show="communityInfo.createTime">
                   <div class="info-detail">
-                    <!--<p v-if="isSon">-->
-                      <!--<span class="fs14">备注名：</span>-->
-                      <!--<el-popover-->
-                        <!--popper-class="nick_name&#45;&#45;popover"-->
-                        <!--placement="top"-->
-                        <!--@show="showPopover"-->
-                        <!--@hide="hidePopover"-->
-                        <!--v-model="nickNamePopover"-->
-                        <!--trigger="click">-->
-                        <!--<el-form-->
-                          <!--@submit.native.prevent-->
-                          <!--ref="nickNameForm"-->
-                          <!--:rules="rules"-->
-                          <!--class="table-form"-->
-                          <!--:model="communityForm"-->
-                        <!--&gt;-->
-                          <!--<el-form-item prop="groupNickName">-->
-                            <!--<el-input type="text" v-model="communityForm.groupNickName"></el-input>-->
-                            <!--<uu-icon type="success" @click.native="changeCommunityName('nickNameForm')"></uu-icon>-->
-                            <!--<uu-icon type="error" @click.native="nickNamePopover = false"></uu-icon>-->
-                          <!--</el-form-item>-->
-                        <!--</el-form>-->
-                        <!--<a href="javascript:void (0)" slot="reference">-->
-                          <!--{{communityInfo.groupNickName?communityInfo.groupNickName:'暂无昵称'}}-->
-                        <!--</a>-->
-                      <!--</el-popover>-->
-                    <!--</p>-->
                     <p>
                       <span class="">社群名称：</span>{{communityInfo.name}}
                     </p>
@@ -306,7 +280,11 @@
       </ob-dialog-form>
       <!--添加社群-->
       <ob-dialog-form
+        filter
+        showButton
         multiple
+        @remote-submit="addCommunity"
+        :group="addCommunityList"
         type="group"
         :visible.sync="addCommunityVisible"
       ></ob-dialog-form>
@@ -342,9 +320,6 @@ export default {
             this.$http('/group/info/code', {code: value}, false).then(res => {
               if (res.data) {
                 this.joinCommunityInfo = res.data
-                // if (!this.groupList.length) {
-                //   this.getGroups()
-                // }
                 callback()
               } else {
                 callback(new Error('邀请码不存在，请重新输入'))
@@ -368,6 +343,7 @@ export default {
       showPopover: false, // 创建社群引导提示显示状态
       groupList: [], // 社群列表
       searchList: [], // 社群搜索结果
+      addCommunityList: [], // 添加社群弹框社群列表
       currentCommunity: {}, // 当前社群信息
       communityInfo: {
         guid: '05E71B8A375946528615F8362D750231'
@@ -480,16 +456,18 @@ export default {
             })
             let current = getCurrent()
             this.expandedKeys = setArr
-            this.$refs.groupNav.setCheckedKeys(setArr)
             this.$nextTick(() => {
-              this.$refs.groupNav.setCurrentKey(current.uniqueKey)
+              if (this.$refs.groupNav) {
+                this.$refs.groupNav.setCheckedKeys(setArr)
+                this.$refs.groupNav.setCurrentKey(current.uniqueKey)
+                this.getCommunityInfo(current)
+                this.getDeviceList(current)
+              }
             })
-            this.getCommunityInfo(current)
-            this.getDeviceList(current)
           } else {
             this.searchEmpty = true
             this.tipMsg = `搜不到包含“${val}”的内容啊`
-            this.supply = '设备请到左侧［设备管理］中添加'
+            // this.supply = '设备请到左侧［设备管理］中添加'
             this.setDefaultData()
           }
         })
@@ -502,11 +480,13 @@ export default {
       let current = this.groupList[0]
       this.expandedKeys = []
       this.$nextTick(() => {
-        this.$refs.groupNav.setCurrentKey(current.uniqueKey)
+        if (this.$refs.groupNav) {
+          this.$refs.groupNav.setCurrentKey(current.uniqueKey)
+          this.$refs.groupNav.setCheckedKeys([])
+          this.getCommunityInfo(current)
+          this.getDeviceList(current)
+        }
       })
-      this.$refs.groupNav.setCheckedKeys([])
-      this.getCommunityInfo(current)
-      this.getDeviceList(current)
     },
     // 获取社群列表
     getGroupList (key) {
@@ -514,28 +494,38 @@ export default {
         console.log(res.data)
         res.data.map(item => {
           if (item.role === 0 && item.memberItem && item.memberItem.length) {
-            item.memberItem.map(item2 => {
-              if (!item2.button && item2.groupPid) {
-                item2.memberItem.unshift({button: 'community', parentNode: JSON.parse(JSON.stringify(item2))})
-              }
-            })
+            // item.memberItem.map(item2 => {
+            //   if (!item2.button && item2.groupPid) {
+            //     // item2.memberItem.unshift({button: 'community', parentNode: JSON.parse(JSON.stringify(item2))})
+            //   }
+            // })
             item.memberItem.unshift({button: 'groups', parentNode: JSON.parse(JSON.stringify(item))})
           }
         })
         this.groupList = res.data || []
-        console.log(this.groupList)
+        // 当key 返回string时,即恢复默认选中状态
+        console.log('key---', key, typeof key === 'string', this.$route.meta.keepAlive)
+        if (typeof key === 'string') key = res.data[0]
         // 编辑页返回时记住当前页状态
         let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || res.data[0]
         this.$nextTick(() => {
-          if (!this.communityInfo.uniqueKey) this.communityInfo.uniqueKey = currentNode
-          this.$refs.groupNav.setCurrentKey(currentNode.uniqueKey)
-          if (!this.currentCommunity.uniqueKey) this.currentCommunity = currentNode
+          if (this.$refs.groupNav) {
+            if (!this.communityInfo.uniqueKey) this.communityInfo.uniqueKey = currentNode
+            this.$refs.groupNav.setCurrentKey(currentNode.uniqueKey)
+            this.$nextTick(() => {
+              let node = this.$refs.groupNav.$refs.GroupTree.getCurrentNode()
+              if (this.currentCommunity.groupPid) {
+                this.currentCommunity = node
+                this.communityInfo = node
+              }
+            })
+            if (currentNode.groupGuid) {
+              this.getCommunityInfo(currentNode)
+            }
+            this.getDeviceList(currentNode)
+          }
+          this.$route.meta.keepAlive = false
         })
-        if (currentNode.groupGuid) {
-          this.getCommunityInfo(currentNode)
-        }
-        this.getDeviceList(currentNode)
-        this.$route.meta.keepAlive = false
       })
     },
     // 获取设备列表
@@ -641,6 +631,9 @@ export default {
             this.$tip('修改成功')
             this.groupsNameFormVisible = false
             this.getGroupList()
+            this.$nextTick(() => {
+              console.log('groups info', this.$refs.groupNav.$refs.GroupTree.getCurrentNode())
+            })
           })
         }
       })
@@ -695,6 +688,29 @@ export default {
         }
       })
     },
+    // 显示添加社群dialog, 并设置数据
+    showAddDialog (node, data) {
+      this.addCommunityList = node.parent.childNodes[node.parent.childNodes.length - 1].data.memberItem
+      console.log('plus-----', node, this.addCommunityList)
+      this.$nextTick(() => {
+        this.addCommunityVisible = true
+      })
+    },
+    // 添加社群
+    addCommunity (data) {
+      console.log(data)
+      if (!data.length) {
+        this.$tip('请选取社群', 'error')
+        return
+      }
+      data = data.map(item => {
+        item.groupCustomGuid = this.communityInfo.guid
+        return item
+      })
+      this.$http('/groupCustom/member/add', {groupCustomMemberInfo: data}).then(res => {
+        console.log('添加成功')
+      })
+    },
     // 复制邀请码
     clipboard (event) {
       Clipboard(this.communityInfo.code, event)
@@ -707,6 +723,10 @@ export default {
         this.joinCommunityInfo = {}
       }
     }
+  },
+  beforeDestroy () {
+    // 实例销毁前保存当前页面的数据选中状态，存入vuex
+    this.$store.commit('SET_ALIVE_STATE', {currentCommunity: this.currentCommunity || this.groupList[0]})
   }
 }
 </script>
