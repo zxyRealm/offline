@@ -48,6 +48,7 @@
         <div class="dialog__item--content">
           <div class="fl">
             <ob-group-nav
+              v-model="groupList"
               ref="consoleGroup"
               @current-change="handleChange"
               :show-checkbox="true"
@@ -120,6 +121,7 @@ export default {
   },
   data () {
     return {
+      groupList: [], // 社群列表信息
       deviceInfo: '', // 设备信息
       deviceList: [], // 设备列表
       notifState: false, // 是否有站内消息
@@ -170,6 +172,8 @@ export default {
           })
         }
         this.deviceList = []
+      } else {
+        this.getGroupList()
       }
     }
   },
@@ -177,6 +181,19 @@ export default {
     // 只要点击了通知消息就为false
     notifyToggle () {
       this.notifState = false
+    },
+    getGroupList () {
+      this.$http('/group/list').then(res => {
+        let customList = JSON.parse(JSON.stringify(res.data))
+        customList = customList.map(item => {
+          if (item.memberItem && item.memberItem[item.memberItem.length - 1]) {
+            item.memberItem = JSON.parse(JSON.stringify(item.memberItem[item.memberItem.length - 1].memberItem))
+          }
+          return item
+        })
+        console.log(customList)
+        this.groupList = customList
+      })
     },
     // 获取当前设备
     remoteSubmit (data) {

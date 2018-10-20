@@ -439,7 +439,7 @@ export default {
       vertical-align: middle;
       font-size: 12px;
       &.dialog-tree {
-        max-width: calc(100% - 100px);
+        /*max-width: calc(100% - 100px);*/
       }
     }
     .mine {

@@ -22,11 +22,11 @@
           <!--会员信息-->
           <div class="corner-bg associator--wrap vam">
             <div class="associator--inner" v-if="memberInfo.imgUrl && memberInfo.memberLabelList[0]">
-              <h3>{{memberInfo.memberLabelList[0].name}}{{memberInfo.memberLabelList[0].gender ? '女士':'先生'}}欢迎您</h3>
+              <h3>{{memberInfo.memberLabelList[0].name || '尊敬的'}}{{memberInfo.memberLabelList[0].gender===undefined ? memberInfo.gender? '先生' : '女士' : memberInfo.memberLabelList[0].gender ? '先生' : '女士'}}，您好</h3>
               <div class="detail-info--wrap">
                 <div class="base-info">
                   <p><span class="ellipsis">{{memberInfo.memberLabelList[0].memberLibraryName}}</span></p>
-                  <p>{{memberInfo.gender?'女':'男'}}</p>
+                  <p>{{memberInfo.memberLabelList[0].gender===undefined ? memberInfo.gender ? '男': '女' : memberInfo.memberLabelList[0].gender ? '男' : '女'}}</p>
                   <p>{{memberInfo.age}}</p>
                   <p>{{ memberInfo.appearanceDate | parseTime('{m}/{d}')}}</p>
                   <p>{{ memberInfo.appearanceDate | parseTime('{h}:{i}')}}</p>
@@ -285,13 +285,15 @@ export default {
       console.log('data---', data)
       if (!data || !data[0]) return
       data = data[0]
-      let coordinate = data.extendedFaceBox
-      let [url, startX, startY, width, height] = [data.imgUrl, coordinate.upperX, coordinate.upperY, coordinate.lowerX - coordinate.upperX, coordinate.lowerY - coordinate.upperY]
-      // 返回剪裁图片路径属于一个异步过程，因此使用回调方式返回url
-      this.customDrawImage(url, startX, startY, width, height, url => {
-        data.cropUrl = url
-        this.memberInfo = data
-      })
+      data.cropUrl = data.imgUrl
+      this.memberInfo = data
+      // let coordinate = data.extendedFaceBox
+      // let [url, startX, startY, width, height] = [data.imgUrl, coordinate.upperX, coordinate.upperY, coordinate.lowerX - coordinate.upperX, coordinate.lowerY - coordinate.upperY]
+      // // 返回剪裁图片路径属于一个异步过程，因此使用回调方式返回url
+      // this.customDrawImage(url, startX, startY, width, height, url => {
+      //   data.cropUrl = url
+      //   this.memberInfo = data
+      // })
       // console.log(newUrl)
     },
     // 绘制图像（根据坐标）
@@ -469,9 +471,9 @@ export default {
             }
             .associator__avatar--wrap{
               margin-right: 100px;
-              height: 186px;
               .associator__avatar{
                 max-width: 100%;
+                max-height: 100%;
               }
             }
             .base-info{
@@ -480,10 +482,15 @@ export default {
               height: 100%;
               text-align: center;
               p{
-                line-height: 2;
-                font-size: 12px;
+                line-height: 34px;
+                font-size: 14px;
                 border-bottom: 1px dashed #ddd;
-                margin:0 0 15px 14px;
+                margin-left: 14px;
+                margin-bottom: 20px;
+                @media screen and (max-width: 1600px){
+                  font-size: 12px;
+                  margin-bottom: 15px;
+                }
                 &:last-child{
                   margin-bottom: 0;
                 }
