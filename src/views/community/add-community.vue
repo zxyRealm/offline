@@ -154,7 +154,6 @@ export default {
     },
     // 创建社群或编辑社群信息
     submitForm (data) {
-      console.log(data)
       let address = data.pca.split(',').map(Number)
       let url = `/group/${this.type}`
       if (this.$route.query.pid) {

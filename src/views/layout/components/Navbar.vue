@@ -83,7 +83,7 @@
       custom-class="help__dialog--wrap"
     >
       <div class="dialog__content">
-        <p>平台使用指引：</p>
+        <p class="g-mb22">平台使用指引：</p>
         <div class="step__item">
           <h3>第1步：创建社群</h3>
           <p class="item--supply">（可选：管理员社群创建成员社群/成员社群加入其它管理员社群等）</p>
@@ -109,14 +109,14 @@
 import {mapGetters, mapState} from 'vuex'
 import Hamburger from '@/components/Hamburger'
 import Group from '@/components/group-nav'
-// import PickDevice from '../../console/componets/PickDevice.vue'
 import {eventObject} from '@/utils/event.js'
 import ConsoleDialog from '@/components/console'
+import {simplifyGroups} from '@/utils'
+
 export default {
   components: {
     Hamburger,
     Group,
-    // PickDevice,
     ConsoleDialog
   },
   data () {
@@ -183,16 +183,8 @@ export default {
       this.notifState = false
     },
     getGroupList () {
-      this.$http('/group/list').then(res => {
-        let customList = JSON.parse(JSON.stringify(res.data))
-        customList = customList.map(item => {
-          if (item.memberItem && item.memberItem[item.memberItem.length - 1]) {
-            item.memberItem = JSON.parse(JSON.stringify(item.memberItem[item.memberItem.length - 1].memberItem))
-          }
-          return item
-        })
-        console.log(customList)
-        this.groupList = customList
+      this.$http('/group/list/noCustom').then(res => {
+        this.groupList = res.data
       })
     },
     // 获取当前设备
@@ -217,7 +209,6 @@ export default {
     },
     // 选取社群时回调，获取社群下设备列表并展示
     handleChange (val) {
-      console.log('current ---', val)
       this.deviceInfo = ''
       this.$http('/group/device', {
         guid: val.groupGuid,
@@ -566,6 +557,9 @@ export default {
       color: #fff;
     }
   }
+  .el-dialog__body{
+    padding-top: 14px;
+  }
   .dialog__content{
     color: #191919;
     > p {
@@ -577,8 +571,8 @@ export default {
       color: #B4B4B7;
     }
     .step__item{
-      margin: 10px 0;
-      padding-left: 120px;
+      margin: 18px 0;
+      padding-left: 156px;
       h3{
         font-size: 16px;
       }

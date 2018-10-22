@@ -72,9 +72,11 @@
         <p>
           <span class="label__title">运行状态：</span>
           <span>
-             <span :class="data.deviceStatus===1?'error-color':'success-color'">{{data.deviceStatus | lineState}}</span>
-          <a href="javascript:void (0)" @click="getDeviceState(data)"><i v-if="data.deviceStatus!==undefined" class="el-icon-refresh success-color"></i><span v-else>获取</span>
-          </a>
+            <span :class="data.deviceStatus===1?'error-color':'success-color'">{{data.deviceStatus | lineState}}</span>
+            <a href="javascript:void (0)" @click="getDeviceState(data)">
+              <i v-if="data.deviceStatus!==undefined" class="el-icon-refresh success-color"></i>
+              <span v-else>获取</span>
+            </a>
           </span>
 
         </p>

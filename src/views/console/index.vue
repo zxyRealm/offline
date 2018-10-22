@@ -282,7 +282,6 @@ export default {
     },
     // 获取会员信息，并对图像进行剪裁显示
     setMemberInfo (data) {
-      console.log('data---', data)
       if (!data || !data[0]) return
       data = data[0]
       data.cropUrl = data.imgUrl

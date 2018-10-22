@@ -38,8 +38,8 @@ export default {
       }
     },
     cornerBg () {
-      if (/\/data/.test(this.$route.path)) {
-        return ''
+      if (/\/data/.test(this.$route.path) || this.$route.name === 'console-lwh') {
+        return 'no-padding'
       }
       return 'corner-bg'
     },
@@ -80,6 +80,11 @@ export default {
 
   .app-wrapper {
     .app-main-content {
+      &:not(.no-padding){
+        > div {
+          padding: 0 20px;
+        }
+      }
       > div {
         height: 100%;
       }

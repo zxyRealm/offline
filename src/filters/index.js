@@ -28,7 +28,7 @@ export function authority (str) {
 export function lineState (state) {
   switch (state) {
     case undefined:
-      return ''
+      return '暂无'
     case 1:
       return '离线'
     default:

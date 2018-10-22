@@ -14,6 +14,7 @@ const joinCommunity = () => import('@/views/community/join-community.vue')
 const Equipment = () => import('@/views/equipment/mine.vue')
 const EquipmentMore = () => import('@/views/equipment/more.vue')
 const EquipmentChildren = () => import('@/views/equipment/children.vue')
+const EquipmentService = () => import('@/views/equipment/service.vue')
 // 人员管理
 const Member = () => import('@/views/member/index.vue')
 const Library = () => import('@/views/member/library.vue')
@@ -238,6 +239,15 @@ export const constantRouterMap = [
           keepAlive: false
         },
         component: EquipmentChildren
+      },
+      {
+        path: 'service/:key', // ([0-9A-Z-_]{16})
+        name: 'equipmentService',
+        meta: {
+          title: '分析终端用途-设备管理-线下浏览器服务平台',
+          keepAlive: false
+        },
+        component: EquipmentService
       },
       {
         path: 'more/:key', // ([0-9A-Z-_]{16})
@@ -495,6 +505,7 @@ router.beforeEach((to, from, next) => {
     'editApplyCommunity': 'community',
     'editSingleCommunity': 'community',
     'equipmentMore': 'equipmentChildren,equipment',
+    'equipmentService': 'equipmentChildren,equipment',
     'paramExplain': 'sysNotify',
     'editNotifyCallback': 'sysNotify'
   }

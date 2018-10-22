@@ -178,7 +178,6 @@ export default {
         if (res.data) {
           let formData = new FormData()
           let customName = 'avatar_' + uid + '.' + (data.file.type.split('/')[1] === 'png' ? 'png' : 'jpg')
-          console.log('file name', customName)
           formData.append('key', `merchant/${uid}/${customName}`)
           formData.append('policy', res.data['policy'])
           formData.append('OSSAccessKeyId', res.data['accessid'])

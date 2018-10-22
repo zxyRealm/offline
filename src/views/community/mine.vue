@@ -18,6 +18,7 @@
         <div class="mine__community--content" v-else>
           <div class="community--sidebar dashed-border">
             <ob-group-nav
+              rights
               ref="groupNav"
               only-checked
               node-key="uniqueKey"
@@ -185,7 +186,7 @@
       </ob-dialog-form>
       <!--自定义分组名-->
       <ob-dialog-form
-        title="编辑分组名"
+        :title="groupsNameForm.customType ? '新建分组' : '编辑分组名'"
         :visible.sync="groupsNameFormVisible"
       >
         <el-form
@@ -251,7 +252,6 @@
       </ob-dialog-form>
       <!--加入其他管理员社群-->
       <ob-dialog-form
-        width="500px"
         :show-button="false"
         title="输入邀请码"
         :visible.sync="joinFormVisible">
@@ -283,6 +283,7 @@
         filter
         showButton
         multiple
+        :disabled-keys="disabledKeys"
         @remote-submit="addCommunity"
         :group="addCommunityList"
         type="group"
@@ -344,9 +345,10 @@ export default {
       groupList: [], // 社群列表
       searchList: [], // 社群搜索结果
       addCommunityList: [], // 添加社群弹框社群列表
+      disabledKeys: [],
       currentCommunity: {}, // 当前社群信息
       communityInfo: {
-        guid: '05E71B8A375946528615F8362D750231'
+        guid: ''
       },
       groupsNameForm: {
       },
@@ -491,20 +493,13 @@ export default {
     // 获取社群列表
     getGroupList (key) {
       this.$http('/group/list').then(res => {
-        console.log(res.data)
         res.data.map(item => {
           if (item.role === 0 && item.memberItem && item.memberItem.length) {
-            // item.memberItem.map(item2 => {
-            //   if (!item2.button && item2.groupPid) {
-            //     // item2.memberItem.unshift({button: 'community', parentNode: JSON.parse(JSON.stringify(item2))})
-            //   }
-            // })
             item.memberItem.unshift({button: 'groups', parentNode: JSON.parse(JSON.stringify(item))})
           }
         })
         this.groupList = res.data || []
         // 当key 返回string时,即恢复默认选中状态
-        console.log('key---', key, typeof key === 'string', this.$route.meta.keepAlive)
         if (typeof key === 'string') key = res.data[0]
         // 编辑页返回时记住当前页状态
         let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || res.data[0]
@@ -544,16 +539,14 @@ export default {
     // 获取社群详细信息
     getCommunityInfo (val) {
       this.$http('/group/getInfo', {guid: val.groupGuid || val.guid}).then(res => {
-        console.log('communityInfo', res.data)
         if (res.data) res.data.groupPid = val.groupPid
         res.data.groupNickName = val.groupNickName || (this.currentCommunity || this.groupList[0]).groupNickName
         if (res.data.groupPid) this.originName = JSON.parse(JSON.stringify(res.data.groupNickName))
         this.communityInfo = res.data || {}
       })
     },
-    // 切换
+    // 切换 / 新建自定义分组
     currentChange (data) {
-      console.log('tree ----', data)
       if (!data.button) {
         this.currentCommunity = data
         // this.hidePopover()
@@ -565,14 +558,38 @@ export default {
       } else {
         // 点击新建分组是默认选中状态值不改变
         this.$refs.groupNav.setCurrentKey(this.currentCommunity.uniqueKey)
-        // 根据定义的button 属性值 判定新建分组或者添加社群
-        if (data.button === 'groups') {
-          this.$http('/groupCustom/create', {name: `分组${data.parentNode.memberItem.length - 1}`, groupPid: data.parentNode.groupGuid}).then(res => {
-            this.getGroupList()
-          })
-        } else {
-          this.addCommunityVisible = true
+        // 根据自定义分组名规则筛选已存在的文件，排序过滤后重新定义新的文件名
+        let [groupsName, orderArr, nextIndex] = [[], '', '']
+        data.parentNode.memberItem.map(item => {
+          let num = Number(item.name.replace('分组', ''))
+          if (/分组[1-9]\d*/.test(item.name)) {
+            groupsName.unshift(num)
+          }
+        })
+        // 数组排序（正序）
+        orderArr = groupsName.sort((a, b) => a - b)
+        // 根据文件名最后编号大小，获取中间缺省值，如果有获取其值，没有则在最大编号值基础累加
+        for (let i = 0, len = orderArr.length; i < len; i++) {
+          if (orderArr[i] !== i + 1) {
+            nextIndex = i + 1
+            break
+          }
         }
+        this.groupsNameForm = {
+          name: `分组${nextIndex || orderArr.length + 1}`,
+          customType: 'create',
+          groupPid: data.parentNode.groupGuid
+        }
+        this.groupsNameFormVisible = true
+        console.log(orderArr, nextIndex)
+        // 根据定义的button 属性值 判定新建分组或者添加社群
+        // if (data.button === 'groups') {
+        //   this.$http('/groupCustom/create', {name: `分组${nextIndex || orderArr.length + 1}`, groupPid: data.parentNode.groupGuid}).then(res => {
+        //     this.getGroupList()
+        //   })
+        // } else {
+        //   this.addCommunityVisible = true
+        // }
       }
     },
     // 解散社群
@@ -606,7 +623,6 @@ export default {
     // 显示修改昵称dialog
     showDialog () {
       // 编辑分组名
-      console.log(this.communityInfo)
       if (this.communityInfo.groupPid) {
         this.groupsNameForm = JSON.parse(JSON.stringify(this.communityInfo))
         this.groupsNameFormVisible = true
@@ -622,18 +638,19 @@ export default {
         }
       })
     },
-    // 编辑自定义分组名称
+    // 创建自定分组、编辑自定义分组名称
     setGroupsName (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
+          let url = '/groupCustom/update'
           delete this.groupsNameForm.memberItem
-          this.$http('/groupCustom/update', this.groupsNameForm).then(res => {
-            this.$tip('修改成功')
+          if (this.groupsNameForm.customType) {
+            url = `/groupCustom/create`
+          }
+          this.$http(url, this.groupsNameForm).then(res => {
+            this.$tip(`${this.groupsNameForm.customType ? '创建' : '修改'}成功`)
             this.groupsNameFormVisible = false
             this.getGroupList()
-            this.$nextTick(() => {
-              console.log('groups info', this.$refs.groupNav.$refs.GroupTree.getCurrentNode())
-            })
           })
         }
       })
@@ -641,7 +658,6 @@ export default {
     // 离开社群
     leaveCommunity (type, current, parent) {
       // type 可选类型 quit、kick
-      console.log('current', current, 'parent', parent)
       let [url, des, again] = ['/group/exit', '', '']
       let params = {
         groupPid: parent.guid || parent.groupGuid,
@@ -691,24 +707,26 @@ export default {
     // 显示添加社群dialog, 并设置数据
     showAddDialog (node, data) {
       this.addCommunityList = node.parent.childNodes[node.parent.childNodes.length - 1].data.memberItem
-      console.log('plus-----', node, this.addCommunityList)
+      this.disabledKeys = data.memberItem.map(item => item.groupGuid)
       this.$nextTick(() => {
         this.addCommunityVisible = true
       })
     },
-    // 添加社群
+    // 向分组添加社群
     addCommunity (data) {
+      data = data.map(item => {
+        item.groupCustomGuid = this.communityInfo.guid
+        return item
+      }).filter(item => !item.disabled)
       console.log(data)
       if (!data.length) {
         this.$tip('请选取社群', 'error')
         return
       }
-      data = data.map(item => {
-        item.groupCustomGuid = this.communityInfo.guid
-        return item
-      })
       this.$http('/groupCustom/member/add', {groupCustomMemberInfo: data}).then(res => {
         console.log('添加成功')
+        this.addCommunityVisible = false
+        this.getGroupList()
       })
     },
     // 复制邀请码

@@ -286,7 +286,6 @@ export default {
   },
   created () {
     if (this.type === 'apply') this.dialogForm = this.value
-    // this.getDisabledKeys = this.disabledKeys
   },
   beforeDestroy () {
   },
@@ -297,15 +296,6 @@ export default {
           return {width: '400px', background: '#f8f8f8', height: '400px'}
         default:
           return {width: this.width}
-      }
-    },
-    getDisabledKeys: {
-      get () {
-        console.log('child', this.disabledKeys)
-        return this.disabledKeys
-      },
-      set () {
-        return this.disabledKeys
       }
     },
     dialogFormVisible: {

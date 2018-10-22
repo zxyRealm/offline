@@ -6,14 +6,16 @@
       placeholder="快速查找设备"
       :menu-array="menu2">
     </uu-sub-tab>
-    <div class="equipment-children-container" :style="{top:isSearch?'92px':'64px'}">
+    <div class="equipment-children-container" :style="{top:'50px'}">
       <div class="ec-side-nav dashed-border" v-if="isSearch">
-        <h2>选择成员社群</h2>
         <ob-group-nav
+          rights
           ref="childGroup"
-          :select="selectValue"
-          @current-change="currentChange">
-        </ob-group-nav>
+          only-checked
+          type="community"
+          node-key="uniqueKey"
+          v-model="groupList"
+          @current-change="currentChange"></ob-group-nav>
       </div>
       <div class="ec-container" :class="{'dashed-border':isSearch}">
         <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
@@ -78,6 +80,7 @@ export default {
         {title: '自有设备', index: '/equipment/mine'},
         {title: '非自有设备', index: '/equipment/children'}
       ],
+      groupList: [],
       currentGroup: '', // 选中社群
       equipmentList: [], // 设备列表
       pagination: {}, // 分页参数
@@ -85,6 +88,18 @@ export default {
     }
   },
   methods: {
+    // 获取非自有社群
+    getGroupList (key) {
+      this.$http('/group/list/noCustom').then(res => {
+        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentGroup : false) || key || (this.currentGroup.uniqueKey ? this.currentGroup : false) || res.data[0]
+        this.$nextTick(() => {
+          if (this.$refs.childGroup) {
+            this.$refs.childGroup.setCurrentKey(currentNode.uniqueKey)
+          }
+        })
+        this.groupList = res.data
+      })
+    },
     // 获取社群列表
     getEquipmentList (page) {
       page = page || this.pagination.index || 1
@@ -93,7 +108,7 @@ export default {
           this.$http('/device/guid/list', {guid: this.currentGroup, index: page, length: 8}).then(res => {
             this.equipmentList = res.data.content
             this.pagination = res.data.pagination
-            this.$route.meta.keepAlive ? this.$refs.childGroup.setCurrentKey(this.currentGroup) : ''
+            if (this.$route.meta.keepAlive) this.$refs.childGroup.setCurrentKey(this.currentGroup)
             this.$route.meta.keepAlive = false
           })
         }
@@ -116,7 +131,7 @@ export default {
     },
     currentChange (val) {
       this.selectValue = val
-      this.currentGroup = val.currentNode.groupGuid
+      // this.currentGroup = val.currentNode.groupGuid
     },
     // 保存当前页面
     saveState () {
@@ -138,6 +153,7 @@ export default {
       this.currentGroup = this.aliveState.selectValue ? this.aliveState.selectValue.currentNode.groupGuid : ''
       this.pagination = this.aliveState.pagination ? this.aliveState.pagination : {}
     }
+    this.getGroupList()
     this.getEquipmentList()
   },
   computed: {
@@ -193,7 +209,7 @@ export default {
       box-sizing: border-box;
       .ec-side-nav {
         float: left;
-        width: 140px;
+        width: 230px;
         height: 100%;
         .ob-group-nav {
           margin: 0 8px;
@@ -209,7 +225,7 @@ export default {
       .ec-container {
         height: 100%;
         &.dashed-border {
-          margin-left: 152px;
+          margin-left: 242px;
           border: none;
         }
       }

@@ -195,10 +195,8 @@ export default {
     },
     // 当前选中节点变化时触发的事件
     currentChange (val, node) {
-      console.log(val[this.nodeKey], node)
       if (val[this.nodeKey] !== this.currentNode) {
         if (this.type === 'device') {
-          console.log('emit event', this.currentGroup)
           this.$emit('current-change', {
             selectNode: this.currentGroup,
             currentNode: val,

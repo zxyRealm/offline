@@ -192,7 +192,6 @@ export function scrollTo (element, to, duration) {
   const difference = to - element.scrollTop
   const perTick = difference / duration * 10
   setTimeout(() => {
-    console.log(new Date())
     element.scrollTop = element.scrollTop + perTick
     if (element.scrollTop === to) return
     scrollTo(element, to, duration - 10)
@@ -339,4 +338,15 @@ export function arrayUnique (arr, name) {
     }
     return item
   }, [])
+}
+
+// 社群列表数组过滤分组结构
+export function simplifyGroups (data) {
+  let customList = JSON.parse(JSON.stringify(data))
+  return customList.map(item => {
+    if (item.memberItem && item.memberItem[item.memberItem.length - 1]) {
+      item.memberItem = JSON.parse(JSON.stringify(item.memberItem[item.memberItem.length - 1].memberItem))
+    }
+    return item
+  })
 }

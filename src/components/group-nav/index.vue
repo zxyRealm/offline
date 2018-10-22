@@ -58,10 +58,10 @@
           <img v-if="data.role === 0 && node.level === 1" class="role__icon--img" src="./image/manager_icon.png" alt="">
           <img v-else-if="data.type !== 3 && data.role === 1 && node.level === 1" class="role__icon--img" src="./image/children_icon.png" alt="">
           <img v-else-if="data.type === 3 && node.level === 1" class="role__icon--img" src="./image/single_icon.png" alt="">
-          <el-tooltip v-if="data.role === 0" content="数据查看权限" placement="top" effect="light">
+          <el-tooltip v-if="rights && data.role === 0 && node.level === 1" content="数据查看权限" placement="top" effect="light">
             <uu-icon class="role__icon--img" size="mini" type="data"></uu-icon>
           </el-tooltip>
-          <el-tooltip v-if="data.role === 0 && data.rule && data.rule.length > 2" content="设备操作权限" placement="top" effect="light">
+          <el-tooltip v-if="rights && data.role === 0 && data.rule && data.rule.length > 2" content="设备操作权限" placement="top" effect="light">
              <uu-icon size="mini" class="role__icon--img" type="handle"></uu-icon>
           </el-tooltip>
           <i v-if="type==='community' && node.level > 2" class="el-icon-remove-outline danger fr"
@@ -145,6 +145,10 @@ export default {
       default: () => ({})
     },
     filter: { // 是否启用关键词过滤
+      type: Boolean,
+      default: false
+    },
+    rights: { // 是否展示管理员社群索权状态
       type: Boolean,
       default: false
     }
@@ -233,22 +237,19 @@ export default {
     },
     addCommunity (data, node) {
       this.$emit('handle-plus', node, data)
-      console.log('plus', data, node)
     },
     // 离开社群/ 退出自定义分组
     leaveCommunity (current, node) {
       // type 可选类型 quit、kick
       let [url, des, parent] = ['/group/exit', '', node.parent]
-      let type = parent.groupPid ? 'quit' : 'kick' // quit 退出分组 kick 踢出社群（默认分组中操作相当于踢出社群）
-      console.log('quit', parent)
+      let type = parent.data.groupPid ? 'quit' : 'kick' // quit 退出分组 kick 踢出社群（默认分组中操作相当于踢出社群）
       let params
       if (type === 'quit') {
         params = {
-          groupGuids: current.groupGuid,
-          groupCustomGuid: node.parent.data.guid
+          groupGuids: [current.groupGuid],
+          groupCustomGuid: current.groupCustomGuid
         }
       } else {
-        console.log(node)
         params = {
           groupPid: node.parent.parent.data.groupGuid,
           groupGuid: current.groupGuid,
@@ -256,7 +257,6 @@ export default {
           parentGroupNickName: node.parent.parent.data.name
         }
       }
-      console.log(params)
       switch (type) {
         case 'kick':
           des = `确定要退出【<span class="maxw200 ellipsis">${params.parentGroupNickName}</span>】社群？`
@@ -264,7 +264,7 @@ export default {
           break
         default:
           des = `确定将社群从分组移除？`
-          url = '/group/remove'
+          url = '/groupCustom/member/remove'
       }
       this.$affirm({text: `${des}`}, (action, instance, done) => {
         if (action === 'confirm') {
@@ -324,7 +324,7 @@ export default {
       }
     }
   },
-  create () {
+  created () {
     this.$emit('input', uniqueKey(this.value, this.defaultProps.children))
   },
   mounted () {
@@ -371,35 +371,34 @@ export default {
     TreeList: {
       get () {
         // 设置默认不可选节点
-        if (this.isDisabled) {
-          let [setKeys, disabledKeys] = [new Set(this.disabledKeys), []]
-          let setDisabled = (arr) => {
-            for (let i = 0, len = arr.length; i < len; i++) {
-              if (setKeys.has(arr[i][this.dataKey])) {
-                disabledKeys.push(arr[i][this.nodeKey])
-                this.$set(arr[i], 'disabled', true)
-              } else {
-                if (arr[i].disabled) {
-                  this.$set(arr[i], 'disabled', false)
-                }
-              }
-              if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
-                setDisabled(arr[i][this.defaultProps.children])
+        let [setKeys, disabledKeys] = [new Set(this.disabledKeys), []]
+        let setDisabled = (arr) => {
+          arr = JSON.parse(JSON.stringify(arr))
+          for (let i = 0, len = arr.length; i < len; i++) {
+            if (setKeys.has(arr[i][this.dataKey])) {
+              disabledKeys.push(arr[i][this.nodeKey])
+              this.$set(arr[i], 'disabled', true)
+            } else {
+              if (arr[i].disabled) {
+                this.$set(arr[i], 'disabled', false)
               }
             }
+            if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
+              setDisabled(arr[i][this.defaultProps.children])
+            }
           }
-          setDisabled(this.GroupList)
-          this.setCheckedKeys(disabledKeys)
+          return arr
         }
-        if (this.type !== 'device') {
-          this.agency = this.GroupList
-        } else {
-          return this.GroupList[this.currentGroup] ? this.GroupList[this.currentGroup][this.defaultProps.children] : []
+        // 添加默认不可选节点后新数组
+        let newList = setDisabled(this.GroupList)
+        this.setCheckedKeys(disabledKeys)
+        if (this.type === 'device') {
+          return newList[this.currentGroup] ? newList[this.currentGroup][this.defaultProps.children] : []
         }
-        return this.agency
+        return newList
       },
       set (model) {
-        this.agency = model
+        this.GroupList = model
       }
     },
     originList: function () {
