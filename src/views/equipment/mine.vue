@@ -17,58 +17,12 @@
     </ob-list-empty>
     <div class="data-list-wrap" v-if="equipmentList.length">
       <el-scrollbar>
-        <!--<template v-for="(item,$index) in equipmentList">-->
-          <!--<ob-list :key="$index">-->
-            <!--<ob-list-item width="16%" type="state" :data="item" :isAmend="true">-->
-            <!--</ob-list-item>-->
-            <!--<ob-list-item width="23%">-->
-              <!--<p><span class="table__label">序列号：</span><span>{{item.deviceKey}}</span></p>-->
-              <!--<p><span class="table__label">设备类型：</span><span>{{item.deviceType|deviceType}}</span></p>-->
-              <!--<p>-->
-                <!--<span class="table__label">添加时间：</span><span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span>-->
-              <!--</p>-->
-            <!--</ob-list-item>-->
-            <!--<ob-list-item width="8%" :style="{minWidth: '84px'}">-->
-              <!--<p class="tac">-->
-                <!--<span>用途：</span><br>-->
-                <!--<router-link v-if="item.deviceType===1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>-->
-                <!--<span v-else>{{item.deviceType | deviceType}}</span>-->
-              <!--</p>-->
-            <!--</ob-list-item>-->
-            <!--<ob-list-item ref="deviceItem" width="23%">-->
-              <!--<p v-if="!item.groupGuid">-->
-                <!--<span>绑定社群：</span>-->
-                <!--<a href="javascript:void (0)" @click="showDialog('community',item)">未绑定</a>-->
-              <!--</p>-->
-              <!--<template v-else>-->
-                <!--<p>-->
-                  <!--<span>绑定社群：</span>-->
-                  <!--<span>{{item.groupName}}</span>-->
-                  <!--<el-tooltip content="解绑社群" v-model="item.tipShow" placement="top">-->
-                    <!--<uu-icon type="relieve" class="fr" @click.native="unBindCommunity(item,$index)"></uu-icon>-->
-                  <!--</el-tooltip>-->
-                <!--</p>-->
-                <!--<p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>-->
-                <!--<p><span>应用场景：</span>-->
-                  <!--<el-tooltip :content="item.deviceScene" placement="top">-->
-                    <!--<span class="ellipsis">{{item.deviceScene}}</span>-->
-                  <!--</el-tooltip>-->
-                <!--</p>-->
-              <!--</template>-->
-            <!--</ob-list-item>-->
-            <!--<ob-list-item-->
-              <!--@refresh="getMineEquipment"-->
-              <!--:style="{minWidth: '200px'}"-->
-              <!--width="20%"-->
-              <!--:data="item"-->
-              <!--type="handle"-->
-              <!--:showDelete="true">-->
-            <!--</ob-list-item>-->
-          <!--</ob-list>-->
-        <!--</template>-->
         <device-table
-        v-model="equipmentList"
-        ></device-table>
+          @handle-add="showAddCameraForm"
+          @refresh="getMineEquipment"
+          v-model="equipmentList"
+        >
+        </device-table>
         <el-pagination
           v-if="pagination.total && pagination.total>pagination.length"
           @current-change="getMineEquipment"
@@ -79,36 +33,44 @@
         </el-pagination>
       </el-scrollbar>
     </div>
-    <!--添加服务器-->
+    <!--添加摄像头-->
     <ob-dialog-form
       :show-button="false"
-      title="添加服务器"
-      :visible.sync="addServiceVisible">
+      title="添加摄像头"
+      :visible.sync="addCameraVisible">
       <el-form
         slot="form"
-        ref="addServiceForm"
+        ref="addCameraForm"
         block-message
         style="width: 330px"
         label-position="left"
         class="common-form white"
         label-width="82px"
-        :model="addServiceForm"
-        :rules="addServiceRules"
+        :model="addCameraForm"
+        :rules="addCameraRules"
       >
-        <el-form-item class="mt24" label="序列号：" prop="code">
-          <el-input placeholder="请输入16位序列号" v-model="addServiceForm.code"></el-input>
+        <el-form-item class="mt24" label="名称：" prop="name">
+          <el-input placeholder="请输入设备名称" v-model="addCameraForm.name"></el-input>
+        </el-form-item>
+        <el-form-item class="mt24" label="序列号：" prop="deviceKey">
+          <el-input placeholder="请输入16位序列号" v-model="addCameraForm.deviceKey"></el-input>
+        </el-form-item>
+        <el-form-item class="mt24" label="类型：" prop="type">
+          <el-select v-model="addCameraForm.type" placeholder="请选择设备类型">
+            <el-option label="客行分析" :value="1"></el-option>
+            <el-option label="人脸抓拍" :value="2"></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer mt42">
-        <el-button class="cancel" @click="addServiceVisible = false">返 回</el-button>
-        <el-button class="affirm" :disabled="true" type="primary" @click="joinManageCommunity('addServiceForm')">添加</el-button>
+        <el-button class="cancel" @click="addCameraVisible = false">返 回</el-button>
+        <el-button class="affirm"  type="primary" @click="addCameraDevice('addCameraForm')">添加</el-button>
       </div>
     </ob-dialog-form>
-
-    <!--添加一体机-->
+    <!--添加一体机 、添加服务器-->
     <ob-dialog-form
       :show-button="false"
-      title="添加一体机"
+      :title="isService ? '添加服务器' : '添加一体机'"
       :visible.sync="addAioVisible">
       <el-form
         slot="form"
@@ -121,13 +83,16 @@
         :model="addAioForm"
         :rules="addAioRules"
       >
-        <el-form-item class="mt24" label="序列号：" prop="code">
-          <el-input placeholder="请输入16位序列号" v-model="addAioForm.code"></el-input>
+        <el-form-item label="序列号：" prop="deviceKey">
+          <el-input placeholder="请输入16位序列号" v-model="addAioForm.deviceKey"></el-input>
+        </el-form-item>
+        <el-form-item label-width="0">
+          <div class="name--text" :class="textState.name">{{textState.text}}</div>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer mt42">
+      <div slot="footer" class="dialog-footer">
         <el-button class="cancel" @click="addAioVisible = false">返 回</el-button>
-        <el-button class="affirm" :disabled="true" type="primary" @click="joinManageCommunity('addAioForm')">添加</el-button>
+        <el-button class="affirm" :disabled="textState.name!=='safe'" type="primary" @click="addAioDevice('addAioForm')">添加</el-button>
       </div>
     </ob-dialog-form>
     <!--设备绑定社群-->
@@ -143,7 +108,7 @@
 </template>
 <script>
 import {mapState} from 'vuex'
-import {simplifyGroups} from '@/utils'
+import {simplifyGroups, makeCustomName} from '@/utils'
 import DeviceTable from '@/components/DeviceTable'
 export default {
   name: 'index',
@@ -151,20 +116,118 @@ export default {
     DeviceTable
   },
   data () {
+    // 校验设备序列号
+    const validateKey = (rule, value, callback) => {
+      this.deviceInfo.type = ''
+      this.deviceInfo.exist = ''
+      if (!value) {
+        callback(new Error('请输入16位序列号'))
+      } else {
+        if (value.length === 16) {
+          // 获取设备类型
+          this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
+            // this.deviceInfo.type = res2.data.deviceType
+            // 校验设备是否被绑定过
+            this.$http('/merchant/device/exist', {deviceKey: value, type: this.isService}, false).then(res => {
+              if (!res.data) {
+                this.deviceInfo.exist = false
+              } else {
+                this.deviceInfo.exist = true
+              }
+              // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
+              if ((this.isService && res2.data.deviceType !== 1) || (!this.isService && res2.data.deviceType === 1)) {
+                this.deviceInfo.exist = ''
+                callback(new Error('设备序列号不存在'))
+              } else {
+                this.deviceInfo.type = res2.data.deviceType
+                callback()
+              }
+            }).catch(err => {
+              callback(new Error(err.msg || '服务器异常'))
+            })
+            // callback()
+          }).catch(err => {
+            callback(new Error(err ? err.msg : '服务器异常'))
+          })
+        } else {
+          callback(new Error('请输入16位序列号'))
+        }
+      }
+    }
+    const validateKey2 = (rule, value, callback) => {
+      this.deviceInfo.type = ''
+      this.deviceInfo.exist = ''
+      if (!value) {
+        callback(new Error('请输入16位序列号'))
+      } else {
+        if (value.length === 16) {
+          // 获取设备类型
+          this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
+            // this.deviceInfo.type = res2.data.deviceType
+            // 校验设备是否被绑定过
+            this.$http('/merchant/device/exist', {deviceKey: value, type: this.isService}, false).then(res => {
+              if (!res.data) {
+                this.deviceInfo.exist = false
+              } else {
+                this.deviceInfo.exist = true
+              }
+              // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
+              if ((this.isService && res2.data.deviceType !== 1) || (!this.isService && res2.data.deviceType === 1)) {
+                this.deviceInfo.exist = ''
+                callback(new Error('设备序列号不存在'))
+              } else {
+                this.deviceInfo.type = res2.data.deviceType
+                callback()
+              }
+            }).catch(err => {
+              callback(new Error(err.msg || '服务器异常'))
+            })
+            // callback()
+          }).catch(err => {
+            callback(new Error(err ? err.msg : '服务器异常'))
+          })
+        } else {
+          callback(new Error('请输入16位序列号'))
+        }
+      }
+    }
     return {
       dialogOptions: { // dialog 弹窗配置 类型 标题文本
         type: 'device',
         title: '添加设备'
       },
       equipmentEmpty: false,
-      addServiceVisible: false, // 添加服务器dialog 是否显示
+      addCameraVisible: false, // 添加服务器dialog 是否显示
       addAioVisible: false, // 添加一体机dialog 是否显示
+      isService: 1, // 当值为1时代表为服务器，
+      deviceInfo: { // 一体机设备信息
+        type: '',
+        exist: ''
+      },
       addAioForm: { // 添加一体机表单对象
       },
-      addServiceForm: { // 添加服务器表单对象
+      addCameraForm: { // 添加服务器表单对象
+        serverKey: '',
+        deviceKey: '',
+        type: '',
+        name: ''
       },
-      addServiceRules: {},
-      addAioRules: {},
+      addCameraRules: {
+        deviceKey: [
+          {required: true, validator: validateKey2, trigger: 'blur'}
+        ],
+        type: [
+          {required: true, message: '请选取设备类型'}
+        ],
+        name: [
+          {}
+        ]
+      },
+      addAioRules: {
+        deviceKey: [
+          {validator: validateKey, trigger: ['change', 'blur']}
+        ]
+      },
       dialogForm: { // dialog 表单
         deviceKey: '',
         deviceName: '',
@@ -212,9 +275,9 @@ export default {
     },
     // 获取社群树形结构数据
     getGroupList () {
-      // this.$http('/group/list/self').then(res => {
-      //   this.groupList = res.data
-      // })
+      this.$http('/group/list/self').then(res => {
+        this.groupList = simplifyGroups(res.data)
+      })
     },
     showDialog (type, data) {
       this.dialogFormVisible = false
@@ -298,16 +361,51 @@ export default {
     },
     // 添加服务器
     handleBtn (index) {
-      console.log(index)
       if (index === 1) {
-        this.addServiceVisible = true
+        this.isService = 1
+        console.log(makeCustomName(this.equipmentList, 'deviceName', '服务器'))
       } else {
-        // this.addAioForm.type = type
-        this.addAioVisible = true
+        this.isService = ''
       }
+      this.addAioForm = {}
+      this.addAioVisible = true
+      this.$nextTick(() => {
+        if (this.$refs.addAioForm) {
+          this.$refs.addAioForm.clearValidate()
+        }
+      })
     },
     // 显示添加一体机dialog
     showAioDialog (type) {
+    },
+    // 添加一体机设备、添加服务器
+    addAioDevice (formName) {
+      // 添加商户设备
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          let subData = {
+            deviceName: this.isService ? makeCustomName(this.equipmentList, 'deviceName', '服务器') : '',
+            deviceKey: this.addAioForm.deviceKey,
+            type: this.deviceInfo.type
+          }
+          this.$http('/merchant/device/create', subData).then(res => {
+            this.addAioVisible = false
+            this.$tip('创建成功')
+            this.getMineEquipment()
+          }).catch(() => {
+            this.addAioVisible = false
+          })
+        }
+      })
+    },
+    // 显示添加摄像头弹框
+    showAddCameraForm (row) {
+      this.addCameraForm.serverKey = row.deviceKey
+      this.addCameraVisible = true
+      console.log(this.addCameraForm)
+    },
+    addCameraDevice (formName) {
+      console.log(this.addCameraForm)
     }
   },
   created () {
@@ -327,16 +425,45 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loading', 'aliveState'])
+    ...mapState(['loading', 'aliveState']),
+    textState: {
+      get () {
+        let [cName, text] = ['', '']
+        switch (this.deviceInfo.type) {
+          case 3:
+            text = `人脸抓拍一体机`
+            break
+          case 2:
+            text = `客行分析一体机`
+            break
+          case 1:
+            text = '服务器'
+            break
+        }
+        switch (this.deviceInfo.exist) {
+          case '':
+            cName = ''
+            text = ''
+            break
+          case false:
+            cName = 'safe'
+            text = `可添加的${text}`
+            break
+          case true:
+            cName = 'danger'
+            text = `已添加的${text}`
+            break
+        }
+        return {text: text, name: cName}
+      },
+      set (val) {
+        this.textValue = val
+      }
+    }
   },
   watch: {
     '$route': {
       handler (val) {
-        // if (val.name === 'equipment') {
-        //   this.$store.commit('SET_ALIVE_STATE', {
-        //     pagination: this.pagination
-        //   })
-        // }
         this.isSearch = (val.name === 'searchMine')
         this.equipmentList = []
         this.getMineEquipment()

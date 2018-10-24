@@ -19,42 +19,46 @@
       </div>
       <div class="ec-container" :class="{'dashed-border':isSearch}">
         <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
-          <template v-for="(item,$index) in equipmentList">
-            <ob-list :key="$index">
-              <ob-list-item is-child :data="item" type="state">
-              </ob-list-item>
-              <ob-list-item>
-                <p><span class="table__label">序列号：</span><span>{{item.deviceKey}}</span></p>
-                <p><span class="table__label">设备类型：</span><span>{{item.deviceType|deviceType}}</span></p>
-                <p><span class="table__label">添加时间：</span><span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
-              </ob-list-item>
-              <ob-list-item>
-                <p>
-                  <span>用途：</span><br>
-                  <router-link v-if="item.deviceType===1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>
-                 <span v-else>{{item.deviceType | deviceType}}</span>
-                </p>
-              </ob-list-item>
-              <ob-list-item>
-                <p>
-                  <span>绑定社群：</span>
-                  <span>{{item.groupName}}</span>
-                </p>
-                <p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>
-                <p>
-                  <span>应用场景：</span>
-                  <el-tooltip :content="item.deviceScene" placement="top">
-                    <span class="ellipsis">{{item.deviceScene}}</span>
-                  </el-tooltip>
-                </p>
-              </ob-list-item>
-              <ob-list-item
-                :style="{minWidth:'180px'}"
-                @refresh="getEquipmentList"
-                :data="item" type="handle">
-              </ob-list-item>
-            </ob-list>
-          </template>
+          <!--<template v-for="(item,$index) in equipmentList">-->
+            <!--<ob-list :key="$index">-->
+              <!--<ob-list-item is-child :data="item" type="state">-->
+              <!--</ob-list-item>-->
+              <!--<ob-list-item>-->
+                <!--<p><span class="table__label">序列号：</span><span>{{item.deviceKey}}</span></p>-->
+                <!--<p><span class="table__label">设备类型：</span><span>{{item.deviceType|deviceType}}</span></p>-->
+                <!--<p><span class="table__label">添加时间：</span><span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>-->
+              <!--</ob-list-item>-->
+              <!--<ob-list-item>-->
+                <!--<p>-->
+                  <!--<span>用途：</span><br>-->
+                  <!--<router-link v-if="item.deviceType===1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>-->
+                 <!--<span v-else>{{item.deviceType | deviceType}}</span>-->
+                <!--</p>-->
+              <!--</ob-list-item>-->
+              <!--<ob-list-item>-->
+                <!--<p>-->
+                  <!--<span>绑定社群：</span>-->
+                  <!--<span>{{item.groupName}}</span>-->
+                <!--</p>-->
+                <!--<p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>-->
+                <!--<p>-->
+                  <!--<span>应用场景：</span>-->
+                  <!--<el-tooltip :content="item.deviceScene" placement="top">-->
+                    <!--<span class="ellipsis">{{item.deviceScene}}</span>-->
+                  <!--</el-tooltip>-->
+                <!--</p>-->
+              <!--</ob-list-item>-->
+              <!--<ob-list-item-->
+                <!--:style="{minWidth:'180px'}"-->
+                <!--@refresh="getEquipmentList"-->
+                <!--:data="item" type="handle">-->
+              <!--</ob-list-item>-->
+            <!--</ob-list>-->
+          <!--</template>-->
+          <device-table
+            @refresh="getEquipmentList"
+            v-model="equipmentList"
+          ></device-table>
           <el-pagination
             v-if="pagination.total && pagination.total>pagination.length"
             @current-change="getEquipmentList"
@@ -100,7 +104,7 @@ export default {
         this.groupList = res.data
       })
     },
-    // 获取社群列表
+    // 获取设备列表
     getEquipmentList (page) {
       page = page || this.pagination.index || 1
       if (this.isSearch) {

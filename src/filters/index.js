@@ -12,7 +12,7 @@ function pluralize (time, label) {
 export function deviceType (type) {
   switch (type) {
     case 1:
-      return '分析终端'
+      return '服务器'
     case 2:
       return '客行分析'
     default:

@@ -241,7 +241,7 @@ export default {
     // 离开社群/ 退出自定义分组
     leaveCommunity (current, node) {
       // type 可选类型 quit、kick
-      let [url, des, parent] = ['/group/exit', '', node.parent]
+      let [url, des, parent] = ['/group/remove', '', node.parent]
       let type = parent.data.groupPid ? 'quit' : 'kick' // quit 退出分组 kick 踢出社群（默认分组中操作相当于踢出社群）
       let params
       if (type === 'quit') {
@@ -260,7 +260,7 @@ export default {
       switch (type) {
         case 'kick':
           des = `确定要退出【<span class="maxw200 ellipsis">${params.parentGroupNickName}</span>】社群？`
-          url = '/group/exit'
+          url = '/group/remove'
           break
         default:
           des = `确定将社群从分组移除？`
@@ -436,7 +436,7 @@ export default {
       max-width: 90px;
       width: auto;
       vertical-align: middle;
-      font-size: 12px;
+      font-size: 14px;
       &.dialog-tree {
         /*max-width: calc(100% - 100px);*/
       }

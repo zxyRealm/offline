@@ -70,7 +70,7 @@
           </div>
         </div>
         <div class="dialog__item--footer">
-          <el-button class="affirm" :disabled="!deviceList.length" @click="getDeviceDetail">确定</el-button>
+          <el-button class="affirm" :disabled="!deviceList.length || !deviceInfo.deviceKey" @click="getDeviceDetail">确定</el-button>
         </div>
       </div>
     </console-dialog>
@@ -530,6 +530,7 @@ export default {
         }
         .el-radio-group{
           max-width: 80%;
+          text-align: left;
         }
       }
     }

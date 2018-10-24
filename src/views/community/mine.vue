@@ -33,12 +33,13 @@
             <el-scrollbar ref="faceScrollItem">
               <div class="cmm-top dashed-border">
                 <h2 class="cmm-sub-title">
-                  <span>{{communityInfo.name}}{{communityInfo.groupNickName?`(${communityInfo.groupNickName})`:''}}
-                    <a v-if="communityInfo.groupNickName !== undefined || communityInfo.groupPid"  class="fs12" @click="showDialog" href="javascript:void (0)">
-                      <i class="el-icon-edit"></i>{{dialogTitle}}
+                  <span>{{communityInfo.name}}{{communityInfo.groupNickName?`（${communityInfo.groupNickName}）`:''}}
+                    <a v-if="communityInfo.groupNickName !== undefined || communityInfo.groupPid || (communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId)"  class="fs12" @click="showDialog" href="javascript:void (0)">
+                      <i class="el-icon-edit"></i>
+                      {{(communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId) ? dialogTitle : ''}}
                     </a>
                   </span>
-                  <p class="handle fr fs14" v-if="communityInfo.guid">
+                  <p class="handle fr fs14" v-if="communityInfo.guid && communityInfo.merchantGuid === userInfo.developerId">
                     <router-link v-show="!communityInfo.groupPid" :to="activeUrl">编辑</router-link>
                     <a href="javascript:void (0)" class="danger ml20" @click="disbandGroup">删除</a>
                   </p>
@@ -169,19 +170,20 @@
           ref="nameForm"
           block-message
           style="width: 330px"
+          @submit.native.prevent
           label-position="left"
           class="common-form white"
           label-width="82px"
           :model="nameForm"
           :rules="rules"
         >
-          <el-form-item label="昵称：" prop="name">
-            <el-input placeholder="请输入社群昵称" v-model="nameForm.name"></el-input>
+          <el-form-item label="昵称：" prop="groupName">
+            <el-input placeholder="请输入社群昵称" v-model="nameForm.groupName"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer mt50">
           <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
-          <el-button class="affirm" type="primary" @click="setNickName('nameForm')">{{communityInfo.nickName?'加 入':'添 加'}}</el-button>
+          <el-button class="affirm" type="primary" @click="setNickName('nameForm')">{{communityInfo.GroupNickName?'加 入':'添 加'}}</el-button>
         </div>
       </ob-dialog-form>
       <!--自定义分组名-->
@@ -194,11 +196,12 @@
           ref="groupsNameForm"
           block-message
           style="width: 330px"
+          @submit.native.prevent
           label-position="left"
           class="common-form white"
           label-width="82px"
           :model="groupsNameForm"
-          :rules="rules"
+          :rules="groupsRules"
         >
           <el-form-item label="分组名：" prop="name">
             <el-input placeholder="请输入分组名" v-model="groupsNameForm.name"></el-input>
@@ -260,6 +263,7 @@
           ref="joinForm"
           block-message
           style="width: 330px"
+          @submit.native.prevent
           label-position="left"
           class="common-form white"
           label-width="82px"
@@ -298,7 +302,7 @@ import FaceRecognition from '@/components/screening/FaceRecognition'
 import VisitedDetailInfo from './VisitedDetailInfo.vue'
 import FaceRecognitionStore from './FaceRecognitionStore'
 import {eventObject} from '@/utils/event'
-import {uniqueKey} from '@/utils/index'
+import {uniqueKey, makeCustomName} from '@/utils/index'
 import {mapState} from 'vuex'
 import Clipboard from '@/utils/clipboard'
 export default {
@@ -363,7 +367,16 @@ export default {
       },
       deviceList: [],
       expandedKeys: [], // 展开项
-      rules: {},
+      rules: {
+        groupName: [
+          {required: true, message: '请输入社群昵称', trigger: 'blur'}
+        ]
+      },
+      groupsRules: {
+        name: [
+          {required: true, message: '请输入分组名称', trigger: 'blur'}
+        ]
+      },
       createFormVisible: false, // 创建社群dialog显示状态
       dialogFormVisible: false, // 修改社群昵称dialog 显示状态
       groupsNameFormVisible: false, // 修改自定义分组名dialog 显示状态
@@ -392,7 +405,7 @@ export default {
       },
       set () {}
     },
-    ...mapState(['loading', 'aliveState']),
+    ...mapState(['loading', 'aliveState', 'userInfo']),
     activeUrl: {
       get () {
         let type = 'edit'
@@ -543,13 +556,20 @@ export default {
         res.data.groupNickName = val.groupNickName || (this.currentCommunity || this.groupList[0]).groupNickName
         if (res.data.groupPid) this.originName = JSON.parse(JSON.stringify(res.data.groupNickName))
         this.communityInfo = res.data || {}
+        if (this.communityInfo.name !== this.currentCommunity.name) {
+          this.$set(this.communityInfo, 'groupNickName', this.currentCommunity.name)
+        }
       })
     },
     // 切换 / 新建自定义分组
-    currentChange (data) {
+    currentChange (data, node) {
       if (!data.button) {
         this.currentCommunity = data
-        // this.hidePopover()
+        if (data.groupPid === undefined && node.parent.parent) {
+          this.$set(this.currentCommunity, 'parents', JSON.parse(JSON.stringify(node.parent.parent.data)))
+        } else {
+          delete this.currentCommunity.parents
+        }
         // 查询社群详细信息
         if (data.groupGuid) this.getCommunityInfo(data)
         // 分组信息直接设置，不再查询
@@ -559,37 +579,13 @@ export default {
         // 点击新建分组是默认选中状态值不改变
         this.$refs.groupNav.setCurrentKey(this.currentCommunity.uniqueKey)
         // 根据自定义分组名规则筛选已存在的文件，排序过滤后重新定义新的文件名
-        let [groupsName, orderArr, nextIndex] = [[], '', '']
-        data.parentNode.memberItem.map(item => {
-          let num = Number(item.name.replace('分组', ''))
-          if (/分组[1-9]\d*/.test(item.name)) {
-            groupsName.unshift(num)
-          }
-        })
-        // 数组排序（正序）
-        orderArr = groupsName.sort((a, b) => a - b)
-        // 根据文件名最后编号大小，获取中间缺省值，如果有获取其值，没有则在最大编号值基础累加
-        for (let i = 0, len = orderArr.length; i < len; i++) {
-          if (orderArr[i] !== i + 1) {
-            nextIndex = i + 1
-            break
-          }
-        }
+        let cName = makeCustomName(data.parentNode.memberItem, 'name', '分组')
         this.groupsNameForm = {
-          name: `分组${nextIndex || orderArr.length + 1}`,
+          name: cName,
           customType: 'create',
           groupPid: data.parentNode.groupGuid
         }
         this.groupsNameFormVisible = true
-        console.log(orderArr, nextIndex)
-        // 根据定义的button 属性值 判定新建分组或者添加社群
-        // if (data.button === 'groups') {
-        //   this.$http('/groupCustom/create', {name: `分组${nextIndex || orderArr.length + 1}`, groupPid: data.parentNode.groupGuid}).then(res => {
-        //     this.getGroupList()
-        //   })
-        // } else {
-        //   this.addCommunityVisible = true
-        // }
       }
     },
     // 解散社群
@@ -627,6 +623,12 @@ export default {
         this.groupsNameForm = JSON.parse(JSON.stringify(this.communityInfo))
         this.groupsNameFormVisible = true
       } else {
+        // 修改、添加昵称
+        this.nameForm = {
+          groupGuid: this.communityInfo.guid,
+          groupName: this.communityInfo.groupNickName,
+          groupPid: this.currentCommunity.parents.groupGuid
+        }
         this.dialogFormVisible = true
       }
     },
@@ -634,7 +636,12 @@ export default {
     setNickName (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          console.log(this.nameForm)
+          this.$http('/group/nickName/update', this.nameForm).then(res => {
+            this.$tip('操作成功')
+            this.currentCommunity.name = this.nameForm.groupName
+            this.getGroupList()
+            this.dialogFormVisible = false
+          })
         }
       })
     },
@@ -658,7 +665,7 @@ export default {
     // 离开社群
     leaveCommunity (type, current, parent) {
       // type 可选类型 quit、kick
-      let [url, des, again] = ['/group/exit', '', '']
+      let [url, des] = ['/group/exit', '']
       let params = {
         groupPid: parent.guid || parent.groupGuid,
         groupGuid: current.groupGuid || current.guid,
@@ -668,12 +675,10 @@ export default {
       switch (type) {
         case 'quit':
           des = `确定退出该管理员社群？`
-          again = '退出将丢失已输入的内容，确定退出吗？'
           url = '/group/exit'
           break
         default:
           des = `确定删除该社群？`
-          again = `确定删除该社群？`
           url = '/group/remove'
       }
       this.$affirm({text: `${des}`}, (action, instance, done) => {
@@ -718,13 +723,11 @@ export default {
         item.groupCustomGuid = this.communityInfo.guid
         return item
       }).filter(item => !item.disabled)
-      console.log(data)
       if (!data.length) {
         this.$tip('请选取社群', 'error')
         return
       }
       this.$http('/groupCustom/member/add', {groupCustomMemberInfo: data}).then(res => {
-        console.log('添加成功')
         this.addCommunityVisible = false
         this.getGroupList()
       })
@@ -818,7 +821,7 @@ export default {
             float: left;
             width: 50%;
             box-sizing: border-box;
-            margin-bottom: 10px;
+            margin-bottom: 14px;
             &:nth-child(2n + 1) {
               padding-right: 20px;
             }
@@ -929,30 +932,4 @@ export default {
     }
   }
 }
-  .name--text {
-    height: 40px;
-    line-height: 40px;
-    border-radius: 2px;
-    text-align: center;
-    &.safe, &.danger{
-      position: relative;
-      background: #EDEDED;
-      &:after{
-        position:absolute;
-        top: 0;
-        left: 0;
-        content: '';
-        width:0;
-        height:0;
-        border-top: 20px solid #F85650;
-        border-right: 20px solid transparent;
-        border-bottom: 20px solid transparent;
-      }
-    }
-    &.safe{
-      &:after{
-        border-top: 20px solid #58D431;
-      }
-    }
-  }
 </style>

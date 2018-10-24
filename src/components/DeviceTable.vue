@@ -30,7 +30,7 @@
                   <uu-icon type="error" @click.native="scope.row.popover = false"></uu-icon>
                 </el-form-item>
               </el-form>
-              <i slot="reference" class="el-icon-edit"></i>
+              <i slot="reference" v-if="scope.row.deviceType !== 1" class="el-icon-edit"></i>
             </el-popover>
         </template>
       </el-table-column>
@@ -66,15 +66,16 @@
         prop="id"
         label="绑定社群">
         <template slot-scope="scope">
-          <span class="ellipsis-28">{{scope.row.groupName || '暂无'}}</span>
-          <a href="javascript:void (0)" @click="dialogFormVisible = true">绑定</a>
+          <span class="ellipsis-28">{{scope.row.type === 3 ? '-': scope.row.groupName || '暂无'}}</span>
+          <a href="javascript:void (0)" v-if="scope.row.type !== 3" @click="showDialogForm(scope.row, scope.$index)">{{scope.row.groupName ? '解绑' : '绑定'}}</a>
         </template>
       </el-table-column>
       <el-table-column
         prop="id"
+        width="100"
         label="下辖设备">
         <template slot-scope="scope">
-          {{scope.row.id}}
+          <span class="ellipsis-28">{{scope.row.id}}</span>
           <router-link :to="'/equipment/service/' + scope.row.deviceKey">管理</router-link>
         </template>
       </el-table-column>
@@ -82,19 +83,21 @@
         min-width="120"
         label="操作">
         <template slot-scope="scope">
-          <div>
-          </div>
-        </template>
-        <template slot-scope="scope">
-          <span
-            v-for="(item,$index) in btnList"
-            :key="$index"
-            :disabled="!btnState(scope.row,item).state"
-            @click="handleDevice(item, scope.row)"
-            :class="btnState(scope.row,item).going?item +' ongoing':item"
-            class="table__btn">
+          <template v-if="scope.row.deviceType !== 1">
+             <span
+               v-for="(item,$index) in btnList"
+               :key="$index"
+               :disabled="!btnState(scope.row,item).state"
+               @click="handleDevice(item, scope.row)"
+               :class="btnState(scope.row,item).going?item +' ongoing':item"
+               class="table__btn">
             {{btnState(scope.row,item).text}}
           </span>
+          </template>
+          <template v-else>
+            <a href="javascript:void (0)" class="table_btn g-mr18">导入设备</a>
+            <a href="javascript:void (0)" class="table_btn g-mr18" @click="addCamera(scope.row)">手动添加</a>
+          </template>
           <span class="error-color delete_btn" @click="deleteEquipment(scope.row)">删除</span>
         </template>
       </el-table-column>
@@ -104,7 +107,7 @@
       filter
       @remote-submit="bindCommunity"
       :group="groupList"
-      title="添加社群"
+      title="绑定社群"
       type="group"
       :visible.sync="dialogFormVisible"
     >
@@ -114,6 +117,7 @@
 
 <script>
 import {validateRule} from '@/utils/validate'
+import {simplifyGroups} from '../utils'
 
 export default {
   name: 'device-table',
@@ -145,6 +149,7 @@ export default {
     return {
       groupList: [], // 自有社群列表
       dialogFormVisible: false, // 绑定社群dialog 显示状态
+      currentDevice: {}, // 当前行设备信息
       equipmentForm: { // 修改设备昵称 表单对象
       },
       rules: {
@@ -255,8 +260,17 @@ export default {
     // 获取自有社群列表，绑定社群时只能绑定自有社群
     getGroupList () {
       this.$http('/group/list/self').then(res => {
-        this.groupList = res.data
+        this.groupList = simplifyGroups(res.data)
       })
+    },
+    // 显示绑定社群弹框
+    showDialogForm (data, index) {
+      if (!data.groupName) {
+        this.dialogFormVisible = true
+        this.currentDevice = data
+      } else {
+        this.unBindCommunity(data, index)
+      }
     },
     // 解绑社群
     unBindCommunity (value, index) {
@@ -272,8 +286,8 @@ export default {
             groupGuid: value.groupGuid
           }).then(res => {
             this.$tip('解绑成功')
-            this.$set(value, 'groupGuid', null)
-            this.$refs.deviceItem[index].getDeviceState(value, value.deviceStatus === undefined ? null : undefined)
+            this.getDeviceState(value)
+            this.$set(value, 'groupName', null)
           })
         } else {
           // 隐藏hover 提示信息
@@ -285,12 +299,22 @@ export default {
     // 绑定社群
     bindCommunity (data) {
       this.dialogFormVisible = false
+      let subData
+      if (!data[0]) {
+        this.$tip('请选取社群', 'error')
+        return
+      }
+      subData = {
+        deviceKey: this.currentDevice.deviceKey,
+        groupGuid: data[0].groupGuid,
+        name: data[0].name
+      }
       this.$load('设备绑定中...')
-      data.name = data.deviceName
-      this.$http('/device/binding', data).then(res => {
+      this.$http('/device/binding', subData).then(res => {
         this.$load().close()
         this.$tip('绑定成功')
-        this.getMineEquipment(this.pagination.index)
+        this.$emit('refresh')
+        // this.getMineEquipment(this.pagination.index)
       }).catch(() => {
         this.$load().close()
       })
@@ -483,6 +507,10 @@ export default {
           }
         }
       )
+    },
+    // 手动添加摄像头方法回调
+    addCamera (row) {
+      this.$emit('handle-add', row)
     }
   },
   watch: {

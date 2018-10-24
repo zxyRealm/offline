@@ -341,12 +341,42 @@ export function arrayUnique (arr, name) {
 }
 
 // 社群列表数组过滤分组结构
-export function simplifyGroups (data) {
+export function simplifyGroups (data, key = 'memberItem') {
   let customList = JSON.parse(JSON.stringify(data))
   return customList.map(item => {
-    if (item.memberItem && item.memberItem[item.memberItem.length - 1]) {
-      item.memberItem = JSON.parse(JSON.stringify(item.memberItem[item.memberItem.length - 1].memberItem))
+    if (item[key] && item[key][item[key].length - 1]) {
+      item[key] = JSON.parse(JSON.stringify(item[key][item[key].length - 1][key]))
     }
     return item
   })
+}
+
+/* 生成自定义名称
+* @params {Array} data 包含自定义名称的数组对象
+* @params {String} key 自定义名称key值
+* @params {String} txt 自定义名称文本
+* @return 不重复的新的自定义名称
+* */
+export function makeCustomName (data, key = 'name', txt = '新建名称') {
+  // 根据自定义分组名规则筛选已存在的文件，排序过滤后重新定义新的文件名
+  if (!Array.isArray(data)) return
+  let [customName, orderArr, nextIndex] = [[], '', '']
+  let reg = new RegExp(`${txt}[1-9]\\d*`)
+  data.map(item => {
+    let num = Number((item[key] || '').replace(txt, ''))
+    if (reg.test(item[key])) {
+      customName.unshift(num)
+    }
+  })
+  // 数组排序（正序）
+  orderArr = customName.sort((a, b) => a - b)
+  // 根据文件名最后编号大小，获取中间缺省值，如果有获取其值，没有则在最大编号值基础累加
+  for (let i = 0, len = orderArr.length; i < len; i++) {
+    if (orderArr[i] !== i + 1) {
+      nextIndex = i + 1
+      break
+    }
+  }
+  nextIndex = nextIndex || orderArr.length + 1
+  return `${txt}${nextIndex}`
 }
