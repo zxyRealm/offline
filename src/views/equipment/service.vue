@@ -9,11 +9,11 @@
       </uu-sub-tab>
       <div class="filter__list--wrap">
         <el-select v-model="filterValue.type" placeholder="全部类型">
-          <el-option :value="2" label="客行分析"></el-option>
-          <el-option :value="3" label="人脸抓拍"></el-option>
+          <el-option :value="4" label="客行分析"></el-option>
+          <el-option :value="5" label="人脸抓拍"></el-option>
         </el-select>
-        <el-select  v-model="filterValue.guid" placeholder="绑定社群">
-          <el-option :value="1" label="未绑定"></el-option>
+        <el-select  v-model="filterValue.groupGuid" placeholder="绑定社群">
+          <el-option :value="-1" label="未绑定"></el-option>
           <el-option v-for="(item, $index) in bindList" :key="$index" :value="item.groupGuid" :label="item.name"></el-option>
         </el-select>
         <el-menu @select="handleSelect" mode="horizontal" class="device__menu">
@@ -24,6 +24,7 @@
             <el-menu-item index="delete">删除</el-menu-item>
           </el-submenu>
         </el-menu>
+        <a href="javascript:void (0)" @click="clearFilters" class="fr">显示全部</a>
       </div>
       <el-table
         @selection-change="handleSelectionChange"
@@ -39,6 +40,32 @@
         <el-table-column
           label="名称"
           prop="name">
+          <template slot-scope="scope">
+            <span class="ellipsis-16">{{scope.row.name || '暂无'}}</span>
+            <el-popover
+              placement="top"
+              popper-class="nick_name--popover"
+              @show="showPopover(scope.$index)"
+              @hide="hidePopover(scope.$index)"
+              v-model="scope.row.popover"
+              trigger="click">
+              <el-form
+                :key="scope.$index"
+                @submit.native.prevent
+                ref="tableForm"
+                :rules="rules"
+                class="table-form"
+                :model="equipmentForm"
+              >
+                <el-form-item :key="'form-item' + scope.$index" prop="name">
+                  <el-input type="text" v-model.trim="equipmentForm.name"></el-input>
+                  <uu-icon type="success" @click.native="changeEquipmentName(scope.$index)"></uu-icon>
+                  <uu-icon type="error" @click.native="scope.row.popover = false"></uu-icon>
+                </el-form-item>
+              </el-form>
+              <i slot="reference" v-if="scope.row.deviceType !== 1" class="el-icon-edit"></i>
+            </el-popover>
+          </template>
         </el-table-column>
         <el-table-column
           label="序列号"
@@ -54,12 +81,30 @@
         <el-table-column
           label="绑定社群"
           props="groupName">
+          <template slot-scope="scope">
+            <span class="ellipsis-28" :class="{'c-grey': !scope.row.groupName}">{{scope.row.groupName || '暂无'}}</span>
+            <a href="javascript:void (0)" @click="showDialogForm(scope.row)" :class="{danger: scope.row.groupName}">{{scope.row.groupName ? '解绑': '绑定'}}</a>
+          </template>
         </el-table-column>
         <el-table-column
+          v-if="$route.name === 'equipmentMineService'"
+          width="160"
           label="操作">
+          <template slot-scope="scope">
+            <a href="javascript:void (0)" class="g-mr15" @click="showEditForm(scope.row)">编辑</a>
+            <a href="javascript:void (0)" class="danger" @click="deleteEquipment(scope.row)">删除</a>
+          </template>
         </el-table-column>
       </el-table>
-
+      <el-pagination
+        class="mt10"
+        v-if="pagination.total && pagination.total>pagination.length"
+        @current-change="getDeviceList"
+        :current-page="pagination.index"
+        :page-size="pagination.length"
+        layout="total,prev, pager, next, jumper"
+        :total="pagination.total">
+      </el-pagination>
       <!--绑定社群-->
       <ob-dialog-form
         filter
@@ -70,15 +115,64 @@
         :visible.sync="dialogFormVisible"
       >
       </ob-dialog-form>
+      <!--编辑摄像头信息-->
+      <ob-dialog-form
+        :show-button="false"
+        title="编辑信息"
+        :visible.sync="editCameraVisible">
+        <el-form
+          slot="form"
+          ref="editCameraForm"
+          block-message
+          style="width: 330px"
+          label-position="left"
+          class="common-form white"
+          label-width="82px"
+          :model="editCameraForm"
+          :rules="editCameraRules"
+        >
+          <el-form-item class="mt10" label="名称：" prop="name">
+            <el-input placeholder="请输入设备名称" v-model="editCameraForm.name"></el-input>
+          </el-form-item>
+          <el-form-item class="mt24" label="类型：" prop="type">
+            <el-select v-model="editCameraForm.type" placeholder="请选择设备类型">
+              <el-option label="客行分析" :value="4"></el-option>
+              <el-option label="人脸抓拍" :value="5"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer mt42">
+          <el-button class="cancel" @click="editCameraVisible = false">返 回</el-button>
+          <el-button class="affirm"  type="primary" @click="editCameraDevice('editCameraForm')">确定</el-button>
+        </div>
+      </ob-dialog-form>
     </div>
 </template>
 
 <script>
 import {simplifyGroups, restoreArray} from '../../utils'
-
+import {validateRule} from '../../utils/validate'
+import {mapState} from 'vuex'
 export default {
   name: 'service',
   data () {
+    const validateName = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入设备别名'))
+      } else {
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
+        } else if (validateRule(value, 2)) {
+          this.$http('/merchant/device/alias/exist', {name: value}, false).then(res => {
+            res.data ? callback(new Error('设备别名已存在')) : callback()
+          }).catch(err => {
+            callback(new Error(err.msg || '验证失败'))
+          })
+        } else {
+          callback(new Error('请输入正确的设备别名'))
+        }
+      }
+    }
     return {
       dialogFormVisible: false, // 绑定社群弹框
       multipleSelection: [],
@@ -87,22 +181,49 @@ export default {
       ],
       groupList: [],
       pagination: {},
+      searchText: '',
       filterValue: {
         type: '',
-        guid: ''
+        groupGuid: ''
+      },
+      bindCommunityForm: {},
+      equipmentForm: {},
+      rules: {
+        deviceName: [
+          {required: true, validator: validateName, trigger: 'blur'}
+        ]
+      },
+      editCameraVisible: false,
+      editCameraForm: {},
+      editCameraRules: {
+        name: [
+          {validator: validateName, trigger: 'blur'}
+        ],
+        type: [
+          {required: true, message: '请选择设备类型', trigger: 'change'}
+        ]
       }
     }
   },
   created () {
-    this.getDeviceList()
     this.getGroupList()
+    this.getDeviceList()
   },
   mounted () {
   },
   computed: {
+    ...mapState(['userInfo']),
     menu: {
       get () {
-        let text = `自有设备&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;`
+        let [text, name] = ['', this.$route.query.name]
+        switch (this.$route.name) {
+          case 'equipmentMineService':
+            text = `自有设备&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;${name}`
+            break
+          case 'equipmentService':
+            text = `非自有设备&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;${name}`
+            break
+        }
         return [{title: `${text}`}]
       },
       set () {}
@@ -119,10 +240,29 @@ export default {
     // 查询服务列表设备
     search (val) {
       console.log('service list---', val)
+      this.searchText = val
+      this.getDeviceList()
+    },
+    // 清除过滤条件
+    clearFilters () {
+      this.filterValue = {
+        groupGuid: '',
+        type: ''
+      }
     },
     // 获取摄像头设备列表信息
-    getDeviceList () {
-      this.$http('/device/useDescribe', {serverKey: this.$route.params.key}).then(res => {
+    getDeviceList (page) {
+      page = page || 1
+      let searchData = {
+        serverKey: this.$route.params.key,
+        index: page,
+        length: 2
+      }
+      for (let keys in this.filterValue) {
+        if (this.filterValue[keys]) searchData[keys] = this.filterValue[keys]
+      }
+      if (this.searchText) searchData.name = this.searchText
+      this.$http('/device/deviceCamera/search', searchData).then(res => {
         this.serviceList = res.data.content
         this.pagination = res.data.pagination
       })
@@ -131,9 +271,6 @@ export default {
     getGroupList () {
       this.$http('/group/list/self').then(res => {
         this.groupList = simplifyGroups(res.data)
-        setTimeout(() => {
-          console.log(this.groupList, this.bindList)
-        }, 2 * 1000)
       })
     },
     // 多选框发生改变时触发，返回当前选中值
@@ -141,37 +278,220 @@ export default {
       this.multipleSelection = val
     },
     // 绑定社群
-    bindCommunity () {
+    bindCommunity (data) {
+      let [subData, url] = ['', '/device/batch/binding']
+      console.log('back', data)
+      if (!data[0]) {
+        this.$tip('请选取社群', 'error')
+        return
+      }
+      if (!this.bindCommunityForm.deviceKey) {
+        subData = JSON.parse(JSON.stringify(this.multipleSelection.filter(item => !item.groupName).map(item => {
+          return {
+            deviceKey: item.deviceKey,
+            name: item.name,
+            groupGuid: data[0].groupGuid,
+            merchantGuid: this.userInfo.deverloperId
+          }
+        })))
+      } else {
+        subData = [{
+          merchantGuid: this.userInfo.developerId,
+          deviceKey: this.bindCommunityForm.deviceKey,
+          groupGuid: data[0].groupGuid,
+          name: this.bindCommunityForm.name
+        }]
+      }
       this.dialogFormVisible = false
       this.$load('设备绑定中...')
-      let subData = JSON.parse(JSON.stringify(this.multipleSelection.map(item => {
-        return item
-      })))
-      this.$http('/device/batch/binding', subData).then(res => {
+      this.$http(url, subData).then(res => {
         this.$load().close()
         this.$tip('绑定成功')
+        this.getDeviceList()
       }).catch(() => {
         this.$load().close()
       })
     },
+    // 解绑社群
+    unBindCommunity (value, index) {
+      this.$affirm({
+        confirm: '确定',
+        cancel: '返回',
+        text: '确定将设备从社群解绑？'
+      }, (action, instance, done) => {
+        if (action === 'confirm') {
+          this.$http('/device/unbinding', {
+            deviceKey: value.deviceKey,
+            groupGuid: value.groupGuid
+          }).then(res => {
+            this.$tip('解绑成功')
+            this.getDeviceList()
+          })
+        }
+        done()
+      })
+    },
+    // 删除设备
+    deleteEquipment (item) {
+      if (item.groupName) {
+        this.$tip('请先解绑社群', 'error')
+        return
+      }
+      this.$affirm(
+        {
+          confirm: '确定',
+          cancel: '返回',
+          text: `确定删除设备【<span class="maxw200 ellipsis">${item.name}</span>】？`
+        }, (action, instance, done) => {
+          if (action === 'confirm') {
+            this.$http('/merchant/device/delete', {deviceKey: item.deviceKey}).then(res => {
+              this.$tip('删除成功')
+              this.getDeviceList()
+            })
+          }
+          done()
+        }
+      )
+    },
     // 批量操作处理
     handleSelect (type) {
       console.log(type, this.filterValue)
+      if (!this.multipleSelection.length) {
+        this.$tip('请选取设备', 'error')
+        return
+      }
       if (type === 'bind') {
-        if (!this.multipleSelection.length) {
-          this.$tip('请选取设备', 'error')
+        this.dialogFormVisible = true
+      } else if (type === 'delete') {
+        let deleteArr = this.multipleSelection.filter(item => !item.groupName).map(item => item.deviceKey)
+        if (this.multipleSelection.filter(item => item.groupName).length) {
+          this.$tip('请先解绑设备', 'error')
           return
         }
-        this.dialogFormVisible = true
-        // this.bindCommunity()
+        this.$affirm(
+          {
+            confirm: '确定',
+            cancel: '返回',
+            text: `确定删除选中设备？`
+          }, (action, instance, done) => {
+            if (action === 'confirm') {
+              this.$http('/merchant/device/delete/batch', {deviceKeys: deleteArr}).then(res => {
+                this.$tip('删除成功')
+                this.getDeviceList()
+              })
+            }
+            done()
+          }
+        )
+      } else {
+        // 批量解绑
+        // 数据提交是过滤掉未绑定社群的设备
+        let selectArr = this.multipleSelection.filter(item => item.groupName).map(item => item.deviceKey)
+        this.$affirm({
+          confirm: '确定',
+          cancel: '返回',
+          text: '确定将设备从社群解绑？'
+        }, (action, instance, done) => {
+          if (action === 'confirm') {
+            this.$http('/device/batch/unbinding', selectArr).then(res => {
+              this.$tip('解绑成功')
+              this.getDeviceList()
+            })
+          }
+          done()
+        })
       }
+    },
+    // 显示绑定社群弹框
+    showDialogForm (row) {
+      if (row.groupName) {
+        this.unBindCommunity(row)
+      } else {
+        this.bindCommunityForm = row
+        this.dialogFormVisible = true
+      }
+    },
+    // 显示修改昵称popover
+    showPopover (index) {
+      if (this.$refs.tableForm) {
+        this.$nextTick(() => {
+          this.$refs.tableForm.clearValidate()
+        })
+      }
+      this.equipmentForm = JSON.parse(JSON.stringify({
+        deviceKey: this.serviceList[index].deviceKey,
+        serverKey: this.serviceList[index].serverKey,
+        name: this.serviceList[index].name
+      }))
+      console.log(index, this.equipmentForm)
+    },
+    // 隐藏修改昵称popover
+    hidePopover (index) {
+      // console.log(this.$refs.tableForm)
+      // if (this.$refs.tableForm) {
+      //   this.$refs.tableForm.clearValidate()
+      // }
+    },
+    // 修改设备昵称
+    changeEquipmentName (index) {
+      this.$refs['tableForm'].validate((valid) => {
+        if (valid) {
+          this.$http('/device/deviceCamera/name/update', this.equipmentForm).then(res => {
+            this.$tip('修改成功')
+            this.$set(this.serviceList[index], 'popover', false)
+            // this.getDeviceList()
+            this.serviceList[index].name = this.equipmentForm.name
+          })
+        } else {
+          console.log('error submit')
+        }
+      })
+    },
+    showEditForm (row) {
+      this.editCameraForm = JSON.parse(JSON.stringify(row))
+      this.editCameraVisible = true
+    },
+    // 编辑摄像头信息
+    editCameraDevice (formName) {
+      console.log(this.editCameraForm)
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          this.$http('/device/deviceCamera/info/add', this.editCameraForm).then(res => {
+            this.$tip('修改成功')
+            this.editCameraVisible = false
+            this.getDeviceList()
+          })
+        }
+      })
     }
   },
   watch: {
     dialogFormVisible (val) {
       if (val) {
         this.getGroupList()
+      } else {
+        this.bindCommunityForm = {}
       }
+    },
+    filterValue: {
+      handler (val) {
+        this.getDeviceList()
+      },
+      deep: true
+    }
+  },
+  filters: {
+    cameraType (val) {
+      let txt = ''
+      switch (val) {
+        case 1:
+          txt = '客行分析'
+          break
+        case 2:
+          txt = '人脸抓拍'
+          break
+      }
+      return txt
     }
   }
 }

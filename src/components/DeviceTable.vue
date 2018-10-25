@@ -5,7 +5,6 @@
       :data="data"
     >
       <el-table-column
-        min-width="120"
         label="名称">
         <template slot-scope="scope">
           <span class="ellipsis">{{scope.row.deviceName || '暂无'}}</span>
@@ -35,8 +34,6 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="id"
-        width="80"
         label="状态">
         <template slot-scope="scope">
           <span :class="stateClass(scope.row.deviceStatus)">{{scope.row.deviceStatus | lineState}}</span>
@@ -46,18 +43,16 @@
       <el-table-column
         prop="deviceKey"
         label="序列号"
-        width="180">
+        min-width="140">
       </el-table-column>
       <el-table-column
-        label="设备类型"
-        width="120">
+        label="设备类型">
         <template slot-scope="scope">
           {{scope.row.deviceType | deviceType}}
         </template>
       </el-table-column>
       <el-table-column
-        label="用途"
-        width="120">
+        label="用途">
         <template slot-scope="scope">
           {{scope.row.deviceType | deviceType}}
         </template>
@@ -66,21 +61,19 @@
         prop="id"
         label="绑定社群">
         <template slot-scope="scope">
-          <span class="ellipsis-28">{{scope.row.type === 3 ? '-': scope.row.groupName || '暂无'}}</span>
-          <a href="javascript:void (0)" v-if="scope.row.type !== 3" @click="showDialogForm(scope.row, scope.$index)">{{scope.row.groupName ? '解绑' : '绑定'}}</a>
+          <span class="ellipsis-28">{{scope.row.deviceType === 1 ? '-': scope.row.groupName || '暂无'}}</span>
+          <a href="javascript:void (0)" v-if="scope.row.deviceType !== 1" @click="showDialogForm(scope.row, scope.$index)">{{scope.row.groupName ? '解绑' : '绑定'}}</a>
         </template>
       </el-table-column>
       <el-table-column
-        prop="id"
-        width="100"
         label="下辖设备">
         <template slot-scope="scope">
-          <span class="ellipsis-28">{{scope.row.id}}</span>
-          <router-link :to="'/equipment/service/' + scope.row.deviceKey">管理</router-link>
+          <span class="ellipsis-28">{{scope.row.deviceType === 1? scope.row.deviceNum: '-'}}</span>
+          <router-link v-if="scope.row.deviceType === 1" :to="($route.name === 'equipment' ? '/equipment/mine' : '/equipment') + '/service/' + scope.row.deviceKey + '?name=' + scope.row.deviceName">{{isMine ? '管理' : '查看'}}</router-link>
         </template>
       </el-table-column>
       <el-table-column
-        min-width="120"
+        min-width="100"
         label="操作">
         <template slot-scope="scope">
           <template v-if="scope.row.deviceType !== 1">
@@ -95,7 +88,23 @@
           </span>
           </template>
           <template v-else>
-            <a href="javascript:void (0)" class="table_btn g-mr18">导入设备</a>
+            <el-upload
+              :headers="{
+                'Content-Type': 'multipart/form-data'
+               }"
+              class="import--excel"
+              :action="baseApi + '/device/deviceCamera/info/addBatch'"
+              :on-change="handleChange"
+              :before-upload="beforeUpload"
+              :on-success="handleSuccess"
+              :on-error="handleError"
+              :multiple="false"
+              :limit="1"
+              :show-file-list="false"
+              :file-list="fileList">
+              <a href="javascript:void (0)" class="table_btn g-mr18">导入设备</a>
+              <!--<el-button size="small" type="primary">点击上传</el-button>-->
+            </el-upload>
             <a href="javascript:void (0)" class="table_btn g-mr18" @click="addCamera(scope.row)">手动添加</a>
           </template>
           <span class="error-color delete_btn" @click="deleteEquipment(scope.row)">删除</span>
@@ -118,13 +127,17 @@
 <script>
 import {validateRule} from '@/utils/validate'
 import {simplifyGroups} from '../utils'
-
+const BASE_API = process.env.BASE_API
 export default {
   name: 'device-table',
   props: {
     value: {
       type: [Array],
       default: () => []
+    },
+    isMine: { // 是否为自有设备
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -147,6 +160,7 @@ export default {
       }
     }
     return {
+      fileList: [], // 上传文件列表
       groupList: [], // 自有社群列表
       dialogFormVisible: false, // 绑定社群dialog 显示状态
       currentDevice: {}, // 当前行设备信息
@@ -172,6 +186,9 @@ export default {
       set (val) {
         this.$emit('input', val)
       }
+    },
+    'baseApi' () {
+      return BASE_API
     }
   },
   methods: {
@@ -511,6 +528,38 @@ export default {
     // 手动添加摄像头方法回调
     addCamera (row) {
       this.$emit('handle-add', row)
+    },
+    // 文件发生改变时
+    handleChange (file) {
+      // 确保文件列表中只存在当前选中的文件
+      // this.fileList = [file]
+      // console.log(file)
+    },
+    // 文件上传前拦截处理
+    beforeUpload (file) {
+      console.log('upload file', file)
+      if (file && file.type) {
+        if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+          this.$tip('只允许上传Excel文件', 'error')
+          return false
+        }
+      } else {
+        this.$tip('请选取需要上传的文件', 'error')
+        return false
+      }
+    },
+    // 上传成功时回调
+    handleSuccess (res) {
+      if (res.result) {
+        this.$tip('导入成功')
+      } else {
+        this.$tip(res.msg, 'error')
+      }
+      console.log('success callback', res)
+    },
+    // 上传失败时回调
+    handleError (res) {
+      console.log('error callback', res)
     }
   },
   watch: {

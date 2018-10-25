@@ -76,8 +76,12 @@
 
 <script type="application/javascript">
 import {mapState} from 'vuex'
+import DeviceTable from '@/components/DeviceTable'
 export default {
   name: 'index',
+  components: {
+    DeviceTable
+  },
   data () {
     return {
       menu2: [
@@ -85,7 +89,7 @@ export default {
         {title: '非自有设备', index: '/equipment/children'}
       ],
       groupList: [],
-      currentGroup: '', // 选中社群
+      currentGroup: {}, // 选中社群
       equipmentList: [], // 设备列表
       pagination: {}, // 分页参数
       selectValue: {}
@@ -94,22 +98,28 @@ export default {
   methods: {
     // 获取非自有社群
     getGroupList (key) {
-      this.$http('/group/list/noCustom').then(res => {
+      this.$http('/group/list/childGroup').then(res => {
+        // 过滤掉最外层单店、成员社群、无外来社群的管理员社群
+        this.groupList = res.data.filter(item => {
+          return item.role === 0 && item.memberItem.length
+        })
         let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentGroup : false) || key || (this.currentGroup.uniqueKey ? this.currentGroup : false) || res.data[0]
         this.$nextTick(() => {
           if (this.$refs.childGroup) {
+            if (!this.currentGroup.groupGuid) this.currentGroup = currentNode
             this.$refs.childGroup.setCurrentKey(currentNode.uniqueKey)
+            this.getEquipmentList()
           }
+          this.$route.meta.keepAlive = false
         })
-        this.groupList = res.data
       })
     },
     // 获取设备列表
     getEquipmentList (page) {
       page = page || this.pagination.index || 1
       if (this.isSearch) {
-        if (this.currentGroup) {
-          this.$http('/device/guid/list', {guid: this.currentGroup, index: page, length: 8}).then(res => {
+        if (this.currentGroup.groupGuid) {
+          this.$http('/device/guid/list', {guid: this.currentGroup.groupGuid, index: page, length: 8}).then(res => {
             this.equipmentList = res.data.content
             this.pagination = res.data.pagination
             if (this.$route.meta.keepAlive) this.$refs.childGroup.setCurrentKey(this.currentGroup)
@@ -130,11 +140,15 @@ export default {
     // 搜索社群设备
     search (value) {
       if (value) {
-        this.$router.push(`/equipment/search/children/${value}`)
+        this.$router.push(`/equipment/children/search/${value}`)
+      } else {
+        this.$router.push(`/equipment/children`)
+        this.getGroupList()
       }
     },
     currentChange (val) {
       this.selectValue = val
+      this.currentGroup = val
       // this.currentGroup = val.currentNode.groupGuid
     },
     // 保存当前页面
@@ -158,7 +172,6 @@ export default {
       this.pagination = this.aliveState.pagination ? this.aliveState.pagination : {}
     }
     this.getGroupList()
-    this.getEquipmentList()
   },
   computed: {
     ...mapState(['aliveState']),
@@ -174,7 +187,7 @@ export default {
       } else if (!this.currentGroup) {
         txt = '请先在左侧选择自有社群，以查看其下的成员社群设备'
       } else if (!this.equipmentList.length) {
-        txt = '该社群尚未绑定设备'
+        txt = '暂无设备'
       }
       return txt
     },
@@ -215,6 +228,7 @@ export default {
         float: left;
         width: 230px;
         height: 100%;
+        padding: 15px 0;
         .ob-group-nav {
           margin: 0 8px;
         }
@@ -228,9 +242,11 @@ export default {
       }
       .ec-container {
         height: 100%;
+        box-sizing: border-box;
         &.dashed-border {
           margin-left: 242px;
           border: none;
+          padding: 10px;
         }
       }
     }

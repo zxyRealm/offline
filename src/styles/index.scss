@@ -646,8 +646,9 @@ button, input {
   white-space: nowrap;
   box-sizing: border-box;
   vertical-align: middle;
-  @each $lf in 28{
+  @each $lf in 16,28{
     &-#{$lf} {
+      @extend .ellipsis;
       width: calc(100% - #{$lf + px});
     }
   }
@@ -677,6 +678,12 @@ button, input {
   &:not(.menber){
     .cell {
       //padding: 0 16px;
+    }
+  }
+  .cell {
+    .el-icon-edit{
+      color: #0f9ee9;
+      cursor: pointer;
     }
   }
   .el-table__header {
@@ -760,9 +767,17 @@ button, input {
     color: $pink;
   }
 }
-
+.c-grey {
+  color: $grey;
+  &:hover, &:focus {
+    color: $grey;
+  }
+}
 .error-color {
   color: $orange;
+  &:hover, &:focus{
+    color: $orange;
+  }
 }
 
 .success-color {
@@ -868,6 +883,7 @@ button, input {
   &.el-pagination__editor{
     background-position: center;
     background-size: 99% 100%;
+    margin: 0 6px;
   }
   .el-input__inner {
     line-height: 30px;

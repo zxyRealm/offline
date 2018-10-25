@@ -98,7 +98,7 @@
                 <h2 class="cmm-sub-title">设备列表</h2>
                 <!--<ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">-->
                 <!--</ob-list-empty>-->
-                <el-scrollbar class="table--scrollbar__warp scroll-x" ref="faceScrollItemTable">
+                <el-scrollbar class="table--scrollbar__warp" ref="faceScrollItemTable">
                   <el-table
                     border
                     :data="deviceList"
@@ -108,6 +108,9 @@
                       label="设备别名"
                       show-overflow-tooltip
                       width="140">
+                      <template slot-scope="scope">
+                        {{scope.row.deviceName || '暂无'}}
+                      </template>
                     </el-table-column>
                     <el-table-column
                       prop="deviceKey"
@@ -787,7 +790,8 @@ export default {
     }
     .mine--table__wrap{
       .table--scrollbar__warp{
-        height: calc(100% - 297px);
+        max-height: 240px;
+        /*height: calc(100% - 297px);*/
       }
     }
 
@@ -874,6 +878,7 @@ export default {
   }
   .cmm-table {
     height: calc(100% - 270px);
+    /*max-height: 300px;*/
     .el-table{
       /*width: calc(100% - 17px);*/
     }

@@ -79,7 +79,7 @@ export const constantRouterMap = [
     ]
   },
   {
-    path: '/test',
+    path: '/test/:id([1-9]\\d*)?/:key?',
     component: Layout,
     children: [
       {
@@ -241,10 +241,19 @@ export const constantRouterMap = [
         component: EquipmentChildren
       },
       {
+        path: 'mine/service/:key', // ([0-9A-Z-_]{16})
+        name: 'equipmentMineService',
+        meta: {
+          title: '自有设备服务-设备管理-线下浏览器服务平台',
+          keepAlive: false
+        },
+        component: EquipmentService
+      },
+      {
         path: 'service/:key', // ([0-9A-Z-_]{16})
         name: 'equipmentService',
         meta: {
-          title: '分析终端用途-设备管理-线下浏览器服务平台',
+          title: '非自有设备服务-设备管理-线下浏览器服务平台',
           keepAlive: false
         },
         component: EquipmentService
@@ -259,7 +268,7 @@ export const constantRouterMap = [
         component: EquipmentMore
       },
       {
-        path: 'search/children/:key',
+        path: 'children/search/:key',
         name: 'searchChildren',
         meta: {
           title: '子社群设备搜索-设备管理-线下浏览器服务平台',
@@ -268,7 +277,7 @@ export const constantRouterMap = [
         component: EquipmentChildren
       },
       {
-        path: 'search/mine/:key',
+        path: 'mine/search/:key',
         name: 'searchMine',
         meta: {
           title: '自有社群设备搜索-设备管理-线下浏览器服务平台',

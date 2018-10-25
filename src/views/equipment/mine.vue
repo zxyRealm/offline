@@ -18,6 +18,7 @@
     <div class="data-list-wrap" v-if="equipmentList.length">
       <el-scrollbar>
         <device-table
+          is-mine
           @handle-add="showAddCameraForm"
           @refresh="getMineEquipment"
           v-model="equipmentList"
@@ -57,8 +58,8 @@
         </el-form-item>
         <el-form-item class="mt24" label="类型：" prop="type">
           <el-select v-model="addCameraForm.type" placeholder="请选择设备类型">
-            <el-option label="客行分析" :value="1"></el-option>
-            <el-option label="人脸抓拍" :value="2"></el-option>
+            <el-option label="客行分析" :value="4"></el-option>
+            <el-option label="人脸抓拍" :value="5"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -162,30 +163,31 @@ export default {
       } else {
         if (value.length === 16) {
           // 获取设备类型
-          this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
-            // this.deviceInfo.type = res2.data.deviceType
-            // 校验设备是否被绑定过
-            this.$http('/merchant/device/exist', {deviceKey: value, type: this.isService}, false).then(res => {
-              if (!res.data) {
-                this.deviceInfo.exist = false
-              } else {
-                this.deviceInfo.exist = true
-              }
-              // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
-              if ((this.isService && res2.data.deviceType !== 1) || (!this.isService && res2.data.deviceType === 1)) {
-                this.deviceInfo.exist = ''
-                callback(new Error('设备序列号不存在'))
-              } else {
-                this.deviceInfo.type = res2.data.deviceType
-                callback()
-              }
-            }).catch(err => {
-              callback(new Error(err.msg || '服务器异常'))
-            })
-            // callback()
-          }).catch(err => {
-            callback(new Error(err ? err.msg : '服务器异常'))
-          })
+          callback()
+          // this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
+          //   // this.deviceInfo.type = res2.data.deviceType
+          //   // 校验设备是否被绑定过
+          //   this.$http('/merchant/device/exist', {deviceKey: value, type: this.isService}, false).then(res => {
+          //     if (!res.data) {
+          //       this.deviceInfo.exist = false
+          //     } else {
+          //       this.deviceInfo.exist = true
+          //     }
+          //     // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
+          //     if ((this.isService && res2.data.deviceType !== 1) || (!this.isService && res2.data.deviceType === 1)) {
+          //       this.deviceInfo.exist = ''
+          //       callback(new Error('设备序列号不存在'))
+          //     } else {
+          //       this.deviceInfo.type = res2.data.deviceType
+          //       callback()
+          //     }
+          //   }).catch(err => {
+          //     callback(new Error(err.msg || '服务器异常'))
+          //   })
+          //   // callback()
+          // }).catch(err => {
+          //   callback(new Error(err ? err.msg : '服务器异常'))
+          // })
         } else {
           callback(new Error('请输入16位序列号'))
         }
@@ -252,7 +254,10 @@ export default {
     // 自有设备搜索
     search (val) {
       if (val) {
-        this.$router.push(`/equipment/search/mine/${val}`)
+        this.$router.push(`/equipment/mine/search/${val}`)
+      } else {
+        this.$router.push('/equipment/mine')
+        this.getGroupList()
       }
     },
     // 弹窗表单提交
@@ -384,10 +389,10 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = {
-            deviceName: this.isService ? makeCustomName(this.equipmentList, 'deviceName', '服务器') : '',
             deviceKey: this.addAioForm.deviceKey,
             type: this.deviceInfo.type
           }
+          if (this.isService) subData.deviceName = makeCustomName(this.equipmentList, 'deviceName', '服务器')
           this.$http('/merchant/device/create', subData).then(res => {
             this.addAioVisible = false
             this.$tip('创建成功')
@@ -402,10 +407,17 @@ export default {
     showAddCameraForm (row) {
       this.addCameraForm.serverKey = row.deviceKey
       this.addCameraVisible = true
-      console.log(this.addCameraForm)
     },
     addCameraDevice (formName) {
-      console.log(this.addCameraForm)
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          this.$http('/device/deviceCamera/info/add', this.addCameraForm).then(res => {
+            this.$tip('添加成功')
+            this.addCameraVisible = false
+            this.getGroupList()
+          })
+        }
+      })
     }
   },
   created () {

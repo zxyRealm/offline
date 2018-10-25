@@ -14,9 +14,15 @@ export function deviceType (type) {
     case 1:
       return '服务器'
     case 2:
-      return '客行分析'
+      return '客行分析' // 一体机
+    case 3:
+      return '人脸抓拍' // 一体机
+    case 4:
+      return '客行分析' // 摄像头
+    case 5:
+      return '人脸抓拍' // 摄像头
     default:
-      return '人脸抓拍'
+      return '未定义'
   }
 }
 
