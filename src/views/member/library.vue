@@ -27,25 +27,41 @@
         </el-form-item>
 
         <el-form-item label="关联社区：">
-          <div class="form__button">关联</div>
+          <div class="form__button" @click="getGroupList" v-show="!associationData">关联</div>
+          <div v-show="associationData" class="edit__name">{{associationData.name}}</div><i class="el-icon-edit edit" @click="getGroupList" v-show="associationData"></i>
         </el-form-item>
       </uu-form>
     </div>
+
+    <!--设备绑定社群-->
+    <ob-dialog-form
+      filter
+      @remote-submit="bindCommunity"
+      :group="groupList"
+      title="添加社群"
+      type="group"
+      :visible.sync="dialogFormVisible"
+    >
+    </ob-dialog-form>
   </div>
 </template>
 
 <script>
+import {simplifyGroups} from '@/utils'
 export default {
   name: 'library',
   data () {
     return {
+      groupList: [],
+      dialogFormVisible: false,
       rules: {
         name: [{required: true, message: '请输入库名称', trigger: 'blur'}]
       },
       formData: {
         name: '',
         remark: ''
-      }
+      },
+      associationData: ''
     }
   },
   methods: {
@@ -54,7 +70,8 @@ export default {
       let data = {
         name: e.name,
         remark: e.remark,
-        guid: this.$route.query.guid
+        guid: this.$route.query.guid,
+        groupGuid: this.associationData.groupGuid
       }
       if (this.$route.query.guid) {
         this.$http('/memberLibrary/update', data).then(res => {
@@ -73,6 +90,19 @@ export default {
     // 返回上一级
     returnLast () {
       this.$router.go(-1)
+    },
+    // 获取自有社群列表，绑定社群时只能绑定自有社群
+    getGroupList () {
+      this.$http('/group/list/self').then(res => {
+        this.groupList = simplifyGroups(res.data)
+        this.dialogFormVisible = true
+      })
+    },
+    // 确认关联
+    bindCommunity (data) {
+      console.log(data)
+      this.associationData = data[0]
+      this.dialogFormVisible = false
     }
   },
   created () {
@@ -91,6 +121,21 @@ export default {
 </script>
 
 <style scoped>
+  .edit{
+    float: left;
+    color: #0F9EE9;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 10px 0 0 10px;
+  }
+  .edit__name{
+    float: left;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    display: inline-block;
+    max-width: calc(100% - 30px);
+  }
   .menber{
     padding: 0 20px;
   }

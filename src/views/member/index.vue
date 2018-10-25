@@ -23,7 +23,6 @@
                 <span class="el-icon-circle-close-outline close" @click="closeChange"></span>
                 <span class="el-icon-edit name__edit" slot="reference" @click="getName(scope.row.name)"></span>
               </el-popover>
-
             </template>
           </el-table-column>
           <el-table-column
@@ -40,9 +39,11 @@
             label="人员数">
           </el-table-column>
           <el-table-column
-            label="关联社群">
+            label="关联社群"
+            :show-overflow-tooltip="true">
             <template slot-scope="scope">
-              <div class="fl hand edit">关联</div>
+              <span v-show="scope.row.groupName">{{scope.row.groupName}}</span>
+              <div v-show="!scope.row.groupName" class="fl hand edit" @click="getGroupList(scope.row)">关联</div>
             </template>
           </el-table-column>
           <el-table-column
@@ -57,10 +58,22 @@
         </el-table>
       </el-scrollbar>
 
+      <!--设备绑定社群-->
+      <ob-dialog-form
+        filter
+        @remote-submit="bindCommunity"
+        :group="groupList"
+        title="添加社群"
+        type="group"
+        :visible.sync="dialogFormVisible"
+      >
+      </ob-dialog-form>
+
     </div>
 </template>
 
 <script>
+import {simplifyGroups} from '@/utils'
 export default {
   name: 'index',
   data: () => ({
@@ -69,7 +82,11 @@ export default {
     // 要改变的库名称
     changeName: '',
     showPopver: false,
-    firstEnter: false
+    firstEnter: false,
+    dialogFormVisible: false,
+    sendData: '',
+    groupList: []
+
   }),
   created () {
     // this.emptyHint()
@@ -181,6 +198,31 @@ export default {
     },
     add__hint () {
       console.log(123)
+    },
+    // 获取自有社群列表，绑定社群时只能绑定自有社群
+    getGroupList (e) {
+      this.sendData = e
+      this.$http('/group/list/self').then(res => {
+        this.groupList = simplifyGroups(res.data)
+        this.dialogFormVisible = true
+      })
+    },
+    // 确认关联
+    bindCommunity (data) {
+      if (!data) {
+        return false
+      }
+      let send = {
+        guid: this.sendData.guid,
+        name: this.sendData.name,
+        groupGuid: data[0].groupGuid
+      }
+      this.$http('/memberLibrary/update', send).then(res => {
+        if (res.result) {
+          this.getList()
+          this.dialogFormVisible = false
+        }
+      })
     }
   },
   watch: {}
