@@ -11,6 +11,17 @@
         @handle-btn="button"
         :btn-array="btnArray"
         :menu-array="menu2">
+        <el-upload
+          class="avatar-uploader"
+          action="http://192.168.11.123:80/manage/member/import"
+          :show-file-list="false"
+          :data="{memberLibraryGuid: $route.query.guid}"
+          :before-upload="beforeAvatarUpload"
+          :on-success="uploadSuccess"
+          :on-progress="uploading"
+          slot="file">
+          <el-button class="affirm">导入</el-button>
+        </el-upload>
       </uu-sub-tab>
       <el-scrollbar class="table">
         <el-table
@@ -74,6 +85,27 @@
           :total="pageData.total">
         </el-pagination>
       </div>
+      <!-- 导入弹框 -->
+      <el-dialog
+        :visible.sync="dialogVisible"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        width="500px">
+        <img class="tip_img_icon" src="/static/img/waiting_tip_icon.png" alt="">
+        <div class="icon__hint">正在导入，请耐心等待…</div>
+        <div class="icon__hint--no">{{percent}}/100</div>
+      </el-dialog>
+      <!-- 下载弹框 -->
+      <el-dialog
+        :visible.sync="downloadVisible"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        width="500px">
+        <div class="word__center">导入完成！</div>
+        <div class="word__two">部分信息未成功导入，请在反馈中查看原因</div>
+        <el-button class="affirm widthAuto"><a :href="downloadURL">下载<导入结果反馈></a></el-button>
+      </el-dialog>
     </div>
 </template>
 
@@ -81,21 +113,34 @@
 export default {
   name: 'index',
   data: () => ({
+    // 按钮信息
     btnArray: [
       {text: '手动添加'},
-      {text: '下载模板'}
+      {text: '下载模板'},
+      {type: 'file'}
     ],
+    // 菜单名称
     menu2: [
       {title: ''}
     ],
+    // 列表内容
     tableData: [],
+    // 分页数据
     pageData: {
       index: 1,
       length: 10,
       total: 10,
       name: '',
       phone: ''
-    }
+    },
+    // 百分比弹框
+    dialogVisible: false,
+    // 下载内容弹框
+    downloadVisible: false,
+    // 下载url
+    downloadURL: '',
+    // 导入百分比
+    percent: ''
   }),
   created () {
     let data = {
@@ -109,6 +154,7 @@ export default {
     })
   },
   mounted () {
+
   },
   computed: {
   },
@@ -166,11 +212,18 @@ export default {
       if (!e) {
         this.addPerson()
       } else {
-        var a = document.createElement('a')
-        a.href = 'https://offline-browser-data-test.oss-cn-hangzhou.aliyuncs.com/member-info/member-template/%E4%BA%BA%E5%91%98%E5%AF%BC%E5%85%A5%E6%A8%A1%E6%9D%BF.xlsx?OSSAccessKeyId=LTAIGTWnewQMxSd5&Expires=1539745432&Signature=np87kk9SqbjAY8KK5VxSMt2X3ok%3D'
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
+        let data = {
+          key: 'member'
+        }
+        this.$http('/member/template', data).then(res => {
+          if (res.result) {
+            var a = document.createElement('a')
+            a.href = res.data
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+          }
+        })
       }
     },
     // 搜索事件
@@ -193,9 +246,39 @@ export default {
     handleSizeChange (e) {
       this.pageData.length = e
       this.getList()
+    },
+    // 上传前格式检测
+    beforeAvatarUpload (file) {
+
+    },
+    // 文件上传中
+    uploading (event) {
+      this.percent = event.percent
+    },
+    // 文件上传成功回调
+    uploadSuccess (response) {
+      if (response.data) {
+        this.downloadURL = response.data
+        if (response.data !== true) {
+          this.downloadVisible = true
+        }
+        this.getList()
+      }
     }
   },
-  watch: {}
+  watch: {
+    // 监听导入百分比
+    percent (e) {
+      if (!e) {
+        this.dialogVisible = false
+      } else if (e === 100) {
+        this.dialogVisible = false
+        this.percent = ''
+      } else {
+        this.dialogVisible = true
+      }
+    }
+  }
 }
 </script>
 
@@ -240,6 +323,44 @@ export default {
     overflow: hidden;
     text-overflow:ellipsis;
     white-space: nowrap;
+  }
+  .avatar-uploader{
+    margin-left: 10px;
+    float: right;
+    width: 80px;
+  }
+  .affirm{
+    width: 80px;
+  }
+  .widthAuto{
+    margin: 26px 0 0 130px;
+    width: 200px;
+  }
+  .widthAuto a{
+    color: #FFF;
+  }
+  .tip_img_icon{
+    margin-left: 195px;
+    width: 67px;
+    height: 65px;
+  }
+  .icon__hint{
+    margin-top: 20px;
+    text-align: center;
+  }
+  .icon__hint--no{
+    text-align: center;
+  }
+  .word__center{
+    text-align: center;
+    font-size: 14px;
+    color: #333333;
+  }
+  .word__two{
+    margin-top: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: #B4B4B7;
   }
 </style>
 
