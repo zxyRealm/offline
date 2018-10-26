@@ -26,85 +26,87 @@
         </el-menu>
         <a href="javascript:void (0)" @click="clearFilters" class="fr">显示全部</a>
       </div>
-      <el-table
-        @selection-change="handleSelectionChange"
-        border
-        :data="serviceList"
-      >
-        <el-table-column
-          label="全部"
-          width="55"
-          align="center"
-          type="selection">
-        </el-table-column>
-        <el-table-column
-          label="名称"
-          prop="name">
-          <template slot-scope="scope">
-            <span class="ellipsis-16">{{scope.row.name || '暂无'}}</span>
-            <el-popover
-              placement="top"
-              popper-class="nick_name--popover"
-              @show="showPopover(scope.$index)"
-              @hide="hidePopover(scope.$index)"
-              v-model="scope.row.popover"
-              trigger="click">
-              <el-form
-                :key="scope.$index"
-                @submit.native.prevent
-                ref="tableForm"
-                :rules="rules"
-                class="table-form"
-                :model="equipmentForm"
-              >
-                <el-form-item :key="'form-item' + scope.$index" prop="name">
-                  <el-input type="text" v-model.trim="equipmentForm.name"></el-input>
-                  <uu-icon type="success" @click.native="changeEquipmentName(scope.$index)"></uu-icon>
-                  <uu-icon type="error" @click.native="scope.row.popover = false"></uu-icon>
-                </el-form-item>
-              </el-form>
-              <i slot="reference" v-if="scope.row.deviceType !== 1" class="el-icon-edit"></i>
-            </el-popover>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="序列号"
-          prop="deviceKey">
-        </el-table-column>
-        <el-table-column
-          label="类型"
-          prop="type">
-          <template slot-scope="scope">
-            {{scope.row.type | deviceType}}
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="绑定社群"
-          props="groupName">
-          <template slot-scope="scope">
-            <span class="ellipsis-28" :class="{'c-grey': !scope.row.groupName}">{{scope.row.groupName || '暂无'}}</span>
-            <a href="javascript:void (0)" @click="showDialogForm(scope.row)" :class="{danger: scope.row.groupName}">{{scope.row.groupName ? '解绑': '绑定'}}</a>
-          </template>
-        </el-table-column>
-        <el-table-column
-          v-if="$route.name === 'equipmentMineService'"
-          width="160"
-          label="操作">
-          <template slot-scope="scope">
-            <a href="javascript:void (0)" class="g-mr15" @click="showEditForm(scope.row)">编辑</a>
-            <a href="javascript:void (0)" class="danger" @click="deleteEquipment(scope.row)">删除</a>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-pagination
-        class="mt10"
-        v-if="pagination.total && pagination.total>pagination.length"
-        @current-change="getDeviceList"
-        :current-page="pagination.index"
-        :page-size="pagination.length"
-        layout="total,prev, pager, next, jumper"
-        :total="pagination.total">
-      </el-pagination>
+      <el-scrollbar class="server__list-wrap">
+        <el-table
+          @selection-change="handleSelectionChange"
+          border
+          :data="serviceList"
+        >
+          <el-table-column
+            label="全部"
+            width="55"
+            align="center"
+            type="selection">
+          </el-table-column>
+          <el-table-column
+            label="名称"
+            prop="name">
+            <template slot-scope="scope">
+              <span class="ellipsis-16">{{scope.row.name || '暂无'}}</span>
+              <el-popover
+                placement="top"
+                popper-class="nick_name--popover"
+                @show="showPopover(scope.$index)"
+                @hide="hidePopover(scope.$index)"
+                v-model="scope.row.popover"
+                trigger="click">
+                <el-form
+                  :key="scope.$index"
+                  @submit.native.prevent
+                  ref="tableForm"
+                  :rules="rules"
+                  class="table-form"
+                  :model="equipmentForm"
+                >
+                  <el-form-item :key="'form-item' + scope.$index" prop="name">
+                    <el-input type="text" v-model.trim="equipmentForm.name"></el-input>
+                    <uu-icon type="success" @click.native="changeEquipmentName(scope.$index)"></uu-icon>
+                    <uu-icon type="error" @click.native="scope.row.popover = false"></uu-icon>
+                  </el-form-item>
+                </el-form>
+                <i slot="reference" v-if="scope.row.deviceType !== 1" class="el-icon-edit"></i>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="序列号"
+            prop="deviceKey">
+          </el-table-column>
+          <el-table-column
+            label="类型"
+            prop="type">
+            <template slot-scope="scope">
+              {{scope.row.type | deviceType}}
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="绑定社群"
+            props="groupName">
+            <template slot-scope="scope">
+              <span class="ellipsis-28" :class="{'c-grey': !scope.row.groupName}">{{scope.row.groupName || '暂无'}}</span>
+              <a href="javascript:void (0)" @click="showDialogForm(scope.row)" :class="{danger: scope.row.groupName}">{{scope.row.groupName ? '解绑': '绑定'}}</a>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="$route.name === 'equipmentMineService'"
+            width="150"
+            label="操作">
+            <template slot-scope="scope">
+              <a href="javascript:void (0)" class="g-mr15" @click="showEditForm(scope.row)">编辑</a>
+              <a href="javascript:void (0)" class="danger" @click="deleteEquipment(scope.row)">删除</a>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-pagination
+          class="mt10"
+          v-if="pagination.total && pagination.total>pagination.length"
+          @current-change="getDeviceList"
+          :current-page="pagination.index"
+          :page-size="pagination.length"
+          layout="total,prev, pager, next, jumper"
+          :total="pagination.total">
+        </el-pagination>
+      </el-scrollbar>
       <!--绑定社群-->
       <ob-dialog-form
         filter
@@ -239,7 +241,6 @@ export default {
   methods: {
     // 查询服务列表设备
     search (val) {
-      console.log('service list---', val)
       this.searchText = val
       this.getDeviceList()
     },
@@ -252,11 +253,11 @@ export default {
     },
     // 获取摄像头设备列表信息
     getDeviceList (page) {
-      page = page || 1
+      page = page || this.pagination.index || 1
       let searchData = {
         serverKey: this.$route.params.key,
         index: page,
-        length: 2
+        length: 20
       }
       for (let keys in this.filterValue) {
         if (this.filterValue[keys]) searchData[keys] = this.filterValue[keys]
@@ -332,19 +333,26 @@ export default {
       })
     },
     // 删除设备
-    deleteEquipment (item) {
-      if (item.groupName) {
-        this.$tip('请先解绑社群', 'error')
+    deleteEquipment (data) {
+      let deleteArr = [data.deviceKey]
+      if (Array.isArray(data)) {
+        deleteArr = data.filter(item => !item.groupName).map(item => item.deviceKey)
+        if (data.filter(item => item.groupName).length) {
+          this.$tip('请先解绑设备', 'error')
+          return
+        }
+      } else if (data.groupName) {
+        this.$tip('请先解绑设备', 'error')
         return
       }
       this.$affirm(
         {
           confirm: '确定',
           cancel: '返回',
-          text: `确定删除设备【<span class="maxw200 ellipsis">${item.name}</span>】？`
+          text: `确定删除选中设备？`
         }, (action, instance, done) => {
           if (action === 'confirm') {
-            this.$http('/merchant/device/delete', {deviceKey: item.deviceKey}).then(res => {
+            this.$http('/device/deviceCamera/delete', deleteArr).then(res => {
               this.$tip('删除成功')
               this.getDeviceList()
             })
@@ -363,26 +371,7 @@ export default {
       if (type === 'bind') {
         this.dialogFormVisible = true
       } else if (type === 'delete') {
-        let deleteArr = this.multipleSelection.filter(item => !item.groupName).map(item => item.deviceKey)
-        if (this.multipleSelection.filter(item => item.groupName).length) {
-          this.$tip('请先解绑设备', 'error')
-          return
-        }
-        this.$affirm(
-          {
-            confirm: '确定',
-            cancel: '返回',
-            text: `确定删除选中设备？`
-          }, (action, instance, done) => {
-            if (action === 'confirm') {
-              this.$http('/merchant/device/delete/batch', {deviceKeys: deleteArr}).then(res => {
-                this.$tip('删除成功')
-                this.getDeviceList()
-              })
-            }
-            done()
-          }
-        )
+        this.deleteEquipment(this.multipleSelection)
       } else {
         // 批量解绑
         // 数据提交是过滤掉未绑定社群的设备
@@ -439,7 +428,6 @@ export default {
           this.$http('/device/deviceCamera/name/update', this.equipmentForm).then(res => {
             this.$tip('修改成功')
             this.$set(this.serviceList[index], 'popover', false)
-            // this.getDeviceList()
             this.serviceList[index].name = this.equipmentForm.name
           })
         } else {
@@ -453,7 +441,6 @@ export default {
     },
     // 编辑摄像头信息
     editCameraDevice (formName) {
-      console.log(this.editCameraForm)
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$http('/device/deviceCamera/info/add', this.editCameraForm).then(res => {
@@ -504,5 +491,12 @@ export default {
     width: 150px;
     margin-right: 12px;
   }
+  > .fr {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+}
+.server__list-wrap{
+  height: calc(100% - 146px);
 }
 </style>

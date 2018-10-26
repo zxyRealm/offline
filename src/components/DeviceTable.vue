@@ -43,7 +43,7 @@
       <el-table-column
         prop="deviceKey"
         label="序列号"
-        min-width="140">
+        min-width="136">
       </el-table-column>
       <el-table-column
         label="设备类型">
@@ -58,7 +58,6 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="id"
         label="绑定社群">
         <template slot-scope="scope">
           <span class="ellipsis-28">{{scope.row.deviceType === 1 ? '-': scope.row.groupName || '暂无'}}</span>
@@ -89,11 +88,11 @@
           </template>
           <template v-else>
             <el-upload
-              :headers="{
-                'Content-Type': 'multipart/form-data'
-               }"
+              :data="{serverKey: scope.row.deviceKey}"
+              name="excelFile"
               class="import--excel"
               :action="baseApi + '/device/deviceCamera/info/addBatch'"
+              :on-progress="handleProgress"
               :on-change="handleChange"
               :before-upload="beforeUpload"
               :on-success="handleSuccess"
@@ -103,11 +102,10 @@
               :show-file-list="false"
               :file-list="fileList">
               <a href="javascript:void (0)" class="table_btn g-mr18">导入设备</a>
-              <!--<el-button size="small" type="primary">点击上传</el-button>-->
             </el-upload>
             <a href="javascript:void (0)" class="table_btn g-mr18" @click="addCamera(scope.row)">手动添加</a>
           </template>
-          <span class="error-color delete_btn" @click="deleteEquipment(scope.row)">删除</span>
+          <span v-if="isMine" class="error-color delete_btn" @click="deleteEquipment(scope.row)">删除</span>
         </template>
       </el-table-column>
     </el-table>
@@ -127,7 +125,7 @@
 <script>
 import {validateRule} from '@/utils/validate'
 import {simplifyGroups} from '../utils'
-const BASE_API = process.env.BASE_API
+const BASE_API = process.env.UPLOAD_API
 export default {
   name: 'device-table',
   props: {
@@ -535,6 +533,13 @@ export default {
       // this.fileList = [file]
       // console.log(file)
     },
+    handleProgress (event) {
+      let progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
+      console.log(event)
+      if (event.percent === 100) {
+        progress.close()
+      }
+    },
     // 文件上传前拦截处理
     beforeUpload (file) {
       console.log('upload file', file)
@@ -551,7 +556,7 @@ export default {
     // 上传成功时回调
     handleSuccess (res) {
       if (res.result) {
-        this.$tip('导入成功')
+        this.$emit('refresh')
       } else {
         this.$tip(res.msg, 'error')
       }

@@ -103,17 +103,25 @@ export function fetch (url, params, isTip = '数据加载中...') {
 export function message (txt, type, delay = 1500) {
   const icon = (type !== 'waiting' && type !== 'caution' && type !== 'error') ? 'success' : type
   let cs = type === 'waiting' || type === 'caution' ? 'device' : ''
-  return Message({
+  let options = {
     message: `<div class="tip_message_content ${type}">
         <img class="tip_img_icon" src="/static/img/${icon}_tip_icon.png" alt="">
         <p style="padding:0px" class="text">${txt}</p>
       </div>`,
     center: true,
     customClass: `tip_message ${cs}`,
+    duration: typeof delay === 'function' ? 0 : delay,
     dangerouslyUseHTMLString: true,
-    duration: delay,
     type: type
-  }).startTimer()
+  }
+  if (typeof delay === 'function') {
+    options.callback = (action, instance, done) => {
+      if (typeof delay === 'function') {
+        delay(action, instance, done)
+      }
+    }
+  }
+  return typeof delay === 'function' ? Message(options) : Message(options).startTimer()
 }
 
 // 重新登录确认框

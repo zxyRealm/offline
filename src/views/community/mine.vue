@@ -10,7 +10,7 @@
         @handle-btn="() =>  createFormVisible = true"
         @remote-search="remoteSearch"
         placeholder="输入社群名称"
-        :btn-array="[{text: '创建社群'}]"
+        :btn-array="[{text: '创建社群',content: '第一次创建',showPopover: false}]"
         :menu-array="[{title: '我的社群'}]">
       </uu-sub-tab>
       <div class="mine__community--main" :class="{'data-empty': !groupList.length || searchEmpty}">
@@ -541,10 +541,13 @@ export default {
     },
     // 获取设备列表
     getDeviceList (val) {
-      let url = !val.groupPid ? '/group/device ' : '/device/guid/list'
+      console.log(val)
+      let url = !val.groupPid ? '/group/device ' : '/group/device/customGroup'
       let id = val.groupGuid || val.guid
+      let subData = {guid: id}
+      if (val.groupPid) subData = {groupCustomGuid: id, groupPid: val.groupPid}
       if (id) {
-        this.$http(url, {guid: id}).then(res => {
+        this.$http(url, subData).then(res => {
           this.deviceList = res.data.content || res.data || []
           this.$store.state.loading = false
           // 触发传递设备列表到人脸识别库搜索组件上
@@ -790,7 +793,7 @@ export default {
     }
     .mine--table__wrap{
       .table--scrollbar__warp{
-        max-height: 240px;
+        height: 240px;
         /*height: calc(100% - 297px);*/
       }
     }

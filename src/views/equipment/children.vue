@@ -18,43 +18,27 @@
           @current-change="currentChange"></ob-group-nav>
       </div>
       <div class="ec-container" :class="{'dashed-border':isSearch}">
+        <div class="filter__list--wrap">
+          <el-select v-model="filterValue.type" placeholder="全部类型">
+            <el-option :value="2" label="客行分析"></el-option>
+            <el-option :value="3" label="人脸抓拍"></el-option>
+            <el-option :value="1" label="服务器"></el-option>
+          </el-select>
+          <!--<el-select  v-model="filterValue.groupGuid" placeholder="绑定社群">-->
+          <!--<el-option :value="-1" label="未绑定"></el-option>-->
+          <!--<el-option v-for="(item, $index) in bindList" :key="$index" :value="item.groupGuid" :label="item.name"></el-option>-->
+          <!--</el-select>-->
+          <!--<el-menu @select="handleSelect" mode="horizontal" class="device__menu">-->
+          <!--<el-submenu popper-class="device__menu&#45;&#45;popper" index="1">-->
+          <!--<template slot="title">批量操作</template>-->
+          <!--<el-menu-item index="bind">绑定</el-menu-item>-->
+          <!--<el-menu-item index="unbind">解绑</el-menu-item>-->
+          <!--<el-menu-item index="delete">删除</el-menu-item>-->
+          <!--</el-submenu>-->
+          <!--</el-menu>-->
+          <a href="javascript:void (0)" @click="clearFilters" class="fr">显示全部</a>
+        </div>
         <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
-          <!--<template v-for="(item,$index) in equipmentList">-->
-            <!--<ob-list :key="$index">-->
-              <!--<ob-list-item is-child :data="item" type="state">-->
-              <!--</ob-list-item>-->
-              <!--<ob-list-item>-->
-                <!--<p><span class="table__label">序列号：</span><span>{{item.deviceKey}}</span></p>-->
-                <!--<p><span class="table__label">设备类型：</span><span>{{item.deviceType|deviceType}}</span></p>-->
-                <!--<p><span class="table__label">添加时间：</span><span>{{item.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>-->
-              <!--</ob-list-item>-->
-              <!--<ob-list-item>-->
-                <!--<p>-->
-                  <!--<span>用途：</span><br>-->
-                  <!--<router-link v-if="item.deviceType===1" :to="'/equipment/more/'+item.deviceKey">详情</router-link>-->
-                 <!--<span v-else>{{item.deviceType | deviceType}}</span>-->
-                <!--</p>-->
-              <!--</ob-list-item>-->
-              <!--<ob-list-item>-->
-                <!--<p>-->
-                  <!--<span>绑定社群：</span>-->
-                  <!--<span>{{item.groupName}}</span>-->
-                <!--</p>-->
-                <!--<p><span>绑定时间：</span><span>{{item.bindingTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</span></p>-->
-                <!--<p>-->
-                  <!--<span>应用场景：</span>-->
-                  <!--<el-tooltip :content="item.deviceScene" placement="top">-->
-                    <!--<span class="ellipsis">{{item.deviceScene}}</span>-->
-                  <!--</el-tooltip>-->
-                <!--</p>-->
-              <!--</ob-list-item>-->
-              <!--<ob-list-item-->
-                <!--:style="{minWidth:'180px'}"-->
-                <!--@refresh="getEquipmentList"-->
-                <!--:data="item" type="handle">-->
-              <!--</ob-list-item>-->
-            <!--</ob-list>-->
-          <!--</template>-->
           <device-table
             @refresh="getEquipmentList"
             v-model="equipmentList"
@@ -84,6 +68,9 @@ export default {
   },
   data () {
     return {
+      filterValue: {
+        type: ''
+      },
       menu2: [
         {title: '自有设备', index: '/equipment/mine'},
         {title: '非自有设备', index: '/equipment/children'}
@@ -117,6 +104,7 @@ export default {
     // 获取设备列表
     getEquipmentList (page) {
       page = page || this.pagination.index || 1
+      this.equipmentList = []
       if (this.isSearch) {
         if (this.currentGroup.groupGuid) {
           this.$http('/device/guid/list', {guid: this.currentGroup.groupGuid, index: page, length: 8}).then(res => {
@@ -163,7 +151,8 @@ export default {
           pagination: this.pagination
         })
       }
-    }
+    },
+    clearFilters () {}
   },
   created () {
     if (this.$route.meta.keepAlive) {
@@ -243,11 +232,24 @@ export default {
       .ec-container {
         height: 100%;
         box-sizing: border-box;
+        .ob-scrollbar{
+          height: calc(100% - 56px);
+        }
         &.dashed-border {
           margin-left: 242px;
           border: none;
           padding: 10px;
         }
+      }
+    }
+    .filter__list--wrap{
+      padding: 0 0 15px;
+      .el-select{
+        width: 154px;
+      }
+      > .fr {
+        margin-top: 8px;
+        font-size: 12px;
       }
     }
   }

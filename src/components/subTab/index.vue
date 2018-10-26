@@ -22,8 +22,8 @@
             :key="index"
             :size="btnSize"
             :class="{ml10:index}"
-            :show-popover="showPopover"
-            :content="popover"
+            :show-popover="item.showPopover"
+            :content="item.content"
             :text="item.text"
             @click.native="handleBtn(index)"></custom-popover>
         </template>

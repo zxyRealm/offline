@@ -73,6 +73,7 @@ export default {
     color: #333;
     cursor: text;
     word-break: keep-all;
+    z-index: 99;
     &:after{
       content: '';
       position: absolute;
