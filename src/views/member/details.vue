@@ -256,10 +256,13 @@ export default {
       this.percent = event.percent
     },
     // 文件上传成功回调
-    uploadSuccess (response, file, fileList) {
+    uploadSuccess (response) {
       if (response.data) {
         this.downloadURL = response.data
-        this.downloadVisible = true
+        if (response.data !== true) {
+          this.downloadVisible = true
+        }
+        this.getList()
       }
     }
   },
