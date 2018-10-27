@@ -7,8 +7,9 @@
       <el-table-column
         label="名称">
         <template slot-scope="scope">
-          <span class="ellipsis">{{scope.row.deviceName || '暂无'}}</span>
+          <span :class="isMine?'ellipsis-20':'ellipsis'">{{scope.row.deviceName || '暂无'}}</span>
           <el-popover
+              v-if="isMine"
               placement="top"
               popper-class="nick_name--popover"
               @show="showPopover(scope.$index)"
@@ -29,7 +30,7 @@
                   <uu-icon type="error" @click.native="scope.row.popover = false"></uu-icon>
                 </el-form-item>
               </el-form>
-              <i slot="reference" v-if="scope.row.deviceType !== 1" class="el-icon-edit"></i>
+              <i slot="reference" v-if="scope.row.deviceType !== 1 && isMine" class="el-icon-edit"></i>
             </el-popover>
         </template>
       </el-table-column>
@@ -54,17 +55,18 @@
       <el-table-column
         label="用途">
         <template slot-scope="scope">
-          {{scope.row.deviceType | deviceType}}
+          {{scope.row.deviceType | deviceType('use')}}
         </template>
       </el-table-column>
       <el-table-column
         label="绑定社群">
         <template slot-scope="scope">
-          <span class="ellipsis-28">{{scope.row.deviceType === 1 ? '-': scope.row.groupName || '暂无'}}</span>
-          <a href="javascript:void (0)" v-if="scope.row.deviceType !== 1" @click="showDialogForm(scope.row, scope.$index)">{{scope.row.groupName ? '解绑' : '绑定'}}</a>
+          <span :class="isMine?'ellipsis-28':'ellipsis'">{{scope.row.deviceType === 1 ? '-': scope.row.groupName || '暂无'}}</span>
+          <a href="javascript:void (0)" v-if="isMine && scope.row.deviceType !== 1" @click="showDialogForm(scope.row, scope.$index)">{{scope.row.groupName ? '解绑' : '绑定'}}</a>
         </template>
       </el-table-column>
       <el-table-column
+        v-if="isMine"
         label="下辖设备">
         <template slot-scope="scope">
           <span class="ellipsis-28">{{scope.row.deviceType === 1? scope.row.deviceNum: '-'}}</span>
@@ -75,7 +77,8 @@
         min-width="100"
         label="操作">
         <template slot-scope="scope">
-          <template v-if="scope.row.deviceType !== 1">
+          <template v-if="isHandle">
+            <template v-if="scope.row.deviceType !== 1">
              <span
                v-for="(item,$index) in btnList"
                :key="$index"
@@ -85,27 +88,29 @@
                class="table__btn">
             {{btnState(scope.row,item).text}}
           </span>
+            </template>
+            <template v-else>
+              <el-upload
+                :data="{serverKey: scope.row.deviceKey}"
+                name="excelFile"
+                class="import--excel"
+                :action="baseApi + '/device/deviceCamera/info/addBatch'"
+                :on-progress="handleProgress"
+                :on-change="handleChange"
+                :before-upload="beforeUpload"
+                :on-success="handleSuccess"
+                :on-error="handleError"
+                :multiple="false"
+                :limit="1"
+                :show-file-list="false"
+                :file-list="fileList">
+                <a href="javascript:void (0)" class="table_btn g-mr18">导入设备</a>
+              </el-upload>
+              <a href="javascript:void (0)" class="table_btn g-mr18" @click="addCamera(scope.row)">手动添加</a>
+            </template>
+            <span v-if="isMine" class="error-color delete_btn fr" @click="deleteEquipment(scope.row)">删除</span>
           </template>
-          <template v-else>
-            <el-upload
-              :data="{serverKey: scope.row.deviceKey}"
-              name="excelFile"
-              class="import--excel"
-              :action="baseApi + '/device/deviceCamera/info/addBatch'"
-              :on-progress="handleProgress"
-              :on-change="handleChange"
-              :before-upload="beforeUpload"
-              :on-success="handleSuccess"
-              :on-error="handleError"
-              :multiple="false"
-              :limit="1"
-              :show-file-list="false"
-              :file-list="fileList">
-              <a href="javascript:void (0)" class="table_btn g-mr18">导入设备</a>
-            </el-upload>
-            <a href="javascript:void (0)" class="table_btn g-mr18" @click="addCamera(scope.row)">手动添加</a>
-          </template>
-          <span v-if="isMine" class="error-color delete_btn" @click="deleteEquipment(scope.row)">删除</span>
+          <span class="c-grey" v-else>未索权<br>无设备操作权限</span>
         </template>
       </el-table-column>
     </el-table>
@@ -136,6 +141,10 @@ export default {
     isMine: { // 是否为自有设备
       type: Boolean,
       default: false
+    },
+    isHandle: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -583,7 +592,7 @@ export default {
 <style lang="scss" scoped>
 .el-table {
   .ellipsis{
-    width: calc(100% - 20px);
+    /*width: calc(100% - 20px);*/
   }
   .cell{
     > * {
@@ -594,6 +603,7 @@ export default {
   .el-icon-edit {
     color: #3a8ee6;
     cursor: pointer;
+    font-size: 16px;
   }
   .el-icon-refresh{
     margin-left: 15px;

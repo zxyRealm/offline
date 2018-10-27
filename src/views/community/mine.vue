@@ -10,7 +10,7 @@
         @handle-btn="() =>  createFormVisible = true"
         @remote-search="remoteSearch"
         placeholder="输入社群名称"
-        :btn-array="[{text: '创建社群',content: '第一次创建',showPopover: false}]"
+        :btn-array="btnArray"
         :menu-array="[{title: '我的社群'}]">
       </uu-sub-tab>
       <div class="mine__community--main" :class="{'data-empty': !groupList.length || searchEmpty}">
@@ -39,36 +39,36 @@
                       {{(communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId) ? dialogTitle : ''}}
                     </a>
                   </span>
-                  <p class="handle fr fs14" v-if="communityInfo.guid && communityInfo.merchantGuid === userInfo.developerId">
-                    <router-link v-show="!communityInfo.groupPid" :to="activeUrl">编辑</router-link>
-                    <a href="javascript:void (0)" class="danger ml20" @click="disbandGroup">删除</a>
+                  <p class="handle fr fs14" v-if="communityInfo.guid">
+                    <router-link v-show="!communityInfo.groupPid && communityInfo.merchantGuid === userInfo.developerId" :to="activeUrl">编辑</router-link>
+                    <a href="javascript:void (0)" v-show="communityInfo.groupPid || communityInfo.merchantGuid === userInfo.developerId" class="danger ml20" @click="disbandGroup">{{communityInfo.groupPid?'解散分组':'删除'}}</a>
                   </p>
                 </h2>
                 <div class="cm-info-wrap" v-show="communityInfo.createTime">
                   <div class="info-detail">
                     <p>
-                      <span class="">社群名称：</span>{{communityInfo.name}}
+                      <span class="info__label">社群名称：</span>{{communityInfo.name}}
                     </p>
                     <p>
-                      <span class="">联系电话：</span>
+                      <span class="info__label">联系电话：</span>
                       {{communityInfo.phone}}</p>
                     <p>
-                      <span class="">地区：</span>
+                      <span class="info__label">地区：</span>
                       {{communityInfo.fullAddress}}</p>
                     <p>
-                      <span class="">联系人：</span>
+                      <span class="info__label">联系人：</span>
                       {{communityInfo.contact}}</p>
                     <p v-if="communityInfo.role === 0">
-                      <span class=""> 索权范围：</span>
+                      <span class="info__label"> 索权范围：</span>
                       {{communityInfo.rule | authority }}</p>
                     <p v-if="communityInfo.role === 0">
-                      <span class=""> 邀请码：</span>
+                      <span class="info__label"> 邀请码：</span>
                       {{communityInfo.code}}
                       <a href="javascript:void (0)" @click="clipboard($event)">复制</a>
                     </p>
                     <!--&& communityInfo.parentGroups && communityInfo.parentGroups.length-->
                     <div class="fl" v-if="communityInfo.role === 1 && communityInfo.type!==3">
-                      <span class="fl">已加入：</span>
+                      <span class="fl info__label">已加入：</span>
                       <div
                         v-for="(item,$index) in communityInfo.parentGroups"
                         :key="$index"
@@ -81,24 +81,31 @@
                     </div>
                   </div>
                   <div class="fr" v-if="communityInfo.type !== 3">
-                    <el-button
+                    <custom-popover
                       v-if="communityInfo.role === 0"
-                      class="affirm"
-                      @click="$router.push({path: '/community/apply',query: {pid: communityInfo.guid}})">创建自有成员社群</el-button>
+                      @click.native.self="$router.push({path: '/community/apply',query: {pid: communityInfo.guid}})"
+                      :show-popover="createSelfVisible"
+                      text="创建自有成员社群"
+                      content="在该管理员社群下添加成员<br/>社群点这里">
+                    </custom-popover>
                     <el-button
                     v-if="communityInfo.role === 1"
                     class="affirm"
-                    @click="joinFormVisible = true">加入其他管理员社群</el-button>
+                    @click="joinFormVisible = true">加入管理员社群</el-button>
                   </div>
                 </div>
               </div>
               <div
                 class="dashed-border cmm-table"
+                :style="{height: !communityInfo.groupPid ? tableHeight+68+'px' : 'auto'}"
                 :class="{'mine--table__wrap':!communityInfo.groupPid}">
                 <h2 class="cmm-sub-title">设备列表</h2>
-                <!--<ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">-->
-                <!--</ob-list-empty>-->
-                <el-scrollbar class="table--scrollbar__warp" ref="faceScrollItemTable">
+                <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
+                </ob-list-empty>
+                <el-scrollbar
+                  class="table--scrollbar__warp"
+                  :style="{height: tableHeight + 'px'}"
+                  ref="faceScrollItemTable" v-else>
                   <el-table
                     border
                     :data="deviceList"
@@ -349,6 +356,9 @@ export default {
       supply: '',
       searchEmpty: false, // 是否是search状态
       showPopover: false, // 创建社群引导提示显示状态
+      createSelfVisible: false, // 是否显示创建自有成员社群提示
+      joinManageVisible: false, // 是否显示加入管理员社群提示
+      btnArray: [{text: '创建社群', content: '社群添加点这里', showPopover: false}],
       groupList: [], // 社群列表
       searchList: [], // 社群搜索结果
       addCommunityList: [], // 添加社群弹框社群列表
@@ -391,6 +401,15 @@ export default {
     }
   },
   created () {
+    this.$http('/firstCheck', {name: 'insight_group_list_first'}).then(res => {
+      if (res.data) {
+        this.btnArray.map(item => {
+          item.showPopover = true
+          return item
+        })
+        window.addEventListener('click', this.firstCreate)
+      }
+    })
     this.getGroupList()
   },
   mounted () {
@@ -442,9 +461,25 @@ export default {
         return className
       },
       set () {}
+    },
+    tableHeight: {
+      get () {
+        return this.deviceList.length ? (this.deviceList.length >= 5 ? 246 : (this.deviceList.length + 1) * 41) : 80
+      },
+      set () {}
     }
   },
   methods: {
+    // 第一次进入设备列表，给出操作提示，点击页面后提示消失
+    firstCreate () {
+      this.btnArray.map(item => {
+        item.showPopover = false
+        return item
+      })
+      this.createSelfVisible = false
+      this.joinManageVisible = false
+      window.removeEventListener('click', this.firstCreate)
+    },
     // 社群搜索
     // 搜索社群
     remoteSearch (val) {
@@ -541,7 +576,6 @@ export default {
     },
     // 获取设备列表
     getDeviceList (val) {
-      console.log(val)
       let url = !val.groupPid ? '/group/device ' : '/group/device/customGroup'
       let id = val.groupGuid || val.guid
       let subData = {guid: id}
@@ -597,14 +631,14 @@ export default {
     // 解散社群
     disbandGroup () {
       let msg = `确认删除【<span class="maxw200 ellipsis">${this.communityInfo.name}</span>】社群？`
-      let url = `/group/disbandGroup` // 解散/删除社群
+      let url = `/group/disbandGroup` // 删除社群
       let subData = {guid: this.communityInfo.guid}
       if (this.communityInfo.role === 0) {
         msg += `<br/><span class="fs12" style="color: #FF6660">该管理层下创建的应用层社群也将被删除。</span>`
       }
       // 删除分组
       if (this.communityInfo.groupPid && this.communityInfo.guid) {
-        url = `/groupCustom/delete`
+        url = `/groupCustom/delete` // 解散分组
         subData = {
           groupCustomGuid: this.communityInfo.guid
         }
@@ -612,7 +646,7 @@ export default {
       this.$affirm({text: msg}, (action, instance, done) => {
         if (action === 'confirm') {
           this.$http(url, subData).then(res => {
-            this.$tip('删除成功')
+            this.$tip(this.communityInfo.groupPid ? '解散成功' : '删除成功')
             this.currentCommunity = {}
             this.getGroupList()
           })
@@ -793,8 +827,7 @@ export default {
     }
     .mine--table__wrap{
       .table--scrollbar__warp{
-        height: 240px;
-        /*height: calc(100% - 297px);*/
+        height: calc(100% - 297px);
       }
     }
 
@@ -847,6 +880,10 @@ export default {
               display: inline-block;
               vertical-align: middle;
             }
+          }
+          .info__label{
+            display: inline-block;
+            width: 62px;
           }
         }
         .info-qr-code {

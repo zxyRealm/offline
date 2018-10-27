@@ -1,8 +1,11 @@
 <template>
     <div class="custom__popover--wrap" :class="size">
       {{text}}
-        <div v-if="showPopover" class="custom__popover--content" :x-placement="placement">
-          {{content}}
+        <div v-if="show"
+             :style="{width: width}"
+             class="custom__popover--content"
+             v-html="content"
+             :x-placement="placement">
         </div>
     </div>
 </template>
@@ -21,6 +24,10 @@ export default {
     },
     text: '',
     content: '',
+    width: {
+      type: String,
+      default: 'auto'
+    },
     placement: {
       type: String,
       default: 'right'
@@ -31,7 +38,15 @@ export default {
   },
   mounted () {
   },
-  computed: {},
+  computed: {
+    show: {
+      get () {
+        return this.showPopover
+      },
+      set (val) {
+      }
+    }
+  },
   methods: {},
   watch: {}
 }
@@ -63,9 +78,9 @@ export default {
   }
   .custom__popover--content{
     position: absolute;
-    top: calc(100% + 10px);
-    line-height: 1;
-    padding: 10px 16px;
+    top: calc(100% + 6px);
+    line-height: 1.5;
+    padding: 8px 15px;
     font-size: 12px;
     text-align: center;
     background: #fff;
@@ -80,9 +95,9 @@ export default {
       display: block;
       width: 0;
       height: 0;
-      top: -6px;
+      top: -4px;
       left: calc(50% - 3px);
-      border-width: 6px;
+      border-width: 4px;
       margin-right: 3px;
       border-color: transparent;
       border-style: solid;

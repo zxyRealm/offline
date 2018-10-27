@@ -14,7 +14,11 @@
         </el-select>
         <el-select  v-model="filterValue.groupGuid" placeholder="绑定社群">
           <el-option :value="-1" label="未绑定"></el-option>
-          <el-option v-for="(item, $index) in bindList" :key="$index" :value="item.groupGuid" :label="item.name"></el-option>
+          <el-option
+            v-for="(item, $index) in bindGroups"
+            :key="$index"
+            :value="item.groupGuid"
+            :label="item.name"></el-option>
         </el-select>
         <el-menu @select="handleSelect" mode="horizontal" class="device__menu">
           <el-submenu popper-class="device__menu--popper" index="1">
@@ -30,7 +34,7 @@
         <el-table
           @selection-change="handleSelectionChange"
           border
-          :data="serviceList"
+          :data="tableList"
         >
           <el-table-column
             label="全部"
@@ -51,14 +55,14 @@
                 v-model="scope.row.popover"
                 trigger="click">
                 <el-form
-                  :key="scope.$index"
+                  :key="'tableForm' + scope.$index"
                   @submit.native.prevent
                   ref="tableForm"
                   :rules="rules"
                   class="table-form"
                   :model="equipmentForm"
                 >
-                  <el-form-item :key="'form-item' + scope.$index" prop="name">
+                  <el-form-item :key="scope.$index" prop="name">
                     <el-input type="text" v-model.trim="equipmentForm.name"></el-input>
                     <uu-icon type="success" @click.native="changeEquipmentName(scope.$index)"></uu-icon>
                     <uu-icon type="error" @click.native="scope.row.popover = false"></uu-icon>
@@ -159,6 +163,7 @@ export default {
   name: 'service',
   data () {
     const validateName = (rule, value, callback) => {
+      console.log('validator', 'value')
       if (!value) {
         callback(new Error('请输入设备别名'))
       } else {
@@ -166,6 +171,7 @@ export default {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {name: value}, false).then(res => {
+            // callback(new Error('设备别名已存在'))
             res.data ? callback(new Error('设备别名已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
@@ -179,7 +185,6 @@ export default {
       dialogFormVisible: false, // 绑定社群弹框
       multipleSelection: [],
       serviceList: [
-        {name: '设备一号'}
       ],
       groupList: [],
       pagination: {},
@@ -189,14 +194,19 @@ export default {
         groupGuid: ''
       },
       bindCommunityForm: {},
-      equipmentForm: {},
+      equipmentForm: {
+        name: ''
+      },
       rules: {
-        deviceName: [
+        name: [
           {required: true, validator: validateName, trigger: 'blur'}
         ]
       },
       editCameraVisible: false,
-      editCameraForm: {},
+      editCameraForm: {
+        name: '',
+        type: ''
+      },
       editCameraRules: {
         name: [
           {validator: validateName, trigger: 'blur'}
@@ -236,6 +246,41 @@ export default {
         return restoreArray(list, 'memberItem')
       },
       set () {}
+    },
+    bindGroups: {
+      get () {
+        let groups = JSON.parse(JSON.stringify(this.serviceList))
+        let hash = {}
+        groups = groups.map(item => {
+          return {
+            groupGuid: item.groupGuid,
+            name: item.groupName
+          }
+        }).reduce((item2, next) => {
+          if (next.groupGuid && !hash[next.groupGuid]) {
+            hash[next.groupGuid] = true
+            item2.push(next)
+          }
+          return item2
+        }, [])
+        return groups
+      },
+      set () {}
+    },
+    tableList: {
+      get () {
+        let newList = JSON.parse(JSON.stringify(this.serviceList))
+        newList = newList.filter(item => {
+          if (this.filterValue.type || this.filterValue.groupGuid) {
+            return item.deviceType === this.filterValue.type || item.groupGuid === this.filterValue.groupGuid
+          }
+          return true
+        })
+        return newList
+      },
+      set (val) {
+        this.equipmentList = val
+      }
     }
   },
   methods: {
@@ -257,13 +302,23 @@ export default {
       let searchData = {
         serverKey: this.$route.params.key,
         index: page,
-        length: 20
+        length: 10
       }
       for (let keys in this.filterValue) {
-        if (this.filterValue[keys]) searchData[keys] = this.filterValue[keys]
+        if (this.filterValue[keys]) {
+          if (keys === 'groupGuid' && this.filterValue[keys] === -1) {
+            searchData.groupGuid = null
+          } else {
+            searchData[keys] = this.filterValue[keys]
+          }
+        }
       }
       if (this.searchText) searchData.name = this.searchText
       this.$http('/device/deviceCamera/search', searchData).then(res => {
+        res.data.content.map(item => {
+          item.popover = false
+          return item
+        })
         this.serviceList = res.data.content
         this.pagination = res.data.pagination
       })
@@ -429,7 +484,7 @@ export default {
             this.$tip('修改成功')
             this.$set(this.serviceList[index], 'popover', false)
             this.serviceList[index].name = this.equipmentForm.name
-          })
+          }).catch(err => { console.log(err) })
         } else {
           console.log('error submit')
         }
@@ -462,7 +517,7 @@ export default {
     },
     filterValue: {
       handler (val) {
-        this.getDeviceList()
+        // this.getDeviceList()
       },
       deep: true
     }

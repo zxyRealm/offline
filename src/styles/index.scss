@@ -646,7 +646,7 @@ button, input {
   white-space: nowrap;
   box-sizing: border-box;
   vertical-align: middle;
-  @each $lf in 16,28{
+  @each $lf in 16,20,28{
     &-#{$lf} {
       @extend .ellipsis;
       width: calc(100% - #{$lf + px});
@@ -880,6 +880,8 @@ button, input {
   background: url(/static/img/input_border_bg@2x.png) no-repeat center;
   background-size: 100% 100%;
   background-color: $default;
+  height: 32px;
+  line-height: 32px;
   &.el-pagination__editor{
     background-position: center;
     background-size: 99% 100%;

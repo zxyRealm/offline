@@ -18,7 +18,7 @@
           @current-change="currentChange"></ob-group-nav>
       </div>
       <div class="ec-container" :class="{'dashed-border':isSearch}">
-        <div class="filter__list--wrap">
+        <div v-show="isSearch" class="filter__list--wrap">
           <el-select v-model="filterValue.type" placeholder="全部类型">
             <el-option :value="2" label="客行分析"></el-option>
             <el-option :value="3" label="人脸抓拍"></el-option>
@@ -41,7 +41,7 @@
         <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
           <device-table
             @refresh="getEquipmentList"
-            v-model="equipmentList"
+            v-model="tableList"
           ></device-table>
           <el-pagination
             v-if="pagination.total && pagination.total>pagination.length"
@@ -61,6 +61,8 @@
 <script type="application/javascript">
 import {mapState} from 'vuex'
 import DeviceTable from '@/components/DeviceTable'
+import {simplifyGroups} from '../../utils'
+
 export default {
   name: 'index',
   components: {
@@ -87,6 +89,7 @@ export default {
     getGroupList (key) {
       this.$http('/group/list/childGroup').then(res => {
         // 过滤掉最外层单店、成员社群、无外来社群的管理员社群
+        res.data = simplifyGroups(res.data)
         this.groupList = res.data.filter(item => {
           return item.role === 0 && item.memberItem.length
         })
@@ -94,6 +97,7 @@ export default {
         this.$nextTick(() => {
           if (this.$refs.childGroup) {
             if (!this.currentGroup.groupGuid) this.currentGroup = currentNode
+            console.log(currentNode)
             this.$refs.childGroup.setCurrentKey(currentNode.uniqueKey)
             this.getEquipmentList()
           }
@@ -103,25 +107,24 @@ export default {
     },
     // 获取设备列表
     getEquipmentList (page) {
-      page = page || this.pagination.index || 1
+      page = page || 1
       this.equipmentList = []
+      console.log(this.currentGroup)
       if (this.isSearch) {
-        if (this.currentGroup.groupGuid) {
-          this.$http('/device/guid/list', {guid: this.currentGroup.groupGuid, index: page, length: 8}).then(res => {
-            this.equipmentList = res.data.content
-            this.pagination = res.data.pagination
+        if (this.currentGroup.groupGuid && !this.currentGroup.self) {
+          this.$http('/group/device', {guid: this.currentGroup.groupGuid}).then(res => {
+            this.equipmentList = res.data
             if (this.$route.meta.keepAlive) this.$refs.childGroup.setCurrentKey(this.currentGroup)
             this.$route.meta.keepAlive = false
           })
         }
       } else {
         this.$http('/device/search', {
-          searchText: this.$route.params.key || '',
+          name: this.$route.params.key || '',
           index: page,
           length: 8
         }).then(res => {
-          this.equipmentList = res.data.content
-          this.pagination = res.data.pagination
+          this.equipmentList = res.data
         })
       }
     },
@@ -137,28 +140,24 @@ export default {
     currentChange (val) {
       this.selectValue = val
       this.currentGroup = val
-      // this.currentGroup = val.currentNode.groupGuid
     },
     // 保存当前页面
     saveState () {
       if (this.$route.name === 'equipmentChildren') {
-        this.$store.commit('SET_ALIVE_STATE', {
-          pagination: this.pagination
-        })
       } else {
         this.$store.commit('SET_ALIVE_STATE', {
-          selectValue: this.selectValue,
-          pagination: this.pagination
+          selectValue: this.selectValue
         })
       }
     },
-    clearFilters () {}
+    clearFilters () {
+      this.filterValue.type = ''
+    }
   },
   created () {
     if (this.$route.meta.keepAlive) {
       this.selectValue = this.aliveState.selectValue
       this.currentGroup = this.aliveState.selectValue ? this.aliveState.selectValue.currentNode.groupGuid : ''
-      this.pagination = this.aliveState.pagination ? this.aliveState.pagination : {}
     }
     this.getGroupList()
   },
@@ -173,7 +172,7 @@ export default {
         txt = '查询不到该设备'
       } else if (this.selectValue.node && !this.selectValue.node.length) {
         txt = '您还没有成员社群'
-      } else if (!this.currentGroup) {
+      } else if (this.currentGroup.self) {
         txt = '请先在左侧选择自有社群，以查看其下的成员社群设备'
       } else if (!this.equipmentList.length) {
         txt = '暂无设备'
@@ -182,15 +181,29 @@ export default {
     },
     small () {
       return this.currentGroup && !this.equipmentList.length ? 'small' : ''
+    },
+    tableList: {
+      get () {
+        let newList = JSON.parse(JSON.stringify(this.equipmentList))
+        newList = newList.filter(item => {
+          if (this.filterValue.type) {
+            return item.deviceType === this.filterValue.type
+          }
+          return true
+        })
+        return newList
+      },
+      set (val) {
+        this.equipmentList = val
+      }
     }
   },
   watch: {
-    currentGroup: function () {
+    currentGroup: function (val, old) {
       this.equipmentList = []
-      this.pagination = {}
-      this.getEquipmentList()
+      if (Object.keys(old).length) this.getEquipmentList()
     },
-    $route: function (val) {
+    $route: function () {
       this.saveState()
       this.equipmentList = []
       this.getEquipmentList()

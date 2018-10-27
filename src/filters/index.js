@@ -9,16 +9,16 @@ function pluralize (time, label) {
 }
 
 // 设备类型
-export function deviceType (type) {
+export function deviceType (type, use) {
   switch (type) {
     case 1:
-      return '服务器'
+      return !use ? '服务器' : '为下辖设备通信'
     case 2:
-      return '客行分析' // 一体机
+      return !use ? '客行分析一体机' : '客行分析' // 一体机
     case 3:
-      return '人脸抓拍' // 一体机
+      return !use ? '人脸抓拍一体机' : '人脸抓拍' // 一体机
     case 4:
-      return '客行分析' // 摄像头
+      return '客行分析'// 摄像头
     case 5:
       return '人脸抓拍' // 摄像头
     default:

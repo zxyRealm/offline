@@ -13,7 +13,8 @@
     <ob-list-empty
       top="106px"
       v-if="!equipmentList.length"
-      :text="isSearch?'查询不到该设备':'您尚无设备，请点击【添加】'">
+      :supply="!isSearch?'少量添加点击【添加一体机】按钮，大批量添加点击【添加服务器】按钮。' : ''"
+      :text="isSearch?'查询不到该设备':'暂无设备'">
     </ob-list-empty>
     <div class="data-list-wrap" v-if="equipmentList.length">
       <el-scrollbar>
@@ -194,6 +195,7 @@ export default {
       }
     }
     return {
+      drag: false,
       dialogOptions: { // dialog 弹窗配置 类型 标题文本
         type: 'device',
         title: '添加设备'
@@ -236,8 +238,8 @@ export default {
         type: ''
       },
       btnArray: [
-        {text: '添加一体机'},
-        {text: '添加服务器'}
+        {text: '添加一体机', content: '少量添加点这里', showPopover: false},
+        {text: '添加服务器', content: '大批量添加点这里', showPopover: false}
       ],
       menu2: [ // 导航栏配置信息
         {title: '自有设备', index: '/equipment/mine'},
@@ -418,9 +420,26 @@ export default {
           })
         }
       })
+    },
+    // 第一次进入设备列表，给出操作提示，点击页面后提示消失
+    firstCreate () {
+      this.btnArray.map(item => {
+        item.showPopover = false
+        return item
+      })
+      window.removeEventListener('click', this.firstCreate)
     }
   },
   created () {
+    this.$http('/firstCheck', {name: 'insight_device_list_first'}).then(res => {
+      if (res.data) {
+        this.btnArray.map(item => {
+          item.showPopover = true
+          return item
+        })
+        window.addEventListener('click', this.firstCreate)
+      }
+    })
     this.isSearch = this.$route.name === 'searchMine'
     this.getMineEquipment()
   },
@@ -491,7 +510,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .data-list-wrap {
     height: calc(100% - 80px);
   }
