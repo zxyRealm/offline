@@ -327,6 +327,12 @@ code, pre {
     float: left;
     color: #fff;
   }
+  .el-select {
+    .el-input{
+      height: 28px;
+      line-height: 28px;
+    }
+  }
   button {
     background: transparent !important;
     color: #fff !important;
@@ -646,7 +652,7 @@ button, input {
   white-space: nowrap;
   box-sizing: border-box;
   vertical-align: middle;
-  @each $lf in 16,20,28{
+  @each $lf in 16,18,20,28{
     &-#{$lf} {
       @extend .ellipsis;
       width: calc(100% - #{$lf + px});
@@ -684,6 +690,7 @@ button, input {
     .el-icon-edit{
       color: #0f9ee9;
       cursor: pointer;
+      font-size: 16px;
     }
   }
   .el-table__header {

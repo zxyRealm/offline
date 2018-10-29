@@ -53,7 +53,7 @@
               :class="{ellipsis:true,'dialog-tree':type === 'custom'}">
               {{ data[defaultProps.label] }}
             </span>
-            <i v-if="node.level === 2 && data.memberItem && data.groupPid" class="el-icon-plus fr" @click="addCommunity(data,node)"></i>
+            <i v-if="node.level === 2 && data.memberItem && data.groupPid && isEdit" class="el-icon-plus fr" @click="addCommunity(data,node)"></i>
           </template>
           <img v-if="data.role === 0 && node.level === 1" class="role__icon--img" src="./image/manager_icon.png" alt="">
           <img v-else-if="data.type !== 3 && data.role === 1 && node.level === 1" class="role__icon--img" src="./image/children_icon.png" alt="">
@@ -64,7 +64,7 @@
           <el-tooltip v-if="rights && data.role === 0 && data.rule && data.rule.length > 2" content="设备操作权限" placement="top" effect="light">
              <uu-icon size="mini" class="role__icon--img" type="handle"></uu-icon>
           </el-tooltip>
-          <i v-if="type==='community' && node.level > 2" class="el-icon-remove-outline danger fr"
+          <i v-if="type==='community' && node.level > 2 && isEdit" class="el-icon-remove-outline danger fr"
              @click="leaveCommunity(data, node)"></i>
         </span>
       </el-tree>
@@ -149,6 +149,10 @@ export default {
       default: false
     },
     rights: { // 是否展示管理员社群索权状态
+      type: Boolean,
+      default: false
+    },
+    isEdit: {
       type: Boolean,
       default: false
     }
@@ -452,7 +456,7 @@ export default {
     }
     .el-icon-remove-outline {
       font-size: 18px;
-      margin: 6px 0;
+      margin: 7px 0;
     }
     .el-button {
       &.el-popover__reference {

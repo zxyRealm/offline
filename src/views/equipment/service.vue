@@ -13,7 +13,7 @@
           <el-option :value="5" label="人脸抓拍"></el-option>
         </el-select>
         <el-select  v-model="filterValue.groupGuid" placeholder="绑定社群">
-          <el-option :value="-1" label="未绑定"></el-option>
+          <el-option :value="null" label="未绑定"></el-option>
           <el-option
             v-for="(item, $index) in bindGroups"
             :key="$index"
@@ -46,7 +46,7 @@
             label="名称"
             prop="name">
             <template slot-scope="scope">
-              <span class="ellipsis-16">{{scope.row.name || '暂无'}}</span>
+              <span class="ellipsis-20">{{scope.row.name || '暂无'}}</span>
               <el-popover
                 placement="top"
                 popper-class="nick_name--popover"
@@ -271,15 +271,15 @@ export default {
       get () {
         let newList = JSON.parse(JSON.stringify(this.serviceList))
         newList = newList.filter(item => {
-          if (this.filterValue.type || this.filterValue.groupGuid) {
-            return item.deviceType === this.filterValue.type || item.groupGuid === this.filterValue.groupGuid
+          if (this.filterValue.type || this.filterValue.groupGuid !== '') {
+            return (this.filterValue.type ? item.type === this.filterValue.type : true) && (this.filterValue.groupGuid !== '' ? item.groupGuid === this.filterValue.groupGuid : true)
           }
           return true
         })
         return newList
       },
       set (val) {
-        this.equipmentList = val
+        this.serviceList = val
       }
     }
   },
@@ -300,27 +300,15 @@ export default {
     getDeviceList (page) {
       page = page || this.pagination.index || 1
       let searchData = {
-        serverKey: this.$route.params.key,
-        index: page,
-        length: 10
-      }
-      for (let keys in this.filterValue) {
-        if (this.filterValue[keys]) {
-          if (keys === 'groupGuid' && this.filterValue[keys] === -1) {
-            searchData.groupGuid = null
-          } else {
-            searchData[keys] = this.filterValue[keys]
-          }
-        }
+        serverKey: this.$route.params.key
       }
       if (this.searchText) searchData.name = this.searchText
       this.$http('/device/deviceCamera/search', searchData).then(res => {
-        res.data.content.map(item => {
+        (res.data || []).map(item => {
           item.popover = false
           return item
         })
-        this.serviceList = res.data.content
-        this.pagination = res.data.pagination
+        this.serviceList = res.data || []
       })
     },
     // 获取社群树形结构数据

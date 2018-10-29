@@ -110,7 +110,6 @@ export default {
   data () {
     return {
       memberInfo: {}, // 会员信息
-      imageUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1538981069997&di=50d38992576e0148cf82d71cbef50da9&imgtype=0&src=http%3A%2F%2Fh.hiphotos.baidu.com%2Fimage%2Fpic%2Fitem%2F5fdf8db1cb134954068359695b4e9258d1094a19.jpg',
       showDialogData: {},
       showDialog: false, // 显示图片详细信息
       style: {
@@ -250,6 +249,8 @@ export default {
     },
     // 请求数据
     getData () {
+      // 更换设备时重置会员信息
+      this.memberInfo = {}
       this.$http('/personData', {
         deviceKey: this.deviceKey
       }).then(res => {
@@ -327,7 +328,6 @@ export default {
           } else {
             console.error('callback is not a function')
           }
-          // console.log(customUrl)
           // 图片用完后记得释放内存
         }
         img.src = url

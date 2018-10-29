@@ -81,12 +81,12 @@ export function fetch (url, params, isTip = '数据加载中...') {
           resolve(res.data)
         } else {
           if (isTip) {
-            message(res.data.msg, 'error', 1500)
+            message(res.data.msg, 'error', 3000)
           }
           reject(res.data)
         }
       } else {
-        message('网络异常，请稍后重试！', 'error', 1500)
+        message('网络异常，请稍后重试！', 'error', 3000)
         reject(res)
       }
     }).catch(error => {

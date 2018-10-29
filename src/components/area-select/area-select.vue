@@ -48,14 +48,6 @@
           v-model="addressText">
         </el-input>
       </div>
-      <!--<el-button-->
-        <!--:readonly="readonly"-->
-        <!--slot="reference"-->
-        <!--:placeholder="!addressText"-->
-        <!--:class="{'popover-icon':visible}"-->
-        <!--class="address-btn">-->
-        <!--{{addressText||readonly?addressText:placeholder}}-->
-      <!--</el-button>-->
     </el-popover>
   </div>
 </template>
@@ -160,10 +152,12 @@ export default {
     currentValue: {
       handler: function (val) {
         let [textStr, idStr] = ['', '']
-        val.map(item => {
-          idStr += idStr ? (',' + item.id) : item.id
-          textStr += (textStr ? ('-' + item.name) : item.name) || ''
-        })
+        for (let i = 0, len = val.length; i < len; i++) {
+          idStr += idStr ? (',' + val[i].id) : val[i].id
+          if (!i || (val[i - 1] && val[i].name !== val[i - 1].name)) {
+            textStr += (textStr ? ('-' + val[i].name) : val[i].name) || ''
+          }
+        }
         this.$emit('input', idStr)
         this.address = textStr
       },

@@ -19,7 +19,7 @@
               <el-form
                 :key="scope.$index"
                 @submit.native.prevent
-                ref="tableForm"
+                :ref="'tableForm' + scope.$index"
                 :rules="rules"
                 class="table-form"
                 :model="equipmentForm"
@@ -47,21 +47,24 @@
         min-width="136">
       </el-table-column>
       <el-table-column
+        min-width="92"
         label="设备类型">
         <template slot-scope="scope">
           {{scope.row.deviceType | deviceType}}
         </template>
       </el-table-column>
       <el-table-column
+        min-width="90"
         label="用途">
         <template slot-scope="scope">
           {{scope.row.deviceType | deviceType('use')}}
         </template>
       </el-table-column>
       <el-table-column
+        v-if="$route.name !== 'equipmentChildren'"
         label="绑定社群">
         <template slot-scope="scope">
-          <span :class="isMine?'ellipsis-28':'ellipsis'">{{scope.row.deviceType === 1 ? '-': scope.row.groupName || '暂无'}}</span>
+          <span :class="isMine?'ellipsis-28':'ellipsis'">{{scope.row.deviceType === 1 ? '—': scope.row.groupName || '暂无'}}</span>
           <a href="javascript:void (0)" v-if="isMine && scope.row.deviceType !== 1" @click="showDialogForm(scope.row, scope.$index)">{{scope.row.groupName ? '解绑' : '绑定'}}</a>
         </template>
       </el-table-column>
@@ -69,25 +72,30 @@
         v-if="isMine"
         label="下辖设备">
         <template slot-scope="scope">
-          <span class="ellipsis-28">{{scope.row.deviceType === 1? scope.row.deviceNum: '-'}}</span>
+          <span class="ellipsis-28">{{scope.row.deviceType === 1? scope.row.deviceNum: '—'}}</span>
           <router-link v-if="scope.row.deviceType === 1" :to="($route.name === 'equipment' ? '/equipment/mine' : '/equipment') + '/service/' + scope.row.deviceKey + '?name=' + scope.row.deviceName">{{isMine ? '管理' : '查看'}}</router-link>
         </template>
       </el-table-column>
       <el-table-column
-        min-width="100"
+        min-width="150"
         label="操作">
         <template slot-scope="scope">
           <template v-if="isHandle">
             <template v-if="scope.row.deviceType !== 1">
-             <span
-               v-for="(item,$index) in btnList"
-               :key="$index"
-               :disabled="!btnState(scope.row,item).state"
-               @click="handleDevice(item, scope.row)"
-               :class="btnState(scope.row,item).going?item +' ongoing':item"
-               class="table__btn">
-            {{btnState(scope.row,item).text}}
-          </span>
+              <template v-if="scope.row.deviceStatus === undefined">
+                <span class="c-grey"><a href="javascript:void (0)" @click="getDeviceState(scope.row)">获取状态</a>后可操作设备</span>
+              </template>
+              <template v-else>
+                 <span
+                   v-for="(item,$index) in filterBtn(scope.row)"
+                   :key="$index"
+                   :disabled="!btnState(scope.row,item).state"
+                   @click="handleDevice(item, scope.row)"
+                   :class="btnState(scope.row,item).going?item +' ongoing':item"
+                   class="table__btn">
+                    {{btnState(scope.row,item).text}}
+                 </span>
+              </template>
             </template>
             <template v-else>
               <el-upload
@@ -96,7 +104,6 @@
                 class="import--excel"
                 :action="baseApi + '/device/deviceCamera/info/addBatch'"
                 :on-progress="handleProgress"
-                :on-change="handleChange"
                 :before-upload="beforeUpload"
                 :on-success="handleSuccess"
                 :on-error="handleError"
@@ -156,7 +163,6 @@ export default {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {name: value}, false).then(res => {
-            console.log(res)
             res.data ? callback(new Error('设备别名已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
@@ -218,7 +224,7 @@ export default {
     },
     // 修改设备昵称
     changeEquipmentName (index) {
-      this.$refs['tableForm'].validate((valid) => {
+      this.$refs['tableForm' + index].validate((valid) => {
         if (valid) {
           this.$http('/merchant/device/alias', this.equipmentForm).then(res => {
             this.$tip('修改成功')
@@ -243,7 +249,7 @@ export default {
         if (this.data.deviceStatus !== undefined && show) {
           this.$tip('刷新成功')
         }
-        // res.data = Math.floor(Math.random() * 7)
+        res.data = Math.floor(Math.random() * 7)
         console.log('state', res.data)
         if (res.data !== 1) {
           if (value.groupGuid) {
@@ -382,7 +388,7 @@ export default {
           break
         case 2:
           if (type === 'reboot') {
-            backObj.text = label(type) + '中'
+            backObj.text = label(type) + '中...'
             backObj.going = true
             backObj.state = true
           } else {
@@ -391,7 +397,7 @@ export default {
           break
         case 3:
           if (type === 'reset') {
-            backObj.text = label(type) + '中'
+            backObj.text = label(type) + '中...'
             backObj.going = true
             backObj.state = true
           } else {
@@ -400,7 +406,7 @@ export default {
           break
         case 4:
           if (type === 'upgrade') {
-            backObj.text = label(type) + '中'
+            backObj.text = label(type) + '中...'
             backObj.going = true
             backObj.state = true
           } else {
@@ -417,7 +423,7 @@ export default {
           break
         case 6:
           if (type === 'run') {
-            backObj.text = '启用中'
+            backObj.text = '启用中...'
             backObj.going = true
             backObj.state = true
           } else {
@@ -426,7 +432,7 @@ export default {
           break
         case 7:
           if (type === 'run') {
-            backObj.text = '禁用中'
+            backObj.text = '禁用中...'
             backObj.going = true
             backObj.state = true
           } else {
@@ -438,6 +444,16 @@ export default {
           break
       }
       return backObj
+    },
+    // 过滤展示操作按钮
+    filterBtn (data) {
+      let showBtn = []
+      showBtn = this.btnList.map(item => {
+        if (this.btnState(data, item).going) {
+          return item
+        }
+      }).filter(item => item)
+      return showBtn.length ? showBtn : this.btnList
     },
     // 设备重启/重置/升级
     handleDevice (type, value) {
@@ -536,15 +552,8 @@ export default {
     addCamera (row) {
       this.$emit('handle-add', row)
     },
-    // 文件发生改变时
-    handleChange (file) {
-      // 确保文件列表中只存在当前选中的文件
-      // this.fileList = [file]
-      // console.log(file)
-    },
     handleProgress (event) {
       let progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
-      console.log(event)
       if (event.percent === 100) {
         progress.close()
       }
@@ -567,13 +576,12 @@ export default {
       if (res.result) {
         this.$emit('refresh')
       } else {
-        this.$tip(res.msg, 'error')
+        this.$tip(res.msg, 'error', 3000)
       }
-      console.log('success callback', res)
     },
     // 上传失败时回调
     handleError (res) {
-      console.log('error callback', res)
+      this.$tip(res.msg || '上传失败', 'error', 3000)
     }
   },
   watch: {
@@ -618,11 +626,16 @@ export default {
     cursor: pointer;
   }
   .table__btn{
-    color: rgba(255,255,255,0.5);
     margin-right: 10px;
-    cursor: default;
-    &.going{
-      cursor: pointer;
+    cursor: pointer;
+    color: #3a8ee6;
+    &[disabled] {
+      color: rgba(255,255,255,0.5);
+      cursor: default;
+    }
+    &.ongoing{
+      color: rgba(255,255,255,0.5);
+      cursor: default;
     }
     &:last-child{
       margin-right: 0;

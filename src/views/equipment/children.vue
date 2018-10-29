@@ -1,10 +1,11 @@
 <template>
   <div class="equipment-children-wrap g-prl20">
     <uu-sub-tab
+      :back="$route.name === 'searchChildren'"
       search
       @remote-search="search"
       placeholder="快速查找设备"
-      :menu-array="menu2">
+      :menu-array="$route.name !== 'searchChildren' ? menu2 : [{title: '返回'}]">
     </uu-sub-tab>
     <div class="equipment-children-container" :style="{top:'50px'}">
       <div class="ec-side-nav dashed-border" v-if="isSearch">
@@ -20,22 +21,11 @@
       <div class="ec-container" :class="{'dashed-border':isSearch}">
         <div v-show="isSearch" class="filter__list--wrap">
           <el-select v-model="filterValue.type" placeholder="全部类型">
-            <el-option :value="2" label="客行分析"></el-option>
-            <el-option :value="3" label="人脸抓拍"></el-option>
-            <el-option :value="1" label="服务器"></el-option>
+            <el-option :value="2" label="客行分析一体机"></el-option>
+            <el-option :value="3" label="人脸抓拍一体机"></el-option>
+            <el-option :value="4" label="客行分析"></el-option>
+            <el-option :value="5" label="人脸抓拍"></el-option>
           </el-select>
-          <!--<el-select  v-model="filterValue.groupGuid" placeholder="绑定社群">-->
-          <!--<el-option :value="-1" label="未绑定"></el-option>-->
-          <!--<el-option v-for="(item, $index) in bindList" :key="$index" :value="item.groupGuid" :label="item.name"></el-option>-->
-          <!--</el-select>-->
-          <!--<el-menu @select="handleSelect" mode="horizontal" class="device__menu">-->
-          <!--<el-submenu popper-class="device__menu&#45;&#45;popper" index="1">-->
-          <!--<template slot="title">批量操作</template>-->
-          <!--<el-menu-item index="bind">绑定</el-menu-item>-->
-          <!--<el-menu-item index="unbind">解绑</el-menu-item>-->
-          <!--<el-menu-item index="delete">删除</el-menu-item>-->
-          <!--</el-submenu>-->
-          <!--</el-menu>-->
           <a href="javascript:void (0)" @click="clearFilters" class="fr">显示全部</a>
         </div>
         <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
@@ -89,7 +79,7 @@ export default {
     getGroupList (key) {
       this.$http('/group/list/childGroup').then(res => {
         // 过滤掉最外层单店、成员社群、无外来社群的管理员社群
-        res.data = simplifyGroups(res.data)
+        // res.data = simplifyGroups(res.data)
         this.groupList = res.data.filter(item => {
           return item.role === 0 && item.memberItem.length
         })
@@ -97,7 +87,6 @@ export default {
         this.$nextTick(() => {
           if (this.$refs.childGroup) {
             if (!this.currentGroup.groupGuid) this.currentGroup = currentNode
-            console.log(currentNode)
             this.$refs.childGroup.setCurrentKey(currentNode.uniqueKey)
             this.getEquipmentList()
           }
@@ -109,10 +98,21 @@ export default {
     getEquipmentList (page) {
       page = page || 1
       this.equipmentList = []
-      console.log(this.currentGroup)
       if (this.isSearch) {
-        if (this.currentGroup.groupGuid && !this.currentGroup.self) {
-          this.$http('/group/device', {guid: this.currentGroup.groupGuid}).then(res => {
+        // console.log('current ---------', this.currentGroup)
+        if ((this.currentGroup.groupGuid && !this.currentGroup.self) || this.currentGroup.guid) {
+          let url = '/group/device'
+          let dataForm = {
+            guid: this.currentGroup.groupGuid
+          }
+          if (this.currentGroup.groupPid) {
+            url = '/group/device/customGroup'
+            dataForm = {
+              groupCustomGuid: this.currentGroup.guid,
+              groupPid: this.currentGroup.groupPid
+            }
+          }
+          this.$http(url, dataForm).then(res => {
             this.equipmentList = res.data
             if (this.$route.meta.keepAlive) this.$refs.childGroup.setCurrentKey(this.currentGroup)
             this.$route.meta.keepAlive = false
@@ -138,6 +138,7 @@ export default {
       }
     },
     currentChange (val) {
+      this.filterValue.type = ''
       this.selectValue = val
       this.currentGroup = val
     },
@@ -170,9 +171,9 @@ export default {
       let txt = ''
       if (!this.isSearch) {
         txt = '查询不到该设备'
-      } else if (this.selectValue.node && !this.selectValue.node.length) {
+      } else if (this.currentGroup.groupPid && !this.currentGroup.memberItem.length) {
         txt = '您还没有成员社群'
-      } else if (this.currentGroup.self) {
+      } else if (this.currentGroup.self || this.currentGroup.groupPid === null) {
         txt = '请先在左侧选择自有社群，以查看其下的成员社群设备'
       } else if (!this.equipmentList.length) {
         txt = '暂无设备'
@@ -203,10 +204,16 @@ export default {
       this.equipmentList = []
       if (Object.keys(old).length) this.getEquipmentList()
     },
-    $route: function () {
-      this.saveState()
-      this.equipmentList = []
-      this.getEquipmentList()
+    $route: {
+      handler (val) {
+        this.saveState()
+        this.equipmentList = []
+        if (val.name === 'equipmentChildren') {
+          this.getGroupList()
+        }
+        this.getEquipmentList()
+      },
+      deep: true
     }
   },
   beforeDestroy () {

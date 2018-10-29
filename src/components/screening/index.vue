@@ -261,6 +261,8 @@ export default {
       .el-date-editor.el-input, .el-date-editor.el-input__inner {
         width: 210px;
         vertical-align: top;
+        line-height: 28px;
+        height: 28px;
       }
       .picker-data {
         .el-input--small .el-input__inner {

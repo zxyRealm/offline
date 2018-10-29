@@ -60,7 +60,7 @@
           </div>
           <div class="fl">
             <el-scrollbar>
-            <el-radio-group v-model="deviceInfo">
+              <el-radio-group v-model="deviceInfo">
               <el-radio
                 v-for="(val,index) in deviceList"
                 :label="val"
@@ -237,6 +237,9 @@ export default {
       this.notifState = res.data > 0
     }).catch(error => {
       console.info(error)
+    })
+    this.$http('/firstCheck', {name: 'insight_index_first'}).then(res => {
+      if (res.data) this.helpDialogVisible = true
     })
   },
   mounted () {

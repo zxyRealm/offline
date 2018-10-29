@@ -22,7 +22,7 @@ export function deviceType (type, use) {
     case 5:
       return '人脸抓拍' // 摄像头
     default:
-      return '未定义'
+      return '—'
   }
 }
 

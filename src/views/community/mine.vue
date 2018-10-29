@@ -18,6 +18,7 @@
         <div class="mine__community--content" v-else>
           <div class="community--sidebar dashed-border">
             <ob-group-nav
+              is-edit
               rights
               ref="groupNav"
               only-checked
@@ -41,7 +42,7 @@
                   </span>
                   <p class="handle fr fs14" v-if="communityInfo.guid">
                     <router-link v-show="!communityInfo.groupPid && communityInfo.merchantGuid === userInfo.developerId" :to="activeUrl">编辑</router-link>
-                    <a href="javascript:void (0)" v-show="communityInfo.groupPid || communityInfo.merchantGuid === userInfo.developerId" class="danger ml20" @click="disbandGroup">{{communityInfo.groupPid?'解散分组':'删除'}}</a>
+                    <a href="javascript:void (0)" v-show="communityInfo.groupPid || communityInfo.merchantGuid === userInfo.developerId" class="danger ml20" @click="disbandGroup">{{communityInfo.groupPid ? '解散分组' : '删除'}}</a>
                   </p>
                 </h2>
                 <div class="cm-info-wrap" v-show="communityInfo.createTime">
@@ -67,7 +68,7 @@
                       <a href="javascript:void (0)" @click="clipboard($event)">复制</a>
                     </p>
                     <!--&& communityInfo.parentGroups && communityInfo.parentGroups.length-->
-                    <div class="fl" v-if="communityInfo.role === 1 && communityInfo.type!==3">
+                    <div class="fl" v-if="communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.role === 1 && communityInfo.type!==3">
                       <span class="fl info__label">已加入：</span>
                       <div
                         v-for="(item,$index) in communityInfo.parentGroups"
@@ -97,7 +98,7 @@
               </div>
               <div
                 class="dashed-border cmm-table"
-                :style="{height: !communityInfo.groupPid ? tableHeight+68+'px' : 'auto'}"
+                :style="{height: !communityInfo.groupPid ? tableHeight+78+'px' : 'auto'}"
                 :class="{'mine--table__wrap':!communityInfo.groupPid}">
                 <h2 class="cmm-sub-title">设备列表</h2>
                 <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
@@ -130,7 +131,7 @@
                       label="设备类型"
                     >
                       <template slot-scope="scope">
-                        {{scope.row.deviceType|deviceType}}
+                        {{scope.row.deviceType | deviceType}}
                       </template>
                     </el-table-column>
                     <el-table-column
@@ -145,9 +146,6 @@
                       prop="groupName"
                       label="绑定社群"
                     >
-                      <!--<template slot-scope="scope">-->
-                        <!--{{scope.row.deviceType|deviceType}}-->
-                      <!--</template>-->
                     </el-table-column>
                     <el-table-column
                       prop="date"
@@ -554,9 +552,11 @@ export default {
         if (typeof key === 'string') key = res.data[0]
         // 编辑页返回时记住当前页状态
         let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || res.data[0]
+        console.log('set value----', currentNode)
         this.$nextTick(() => {
           if (this.$refs.groupNav) {
-            if (!this.communityInfo.uniqueKey) this.communityInfo.uniqueKey = currentNode
+            if (!Object.keys(this.communityInfo).length) this.communityInfo = currentNode
+            if (!Object.keys(this.currentCommunity).length) this.currentCommunity = currentNode
             this.$refs.groupNav.setCurrentKey(currentNode.uniqueKey)
             this.$nextTick(() => {
               let node = this.$refs.groupNav.$refs.GroupTree.getCurrentNode()
@@ -801,10 +801,16 @@ export default {
   &.data-empty{
     height: calc(100% - 70px);
   }
+  .mine__community--content{
+    height: calc(100vh - 200px);
+    @media screen and(max-width: 1280px) {
+      height: calc(100vh - 217px);
+    }
+  }
   .community--sidebar {
     float: left;
     width: 230px;
-    height: calc(100vh - 200px);
+    height: 100%;
     .ob-group-nav{
       padding: 20px 16px;
       .el-tree-node__content{
@@ -815,7 +821,7 @@ export default {
     }
   }
   .community--main {
-    height: calc(100vh - 200px);
+    height: 100%;
     margin-left: 242px;
     .el-scrollbar{
       height: 100%;
