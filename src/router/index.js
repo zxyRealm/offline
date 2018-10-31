@@ -268,7 +268,7 @@ export const constantRouterMap = [
         component: EquipmentMore
       },
       {
-        path: 'children/search/:key',
+        path: 'children/search/:name',
         name: 'searchChildren',
         meta: {
           title: '子社群设备搜索-设备管理-线下浏览器服务平台',
@@ -277,7 +277,7 @@ export const constantRouterMap = [
         component: EquipmentChildren
       },
       {
-        path: 'mine/search/:key',
+        path: 'mine/search/:name',
         name: 'searchMine',
         meta: {
           title: '自有社群设备搜索-设备管理-线下浏览器服务平台',
@@ -533,7 +533,7 @@ router.beforeEach((to, from, next) => {
     next()
   }).catch(err => {
     if (err.code === 'ERR-110') {
-      exitMessage(err.data)
+      // exitMessage(err.data)
     }
   })
 })

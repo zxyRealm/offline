@@ -21,7 +21,8 @@ const state = {
   groupSelectId: '', // 選擇群id
   loading: true,
   showBar: true, // 是否显示侧边栏
-  aliveState: {} // 保存上一页状态值
+  aliveState: {}, // 保存上一页状态值
+  expired: false // 登录是否过期
 }
 
 const actions = {

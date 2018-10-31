@@ -20,6 +20,7 @@
             <ob-group-nav
               is-edit
               rights
+              :expanded-all="false"
               ref="groupNav"
               only-checked
               node-key="uniqueKey"
@@ -32,7 +33,7 @@
           </div>
           <div class="community--main">
             <el-scrollbar ref="faceScrollItem">
-              <div class="cmm-top dashed-border">
+              <div class="cmm-top dashed-border" ref="ciContentTop">
                 <h2 class="cmm-sub-title">
                   <span>{{communityInfo.name}}{{communityInfo.groupNickName?`（${communityInfo.groupNickName}）`:''}}
                     <a v-if="communityInfo.groupNickName !== undefined || communityInfo.groupPid || (communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId)"  class="fs12" @click="showDialog" href="javascript:void (0)">
@@ -45,7 +46,7 @@
                     <a href="javascript:void (0)" v-show="communityInfo.groupPid || communityInfo.merchantGuid === userInfo.developerId" class="danger ml20" @click="disbandGroup">{{communityInfo.groupPid ? '解散分组' : '删除'}}</a>
                   </p>
                 </h2>
-                <div class="cm-info-wrap" v-show="communityInfo.createTime">
+                <div class="cm-info-wrap" v-show="communityInfo.guid">
                   <div class="info-detail">
                     <p>
                       <span class="info__label">社群名称：</span>{{communityInfo.name}}
@@ -77,7 +78,10 @@
                         <span>{{item.name}}</span>
                         <uu-icon size="small" type="data"></uu-icon>
                         <uu-icon v-if="item.rule.length > 2" size="small" type="handle"></uu-icon>
-                        <uu-icon size="small" type="quit" @click.native="leaveCommunity('quit',communityInfo, item)"></uu-icon>
+                        <uu-icon
+                          size="small" type="quit"
+                          v-show="communityInfo.merchantGuid === userInfo.developerId"
+                          @click.native="leaveCommunity('quit',communityInfo, item)"></uu-icon>
                       </div>
                     </div>
                   </div>
@@ -101,7 +105,7 @@
                 :style="{height: !communityInfo.groupPid ? tableHeight+78+'px' : 'auto'}"
                 :class="{'mine--table__wrap':!communityInfo.groupPid}">
                 <h2 class="cmm-sub-title">设备列表</h2>
-                <ob-list-empty top="32px" v-if="!deviceList.length" size="small" text="没有可以查看的设备">
+                <ob-list-empty top="32px" v-if="!deviceList.length" supply="设备请到左侧［设备管理］中添加" text="您尚未添加设备">
                 </ob-list-empty>
                 <el-scrollbar
                   class="table--scrollbar__warp"
@@ -162,7 +166,7 @@
               <face-recognition-store
                 :guid="communityInfo.guid"
                 :deviceList="deviceList"
-                v-if="!communityInfo.groupPid">
+                v-if="communityInfo.merchantGuid">
               </face-recognition-store>
             </el-scrollbar>
           </div>
@@ -191,7 +195,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer mt50">
           <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
-          <el-button class="affirm" type="primary" @click="setNickName('nameForm')">{{communityInfo.GroupNickName?'加 入':'添 加'}}</el-button>
+          <el-button class="affirm" type="primary" @click="setNickName('nameForm')">{{communityInfo.GroupNickName?'添加': '确  定'}}</el-button>
         </div>
       </ob-dialog-form>
       <!--自定义分组名-->
@@ -462,7 +466,9 @@ export default {
     },
     tableHeight: {
       get () {
-        return this.deviceList.length ? (this.deviceList.length >= 5 ? 246 : (this.deviceList.length + 1) * 41) : 80
+        let baseHeight = 203
+        if ((this.communityInfo.parentGroups && this.communityInfo.parentGroups.length) || this.communityInfo.role === 0) baseHeight = 173
+        return this.deviceList.length ? (this.deviceList.length >= 5 ? 246 : (this.deviceList.length + 1) * 41) : baseHeight
       },
       set () {}
     }
@@ -507,6 +513,7 @@ export default {
             })
             let current = getCurrent()
             this.expandedKeys = setArr
+            // console.log('search arr', setArr)
             this.$nextTick(() => {
               if (this.$refs.groupNav) {
                 this.$refs.groupNav.setCheckedKeys(setArr)
@@ -552,9 +559,17 @@ export default {
         if (typeof key === 'string') key = res.data[0]
         // 编辑页返回时记住当前页状态
         let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || res.data[0]
-        console.log('set value----', currentNode)
         this.$nextTick(() => {
           if (this.$refs.groupNav) {
+            // 默认只展开默认分组列表
+            this.groupList.filter(item => item.memberItem && item.memberItem.length).map(item => {
+              if (item.memberItem && item.memberItem[item.memberItem.length - 1]) {
+                this.expandedKeys.push(item.memberItem[item.memberItem.length - 1].uniqueKey)
+              }
+              this.expandedKeys.push(item.uniqueKey)
+            })
+            this.expandedKeys.push(currentNode.uniqueKey)
+
             if (!Object.keys(this.communityInfo).length) this.communityInfo = currentNode
             if (!Object.keys(this.currentCommunity).length) this.currentCommunity = currentNode
             this.$refs.groupNav.setCurrentKey(currentNode.uniqueKey)
@@ -611,9 +626,11 @@ export default {
           delete this.currentCommunity.parents
         }
         // 查询社群详细信息
-        if (data.groupGuid) this.getCommunityInfo(data)
-        // 分组信息直接设置，不再查询
-        if (!data.groupGuid) this.communityInfo = data
+        if (data.groupGuid) {
+          this.getCommunityInfo(data)
+        } else { // 分组信息直接设置，不再查询
+          this.communityInfo = JSON.parse(JSON.stringify(data))
+        }
         this.getDeviceList(data)
       } else {
         // 点击新建分组是默认选中状态值不改变

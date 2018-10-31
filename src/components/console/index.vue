@@ -1,6 +1,6 @@
 <template>
   <transition name="dialog-fade">
-    <div class="console__dialog--wrap vam" v-show="visible" @click.self="close">
+    <div class="console__dialog--wrap vam" v-show="dialogVisible" @click.self="close">
       <div class="dialog--inner">
         <div class="dialog__title">{{title}}</div>
         <div class="dialog__body">
@@ -32,7 +32,16 @@ export default {
   },
   mounted () {
   },
-  computed: {},
+  computed: {
+    dialogVisible: {
+      get () {
+        return this.visible && !this.$store.state.expired
+      },
+      set (val) {
+        this.$emit('update:visible', val)
+      }
+    }
+  },
   methods: {
     // 关闭 dialog 弹框
     close () {

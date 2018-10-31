@@ -64,7 +64,10 @@
         v-if="$route.name !== 'equipmentChildren'"
         label="绑定社群">
         <template slot-scope="scope">
-          <span :class="isMine?'ellipsis-28':'ellipsis'">{{scope.row.deviceType === 1 ? '—': scope.row.groupName || '暂无'}}</span>
+          <span
+            :class="{'ellipsis-28': isMine,'ellipsis': !isMine, 'c-grey': !scope.row.groupName}">
+            {{scope.row.deviceType === 1 ? '—': scope.row.groupName || '暂无'}}
+          </span>
           <a href="javascript:void (0)" v-if="isMine && scope.row.deviceType !== 1" @click="showDialogForm(scope.row, scope.$index)">{{scope.row.groupName ? '解绑' : '绑定'}}</a>
         </template>
       </el-table-column>
@@ -207,13 +210,12 @@ export default {
   methods: {
     // 显示修改昵称popover
     showPopover (index) {
-      if (this.$refs.tableForm) {
+      if (this.$refs['tableForm' + index]) {
         this.$nextTick(() => {
-          this.$refs.tableForm.clearValidate()
+          this.$refs['tableForm' + index].clearValidate()
         })
       }
       this.equipmentForm = JSON.parse(JSON.stringify(this.data[index]))
-      console.log(index)
     },
     // 隐藏修改昵称popover
     hidePopover (index) {

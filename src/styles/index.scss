@@ -465,7 +465,13 @@ button, input {
     cursor: default !important;
   }
 }
-
+//确认登录提示弹框
+.el-message-box__wrapper[aria-label=登录确认]{
+  z-index: 9999!important;
+}
+.confirm__message--login{
+  z-index: 9999;
+}
 //确定按钮样式
 .el-button {
   &[disabled] {
@@ -763,9 +769,12 @@ button, input {
   &.is-reverse {
     transform: rotateZ(180deg) !important;
   }
-  &:before {
-    content: '' !important;
+  &.el-icon-arrow-up{
+    &:before {
+      content: '';
+    }
   }
+
 }
 
 .danger {

@@ -11,6 +11,8 @@
       <div class="ec-side-nav dashed-border" v-if="isSearch">
         <ob-group-nav
           rights
+          :expandedAll="false"
+          :expanded-keys="expandedKeys"
           ref="childGroup"
           only-checked
           type="community"
@@ -20,13 +22,12 @@
       </div>
       <div class="ec-container" :class="{'dashed-border':isSearch}">
         <div v-show="isSearch" class="filter__list--wrap">
-          <el-select v-model="filterValue.type" placeholder="全部类型">
+          <el-select clearable v-model="filterValue.type" placeholder="全部类型">
             <el-option :value="2" label="客行分析一体机"></el-option>
             <el-option :value="3" label="人脸抓拍一体机"></el-option>
             <el-option :value="4" label="客行分析"></el-option>
             <el-option :value="5" label="人脸抓拍"></el-option>
           </el-select>
-          <a href="javascript:void (0)" @click="clearFilters" class="fr">显示全部</a>
         </div>
         <el-scrollbar class="ob-scrollbar" v-if="equipmentList.length">
           <device-table
@@ -71,7 +72,8 @@ export default {
       currentGroup: {}, // 选中社群
       equipmentList: [], // 设备列表
       pagination: {}, // 分页参数
-      selectValue: {}
+      selectValue: {},
+      expandedKeys: []
     }
   },
   methods: {
@@ -81,11 +83,17 @@ export default {
         // 过滤掉最外层单店、成员社群、无外来社群的管理员社群
         // res.data = simplifyGroups(res.data)
         this.groupList = res.data.filter(item => {
-          return item.role === 0 && item.memberItem.length
+          return item.role === 0
         })
         let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentGroup : false) || key || (this.currentGroup.uniqueKey ? this.currentGroup : false) || res.data[0]
         this.$nextTick(() => {
           if (this.$refs.childGroup) {
+            this.groupList.filter(item => item.memberItem.length).map(item => {
+              if (item.memberItem && item.memberItem[item.memberItem.length - 1]) {
+                this.expandedKeys.push(item.memberItem[item.memberItem.length - 1].uniqueKey)
+              }
+              this.expandedKeys.push(item.uniqueKey)
+            })
             if (!this.currentGroup.groupGuid) this.currentGroup = currentNode
             this.$refs.childGroup.setCurrentKey(currentNode.uniqueKey)
             this.getEquipmentList()
@@ -99,14 +107,19 @@ export default {
       page = page || 1
       this.equipmentList = []
       if (this.isSearch) {
-        // console.log('current ---------', this.currentGroup)
-        if ((this.currentGroup.groupGuid && !this.currentGroup.self) || this.currentGroup.guid) {
-          let url = '/group/device'
+        if ((this.currentGroup.groupGuid && !this.currentGroup.self) || this.currentGroup.guid || this.currentGroup.parent) {
+          let url = '/group/device' // 社群下设备列表
           let dataForm = {
             guid: this.currentGroup.groupGuid
           }
+          if (this.currentGroup.parent) {
+            url = '/group/other/device' // 管理员社群下非自有设备列表
+            dataForm = {
+              groupGuid: this.currentGroup.parent
+            }
+          }
           if (this.currentGroup.groupPid) {
-            url = '/group/device/customGroup'
+            url = '/group/otherMerchant/customGroup' // 自定义分组下非自有设备列表
             dataForm = {
               groupCustomGuid: this.currentGroup.guid,
               groupPid: this.currentGroup.groupPid
@@ -137,10 +150,13 @@ export default {
         this.getGroupList()
       }
     },
-    currentChange (val) {
+    currentChange (val, node) {
       this.filterValue.type = ''
       this.selectValue = val
       this.currentGroup = val
+      if (!this.currentGroup.guid && !this.currentGroup.groupPid) {
+        this.$set(this.currentGroup, 'parent', node.parent.data.groupGuid)
+      }
     },
     // 保存当前页面
     saveState () {
@@ -171,12 +187,12 @@ export default {
       let txt = ''
       if (!this.isSearch) {
         txt = '查询不到该设备'
-      } else if (this.currentGroup.groupPid && !this.currentGroup.memberItem.length) {
-        txt = '您还没有成员社群'
-      } else if (this.currentGroup.self || this.currentGroup.groupPid === null) {
-        txt = '请先在左侧选择自有社群，以查看其下的成员社群设备'
+      } else if ((this.currentGroup.groupPid || this.currentGroup.self) && !this.currentGroup.memberItem.length) {
+        txt = '暂无非自有设备'
+      } else if (this.currentGroup.self && this.currentGroup.memberItem.length) {
+        txt = '请选择分组/成员社群，查看非自有设备'
       } else if (!this.equipmentList.length) {
-        txt = '暂无设备'
+        txt = '暂无非自有设备'
       }
       return txt
     },
@@ -186,6 +202,7 @@ export default {
     tableList: {
       get () {
         let newList = JSON.parse(JSON.stringify(this.equipmentList))
+        console.log(this.filterValue)
         newList = newList.filter(item => {
           if (this.filterValue.type) {
             return item.deviceType === this.filterValue.type

@@ -32,6 +32,9 @@
         prop="cameraName"
         label="所属人员库"
       >
+        <template slot-scope="scope">
+          {{scope.row.memberLibaryName[0]}}
+        </template>
       </el-table-column>
       <el-table-column
         label="操作"
@@ -53,8 +56,11 @@
       </el-pagination>
     </div>
     <!-- lwh-到访记录详情 -->
-    <visited-detail-info :state.sync="visitedState" :detailInfo="detailInfo"
-                         :deviceList="deviceList"></visited-detail-info>
+    <visited-detail-info
+      :state.sync="visitedState"
+      :detailInfo="detailInfo"
+      :deviceList="deviceList">
+    </visited-detail-info>
   </div>
 </template>
 <script>
@@ -124,12 +130,14 @@ export default {
         index: this.pageParams.currentPage,
         length: this.pageParams.pageSize
       }
-      this.$http('/group/faceSet/search', paramsSearch).then(res => {
-        this.faceData = (res.data && res.data.content) || []
-        this.pageParams.total = res.data.pagination.total
-      }).catch(error => {
-        console.info(error)
-      })
+      if (paramsSearch.groupGuid) {
+        this.$http('/group/faceSet/search', paramsSearch).then(res => {
+          this.faceData = (res.data && res.data.content) || []
+          this.pageParams.total = res.data.pagination.total
+        }).catch(error => {
+          console.info(error)
+        })
+      }
     },
     // 查看用户大图
     getBigImage (info) {
@@ -145,25 +153,24 @@ export default {
   },
   watch: {
     // 监听guid改变
-    guid (val, oldVal) {
-      if (!val) {
-        return
-      }
-      // 初次进来默为1
-      this.groupGuid = this.guid
-      this.pageParams.currentPage = 1
-      this.getDataInParams()
+    guid: {
+      handler (val) {
+        this.groupGuid = val
+        this.pageParams.currentPage = 1
+        this.getDataInParams()
+      },
+      deep: true
     },
     // 监听图片数据
     faceData: {
       handler: function (val, oldVal) {
-        this.layout = val.length == 0 ? 'total, sizes' : 'total, sizes, prev, pager, next'
+        this.layout = val.length ? 'total, sizes' : 'total, sizes, prev, pager, next'
       },
       deep: true
     }
   },
   mounted () {
-
+    this.getDataInParams()
   }
 }
 </script>

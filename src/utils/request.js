@@ -1,7 +1,7 @@
 import axios from 'axios/index'
 import {Message, Loading, MessageBox} from 'element-ui'
 import Store from '@/store'
-import Router from '@/router'
+// import Router from '@/router'
 
 // 加载层
 export function load (text, target) {
@@ -56,30 +56,24 @@ export function fetch (url, params, isTip = '数据加载中...') {
       return response
     })
   return new Promise((resolve, reject) => {
-    instance({
-
-    }).then(res => {
+    instance({}).then(res => {
       if (isTip) {
         load(isTip).close()
       }
-      if (!res.data) {
-        return resolve(res)
-      }
       if (res.status === 200) {
         if (res.data.code === 'ERR-110') {
+          Store.state.expired = true
+          exitMessage(res.data.data)
           reject(res.data)
-          let currentRoute = Router.app._route
-          // 路由变化时不重复显示确认框
-          if (currentRoute.name && currentRoute.path !== window.location.pathname) {
-            exitMessage(res.data.data)
-          }
           return false
         } else if (res.data.result) {
+          Store.state.expired = false
           if (isTip) {
             Store.state.loading = false
           }
           resolve(res.data)
         } else {
+          Store.state.expired = true
           if (isTip) {
             message(res.data.msg, 'error', 3000)
           }
@@ -133,7 +127,8 @@ export function exitMessage (href) {
   return MessageBox.confirm(html, '登录确认', {
     center: true,
     dangerouslyUseHTMLString: true,
-    showCancelButton: false
+    showCancelButton: false,
+    customClass: 'confirm__message--login'
   }).then(() => {
     window.location.href = `${href}?redirectURL=${window.location.href}`
   })

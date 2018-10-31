@@ -106,7 +106,7 @@ export default {
   },
   data () {
     return {
-      searchValue: this.$route.params.key
+      searchValue: this.$route.params.name
     }
   },
   methods: {

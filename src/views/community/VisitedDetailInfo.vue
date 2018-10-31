@@ -7,7 +7,7 @@
           <img class="detail--close clearfix" src="/static/img/face_recoginiton_close_icon.png" @click="closeShade($event,'你的一哥')"/>
         </div>
         <div class="tip--info">
-          <p>Face ID：{{detailInfo.personGuid}}</p>
+          <p>Person ID：{{detailInfo.personGuid}}</p>
           <p>共计到访{{pageParams.total}}次</p>
         </div>
         <face-recognition @search-params="getFaceDataDetail"></face-recognition>
@@ -33,18 +33,15 @@
               prop="createTime"
               label="到访时间"
             >
+              <template slot-scope="scope">
+                {{scope.row.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}
+              </template>
             </el-table-column>
             <el-table-column
               prop="groupName"
               label="到访社群"
             >
             </el-table-column>
-            <el-table-column
-              prop="cameraName"
-              label="抓拍设备"
-            >
-            </el-table-column>
-
           </el-table>
           <div class="table-page">
             <el-pagination
@@ -115,10 +112,11 @@ export default {
     },
     // 根据查询条件查询数据
     getDataInParams (params) {
-      console.log(this.detailInfo)
+      // console.log(this.detailInfo)
       let paramsSearch = {
-        groupGuid: (params && params.groupGuid) || this.detailInfo.groupGuid, // 新增设备绑定groupgGuid
+        groupGuid: (params && params.groupGuid) || this.detailInfo.groupGuid, // 新增设备绑定groupGuid
         ufaceId: this.detailInfo.ufaceId,
+        personGuid: this.detailInfo.personGuid,
         deviceKey: (params && params.deviceKey) || '',
         cameraName: this.detailInfo.cameraName,
         startTime: (params && params.startTime) || '',

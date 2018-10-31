@@ -57,7 +57,8 @@ export default {
     border: 1px dashed #1f2d3d;
     background: rgba(0, 0, 0, 0.20);
     height: 110px;
-    width: 720px;
+    width: 80%;
+    max-width: 720px;
     font-size: 12px;
     line-height: 110px;
     color: rgba(255, 255, 255, 0.5);

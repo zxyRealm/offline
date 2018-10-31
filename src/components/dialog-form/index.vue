@@ -300,7 +300,7 @@ export default {
     },
     dialogFormVisible: {
       get () {
-        return this.visible
+        return this.visible && !this.$store.state.expired
       },
       set (val) {
         this.$emit('update:visible', val)

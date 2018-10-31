@@ -240,7 +240,6 @@ export default {
         }
         this.$set(value, 'deviceStatus', res.data)
       }).catch(error => {
-        console.log(error)
         if (error.code) {
         }
       })

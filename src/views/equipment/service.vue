@@ -8,11 +8,11 @@
         :menu-array="menu">
       </uu-sub-tab>
       <div class="filter__list--wrap">
-        <el-select v-model="filterValue.type" placeholder="全部类型">
+        <el-select clearable v-model="filterValue.type" placeholder="全部类型">
           <el-option :value="4" label="客行分析"></el-option>
           <el-option :value="5" label="人脸抓拍"></el-option>
         </el-select>
-        <el-select  v-model="filterValue.groupGuid" placeholder="绑定社群">
+        <el-select clearable v-model="filterValue.groupGuid" placeholder="绑定社群">
           <el-option :value="null" label="未绑定"></el-option>
           <el-option
             v-for="(item, $index) in bindGroups"
@@ -287,6 +287,10 @@ export default {
     // 查询服务列表设备
     search (val) {
       this.searchText = val
+      this.filterValue = {
+        type: '',
+        groupGuid: ''
+      }
       this.getDeviceList()
     },
     // 清除过滤条件
