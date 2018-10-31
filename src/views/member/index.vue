@@ -89,13 +89,10 @@ export default {
 
   }),
   created () {
-    // this.emptyHint()
     this.getList()
-    this.$http('firstCheck', {name: 'insight_member_list_first'}).then(res => {
-      if (res.result) {
-        if (res.data) {
-          this.firstEnter = true
-        }
+    this.$http('/firstCheck', {name: 'insight_member_list_first'}).then(res => {
+      if (res.data) {
+        this.firstEnter = true
       }
     })
   },
@@ -106,19 +103,6 @@ export default {
 
   },
   methods: {
-    emptyHint () {
-      this.$affirm({
-        confirm: '前往【社群管理】',
-        cancel: '知道了',
-        text: '需满足条件：</br>该账号下有管理员社群/单店社群/成员社群（已加入管理员社群）'
-      }, (action, instance, done) => {
-        if (action === 'confirm') {
-          done()
-        } else {
-          done()
-        }
-      })
-    },
     // 获取人员库列表
     getList () {
       let data = {
@@ -136,7 +120,24 @@ export default {
     },
     // 添加库
     addNew () {
-      this.$router.push({path: '/member/library'})
+      this.$http('/group/faceSetCheck').then(res => {
+        if (!res.data) {
+          this.$affirm({
+            confirm: '前往【社群管理】',
+            cancel: '知道了',
+            text: '需满足条件：<br/>该账号下有管理员社群/单店社群/成员社群（已加入管理员社群）'
+          }, (action, instance, done) => {
+            if (action === 'confirm') {
+              this.$router.push({path: '/community/mine'})
+              done()
+            } else {
+              done()
+            }
+          })
+        } else {
+          this.$router.push({path: '/member/library'})
+        }
+      })
     },
     // 编辑库
     editNew (e) {
