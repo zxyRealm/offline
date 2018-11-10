@@ -1,6 +1,22 @@
 <template>
   <div class="cmm-table__face dashed-border">
     <h2 class="cmm-sub-title">识别人脸库</h2>
+    <div class="people__number">
+      <div class="people__cont">
+        <div class="cont__middle">
+          <div class="cont__title">识别总人数：</div>
+          <div class="cont__number">{{contData.personCount}}</div>
+          <div class="cont__title">人</div>
+        </div>
+      </div>
+      <div class="people__cont">
+        <div class="cont__middle">
+          <div class="cont__title">会员人数：</div>
+          <div class="cont__number">{{contData.memberCount}}</div>
+          <div class="cont__title">人</div>
+        </div>
+      </div>
+    </div>
     <face-recognition @search-params="getFaceData"></face-recognition>
     <el-table
       :data="faceData"
@@ -17,23 +33,35 @@
       </el-table-column>
       <el-table-column
         prop="createTime"
-        label="到访时间"
+        label="到访社群/时间"
       >
         <template slot-scope="scope">
-          {{scope.row.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}
+
+          <div>{{scope.row.groupName}}</div>
+          <div>{{scope.row.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</div>
         </template>
       </el-table-column>
       <el-table-column
-        prop="groupName"
-        label="到访社群"
+        prop="personName"
+        label="人员信息"
       >
+        <template slot-scope="scope">
+          <span class="table__name">{{scope.row.personName}}</span>
+          <span class="table__gender" v-if="scope.row.gender === 1">男</span>
+          <span class="table__gender" v-else>女</span>
+          <span class="table__age">{{scope.row.age}}</span>
+        </template>
       </el-table-column>
       <el-table-column
         prop="cameraName"
         label="所属人员库"
+        :show-overflow-tooltip="true"
       >
         <template slot-scope="scope">
-          {{scope.row.memberLibaryName[0]}}
+          <span class="library" v-for="(item , index) in scope.row.memberLibaryName"
+                :key="index">
+            {{item}}
+          </span>
         </template>
       </el-table-column>
       <el-table-column
@@ -97,7 +125,8 @@ export default {
         currentPage: 1 // 当前第几页
       },
       layout: 'total, sizes',
-      visitedState: false // 到访信息状态
+      visitedState: false, // 到访信息状态personName
+      contData: {}
     }
   },
   methods: {
@@ -149,6 +178,15 @@ export default {
       this.visitedState = true
       // 触发传递设备列表到人脸识别库搜索组件上
       eventObject().$emit('FaceRecognition', this.deviceList)
+    },
+    // 获取识别人数
+    getContNumber () {
+      let data = {
+        groupGuid: this.guid
+      }
+      this.$http('/group/faceSet/search', data).then(res => {
+        this.contData = res.data
+      })
     }
   },
   watch: {
@@ -158,6 +196,7 @@ export default {
         this.groupGuid = val
         this.pageParams.currentPage = 1
         this.getDataInParams()
+        this.getContNumber()
       },
       deep: true
     },
@@ -174,6 +213,7 @@ export default {
   }
 }
 </script>
+
 <style rel="stylesheet/scss" lang="scss">
   .community--main  {
     .cmm-table__face {
@@ -231,5 +271,52 @@ export default {
         }
       }
     }
+  }
+</style>
+<style scoped>
+  .people__number{
+    margin: 22px 0 12px 0;
+    height: 60px;
+    background: url(/static/img/peopleNum.png);
+    background-size: cover;
+  }
+  .people__cont{
+    margin-top: 15px;
+    box-sizing: border-box;
+    float: left;
+    width: 50%;
+    height: 30px;
+    line-height: 30px;
+  }
+  .people__cont:nth-child(1){
+    border-right: 1px dashed rgba(255, 255, 255, 0.2);
+  }
+  .cont__middle{
+    margin-left: 15%;
+  }
+  .cont__title{
+    float: left;
+    font-size: 14px;
+  }
+  .cont__number{
+    margin: 0 10px;
+    float: left;
+    font-size: 26px;
+  }
+  .table__name{
+    float: left;
+    width: 55px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .table__gender{
+    margin-left: 15px;
+  }
+  .table__age{
+    margin-left: 15px;
+  }
+  .library{
+    margin-left: 10px;
   }
 </style>

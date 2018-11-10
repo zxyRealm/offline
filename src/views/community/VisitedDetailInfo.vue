@@ -3,12 +3,16 @@
     <transition name="fade-visited">
       <div class="detail--right__default clearfix" v-show="state">
         <div class="detail--header">
-          <span class="header--title">到访记录详情</span>
+          <span class="header--title">到访记录详情<span class="allTimes">(共计到访{{pageParams.total}}次)</span></span>
           <img class="detail--close clearfix" src="/static/img/face_recoginiton_close_icon.png" @click="closeShade($event,'你的一哥')"/>
         </div>
         <div class="tip--info">
           <p>Person ID：{{detailInfo.personGuid}}</p>
-          <p>共计到访{{pageParams.total}}次</p>
+          <div class="message">
+            <div class="details__cont">姓名：{{detailInfo.personName}}</div>
+            <div class="details__cont">性别：<span v-if="detailInfo.gender === 1">男</span><span v-else>女</span></div>
+            <div class="details__cont">年龄：{{detailInfo.age}}</div>
+          </div>
         </div>
         <face-recognition @search-params="getFaceDataDetail"></face-recognition>
         <div class="detail--info">
@@ -251,5 +255,26 @@ export default {
   }
   .fade-visited-enter, .fade-visited-leave-active {
     transform: translateX(760px);
+  }
+</style>
+
+<style scoped>
+  .details__cont{
+    float: left;
+    width: 136px;
+  }
+  .allTimes{
+    margin-left: 10px;
+    font-size: 12px;
+  }
+  .message{
+    margin-top: 19px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    font-size: 14px;
+  }
+  .tip--info{
+    margin-right: 30px;
   }
 </style>
