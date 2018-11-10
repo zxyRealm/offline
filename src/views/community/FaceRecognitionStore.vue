@@ -126,7 +126,10 @@ export default {
       },
       layout: 'total, sizes',
       visitedState: false, // 到访信息状态personName
-      contData: {}
+      contData: {
+        personCount: 0,
+        memberCount: 0
+      }
     }
   },
   methods: {
