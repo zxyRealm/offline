@@ -330,7 +330,7 @@ export default {
     width: 80px;
   }
   .affirm{
-    width: 80px;
+    width: 80px !important;
   }
   .widthAuto{
     margin: 26px 0 0 130px;
