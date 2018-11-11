@@ -587,12 +587,12 @@ export default {
   }
   .avatar{
     margin: 10px  auto 0 auto;
-    width: 100px;
-    height: 100px;
+    width: 100px !important;
+    height: 100px !important;
   }
   .avatar__border{
     position: absolute;
-    bottom: -50px;
+    bottom: 0;
     width: 222px;
     height: 120px;
     background: #333333;
