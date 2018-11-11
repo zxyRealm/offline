@@ -254,7 +254,7 @@ export default {
       let me = this
       me.showGenderData()
       this.cleanTimer()
-      this.timer = window.setTimeout(this.timing, 3600000)// 3600000
+      this.timer = window.setTimeout(this.timing, 1000 * 60 * 5)// 3600000
     },
     cleanTimer () {
       if (this.timer) {
@@ -383,9 +383,7 @@ export default {
     }
   },
   mounted () {
-    // this.drawLine();
     if (this.lineParams.title.text == '客流量统计') {
-      this.showGenderData()
       this.timing() // 定时刷新数据，一个小时一次
     } else {
       this.changeColor()
@@ -404,7 +402,6 @@ export default {
   watch: {
     // 监听vuex groupConsoleId是否改变
     groupConsoleId (val) {
-      this.showGenderData()
       this.timing() // 定时刷新数据，一个小时一次
     }
   },

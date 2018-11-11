@@ -187,29 +187,16 @@ export default {
         this.groupList = res.data
       })
     },
-    // 获取当前设备
-    remoteSubmit (data) {
-      if (!data || data.length === 0) {
-        this.$tip('请选择您的社群', 'error')
-        return
-      }
-      this.groupSelectId = data[0].groupGuid
-      this.$store.commit('SET_GROUP_SELECT_ID', this.groupSelectId)
-      this.dialogFormVisible = false
-    },
     toggleSideBar () {
       this.$store.dispatch('DISPATCH_SIDEBAR')
       eventObject().$emit('resize-echarts-console', '') // 触发控制台图表重置
       eventObject().$emit('resize-echarts-data', '') // 触发数据可视化图表重置
     },
-    logout () {
-      this.$store.dispatch('LogOut').then(() => {
-        location.reload() // In order to re-instantiate the vue-router object to avoid bugs
-      })
-    },
     // 选取社群时回调，获取社群下设备列表并展示
     handleChange (val) {
       this.deviceInfo = ''
+      this.groupSelectId = val.groupGuid
+      this.$store.commit('SET_GROUP_SELECT_ID', this.groupSelectId)
       this.$http('/group/device', {
         guid: val.groupGuid,
         tag: 'console'
@@ -510,7 +497,7 @@ export default {
     }
   }
 </style>
-<style lang="scss" scoped>
+<style lang="scss">
 .dialog__item--content{
   .el-scrollbar__wrap{
     overflow-x: hidden;
