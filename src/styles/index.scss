@@ -1270,3 +1270,7 @@ p>.ellipsis{
     }
   }
 }
+.el-form-item__label::before{
+  position: absolute;
+  left: -10px;
+}

@@ -60,6 +60,7 @@
     <!-- 选择社群 -->
     <ob-dialog-form
       @remote-submit="remoteSubmit"
+      :group="groupList"
       :type="dialogOptions.type"
       :title="dialogOptions.title"
       :visible.sync="dialogFormVisible">
@@ -95,13 +96,18 @@ export default {
         endTime: '', // 结束时间
         timeArray: [],
         groupGuidName: ''
-      }
+      },
+      groupList: [] // 社群列表信息
+
     }
   },
   methods: {
     // 选择对象
     groupGuidNameClick () {
-      this.dialogFormVisible = true
+      this.$http('/group/list/noCustom').then(res => {
+        this.groupList = res.data
+        this.dialogFormVisible = true
+      })
     },
     // 确定弹框
     remoteSubmit (data) {
@@ -110,7 +116,7 @@ export default {
         return
       }
       this.dialogFormVisible = false
-      this.filterParams.groupGuidName = data[0].groupNickName
+      this.filterParams.groupGuidName = data[0].name
       this.filterParams.groupGuid = data[0].groupGuid
     },
     // 点击维度

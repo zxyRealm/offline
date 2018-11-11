@@ -26,7 +26,7 @@
           <el-input type="text" placeholder="添加备注" maxlength="20" v-model.trim="formData.remark"></el-input>
         </el-form-item>
 
-        <el-form-item label="关联社区：">
+        <el-form-item label="关联社群：">
           <div class="form__button" @click="getGroupList" v-show="!associationData">关联</div>
           <div v-show="associationData" class="edit__name">{{associationData.name}}</div><i class="el-icon-edit edit" @click="getGroupList" v-show="associationData"></i>
         </el-form-item>

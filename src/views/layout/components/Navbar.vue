@@ -510,7 +510,7 @@ export default {
     }
   }
 </style>
-<style lang="scss">
+<style lang="scss" scoped>
 .dialog__item--content{
   .el-scrollbar__wrap{
     overflow-x: hidden;

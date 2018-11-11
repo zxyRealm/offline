@@ -41,17 +41,14 @@
           <div>{{scope.row.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</div>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="personName"
-        label="人员信息"
-      >
+      <el-table-column prop="personName" label="姓名"></el-table-column>
+      <el-table-column prop="personName" label="性别">
         <template slot-scope="scope">
-          <span class="table__name">{{scope.row.personName}}</span>
           <span class="table__gender" v-if="scope.row.gender === 1">男</span>
           <span class="table__gender" v-else>女</span>
-          <span class="table__age">{{scope.row.age}}</span>
         </template>
       </el-table-column>
+      <el-table-column prop="age" label="年龄"></el-table-column>
       <el-table-column
         prop="cameraName"
         label="所属人员库"
@@ -187,7 +184,7 @@ export default {
       let data = {
         groupGuid: this.guid
       }
-      this.$http('/group/faceSet/search', data).then(res => {
+      this.$http('/group/faces/count', data).then(res => {
         this.contData = res.data
       })
     }
@@ -206,13 +203,14 @@ export default {
     // 监听图片数据
     faceData: {
       handler: function (val, oldVal) {
-        this.layout = val.length ? 'total, sizes' : 'total, sizes, prev, pager, next'
+        this.layout = !val.length ? 'total, sizes' : 'total, sizes, prev, pager, next'
       },
       deep: true
     }
   },
   mounted () {
     this.getDataInParams()
+    this.getContNumber()
   }
 }
 </script>

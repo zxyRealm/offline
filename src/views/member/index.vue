@@ -42,8 +42,10 @@
             label="关联社群"
             :show-overflow-tooltip="true">
             <template slot-scope="scope">
-              <span v-show="scope.row.groupName">{{scope.row.groupName}}</span>
-              <div v-show="!scope.row.groupName" class="fl hand edit" @click="getGroupList(scope.row)">关联</div>
+              <div v-if="!scope.row.groupName" class="relevance__cont">暂无</div>
+              <div v-else class="relevance__cont">{{scope.row.groupName}}</div>
+              <div v-if="!scope.row.groupName" class="relevance" @click="getGroupList(scope.row)"></div>
+              <div v-else class="relevance el-icon-edit noImage" @click="getGroupList(scope.row)"></div>
             </template>
           </el-table-column>
           <el-table-column
@@ -63,7 +65,7 @@
         filter
         @remote-submit="bindCommunity"
         :group="groupList"
-        title="添加社群"
+        title="关联社群"
         type="group"
         :visible.sync="dialogFormVisible"
       >
@@ -324,5 +326,24 @@ export default {
 <style>
   .menber .el-scrollbar__wrap{
     overflow-x:hidden;
+  }
+  .relevance{
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 12.5px;
+    width: 15px;
+    height: 15px;
+    background: url("/static/img/binding.png");
+    background-size: contain;
+  }
+  .noImage{
+    background: none;
+  }
+  .relevance__cont{
+    width: calc(100% - 21px - 30px);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap
   }
 </style>
