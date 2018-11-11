@@ -496,6 +496,15 @@ export default {
       margin-left: 20px
     }
   }
+  .dialog__item--footer{
+    .is-disabled{
+      background: #CBCBCB;
+      box-shadow: none;
+      &:hover{
+        background: #CBCBCB;
+      }
+    }
+  }
 </style>
 <style lang="scss">
 .dialog__item--content{
@@ -523,15 +532,6 @@ export default {
           text-align: left;
         }
       }
-    }
-  }
-}
-.dialog__item--footer{
-  .is-disabled{
-    background: #CBCBCB;
-    box-shadow: none;
-    &:hover{
-      background: #CBCBCB;
     }
   }
 }

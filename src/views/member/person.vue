@@ -81,7 +81,7 @@
     </div>
     <div class="popup" v-show="popupShow">
       <div class="editProblem">
-        <div class="editProblem__title">编辑问题类型</div>
+        <div class="editProblem__title">编辑人员类型</div>
         <div class="editProblem__cont--border f-scrollbar" ref="questionList">
           <div
             class="editProblem__cont"
@@ -102,13 +102,13 @@
           </div>
         </div>
 
-        <div class="input__border">
-          <el-input class="add__question f-font-size12" v-model="input" @keyup.enter.native="addList" @blur="emptyInput" placeholder="输入文字，按回车生成问题类型" maxlength="12" v-show="show === ''"></el-input>
+        <div class="input__border white">
+          <el-input class="add__question f-font-size12" v-model="input" @keyup.enter.native="addList" @blur="emptyInput" placeholder="输入文字，按回车生成人员类型" maxlength="12" v-show="show === ''"></el-input>
         </div>
         <div class="error__message">{{errorMessage}}</div>
         <div class="editProblem__button">
           <div class="button__close button form__button" @click="closePopup">返回</div>
-          <div class="button__sure button" @click="surePopup">确定</div>
+          <div class="button__sure button affirm" @click="surePopup">确定</div>
         </div>
       </div>
     </div>
@@ -544,7 +544,9 @@ export default {
   }
   .button__sure{
     color: #FFF;
-    background: #0F9EE9;
+    background: url(/static/img/affrim_btn_bg.png) no-repeat center;
+    background-size: 110% 156%;
+    margin-left: 10px;
   }
   .button__close{
     margin-left: 8px;
