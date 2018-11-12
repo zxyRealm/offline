@@ -268,7 +268,7 @@ export default {
     cursor: pointer;
   }
   .changeText{
-    width: 165px;
+    width: 160px;
     height: 16px;
   }
   .sure{

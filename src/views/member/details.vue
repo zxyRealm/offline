@@ -13,7 +13,7 @@
         :menu-array="menu2">
         <el-upload
           class="avatar-uploader"
-          action="http://192.168.1.153:81/manage/member/import"
+          action="http://192.168.1.151:80/manage/member/import"
           :show-file-list="false"
           :data="{memberLibraryGuid: $route.query.guid}"
           :before-upload="beforeAvatarUpload"

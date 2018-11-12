@@ -27,8 +27,8 @@
         </el-form-item>
 
         <el-form-item label="关联社群：">
-          <div class="form__button" @click="getGroupList" v-show="!associationData">关联</div>
-          <div v-show="associationData" class="edit__name">{{associationData.name}}</div><i class="el-icon-edit edit" @click="getGroupList" v-show="associationData"></i>
+          <div class="form__button" @click="getGroupList" v-show="!formData.groupName">关联</div>
+          <div v-show="formData.groupName" class="edit__name">{{formData.groupName}}</div><i class="el-icon-edit edit" @click="getGroupList" v-show="formData.groupName"></i>
         </el-form-item>
       </uu-form>
     </div>
@@ -60,8 +60,7 @@ export default {
       formData: {
         name: '',
         remark: ''
-      },
-      associationData: ''
+      }
     }
   },
   methods: {
@@ -71,7 +70,7 @@ export default {
         name: e.name,
         remark: e.remark,
         guid: this.$route.query.guid,
-        groupGuid: this.associationData.groupGuid
+        groupGuid: this.formData.groupGuid
       }
       if (this.$route.query.guid) {
         this.$http('/memberLibrary/update', data).then(res => {
@@ -101,7 +100,8 @@ export default {
     // 确认关联
     bindCommunity (data) {
       console.log(data)
-      this.associationData = data[0]
+      this.formData.groupName = data[0].name
+      this.formData.groupGuid = data[0].groupGuid
       this.dialogFormVisible = false
     }
   },

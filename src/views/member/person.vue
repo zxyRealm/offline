@@ -1,5 +1,5 @@
 <template>
-  <div class="menber">
+  <div class="menber menber__person">
     <div class="member__title">
       <div class="el-icon-arrow-left retrun" @click="returnLast"></div>
       <el-breadcrumb separator="/" class="fl">
@@ -59,13 +59,13 @@
             v-model="personMessge.birthdayStamp"
             type="date"
             value-format="timestamp"
-            placeholder="选择日期">
+            placeholder="请选择">
           </el-date-picker>
         </el-form-item>
 
         <el-form-item label="人员类型：">
           <div class="pcb__cont">
-            <el-select class="popupCont__choose" ref="select" v-model="personMessge.level" filterable clearable placeholder="请选择操作类型">
+            <el-select class="popupCont__choose" ref="select" v-model="personMessge.level" filterable clearable placeholder="请选择">
               <el-option
                 v-for="(item,index) in issuesList"
                 :key="index"
@@ -123,10 +123,14 @@ export default {
   data () {
     // 姓名校验规则
     const validateName = (rule, value, callback) => {
-      if (validateRule(value, 1)) {
-        callback()
+      if (!value) {
+        callback(new Error('请输入姓名'))
       } else {
-        callback(new Error('姓名格式不正确'))
+        if (validateRule(value, 1)) {
+          callback()
+        } else {
+          callback(new Error('姓名格式不正确'))
+        }
       }
     }
     // 姓名校验规则
@@ -143,7 +147,7 @@ export default {
     }
     return {
       rules: {
-        name: [{validator: validateName, trigger: 'blur'}],
+        name: [{required: true, validator: validateName, trigger: 'blur'}],
         phone: [{required: true, validator: validatePhone, trigger: 'blur'}]
       },
       // 面包屑名称
@@ -332,7 +336,18 @@ export default {
           // 构建formData 对象，将图片上传至阿里云oss服务
           axios.post(res.data.host, formData).then(back => {
             if (!back.data) {
-              this.personMessge.faceImgUrl = res.data.host + '/member/' + uid + '/' + customName
+              let data = {
+                imgUrl: res.data.host + '/member/' + uid + '/' + customName
+              }
+              this.$http('/member/img/detect', data).then(res => {
+                if (res.result) {
+                  if (res.data) {
+                    this.personMessge.faceImgUrl = data.imgUrl
+                  } else {
+                    alert('照片中没有检测到脸')
+                  }
+                }
+              })
             } else {
               this.$tip('上传失败，请稍后重试', 'error')
             }
