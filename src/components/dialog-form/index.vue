@@ -157,6 +157,10 @@ export default {
     filter: { // 是否添加过滤功能(只在社群列表是设置有效)
       type: Boolean,
       default: false
+    },
+    isRules: { // 弹窗是否存在校验
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -300,7 +304,7 @@ export default {
     },
     dialogFormVisible: {
       get () {
-        return this.visible && !this.$store.state.expired
+        return this.visible && (this.isRules ? this.isRules : !this.$store.state.expired)
       },
       set (val) {
         this.$emit('update:visible', val)

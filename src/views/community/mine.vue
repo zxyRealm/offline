@@ -96,13 +96,14 @@
                     <el-button
                     v-if="communityInfo.role === 1"
                     class="affirm"
-                    @click="joinFormVisible = true">加入管理员社群</el-button>
+                    @click="joinFormVisible = true">加入{{communityInfo.parentGroups && communityInfo.parentGroups.length ? '其它' : ''}}管理员社群</el-button>
                   </div>
                 </div>
               </div>
+              <!--设备列表-->
               <div
                 class="dashed-border cmm-table"
-                :style="{height: !communityInfo.groupPid ? tableHeight+78+'px' : 'auto'}"
+                :style="{height: !communityInfo.groupPid ? tableHeight+78+'px' : 'calc(100vh - 388px)'}"
                 :class="{'mine--table__wrap':!communityInfo.groupPid}">
                 <h2 class="cmm-sub-title">设备列表</h2>
                 <ob-list-empty top="32px" v-if="!deviceList.length" supply="设备请到左侧［设备管理］中添加" text="您尚未添加设备">
@@ -268,7 +269,7 @@
       <!--加入其他管理员社群-->
       <ob-dialog-form
         :show-button="false"
-        title="输入邀请码"
+        title="加入社群"
         :visible.sync="joinFormVisible">
         <el-form
           slot="form"
@@ -286,7 +287,14 @@
             <el-input placeholder="请输入10位数字、字母" v-model="joinForm.code"></el-input>
           </el-form-item>
           <el-form-item label-width="0">
-            <div class="name--text" :class="textState">{{textState ==='danger'?'已加入社群：':''}}{{joinCommunityInfo.name}}</div>
+            <div
+              class="name--text vam"
+              :class="textState">
+              <div>
+                {{textState ==='danger'?'无法加入社群：':''}}{{joinCommunityInfo.name}}
+                <div class="c-grey" v-if="textState === 'danger'">设备操作权限已上送至其他社群</div>
+              </div>
+            </div>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -299,6 +307,7 @@
         filter
         showButton
         multiple
+        title="添加社群"
         :disabled-keys="disabledKeys"
         @remote-submit="addCommunity"
         :group="addCommunityList"
@@ -488,6 +497,7 @@ export default {
     // 搜索社群
     remoteSearch (val) {
       this.searchEmpty = false
+      this.currentCommunity = {}
       if (val) {
         this.$http('/group/list/search', {searchText: val}).then(res => {
           if (res.data[0]) {
@@ -513,7 +523,6 @@ export default {
             })
             let current = getCurrent()
             this.expandedKeys = setArr
-            // console.log('search arr', setArr)
             this.$nextTick(() => {
               if (this.$refs.groupNav) {
                 this.$refs.groupNav.setCheckedKeys(setArr)
@@ -651,7 +660,7 @@ export default {
       let url = `/group/disbandGroup` // 删除社群
       let subData = {guid: this.communityInfo.guid}
       if (this.communityInfo.role === 0) {
-        msg += `<br/><span class="fs12" style="color: #FF6660">该管理层下创建的应用层社群也将被删除。</span>`
+        msg += `<br/><span class="fs12" style="color: #FF6660">该管理员社群下创建的成员社群也将被删除。</span>`
       }
       // 删除分组
       if (this.communityInfo.groupPid && this.communityInfo.guid) {
@@ -768,8 +777,8 @@ export default {
     },
     // 显示添加社群dialog, 并设置数据
     showAddDialog (node, data) {
-      this.addCommunityList = node.parent.childNodes[node.parent.childNodes.length - 1].data.memberItem
       this.disabledKeys = data.memberItem.map(item => item.groupGuid)
+      this.addCommunityList = node.parent.childNodes[node.parent.childNodes.length - 1].data.memberItem.filter(item => !new Set(this.disabledKeys).has(item.groupGuid))
       this.$nextTick(() => {
         this.addCommunityVisible = true
       })
@@ -854,8 +863,7 @@ export default {
       }
     }
 
-    //自有社群设备列表样式
-    //overflow-y: auto;
+    //  自有社群设备列表样式
     .cmm-top, .cmm-table {
       padding: 20px;
       box-sizing: border-box;
@@ -905,8 +913,8 @@ export default {
             }
           }
           .info__label{
-            display: inline-block;
-            width: 62px;
+            float: left;
+            width: 64px;
           }
         }
         .info-qr-code {

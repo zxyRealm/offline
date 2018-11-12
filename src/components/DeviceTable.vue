@@ -30,7 +30,7 @@
                   <uu-icon type="error" @click.native="scope.row.popover = false"></uu-icon>
                 </el-form-item>
               </el-form>
-              <i slot="reference" v-if="scope.row.deviceType !== 1 && isMine" class="el-icon-edit"></i>
+              <i slot="reference" v-if="isMine" class="el-icon-edit"></i>
             </el-popover>
         </template>
       </el-table-column>
@@ -309,7 +309,7 @@ export default {
       this.$affirm({
         confirm: '确定',
         cancel: '返回',
-        text: '将设备从社群解绑，您将无法查看该设备数据/无法操作设备。<br>确定要将【<span class="maxw110 ellipsis">' + value.deviceName + '</span>】设备从【<span class="maxw110 ellipsis">' + value.groupName + '</span>】社群解绑？'
+        text: '确定将设备从社群解绑？'
       }, (action, instance, done) => {
         if (action === 'confirm') {
           done()

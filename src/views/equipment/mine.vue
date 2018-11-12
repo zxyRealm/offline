@@ -89,7 +89,7 @@
           <el-input placeholder="请输入16位序列号" v-model="addAioForm.deviceKey"></el-input>
         </el-form-item>
         <el-form-item label-width="0">
-          <div class="name--text" :class="textState.name">{{textState.text}}</div>
+          <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -128,7 +128,6 @@ export default {
         if (value.length === 16) {
           // 获取设备类型
           this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
-            // this.deviceInfo.type = res2.data.deviceType
             // 校验设备是否被绑定过
             this.$http('/merchant/device/exist', {deviceKey: value, type: this.isService}, false).then(res => {
               if (!res.data) {
@@ -147,7 +146,6 @@ export default {
             }).catch(err => {
               callback(new Error(err.msg || '服务器异常'))
             })
-            // callback()
           }).catch(err => {
             callback(new Error(err ? err.msg : '服务器异常'))
           })
@@ -209,6 +207,7 @@ export default {
         exist: ''
       },
       addAioForm: { // 添加一体机表单对象
+        deviceKey: ''
       },
       addCameraForm: { // 添加服务器表单对象
         serverKey: '',
@@ -229,7 +228,7 @@ export default {
       },
       addAioRules: {
         deviceKey: [
-          {validator: validateKey, trigger: ['change', 'blur']}
+          {validator: validateKey, trigger: 'change'}
         ]
       },
       dialogForm: { // dialog 表单
@@ -370,20 +369,18 @@ export default {
     handleBtn (index) {
       if (index === 1) {
         this.isService = 1
-        console.log(makeCustomName(this.equipmentList, 'deviceName', '服务器'))
       } else {
         this.isService = ''
       }
-      this.addAioForm = {}
+      // this.addAioForm = {
+      //   deviceKey: ''
+      // }
       this.addAioVisible = true
       this.$nextTick(() => {
         if (this.$refs.addAioForm) {
           this.$refs.addAioForm.clearValidate()
         }
       })
-    },
-    // 显示添加一体机dialog
-    showAioDialog (type) {
     },
     // 添加一体机设备、添加服务器
     addAioDevice (formName) {
@@ -504,7 +501,7 @@ export default {
   },
   beforeDestroy () {
     this.$store.commit('SET_ALIVE_STATE', {
-      pagination: this.pagination
+      // pagination: this.pagination
     })
   }
 }

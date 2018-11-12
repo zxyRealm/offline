@@ -34,8 +34,8 @@
         ref="GroupTree">
         <span class="custom-tree-node" slot-scope="{ node, data }">
           <template v-if="data.button">
-            <span class="group__custom--btn">
-              <i class="el-icon-plus"></i>{{data.button === 'groups' ? '新建分组': '添加社群'}}
+            <span class="group__custom--btn" :class="{'groups-btn': data.button}">
+              <!--{{data.button === 'groups' ? '': '添加社群'}}-->
             </span>
           </template>
           <template v-else>
@@ -309,6 +309,7 @@ export default {
       if (!this.multiple) {
         this.$refs.GroupTree.setCheckedNodes([nodes])
       }
+      this.$emit('current-change', nodes)
     },
     // 获取已选中对象 键值数组
     getCheckedKeys () {
@@ -469,9 +470,16 @@ export default {
     .group__custom--btn{
       display: inline-block;
       width: 138px;
-      margin-left: -10px;
       color: #fff;
       font-size: 12px;
+      &.groups-btn{
+        width: 80px;
+        height: 20px;
+        line-height: 20px;
+        background: url(./image/create_groups_icon@2x.png) no-repeat center;
+        background-size: 100% 100%;
+        text-align: center;
+      }
       .el-icon-plus {
         margin-right: 5px;
         color: #3a8ee6;

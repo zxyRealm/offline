@@ -77,7 +77,7 @@
             prop="deviceKey">
           </el-table-column>
           <el-table-column
-            label="类型"
+            label="用途"
             prop="type">
             <template slot-scope="scope">
               {{scope.row.type | deviceType}}

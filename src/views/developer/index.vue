@@ -174,7 +174,7 @@ export default {
     avatarUpload (data) {
       let uid = this.userInfo.developerId
       // 获取阿里云oss signature
-      this.$http('/auth/oss/image/signature').then(res => {
+      this.$http('/auth/oss/image/signature', {superKey: 'merchant'}).then(res => {
         if (res.data) {
           let formData = new FormData()
           let customName = 'avatar_' + uid + '.' + (data.file.type.split('/')[1] === 'png' ? 'png' : 'jpg')

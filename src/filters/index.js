@@ -14,13 +14,13 @@ export function deviceType (type, use) {
     case 1:
       return !use ? '服务器' : '为下辖设备通信'
     case 2:
-      return !use ? '客行分析一体机' : '客行分析' // 一体机
+      return !use ? '一体机' : '客行分析' // 一体机
     case 3:
-      return !use ? '人脸抓拍一体机' : '人脸抓拍' // 一体机
+      return !use ? '一体机' : '人脸抓拍' // 一体机
     case 4:
-      return '客行分析'// 摄像头
+      return !use ? '摄像头' : '客行分析'// 摄像头
     case 5:
-      return '人脸抓拍' // 摄像头
+      return !use ? '摄像头' : '人脸抓拍' // 摄像头
     default:
       return '—'
   }

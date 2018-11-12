@@ -830,7 +830,7 @@ button, input {
   }
   .el-tree-node__children {
     .el-tree-node__expand-icon.is-leaf {
-      padding: 0!important;
+      //padding: 0!important;
     }
   }
   .el-tree-node__expand-icon.is-leaf {
@@ -1245,18 +1245,23 @@ p>.ellipsis{
 
 // 添加一体机、加入其他管理员社群
 .name--text {
-  height: 40px;
-  line-height: 40px;
+  height: 50px;
   border-radius: 2px;
   text-align: center;
+  >div{
+    display: inline-block;
+    line-height: 1.4;
+    text-align: left;
+    color: #333;
+  }
   &.safe, &.danger{
     position: relative;
     background: #EDEDED;
-    &:after{
+    &:before{
       position:absolute;
+      content: '';
       top: 0;
       left: 0;
-      content: '';
       width:0;
       height:0;
       border-top: 20px solid #F85650;
@@ -1265,7 +1270,7 @@ p>.ellipsis{
     }
   }
   &.safe{
-    &:after{
+    &:before{
       border-top: 20px solid #58D431;
     }
   }

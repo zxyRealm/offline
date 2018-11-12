@@ -34,12 +34,12 @@
           <el-checkbox-group class="g-pt10" v-model="communityForm.rule">
             <div>
               <el-checkbox :disabled="type==='update'" :label="1">设备操作权限
-                <p class="form__item--des">查看应用层社群的客流数据（必选项）</p>
+                <p class="form__item--des">查看成员社群的客流数据（必选项）</p>
               </el-checkbox>
             </div>
             <div>
               <el-checkbox disabled :label="0">数据查看权限
-                <p class="form__item--des">对应用层社群的设备进行添加、升级等所有操作</p>
+                <p class="form__item--des">对成员社群的设备进行添加、升级等所有操作</p>
               </el-checkbox>
             </div>
           </el-checkbox-group>
@@ -222,10 +222,10 @@ export default {
       let txt = '社群管理&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;'
       switch (this.$route.name) {
         case 'editCommunity':
-          txt += '编辑管理层社群'
+          txt += '编辑管理员社群'
           break
         case 'createCommunity':
-          txt += '新建管理层社群'
+          txt += '创建管理员社群'
           break
         case 'editApplyCommunity':
           txt += '编辑成员社群'
@@ -234,10 +234,10 @@ export default {
           txt += '编辑单店社群'
           break
         case 'singleCommunity':
-          txt += '编辑单店社群'
+          txt += '创建单店社群'
           break
         default:
-          txt += '新建成员社群'
+          txt += '创建成员社群'
       }
       return txt
     },
