@@ -203,9 +203,9 @@ export default {
     // 解析数据
     resolveDatad (data) {
       let obj = JSON.parse(data)
-      this.setMemberInfo(obj.memberInfoList)
       // 判断是否是同一台数据推送的数据
       if (obj.deviceKey !== this.deviceKey) return
+      this.setMemberInfo(obj.memberInfoList)
       // 饼图 = 推送实时更新数据
       this.$set(this.pieParams.seriesData[0], 'value', obj.female)
       this.$set(this.pieParams.seriesData[1], 'value', obj.male)
@@ -263,7 +263,6 @@ export default {
         this.resizeFunction()
       }).catch(error => {
         this.resizeFunction() // 请求失败渲染默认数据
-        console.info(error)
       })
     },
     // 当请求数据为空时

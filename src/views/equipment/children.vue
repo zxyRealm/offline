@@ -34,14 +34,6 @@
             @refresh="getEquipmentList"
             v-model="tableList"
           ></device-table>
-          <el-pagination
-            v-if="pagination.total && pagination.total>pagination.length"
-            @current-change="getEquipmentList"
-            :current-page="pagination.index"
-            :page-size="pagination.length"
-            layout="total,prev, pager, next, jumper"
-            :total="pagination.total">
-          </el-pagination>
         </el-scrollbar>
         <ob-list-empty v-if="!equipmentList.length" :size="small" :text="tipMsg"></ob-list-empty>
       </div>
@@ -85,10 +77,10 @@ export default {
         this.groupList = res.data.filter(item => {
           return item.role === 0
         })
-        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentGroup : false) || key || (this.currentGroup.uniqueKey ? this.currentGroup : false) || res.data[0]
+        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentGroup : false) || key || (this.currentGroup.uniqueKey ? this.currentGroup : false) || this.groupList[0]
         this.$nextTick(() => {
           if (this.$refs.childGroup) {
-            this.groupList.filter(item => item.memberItem.length).map(item => {
+            this.groupList.filter(item => (item.memberItem && item.memberItem.length)).map(item => {
               if (item.memberItem && item.memberItem[item.memberItem.length - 1]) {
                 this.expandedKeys.push(item.memberItem[item.memberItem.length - 1].uniqueKey)
               }
@@ -137,7 +129,7 @@ export default {
           index: page,
           length: 8
         }).then(res => {
-          this.equipmentList = res.data
+          this.equipmentList = res.data || []
         })
       }
     },
@@ -187,9 +179,9 @@ export default {
       let txt = ''
       if (!this.isSearch) {
         txt = '查询不到该设备'
-      } else if ((this.currentGroup.groupPid || this.currentGroup.self) && !this.currentGroup.memberItem.length) {
+      } else if ((this.currentGroup.groupPid || this.currentGroup.self) && (!this.currentGroup.memberItem || !this.currentGroup.memberItem.length)) {
         txt = '暂无非自有设备'
-      } else if (this.currentGroup.self && this.currentGroup.memberItem.length) {
+      } else if (this.currentGroup.self && this.currentGroup.memberItem && this.currentGroup.memberItem.length) {
         txt = '请选择分组/成员社群，查看非自有设备'
       } else if (!this.equipmentList.length) {
         txt = '暂无非自有设备'
@@ -202,7 +194,6 @@ export default {
     tableList: {
       get () {
         let newList = JSON.parse(JSON.stringify(this.equipmentList))
-        console.log(this.filterValue)
         newList = newList.filter(item => {
           if (this.filterValue.type) {
             return item.deviceType === this.filterValue.type

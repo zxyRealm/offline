@@ -528,19 +528,21 @@ export default {
       }
     }
   }
-  .filter__input{
-    width: 190px;
-    color: #333;
-    border-bottom: 1px solid #BFBFBF;
-    &.white{
-      background: rgba(0,0,0,0);
-    }
-    .el-input__inner{
+  .el-dialog{
+    .filter__input{
+      width: 190px;
       color: #333;
-    }
-    .el-icon-search{
-      color: #4BC5EB;
-      font-size: 18px;
+      border-bottom: 1px solid #BFBFBF;
+      &.white{
+        background: rgba(0,0,0,0);
+      }
+      .el-input__inner{
+        color: #333;
+      }
+      .el-icon-search{
+        color: #4BC5EB;
+        font-size: 18px;
+      }
     }
   }
   .el-tree {

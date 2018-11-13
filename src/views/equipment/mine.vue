@@ -13,7 +13,7 @@
     <ob-list-empty
       top="106px"
       v-if="!equipmentList.length"
-      :supply="!isSearch?'少量添加点击【添加一体机】按钮，大批量添加点击【添加服务器】按钮。' : ''"
+      :supply="!isSearch ? '少量添加点击【添加一体机】按钮，大批量添加点击【添加服务器】按钮。' : ''"
       :text="isSearch?'查询不到该设备':'暂无设备'">
     </ob-list-empty>
     <div class="data-list-wrap" v-if="equipmentList.length">
@@ -26,7 +26,7 @@
         >
         </device-table>
         <el-pagination
-          v-if="pagination.total && pagination.total>pagination.length"
+          v-if="pagination.total && pagination.total > pagination.length"
           @current-change="getMineEquipment"
           :current-page="pagination.index"
           :page-size="pagination.length"
@@ -85,6 +85,9 @@
         :model="addAioForm"
         :rules="addAioRules"
       >
+        <el-form-item label="名称：" prop="deviceName">
+          <el-input placeholder="请输入设备名称" v-model="addAioForm.deviceName"></el-input>
+        </el-form-item>
         <el-form-item label="序列号：" prop="deviceKey">
           <el-input placeholder="请输入16位序列号" v-model="addAioForm.deviceKey"></el-input>
         </el-form-item>
@@ -112,6 +115,8 @@
 import {mapState} from 'vuex'
 import {simplifyGroups, makeCustomName} from '@/utils'
 import DeviceTable from '@/components/DeviceTable'
+import {validateRule} from '../../utils/validate'
+
 export default {
   name: 'index',
   components: {
@@ -152,6 +157,23 @@ export default {
         } else {
           callback(new Error('请输入16位序列号'))
         }
+      }
+    }
+    const validateName = (rule, value, callback) => {
+      if (value) {
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
+        } else if (validateRule(value, 2)) {
+          this.$http('/merchant/device/alias/exist', {name: value}, false).then(res => {
+            res.data ? callback(new Error('设备别名已存在')) : callback()
+          }).catch(err => {
+            callback(new Error(err.msg || '验证失败'))
+          })
+        } else {
+          callback(new Error('请输入正确的设备别名'))
+        }
+      } else {
+        callback(new Error('请输入设备名称'))
       }
     }
     const validateKey2 = (rule, value, callback) => {
@@ -207,7 +229,8 @@ export default {
         exist: ''
       },
       addAioForm: { // 添加一体机表单对象
-        deviceKey: ''
+        deviceKey: '',
+        deviceName: ''
       },
       addCameraForm: { // 添加服务器表单对象
         serverKey: '',
@@ -228,7 +251,10 @@ export default {
       },
       addAioRules: {
         deviceKey: [
-          {validator: validateKey, trigger: 'change'}
+          {validator: validateKey, trigger: ['change', 'blur']}
+        ],
+        deviceName: [
+          {validator: validateName, trigger: 'blur'}
         ]
       },
       dialogForm: { // dialog 表单
@@ -320,7 +346,7 @@ export default {
     // 获取自有设备
     getMineEquipment (page) {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
-      this.$http('/device/list', {index: page, searchText: this.$route.params.key || '', length: 8}).then(res => {
+      this.$http('/device/list', {index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination
         if (!this.groupList.length) {
@@ -372,15 +398,7 @@ export default {
       } else {
         this.isService = ''
       }
-      // this.addAioForm = {
-      //   deviceKey: ''
-      // }
       this.addAioVisible = true
-      this.$nextTick(() => {
-        if (this.$refs.addAioForm) {
-          this.$refs.addAioForm.clearValidate()
-        }
-      })
     },
     // 添加一体机设备、添加服务器
     addAioDevice (formName) {
@@ -388,6 +406,7 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = {
+            deviceName: this.addAioForm.deviceName,
             deviceKey: this.addAioForm.deviceKey,
             type: this.deviceInfo.type
           }
@@ -464,6 +483,12 @@ export default {
           case 2:
             text = `客行分析一体机`
             break
+          case 5:
+            text = `人脸抓拍摄像头`
+            break
+          case 4:
+            text = `客行分析摄像头`
+            break
           case 1:
             text = '服务器'
             break
@@ -497,6 +522,19 @@ export default {
         this.getMineEquipment()
       },
       deep: true
+    },
+    addAioVisible (val) {
+      if (val) {
+        this.addAioForm = {
+          deviceKey: '',
+          deviceName: ''
+        }
+        this.$nextTick(() => {
+          if (this.$refs.addAioForm) {
+            this.$refs.addAioForm.clearValidate()
+          }
+        })
+      }
     }
   },
   beforeDestroy () {

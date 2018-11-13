@@ -1233,6 +1233,7 @@ p>.ellipsis{
     .el-menu-item{
       height: 24px;
       line-height: 24px;
+      color: #333;
       &.is-active{
         background: none;
       }
@@ -1243,7 +1244,7 @@ p>.ellipsis{
   }
 }
 
-// 添加一体机、加入其他管理员社群
+//  添加一体机、加入其他管理员社群
 .name--text {
   height: 50px;
   border-radius: 2px;
@@ -1275,6 +1276,8 @@ p>.ellipsis{
     }
   }
 }
+
+//  表单必填项图标定位
 .el-form-item__label::before{
   position: absolute;
   left: -10px;

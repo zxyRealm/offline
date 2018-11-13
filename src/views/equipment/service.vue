@@ -171,7 +171,6 @@ export default {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {name: value}, false).then(res => {
-            // callback(new Error('设备别名已存在'))
             res.data ? callback(new Error('设备别名已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))

@@ -44,17 +44,17 @@
       <el-table-column
         prop="deviceKey"
         label="序列号"
-        min-width="136">
+        width="136">
       </el-table-column>
       <el-table-column
-        min-width="92"
+        width="80"
         label="设备类型">
         <template slot-scope="scope">
           {{scope.row.deviceType | deviceType}}
         </template>
       </el-table-column>
       <el-table-column
-        min-width="90"
+        width="106"
         label="用途">
         <template slot-scope="scope">
           {{scope.row.deviceType | deviceType('use')}}
@@ -68,7 +68,7 @@
             :class="{'ellipsis-28': isMine,'ellipsis': !isMine, 'c-grey': !scope.row.groupName}">
             {{scope.row.deviceType === 1 ? '—': scope.row.groupName || '暂无'}}
           </span>
-          <a href="javascript:void (0)" v-if="isMine && scope.row.deviceType !== 1" @click="showDialogForm(scope.row, scope.$index)">{{scope.row.groupName ? '解绑' : '绑定'}}</a>
+          <uu-icon :type="scope.row.groupName ? 'binding' : 'unbinding'" v-if="isMine && scope.row.deviceType !== 1" @click.native="showDialogForm(scope.row, scope.$index)"></uu-icon>
         </template>
       </el-table-column>
       <el-table-column
@@ -105,7 +105,7 @@
                 :data="{serverKey: scope.row.deviceKey}"
                 name="excelFile"
                 class="import--excel"
-                :action="baseApi + '/device/deviceCamera/info/addBatch'"
+                :action="baseApi + '/manage/device/deviceCamera/info/addBatch'"
                 :on-progress="handleProgress"
                 :before-upload="beforeUpload"
                 :on-success="handleSuccess"
@@ -140,7 +140,7 @@
 <script>
 import {validateRule} from '@/utils/validate'
 import {simplifyGroups} from '../utils'
-const BASE_API = process.env.UPLOAD_API
+const UPLOAD_API = process.env.UPLOAD_API
 export default {
   name: 'device-table',
   props: {
@@ -204,7 +204,7 @@ export default {
       }
     },
     'baseApi' () {
-      return BASE_API
+      return UPLOAD_API
     }
   },
   methods: {

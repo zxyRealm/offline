@@ -119,6 +119,14 @@ export default {
         width: $s14;
       }
     }
+    /*社群绑定*/
+    &.binding {
+      background-image: url(/static/img/binding.png);
+    }
+    /*社群解绑*/
+    &.unbinding {
+      background-image: url(/static/img/unbinding@2x.png);
+    }
     &.small{
       height: $s14;
       width: $s14;
