@@ -13,7 +13,7 @@
         :menu-array="menu2">
         <el-upload
           class="avatar-uploader"
-          action="http://192.168.1.151:80/manage/member/import"
+          :action="ip"
           :show-file-list="false"
           :data="{memberLibraryGuid: $route.query.guid}"
           :before-upload="beforeAvatarUpload"
@@ -110,9 +110,11 @@
 </template>
 
 <script>
+const importIp = process.env.IMPORTIP
 export default {
   name: 'index',
   data: () => ({
+    ip: `http://192.168.1.${importIp}/manage/member/import`,
     // 按钮信息
     btnArray: [
       {text: '手动添加'},

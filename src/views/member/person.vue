@@ -30,7 +30,7 @@
             <div class="form__button" v-if="!personMessge.faceImgUrl">添加<span class="f-grey">（400Kb以内）</span></div>
             <div v-if="personMessge.faceImgUrl" class="avatar__border">
               <div class="img__border" @mouseover="Imghover = true" @mouseout="Imghover = false">
-                <img :src="personMessge.faceImgUrl" class="avatar" @click.stop="bubbling">
+                <img :src="personMessge.faceImgUrl" :class="{'avatar':true , 'hundredWidth':hundredWidth}" @click.stop="bubbling">
                 <div class="el-icon-error img__close" @click.stop="colseImg" v-show="Imghover"></div>
                 <div class="changePhoto" v-show="Imghover">更换照片</div>
               </div>
@@ -184,7 +184,9 @@ export default {
         level: ''
       },
       // hover状态
-      Imghover: false
+      Imghover: false,
+      // 图片比较宽
+      hundredWidth: false
 
     }
   },
@@ -252,7 +254,7 @@ export default {
     },
     // 删除按钮
     delList (e) {
-      this.$confirm('删除该问题后，历史记录都会被清空', {
+      this.$confirm('删除该类型后，相关人员将会解除关联', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         center: true
@@ -344,7 +346,7 @@ export default {
                   if (res.data) {
                     this.personMessge.faceImgUrl = data.imgUrl
                   } else {
-                    alert('照片中没有检测到脸')
+                    this.$tip('照片中没有检测到人脸')
                   }
                 }
               })
@@ -430,6 +432,17 @@ export default {
           this.personMessge = res.data
         }
       })
+    }
+  },
+  watch: {
+    'personMessge.faceImgUrl' (e) {
+      let img = new Image()
+      img.src = e
+      if (img.width > img.height) {
+        this.hundredWidth = true
+      } else {
+        this.hundredWidth = false
+      }
     }
   }
 }
@@ -564,7 +577,7 @@ export default {
     margin-left: 10px;
   }
   .button__close{
-    margin-left: 8px;
+    margin-right: 40px;
     border: 1px solid #E1E7EC;
   }
   .edit__border{
@@ -603,9 +616,8 @@ export default {
     color: #000 !important;
   }
   .avatar{
-    margin: 10px  auto 0 auto;
-    width: 100px !important;
-    height: 100px !important;
+    margin: 0 auto;
+    height: 100px;
   }
   .avatar__border{
     position: absolute;
@@ -619,6 +631,7 @@ export default {
     height: 70px;
   }
   .img__border{
+    border: 1px dashed #FFF;
     position: relative;
     margin: 10px  auto 0 auto;
     width: 100px;
@@ -643,6 +656,10 @@ export default {
     line-height: 28px;
     opacity: 0.8;
     background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
+  }
+  .hundredWidth{
+    width: 100px;
+    height: auto;
   }
 </style>
 
