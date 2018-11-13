@@ -26,6 +26,14 @@
           <el-input type="text" placeholder="添加备注" maxlength="20" v-model.trim="formData.remark"></el-input>
         </el-form-item>
 
+        <el-form-item label="类型：" prop="type">
+          <el-select v-model="formData.type" placeholder="请选择">
+            <el-option label="会员" :value="1"></el-option>
+            <el-option label="员工" :value="2"></el-option>
+            <el-option label="黑名单" :value="3"></el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="关联社群：">
           <div class="form__button" @click="getGroupList" v-show="!formData.groupName">关联</div>
           <div v-show="formData.groupName" class="edit__name">{{formData.groupName}}</div><i class="el-icon-edit edit" @click="getGroupList" v-show="formData.groupName"></i>
@@ -38,7 +46,7 @@
       filter
       @remote-submit="bindCommunity"
       :group="groupList"
-      title="添加社群"
+      title="关联社群"
       type="group"
       :visible.sync="dialogFormVisible"
     >
@@ -55,7 +63,8 @@ export default {
       groupList: [],
       dialogFormVisible: false,
       rules: {
-        name: [{required: true, message: '请输入库名称', trigger: 'blur'}]
+        name: [{required: true, message: '请输入库名称', trigger: 'blur'}],
+        type: [{required: true, message: '请选择库类型', trigger: 'blur'}]
       },
       formData: {
         name: '',
@@ -69,6 +78,7 @@ export default {
       let data = {
         name: e.name,
         remark: e.remark,
+        type: e.type,
         guid: this.$route.query.guid,
         groupGuid: this.formData.groupGuid
       }

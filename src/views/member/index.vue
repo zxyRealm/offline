@@ -11,7 +11,7 @@
           :data="tableData"
           border
           style="width: 100%">
-          <el-table-column label="库名" min-width="200" :show-overflow-tooltip="true">
+          <el-table-column label="库名" min-width="100" :show-overflow-tooltip="true">
             <template slot-scope="scope">
               <span class="libraryName">{{scope.row.name || '—'}}</span>
               <el-popover
@@ -26,7 +26,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            min-width="200"
+            min-width="100"
             prop="remark"
             :show-overflow-tooltip="true"
             label="备注">
@@ -35,6 +35,7 @@
             </template>
           </el-table-column>
           <el-table-column
+          width="90"
             prop="memberCount"
             label="人员数">
           </el-table-column>
@@ -42,14 +43,14 @@
             label="关联社群"
             :show-overflow-tooltip="true">
             <template slot-scope="scope">
-              <div v-if="!scope.row.groupName" class="relevance__cont">暂无</div>
+              <div v-if="!scope.row.groupName" class="relevance__cont grey">暂无</div>
               <div v-else class="relevance__cont">{{scope.row.groupName}}</div>
               <div v-if="!scope.row.groupName" class="relevance" @click="getGroupList(scope.row)"></div>
               <div v-else class="relevance el-icon-edit noImage" @click="getGroupList(scope.row)"></div>
             </template>
           </el-table-column>
           <el-table-column
-            min-width="200"
+            min-width="100"
             label="操作">
             <template slot-scope="scope">
               <div class="fl hand edit" @click="editNew(scope.row.guid)">编辑</div>
@@ -320,6 +321,9 @@ export default {
     overflow: hidden;
     text-overflow:ellipsis;
     white-space: nowrap;
+  }
+  .grey{
+    color: rgba(255, 255, 255, 0.5);
   }
 </style>
 
