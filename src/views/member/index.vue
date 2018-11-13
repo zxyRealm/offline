@@ -18,9 +18,21 @@
                 v-model="scope.row.showPopver"
                 placement="top"
                 width="220">
-                <input type="text" maxlength="20" v-model.trim="changeName" class="changeText">
-                <span class="el-icon-circle-check-outline sure" @click="sureChange(scope.row)"></span>
-                <span class="el-icon-circle-close-outline close" @click="closeChange"></span>
+
+                <el-form
+                  :key="scope.$index"
+                  @submit.native.prevent
+                  :ref="'tableForm' + scope.$index"
+                  :rules="rules"
+                  class="table-form"
+                  :model="changeName"
+                >
+                  <el-form-item :key="'form-item' + scope.$index" prop="name">
+                    <input type="text" maxlength="20" v-model.trim="changeName.name" class="changeText">
+                    <uu-icon type="success" @click.native="sureChange(scope.row,scope.$index)"></uu-icon>
+                    <uu-icon type="error" @click.native="closeChange"></uu-icon>
+                  </el-form-item>
+                </el-form>
                 <span class="el-icon-edit name__edit" slot="reference" @click="getName(scope.row.name)"></span>
               </el-popover>
             </template>
@@ -79,18 +91,40 @@
 import {simplifyGroups} from '@/utils'
 export default {
   name: 'index',
-  data: () => ({
-    // 列表内容
-    tableData: [],
-    // 要改变的库名称
-    changeName: '',
-    showPopver: false,
-    firstEnter: false,
-    dialogFormVisible: false,
-    sendData: '',
-    groupList: []
-
-  }),
+  data () {
+    const name = (rule, value, callback) => {
+      let data = {
+        name: value
+      }
+      this.$http('/memberLibrary/name/exist', data).then(res => {
+        if (res.result) {
+          if (!value) {
+            callback(new Error('请输入应用名称'))
+          } else if (res.data) {
+            callback(new Error('应用库名称重复'))
+          } else {
+            callback()
+          }
+        }
+      })
+    }
+    return {
+      rules: {
+        name: [{required: true, validator: name, trigger: 'blur'}]
+      },
+      // 列表内容
+      tableData: [],
+      // 要改变的库名称
+      changeName: {
+        name: ''
+      },
+      showPopver: false,
+      firstEnter: false,
+      dialogFormVisible: false,
+      sendData: '',
+      groupList: []
+    }
+  },
   created () {
     this.getList()
     this.$http('/firstCheck', {name: 'insight_member_list_first'}).then(res => {
@@ -173,21 +207,27 @@ export default {
       this.$router.push({path: '/member/details', query: {guid: e}})
     },
     // 确定改变库名称
-    sureChange (e) {
+    sureChange (e, index) {
       let data = {
         guid: e.guid,
-        name: this.changeName
+        name: this.changeName.name
       }
-      this.$http('/memberLibrary/update', data).then(res => {
-        if (res.result) {
-          this.getList()
-          this.removeState()
+      this.$refs['tableForm' + index].validate((valid) => {
+        if (valid) {
+          this.$http('/memberLibrary/update', data).then(res => {
+            if (res.result) {
+              this.getList()
+              this.removeState()
+            }
+          })
+        } else {
+          console.log('error submit')
         }
       })
     },
     // 关闭改变库名称
     closeChange () {
-      this.changeName = ''
+      this.changeName.name = ''
       this.removeState()
     },
     // 恢复弹窗状态
@@ -198,7 +238,7 @@ export default {
     },
     // 获取库名称
     getName (e) {
-      this.changeName = e
+      this.changeName.name = e
     },
     add__hint () {
       console.log(123)

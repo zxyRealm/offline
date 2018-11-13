@@ -302,6 +302,7 @@ export default {
     // 确定二级弹出框
     surePopup () {
       let data = {
+        memberLibraryGuid: this.$route.query.guid,
         memberTypeList: this.issuesList
       }
       this.$http('/memberType/operate', data).then(res => {

@@ -59,11 +59,27 @@ import {simplifyGroups} from '@/utils'
 export default {
   name: 'library',
   data () {
+    const name = (rule, value, callback) => {
+      let data = {
+        name: value
+      }
+      this.$http('/memberLibrary/name/exist', data).then(res => {
+        if (res.result) {
+          if (!value) {
+            callback(new Error('请输入应用名称'))
+          } else if (res.data) {
+            callback(new Error('应用库名称重复'))
+          } else {
+            callback()
+          }
+        }
+      })
+    }
     return {
       groupList: [],
       dialogFormVisible: false,
       rules: {
-        name: [{required: true, message: '请输入库名称', trigger: 'blur'}],
+        name: [{required: true, validator: name, trigger: 'blur'}],
         type: [{required: true, message: '请选择库类型', trigger: 'blur'}]
       },
       formData: {
