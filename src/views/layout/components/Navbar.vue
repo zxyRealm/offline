@@ -74,34 +74,36 @@
         </div>
       </div>
     </console-dialog>
-    <el-dialog
-      width="660px"
-      top="calc(50vh - 170px)"
-      :show-close="false"
-      title="欢迎使用线下浏览器服务平台"
-      :visible.sync="helpDialogVisible"
-      custom-class="help__dialog--wrap"
-    >
-      <div class="dialog__content">
-        <p class="g-mb22">平台使用指引：</p>
-        <div class="step__item">
-          <h3>第1步：创建社群</h3>
-          <p class="item--supply">（可选：管理员社群创建成员社群/成员社群加入其它管理员社群等）</p>
+    <transition name="slide-fade">
+      <el-dialog
+        width="660px"
+        top="calc(50vh - 170px)"
+        :show-close="false"
+        title="欢迎使用线下浏览器服务平台"
+        :visible.sync="helpDialogVisible"
+        custom-class="help__dialog--wrap"
+      >
+        <div class="dialog__content">
+          <p class="g-mb22">平台使用指引：</p>
+          <div class="step__item">
+            <h3>第1步：创建社群</h3>
+            <p class="item--supply">（可选：管理员社群创建成员社群/成员社群加入其它管理员社群等）</p>
+          </div>
+          <div class="step__item">
+            <h3>第2步：添加设备并关联社群</h3>
+          </div>
+          <div class="step__item">
+            <h3>第3步（可选）：创建人员库并导入人员</h3>
+          </div>
+          <div class="step__item">
+            <h3>第4步：完成，查看数据</h3>
+          </div>
         </div>
-        <div class="step__item">
-          <h3>第2步：添加设备并关联社群</h3>
+        <div class="dialog__footer tac mt24">
+          <el-button class="affirm" @click="helpDialogVisible = false">收起</el-button>
         </div>
-        <div class="step__item">
-          <h3>第3步（可选）：创建人员库并导入人员</h3>
-        </div>
-        <div class="step__item">
-          <h3>第4步：完成，查看数据</h3>
-        </div>
-      </div>
-      <div class="dialog__footer tac mt24">
-        <el-button class="affirm" @click="helpDialogVisible = false">收起</el-button>
-      </div>
-    </el-dialog>
+      </el-dialog>
+    </transition>
   </div>
 </template>
 
@@ -504,6 +506,18 @@ export default {
         background: #CBCBCB;
       }
     }
+  }
+  /*操作提示框消失动画*/
+  .slide-fade-enter-active {
+    transition: all 1s ease;
+  }
+  .slide-fade-leave-active {
+    transition: all 5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  }
+  .slide-fade-enter, .slide-fade-leave-to
+    /* .slide-fade-leave-active for below version 2.1.8 */ {
+    transform: translateX(100px);
+    opacity: 0;
   }
 </style>
 <style lang="scss">

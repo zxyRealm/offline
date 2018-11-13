@@ -68,7 +68,10 @@
             :class="{'ellipsis-28': isMine,'ellipsis': !isMine, 'c-grey': !scope.row.groupName}">
             {{scope.row.deviceType === 1 ? '—': scope.row.groupName || '暂无'}}
           </span>
-          <uu-icon :type="scope.row.groupName ? 'binding' : 'unbinding'" v-if="isMine && scope.row.deviceType !== 1" @click.native="showDialogForm(scope.row, scope.$index)"></uu-icon>
+          <uu-icon
+            :type="scope.row.groupName ? 'unbinding' : 'binding'"
+            v-if="isMine && scope.row.deviceType !== 1"
+            @click.native="showDialogForm(scope.row, scope.$index)"></uu-icon>
         </template>
       </el-table-column>
       <el-table-column
@@ -251,7 +254,7 @@ export default {
         if (this.data.deviceStatus !== undefined && show) {
           this.$tip('刷新成功')
         }
-        res.data = Math.floor(Math.random() * 7)
+        // res.data = Math.floor(Math.random() * 7)
         console.log('state', res.data)
         if (res.data !== 1) {
           if (value.groupGuid) {
@@ -485,6 +488,9 @@ export default {
           des = '启用'
           url = '/device/startOrShutdown'
       }
+      // 不可操作时不发送请求
+      console.log('btn state', !this.btnState(type, value).state)
+      // if (!this.btnState(type, value).state) return
       if (value.deviceStatus !== 0 && value.deviceStatus !== 1 && value.deviceStatus !== 5) {
         this.$tip(`设备【<span class="maxw110 ellipsis">
               ${value.deviceName}
@@ -495,7 +501,7 @@ export default {
         (action, instance, done) => {
           if (action === 'confirm') {
             done()
-            let subData = {deviceKey: this.data.deviceKey}
+            let subData = {deviceKey: value.deviceKey}
             if (type === 'run') subData.operationCode = value.deviceStatus === 5 ? 0 : 1
             this.$load(`正在${des}中...`)
             this.$http(url, subData).then(res => {
@@ -562,7 +568,6 @@ export default {
     },
     // 文件上传前拦截处理
     beforeUpload (file) {
-      console.log('upload file', file)
       if (file && file.type) {
         if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
           this.$tip('只允许上传Excel文件', 'error')

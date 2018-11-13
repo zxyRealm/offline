@@ -57,16 +57,13 @@
         <el-form-item class="mt24" label="序列号：" prop="deviceKey">
           <el-input placeholder="请输入16位序列号" v-model="addCameraForm.deviceKey"></el-input>
         </el-form-item>
-        <el-form-item class="mt24" label="类型：" prop="type">
-          <el-select v-model="addCameraForm.type" placeholder="请选择设备类型">
-            <el-option label="客行分析" :value="4"></el-option>
-            <el-option label="人脸抓拍" :value="5"></el-option>
-          </el-select>
+        <el-form-item label-width="0">
+          <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer mt42">
+      <div slot="footer" class="dialog-footer">
         <el-button class="cancel" @click="addCameraVisible = false">返 回</el-button>
-        <el-button class="affirm"  type="primary" @click="addCameraDevice('addCameraForm')">添加</el-button>
+        <el-button class="affirm" :disabled="textState.name!=='safe'"  type="primary" @click="addCameraDevice('addCameraForm')">添加</el-button>
       </div>
     </ob-dialog-form>
     <!--添加一体机 、添加服务器-->
@@ -240,13 +237,13 @@ export default {
       },
       addCameraRules: {
         deviceKey: [
-          {required: true, validator: validateKey2, trigger: 'blur'}
+          {required: true, validator: validateKey, trigger: ['change', 'blur']}
         ],
         type: [
           {required: true, message: '请选取设备类型'}
         ],
         name: [
-          {}
+          {required: true, message: '请输入设备名称', trigger: 'blur'}
         ]
       },
       addAioRules: {
@@ -410,7 +407,7 @@ export default {
             deviceKey: this.addAioForm.deviceKey,
             type: this.deviceInfo.type
           }
-          if (this.isService) subData.deviceName = makeCustomName(this.equipmentList, 'deviceName', '服务器')
+          // if (this.isService) subData.deviceName = makeCustomName(this.equipmentList, 'deviceName', '服务器')
           this.$http('/merchant/device/create', subData).then(res => {
             this.addAioVisible = false
             this.$tip('创建成功')
@@ -425,10 +422,19 @@ export default {
     showAddCameraForm (row) {
       this.addCameraForm.serverKey = row.deviceKey
       this.addCameraVisible = true
+      this.deviceInfo = {
+        type: '',
+        exist: ''
+      }
+      this.$nextTick(() => {
+        this.$refs.addCameraForm.resetFields()
+      })
     },
     addCameraDevice (formName) {
+      console.log(this.addCameraForm)
       this.$refs[formName].validate(valid => {
         if (valid) {
+          this.addCameraForm.type = this.deviceInfo.type
           this.$http('/device/deviceCamera/info/add', this.addCameraForm).then(res => {
             this.$tip('添加成功')
             this.addCameraVisible = false
@@ -531,7 +537,7 @@ export default {
         }
         this.$nextTick(() => {
           if (this.$refs.addAioForm) {
-            this.$refs.addAioForm.clearValidate()
+            this.$refs.addAioForm.resetFields()
           }
         })
       }

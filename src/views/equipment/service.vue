@@ -28,6 +28,22 @@
             <el-menu-item index="delete">删除</el-menu-item>
           </el-submenu>
         </el-menu>
+        <el-button class="affirm medium ml10" @click="showCameraDialog('add')">手动添加</el-button>
+        <el-upload
+          :data="{serverKey: $route.params.key}"
+          name="excelFile"
+          class="import--excel"
+          :action="baseApi + '/manage/device/deviceCamera/info/addBatch'"
+          :on-progress="handleProgress"
+          :before-upload="beforeUpload"
+          :on-success="handleSuccess"
+          :on-error="handleError"
+          :multiple="false"
+          :limit="1"
+          :show-file-list="false"
+          :file-list="fileList">
+          <el-button class="affirm medium ml10">导入设备</el-button>
+        </el-upload>
         <a href="javascript:void (0)" @click="clearFilters" class="fr">显示全部</a>
       </div>
       <el-scrollbar class="server__list-wrap">
@@ -88,7 +104,9 @@
             props="groupName">
             <template slot-scope="scope">
               <span class="ellipsis-28" :class="{'c-grey': !scope.row.groupName}">{{scope.row.groupName || '暂无'}}</span>
-              <a href="javascript:void (0)" @click="showDialogForm(scope.row)" :class="{danger: scope.row.groupName}">{{scope.row.groupName ? '解绑': '绑定'}}</a>
+              <uu-icon
+                :type="scope.row.groupName ? 'unbinding' : 'binding'"
+                @click.native="showDialogForm(scope.row)"></uu-icon>
             </template>
           </el-table-column>
           <el-table-column
@@ -96,7 +114,7 @@
             width="150"
             label="操作">
             <template slot-scope="scope">
-              <a href="javascript:void (0)" class="g-mr15" @click="showEditForm(scope.row)">编辑</a>
+              <a href="javascript:void (0)" class="g-mr15" @click="showCameraDialog('edit', scope.row)">编辑</a>
               <a href="javascript:void (0)" class="danger" @click="deleteEquipment(scope.row)">删除</a>
             </template>
           </el-table-column>
@@ -124,32 +142,38 @@
       <!--编辑摄像头信息-->
       <ob-dialog-form
         :show-button="false"
-        title="编辑信息"
-        :visible.sync="editCameraVisible">
+        :title="deviceInfo.title === 'add' ? '添加摄像头' : '编辑信息'"
+        :visible.sync="cameraVisible">
         <el-form
           slot="form"
-          ref="editCameraForm"
+          ref="cameraForm"
           block-message
           style="width: 330px"
           label-position="left"
           class="common-form white"
           label-width="82px"
-          :model="editCameraForm"
-          :rules="editCameraRules"
+          :model="cameraForm"
+          :rules="cameraRules"
         >
           <el-form-item class="mt10" label="名称：" prop="name">
-            <el-input placeholder="请输入设备名称" v-model="editCameraForm.name"></el-input>
+            <el-input placeholder="请输入设备名称" v-model="cameraForm.name"></el-input>
           </el-form-item>
-          <el-form-item class="mt24" label="类型：" prop="type">
-            <el-select v-model="editCameraForm.type" placeholder="请选择设备类型">
-              <el-option label="客行分析" :value="4"></el-option>
-              <el-option label="人脸抓拍" :value="5"></el-option>
+          <el-form-item v-if="deviceInfo.title === 'add'" class="mt10" label="序列号：" prop="deviceKey">
+            <el-input placeholder="请输入16位序列号" v-model="cameraForm.deviceKey"></el-input>
+          </el-form-item>
+          <el-form-item class="mt10" label="类型：" prop="type" v-else>
+            <el-select readonly v-model="cameraForm.type" placeholder="请选择设备类型">
+            <el-option label="客行分析" :value="4"></el-option>
+            <el-option label="人脸抓拍" :value="5"></el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label-width="0" style="margin: -5px 0 " prop="type">
+            <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
+          </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer mt42">
-          <el-button class="cancel" @click="editCameraVisible = false">返 回</el-button>
-          <el-button class="affirm"  type="primary" @click="editCameraDevice('editCameraForm')">确定</el-button>
+        <div slot="footer" class="dialog-footer">
+          <el-button class="cancel" @click="cameraVisible = false">返 回</el-button>
+          <el-button class="affirm" :disabled="deviceInfo.title === 'add' && textState.name !== 'safe'"  type="primary" @click="cameraDevice('cameraForm')">确定</el-button>
         </div>
       </ob-dialog-form>
     </div>
@@ -159,13 +183,15 @@
 import {simplifyGroups, restoreArray} from '../../utils'
 import {validateRule} from '../../utils/validate'
 import {mapState} from 'vuex'
+const UPLOAD_API = process.env.UPLOAD_API
 export default {
   name: 'service',
   data () {
+    // 校验设备名称
     const validateName = (rule, value, callback) => {
       console.log('validator', 'value')
       if (!value) {
-        callback(new Error('请输入设备别名'))
+        callback(new Error('请输入设备名称'))
       } else {
         if (value.length > 32) {
           callback(new Error('请输入1-32位字符'))
@@ -180,11 +206,46 @@ export default {
         }
       }
     }
+    // 校验设备序列号
+    const validateKey = (rule, value, callback) => {
+      this.deviceInfo.type = ''
+      this.deviceInfo.exist = ''
+      if (!value) {
+        callback(new Error('请输入16位序列号'))
+      } else {
+        if (value.length === 16) {
+          // 获取设备类型
+          this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
+            // 校验设备是否被绑定过
+            this.$http('/merchant/device/exist', {deviceKey: value, type: this.isService}, false).then(res => {
+              if (!res.data) {
+                this.deviceInfo.exist = false
+              } else {
+                this.deviceInfo.exist = true
+              }
+              // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
+              if (res2.data.deviceType !== 4 && res2.data.deviceType !== 5) {
+                this.deviceInfo.exist = ''
+                callback(new Error('设备序列号不存在'))
+              } else {
+                this.deviceInfo.type = res2.data.deviceType
+                callback()
+              }
+            }).catch(err => {
+              callback(new Error(err.msg || '服务器异常'))
+            })
+          }).catch(err => {
+            callback(new Error(err ? err.msg : '服务器异常'))
+          })
+        } else {
+          callback(new Error('请输入16位序列号'))
+        }
+      }
+    }
     return {
       dialogFormVisible: false, // 绑定社群弹框
       multipleSelection: [],
-      serviceList: [
-      ],
+      serviceList: [],
       groupList: [],
       pagination: {},
       searchText: '',
@@ -201,19 +262,25 @@ export default {
           {required: true, validator: validateName, trigger: 'blur'}
         ]
       },
-      editCameraVisible: false,
-      editCameraForm: {
+      cameraVisible: false,
+      cameraForm: { // 添加摄像头、编辑摄像头 表单对象
+        deviceKey: '',
         name: '',
         type: ''
       },
-      editCameraRules: {
+      cameraRules: {
         name: [
           {validator: validateName, trigger: 'blur'}
         ],
-        type: [
-          {required: true, message: '请选择设备类型', trigger: 'change'}
+        deviceKey: [
+          {validator: validateKey, trigger: ['change', 'blur']}
         ]
-      }
+      },
+      fileList: [], // 上传文件列表
+      deviceInfo: {
+        type: '',
+        exist: ''
+      } // 设备信息
     }
   },
   created () {
@@ -279,6 +346,49 @@ export default {
       },
       set (val) {
         this.serviceList = val
+      }
+    },
+    baseApi () {
+      return UPLOAD_API
+    },
+    textState: {
+      get () {
+        let [cName, text] = ['', '']
+        switch (this.deviceInfo.type) {
+          case 3:
+            text = `人脸抓拍一体机`
+            break
+          case 2:
+            text = `客行分析一体机`
+            break
+          case 5:
+            text = `人脸抓拍摄像头`
+            break
+          case 4:
+            text = `客行分析摄像头`
+            break
+          case 1:
+            text = '服务器'
+            break
+        }
+        switch (this.deviceInfo.exist) {
+          case '':
+            cName = ''
+            text = ''
+            break
+          case false:
+            cName = 'safe'
+            text = `可添加的${text}`
+            break
+          case true:
+            cName = 'danger'
+            text = `已添加的${text}`
+            break
+        }
+        return {text: text, name: cName}
+      },
+      set (val) {
+        // this.textValue = val
       }
     }
   },
@@ -481,21 +591,62 @@ export default {
         }
       })
     },
-    showEditForm (row) {
-      this.editCameraForm = JSON.parse(JSON.stringify(row))
-      this.editCameraVisible = true
-    },
-    // 编辑摄像头信息
-    editCameraDevice (formName) {
+    // 添加摄像头、编辑摄像头信息
+    cameraDevice (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$http('/device/deviceCamera/info/add', this.editCameraForm).then(res => {
-            this.$tip('修改成功')
-            this.editCameraVisible = false
+          this.$http('/device/deviceCamera/info/add', this.cameraForm).then(res => {
+            this.$tip(this.deviceInfo.title === 'add' ? '添加成功' : '修改成功')
+            this.cameraVisible = false
             this.getDeviceList()
           })
         }
       })
+    },
+    // 显示添加摄像头弹框
+    showCameraDialog (type, data) {
+      if (type === 'edit') {
+        this.cameraForm = JSON.parse(JSON.stringify(data))
+      } else {
+        this.cameraForm = {
+          deviceKey: '',
+          serviceKey: this.$route.params.key,
+          name: '',
+          type: ''
+        }
+      }
+      this.deviceInfo.title = type
+      this.cameraVisible = true
+    },
+    handleProgress (event) {
+      let progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
+      if (event.percent === 100) {
+        progress.close()
+      }
+    },
+    // 文件上传前拦截处理
+    beforeUpload (file) {
+      if (file && file.type) {
+        if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+          this.$tip('只允许上传Excel文件', 'error')
+          return false
+        }
+      } else {
+        this.$tip('请选取需要上传的文件', 'error')
+        return false
+      }
+    },
+    // 上传成功时回调
+    handleSuccess (res) {
+      if (res.result) {
+        this.getDeviceList()
+      } else {
+        this.$tip(res.msg, 'error', 3000)
+      }
+    },
+    // 上传失败时回调
+    handleError (res) {
+      this.$tip(res.msg || '上传失败', 'error', 3000)
     }
   },
   watch: {
@@ -511,6 +662,16 @@ export default {
         // this.getDeviceList()
       },
       deep: true
+    },
+    cameraVisible (val) {
+      if (val) {
+        this.$nextTick(() => {
+          if (this.$refs.cameraForm) {
+            this.$refs.cameraForm.clearValidate()
+          }
+        })
+      } else {
+      }
     }
   },
   filters: {
@@ -533,6 +694,10 @@ export default {
 <style lang="scss" scoped>
 .filter__list--wrap{
   margin: 22px 0 12px;
+  overflow: hidden;
+  > *:not(a) {
+    float: left;
+  }
   > .el-select {
     width: 150px;
     margin-right: 12px;
