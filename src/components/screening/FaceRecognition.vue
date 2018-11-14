@@ -11,16 +11,16 @@
         </el-option>
       </el-select>
     </div>
-    <div class="label_div">
-      <el-select v-model="params.deviceKey" clearable placeholder="所属人员库" class="el--select__default">
-        <el-option
-          v-for="item in options"
-          :key="item.deviceKey"
-          :label="item.deviceName"
-          :value="item.deviceKey">
-        </el-option>
-      </el-select>
-    </div>
+    <!--<div class="label_div">-->
+      <!--<el-select v-model="params.deviceKey" clearable placeholder="所属人员库" class="el&#45;&#45;select__default">-->
+        <!--<el-option-->
+          <!--v-for="item in options"-->
+          <!--:key="item.deviceKey"-->
+          <!--:label="item.deviceName"-->
+          <!--:value="item.deviceKey">-->
+        <!--</el-option>-->
+      <!--</el-select>-->
+    <!--</div>-->
     <div class="label_div">
       <!--<span>时间段：</span>-->
       <el-date-picker
