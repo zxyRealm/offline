@@ -973,6 +973,28 @@ button, input {
   }
 }
 
+// 表单dialog弹框 样式
+// 使dialog中的form内容上下居中显示
+.dialog__content--vm{
+  &.dialog-form-wrapper{
+    .el-dialog__header{
+      padding-bottom: 0;
+    }
+    .el-dialog__body{
+      padding-top: 0;
+      .el-form{
+        >span{
+          display: block;
+        }
+      }
+      .el-form-item:last-of-type{
+        margin-bottom: 12px;
+      }
+    }
+  }
+}
+
+
 .el-radio__inner {
   box-shadow: none !important;
 }

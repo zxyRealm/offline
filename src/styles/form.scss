@@ -6,7 +6,7 @@
   &[block-message]{
     .el-form-item{
       position: initial!important;
-      margin-bottom: 20px!important;
+      margin-bottom: 20px;
       .el-form-item__error{
         line-height: 20px!important;
         padding: 0!important;
@@ -219,3 +219,4 @@
     }
   }
 }
+

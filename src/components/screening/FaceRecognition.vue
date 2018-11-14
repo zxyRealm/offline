@@ -1,8 +1,8 @@
 <template>
   <div class="face--recognition__wrap">
     <div class="label_div">
-      <span>抓拍设备：</span>
-      <el-select v-model="params.deviceKey" clearable placeholder="请选择" class="el--select__default">
+      <!--<span>抓拍设备：</span>-->
+      <el-select v-model="params.deviceKey" clearable placeholder="到访社群" class="el--select__default">
         <el-option
           v-for="item in options"
           :key="item.deviceKey"
@@ -12,7 +12,17 @@
       </el-select>
     </div>
     <div class="label_div">
-      <span>时间段：</span>
+      <el-select v-model="params.deviceKey" clearable placeholder="所属人员库" class="el--select__default">
+        <el-option
+          v-for="item in options"
+          :key="item.deviceKey"
+          :label="item.deviceName"
+          :value="item.deviceKey">
+        </el-option>
+      </el-select>
+    </div>
+    <div class="label_div">
+      <!--<span>时间段：</span>-->
       <el-date-picker
         v-model="arrayTime"
         type="datetimerange"
@@ -48,7 +58,7 @@ export default {
       pickerOptions1: { // 不能选择开始时间之前的日期
         disabledDate (time) {
           return time.getTime() < new Date(that.params.startTime)
-          that.params.startTime
+          // that.params.startTime
         }
       },
       params: { // 开发条件
@@ -106,6 +116,7 @@ export default {
 <style>
   .face--recognition__wrap  .el-input__inner {
     line-height: 30px;
+    height: 30px;
   }
   :-ms-input-placeholder{color:#ffffff;}
   .placeholder {position: absolute;top: 0;z-index: 10;color: #ffffff;}
@@ -114,20 +125,20 @@ export default {
   .face--recognition__wrap {
     width: 100%;
     height: 50px;
+    overflow: hidden;
     padding: 10px 0;
     box-sizing: border-box;
-    -ms-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
     white-space: nowrap;
     div.label_div {
-      display: inline-block !important;
-      display: inline-block;
-      margin-right: 8px;
-      height: 32px;
-      line-height: 32px;
-      border:0;overflow:hidden;
+      float: left;
+      height: 30px;
+      margin-right: 15px;
+      overflow:hidden;
+      border:0;
+      line-height: 0;
       .el-date-editor .el-range-input {
-          width: 140px;
+        width: 120px;
+        font-size: 12px;
       }
     }
     span {
@@ -137,7 +148,7 @@ export default {
       cursor: pointer;
     }
     div.picker-data {
-      width: 350px;
+      width: 310px;
       position: relative;
       border: none;
       background: url(/static/img/input_border_bg@2x.png) no-repeat center;
@@ -159,9 +170,9 @@ export default {
       margin-right: 0;
     }
     .el--select__default .el-input--small input.el-input__inner {
-      width: 154px;
-      height: 32px;
-      line-height: 34px;
+      width: 140px;
+      height: 30px;
+      line-height: 30px;
     }
     .el-select .el-input .el-select__caret.is-show-close {
       &:hover {

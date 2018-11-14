@@ -96,7 +96,7 @@
             label="用途"
             prop="type">
             <template slot-scope="scope">
-              {{scope.row.type | deviceType}}
+              {{scope.row.type | deviceType('use')}}
             </template>
           </el-table-column>
           <el-table-column
@@ -141,36 +141,39 @@
       </ob-dialog-form>
       <!--编辑摄像头信息-->
       <ob-dialog-form
+        class="dialog__content--vm"
         :show-button="false"
         :title="deviceInfo.title === 'add' ? '添加摄像头' : '编辑信息'"
         :visible.sync="cameraVisible">
-        <el-form
-          slot="form"
-          ref="cameraForm"
-          block-message
-          style="width: 330px"
-          label-position="left"
-          class="common-form white"
-          label-width="82px"
-          :model="cameraForm"
-          :rules="cameraRules"
-        >
-          <el-form-item class="mt10" label="名称：" prop="name">
-            <el-input placeholder="请输入设备名称" v-model="cameraForm.name"></el-input>
-          </el-form-item>
-          <el-form-item v-if="deviceInfo.title === 'add'" class="mt10" label="序列号：" prop="deviceKey">
-            <el-input placeholder="请输入16位序列号" v-model="cameraForm.deviceKey"></el-input>
-          </el-form-item>
-          <el-form-item class="mt10" label="类型：" prop="type" v-else>
-            <el-select readonly v-model="cameraForm.type" placeholder="请选择设备类型">
-            <el-option label="客行分析" :value="4"></el-option>
-            <el-option label="人脸抓拍" :value="5"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label-width="0" style="margin: -5px 0 " prop="type">
-            <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
-          </el-form-item>
-        </el-form>
+        <div slot="form" class="vam" style="height: 160px">
+          <el-form
+            slot="form"
+            ref="cameraForm"
+            block-message
+            style="width: 330px"
+            label-position="left"
+            class="common-form white"
+            label-width="82px"
+            :model="cameraForm"
+            :rules="cameraRules"
+          >
+            <el-form-item class="mt10" label="名称：" prop="name">
+              <el-input placeholder="请输入设备名称" v-model="cameraForm.name"></el-input>
+            </el-form-item>
+            <el-form-item v-if="deviceInfo.title === 'add'" class="mt10" label="序列号：" prop="deviceKey">
+              <el-input placeholder="请输入16位序列号" v-model="cameraForm.deviceKey"></el-input>
+            </el-form-item>
+            <el-form-item class="mt10" label="类型：" prop="type" v-else>
+              <el-select readonly v-model="cameraForm.type" placeholder="请选择设备类型">
+                <el-option label="客行分析" :value="4"></el-option>
+                <el-option label="人脸抓拍" :value="5"></el-option>
+              </el-select>
+            </el-form-item>
+            <span v-show="textState.text">
+              <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
+            </span>
+          </el-form>
+        </div>
         <div slot="footer" class="dialog-footer">
           <el-button class="cancel" @click="cameraVisible = false">返 回</el-button>
           <el-button class="affirm" :disabled="deviceInfo.title === 'add' && textState.name !== 'safe'"  type="primary" @click="cameraDevice('cameraForm')">确定</el-button>

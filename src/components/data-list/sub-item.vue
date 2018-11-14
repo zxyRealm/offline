@@ -453,7 +453,7 @@ export default {
     },
     hidePopover () {
       if (this.$refs.tableForm) {
-        this.$refs.tableForm.resetFields()
+        this.$refs.tableForm.clearValidate()
       }
     }
   },

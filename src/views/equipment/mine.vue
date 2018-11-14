@@ -37,30 +37,32 @@
     </div>
     <!--添加摄像头-->
     <ob-dialog-form
+      class="dialog__content--vm"
       :show-button="false"
       title="添加摄像头"
       :visible.sync="addCameraVisible">
-      <el-form
-        slot="form"
-        ref="addCameraForm"
-        block-message
-        style="width: 330px"
-        label-position="left"
-        class="common-form white"
-        label-width="82px"
-        :model="addCameraForm"
-        :rules="addCameraRules"
-      >
-        <el-form-item class="mt24" label="名称：" prop="name">
-          <el-input placeholder="请输入设备名称" v-model="addCameraForm.name"></el-input>
-        </el-form-item>
-        <el-form-item class="mt24" label="序列号：" prop="deviceKey">
-          <el-input placeholder="请输入16位序列号" v-model="addCameraForm.deviceKey"></el-input>
-        </el-form-item>
-        <el-form-item label-width="0">
-          <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
-        </el-form-item>
-      </el-form>
+      <div slot="form" class="vam" style="height: 160px">
+        <el-form
+          ref="addCameraForm"
+          block-message
+          style="width: 330px"
+          label-position="left"
+          class="common-form white"
+          label-width="82px"
+          :model="addCameraForm"
+          :rules="addCameraRules"
+        >
+          <el-form-item label="名称：" prop="name">
+            <el-input placeholder="请输入设备名称" v-model="addCameraForm.name"></el-input>
+          </el-form-item>
+          <el-form-item label="序列号：" prop="deviceKey">
+            <el-input placeholder="请输入16位序列号" v-model="addCameraForm.deviceKey"></el-input>
+          </el-form-item>
+          <span v-show="textState.text">
+            <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
+          </span>
+        </el-form>
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-button class="cancel" @click="addCameraVisible = false">返 回</el-button>
         <el-button class="affirm" :disabled="textState.name!=='safe'"  type="primary" @click="addCameraDevice('addCameraForm')">添加</el-button>
@@ -68,30 +70,33 @@
     </ob-dialog-form>
     <!--添加一体机 、添加服务器-->
     <ob-dialog-form
+      class="dialog__content--vm"
       :show-button="false"
       :title="isService ? '添加服务器' : '添加一体机'"
       :visible.sync="addAioVisible">
-      <el-form
-        slot="form"
-        ref="addAioForm"
-        block-message
-        style="width: 330px"
-        label-position="left"
-        class="common-form white"
-        label-width="82px"
-        :model="addAioForm"
-        :rules="addAioRules"
-      >
-        <el-form-item label="名称：" prop="deviceName">
-          <el-input placeholder="请输入设备名称" v-model="addAioForm.deviceName"></el-input>
-        </el-form-item>
-        <el-form-item label="序列号：" prop="deviceKey">
-          <el-input placeholder="请输入16位序列号" v-model="addAioForm.deviceKey"></el-input>
-        </el-form-item>
-        <el-form-item label-width="0">
+      <div slot="form" class="vam" style="height: 160px">
+        <el-form
+          slot="form"
+          ref="addAioForm"
+          block-message
+          style="width: 330px"
+          label-position="left"
+          class="common-form white"
+          label-width="82px"
+          :model="addAioForm"
+          :rules="addAioRules"
+        >
+          <el-form-item label="名称：" prop="deviceName">
+            <el-input placeholder="请输入设备名称" v-model="addAioForm.deviceName"></el-input>
+          </el-form-item>
+          <el-form-item label="序列号：" prop="deviceKey">
+            <el-input placeholder="请输入16位序列号" v-model="addAioForm.deviceKey"></el-input>
+          </el-form-item>
+          <span v-show="textState.text">
           <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
-        </el-form-item>
-      </el-form>
+        </span>
+        </el-form>
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-button class="cancel" @click="addAioVisible = false">返 回</el-button>
         <el-button class="affirm" :disabled="textState.name!=='safe'" type="primary" @click="addAioDevice('addAioForm')">添加</el-button>
@@ -122,9 +127,9 @@ export default {
   data () {
     // 校验设备序列号
     const validateKey = (rule, value, callback) => {
-      this.deviceInfo.type = ''
-      this.deviceInfo.exist = ''
       if (!value) {
+        this.deviceInfo.type = ''
+        this.deviceInfo.exist = ''
         callback(new Error('请输入16位序列号'))
       } else {
         if (value.length === 16) {
@@ -146,12 +151,18 @@ export default {
                 callback()
               }
             }).catch(err => {
+              this.deviceInfo.type = ''
+              this.deviceInfo.exist = ''
               callback(new Error(err.msg || '服务器异常'))
             })
           }).catch(err => {
+            this.deviceInfo.type = ''
+            this.deviceInfo.exist = ''
             callback(new Error(err ? err.msg : '服务器异常'))
           })
         } else {
+          this.deviceInfo.type = ''
+          this.deviceInfo.exist = ''
           callback(new Error('请输入16位序列号'))
         }
       }
@@ -390,6 +401,10 @@ export default {
     },
     // 添加服务器
     handleBtn (index) {
+      this.deviceInfo = {
+        type: '',
+        exist: ''
+      }
       if (index === 1) {
         this.isService = 1
       } else {
@@ -420,14 +435,19 @@ export default {
     },
     // 显示添加摄像头弹框
     showAddCameraForm (row) {
-      this.addCameraForm.serverKey = row.deviceKey
-      this.addCameraVisible = true
       this.deviceInfo = {
         type: '',
         exist: ''
       }
+      this.addCameraForm = {
+        serverKey: row.deviceKey,
+        deviceKey: '',
+        name: '',
+        type: ''
+      }
+      this.addCameraVisible = true
       this.$nextTick(() => {
-        this.$refs.addCameraForm.resetFields()
+        this.$refs.addCameraForm.clearValidate()
       })
     },
     addCameraDevice (formName) {
@@ -532,12 +552,12 @@ export default {
     addAioVisible (val) {
       if (val) {
         this.addAioForm = {
-          deviceKey: '',
-          deviceName: ''
+          deviceName: '',
+          deviceKey: ''
         }
         this.$nextTick(() => {
           if (this.$refs.addAioForm) {
-            this.$refs.addAioForm.resetFields()
+            this.$refs.addAioForm.clearValidate()
           }
         })
       }
@@ -552,6 +572,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  ul.wrap{
+    li{
+      height: 20px;
+      border-bottom: 1px solid #ddd;
+      &.item:last-of-type{
+        border-color: #f00;
+      }
+    }
+  }
   .data-list-wrap {
     height: calc(100% - 80px);
   }

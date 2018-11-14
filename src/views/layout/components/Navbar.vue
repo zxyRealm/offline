@@ -79,6 +79,7 @@
         width="660px"
         top="calc(50vh - 170px)"
         :show-close="false"
+        :close-on-click-modal="false"
         title="欢迎使用线下浏览器服务平台"
         :visible.sync="helpDialogVisible"
         custom-class="help__dialog--wrap"

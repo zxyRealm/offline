@@ -90,6 +90,10 @@ export default {
         length: this.pageParams.pageSize,
         index: this.pageParams.currentPage
       }
+      if (!this.filterParams.groupGuid) {
+        this.$tip('请您先选择社群', 'error')
+        return
+      }
       this.$http('/chart/flowCount', filterParams).then(res => {
         if (res.result === 1) {
           this.tableData = res.data.content || [];

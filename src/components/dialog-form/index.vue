@@ -89,7 +89,7 @@
       <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
       <el-button class="affirm" type="primary" @click="submitDialogForm('dialogForm')">确 定</el-button>
     </div>
-    <div class="el-dialog__footer" v-if="$slots.footer">
+    <div slot="footer" v-if="$slots.footer">
       <slot name="footer"></slot>
     </div>
   </el-dialog>
@@ -279,7 +279,7 @@ export default {
     closeDialog () {
       this.$emit('update:visible', false)
       if (this.$refs.dialogForm) {
-        this.$refs.dialogForm.resetFields()
+        this.$refs.dialogForm.clearValidate()
       }
     },
     setCheckedNodes (key) {

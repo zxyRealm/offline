@@ -28,7 +28,7 @@
         class="table--td"
       >
         <template slot-scope="scope">
-          <img :src="scope.row.imageUrl || ''" class="table--td__img" @click="getBigImage(scope.row)"/>  <!--//{{scope.row.deviceName}}-->
+          <img :src="scope.row.imageUrl || ''" class="table--td__img" @click="getBigImage(scope.row)"/>
         </template>
       </el-table-column>
       <el-table-column
@@ -41,14 +41,20 @@
           <div>{{scope.row.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}</div>
         </template>
       </el-table-column>
-      <el-table-column prop="personName" label="姓名"></el-table-column>
-      <el-table-column prop="personName" label="性别">
+
+      <el-table-column label="人员信息">
         <template slot-scope="scope">
-          <span class="table__gender" v-if="scope.row.gender === 1">男</span>
-          <span class="table__gender" v-else>女</span>
+          <span class="table__gender">{{scope.row.gender ? '男' : '女'}}</span>
+          <span class="table__age">{{scope.row.age ? scope.row.age : '-'}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="age" label="年龄"></el-table-column>
+      <!--<el-table-column prop="personName" width="50" label="性别">-->
+        <!--<template slot-scope="scope">-->
+          <!--<span class="table__gender" v-if="scope.row.gender === 1">男</span>-->
+          <!--<span class="table__gender" v-else>女</span>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
+      <!--<el-table-column prop="age" width="60" label="年龄"></el-table-column>-->
       <el-table-column
         prop="cameraName"
         label="所属人员库"

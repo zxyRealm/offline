@@ -376,7 +376,7 @@ export default {
     // 隐藏修改备注名表单  清空表单数据
     hidePopover () {
       if (this.$refs.nickNameForm) {
-        this.$refs.nickNameForm.resetFields()
+        this.$refs.nickNameForm.clearValidate()
       }
       if (this.nickNamePopover) this.nickNamePopover = false
     }

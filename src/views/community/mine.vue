@@ -268,35 +268,38 @@
       </ob-dialog-form>
       <!--加入其他管理员社群-->
       <ob-dialog-form
+        class="dialog__content--vm"
         :show-button="false"
         title="加入社群"
         :visible.sync="joinFormVisible">
-        <el-form
-          slot="form"
-          ref="joinForm"
-          block-message
-          style="width: 330px"
-          @submit.native.prevent
-          label-position="left"
-          class="common-form white"
-          label-width="82px"
-          :model="joinForm"
-          :rules="joinRules"
-        >
-          <el-form-item label="邀请码：" prop="code">
-            <el-input placeholder="请输入10位数字、字母" v-model="joinForm.code"></el-input>
-          </el-form-item>
-          <el-form-item label-width="0">
-            <div
-              class="name--text vam"
-              :class="textState">
-              <div>
-                {{textState ==='danger'?'无法加入社群：':''}}{{joinCommunityInfo.name}}
-                <div class="c-grey" v-if="textState === 'danger'">设备操作权限已上送至其他社群</div>
+        <div slot="form" class="vam" style="height: 160px">
+          <el-form
+            slot="form"
+            ref="joinForm"
+            block-message
+            style="width: 330px"
+            @submit.native.prevent
+            label-position="left"
+            class="common-form white"
+            label-width="82px"
+            :model="joinForm"
+            :rules="joinRules"
+          >
+            <el-form-item label="邀请码：" prop="code">
+              <el-input placeholder="请输入10位数字、字母" v-model="joinForm.code"></el-input>
+            </el-form-item>
+            <span v-show="textState">
+              <div
+                class="name--text vam"
+                :class="textState">
+                <div>
+                  {{textState ==='danger'?'无法加入社群：':''}}{{joinCommunityInfo.name}}
+                  <div class="c-grey" v-if="textState === 'danger'">设备操作权限已上送至其他社群</div>
+                </div>
               </div>
-            </div>
-          </el-form-item>
-        </el-form>
+            </span>
+          </el-form>
+        </div>
         <div slot="footer" class="dialog-footer">
           <el-button class="cancel" @click="joinFormVisible = false">返 回</el-button>
           <el-button class="affirm" :disabled="textState!=='safe'" type="primary" @click="joinManageCommunity('joinForm')">加入</el-button>

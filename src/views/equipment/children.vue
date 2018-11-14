@@ -77,7 +77,7 @@ export default {
         this.groupList = res.data.filter(item => {
           return item.role === 0
         })
-        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentGroup : false) || key || (this.currentGroup.uniqueKey ? this.currentGroup : false) || this.groupList[0]
+        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentGroup : false) || key || (this.currentGroup.uniqueKey ? this.currentGroup : false) || this.groupList[0] || {}
         this.$nextTick(() => {
           if (this.$refs.childGroup) {
             this.groupList.filter(item => (item.memberItem && item.memberItem.length)).map(item => {
