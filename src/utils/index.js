@@ -15,13 +15,13 @@ export function parseTime (time, cFormat) {
     date = time
   } else if (typeof time === 'string') {
     time = time.replace(/-/g, '/') // ie无法处理2018-10-13 15:30:45 格式的时间 必需使用/为分隔符
-    if (Date.parse(time).toString().length === 13) {
+    if (time && !isNaN(Date.parse(time))) {
       date = new Date(time.replace(/-/g, '/'))
     } else {
       return time
     }
   } else if (typeof time === 'number') {
-    if (time.toString().length !== 13) {
+    if (time && !Date.parse(time)) {
       return time
     } else {
       date = new Date(time)
