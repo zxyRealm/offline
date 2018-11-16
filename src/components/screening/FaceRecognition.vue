@@ -1,8 +1,8 @@
 <template>
   <div class="face--recognition__wrap">
     <div class="label_div">
-      <!--<span>抓拍设备：</span>-->
-      <el-select v-model="params.deviceKey" clearable placeholder="到访社群" class="el--select__default">
+      <span>抓拍设备：</span>
+      <el-select v-model="params.deviceKey" clearable placeholder="请选择" class="el--select__default">
         <el-option
           v-for="item in options"
           :key="item.deviceKey"
@@ -11,18 +11,8 @@
         </el-option>
       </el-select>
     </div>
-    <!--<div class="label_div">-->
-      <!--<el-select v-model="params.deviceKey" clearable placeholder="所属人员库" class="el&#45;&#45;select__default">-->
-        <!--<el-option-->
-          <!--v-for="item in options"-->
-          <!--:key="item.deviceKey"-->
-          <!--:label="item.deviceName"-->
-          <!--:value="item.deviceKey">-->
-        <!--</el-option>-->
-      <!--</el-select>-->
-    <!--</div>-->
     <div class="label_div">
-      <!--<span>时间段：</span>-->
+      <span>时间段：</span>
       <el-date-picker
         v-model="arrayTime"
         type="datetimerange"

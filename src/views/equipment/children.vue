@@ -246,6 +246,7 @@ export default {
         width: 230px;
         height: 100%;
         padding: 15px 0;
+        box-sizing: border-box;
         .ob-group-nav {
           margin: 0 8px;
         }
@@ -281,5 +282,4 @@ export default {
       }
     }
   }
-
 </style>

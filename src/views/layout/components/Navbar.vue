@@ -20,7 +20,7 @@
           <span>{{selectName}}</span>
         </div>
         <div class="right-menu-item vam">
-          <uu-icon type="help" @click.native="helpDialogVisible = true"></uu-icon>
+          <uu-icon type="help" :class="{'flicker-animation': showAnimation}" @click.native="helpDialogVisible = true"></uu-icon>
           <router-link :to="'/index/notify/'+notifState" class="system-notify">
             <uu-icon type="notify" :class="notifState?'notify-have':''"></uu-icon>
           </router-link>
@@ -74,8 +74,7 @@
         </div>
       </div>
     </console-dialog>
-    <transition name="slide-fade">
-      <el-dialog
+    <el-dialog
         width="660px"
         top="calc(50vh - 170px)"
         :show-close="false"
@@ -104,7 +103,6 @@
           <el-button class="affirm" @click="helpDialogVisible = false">收起</el-button>
         </div>
       </el-dialog>
-    </transition>
   </div>
 </template>
 
@@ -114,7 +112,7 @@ import Hamburger from '@/components/Hamburger'
 import Group from '@/components/group-nav'
 import {eventObject} from '@/utils/event.js'
 import ConsoleDialog from '@/components/console'
-import {simplifyGroups} from '@/utils'
+// import {simplifyGroups} from '@/utils'
 
 export default {
   components: {
@@ -129,6 +127,8 @@ export default {
       deviceList: [], // 设备列表
       notifState: false, // 是否有站内消息
       groupSelectId: '',
+      showAnimation: false, // 是否展示闪烁动画
+      timer: null, // 闪烁动画展示时间定时器
       selectName: '请选择您的社群',
       dialogFormVisible: false, // 选择社群弹框显示状态
       helpDialogVisible: false, // 操作指导提示框 显示状态
@@ -177,6 +177,22 @@ export default {
         this.deviceList = []
       } else {
         this.getGroupList()
+      }
+    },
+    // 操作引导弹框隐藏后图标闪烁提示
+    helpDialogVisible (val) {
+      if (!val) {
+        let delay = 4.5
+        clearInterval(this.timer)
+        this.showAnimation = true
+        this.timer = setInterval(() => {
+          delay -= 0.5
+          if (delay <= 0) {
+            this.showAnimation = false
+            clearInterval(this.timer)
+            this.timer = null
+          }
+        }, 500)
       }
     }
   },
@@ -246,6 +262,25 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+  /*操作引导弹框 图标闪烁效果*/
+  .flicker-animation {
+    animation: flicker 1.5s infinite ease-in-out;
+  }
+  @keyframes flicker {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: .3;
+      filter:alpha(opacity=30);
+      transform: scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
   .navbar {
     position: fixed;
     top: 0;

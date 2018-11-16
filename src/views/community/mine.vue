@@ -46,17 +46,18 @@
                     <a href="javascript:void (0)" v-show="communityInfo.groupPid || communityInfo.merchantGuid === userInfo.developerId" class="danger ml20" @click="disbandGroup">{{communityInfo.groupPid ? '解散分组' : '删除'}}</a>
                   </p>
                 </h2>
-                <div class="cm-info-wrap" v-show="communityInfo.guid">
+                <div class="cm-info-wrap" v-show="communityInfo.merchantGuid">
                   <div class="info-detail">
                     <p>
-                      <span class="info__label">社群名称：</span>{{communityInfo.name}}
+                      <span class="info__label">社群名称：</span><span class="ellipsis-64">{{communityInfo.name}}</span>
                     </p>
                     <p>
                       <span class="info__label">联系电话：</span>
                       {{communityInfo.phone}}</p>
                     <p>
                       <span class="info__label">地区：</span>
-                      {{communityInfo.fullAddress}}</p>
+                      <span class="ellipsis-64">{{communityInfo.fullAddress}}</span>
+                    </p>
                     <p>
                       <span class="info__label">联系人：</span>
                       {{communityInfo.contact}}</p>
@@ -103,10 +104,10 @@
               <!--设备列表-->
               <div
                 class="dashed-border cmm-table"
-                :style="{height: !communityInfo.groupPid ? tableHeight+78+'px' : 'calc(100vh - 388px)'}"
-                :class="{'mine--table__wrap':!communityInfo.groupPid}">
+                :style="{height: !communityInfo.groupPid ? tableHeight+78+'px' : ''}"
+                :class="{'mine--table__wrap':(communityInfo.groupPid || communityInfo.groupPid === null)}">
                 <h2 class="cmm-sub-title">设备列表</h2>
-                <ob-list-empty top="32px" v-if="!deviceList.length" supply="设备请到左侧［设备管理］中添加" text="您尚未添加设备">
+                <ob-list-empty top="32px" v-if="!deviceList.length" :supply="emptyMsg.supply" :text="emptyMsg.text">
                 </ob-list-empty>
                 <el-scrollbar
                   class="table--scrollbar__warp"
@@ -119,8 +120,7 @@
                     <el-table-column
                       prop="deviceName"
                       label="设备别名"
-                      show-overflow-tooltip
-                      width="140">
+                      show-overflow-tooltip>
                       <template slot-scope="scope">
                         {{scope.row.deviceName || '暂无'}}
                       </template>
@@ -128,12 +128,13 @@
                     <el-table-column
                       prop="deviceKey"
                       label="序列号"
-                      width="140px"
+                      width="168px"
                     >
                     </el-table-column>
                     <el-table-column
                       prop="deviceType"
                       label="设备类型"
+                      width="80"
                     >
                       <template slot-scope="scope">
                         {{scope.row.deviceType | deviceType}}
@@ -141,6 +142,7 @@
                     </el-table-column>
                     <el-table-column
                       label="添加时间"
+                      min-width="100"
                     >
                       <template slot-scope="scope">
                         {{scope.row.createTime|parseTime('{y}/{m}/{d} {h}:{i}')}}
@@ -153,8 +155,8 @@
                     >
                     </el-table-column>
                     <el-table-column
-                      prop="date"
                       label="绑定时间"
+                      min-width="100"
                     >
                       <template slot-scope="scope">
                         {{scope.row.bindingTime|parseTime('{y}/{m}/{d} {h}:{i}')}}
@@ -272,7 +274,7 @@
         :show-button="false"
         title="加入社群"
         :visible.sync="joinFormVisible">
-        <div slot="form" class="vam" style="height: 160px">
+        <div slot="form" class="vam" style="height: 130px">
           <el-form
             slot="form"
             ref="joinForm"
@@ -291,7 +293,7 @@
             <span v-show="textState">
               <div
                 class="name--text vam"
-                :class="textState">
+                :class="textState === 'danger' ? 'danger c-h50': textState">
                 <div>
                   {{textState ==='danger'?'无法加入社群：':''}}{{joinCommunityInfo.name}}
                   <div class="c-grey" v-if="textState === 'danger'">设备操作权限已上送至其他社群</div>
@@ -483,6 +485,22 @@ export default {
         return this.deviceList.length ? (this.deviceList.length >= 5 ? 246 : (this.deviceList.length + 1) * 41) : baseHeight
       },
       set () {}
+    },
+    emptyMsg: {
+      get () {
+        // 自有社群/默认分组/自定义分组，无设备信息时显示信息
+        let msg = {
+          supply: '设备请到左侧［设备管理］中添加',
+          text: '您尚未添加设备'
+        }
+        // 分组下无成员社群时提示信息显示
+        if (this.currentCommunity.groupPid && this.currentCommunity.memberItem && !this.currentCommunity.memberItem.length) {
+          msg.supply = ''
+          msg.text = '尚无成员社群'
+        }
+        return msg
+      },
+      set () {}
     }
   },
   methods: {
@@ -570,7 +588,7 @@ export default {
         // 当key 返回string时,即恢复默认选中状态
         if (typeof key === 'string') key = res.data[0]
         // 编辑页返回时记住当前页状态
-        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || res.data[0]
+        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || this.groupList[0] || {}
         this.$nextTick(() => {
           if (this.$refs.groupNav) {
             // 默认只展开默认分组列表
@@ -581,21 +599,22 @@ export default {
               this.expandedKeys.push(item.uniqueKey)
             })
             this.expandedKeys.push(currentNode.uniqueKey)
-
             if (!Object.keys(this.communityInfo).length) this.communityInfo = currentNode
             if (!Object.keys(this.currentCommunity).length) this.currentCommunity = currentNode
+            // 通过自定义唯一标识uniqueKey 设置默认选中项
             this.$refs.groupNav.setCurrentKey(currentNode.uniqueKey)
             this.$nextTick(() => {
+              // 在树形组件中重新获取当前选中项，并保存当前值
               let node = this.$refs.groupNav.$refs.GroupTree.getCurrentNode()
+              this.currentCommunity = node
               if (this.currentCommunity.groupPid) {
-                this.currentCommunity = node
                 this.communityInfo = node
               }
+              if (currentNode.groupGuid) {
+                this.getCommunityInfo(node)
+              }
+              this.getDeviceList(node)
             })
-            if (currentNode.groupGuid) {
-              this.getCommunityInfo(currentNode)
-            }
-            this.getDeviceList(currentNode)
           }
           this.$route.meta.keepAlive = false
         })
@@ -861,14 +880,21 @@ export default {
       height: calc(100% - 32px);
     }
     .mine--table__wrap{
+      height: calc(100vh - 278px);
+      @media screen and(max-width: 1280px){
+        height: calc(100vh - 295px);
+      }
       .table--scrollbar__warp{
-        height: calc(100% - 297px);
+        /*height: calc(100vh - 277px);*/
+        /*@media screen and(max-width: 1280px){*/
+          /*height: calc(100vh - 294px);*/
+        /*}*/
       }
     }
 
     //  自有社群设备列表样式
     .cmm-top, .cmm-table {
-      padding: 20px;
+      padding: 20px 20px 5px;
       box-sizing: border-box;
     }
     .cmm-top {

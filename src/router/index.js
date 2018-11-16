@@ -44,6 +44,8 @@ const homePage = () => import('@/views/index/index')
 // 系统通知
 const homeNotify = () => import('@/views/index/notify/index')
 
+const ThreeTest = () => import('@/views/three/index')
+
 const error404 = () => import('@/views/errorPage/404')
 Vue.use(Router)
 export const constantRouterMap = [
@@ -483,6 +485,21 @@ export const constantRouterMap = [
           keepAlive: false
         },
         component: paramExplain
+      }
+    ]
+  },
+  // three.js 示例展示
+  {
+    path: '/three',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'ThreeTest',
+        meta: {
+          title: 'Three.js 示例使用'
+        },
+        component: ThreeTest
       }
     ]
   },

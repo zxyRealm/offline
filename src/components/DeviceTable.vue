@@ -44,7 +44,7 @@
       <el-table-column
         prop="deviceKey"
         label="序列号"
-        width="136">
+        width="168">
       </el-table-column>
       <el-table-column
         width="80"
@@ -213,19 +213,13 @@ export default {
   methods: {
     // 显示修改昵称popover
     showPopover (index) {
-      if (this.$refs['tableForm' + index]) {
-        this.$nextTick(() => {
-          this.$refs['tableForm' + index].clearValidate()
-        })
-      }
       this.equipmentForm = JSON.parse(JSON.stringify(this.data[index]))
     },
-    // 隐藏修改昵称popover
+    // 隐藏修改昵称popover, 隐藏时清除校验结果，避免展示时显示隐藏前的校验结果
     hidePopover (index) {
-      // console.log(this.$refs.tableForm)
-      // if (this.$refs.tableForm) {
-      //   this.$refs.tableForm.clearValidate()
-      // }
+      if (this.$refs['tableForm' + index]) {
+        this.$refs['tableForm' + index].clearValidate()
+      }
     },
     // 修改设备昵称
     changeEquipmentName (index) {

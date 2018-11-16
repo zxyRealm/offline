@@ -30,6 +30,9 @@
           <el-input type="text" placeholder="11位手机号"
                     v-model.trim="communityForm.phone"></el-input>
         </el-form-item>
+        <el-form-item v-if="$route.query.pid" label="属于：">
+          {{communityForm.parentName}}
+        </el-form-item>
         <el-form-item v-if="communityMore.role === 0" label="索权范围：" prop="rule">
           <el-checkbox-group class="g-pt10" v-model="communityForm.rule">
             <div>
@@ -155,10 +158,11 @@ export default {
     // 创建社群或编辑社群信息
     submitForm (data) {
       let address = data.pca.split(',').map(Number)
+      // 创建社群、编辑社群信息
       let url = `/group/${this.type}`
+      // 管理员社群下创建成员社群
       if (this.$route.query.pid) {
         url = `/group/create/subGroup`
-        data.groupPid = this.$route.query.pid
       }
       data.provinceAreaID = address[0] || 0
       data.cityAreaID = address[1] || 0
@@ -170,18 +174,6 @@ export default {
         this.$tip('操作成功')
         this.$router.push('/community/mine')
       })
-      // if (data.role === 0) {
-      //   this.$http('/group/code').then(res => {
-      //     if (res.data) {
-      //       data.code = res.data
-      //       this.$http(url, data).then(res => {
-      //         this.$tip('操作成功')
-      //         this.$router.push('/community/mine')
-      //       })
-      //     }
-      //   })
-      // } else {
-      // }
     },
     /*
     * 生成社群码的二维码
@@ -202,17 +194,23 @@ export default {
     },
     // 获取社群信息
     getCommunityInfo () {
-      this.$http('/group/getInfo', {guid: this.$route.params.gid}).then(res => {
-        res.data.pca = `${res.data.provinceAreaID},${res.data.cityAreaID},${res.data.districtAreaID}`
-        res.data.rule = (res.data.rule || '1').split(',').map(Number)
-        this.originName = JSON.parse(JSON.stringify(res.data.name))
-        this.communityForm = res.data
+      this.$http('/group/getInfo', {guid: (this.$route.params.gid || this.$route.query.pid)}).then(res => {
+        // 获取父社群信息
+        if (this.$route.query.pid) {
+          this.$set(this.communityForm, 'parentName', res.data.name)
+          this.$set(this.communityForm, 'groupPid', res.data.guid)
+        } else { // 更新时获取社群信息
+          res.data.pca = `${res.data.provinceAreaID},${res.data.cityAreaID},${res.data.districtAreaID}`
+          res.data.rule = (res.data.rule || '1').split(',').map(Number)
+          this.originName = JSON.parse(JSON.stringify(res.data.name))
+          this.communityForm = res.data
+        }
       })
     }
   },
   created () {
     console.log(this.$route.name)
-    if (this.type === 'update') {
+    if (this.type === 'update' || this.$route.query.pid) {
       this.getCommunityInfo()
     }
   },

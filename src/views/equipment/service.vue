@@ -247,6 +247,7 @@ export default {
     }
     return {
       dialogFormVisible: false, // 绑定社群弹框
+      progress: '', // 上传进度弹框提示
       multipleSelection: [],
       serviceList: [],
       groupList: [],
@@ -622,10 +623,8 @@ export default {
       this.cameraVisible = true
     },
     handleProgress (event) {
-      let progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
-      if (event.percent === 100) {
-        progress.close()
-      }
+      console.log(new Date().getTime(), event.percent)
+      this.progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
     },
     // 文件上传前拦截处理
     beforeUpload (file) {
@@ -641,7 +640,9 @@ export default {
     },
     // 上传成功时回调
     handleSuccess (res) {
+      this.fileList = []
       if (res.result) {
+        this.progress.close()
         this.getDeviceList()
       } else {
         this.$tip(res.msg, 'error', 3000)
@@ -649,6 +650,7 @@ export default {
     },
     // 上传失败时回调
     handleError (res) {
+      this.fileList = []
       this.$tip(res.msg || '上传失败', 'error', 3000)
     }
   },

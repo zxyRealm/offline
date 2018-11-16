@@ -21,6 +21,7 @@
     "qrcodejs2": "0.0.2",
     "qs": "^6.5.2",
     "serve": "^9.4.0",
+    "three": "^0.98.0",
     "vue": "^2.5.2",
     "vue-router": "^2.8.0",
     "vue-wechat-title": "^2.0.4",

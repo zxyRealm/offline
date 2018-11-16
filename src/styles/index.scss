@@ -548,13 +548,9 @@ button, input {
       position: relative;
       line-height: 22px;
       .el-form-item__error {
-        position: absolute;
-        right: 0;
-        top: 0;
-        left: 220px;
+        position: relative;
         color: #F87F21;
-        line-height: 22px;
-        padding-left: 8px;
+        line-height: 1;
         white-space: nowrap;
       }
     }
@@ -658,7 +654,7 @@ button, input {
   white-space: nowrap;
   box-sizing: border-box;
   vertical-align: middle;
-  @each $lf in 16,18,20,28{
+  @each $lf in 16,18,20,28,64{
     &-#{$lf} {
       @extend .ellipsis;
       width: calc(100% - #{$lf + px});
@@ -1271,6 +1267,9 @@ p>.ellipsis{
   height: 40px;
   border-radius: 2px;
   text-align: center;
+  &.c-h50{
+    height: 50px;
+  }
   >div{
     display: inline-block;
     line-height: 1.4;
