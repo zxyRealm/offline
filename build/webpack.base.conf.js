@@ -66,6 +66,14 @@ module.exports = {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
+      },
+      {
+        test: require.resolve('three/examples/js/controls/OrbitControls'),
+        use: 'imports-loader?THREE=three'
+      },
+      {
+        test: require.resolve('three/examples/js/controls/OrbitControls'),
+        use: 'exports-loader?THREE.OrbitControls'
       }
     ]
   },

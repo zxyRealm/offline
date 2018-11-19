@@ -204,8 +204,9 @@ export default {
     resolveDatad (data) {
       let obj = JSON.parse(data)
       // 判断是否是同一台数据推送的数据
+      // console.log(obj.deviceKey, this.deviceKey)
       if (obj.deviceKey !== this.deviceKey) return
-      this.setMemberInfo(obj.memberInfoList)
+      this.setMemberInfo(obj.memberInfo)
       // 饼图 = 推送实时更新数据
       this.$set(this.pieParams.seriesData[0], 'value', obj.female)
       this.$set(this.pieParams.seriesData[1], 'value', obj.male)
@@ -221,7 +222,7 @@ export default {
         this.ageBar = JSON.parse(obj.age)
       }
       // 图片展示
-      this.typePedestrian(obj.pedestrian[0])
+      this.typePedestrian(obj.pedestrian)
     },
     // 判断数据类型，并且限定大小4
     typePedestrian (pedestrian) {
@@ -261,7 +262,7 @@ export default {
         }
         this.getwebsocketIp()
         this.resizeFunction()
-      }).catch(error => {
+      }).catch(() => {
         this.resizeFunction() // 请求失败渲染默认数据
       })
     },
@@ -282,8 +283,7 @@ export default {
     },
     // 获取会员信息，并对图像进行剪裁显示
     setMemberInfo (data) {
-      if (!data || !data[0]) return
-      data = data[0]
+      if (!data || !data) return
       data.cropUrl = data.imgUrl
       this.memberInfo = data
       // let coordinate = data.extendedFaceBox

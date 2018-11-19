@@ -72,7 +72,7 @@
     <ob-dialog-form
       class="dialog__content--vm"
       :show-button="false"
-      :title="isService ? '添加服务器' : '添加一体机'"
+      :title="dialogType === 1 ? '添加服务器' : '添加一体机'"
       :visible.sync="addAioVisible">
       <div slot="form" class="vam" style="height: 160px">
         <el-form
@@ -115,7 +115,7 @@
 </template>
 <script>
 import {mapState} from 'vuex'
-import {simplifyGroups, makeCustomName} from '@/utils'
+import {simplifyGroups, makeCustomName, byKeyDeviceType} from '@/utils'
 import DeviceTable from '@/components/DeviceTable'
 import {validateRule} from '../../utils/validate'
 
@@ -133,32 +133,35 @@ export default {
         callback(new Error('请输入16位序列号'))
       } else {
         if (value.length === 16) {
-          // 获取设备类型
-          this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
-            // 校验设备是否被绑定过
-            this.$http('/merchant/device/exist', {deviceKey: value, type: this.isService}, false).then(res => {
-              if (!res.data) {
-                this.deviceInfo.exist = false
-              } else {
-                this.deviceInfo.exist = true
-              }
-              // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
-              if ((this.isService && res2.data.deviceType !== 1) || (!this.isService && res2.data.deviceType === 1)) {
+          // 设备序列号是否存在
+          this.$http('/device/deviceKey', {deviceKey: value}).then(res => {
+            if (!res.data) {
+              // 校验设备是否被绑定过
+              this.$http('/merchant/device/exist', {deviceKey: value}, false).then(res2 => {
+                let dType = byKeyDeviceType(value)
+                if (!res2.data) {
+                  this.deviceInfo.exist = false
+                } else {
+                  this.deviceInfo.exist = true
+                }
+                // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
+                if ((this.dialogType === 1 && dType.type === 1) || (this.dialogType === 2 && (dType.type === 2 || dType.type === 3)) || (this.dialogType === 3 && (dType.type === 4 || dType.type === 5))) {
+                  this.deviceInfo.type = dType.type
+                  callback()
+                } else {
+                  this.deviceInfo.exist = ''
+                  callback(new Error('设备序列号不存在'))
+                }
+              }).catch(err => {
+                this.deviceInfo.type = ''
                 this.deviceInfo.exist = ''
-                callback(new Error('设备序列号不存在'))
-              } else {
-                this.deviceInfo.type = res2.data.deviceType
-                callback()
-              }
-            }).catch(err => {
-              this.deviceInfo.type = ''
+                callback(new Error(err.msg || '服务器异常'))
+              })
+            } else {
               this.deviceInfo.exist = ''
-              callback(new Error(err.msg || '服务器异常'))
-            })
-          }).catch(err => {
-            this.deviceInfo.type = ''
-            this.deviceInfo.exist = ''
-            callback(new Error(err ? err.msg : '服务器异常'))
+              this.deviceInfo.type = ''
+              callback(new Error('设备序列号不存在'))
+            }
           })
         } else {
           this.deviceInfo.type = ''
@@ -184,44 +187,6 @@ export default {
         callback(new Error('请输入设备名称'))
       }
     }
-    const validateKey2 = (rule, value, callback) => {
-      this.deviceInfo.type = ''
-      this.deviceInfo.exist = ''
-      if (!value) {
-        callback(new Error('请输入16位序列号'))
-      } else {
-        if (value.length === 16) {
-          // 获取设备类型
-          callback()
-          // this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
-          //   // this.deviceInfo.type = res2.data.deviceType
-          //   // 校验设备是否被绑定过
-          //   this.$http('/merchant/device/exist', {deviceKey: value, type: this.isService}, false).then(res => {
-          //     if (!res.data) {
-          //       this.deviceInfo.exist = false
-          //     } else {
-          //       this.deviceInfo.exist = true
-          //     }
-          //     // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
-          //     if ((this.isService && res2.data.deviceType !== 1) || (!this.isService && res2.data.deviceType === 1)) {
-          //       this.deviceInfo.exist = ''
-          //       callback(new Error('设备序列号不存在'))
-          //     } else {
-          //       this.deviceInfo.type = res2.data.deviceType
-          //       callback()
-          //     }
-          //   }).catch(err => {
-          //     callback(new Error(err.msg || '服务器异常'))
-          //   })
-          //   // callback()
-          // }).catch(err => {
-          //   callback(new Error(err ? err.msg : '服务器异常'))
-          // })
-        } else {
-          callback(new Error('请输入16位序列号'))
-        }
-      }
-    }
     return {
       drag: false,
       dialogOptions: { // dialog 弹窗配置 类型 标题文本
@@ -231,7 +196,7 @@ export default {
       equipmentEmpty: false,
       addCameraVisible: false, // 添加服务器dialog 是否显示
       addAioVisible: false, // 添加一体机dialog 是否显示
-      isService: 1, // 当值为1时代表为服务器，
+      dialogType: 1, // 1 ：服务器 2：一体机 3：摄像头
       deviceInfo: { // 一体机设备信息
         type: '',
         exist: ''
@@ -406,9 +371,9 @@ export default {
         exist: ''
       }
       if (index === 1) {
-        this.isService = 1
+        this.dialogType = 1
       } else {
-        this.isService = ''
+        this.dialogType = 2
       }
       this.addAioVisible = true
     },
@@ -422,7 +387,6 @@ export default {
             deviceKey: this.addAioForm.deviceKey,
             type: this.deviceInfo.type
           }
-          // if (this.isService) subData.deviceName = makeCustomName(this.equipmentList, 'deviceName', '服务器')
           this.$http('/merchant/device/create', subData).then(res => {
             this.addAioVisible = false
             this.$tip('创建成功')
@@ -435,6 +399,7 @@ export default {
     },
     // 显示添加摄像头弹框
     showAddCameraForm (row) {
+      this.dialogType = 3
       this.deviceInfo = {
         type: '',
         exist: ''
@@ -451,7 +416,7 @@ export default {
       })
     },
     addCameraDevice (formName) {
-      console.log(this.addCameraForm)
+      // console.log(this.addCameraForm)
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.addCameraForm.type = this.deviceInfo.type
@@ -503,20 +468,20 @@ export default {
       get () {
         let [cName, text] = ['', '']
         switch (this.deviceInfo.type) {
-          case 3:
-            text = `人脸抓拍一体机`
+          case 1:
+            text = '服务器'
             break
           case 2:
             text = `客行分析一体机`
             break
-          case 5:
-            text = `人脸抓拍摄像头`
+          case 3:
+            text = `人脸抓拍一体机`
             break
           case 4:
             text = `客行分析摄像头`
             break
-          case 1:
-            text = '服务器'
+          case 5:
+            text = `人脸抓拍摄像头`
             break
         }
         switch (this.deviceInfo.exist) {

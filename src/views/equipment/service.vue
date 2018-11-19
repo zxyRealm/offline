@@ -183,7 +183,7 @@
 </template>
 
 <script>
-import {simplifyGroups, restoreArray} from '../../utils'
+import {simplifyGroups, restoreArray, byKeyDeviceType} from '../../utils'
 import {validateRule} from '../../utils/validate'
 import {mapState} from 'vuex'
 const UPLOAD_API = process.env.UPLOAD_API
@@ -217,28 +217,33 @@ export default {
         callback(new Error('请输入16位序列号'))
       } else {
         if (value.length === 16) {
-          // 获取设备类型
-          this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
-            // 校验设备是否被绑定过
-            this.$http('/merchant/device/exist', {deviceKey: value, type: this.isService}, false).then(res => {
-              if (!res.data) {
-                this.deviceInfo.exist = false
-              } else {
-                this.deviceInfo.exist = true
-              }
-              // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
-              if (res2.data.deviceType !== 4 && res2.data.deviceType !== 5) {
-                this.deviceInfo.exist = ''
-                callback(new Error('设备序列号不存在'))
-              } else {
-                this.deviceInfo.type = res2.data.deviceType
-                callback()
-              }
-            }).catch(err => {
-              callback(new Error(err.msg || '服务器异常'))
-            })
-          }).catch(err => {
-            callback(new Error(err ? err.msg : '服务器异常'))
+          // 校验设备序列号是否存在
+          this.$http('/device/deviceKey', {deviceKey: value}).then(res => {
+            if (res.data) {
+              // 校验设备是否被绑定过
+              this.$http('/merchant/device/exist', {deviceKey: value}, false).then(res => {
+                let dType = byKeyDeviceType(value)
+                if (!res.data) {
+                  this.deviceInfo.exist = false
+                } else {
+                  this.deviceInfo.exist = true
+                }
+                // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
+                if (dType.type === 4 || dType.type === 5) {
+                  this.deviceInfo.type = dType.type
+                  callback()
+                } else {
+                  this.deviceInfo.exist = ''
+                  callback(new Error('设备序列号不存在'))
+                }
+              }).catch(err => {
+                callback(new Error(err.msg || '服务器异常'))
+              })
+            } else {
+              this.deviceInfo.type = ''
+              this.deviceInfo.exist = ''
+              callback(new Error('设备序列号不存在'))
+            }
           })
         } else {
           callback(new Error('请输入16位序列号'))
@@ -572,7 +577,6 @@ export default {
         serverKey: this.serviceList[index].serverKey,
         name: this.serviceList[index].name
       }))
-      console.log(index, this.equipmentForm)
     },
     // 隐藏修改昵称popover
     hidePopover (index) {

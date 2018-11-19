@@ -33,58 +33,6 @@
     <template v-else-if="$slots.content">
       <slot name="content"></slot>
     </template>
-    <el-form
-      block-message
-      style="width: 330px"
-      label-position="left"
-      class="common-form white"
-      ref="dialogForm"
-      :rules="rules"
-      :model="dialogForm"
-      v-else
-    >
-      <template v-if="type==='device'">
-        <el-form-item label="设备序列号：" prop="deviceKey" :label-width="formLabelWidth">
-          <el-input
-            v-model.trim="dialogForm.deviceKey"
-            placeholder="请输入设备序列号"></el-input>
-        </el-form-item>
-        <el-form-item label="设备别名：" prop="deviceName" :label-width="formLabelWidth">
-          <el-input
-            v-model.trim="dialogForm.deviceName"
-            placeholder="请输入设备别名"></el-input>
-        </el-form-item>
-        <el-form-item label="设备类型：" prop="type" :label-width="formLabelWidth">
-          <el-radio-group v-model="dialogForm.type" disabled size="small">
-            <el-radio-button :label="1">分析终端</el-radio-button>
-            <el-radio-button :label="2">客行分析一体机</el-radio-button>
-            <el-radio-button :label="3">人脸抓拍一体机</el-radio-button>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item v-show="dialogForm.type" class="tac">
-          <img v-if="dialogForm.type===1" src="./image/analysis_terminal_icon.png" alt="分析终端">
-          <img v-if="dialogForm.type===2 || dialogForm.type===3" src="./image/all_in_one_icon.png" alt="一体机">
-        </el-form-item>
-      </template>
-      <template v-if="type==='community'">
-        <el-form-item label="选择社群：" prop="groupGuid" :label-width="formLabelWidth">
-          <el-select v-model="dialogForm.groupGuid" placeholder="请选择社群">
-            <el-option v-for="(item,$index) in optionsGroup" :label="item.groupNickName" :value="$index"
-                       :key="$index"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="应用场景：" :label-width="formLabelWidth" prop="deviceScene">
-          <el-input type="textarea" v-model.trim="dialogForm.deviceScene" placeholder="请输入应用场景"
-                    auto-complete="off"></el-input>
-        </el-form-item>
-      </template>
-      <template v-if="type==='apply'">
-        <el-form-item label="申请理由：" :label-width="formLabelWidth" prop="intro">
-          <el-input type="textarea" v-model.trim="dialogForm.intro" placeholder="请输入申请理由"
-                    auto-complete="off"></el-input>
-        </el-form-item>
-      </template>
-    </el-form>
     <div slot="footer" v-if="showButton && !$slots.footer" class="dialog-footer">
       <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
       <el-button class="affirm" type="primary" @click="submitDialogForm('dialogForm')">确 定</el-button>
@@ -164,84 +112,7 @@ export default {
     }
   },
   data () {
-    // 校验设备序列号
-    const validateKey = (rule, value, callback) => {
-      if (!value) {
-        this.dialogForm.type = ''
-        callback(new Error('请输入设备序列号'))
-      } else {
-        if (value.length === 16) {
-          // 校验设备是否被绑定过
-          this.$http('/merchant/device/exist', {deviceKey: value}, false).then(res => {
-            if (!res.data) {
-              // 获取设备状态
-              this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
-                this.dialogForm.type = res2.data.deviceType
-                callback()
-              }).catch(err => {
-                this.dialogForm.type = ''
-                callback(new Error(err ? err.msg : '服务器异常'))
-              })
-            } else {
-              this.dialogForm.type = ''
-              callback(new Error('该设备已添加'))
-            }
-          }).catch(err => {
-            this.dialogForm.type = ''
-            callback(new Error(err.msg || '服务器异常'))
-          })
-        } else {
-          this.dialogForm.type = ''
-          callback(new Error('请输入16位设备序列号'))
-        }
-      }
-    }
-    // 校验设备别名
-    const validateName = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请输入设备别名'))
-      } else {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
-        } else if (validateRule(value, 2)) {
-          this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
-            if (res.data) {
-              callback(new Error('别名重复'))
-            } else {
-              callback()
-            }
-          }).catch(err => {
-            callback(new Error(err.msg || '验证失败'))
-          })
-        } else {
-          callback(new Error('请输入正确的设备别名'))
-        }
-      }
-    }
     return {
-      dialogForm: {
-        deviceKey: '',
-        deviceName: '',
-        type: ''
-      },
-      rules: {
-        deviceKey: [
-          {validator: validateKey, trigger: 'blur'}
-        ],
-        deviceName: [
-          {validator: validateName, trigger: 'blur'}
-        ],
-        groupGuid: [
-          {required: true, message: '请选择一个自有社群', trigger: 'change'}
-        ],
-        deviceScene: [
-          {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
-        ],
-        intro: [
-          {required: true, message: '请输入申请理由', trigger: 'blur'},
-          {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
-        ]
-      }
     }
   },
   watch: {

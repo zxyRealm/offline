@@ -639,7 +639,7 @@ export default {
     getCommunityInfo (val) {
       this.$http('/group/getInfo', {guid: val.groupGuid || val.guid}).then(res => {
         if (res.data) res.data.groupPid = val.groupPid
-        res.data.groupNickName = val.groupNickName || (this.currentCommunity || this.groupList[0]).groupNickName
+        res.data.groupNickName = val.groupNickName || (this.currentCommunity || this.groupList[0] || {}).groupNickName
         if (res.data.groupPid) this.originName = JSON.parse(JSON.stringify(res.data.groupNickName))
         this.communityInfo = res.data || {}
         if (this.communityInfo.name !== this.currentCommunity.name) {

@@ -21,11 +21,7 @@ export function parseTime (time, cFormat) {
       return time
     }
   } else if (typeof time === 'number') {
-    if (time && !Date.parse(time)) {
-      return time
-    } else {
-      date = new Date(time)
-    }
+    date = new Date(time)
   }
   const formatObj = {
     y: date.getFullYear(),
@@ -165,7 +161,7 @@ export function html2Text (val) {
   div.innerHTML = val
   return div.textContent || div.innerText
 }
-
+// 合并对象
 export function objectMerge (target, source) {
   /* Merges two  objects,
      giving the last one precedence */
@@ -186,7 +182,7 @@ export function objectMerge (target, source) {
   })
   return target
 }
-
+// 滚动到具体位置
 export function scrollTo (element, to, duration) {
   if (duration <= 0) return
   const difference = to - element.scrollTop
@@ -379,4 +375,51 @@ export function makeCustomName (data, key = 'name', txt = '新建名称') {
   }
   nextIndex = nextIndex || orderArr.length + 1
   return `${txt}${nextIndex}`
+}
+
+export function byKeyDeviceType (keys) {
+  let backObj = {}
+  if (keys && keys.length === 16) {
+    switch (keys.substring(12)) {
+      case '6045':
+        backObj = {
+          type: 1,
+          msg: '服务器'
+        }
+        break
+      case '8045':
+        backObj = {
+          type: 2,
+          msg: '客行分析一体机'
+        }
+        break
+      case '7045':
+        backObj = {
+          type: 3,
+          msg: '人脸抓拍一体机'
+        }
+        break
+      case '8A45':
+        backObj = {
+          type: 4,
+          msg: '客行分析摄像头'
+        }
+        break
+      case '7A45':
+        backObj = {
+          type: 5,
+          msg: '人脸抓拍摄像头'
+        }
+        break
+      default:
+        backObj = {
+          error: '序列号不存在'
+        }
+    }
+  } else {
+    backObj = {
+      error: '请输入16位序列号'
+    }
+  }
+  return backObj
 }
