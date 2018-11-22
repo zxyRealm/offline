@@ -19,11 +19,11 @@
         :subText="'保存'">
 
         <el-form-item label="库名称：" prop="name">
-          <el-input type="text"  placeholder="添加库名称" maxlength="20" v-model.trim="formData.name"></el-input>
+          <el-input type="text"  placeholder="添加库名称" maxlength="20" v-model.trim="formData.name" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="备注：" prop="remark">
-          <el-input type="text" placeholder="添加备注" maxlength="20" v-model.trim="formData.remark"></el-input>
+          <el-input type="text" placeholder="添加备注" maxlength="20" v-model.trim="formData.remark" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="类型：" prop="type">
@@ -56,36 +56,53 @@
 
 <script>
 import {simplifyGroups} from '@/utils'
+import {validateRule} from '@/utils/validate'
 export default {
   name: 'library',
   data () {
     const name = (rule, value, callback) => {
-      let data = {
-        name: value
-      }
-      this.$http('/memberLibrary/name/exist', data).then(res => {
-        if (res.result) {
-          if (!value) {
-            callback(new Error('请输入应用名称'))
-          } else if (res.data) {
+      if (!value) {
+        callback(new Error('请输入库名称'))
+      } else if (!validateRule(value, 2)) {
+        callback(new Error('请输入正确的库名称'))
+      } else if (this.checkName === value) {
+        callback()
+      } else {
+        let data = {
+          name: value
+        }
+        this.$http('/memberLibrary/name/exist', data, false).then(res => {
+          if (res.data) {
             callback(new Error('应用库名称重复'))
           } else {
             callback()
           }
-        }
-      })
+        }).catch(() => {
+          callback(new Error('校验失败,请重试'))
+        })
+      }
+    }
+    const remark = (rule, value, callback) => {
+      if (!validateRule(value, 2)) {
+        callback(new Error('请输入正确的备注'))
+      } else {
+        callback()
+      }
     }
     return {
       groupList: [],
       dialogFormVisible: false,
       rules: {
         name: [{required: true, validator: name, trigger: 'blur'}],
+        remark: [{validator: remark, trigger: 'blur'}],
         type: [{required: true, message: '请选择库类型', trigger: 'blur'}]
       },
       formData: {
         name: '',
         remark: ''
-      }
+      },
+      // 要检验的名字
+      checkName: ''
     }
   },
   methods: {
@@ -125,11 +142,11 @@ export default {
     },
     // 确认关联
     bindCommunity (data) {
-      console.log(data)
       this.formData.groupName = data[0].name
       this.formData.groupGuid = data[0].groupGuid
       this.dialogFormVisible = false
     }
+
   },
   created () {
     if (this.$route.query.guid) {
@@ -139,6 +156,7 @@ export default {
       this.$http('/memberLibrary/find', data).then(res => {
         if (res.result) {
           this.formData = res.data
+          this.checkName = res.data.name
         }
       })
     }

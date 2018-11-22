@@ -40,11 +40,11 @@
         </el-form-item>
 
         <el-form-item label="姓名：" prop="name">
-          <el-input type="text" placeholder="32位字符以内" maxlength="32" v-model.trim="personMessge.name"></el-input>
+          <el-input type="text" placeholder="32位字符以内" maxlength="32" v-model.trim="personMessge.name" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="手机号：" prop="phone">
-          <el-input type="text" placeholder="11位手机号码" maxlength="11" v-model.trim="personMessge.phone"></el-input>
+          <el-input type="text" placeholder="11位手机号码" maxlength="11" v-model.trim="personMessge.phone" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="性别：">
