@@ -33,6 +33,22 @@
     <template v-else-if="$slots.content">
       <slot name="content"></slot>
     </template>
+    <el-form
+    block-message
+    style="width: 330px"
+    label-position="left"
+    class="common-form white"
+    ref="dialogForm"
+    :rules="rules"
+    :model="dialogForm"
+    v-else>
+      <template v-if="type==='apply'">
+        <el-form-item label="申请理由：" :label-width="formLabelWidth" prop="intro">
+          <el-input type="textarea" v-model.trim="dialogForm.intro" placeholder="请输入申请理由"
+        auto-complete="off"></el-input>
+        </el-form-item>
+      </template>
+    </el-form>
     <div slot="footer" v-if="showButton && !$slots.footer" class="dialog-footer">
       <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
       <el-button class="affirm" type="primary" @click="submitDialogForm('dialogForm')">确 定</el-button>
@@ -113,6 +129,15 @@ export default {
   },
   data () {
     return {
+      dialogForm: {
+        intro: ''
+      },
+      rules: {
+        intro: [
+          {required: true, message: '请输入申请理由', trigger: 'blur'},
+          {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
+        ]
+      }
     }
   },
   watch: {
@@ -138,6 +163,7 @@ export default {
         }
         this.$emit('remote-submit', backArray)
       } else {
+        console.log(this.dialogForm)
         this.$refs[formName].validate(valid => {
           if (valid) {
             this.$emit('remote-submit', JSON.parse(JSON.stringify(this.dialogForm)))

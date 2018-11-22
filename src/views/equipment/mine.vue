@@ -135,7 +135,7 @@ export default {
         if (value.length === 16) {
           // 设备序列号是否存在
           this.$http('/device/deviceKey', {deviceKey: value}).then(res => {
-            if (!res.data) {
+            if (res.data) {
               // 校验设备是否被绑定过
               this.$http('/merchant/device/exist', {deviceKey: value}, false).then(res2 => {
                 let dType = byKeyDeviceType(value)

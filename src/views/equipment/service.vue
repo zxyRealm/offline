@@ -71,9 +71,8 @@
                 v-model="scope.row.popover"
                 trigger="click">
                 <el-form
-                  :key="'tableForm' + scope.$index"
                   @submit.native.prevent
-                  ref="tableForm"
+                  :ref="tableForm + scope.$index"
                   :rules="rules"
                   class="table-form"
                   :model="equipmentForm"
@@ -221,9 +220,9 @@ export default {
           this.$http('/device/deviceKey', {deviceKey: value}).then(res => {
             if (res.data) {
               // 校验设备是否被绑定过
-              this.$http('/merchant/device/exist', {deviceKey: value}, false).then(res => {
+              this.$http('/merchant/device/exist', {deviceKey: value}, false).then(res2 => {
                 let dType = byKeyDeviceType(value)
-                if (!res.data) {
+                if (!res2.data) {
                   this.deviceInfo.exist = false
                 } else {
                   this.deviceInfo.exist = true
@@ -567,11 +566,6 @@ export default {
     },
     // 显示修改昵称popover
     showPopover (index) {
-      if (this.$refs.tableForm) {
-        this.$nextTick(() => {
-          this.$refs.tableForm.clearValidate()
-        })
-      }
       this.equipmentForm = JSON.parse(JSON.stringify({
         deviceKey: this.serviceList[index].deviceKey,
         serverKey: this.serviceList[index].serverKey,
@@ -580,14 +574,13 @@ export default {
     },
     // 隐藏修改昵称popover
     hidePopover (index) {
-      // console.log(this.$refs.tableForm)
-      // if (this.$refs.tableForm) {
-      //   this.$refs.tableForm.clearValidate()
-      // }
+      if (this.$refs['tableForm' + index]) {
+        this.$refs['tableForm' + index].clearValidate()
+      }
     },
     // 修改设备昵称
     changeEquipmentName (index) {
-      this.$refs['tableForm'].validate((valid) => {
+      this.$refs['tableForm' + index].validate((valid) => {
         if (valid) {
           this.$http('/device/deviceCamera/name/update', this.equipmentForm).then(res => {
             this.$tip('修改成功')
@@ -618,7 +611,7 @@ export default {
       } else {
         this.cameraForm = {
           deviceKey: '',
-          serviceKey: this.$route.params.key,
+          serverKey: this.$route.params.key,
           name: '',
           type: ''
         }

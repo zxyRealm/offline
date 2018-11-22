@@ -36,6 +36,7 @@
       class="nav-search fr"
       :placeholder="placeholder"
       @keyup.native.enter="searchMethod"
+      @blur="searchMethod"
       v-model="searchValue">
       <i slot="prefix" @click="searchMethod" class="el-input__icon el-icon-search"></i>
     </el-input>
@@ -106,7 +107,7 @@ export default {
   },
   data () {
     return {
-      searchValue: this.$route.params.name
+      searchValue: this.$route.params.name || ''
     }
   },
   methods: {

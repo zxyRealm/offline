@@ -6,17 +6,12 @@ import * as THREE from 'three'
 * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function d3threeD (exports) {
-  var DEGS_TO_RADS = Math.PI / 180
-  var DIGIT_0 = 48, DIGIT_9 = 57, COMMA = 44, SPACE = 32, PERIOD = 46, MINUS = 45
+  let [DEGS_TO_RADS, DIGIT_0, DIGIT_9, COMMA, SPACE, PERIOD, MINUS] = [Math.PI / 180, 48, 57, 44, 32, 46, 45]
   exports.transformSVGPath = function transformSVGPath (pathStr) {
-    var path = new THREE.ShapePath()
-    var idx = 1, len = pathStr.length, activeCmd,
-      x = 0, y = 0, nx = 0, ny = 0, firstX = null, firstY = null,
-      x1 = 0, x2 = 0, y1 = 0, y2 = 0,
-      rx = 0, ry = 0, xar = 0, laf = 0, sf = 0, cx, cy
+    let [path, idx, len, activeCmd, canRepeat, x, y, nx, ny, firstX, firstY, x1, x2, y1, y2, rx, ry, xar, laf, sf, cx, cy] = [new THREE.ShapePath(), 1, pathStr.length, undefined, undefined, 0, 0, 0, 0, null, null, 0, 0, 0, 0, 0, 0, 0, 0, 0, undefined, undefined]
 
     function eatNum () {
-      var sidx, c, isFloat = false, s
+      let [sidx, c, isFloat, s] = ['', '', false, '']
       // eat delims
       while (idx < len) {
         c = pathStr.charCodeAt(idx)
@@ -47,7 +42,7 @@ function d3threeD (exports) {
     }
 
     function nextIsNum () {
-      var c
+      let c
       // do permanently eat any delims...
       while (idx < len) {
         c = pathStr.charCodeAt(idx)
@@ -58,7 +53,6 @@ function d3threeD (exports) {
       return (c === MINUS || (DIGIT_0 <= c && c <= DIGIT_9))
     }
 
-    var canRepeat
     activeCmd = pathStr[0]
     while (idx <= len) {
       canRepeat = true
@@ -220,28 +214,28 @@ function d3threeD (exports) {
 /// Part from g0v/twgeojson
 /// Graphic Engine and Geo Data Init Functions
 function addGeoObject (group, svgObject, $d3g) {
-  var paths = svgObject.paths
-  var depths = svgObject.depths
-  var colors = svgObject.colors
-  var center = svgObject.center
-  for (var i = 0; i < paths.length; i++) {
-    var path = $d3g.transformSVGPath(paths[i])
-    var color = new THREE.Color(colors[i])
-    var material = new THREE.MeshLambertMaterial({
+  let paths = svgObject.paths
+  let depths = svgObject.depths
+  let colors = svgObject.colors
+  let center = svgObject.center
+  for (let i = 0; i < paths.length; i++) {
+    let path = $d3g.transformSVGPath(paths[i])
+    let color = new THREE.Color(colors[i])
+    let material = new THREE.MeshLambertMaterial({
       color: color,
       emissive: color
     })
-    var depth = depths[i]
-    var simpleShapes = path.toShapes(true)
-    for (var j = 0; j < simpleShapes.length; j++) {
-      var simpleShape = simpleShapes[j]
-      var shape3d = new THREE.ExtrudeBufferGeometry(simpleShape, {
+    let depth = depths[i]
+    let simpleShapes = path.toShapes(true)
+    for (let j = 0; j < simpleShapes.length; j++) {
+      let simpleShape = simpleShapes[j]
+      let shape3d = new THREE.ExtrudeBufferGeometry(simpleShape, {
         depth: depth,
         bevelEnabled: false
       })
-      var mesh = new THREE.Mesh(shape3d, material)
+      let mesh = new THREE.Mesh(shape3d, material)
       mesh.rotation.x = Math.PI
-      mesh.translateZ(-depth - 1)
+      mesh.translateZ(-depth)
       mesh.translateX(-center.x)
       mesh.translateY(-center.y)
       group.add(mesh)

@@ -554,7 +554,7 @@ export default {
             })
           } else {
             this.searchEmpty = true
-            this.tipMsg = `搜不到包含“${val}”的内容啊`
+            this.tipMsg = `搜不到包含“${val}”的内容`
             // this.supply = '设备请到左侧［设备管理］中添加'
             this.setDefaultData()
           }
@@ -577,7 +577,7 @@ export default {
       })
     },
     // 获取社群列表
-    getGroupList (key) {
+    getGroupList (data, pid) {
       this.$http('/group/list').then(res => {
         res.data.map(item => {
           if (item.role === 0 && item.memberItem && item.memberItem.length) {
@@ -586,23 +586,45 @@ export default {
         })
         this.groupList = res.data || []
         // 当key 返回string时,即恢复默认选中状态
-        if (typeof key === 'string') key = res.data[0]
+        if (typeof data === 'string') data = res.data[0]
         // 编辑页返回时记住当前页状态
-        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || key || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || this.groupList[0] || {}
+        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || data || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || this.groupList[0] || {}
+        let uniqueKey
         this.$nextTick(() => {
           if (this.$refs.groupNav) {
             // 默认只展开默认分组列表
+            // 创建成员社群后返回我的社群列表时默认显示管理员社群
+            // 根据当前选中的社群的guid重新确定当前社群在树形结构的uniqueKey
+            if (this.$route.params.groupGuid || pid || currentNode.groupGuid) {
+              for (let i = 0, len = this.groupList.length; i < len; i++) {
+                let item = this.groupList[i]
+                if (pid && pid === item.groupGuid) {
+                  let item2 = item.memberItem[item.memberItem.length - 1].memberItem
+                  for (let k = 0, len2 = item2.length; k < len2; k++) {
+                    if (item2[k].groupGuid === currentNode.groupGuid) {
+                      uniqueKey = item2[k].uniqueKey
+                      break
+                    }
+                  }
+                } else if (item.groupGuid === this.$route.params.groupGuid || item.groupGuid === currentNode.groupGuid) {
+                  uniqueKey = item.uniqueKey
+                  break
+                }
+              }
+              this.$route.params.groupGuid = ''
+            }
+            console.log('selected Key', uniqueKey)
             this.groupList.filter(item => item.memberItem && item.memberItem.length).map(item => {
               if (item.memberItem && item.memberItem[item.memberItem.length - 1]) {
                 this.expandedKeys.push(item.memberItem[item.memberItem.length - 1].uniqueKey)
               }
               this.expandedKeys.push(item.uniqueKey)
             })
-            this.expandedKeys.push(currentNode.uniqueKey)
+            this.expandedKeys.push(uniqueKey || currentNode.uniqueKey)
             if (!Object.keys(this.communityInfo).length) this.communityInfo = currentNode
             if (!Object.keys(this.currentCommunity).length) this.currentCommunity = currentNode
             // 通过自定义唯一标识uniqueKey 设置默认选中项
-            this.$refs.groupNav.setCurrentKey(currentNode.uniqueKey)
+            this.$refs.groupNav.setCurrentKey(uniqueKey || currentNode.uniqueKey)
             this.$nextTick(() => {
               // 在树形组件中重新获取当前选中项，并保存当前值
               let node = this.$refs.groupNav.$refs.GroupTree.getCurrentNode()
@@ -637,7 +659,9 @@ export default {
     },
     // 获取社群详细信息
     getCommunityInfo (val) {
-      this.$http('/group/getInfo', {guid: val.groupGuid || val.guid}).then(res => {
+      let guid = val.groupGuid || val.guid
+      if (!guid) return
+      this.$http('/group/getInfo', {guid: guid}).then(res => {
         if (res.data) res.data.groupPid = val.groupPid
         res.data.groupNickName = val.groupNickName || (this.currentCommunity || this.groupList[0] || {}).groupNickName
         if (res.data.groupPid) this.originName = JSON.parse(JSON.stringify(res.data.groupNickName))
@@ -649,6 +673,7 @@ export default {
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
+      console.log('change', data)
       if (!data.button) {
         this.currentCommunity = data
         if (data.groupPid === undefined && node.parent.parent) {
@@ -791,8 +816,7 @@ export default {
           this.$http('/group/join', subData).then(res => {
             this.$tip('加入成功')
             this.joinFormVisible = false
-            this.getGroupList(this.currentCommunity)
-            // this.$router.push('/community/mine')
+            this.getGroupList(this.currentCommunity, this.joinCommunityInfo.guid)
           })
         }
       })

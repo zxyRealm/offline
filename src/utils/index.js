@@ -381,7 +381,7 @@ export function byKeyDeviceType (keys) {
   let backObj = {}
   if (keys && keys.length === 16) {
     switch (keys.substring(12)) {
-      case '6045':
+      case 'F104':
         backObj = {
           type: 1,
           msg: '服务器'

@@ -4,11 +4,27 @@
 </template>
 
 <script>
+/* 使用three.js examples/js 中插件需要在webpack.base.conf.js module.rules 中添加配置项否侧导入会报错无法正常使用
+*  以使用OrbitControls插件为例 首先npm i --save exports-loader imports-loader (模块名不可写错)
+* webpack.base.conf.js中 module.rules下添加配置：
+* {
+    test: require.resolve('three/examples/js/controls/OrbitControls'),
+    use: 'imports-loader?THREE=three'
+  },
+  {
+    test: require.resolve('three/examples/js/controls/OrbitControls'),
+    use: 'exports-loader?THREE.OrbitControls'
+  }
+* 配置完成后 在需要使用的地方 require('three/examples/js/controls/OrbitControls')
+* 或者 import OrbitControls from 'three/examples/js/controls/OrbitControls'
+* */
+
 import * as THREE from 'three'
 import {d3threeD, addGeoObject} from '../../utils/three'
-import OrbitControls from 'three/examples/js/controls/OrbitControls'
-// const THREE = require('three')
-// const OrbitControls = require('three-orbit-controls')(THREE)
+// three.js控制器插件 文件引入后才可使用THREE.OrbitControls() 构造函数
+require('three/examples/js/controls/OrbitControls')
+require('three/examples/js/loaders/SVGLoader')
+// require('three/examples/js/')
 const $d3g = {}
 d3threeD($d3g)
 
@@ -22,13 +38,16 @@ export default {
       camera: '', // 摄像头（即观看视角）
       object: '',
       stats: '',
-      windowResize: ''
+      windowResize: '',
+      meshList: [],
+      container: ''
     }
   },
   created () {
   },
   mounted () {
     this.initScene('build-3d', 40)
+    this.animate()
   },
   computed: {},
   methods: {
@@ -37,13 +56,13 @@ export default {
     * @params pd 左右padding总距离值
     * */
     initScene (eid, pd) {
-      let wrap = document.getElementById(eid)
+      this.container = document.getElementById(eid)
       //
       this.scene = new THREE.Scene()
-      this.scene.background = new THREE.Color(0xe8e8e8)
+      this.scene.background = new THREE.Color(0xeeeeee)
       //
-      this.camera = new THREE.PerspectiveCamera(50, wrap.offsetWidth / wrap.offsetHeight, 1, 1000)
-      this.camera.position.set(0, 0, 200)
+      this.camera = new THREE.PerspectiveCamera(56, (this.container.clientWidth - pd) / this.container.clientHeight, 1, 5000)
+      this.camera.position.set(0, 0, 400)
       //
       var group = new THREE.Group()
       this.scene.add(group)
@@ -53,34 +72,59 @@ export default {
       this.scene.add(directionalLight)
       var ambientLight = new THREE.AmbientLight(0xf8f8f8, 0.2)
       this.scene.add(ambientLight)
+
+      var planeGeometry = new THREE.PlaneGeometry(300, 160, 1, 1)
+      var planeMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc})
+      var plane = new THREE.Mesh(planeGeometry, planeMaterial)
+      // plane.rotation.x = -0.5 * Math.PI
+      // plane.position.x = 5
+      // group.add(plane)
+      var svgLoader = new THREE.SVGLoader()
+      svgLoader.load('static/chengxiyintai.svg', (paths) => {
+        // var group = new THREE.Group()
+        // group.scale.multiplyScalar(0.5)
+        group.position.x = -290
+        group.position.y = 214
+        group.scale.y *= -1
+        for (var i = 0; i < paths.length; i++) {
+          var path = paths[i]
+          var material = new THREE.MeshBasicMaterial({
+            color: path.color,
+            side: THREE.DoubleSide,
+            depthWrite: false
+          })
+          var shapes = path.toShapes(true)
+          for (var j = 0; j < shapes.length; j++) {
+            var shape = shapes[j]
+            var geometry = new THREE.ShapeBufferGeometry(shape)
+            var mesh = new THREE.Mesh(geometry, material)
+            this.meshList.push(mesh)
+            group.add(mesh)
+          }
+        }
+        document.addEventListener('click', this.onDocumentMouseDown, false)
+        this.scene.add(group)
+        // document.addEventListener('mouseover', this.onDocumentMouseDown, false)
+      })
+      // var spriteMap = new THREE.TextureLoader().load('texture/UV_Grid_Sm.jpg')
+      // var spriteMaterial = new THREE.SpriteMaterial({map: spriteMap, color: 0xff0000})
+      // var sprite = new THREE.Sprite(spriteMaterial)
+      // this.scene.add(sprite)
+      var axes = new THREE.AxesHelper(150)
+      this.scene.add(axes)
       //
-      var helper = new THREE.GridHelper(160, 15)
-      helper.rotation.x = Math.PI / 2
-      group.add(helper)
-      //
-      // var obj = this.initSVGObject()
+      var obj = this.initSVGObject()
       // addGeoObject(group, obj, $d3g)
-      var geometry = new THREE.Geometry()
-      geometry.vertices.push(new THREE.Vector3(-79.5, 70, 0))
-      geometry.vertices.push(new THREE.Vector3(-65, 79.2, 0))
-      geometry.vertices.push(new THREE.Vector3(-15, 76, 0))
-      geometry.vertices.push(new THREE.Vector3(-22, -12, 0))
-      geometry.vertices.push(new THREE.Vector3(-52, -8, 0))
-      geometry.vertices.push(new THREE.Vector3(-68, 18, 0))
-      geometry.vertices.push(new THREE.Vector3(-79.5, 70, 0))
-      // 创建一个简单的矩形. 在这里我们左上和右下顶点被复制了两次。
-      // 因为在两个三角面片里，这两个顶点都需要被用到。
-      var material = new THREE.LineBasicMaterial({color: 0x000000, opacity: 0.6})
-      var mesh = new THREE.Line(geometry, material)
-      this.scene.add(mesh)
 
       this.renderer = new THREE.WebGLRenderer({antialias: true})
       this.renderer.setPixelRatio(window.devicePixelRatio)
-      this.renderer.setSize(wrap.offsetWidth - pd, wrap.offsetHeight)
-      wrap.appendChild(this.renderer.domElement)
+      this.renderer.setClearColor(0xeeeeee)
+      this.renderer.setSize(this.container.clientWidth - pd, this.container.clientHeight)
+      this.container.appendChild(this.renderer.domElement)
       // 轨道控制器
-      var controls = new OrbitControls(this.camera, this.renderer.domElement)
-
+      var controls = new THREE.OrbitControls(this.camera, this.renderer.domElement)
+      controls.enableRotate = false
+      console.log(controls)
       this.renderer.render(this.scene, this.camera)
       this.windowResize = () => {
         let el = document.getElementById(eid)
@@ -96,42 +140,69 @@ export default {
       // 窗口变化时重置模型尺寸和摄像头视角比例
       window.addEventListener('resize', this.windowResize, false)
     },
+    animate () {
+      requestAnimationFrame(this.animate)
+      this.renderer.render(this.scene, this.camera)
+    },
+    addGlobalEvent (e) {},
+    // 添加全局的点击事件
+    onDocumentMouseDown (event) {
+      event.preventDefault()
+      // 基于屏幕点击位置，创建一个Vector3向量
+      var vector = new THREE.Vector3((event.clientX / (window.innerWidth)) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5)
+      // 将屏幕上的点击位置转换成Three.js场景中的坐标
+      vector = vector.unproject(this.camera)
+      // THREE.Raycaster 从相机的位置 向场景中鼠标的点击位置发射光线
+      let raycaster = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize())
+      // 使用intersectObjects方法来判断指定的对象中哪些被该光线照射到了
+      let intersects = raycaster.intersectObjects(this.meshList)
+      console.log(this.meshList, intersects)
+      if (intersects.length > 0) {
+        let current = intersects[1] || intersects[0]
+        console.log(current)
+        console.log(current.object)
+        current.object.material.color = new THREE.Color(0xff0000)
+      }
+    },
+    // 创建精灵贴纸
+    createSprite (geometry, url, scale, posY) {
+      // 设置精灵材质
+      let spriteMaterial = new THREE.SpriteMaterial({
+        opacity: 1,
+        // color: 0xffffff,
+        map: new THREE.TextureLoader().load(url)
+      })
+      // 设置map位置 - 仅针对此图片
+      // spriteMaterial.map.offset = new THREE.Vector2(0.2 * 2, 0)
+      // spriteMaterial.map.repeat = new THREE.Vector2(1 / 5, 1)
+      spriteMaterial.depthTest = false
+      // 设置背景不可见
+      // spriteMaterial.blending = THREE.AdditiveBlending
+
+      // 设置精灵缩放和相对位置
+      let sprite = new THREE.Sprite(spriteMaterial)
+      console.log(sprite)
+      sprite.scale.set(scale, scale, scale)
+      sprite.position.set(0, posY, 0)
+
+      // 在物体上添加贴图
+      geometry.add(sprite)
+    },
     initSVGObject () {
       var obj = {}
       /// The geo data from Taipei City, Keelung City, Taipei County in SVG form
-      obj.paths = [
-        /// Taipei City
-        'M366.2182,108.9780 L368.0329,110.3682 L367.5922,112.4411 L369.9258,116.0311 L368.9827,117.3543 ' +
-        'L371.5686,119.8491 L370.5599,121.7206 L372.9314,124.8009 L368.8889,126.7603 L369.2695,130.7622 ' +
-        'L366.1499,130.3388 L363.4698,128.1161 L362.9256,125.6018 L360.8153,126.4025 L360.2968,124.3588 ' +
-        'L361.9519,121.1623 L360.4475,118.7162 L358.1163,117.8678 L358.7094,115.7577 L361.6243,112.4576 Z',
-        /// Keelung City
-        'M380.2689,113.3850 L383.5604,114.2370 L383.7404,114.2386 L385.4082,115.6247 L384.9725,117.4631 ' +
-        'L381.6681,117.9439 L383.0209,121.0914 L379.4649,122.7061 L373.4987,118.8487 L372.0980,114.7589 ' +
-        'L377.9716,112.0707 Z',
-        /// Taipei County
-        'M359.4486,155.6690 L357.0422,152.7420 L355.1688,148.0173 L357.1186,145.8045 L354.1323,141.2242 ' +
-        'L351.1807,141.6609 L348.9387,140.5372 L349.5415,137.8396 L347.5174,136.1694 L347.6299,129.2327 ' +
-        'L351.4192,128.8067 L354.2518,125.3113 L352.5805,121.8038 L349.3190,120.9429 L344.3277,116.7676 ' +
-        'L350.9772,115.1221 L354.5759,112.5371 L354.5667,110.6949 L357.4098,105.7489 L362.3963,101.8443 ' +
-        'L364.4415,101.0819 L364.5314,101.0828 L364.6209,101.1230 L364.7698,101.2029 L368.1221,101.5115 ' +
-        'L371.7216,104.1338 L372.2958,106.7261 L375.5949,109.6971 L377.0415,108.8875 L377.0737,108.6526 ' +
-        'L377.4037,108.6165 L376.8840,109.7091 L376.7323,109.9037 L377.9416,112.0705 L371.7970,114.8736 ' +
-        'L374.0935,119.4031 L380.7848,122.7963 L382.6529,121.9897 L381.5792,117.8256 L385.0339,117.3069 ' +
-        'L385.4082,115.6247 L388.7014,116.3969 L389.8697,116.6024 L390.0206,116.4860 L391.0396,116.6118 ' +
-        'L394.6665,116.9929 L394.4694,119.2255 L394.3172,119.4987 L395.3792,121.8977 L395.2728,124.0526 ' +
-        'L397.2123,125.6350 L401.1709,126.2516 L401.2612,126.2130 L401.4086,126.6060 L400.1992,127.7733 ' +
-        'L399.7769,128.0446 L399.6247,128.3179 L398.1779,129.0521 L394.2418,129.2969 L388.7324,130.9385 ' +
-        'L389.2782,134.0003 L383.7237,137.0111 L381.7445,139.9336 L379.7001,139.9546 L376.1539,143.0580 ' +
-        'L371.3022,144.1094 L368.6009,146.5914 L368.7361,151.1399 L363.6153,154.4980 ' +
-        /// Taipei County hole.
-        'M363.4600,128.3904 L366.6300,130.3829 L369.3732,129.3913 L369.5603,125.6695 L374.3989,125.1677 ' +
-        'L370.8412,123.6440 L371.0684,118.8252 L369.0431,117.3157 L369.6882,115.7936 L367.8578,112.8749 ' +
-        'L368.1217,110.4867 L366.5152,109.2554 L361.9554,112.3435 L358.1163,117.8678 L361.7218,120.2192 ' +
-        'L360.7261,126.3232 L362.8064,125.5221 Z']
-      obj.depths = [19, 20, 21]
-      obj.colors = [0xC07000, 0xC08000, 0xC0A000]
-      obj.center = {x: 365, y: 125}
+      obj.paths = ['M54.9,182.6l-4-35l8.7-2.2l-1.5-8.4l104.4-16.4l20.9,13.7l3.3,37.5l38.6-6l9.9-3.8l-3.4-12.7l-6.6,2' +
+        'l-3-19.4l20.7-25.1l85.9-26.1l45.1,4.7l32.6-7.8v-9.4l82.1-57.1c9.4-3.9,14.3-5.9,14.7-5.9c14.6-1.2,26.9,1,37.1,6.6' +
+        'c3,1.6,7,4.8,12,9.6c2.5,3.3,4.7,6.1,6.5,8.4c2.8,3.5,5,6.7,7.1,9.3c-2.4,0-4.3,0.1-5.7,0.2l3.5,34.5l0.6,35.8l-5.2,24.8' +
+        'l2.8,28.4l-17.3,2.3l8.3,58.1l16.4-2.4l5.2,37.4l-3.6,0.9l4,20.6l-27,9.3l-14.7,28.6l-30.1,9.6c-8,1.1-15.1,1.9-21.3,2.5' +
+        'c-6.2,0.6-12,1.2-17.3,1.7l-20.4-8.1l-12.7,4.5v10.6l-44.3,5.2l-36,4.7l-1.5-5.2l-29.9,4.8v7.1l-68.5,8.7l-42.3,9.8L170,386.9' +
+        'l-25.2,8.7l-3.8-6.9l-26,9.7l1.6,5.5l-63.7,19.7l-11.8-34.9l-30.3-62.4l-6-142.7l18-0.9v-5.8l22.8,1.6L54.9,182.6Z',
+        'M464.8,221l23.8-3.7l5.2,34.8l-30.7,4.5l1.2,8.5l3.8-0.5l1.8,8.1l-4.5,0.9l-18.3,6.3l-4-28.9l-6.6-8.4' +
+        'l4.6-0.6l-0.7-6.6c2.7-0.3,4.8-0.6,6.2-0.8c1.4-0.2,2.4-0.3,3-0.3l0.5,3.8l17-3.2L464.8,221z'
+      ]
+      obj.depths = [1, 1, 1, 2]
+      obj.colors = [0x0F0E11, 0x2759A8, 0xC0A000, 0xff0000]
+      obj.center = {x: 280, y: 200}
       return obj
     },
     render () {

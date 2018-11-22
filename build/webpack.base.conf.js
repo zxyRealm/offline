@@ -74,6 +74,14 @@ module.exports = {
       {
         test: require.resolve('three/examples/js/controls/OrbitControls'),
         use: 'exports-loader?THREE.OrbitControls'
+      },
+      {
+        test: require.resolve('three/examples/js/loaders/SVGLoader'),
+        use: 'imports-loader?THREE=three'
+      },
+      {
+        test: require.resolve('three/examples/js/loaders/SVGLoader'),
+        use: 'exports-loader?THREE.SVGLoader'
       }
     ]
   },

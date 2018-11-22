@@ -172,7 +172,7 @@ export default {
       data.role = data.role || this.communityMore.role
       this.$http(url, data).then(res => {
         this.$tip('操作成功')
-        this.$router.push('/community/mine')
+        this.$router.push({name: 'community', params: {groupGuid: data.groupPid}})
       })
     },
     /*
@@ -209,7 +209,6 @@ export default {
     }
   },
   created () {
-    console.log(this.$route.name)
     if (this.type === 'update' || this.$route.query.pid) {
       this.getCommunityInfo()
     }
