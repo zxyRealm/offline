@@ -15,6 +15,7 @@
             <template slot-scope="scope">
               <span class="libraryName">{{scope.row.name || '—'}}</span>
               <el-popover
+                :hide="removeVerify(scope.$index)"
                 v-model="scope.row.showPopver"
                 placement="top"
                 width="210">
@@ -117,7 +118,7 @@ export default {
     }
     return {
       rules: {
-        name: [{required: true, validator: name, trigger: 'blur'}]
+        name: [{required: true, validator: name, trigger: 'change'}]
       },
       // 列表内容
       tableData: [],
@@ -276,6 +277,12 @@ export default {
           this.dialogFormVisible = false
         }
       })
+    },
+    // 清除表单校验
+    removeVerify (e) {
+      if (this.$refs['tableForm' + e]) {
+        this.$refs['tableForm' + e].clearValidate()
+      }
     }
   },
   watch: {}
