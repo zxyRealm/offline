@@ -17,7 +17,7 @@
               <el-popover
                 v-model="scope.row.showPopver"
                 placement="top"
-                width="220">
+                width="210">
 
                 <el-form
                   :key="scope.$index"
@@ -89,24 +89,31 @@
 
 <script>
 import {simplifyGroups} from '@/utils'
+import {validateRule} from '@/utils/validate'
 export default {
   name: 'index',
   data () {
     const name = (rule, value, callback) => {
-      let data = {
-        name: value
-      }
-      this.$http('/memberLibrary/name/exist', data).then(res => {
-        if (res.result) {
-          if (!value) {
-            callback(new Error('请输入应用名称'))
-          } else if (res.data) {
+      if (!value) {
+        callback(new Error('请输入库名称'))
+      } else if (!validateRule(value, 2)) {
+        callback(new Error('请输入正确的库名称'))
+      } else if (this.checkName === value) {
+        callback()
+      } else {
+        let data = {
+          name: value
+        }
+        this.$http('/memberLibrary/name/exist', data, false).then(res => {
+          if (res.data) {
             callback(new Error('应用库名称重复'))
           } else {
             callback()
           }
-        }
-      })
+        }).catch(() => {
+          callback(new Error('校验失败,请重试'))
+        })
+      }
     }
     return {
       rules: {
@@ -122,7 +129,8 @@ export default {
       firstEnter: false,
       dialogFormVisible: false,
       sendData: '',
-      groupList: []
+      groupList: [],
+      checkName: ''
     }
   },
   created () {
@@ -239,6 +247,7 @@ export default {
     // 获取库名称
     getName (e) {
       this.changeName.name = e
+      this.checkName = e
     },
     add__hint () {
       console.log(123)
