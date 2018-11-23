@@ -68,8 +68,8 @@ export default {
       if (!value) {
         callback(new Error('请输入社群名称'))
       } else {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
+        if (value.length > 20) {
+          callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
           if (this.type === 'update' && this.originName === value) {
             callback()
@@ -102,8 +102,10 @@ export default {
       if (value) {
         if (validateRule(value, 6)) {
           callback()
+        } else if (value.length !== 11) {
+          callback(new Error('请输入11位手机号'))
         } else {
-          callback(new Error('请输入正确的联系电话'))
+          callback(new Error('手机号格式错误'))
         }
       } else {
         callback()
@@ -171,7 +173,7 @@ export default {
       data.type = data.type || this.communityMore.type
       data.role = data.role || this.communityMore.role
       this.$http(url, data).then(res => {
-        this.$tip('操作成功')
+        this.$tip(this.$route.query.pid ? '添加成功' : this.type === 'create' ? '创建成功' : '保存成功')
         this.$router.push({name: 'community', params: {groupGuid: data.groupPid}})
       })
     },

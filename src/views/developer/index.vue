@@ -68,8 +68,8 @@ export default {
     // 验证公司名称
     const validCompany = (rule, value, callback) => {
       if (value) {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
+        if (value.length > 20) {
+          callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 1)) {
           callback()
         } else {

@@ -172,10 +172,23 @@ export default {
     }
     const validateName = (rule, value, callback) => {
       if (value) {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
+        if (value.length > 20) {
+          callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
-          this.$http('/merchant/device/alias/exist', {name: value}, false).then(res => {
+          // 一体机、服务器名称验重
+          let url = '/merchant/device/alias/exist'
+          let subData = {name: value}
+          switch (this.dialogType) {
+            case 3:
+              // 摄像头名称验重
+              url = '/device/existName'
+              subData = {
+                name: value,
+                serverKey: this.addCameraForm.serverKey
+              }
+              break
+          }
+          this.$http(url, subData, false).then(res => {
             res.data ? callback(new Error('设备别名已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
@@ -215,11 +228,8 @@ export default {
         deviceKey: [
           {required: true, validator: validateKey, trigger: ['change', 'blur']}
         ],
-        type: [
-          {required: true, message: '请选取设备类型'}
-        ],
         name: [
-          {required: true, message: '请输入设备名称', trigger: 'blur'}
+          {required: true, validator: validateName, trigger: 'blur'}
         ]
       },
       addAioRules: {

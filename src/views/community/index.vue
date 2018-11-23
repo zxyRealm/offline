@@ -181,8 +181,8 @@ export default {
       if (!value) {
         callback(new Error('请输入备注名'))
       } else {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
+        if (value.length > 20) {
+          callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
           if (this.originName === value) {
             callback(new Error('备注名已存在'))

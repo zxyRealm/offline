@@ -72,14 +72,14 @@
                 trigger="click">
                 <el-form
                   @submit.native.prevent
-                  :ref="tableForm + scope.$index"
+                  :ref="'tableForm' + scope.$index"
                   :rules="rules"
                   class="table-form"
                   :model="equipmentForm"
                 >
                   <el-form-item :key="scope.$index" prop="name">
                     <el-input type="text" v-model.trim="equipmentForm.name"></el-input>
-                    <uu-icon type="success" @click.native="changeEquipmentName(scope.$index)"></uu-icon>
+                    <uu-icon type="success" @click.native="changeEquipmentName(scope.$index, scope.row)"></uu-icon>
                     <uu-icon type="error" @click.native="scope.row.popover = false"></uu-icon>
                   </el-form-item>
                 </el-form>
@@ -191,14 +191,13 @@ export default {
   data () {
     // 校验设备名称
     const validateName = (rule, value, callback) => {
-      console.log('validator', 'value')
       if (!value) {
         callback(new Error('请输入设备名称'))
       } else {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
+        if (value.length > 20) {
+          callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
-          this.$http('/merchant/device/alias/exist', {name: value}, false).then(res => {
+          this.$http('/device/existName', {name: value, serverKey: this.$route.params.key}, false).then(res => {
             res.data ? callback(new Error('设备别名已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
@@ -445,7 +444,6 @@ export default {
     // 绑定社群
     bindCommunity (data) {
       let [subData, url] = ['', '/device/batch/binding']
-      console.log('back', data)
       if (!data[0]) {
         this.$tip('请选取社群', 'error')
         return
@@ -527,17 +525,24 @@ export default {
     },
     // 批量操作处理
     handleSelect (type) {
-      console.log(type, this.filterValue)
       if (!this.multipleSelection.length) {
         this.$tip('请选取设备', 'error')
         return
       }
       if (type === 'bind') {
+        if (this.multipleSelection.filter(item => item.groupGuid).length) {
+          this.$tip('存在设备已绑定', 'error')
+          return
+        }
         this.dialogFormVisible = true
       } else if (type === 'delete') {
         this.deleteEquipment(this.multipleSelection)
       } else {
         // 批量解绑
+        if (this.multipleSelection.filter(item => !item.groupGuid).length) {
+          this.$tip('存在设备未绑定', 'error')
+          return
+        }
         // 数据提交是过滤掉未绑定社群的设备
         let selectArr = this.multipleSelection.filter(item => item.groupName).map(item => item.deviceKey)
         this.$affirm({
@@ -579,14 +584,17 @@ export default {
       }
     },
     // 修改设备昵称
-    changeEquipmentName (index) {
+    changeEquipmentName (index, row) {
       this.$refs['tableForm' + index].validate((valid) => {
         if (valid) {
           this.$http('/device/deviceCamera/name/update', this.equipmentForm).then(res => {
             this.$tip('修改成功')
-            this.$set(this.serviceList[index], 'popover', false)
-            this.serviceList[index].name = this.equipmentForm.name
-          }).catch(err => { console.log(err) })
+            row.popover = false
+            row.name = this.equipmentForm.name
+          }).catch(err => {
+            row.popover = false
+            console.log(err)
+          })
         } else {
           console.log('error submit')
         }
@@ -620,7 +628,6 @@ export default {
       this.cameraVisible = true
     },
     handleProgress (event) {
-      console.log(new Date().getTime(), event.percent)
       this.progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
     },
     // 文件上传前拦截处理
@@ -649,6 +656,7 @@ export default {
     handleError (res) {
       this.fileList = []
       this.$tip(res.msg || '上传失败', 'error', 3000)
+      this.progress.close()
     }
   },
   watch: {
@@ -697,6 +705,7 @@ export default {
 .filter__list--wrap{
   margin: 22px 0 12px;
   overflow: hidden;
+  height: 30px;
   > *:not(a) {
     float: left;
   }

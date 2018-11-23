@@ -171,8 +171,8 @@ export default {
       if (!value) {
         callback(new Error('请输入设备别名'))
       } else {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
+        if (value.length > 20) {
+          callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
             res.data ? callback(new Error('设备别名已存在')) : callback()

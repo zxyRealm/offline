@@ -82,6 +82,14 @@ module.exports = {
       {
         test: require.resolve('three/examples/js/loaders/SVGLoader'),
         use: 'exports-loader?THREE.SVGLoader'
+      },
+      {
+        test: require.resolve('three/examples/js/loaders/PLYLoader'),
+        use: 'imports-loader?THREE=three'
+      },
+      {
+        test: require.resolve('three/examples/js/loaders/PLYLoader'),
+        use: 'exports-loader?THREE.PLYLoader'
       }
     ]
   },

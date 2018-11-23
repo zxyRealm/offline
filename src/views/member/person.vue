@@ -329,7 +329,6 @@ export default {
         if (res.data) {
           let formData = new FormData()
           let customName = 'photo_' + name + '.' + (file.file.type.split('/')[1] === 'png' ? 'png' : 'jpg')
-          console.log('file name', customName)
           formData.append('key', `${catalog}/${customName}`)
           formData.append('policy', res.data['policy'])
           formData.append('OSSAccessKeyId', res.data['accessid'])
@@ -411,7 +410,7 @@ export default {
     },
     // 阻止事件冒泡
     bubbling () {
-      console.log(123)
+      // console.log(123)
     }
   },
   created () {

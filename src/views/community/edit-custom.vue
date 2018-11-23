@@ -46,8 +46,8 @@ export default {
       if (!value) {
         callback(new Error('请输入分组名称'))
       } else {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
+        if (value.length > 20) {
+          callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
           if (this.type === 'update' && this.originName === value) {
             callback()

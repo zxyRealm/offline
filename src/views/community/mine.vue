@@ -349,11 +349,11 @@ export default {
         if (value.length === 10) {
           if (/^[\da-zA-Z]{10}$/.test(value)) {
             this.$http('/group/info/code', {code: value}, false).then(res => {
-              if (res.data) {
+              if (res.data && res.data.guid) {
                 this.joinCommunityInfo = res.data
                 callback()
               } else {
-                callback(new Error('邀请码不存在，请重新输入'))
+                callback(new Error('邀请码不存在'))
               }
             }).catch(err => {
               callback(new Error(err.msg || '邀请码不存在'))
@@ -613,7 +613,6 @@ export default {
               }
               this.$route.params.groupGuid = ''
             }
-            console.log('selected Key', uniqueKey)
             this.groupList.filter(item => item.memberItem && item.memberItem.length).map(item => {
               if (item.memberItem && item.memberItem[item.memberItem.length - 1]) {
                 this.expandedKeys.push(item.memberItem[item.memberItem.length - 1].uniqueKey)
@@ -673,7 +672,7 @@ export default {
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
-      console.log('change', data)
+      // console.log('change', data)
       if (!data.button) {
         this.currentCommunity = data
         if (data.groupPid === undefined && node.parent.parent) {

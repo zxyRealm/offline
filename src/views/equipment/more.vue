@@ -78,8 +78,8 @@ export default {
   data () {
     const validateName = (rule, value, callback) => {
       if (value) {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
+        if (value.length > 20) {
+          callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
           callback()
         } else {

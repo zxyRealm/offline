@@ -24,6 +24,7 @@ import {d3threeD, addGeoObject} from '../../utils/three'
 // three.js控制器插件 文件引入后才可使用THREE.OrbitControls() 构造函数
 require('three/examples/js/controls/OrbitControls')
 require('three/examples/js/loaders/SVGLoader')
+require('three/examples/js/loaders/PLYLoader')
 // require('three/examples/js/')
 const $d3g = {}
 d3threeD($d3g)
@@ -40,7 +41,10 @@ export default {
       stats: '',
       windowResize: '',
       meshList: [],
-      container: ''
+      container: '',
+      raycaster: '',
+      INTERSECTED: null,
+      mouse: {}
     }
   },
   created () {
@@ -62,7 +66,7 @@ export default {
       this.scene.background = new THREE.Color(0xeeeeee)
       //
       this.camera = new THREE.PerspectiveCamera(56, (this.container.clientWidth - pd) / this.container.clientHeight, 1, 5000)
-      this.camera.position.set(0, 0, 400)
+      this.camera.position.set(0, 0, 500)
       //
       var group = new THREE.Group()
       this.scene.add(group)
@@ -102,10 +106,11 @@ export default {
             group.add(mesh)
           }
         }
-        document.addEventListener('click', this.onDocumentMouseDown, false)
+        document.addEventListener('mousemove', this.onDocumentMouseMove, false)
+        // document.addEventListener('mouseleave', this.onDocumentMouseDown, false)
         this.scene.add(group)
-        // document.addEventListener('mouseover', this.onDocumentMouseDown, false)
       })
+
       // var spriteMap = new THREE.TextureLoader().load('texture/UV_Grid_Sm.jpg')
       // var spriteMaterial = new THREE.SpriteMaterial({map: spriteMap, color: 0xff0000})
       // var sprite = new THREE.Sprite(spriteMaterial)
@@ -115,7 +120,7 @@ export default {
       //
       var obj = this.initSVGObject()
       // addGeoObject(group, obj, $d3g)
-
+      this.raycaster = new THREE.Raycaster()
       this.renderer = new THREE.WebGLRenderer({antialias: true})
       this.renderer.setPixelRatio(window.devicePixelRatio)
       this.renderer.setClearColor(0xeeeeee)
@@ -126,43 +131,51 @@ export default {
       controls.enableRotate = false
       console.log(controls)
       this.renderer.render(this.scene, this.camera)
-      this.windowResize = () => {
-        let el = document.getElementById(eid)
-        this.$nextTick(() => {
-          if (el) {
-            this.camera.aspect = (el.offsetWidth - pd) / el.offsetHeight
-            this.camera.updateProjectionMatrix()
-            this.renderer.setSize(el.offsetWidth - pd, el.offsetHeight)
-            this.renderer.render(this.scene, this.camera)
-          }
-        })
-      }
       // 窗口变化时重置模型尺寸和摄像头视角比例
-      window.addEventListener('resize', this.windowResize, false)
+      document.addEventListener('resize', this.onWindowResize, false)
+    },
+    // 窗口尺寸改变时重新渲染
+    onWindowResize () {
+      let el = document.getElementById('build-3d')
+      this.$nextTick(() => {
+        if (el) {
+          this.camera.aspect = (el.clientWidth - 40) / el.clientHeight
+          this.camera.updateProjectionMatrix()
+          this.renderer.setSize(el.clientWidth - 40, el.clientHeight)
+          this.renderer.render(this.scene, this.camera)
+        }
+      })
     },
     animate () {
       requestAnimationFrame(this.animate)
-      this.renderer.render(this.scene, this.camera)
+      this.render()
+    },
+    onDocumentMouseMove (event) {
+      event.preventDefault()
+      this.$set(this.mouse, 'x', (event.offsetX / (this.container.clientWidth - 40)) * 2 - 1)
+      this.$set(this.mouse, 'y', -(event.offsetY / this.container.clientHeight) * 2 - 1)
     },
     addGlobalEvent (e) {},
     // 添加全局的点击事件
     onDocumentMouseDown (event) {
       event.preventDefault()
+      console.log(event)
       // 基于屏幕点击位置，创建一个Vector3向量
-      var vector = new THREE.Vector3((event.clientX / (window.innerWidth)) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5)
+      this.camera.updateMatrixWorld()
+      // let vector = new THREE.Vector3(mouse.x, mouse.y, 1)
       // 将屏幕上的点击位置转换成Three.js场景中的坐标
-      vector = vector.unproject(this.camera)
+      // vector = vector.unproject(this.camera)
+      this.raycaster.setFromCamera(this.mouse, this.camera)
       // THREE.Raycaster 从相机的位置 向场景中鼠标的点击位置发射光线
-      let raycaster = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize())
+      // let raycaster = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize())
       // 使用intersectObjects方法来判断指定的对象中哪些被该光线照射到了
-      let intersects = raycaster.intersectObjects(this.meshList)
-      console.log(this.meshList, intersects)
-      if (intersects.length > 0) {
-        let current = intersects[1] || intersects[0]
-        console.log(current)
-        console.log(current.object)
-        current.object.material.color = new THREE.Color(0xff0000)
-      }
+      // let intersects = this.raycaster.intersectObjects(this.meshList)
+      // if (intersects.length > 0) {
+      //   let current = intersects[0]
+      //   console.log(current)
+      //   console.log(current.object)
+      //   current.object.material.color = new THREE.Color(0xff0000)
+      // }
     },
     // 创建精灵贴纸
     createSprite (geometry, url, scale, posY) {
@@ -206,16 +219,19 @@ export default {
       return obj
     },
     render () {
-      var timer = Date.now() * 0.0001
-      this.camera.position.x = Math.cos(timer) * 800
-      this.camera.position.z = Math.sin(timer) * 800
-      this.camera.lookAt(this.scene.position)
-      this.scene.traverse(function (object) {
-        if (object.isMesh === true) {
-          object.rotation.x = timer * 5
-          object.rotation.y = timer * 2.5
+      this.raycaster.setFromCamera(this.mouse, this.camera)
+      var intersects = this.raycaster.intersectObjects(this.scene.children)
+      if (intersects.length > 0) {
+        if (this.INTERSECTED != intersects[ 0 ].object) {
+          if (this.INTERSECTED) this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex)
+          this.INTERSECTED = intersects[ 0 ].object
+          this.INTERSECTED.currentHex = this.INTERSECTED.material.emissive.getHex()
+          this.INTERSECTED.material.emissive.setHex(0xff0000)
         }
-      })
+      } else {
+        if (this.INTERSECTED) this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex)
+        this.INTERSECTED = null
+      }
       this.renderer.render(this.scene, this.camera)
     },
     // 坐标转换
@@ -230,7 +246,8 @@ export default {
   },
   watch: {},
   beforeDestroy () {
-    window.removeEventListener('resize', this.windowResize)
+    document.removeEventListener('resize', this.onWindowResize)
+    document.removeEventListener('click', this.onDocumentMouseDown)
   }
 }
 </script>

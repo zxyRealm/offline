@@ -44,6 +44,8 @@
 </template>
 <script>
 import CustomPopover from '@/components/CustomPopover'
+import {validateRule} from '../../utils/validate'
+
 export default {
   name: 'uu-sub-tab',
   components: {
@@ -128,6 +130,17 @@ export default {
     },
     // @remote-search 点击图标或回车是触发
     searchMethod () {
+      if (this.searchValue) {
+        console.log(this.searchValue)
+        if (this.searchValue.length > 20) {
+          this.searchValue = this.searchValue.substr(0, 20)
+          this.$tip('请输入1-20位字符', 'error')
+          return
+        } else if (!validateRule(this.searchValue, 2)) {
+          this.$tip(`请输入正确的${this.$route.name === 'community' ? '社群' : '设备'}名称`, 'error')
+          return
+        }
+      }
       this.$emit('remote-search', this.searchValue.toString().trim())
     },
     routeChange (link) {

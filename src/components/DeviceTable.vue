@@ -165,8 +165,8 @@ export default {
       if (!value) {
         callback(new Error('请输入设备别名'))
       } else {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
+        if (value.length > 20) {
+          callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {name: value}, false).then(res => {
             res.data ? callback(new Error('设备别名已存在')) : callback()
@@ -483,7 +483,7 @@ export default {
           url = '/device/startOrShutdown'
       }
       // 不可操作时不发送请求
-      console.log('btn state', !this.btnState(type, value).state)
+      // console.log('btn state', !this.btnState(type, value).state)
       // if (!this.btnState(type, value).state) return
       if (value.deviceStatus !== 0 && value.deviceStatus !== 1 && value.deviceStatus !== 5) {
         this.$tip(`设备【<span class="maxw110 ellipsis">

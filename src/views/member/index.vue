@@ -251,7 +251,7 @@ export default {
       this.checkName = e
     },
     add__hint () {
-      console.log(123)
+      // console.log(123)
     },
     // 获取自有社群列表，绑定社群时只能绑定自有社群
     getGroupList (e) {
