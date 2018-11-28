@@ -249,11 +249,11 @@ export default {
       let type, role
       switch (this.$route.name) {
         case 'editApplyCommunity':
-          type = 1
+          type = 0
           role = 1
           break
         case 'applyCommunity':
-          type = 1
+          type = 0
           role = 1
           break
         case 'editCommunity':

@@ -38,7 +38,7 @@ export default {
       }
     },
     cornerBg () {
-      if (/\/data/.test(this.$route.path) || this.$route.name === 'console-lwh') {
+      if (/\/data||\/index/.test(this.$route.path) || this.$route.name === 'console-lwh') {
         return 'no-padding'
       }
       return 'corner-bg'

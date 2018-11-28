@@ -40,7 +40,7 @@ const shopFrequencyAnalysis = () => import('@/views/data/shop-frequency-analysis
 const consoleIndex = () => import('@/views/console/index.vue')
 
 /** 首页+消息 **/
-const homePage = () => import('@/views/index/index')
+const homePage = () => import('@/views/index/three')
 // 系统通知
 const homeNotify = () => import('@/views/index/notify/index')
 

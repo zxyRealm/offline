@@ -23,6 +23,7 @@
     "serve": "^9.4.0",
     "three": "^0.98.0",
     "three-orbit-controls": "^82.1.0",
+    "tween.js": "^16.6.0",
     "vue": "^2.5.2",
     "vue-router": "^2.8.0",
     "vue-wechat-title": "^2.0.4",

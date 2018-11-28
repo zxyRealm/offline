@@ -10,6 +10,10 @@
       text-color="#fff"
       active-text-color="#fff"
     >
+      <el-menu-item index="/index">
+        <i class="ob-icon__console"></i>
+        <span slot="title">首页</span>
+      </el-menu-item>
       <el-menu-item index="/console">
         <i class="ob-icon__console"></i>
         <span slot="title">控制台</span>
