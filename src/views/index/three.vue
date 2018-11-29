@@ -24,10 +24,7 @@ export default {
     this.svgObj = this.parseDom(Svg)[0]
     this.newSvgChild = document.createElement('g')
     this.traverseNodes(this.svgObj)
-    this.svgObj.innerHTML = ''
-    this.svgObj.appendChild(this.newSvgChild)
-    document.getElementById('svg').appendChild(this.svgObj)
-    console.log(this.svgObj)
+    this.showSvgToHtml(this.newSvgChild)
     // this.downloadSvg(this.svgObj)
   },
   computed: {},
@@ -92,6 +89,16 @@ export default {
       aLink.href = href
       document.body.appendChild(aLink)
       aLink.click()
+    },
+    // 将转换后的svg文件显示在页面
+    showSvgToHtml (obj) {
+      this.svgObj.innerHTML = ''
+      this.svgObj.appendChild(obj)
+      let frag = document.createElement('div')
+      frag.appendChild(this.svgObj)
+      // svg元素使用dom对象appendChild方式添加到页面是回无法显示，因此使用innerHTML转换成字符串的方式添加
+      // 大概原因是svg 是xml格式，以dom节点方式异步添加到页面时无法渲染
+      document.getElementById('svg').innerHTML = frag.innerHTML
     }
   },
   watch: {}
@@ -104,7 +111,7 @@ export default {
   }
   .floor__3d--wrap{
     position: relative;
-    height: 470px;
+    /*height: 470px;*/
     /*background: #0F0E11;*/
     &:after{
       content: '';
