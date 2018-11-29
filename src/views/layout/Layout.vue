@@ -38,7 +38,9 @@ export default {
       }
     },
     cornerBg () {
-      if (/\/data||\/index/.test(this.$route.path) || this.$route.name === 'console-lwh') {
+      if (/^(\/data|\/index)/.test(this.$route.path)) {
+        return 'no-padding transparent'
+      } else if (this.$route.name === 'console-lwh') {
         return 'no-padding'
       }
       return 'corner-bg'
@@ -69,10 +71,13 @@ export default {
     overflow: hidden;
     .app-main-content {
       height: 100%;
-      overflow: hidden;
+      /*overflow: hidden;*/
       box-sizing: border-box;
       background-color: #232027;
       color: #fff;
+      &.transparent{
+        background: transparent;
+      }
     }
   }
 </style>
