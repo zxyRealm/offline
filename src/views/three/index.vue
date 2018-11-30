@@ -1,5 +1,5 @@
 <template>
-  <div id="build-3d" class="three-wrap">
+  <div :id="id" class="three-wrap">
   </div>
 </template>
 
@@ -35,6 +35,16 @@ d3threeD($d3g)
 // const Stats = THREE.Status()
 export default {
   name: 'threeTest',
+  props: {
+    id: {
+      type: String,
+      default: 'bulid-3d'
+    },
+    pd: {
+      type: Number,
+      default: 0
+    }
+  },
   data () {
     return {
       renderer: null, // 3D场景实例
@@ -43,15 +53,15 @@ export default {
       object: '',
       stats: '',
       windowResize: '',
-      meshList: [],
+      meshList: [], // 需要添加事件的Mesh对象列表
       container: '',
-      raycaster: '',
+      raycaster: '', // 寻找当前选中或作用的对象
       INTERSECTED: null,
-      mouse: {},
-      group: '',
+      mouse: {}, // 鼠标的坐标位置
+      group: '', // 场景群组对象
       mixer: '',
       clock: '',
-      controls: '',
+      controls: '', // 轨迹控制器
       float32Array: [346.29998779296875, 242.5, 0, 347.29998779296875, 251.89999389648438, 0, 351.70001220703125, 251.10000610351562, 0, 356.1000061035156, 251.1999969482422, 0, 355.5, 246, 0, 351.3999938964844, 246.1999969482422, 0, 350.8999938964844, 242, 0],
       copy32Array: ''
     }
@@ -59,7 +69,7 @@ export default {
   created () {
   },
   mounted () {
-    this.initScene('build-3d', 40)
+    this.initScene()
     this.animate()
   },
   computed: {},
@@ -67,15 +77,17 @@ export default {
     /* 初始化创建场景
     * @params eid 外部容器id
     * @params pd 左右padding总距离值
+    * @params floor 渲染的楼层
     * */
-    initScene (eid, pd) {
-      this.container = document.getElementById(eid)
+    initScene (floor = 'F1') {
+      this.container = document.getElementById(this.id)
       //
+      if (this.scene) this.container.innerHTML = ''
       this.scene = new THREE.Scene()
-      this.scene.background = new THREE.Color(0xeeeeee)
+      this.scene.background = new THREE.Color(0x0F0E11)
       //
-      this.camera = new THREE.PerspectiveCamera(56, (this.container.clientWidth - pd) / this.container.clientHeight, 1, 5000)
-      this.camera.position.set(0, 0, 500)
+      this.camera = new THREE.PerspectiveCamera(56, (this.container.clientWidth - this.pd) / this.container.clientHeight, 1, 5000)
+      this.camera.position.set(0, 0, 450)
       //
       this.group = new THREE.Group()
       this.scene.add(this.group)
@@ -85,13 +97,13 @@ export default {
       this.scene.add(directionalLight)
 
       let svgLoader = new THREE.SVGLoader()
-      svgLoader.load('/static/copy.svg', (paths) => {
+      // console.log('/static/floor/floor' + floor + '.svg')
+      svgLoader.load('/static/floor/floor' + floor + '.svg', (paths) => {
         this.group.position.x = -290
         this.group.position.y = 214
         this.group.scale.y *= -1
         for (let i = 0; i < paths.length; i++) {
           let path = paths[i]
-          // console.log(i, path)
           let material = new THREE.MeshBasicMaterial({
             color: path.color,
             side: THREE.DoubleSide,
@@ -100,17 +112,11 @@ export default {
           let shapes = path.toShapes(true)
           for (let j = 0; j < shapes.length; j++) {
             let shape = shapes[j]
-            // console.log(i, shape)
             let geometry = new THREE.ShapeBufferGeometry(shape)
             let mesh = new THREE.Mesh(geometry, material)
             if (i !== 0) this.meshList.push(mesh)
-            // console.log(i, mesh)
-            // let ps = path.subPaths[0].currentPoint
-            // if (mesh.geometry.attributes.position.array.toString() === this.float32Array.toString()) {
-            // console.log(i, mesh.geometry.attributes.position.array)
             let ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
             mesh.add(this.createSpriteText(i, ps.x, ps.y))
-            // }
             this.group.add(mesh)
           }
         }
@@ -124,7 +130,6 @@ export default {
       let emitter = new THREE.Mesh(geometry, material)
       emitter.position.set(54.9, 182.6, 1)
       light.add(emitter)
-      // console.log(new THREE.Color('rgba(255,255,0)'))
       let scaleKF = new THREE.VectorKeyframeTrack('.scale', [ 0, 1, 1.5 ], [ 1, 1, 1, 2, 2, 2, 1, 1, 1 ])
       // COLOR
       var colorKF = new THREE.ColorKeyframeTrack('.material.color', [ 1, 1, 0 ], [ 1, 1, 0, 1, 1, 0, 1, 1, 0 ], THREE.InterpolateDiscrete)
@@ -138,26 +143,24 @@ export default {
       // create a ClipAction and set it to play
       var clipAction = this.mixer.clipAction(clip)
       clipAction.play()
-      clipAction.loop = THREE.LoopOnce
+      // clipAction.loop = THREE.LoopOnce
       this.clock = new THREE.Clock()
 
-      // var material = new THREE.MeshBasicMaterial({})
-      // this.scene.add(new THREE.Mesh(new THREE.ShapeGeometry(this.drawShape()), material))
-      //
       // var obj = this.initSVGObject()
       // addGeoObject(this.group, obj, $d3g)
       this.raycaster = new THREE.Raycaster()
       this.renderer = new THREE.WebGLRenderer({antialias: true})
       this.renderer.setPixelRatio(window.devicePixelRatio)
       this.renderer.setClearColor(0xeeeeee)
-      this.renderer.setSize(this.container.clientWidth - pd, this.container.clientHeight)
+      this.renderer.setSize(this.container.clientWidth - this.pd, this.container.clientHeight)
       this.container.appendChild(this.renderer.domElement)
       // 轨道控制器
       this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement)
       this.controls.enableRotate = false
+      // this.controls.enablePan = false
       console.log(this.controls)
       this.renderer.render(this.scene, this.camera)
-      console.log(this.scene)
+
       // 窗口变化时重置模型尺寸和摄像头视角比例
       window.addEventListener('mousemove', this.onDocumentMouseMove, false)
       window.addEventListener('click', this.onDocumentMouseClick, false)
@@ -166,23 +169,23 @@ export default {
 
     // 窗口尺寸改变时重新渲染
     onWindowResize () {
-      let el = document.getElementById('build-3d')
+      let el = document.getElementById(this.id)
       if (el) {
-        this.camera.aspect = (el.clientWidth - 40) / el.clientHeight
+        this.camera.aspect = (el.clientWidth - this.pd) / el.clientHeight
         this.camera.updateProjectionMatrix()
-        this.renderer.setSize(el.clientWidth - 40, el.clientHeight)
+        this.renderer.setSize(el.clientWidth - this.pd, el.clientHeight)
         this.renderer.render(this.scene, this.camera)
       }
     },
     animate () {
-      // this.controls.update()
       requestAnimationFrame(this.animate)
       this.render()
     },
     onDocumentMouseMove (event) {
       event.preventDefault()
-      this.$set(this.mouse, 'x', (event.offsetX / (this.container.clientWidth - 40)) * 2 - 1)
+      this.$set(this.mouse, 'x', (event.offsetX / (this.container.clientWidth - this.pd)) * 2 - 1)
       this.$set(this.mouse, 'y', -(event.offsetY / this.container.clientHeight) * 2 + 1)
+      this.handleMouseEvent(event)
     },
     addGlobalEvent (e) {},
     // 添加全局的点击事件
@@ -207,6 +210,20 @@ export default {
       // }
     },
     onDocumentMouseClick (event) {
+      event.preventDefault()
+      this.$set(this.mouse, 'x', (event.offsetX / (this.container.clientWidth - this.pd)) * 2 - 1)
+      this.$set(this.mouse, 'y', -(event.offsetY / this.container.clientHeight) * 2 + 1)
+      this.raycaster.setFromCamera(this.mouse, this.camera)
+      let intersects = this.raycaster.intersectObjects(this.meshList)
+      // console.log('click', intersects[ 0 ].object)
+      if (intersects.length > 0) {
+        this.INTERSECTED = intersects[ 0 ].object
+        console.log('click', intersects[ 0 ].object.uuid)
+        this.$emit('handle-block-click', intersects[ 0 ].object)
+      }
+    },
+    // 根据鼠标事件类型处理不同事件
+    handleMouseEvent (event) {
 
     },
     // 创建精灵贴纸
@@ -342,6 +359,7 @@ export default {
           this.INTERSECTED = intersects[ 0 ].object
           this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
           this.INTERSECTED.material.color.setHex(0xff0000)
+          // console.log('mousemove', intersects[ 0 ].object.uuid)
         }
       } else {
         if (this.INTERSECTED) this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex)
@@ -361,7 +379,7 @@ export default {
   },
   watch: {},
   beforeDestroy () {
-    document.removeEventListener('resize', this.onWindowResize())
+    document.removeEventListener('resize', this.onWindowResize)
     document.removeEventListener('click', this.onDocumentMouseDown)
   }
 }
@@ -369,6 +387,7 @@ export default {
 
 <style lang="scss" scoped>
   .three-wrap {
+    height: 100%;
     position: relative;
     canvas {
       width: 100%;

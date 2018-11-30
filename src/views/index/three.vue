@@ -1,7 +1,12 @@
 <template>
   <div class="three__floor--wrap">
     <!--楼宇3D/平面分布图展示 start-->
-    <div class="floor__3d--wrap corner-bg black"></div>
+    <div class="floor__3d--wrap corner-bg black">
+      <ul class="floor__sidebar--wrap">
+        <li class="sidebar__item" v-for="(item,$Index) in floorList" :key="$Index" @click="selectFloor(item)">{{item}}</li>
+      </ul>
+      <build-floor ref="floorMap" @handle-block-click="bindGroupMap"></build-floor>
+    </div>
     <!--楼宇3D/平面分布图展示 end-->
     <!--实时客流 start-->
     <div class="floor__block--passenger corner-bg items vam">
@@ -77,18 +82,17 @@
         </div>
         <!--业态客流排行榜-->
         <div class="format-flow-rank corner-bg items">
-          <div class="floor__sub--title">
-            业态客流排行榜
-          </div>
+          <!--<div class="floor__sub&#45;&#45;title">-->
+            <!--业态客流排行榜-->
+          <!--</div>-->
+          <chart-funnel title="业态客流排行榜" width="100%" height="100%"></chart-funnel>
         </div>
       </div>
       <div class="fc-right">
         <div class="float-block clearfix">
           <!--会员比例-->
           <div class="member-ratio corner-bg items">
-            <div class="floor__sub--title">
-              会员比例
-            </div>
+            <Chart title="会员比例" type="member" width="100%" height="100%"></Chart>
           </div>
           <!--回头客比例-->
           <div class="return-ratio corner-bg items">
@@ -105,14 +109,19 @@
         </div>
         <!--年龄比例-->
         <div class="age-ratio corner-bg items">
-          <div class="floor__sub--title">
-            年龄比例
-          </div>
+          <Chart title="年龄比例" type="age" width="100%" height="100%"></Chart>
         </div>
         <!--门店客流排行榜-->
         <div class="store-flow-rank corner-bg items">
           <div class="floor__sub--title">
             门店客流排行榜
+          </div>
+          <div class="process__list--wrap">
+            <div class="pl-items vam" v-for="(item, $index) in list" :key="$index" v-if="$index < 6">
+              <span class="ellipsis">{{$index + 1}}.{{item.name}}</span>
+              <el-progress :percentage="item.percent" color="##0F9EE9"></el-progress>
+              <el-icon class="el-icon-d-arrow-right"></el-icon>
+            </div>
           </div>
         </div>
       </div>
@@ -121,6 +130,9 @@
 </template>
 
 <script>
+import Chart from '@/components/echarts/three-pie'
+import ChartFunnel from '@/components/echarts/three-funnel'
+import buildFloor from '@/views/three/index'
 export default {
   name: 'index',
   data () {
@@ -132,14 +144,54 @@ export default {
         {
           href: '/static/img/logo@2x.png'
         }
+      ],
+      list: [
+        { name: '无印良品', percent: 50 },
+        { name: '优衣库', percent: 30 },
+        { name: '传奇奢华影城', percent: 18 },
+        { name: '外婆家', percent: 8 },
+        { name: '外婆家', percent: 8 },
+        { name: '外婆家', percent: 8 },
+        { name: '外婆家', percent: 8 }
+      ],
+      floorList: [
+        'F4',
+        'F3',
+        'F2',
+        'F1',
+        'B1',
+        'B2',
+        'B3'
       ]
     }
+  },
+  components: {
+    Chart,
+    ChartFunnel,
+    buildFloor
   },
   created () {},
   mounted () {
   },
   computed: {},
   methods: {
+    selectFloor (name) {
+      console.log(name)
+      this.$refs.floorMap.initScene(name)
+      console.log(this.$refs.floorMap)
+    },
+    // 绑定社群
+    bindGroupMap (data) {
+      console.log(data.geometry.attributes.position.array)
+      this.$prompt('请输入社群名称', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /\w+/,
+        inputErrorMessage: '社群名称不能为空'
+      }).then(({ value }) => {
+        console.log(value)
+      })
+    }
   },
   watch: {}
 }
@@ -174,7 +226,22 @@ export default {
   .floor__3d--wrap{
     position: relative;
     height: 470px;
-    /*background: #0F0E11;*/
+    .floor__sidebar--wrap{
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 40px;
+      z-index: 99;
+      text-align: center;
+      .sidebar__item{
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        &:hover{
+          background: #0f9ee9;
+        }
+      }
+    }
     &:after{
       /*content: '';*/
       position: absolute;
@@ -271,6 +338,8 @@ export default {
             line-height: 1;
             border-bottom: 1px dashed #979797;
             margin-bottom: 18px;
+            font-size: 12px;
+            padding: 0 10px;
             &:last-child{
               margin-bottom: 0;
             }
@@ -313,6 +382,28 @@ export default {
       }
       .store-flow-rank {
         height: 276px;
+        .process__list--wrap{
+          margin-top: 36px;
+        }
+        .pl-items{
+          height: 30px;
+          line-height: 30px;
+          text-align: left;
+          > span{
+            display: inline-block;
+            width: 90px;
+            /*float: left;*/
+            font-size: 12px;
+            margin-right: 5px;
+          }
+          .el-icon-d-arrow-right{
+            color: #3a8ee6;
+          }
+          .el-progress{
+            /*float: left;*/
+            width: calc(100% - 120px);
+          }
+        }
       }
     }
   }
