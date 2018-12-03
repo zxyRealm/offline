@@ -27,6 +27,7 @@ import {Contour, changeArrayLevel, d3threeD, addGeoObject} from '../../utils/thr
 require('three/examples/js/controls/OrbitControls')
 require('three/examples/js/loaders/SVGLoader')
 require('three/examples/js/loaders/PLYLoader')
+// require('three/examples/js/geometries/M')
 // require('three/examples/js/libs/tween.min')
 // require('three/examples/js/')
 const $d3g = {}
@@ -82,7 +83,11 @@ export default {
     initScene (floor = 'F1') {
       this.container = document.getElementById(this.id)
       //
-      if (this.scene) this.container.innerHTML = ''
+      if (this.renderer) {
+        this.renderer.dispose()
+        this.scene.remove(this.scene.children)
+        this.container.innerHTML = ''
+      }
       this.scene = new THREE.Scene()
       this.scene.background = new THREE.Color(0x0F0E11)
       //
@@ -91,63 +96,53 @@ export default {
       //
       this.group = new THREE.Group()
       this.scene.add(this.group)
+      console.log(this.group)
       //
-      let directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
-      directionalLight.position.set(0, 0, 10).normalize()
-      this.scene.add(directionalLight)
-
+      // let directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
+      // directionalLight.position.set(0, 0, 10).normalize()
+      // this.scene.add(directionalLight)
+      // 通过svg文件构画出分布图
       let svgLoader = new THREE.SVGLoader()
-      // console.log('/static/floor/floor' + floor + '.svg')
+      let psJson = JSON.parse(localStorage.getItem('group_local'))
+      console.log(psJson, new Float32Array(psJson.position))
       svgLoader.load('/static/floor/floor' + floor + '.svg', (paths) => {
         this.group.position.x = -290
         this.group.position.y = 214
         this.group.scale.y *= -1
+        let materials = []
+        let totalGeom = new THREE.Geometry()
+        let cubeMat
         for (let i = 0; i < paths.length; i++) {
           let path = paths[i]
-          let material = new THREE.MeshBasicMaterial({
+          let materialLine = new THREE.LineBasicMaterial({
             color: path.color,
             side: THREE.DoubleSide,
             depthWrite: false
           })
           let shapes = path.toShapes(true)
+          materials.push(materialLine)
           for (let j = 0; j < shapes.length; j++) {
             let shape = shapes[j]
             let geometry = new THREE.ShapeBufferGeometry(shape)
-            let mesh = new THREE.Mesh(geometry, material)
+            let mesh = new THREE.Mesh(geometry, materialLine)
+            // THREE.Geometry.merge(totalGeom, mesh)
             if (i !== 0) this.meshList.push(mesh)
-            let ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
+            let ps
+            ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
             mesh.add(this.createSpriteText(i, ps.x, ps.y))
+            // if (psJson.position.toString() === mesh.geometry.attributes.position.array.toString()) {
+            //   ps = new Contour(changeArrayLevel(new Float32Array(psJson.position))).centroid()
+            //   console.log('ajax mark', psJson, psJson.name, ps)
+            //   mesh.add(this.createSpriteText(psJson.name, ps.x, ps.y))
+            // } else {
+            //   ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
+            //   mesh.add(this.createSpriteText(i, ps.x, ps.y))
+            // }
             this.group.add(mesh)
           }
         }
+        this.addFlashPoint()
       })
-
-      let geometry = new THREE.CircleBufferGeometry(5, 20, 0, Math.PI * 2)
-      let light = new THREE.PointLight(0xffff00, 2, 20)
-      light.color.setRGB(1, 1, 0)
-      this.group.add(light)
-      let material = new THREE.MeshBasicMaterial({color: 0xffff00})
-      let emitter = new THREE.Mesh(geometry, material)
-      emitter.position.set(54.9, 182.6, 1)
-      light.add(emitter)
-      let scaleKF = new THREE.VectorKeyframeTrack('.scale', [ 0, 1, 1.5 ], [ 1, 1, 1, 2, 2, 2, 1, 1, 1 ])
-      // COLOR
-      var colorKF = new THREE.ColorKeyframeTrack('.material.color', [ 1, 1, 0 ], [ 1, 1, 0, 1, 1, 0, 1, 1, 0 ], THREE.InterpolateDiscrete)
-      // OPACITY
-      var opacityKF = new THREE.NumberKeyframeTrack('.material.opacity', [ 1, 1, 1 ], [ 0, 0, 0, 1, 1, 1, 0, 0, 0 ])
-      // create an animation sequence with the tracks
-      // If a negative time value is passed, the duration will be calculated from the times of the passed tracks array
-      var clip = new THREE.AnimationClip('Action', 2, [ scaleKF, colorKF, opacityKF ])
-      // setup the AnimationMixer
-      this.mixer = new THREE.AnimationMixer(emitter)
-      // create a ClipAction and set it to play
-      var clipAction = this.mixer.clipAction(clip)
-      clipAction.play()
-      // clipAction.loop = THREE.LoopOnce
-      this.clock = new THREE.Clock()
-
-      // var obj = this.initSVGObject()
-      // addGeoObject(this.group, obj, $d3g)
       this.raycaster = new THREE.Raycaster()
       this.renderer = new THREE.WebGLRenderer({antialias: true})
       this.renderer.setPixelRatio(window.devicePixelRatio)
@@ -158,9 +153,9 @@ export default {
       this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement)
       this.controls.enableRotate = false
       // this.controls.enablePan = false
-      console.log(this.controls)
+      // console.log(this.controls)
       this.renderer.render(this.scene, this.camera)
-
+      console.log(this.scene)
       // 窗口变化时重置模型尺寸和摄像头视角比例
       window.addEventListener('mousemove', this.onDocumentMouseMove, false)
       window.addEventListener('click', this.onDocumentMouseClick, false)
@@ -187,8 +182,50 @@ export default {
       this.$set(this.mouse, 'y', -(event.offsetY / this.container.clientHeight) * 2 + 1)
       this.handleMouseEvent(event)
     },
-    addGlobalEvent (e) {},
-    // 添加全局的点击事件
+    addFlashPoint () {
+      let vertexShader = 'varying vec3 vNormal;\n' +
+        'void main(){\n' +
+        '  vNormal = normalize(normalMatrix * normal);\n' +
+        '  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n' +
+        '}'
+      let fragmentShader = 'varying vec3 vNormal;\n' +
+        'void main(){\n' +
+        '\tfloat intensity = pow(0.2 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);\n' +
+        '  gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ) * intensity;\n' +
+        '}'
+      let customMaterial = new THREE.ShaderMaterial({
+        uniforms: {},
+        transparent: true,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        side: THREE.BackSide
+      })
+      /* 创建一个球体
+      * 第一参数 半径
+      * 第二参数 球面分隔份数
+      * */
+      let ballGeometry = new THREE.SphereGeometry(15, 150, 100)
+      let ball = new THREE.Mesh(ballGeometry, customMaterial)
+      this.group.add(ball)
+      // POSITION
+      /* 第一个数组 时间
+      * 第二个数组 坐标点
+      * */
+      var positionKF = new THREE.VectorKeyframeTrack('.position', [0], [ 50.14, 177.65, 0 ])
+      let scaleKF = new THREE.VectorKeyframeTrack('.scale', [ 0, 1, 1.5 ], [ 1, 1, 1, 2, 2, 2, 1, 1, 1 ])
+      // OPACITY
+      var opacityKF = new THREE.NumberKeyframeTrack('.material.opacity', [ 1, 1, 1 ], [ 0, 0, 0, 1, 1, 1, 0, 0, 0 ])
+      // create an animation sequence with the tracks
+      // If a negative time value is passed, the duration will be calculated from the times of the passed tracks array
+      var clip = new THREE.AnimationClip('Action', 2, [ scaleKF, opacityKF, positionKF ])
+      // setup the AnimationMixer
+      this.mixer = new THREE.AnimationMixer(ball)
+      // create a ClipAction and set it to play
+      var clipAction = this.mixer.clipAction(clip)
+      clipAction.play()
+      // clipAction.loop = THREE.LoopOnce
+      this.clock = new THREE.Clock()
+    },
     onDocumentMouseDown (event) {
       event.preventDefault()
       console.log(event)
@@ -231,6 +268,8 @@ export default {
       // 先用画布将文字画出
       let canvas = document.createElement('canvas')
       let ctx = canvas.getContext('2d')
+      // canvas.wdith = 200
+      // canvas.height = 40
       ctx.fillStyle = '#ffff00'
       ctx.font = 'Bold 100px Arial'
       ctx.lineWidth = 4
@@ -347,9 +386,8 @@ export default {
       return shape
     },
     render () {
-      var delta = this.clock.getDelta()
-      if (this.mixer) {
-        this.mixer.update(delta)
+      if (this.mixer && this.clock) {
+        this.mixer.update(this.clock.getDelta())
       }
       this.raycaster.setFromCamera(this.mouse, this.camera)
       var intersects = this.raycaster.intersectObjects(this.meshList)
@@ -381,6 +419,11 @@ export default {
   beforeDestroy () {
     document.removeEventListener('resize', this.onWindowResize)
     document.removeEventListener('click', this.onDocumentMouseDown)
+    if (this.renderer) {
+      console.log('clear renderer')
+      this.renderer.dispose()
+      this.scene.remove(this.scene.children)
+    }
   }
 }
 </script>

@@ -182,13 +182,15 @@ export default {
     },
     // 绑定社群
     bindGroupMap (data) {
-      console.log(data.geometry.attributes.position.array)
+      console.log(data.geometry.attributes.position.array.toString().split(','))
       this.$prompt('请输入社群名称', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        inputPattern: /\w+/,
+        inputPattern: /\S+/,
+        customClass: 'white',
         inputErrorMessage: '社群名称不能为空'
       }).then(({ value }) => {
+        localStorage.setItem('group_local', JSON.stringify({name: value, position: data.geometry.attributes.position.array.toString().split(',')}))
         console.log(value)
       })
     }
