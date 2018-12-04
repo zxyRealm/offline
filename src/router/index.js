@@ -493,16 +493,12 @@ export const constantRouterMap = [
   // three.js 示例展示
   {
     path: '/three',
-    component: Layout,
+    component: ThreeTest,
+    name: 'ThreeTest',
+    meta: {
+      title: 'Three.js 示例使用'
+    },
     children: [
-      {
-        path: '',
-        name: 'ThreeTest',
-        meta: {
-          title: 'Three.js 示例使用'
-        },
-        component: ThreeTest
-      },
       {
         path: 'transform',
         name: 'ThreeTransform',

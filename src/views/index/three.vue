@@ -5,7 +5,8 @@
       <ul class="floor__sidebar--wrap">
         <li class="sidebar__item" v-for="(item,$Index) in floorList" :key="$Index" @click="selectFloor(item)">{{item}}</li>
       </ul>
-      <build-floor ref="floorMap" @handle-block-click="bindGroupMap"></build-floor>
+      <iframe id="iframe__three" src="/three" width="100%" scrolling="no" height="100%" frameborder="0"></iframe>
+      <!--<build-floor ref="floorMap" @handle-block-click="bindGroupMap"></build-floor>-->
     </div>
     <!--楼宇3D/平面分布图展示 end-->
     <!--实时客流 start-->
@@ -162,7 +163,8 @@ export default {
         'B1',
         'B2',
         'B3'
-      ]
+      ],
+      iframeSrc: '/three'
     }
   },
   components: {
@@ -177,12 +179,14 @@ export default {
   methods: {
     selectFloor (name) {
       console.log(name)
-      this.$refs.floorMap.initScene(name)
+      document.getElementById('iframe__three').src = `/three?floor=${name}`
+      // this.iframeSrc =
+      // this.$refs.floorMap.initScene(name)
       console.log(this.$refs.floorMap)
     },
     // 绑定社群
     bindGroupMap (data) {
-      console.log(data.geometry.attributes.position.array.toString().split(','))
+      console.log(data.name, data.geometry.attributes.position.array.toString().split(','))
       this.$prompt('请输入社群名称', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -191,7 +195,7 @@ export default {
         inputErrorMessage: '社群名称不能为空'
       }).then(({ value }) => {
         localStorage.setItem('group_local', JSON.stringify({name: value, position: data.geometry.attributes.position.array.toString().split(',')}))
-        console.log(value)
+        console.log(value, '-----------' + data.name)
       })
     }
   },

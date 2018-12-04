@@ -1,5 +1,8 @@
 <template>
-  <div :id="id" class="three-wrap">
+  <div style="height: 100%">
+    <div :id="id" class="three-wrap">
+    </div>
+    <canvas id="testCanvas"></canvas>
   </div>
 </template>
 
@@ -64,14 +67,22 @@ export default {
       clock: '',
       controls: '', // 轨迹控制器
       float32Array: [346.29998779296875, 242.5, 0, 347.29998779296875, 251.89999389648438, 0, 351.70001220703125, 251.10000610351562, 0, 356.1000061035156, 251.1999969482422, 0, 355.5, 246, 0, 351.3999938964844, 246.1999969482422, 0, 350.8999938964844, 242, 0],
-      copy32Array: ''
+      copy32Array: '',
+      totalMesh: [] // 全部mesh(包括sprite)
     }
   },
   created () {
   },
   mounted () {
     this.initScene()
-    this.animate()
+    console.log(this.$data)
+    // let cvs = document.getElementById('testCanvas')
+    // let ctx = cvs.getContext('2d')
+    // let img = new Image()
+    // img.src = '/static/floor/sprite-sheet.png'
+    // img.onload = function () {
+    //   ctx.drawImage(img, 50, 50)
+    // }
   },
   computed: {},
   methods: {
@@ -80,11 +91,11 @@ export default {
     * @params pd 左右padding总距离值
     * @params floor 渲染的楼层
     * */
-    initScene (floor = 'F1') {
+    initScene (floor = (this.$route.query.floor || 'F1')) {
       this.container = document.getElementById(this.id)
       //
       if (this.renderer) {
-        this.renderer.dispose()
+        this.disposeTotal(this.scene)
         this.scene.remove(this.scene.children)
         this.container.innerHTML = ''
       }
@@ -109,7 +120,7 @@ export default {
         this.group.position.x = -290
         this.group.position.y = 214
         this.group.scale.y *= -1
-        let materials = []
+        let geometries = []
         let totalGeom = new THREE.Geometry()
         let cubeMat
         for (let i = 0; i < paths.length; i++) {
@@ -120,24 +131,31 @@ export default {
             depthWrite: false
           })
           let shapes = path.toShapes(true)
-          materials.push(materialLine)
+          // materials.push(materialLine)
           for (let j = 0; j < shapes.length; j++) {
             let shape = shapes[j]
             let geometry = new THREE.ShapeBufferGeometry(shape)
             let mesh = new THREE.Mesh(geometry, materialLine)
-            // THREE.Geometry.merge(totalGeom, mesh)
+            // new THREE.Geometry().merge(totalGeom, mesh)
+            mesh.name = i
+            geometries.push(geometry)
             if (i !== 0) this.meshList.push(mesh)
             let ps
-            ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
-            mesh.add(this.createSpriteText(i, ps.x, ps.y))
-            // if (psJson.position.toString() === mesh.geometry.attributes.position.array.toString()) {
-            //   ps = new Contour(changeArrayLevel(new Float32Array(psJson.position))).centroid()
-            //   console.log('ajax mark', psJson, psJson.name, ps)
-            //   mesh.add(this.createSpriteText(psJson.name, ps.x, ps.y))
-            // } else {
-            //   ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
-            //   mesh.add(this.createSpriteText(i, ps.x, ps.y))
-            // }
+            // ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
+            // mesh.add(this.createSpriteText(i, ps.x, ps.y))
+            if (psJson.position.toString() === mesh.geometry.attributes.position.array.toString()) {
+              ps = new Contour(changeArrayLevel(new Float32Array(psJson.position))).centroid()
+              console.log('ajax mark', mesh.geometry.dispose)
+              this.createSpriteText(psJson.name, ps.x, ps.y, (obj) => {
+                mesh.add(obj)
+              }, '/static/favicon.svg')
+            }
+            else {
+              ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
+              this.createSpriteText(i, ps.x, ps.y, (obj) => {
+                mesh.add(obj)
+              })
+            }
             this.group.add(mesh)
           }
         }
@@ -151,10 +169,11 @@ export default {
       this.container.appendChild(this.renderer.domElement)
       // 轨道控制器
       this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement)
-      this.controls.enableRotate = false
+      // this.controls.enableRotate = false
       // this.controls.enablePan = false
       // console.log(this.controls)
-      this.renderer.render(this.scene, this.camera)
+      this.animate()
+      // this.renderer.render(this.scene, this.camera)
       console.log(this.scene)
       // 窗口变化时重置模型尺寸和摄像头视角比例
       window.addEventListener('mousemove', this.onDocumentMouseMove, false)
@@ -180,7 +199,6 @@ export default {
       event.preventDefault()
       this.$set(this.mouse, 'x', (event.offsetX / (this.container.clientWidth - this.pd)) * 2 - 1)
       this.$set(this.mouse, 'y', -(event.offsetY / this.container.clientHeight) * 2 + 1)
-      this.handleMouseEvent(event)
     },
     addFlashPoint () {
       let vertexShader = 'varying vec3 vNormal;\n' +
@@ -226,27 +244,7 @@ export default {
       // clipAction.loop = THREE.LoopOnce
       this.clock = new THREE.Clock()
     },
-    onDocumentMouseDown (event) {
-      event.preventDefault()
-      console.log(event)
-      // 基于屏幕点击位置，创建一个Vector3向量
-      this.camera.updateMatrixWorld()
-      // let vector = new THREE.Vector3(mouse.x, mouse.y, 1)
-      // 将屏幕上的点击位置转换成Three.js场景中的坐标
-      // vector = vector.unproject(this.camera)
-      this.raycaster.setFromCamera(this.mouse, this.camera)
-      // THREE.Raycaster 从相机的位置 向场景中鼠标的点击位置发射光线
-      // let raycaster = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize())
-      // 使用intersectObjects方法来判断指定的对象中哪些被该光线照射到了
-      // let intersects = this.raycaster.intersectObjects(this.meshList)
-      // if (intersects.length > 0) {
-      //   let current = intersects[0]
-      //   console.log(current)
-      //   console.log(current.object)
-      //   current.object.material.color = new THREE.Color(0xff0000)
-      // }
-    },
-    onDocumentMouseClick (event) {
+    onDocumentMouseClick (event, i) {
       event.preventDefault()
       this.$set(this.mouse, 'x', (event.offsetX / (this.container.clientWidth - this.pd)) * 2 - 1)
       this.$set(this.mouse, 'y', -(event.offsetY / this.container.clientHeight) * 2 + 1)
@@ -259,29 +257,48 @@ export default {
         this.$emit('handle-block-click', intersects[ 0 ].object)
       }
     },
-    // 根据鼠标事件类型处理不同事件
-    handleMouseEvent (event) {
-
-    },
     // 创建精灵贴纸
-    createSpriteText (text, x, y) {
+    createSpriteText (text, x, y, c, src) {
       // 先用画布将文字画出
-      let canvas = document.createElement('canvas')
-      let ctx = canvas.getContext('2d')
-      // canvas.wdith = 200
-      // canvas.height = 40
-      ctx.fillStyle = '#ffff00'
-      ctx.font = 'Bold 100px Arial'
-      ctx.lineWidth = 4
-      ctx.fillText(text, 4, 104)
-      let texture = new THREE.Texture(canvas)
-      texture.needsUpdate = true
-      // 使用Sprite显示文字
-      let material = new THREE.SpriteMaterial({map: texture, transparent: true})
-      let textObj = new THREE.Sprite(material)
-      textObj.scale.set(0.75 * 60, 0.25 * 60, 1)
-      textObj.position.set(x, y, 10)
-      return textObj
+      if (src) {
+        let canvas = document.createElement('canvas')
+        let ctx = canvas.getContext('2d')
+        let img = new Image()
+        img.src = src
+        img.onload = function () {
+          // canvas.height = 300
+          ctx.drawImage(img, 90, 0, 120, 80)
+          ctx.fillStyle = '#ffff00'
+          ctx.textAlign = 'center'
+          ctx.font = 'Bold 100px Arial'
+          ctx.lineWidth = 4
+          ctx.fillText(text, 150, 144)
+          let texture = new THREE.Texture(canvas)
+          texture.needsUpdate = true
+          // 使用Sprite显示文字
+          let material = new THREE.SpriteMaterial({map: texture, transparent: true})
+          let textObj = new THREE.Sprite(material)
+          textObj.scale.set(0.75 * 60, 0.25 * 60, 1)
+          textObj.position.set(x, y - 5, 1)
+          c(textObj)
+        }
+
+      } else {
+        let canvas = document.createElement('canvas')
+        let ctx = canvas.getContext('2d')
+        ctx.fillStyle = '#ffff00'
+        ctx.font = 'Bold 100px Arial'
+        ctx.lineWidth = 4
+        ctx.fillText(text, 4, 104)
+        let texture = new THREE.Texture(canvas)
+        texture.needsUpdate = true
+        // 使用Sprite显示文字
+        let material = new THREE.SpriteMaterial({map: texture, transparent: true})
+        let textObj = new THREE.Sprite(material)
+        textObj.scale.set(0.75 * 60, 0.25 * 60, 1)
+        textObj.position.set(x, y, 10)
+        c(textObj)
+      }
     },
     createSprite (geometry, url, scale, posY) {
       // 设置精灵材质
@@ -390,14 +407,13 @@ export default {
         this.mixer.update(this.clock.getDelta())
       }
       this.raycaster.setFromCamera(this.mouse, this.camera)
-      var intersects = this.raycaster.intersectObjects(this.meshList)
+      let intersects = this.raycaster.intersectObjects(this.meshList)
       if (intersects.length > 0) {
         if (this.INTERSECTED !== intersects[ 0 ].object) {
           if (this.INTERSECTED) this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex)
           this.INTERSECTED = intersects[ 0 ].object
           this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
           this.INTERSECTED.material.color.setHex(0xff0000)
-          // console.log('mousemove', intersects[ 0 ].object.uuid)
         }
       } else {
         if (this.INTERSECTED) this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex)
@@ -413,6 +429,32 @@ export default {
       var tmp = Math.PI / 4.0 + y / 2.0
       y = 20037508.3427892 * Math.log(Math.tan(tmp)) / Math.PI
       return {x: x, y: y, z: z}
+    },
+    // 销毁three.js 模型实例
+    disposeTotal () {
+      // let _this = this
+      // for (let item in _this.$data) {
+      //   _this.$data[item] = null
+      // }
+      let depthDispose = (mesh) => {
+        if (mesh.children && mesh.children.length) {
+          mesh.children.map(item => {
+            depthDispose(item)
+            item.remove()
+            item = null
+          })
+        }
+        if (mesh.geometry) {
+          mesh.geometry.dispose()
+          mesh.remove()
+          mesh = null
+        }
+        if (mesh.material) {
+          mesh.material.dispose()
+          mesh.remove()
+          mesh = null
+        }
+      }
     }
   },
   watch: {},
@@ -421,8 +463,9 @@ export default {
     document.removeEventListener('click', this.onDocumentMouseDown)
     if (this.renderer) {
       console.log('clear renderer')
-      this.renderer.dispose()
+      this.disposeTotal(this.scene)
       this.scene.remove(this.scene.children)
+      this.renderer.dispose()
     }
   }
 }
