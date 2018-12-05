@@ -211,12 +211,12 @@ export default {
       line-height: 30px;
       color: #fff;
       border: none;
-      /*padding: 0 15px;*/
       background-color: #232027;
       background-image: url(/static/img/input_border_bg@2x.png);
       background-repeat: no-repeat;
       background-size: 100% 100%;
       text-align: left;
+      border-radius: 4px;
       &[readonly] {
         background: transparent;
         cursor: text;

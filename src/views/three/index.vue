@@ -145,12 +145,10 @@ export default {
             // mesh.add(this.createSpriteText(i, ps.x, ps.y))
             if (psJson.position.toString() === mesh.geometry.attributes.position.array.toString()) {
               ps = new Contour(changeArrayLevel(new Float32Array(psJson.position))).centroid()
-              console.log('ajax mark', mesh.geometry.dispose)
               this.createSpriteText(psJson.name, ps.x, ps.y, (obj) => {
                 mesh.add(obj)
               }, '/static/favicon.svg')
-            }
-            else {
+            } else {
               ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
               this.createSpriteText(i, ps.x, ps.y, (obj) => {
                 mesh.add(obj)
@@ -174,7 +172,6 @@ export default {
       // console.log(this.controls)
       this.animate()
       // this.renderer.render(this.scene, this.camera)
-      console.log(this.scene)
       // 窗口变化时重置模型尺寸和摄像头视角比例
       window.addEventListener('mousemove', this.onDocumentMouseMove, false)
       window.addEventListener('click', this.onDocumentMouseClick, false)
@@ -250,7 +247,6 @@ export default {
       this.$set(this.mouse, 'y', -(event.offsetY / this.container.clientHeight) * 2 + 1)
       this.raycaster.setFromCamera(this.mouse, this.camera)
       let intersects = this.raycaster.intersectObjects(this.meshList)
-      // console.log('click', intersects[ 0 ].object)
       if (intersects.length > 0) {
         this.INTERSECTED = intersects[ 0 ].object
         console.log('click', intersects[ 0 ].object.uuid)
@@ -316,7 +312,6 @@ export default {
 
       // 设置精灵缩放和相对位置
       let sprite = new THREE.Sprite(spriteMaterial)
-      console.log(sprite)
       sprite.scale.set(scale, scale, scale)
       sprite.position.set(0, posY, 0)
 
@@ -407,7 +402,7 @@ export default {
         this.mixer.update(this.clock.getDelta())
       }
       this.raycaster.setFromCamera(this.mouse, this.camera)
-      let intersects = this.raycaster.intersectObjects(this.meshList)
+      let intersects = this.raycaster.intersectObjects(this.scene.children)
       if (intersects.length > 0) {
         if (this.INTERSECTED !== intersects[ 0 ].object) {
           if (this.INTERSECTED) this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex)
@@ -462,7 +457,6 @@ export default {
     document.removeEventListener('resize', this.onWindowResize)
     document.removeEventListener('click', this.onDocumentMouseDown)
     if (this.renderer) {
-      console.log('clear renderer')
       this.disposeTotal(this.scene)
       this.scene.remove(this.scene.children)
       this.renderer.dispose()

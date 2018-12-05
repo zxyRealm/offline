@@ -3,6 +3,7 @@
     class="ob-group-nav"
     :type="type"
   >
+    <el-input v-if="isSearch"></el-input>
     <el-tree
       style="width: 400px;"
       :multiple="multiple"

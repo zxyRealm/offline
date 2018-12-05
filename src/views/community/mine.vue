@@ -1,7 +1,7 @@
 <template>
     <div class="mine__community--wrap">
       <uu-sub-tab
-        search
+        class="pd--lr20"
         show-button
         btn-size="small"
         :show-popover="showPopover"
@@ -16,10 +16,11 @@
       <div class="mine__community--main" :class="{'data-empty': !groupList.length || searchEmpty}">
         <ob-list-empty v-if="!groupList.length || searchEmpty" top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
         <div class="mine__community--content" v-else>
-          <div class="community--sidebar dashed-border">
+          <div class="community--sidebar">
             <ob-group-nav
               is-edit
               rights
+              filter
               :expanded-all="false"
               ref="groupNav"
               only-checked
@@ -33,7 +34,7 @@
           </div>
           <div class="community--main">
             <el-scrollbar ref="faceScrollItem">
-              <div class="cmm-top dashed-border" ref="ciContentTop">
+              <div class="cmm-top" ref="ciContentTop">
                 <h2 class="cmm-sub-title">
                   <span>{{communityInfo.name}}{{communityInfo.groupNickName?`（${communityInfo.groupNickName}）`:''}}
                     <a v-if="communityInfo.groupNickName !== undefined || communityInfo.groupPid || (communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId)"  class="fs12" @click="showDialog" href="javascript:void (0)">
@@ -41,136 +42,33 @@
                       {{(communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId) ? dialogTitle : ''}}
                     </a>
                   </span>
-                  <p class="handle fr fs14" v-if="communityInfo.guid">
-                    <router-link v-show="!communityInfo.groupPid && communityInfo.merchantGuid === userInfo.developerId" :to="activeUrl">编辑</router-link>
-                    <a href="javascript:void (0)" v-show="communityInfo.groupPid || communityInfo.merchantGuid === userInfo.developerId" class="danger ml20" @click="disbandGroup">{{communityInfo.groupPid ? '解散分组' : '删除'}}</a>
+                  <p class="handle fr fs14">
+                    <i>添加成员</i>
+                    <i class="el-icon-edit"></i>
+                    <i class="el-icon-delete"></i>
                   </p>
                 </h2>
-                <div class="cm-info-wrap" v-show="communityInfo.merchantGuid">
-                  <div class="info-detail">
-                    <p>
-                      <span class="info__label">社群名称：</span><span class="ellipsis-64">{{communityInfo.name}}</span>
-                    </p>
-                    <p>
-                      <span class="info__label">联系电话：</span>
-                      {{communityInfo.phone}}</p>
-                    <p>
-                      <span class="info__label">地区：</span>
-                      <span class="ellipsis-64">{{communityInfo.fullAddress}}</span>
-                    </p>
-                    <p>
-                      <span class="info__label">联系人：</span>
-                      {{communityInfo.contact}}</p>
-                    <p v-if="communityInfo.role === 0">
-                      <span class="info__label"> 索权范围：</span>
-                      {{communityInfo.rule | authority }}</p>
-                    <p v-if="communityInfo.role === 0">
-                      <span class="info__label"> 邀请码：</span>
-                      {{communityInfo.code}}
-                      <a href="javascript:void (0)" @click="clipboard($event)">复制</a>
-                    </p>
-                    <!--&& communityInfo.parentGroups && communityInfo.parentGroups.length-->
-                    <div class="fl" v-if="communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.role === 1 && communityInfo.type!==3">
-                      <span class="fl info__label">已加入：</span>
-                      <div
-                        v-for="(item,$index) in communityInfo.parentGroups"
-                        :key="$index"
-                        class="parents-item">
-                        <span>{{item.name}}</span>
-                        <uu-icon size="small" type="data"></uu-icon>
-                        <uu-icon v-if="item.rule.length > 2" size="small" type="handle"></uu-icon>
-                        <uu-icon
-                          size="small" type="quit"
-                          v-show="communityInfo.merchantGuid === userInfo.developerId"
-                          @click.native="leaveCommunity('quit',communityInfo, item)"></uu-icon>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="fr" v-if="communityInfo.type !== 3">
-                    <custom-popover
-                      v-if="communityInfo.role === 0"
-                      @click.native.self="$router.push({path: '/community/apply',query: {pid: communityInfo.guid}})"
-                      :show-popover="createSelfVisible"
-                      text="创建自有成员社群"
-                      content="在该管理员社群下添加成员<br/>社群点这里">
-                    </custom-popover>
-                    <el-button
-                    v-if="communityInfo.role === 1"
-                    class="affirm"
-                    @click="joinFormVisible = true">加入{{communityInfo.parentGroups && communityInfo.parentGroups.length ? '其它' : ''}}管理员社群</el-button>
-                  </div>
+                <div class="cm-info-wrap">
+                  <p class="g-mb18">
+                    <span class="info__label">社群名称：</span><span class="ellipsis-64">{{communityInfo.name}}</span></p>
+                  <p class="g-mb18">
+                    <span class="info__label">联系人：</span>
+                    {{communityInfo.contact}}</p>
+                  <p class="g-mb18" v-if="communityInfo.role === 0">
+                    <span class="info__label"> 索权范围：</span>
+                    {{communityInfo.rule | authority }}</p>
+                  <p v-if="communityInfo.role === 0">
+                    <span class="info__label"> 邀请码：</span>
+                    {{communityInfo.code}}
+                    <a href="javascript:void (0)" @click="clipboard($event)">复制</a></p>
+                  <p>
+                    <span class="info__label">联系电话：</span>
+                    {{communityInfo.phone}}</p>
+                  <p>
+                    <span class="info__label">地区：</span>
+                    <span class="ellipsis-64">{{communityInfo.fullAddress}}北京</span></p>
                 </div>
               </div>
-              <!--设备列表-->
-              <div
-                class="dashed-border cmm-table"
-                :style="{height: !communityInfo.groupPid ? tableHeight+78+'px' : ''}"
-                :class="{'mine--table__wrap':(communityInfo.groupPid || communityInfo.groupPid === null)}">
-                <h2 class="cmm-sub-title">设备列表</h2>
-                <ob-list-empty top="32px" v-if="!deviceList.length" :supply="emptyMsg.supply" :text="emptyMsg.text">
-                </ob-list-empty>
-                <el-scrollbar
-                  class="table--scrollbar__warp"
-                  :style="{height: tableHeight + 'px'}"
-                  ref="faceScrollItemTable" v-else>
-                  <el-table
-                    border
-                    :data="deviceList"
-                  >
-                    <el-table-column
-                      prop="deviceName"
-                      label="设备别名"
-                      show-overflow-tooltip>
-                      <template slot-scope="scope">
-                        {{scope.row.deviceName || '暂无'}}
-                      </template>
-                    </el-table-column>
-                    <el-table-column
-                      prop="deviceKey"
-                      label="序列号"
-                      width="168px"
-                    >
-                    </el-table-column>
-                    <el-table-column
-                      prop="deviceType"
-                      label="设备类型"
-                      width="80"
-                    >
-                      <template slot-scope="scope">
-                        {{scope.row.deviceType | deviceType}}
-                      </template>
-                    </el-table-column>
-                    <el-table-column
-                      label="添加时间"
-                      min-width="100"
-                    >
-                      <template slot-scope="scope">
-                        {{scope.row.createTime|parseTime('{y}/{m}/{d} {h}:{i}')}}
-                      </template>
-                    </el-table-column>
-                    <el-table-column
-                      show-overflow-tooltip
-                      prop="groupName"
-                      label="绑定社群"
-                    >
-                    </el-table-column>
-                    <el-table-column
-                      label="绑定时间"
-                      min-width="100"
-                    >
-                      <template slot-scope="scope">
-                        {{scope.row.bindingTime|parseTime('{y}/{m}/{d} {h}:{i}')}}
-                      </template>
-                    </el-table-column>
-                  </el-table>
-                </el-scrollbar>
-              </div>
-              <!-- lwh-识别人脸库   v-if="!(communityInfo.groupPid)"-->
-              <face-recognition-store
-                :guid="communityInfo.guid"
-                :deviceList="deviceList"
-                v-if="communityInfo.merchantGuid">
-              </face-recognition-store>
             </el-scrollbar>
           </div>
         </div>
@@ -230,42 +128,37 @@
 
       <!--创建社群-->
       <ob-dialog-form
-        width="660px"
+        width="600px"
+        custom-class="el-dialog--pd0"
         :show-button="false"
         title="请根据实际情况创建一个社群"
         :visible.sync="createFormVisible"
       >
-        <div slot="content">
-          <div class="create__community--content">
-            <div class="cc__content fl">
-              <div class="cc-sub-title">
-                商场/连锁店
-              </div>
-              <div class="content__text--wrap">
-                <div class="content--text">
-                  <p class="g-custom__button" @click="$router.push({path: '/community/create'})">管理员社群</p>
-                  1、可生成邀请码，以邀请成员社群加入，并查看其客流数据，操作其设备（可选）；<br>
-                  2、创建自有成员社群；<br>
-                  3、添加设备、人员库。
-                </div>
-                <div class="content--text">
-                  <p class="g-custom__button" @click="$router.push({path: '/community/apply'})">成员社群</p>
-                  1、可通过邀请码加入管理社群，对其开放数据查看权限，设备操作权限（可选）；<br>
-                  2、添加设备、人员库。
-                </div>
-              </div>
+        <div class="create__community--content" slot="content">
+          <div class="cc__item">
+            <div class="icon--wrap" @click="showAddForm(1)">
+              <img src="/static/img/logo.png" alt="">
+              <p>商场</p>
             </div>
-            <div class="cc__content">
-              <div class="cc-sub-title">单店</div>
-              <div class="content__text--wrap">
-                <div class="content--text">
-                <p class="g-custom__button" @click="$router.push({path: '/community/single'})">单店社群</p>
-                1、可在社群下查看店内设备、识别人脸库；<br>
-                2、添加设备、人员库。
-              </div>
-              </div>
-            </div>
+            <p class="c-grey fs12">可包含单店，如：银泰商城</p>
           </div>
+
+          <div class="cc__item">
+            <div class="icon--wrap" @click="showAddForm(2)">
+              <img src="/static/img/logo.png" alt="">
+              <p>连锁总店</p>
+            </div>
+            <p class="c-grey fs12">可包含单店，如：屈臣氏总店</p>
+          </div>
+
+          <div class="cc__item">
+            <div class="icon--wrap" @click="showAddForm(3)">
+              <img src="/static/img/logo.png" alt="">
+              <p>单个门店</p>
+            </div>
+            <p class="c-grey fs12">如：银泰商城下的屈臣氏</p>
+          </div>
+
         </div>
       </ob-dialog-form>
       <!--加入其他管理员社群-->
@@ -308,17 +201,79 @@
         </div>
       </ob-dialog-form>
       <!--添加社群-->
+      <!--<ob-dialog-form-->
+        <!--filter-->
+        <!--showButton-->
+        <!--multiple-->
+        <!--title="添加社群"-->
+        <!--:disabled-keys="disabledKeys"-->
+        <!--@remote-submit="addCommunity"-->
+        <!--:group="addCommunityList"-->
+        <!--type="group"-->
+        <!--:visible.sync="addCommunityVisible"-->
+      <!--&gt;</ob-dialog-form>-->
+
+      <!--添加社群（商场、连锁总店、单个门店）-->
       <ob-dialog-form
-        filter
-        showButton
-        multiple
-        title="添加社群"
-        :disabled-keys="disabledKeys"
-        @remote-submit="addCommunity"
-        :group="addCommunityList"
-        type="group"
+        :title="addDialogTitle"
         :visible.sync="addCommunityVisible"
-      ></ob-dialog-form>
+      >
+        <el-form
+          slot="form"
+          ref="communityForm"
+          block-message
+          style="width: 330px"
+          @submit.native.prevent
+          label-position="left"
+          class="common-form white"
+          label-width="82px"
+          :model="communityForm"
+          :rules="addCommunityRules"
+        >
+          <el-form-item label="名称：" prop="name">
+            <el-input placeholder="请输入社群名称" v-model="communityForm.name"></el-input>
+          </el-form-item>
+          <el-form-item label="地区：" prop="pca">
+            <area-select placeholder="请选择地区" v-model="communityForm.pca"></area-select>
+          </el-form-item>
+          <el-form-item prop="address">
+            <el-input type="text" placeholder="请输入详细地址"
+                      v-model.trim="communityForm.address"></el-input>
+          </el-form-item>
+          <el-form-item label="楼层：" prop="floor">
+            <el-input placeholder="请输入社群名称" v-model="communityForm.floor"></el-input>
+          </el-form-item>
+          <el-form-item prop="map">
+            <el-input placeholder="导入地图" v-model="communityForm.map"></el-input>
+          </el-form-item>
+          <el-form-item label="联系人：" prop="contact">
+            <el-input type="text" placeholder="请输入联系人"
+                      v-model.trim="communityForm.contact"></el-input>
+          </el-form-item>
+          <el-form-item label="联系电话：" prop="phone">
+            <el-input type="text" placeholder="11位手机号"
+                      v-model.trim="communityForm.phone"></el-input>
+          </el-form-item>
+          <el-form-item v-if="addCommunityType === 1" label="索权范围：" prop="rule">
+            <el-checkbox-group class="g-pt10" v-model="communityForm.rule">
+              <div>
+                <el-checkbox :label="1">设备操作权限
+                  <p class="form__item--des">查看成员社群的客流数据（必选项）</p>
+                </el-checkbox>
+              </div>
+              <div>
+                <el-checkbox :label="0">数据查看权限
+                  <p class="form__item--des">对成员社群的设备进行添加、升级等所有操作</p>
+                </el-checkbox>
+              </div>
+            </el-checkbox-group>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer mt50">
+          <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
+          <el-button class="affirm" type="primary" @click="setNickName('nameForm')">{{communityInfo.GroupNickName?'添加': '确  定'}}</el-button>
+        </div>
+      </ob-dialog-form>
     </div>
 </template>
 
@@ -328,16 +283,19 @@ import FaceRecognition from '@/components/screening/FaceRecognition'
 import VisitedDetailInfo from './VisitedDetailInfo.vue'
 import FaceRecognitionStore from './FaceRecognitionStore'
 import {eventObject} from '@/utils/event'
-import {uniqueKey, makeCustomName} from '@/utils/index'
+import {uniqueKey, makeCustomName} from '@/utils'
+import {validateRule} from '@/utils/validate'
 import {mapState} from 'vuex'
 import Clipboard from '@/utils/clipboard'
+import area from '@/components/area-select/area-select'
 export default {
   name: 'mineCommunity',
   components: {
     CustomPopover,
     FaceRecognitionStore,
     VisitedDetailInfo,
-    FaceRecognition
+    FaceRecognition,
+    'area-select': area
   },
   data () {
     const validateCode = (rule, value, callback) => {
@@ -364,6 +322,53 @@ export default {
         } else {
           callback(new Error('请输入10位社群邀请码'))
         }
+      }
+    }
+    const validateName = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入社群名称'))
+      } else {
+        if (value.length > 20) {
+          callback(new Error('请输入1-20位字符'))
+        } else if (validateRule(value, 2)) {
+          if (this.type === 'update' && this.originName === value) {
+            callback()
+          } else {
+            this.$http('/group/name/exist', {name: value}, false).then(res => {
+              !res.data ? callback() : callback(new Error('社群名称已存在'))
+            }).catch(err => {
+              callback(new Error(err.msg || '验证失败'))
+            })
+          }
+        } else {
+          callback(new Error('请输入正确的社群名称'))
+        }
+      }
+    }
+    const validateContact = (rule, value, callback) => {
+      if (value) {
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
+        } else if (validateRule(value, 1)) {
+          callback()
+        } else {
+          callback(new Error('请输入正确的联系人'))
+        }
+      } else {
+        callback()
+      }
+    }
+    const validatePhone = (rule, value, callback) => {
+      if (value) {
+        if (validateRule(value, 6)) {
+          callback()
+        } else if (value.length !== 11) {
+          callback(new Error('请输入11位手机号'))
+        } else {
+          callback(new Error('手机号格式错误'))
+        }
+      } else {
+        callback()
       }
     }
     return {
@@ -411,6 +416,40 @@ export default {
       groupsNameFormVisible: false, // 修改自定义分组名dialog 显示状态
       joinFormVisible: false, // 加入其他管理员社群 dialog显示状态
       addCommunityVisible: false, // 添加社群
+      addCommunityType: 1, // 添加社群的类型 1 商场 2 连锁总店 3 单个门店
+      communityForm: { // 添加社群表单对象
+        name: '',
+        code: '',
+        pca: '',
+        address: '',
+        contact: '',
+        rule: '',
+        phone: ''
+      },
+      addCommunityRules: {
+        name: [
+          {required: true, validator: validateName, trigger: 'blur'}
+        ],
+        code: [
+          {required: true, message: '请获取社群邀请码', trigger: 'blur'}
+        ],
+        pca: [
+          {message: '请选择省市区', trigger: 'blur'}
+        ],
+        address: [
+          {message: '请输入详细地址', trigger: 'blur'},
+          {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
+        ],
+        contact: [
+          {validator: validateContact, trigger: 'blur'}
+        ],
+        rule: [
+          {type: 'array', message: '请选择索权范围', trigger: 'blur'}
+        ],
+        phone: [
+          {validator: validatePhone, trigger: 'blur'}
+        ]
+      },
       nameForm: {
         name: ''
       }
@@ -431,6 +470,21 @@ export default {
   mounted () {
   },
   computed: {
+    addDialogTitle () {
+      let title
+      switch (this.addCommunityType) {
+        case 1:
+          title = '添加商场'
+          break
+        case 2:
+          title = '添加连锁总店'
+          break
+        case 3:
+          title = '添加门店'
+          break
+      }
+      return title
+    },
     dialogTitle: {
       get () {
         let txt = '添加昵称'
@@ -549,7 +603,6 @@ export default {
                 this.$refs.groupNav.setCheckedKeys(setArr)
                 this.$refs.groupNav.setCurrentKey(current.uniqueKey)
                 this.getCommunityInfo(current)
-                this.getDeviceList(current)
               }
             })
           } else {
@@ -572,7 +625,6 @@ export default {
           this.$refs.groupNav.setCurrentKey(current.uniqueKey)
           this.$refs.groupNav.setCheckedKeys([])
           this.getCommunityInfo(current)
-          this.getDeviceList(current)
         }
       })
     },
@@ -634,27 +686,11 @@ export default {
               if (currentNode.groupGuid) {
                 this.getCommunityInfo(node)
               }
-              this.getDeviceList(node)
             })
           }
           this.$route.meta.keepAlive = false
         })
       })
-    },
-    // 获取设备列表
-    getDeviceList (val) {
-      let url = !val.groupPid ? '/group/device ' : '/group/device/customGroup'
-      let id = val.groupGuid || val.guid
-      let subData = {guid: id}
-      if (val.groupPid) subData = {groupCustomGuid: id, groupPid: val.groupPid}
-      if (id) {
-        this.$http(url, subData).then(res => {
-          this.deviceList = res.data.content || res.data || []
-          this.$store.state.loading = false
-          // 触发传递设备列表到人脸识别库搜索组件上
-          eventObject().$emit('FaceRecognition', this.deviceList)
-        })
-      }
     },
     // 获取社群详细信息
     getCommunityInfo (val) {
@@ -686,7 +722,6 @@ export default {
         } else { // 分组信息直接设置，不再查询
           this.communityInfo = JSON.parse(JSON.stringify(data))
         }
-        this.getDeviceList(data)
       } else {
         // 点击新建分组是默认选中状态值不改变
         this.$refs.groupNav.setCurrentKey(this.currentCommunity.uniqueKey)
@@ -846,6 +881,12 @@ export default {
     // 复制邀请码
     clipboard (event) {
       Clipboard(this.communityInfo.code, event)
+    },
+    // 显示添加社群弹窗（商场、连锁店、单个门店）
+    showAddForm (type) {
+      this.addCommunityType = type
+      this.createFormVisible = false
+      this.addCommunityVisible = true
     }
   },
   watch: {
@@ -865,23 +906,24 @@ export default {
 
 <style lang="scss" scoped>
 .mine__community--wrap{
-  padding: 0 20px;
+  /*padding: 0 20px;*/
 }
 .mine__community--main{
-  margin-top: 10px;
   &.data-empty{
     height: calc(100% - 70px);
   }
   .mine__community--content{
-    height: calc(100vh - 200px);
+    height: calc(100vh - 172px);
     @media screen and(max-width: 1280px) {
-      height: calc(100vh - 217px);
+      height: calc(100vh - 189px);
     }
   }
   .community--sidebar {
     float: left;
     width: 230px;
     height: 100%;
+    background: rgba(1,8,20,0.10);
+    border-right: 1px dashed rgba(151, 151, 151, 0.1);
     .ob-group-nav{
       padding: 20px 16px;
       .el-tree-node__content{
@@ -893,7 +935,7 @@ export default {
   }
   .community--main {
     height: 100%;
-    margin-left: 242px;
+    margin-left: 232px;
     .el-scrollbar{
       height: 100%;
       .el-scrollbar__wrap{
@@ -908,25 +950,27 @@ export default {
         height: calc(100vh - 295px);
       }
       .table--scrollbar__warp{
-        /*height: calc(100vh - 277px);*/
-        /*@media screen and(max-width: 1280px){*/
-          /*height: calc(100vh - 294px);*/
-        /*}*/
       }
     }
 
     //  自有社群设备列表样式
     .cmm-top, .cmm-table {
-      padding: 20px 20px 5px;
+      /*padding: 20px 20px 5px;*/
       box-sizing: border-box;
     }
     .cmm-top {
       margin-bottom: 10px;
       .cm-info-wrap {
-        padding: 28px 0 10px;
+        padding: 20px;
+        background: rgba(1,8,20,0.10);
+        border-bottom: 1px dashed rgba(151,151,151, 0.1);
         font-size: 12px;
         box-sizing: border-box;
         overflow: hidden;
+        > p {
+          float: left;
+          width: 33%;
+        }
         &.custom{
           padding: 20px 40px;
           .ellipsis{
@@ -937,7 +981,7 @@ export default {
         }
         .info-detail {
           float: left;
-          width: calc(100% - 180px);
+          /*width: calc(100% - 180px);*/
           line-height: 14px;
           overflow: hidden;
           >p{
@@ -989,10 +1033,22 @@ export default {
       }
     }
     .cmm-sub-title {
+      padding:  20px;
       font-size: 16px;
       padding-bottom: 10px;
-      margin-bottom: 8px;
+      background: rgba(1,8,20,0.10);
       border-bottom: 1px dashed rgba(151,151,151, 0.1);
+      .handle {
+        >i{
+          margin-left: 10px;
+          font-size: 12px;
+          color: #3a8ee6;
+          cursor: pointer;
+        }
+        .el-icon-delete {
+          color: #C03639;
+        }
+      }
     }
     /*识别人脸库*/
     .cmm-table__face{
@@ -1007,10 +1063,24 @@ export default {
     }
   }
 }
+/*创建社群弹框样式*/
 .create__community--content{
   overflow: hidden;
-  margin-top: -16px;
-  margin-bottom: 30px;
+  margin-top: 42px;
+  margin-bottom: 50px;
+  text-align: center;
+  .cc__item{
+    display: inline-block;
+    width: 32%;
+    .icon--wrap{
+      cursor: pointer;
+      img {
+        width: 86px;
+        height: 86px;
+      }
+      color: #0F9EE9;
+    }
+  }
   .cc-sub-title{
     height: 30px;
     line-height: 30px;

@@ -5,6 +5,7 @@
     :lock-scroll="false"
     top="auto"
     @close="closeDialog"
+    :custom-class="customClass"
     class="dialog-form-wrapper vam"
     :width="width"
     :title="title"
@@ -125,6 +126,10 @@ export default {
     isRules: { // 弹窗是否存在校验
       type: Boolean,
       default: true
+    },
+    customClass: {
+      type: String,
+      default: ''
     }
   },
   data () {

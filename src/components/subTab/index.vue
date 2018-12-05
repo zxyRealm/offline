@@ -166,6 +166,10 @@ export default {
     line-height: 24px;
     font-size: 16px;
     border-bottom: 1px dashed rgba(151,151,151,0.10);
+    &.pd--lr20{
+      padding-left: 20px;
+      padding-right: 20px;
+    }
     .sub-tab-main {
       float: left;
       font-size: 14px;
@@ -261,35 +265,5 @@ export default {
         border-bottom: 1px solid #ddd;
       }
     }
-  }
-
-</style>
-<style lang="scss" rel="stylesheet/scss">
-  @import "@/styles/variables.scss";
-
-  .nav-search {
-    width: 280px;
-    border: none;
-    .el-input__prefix {
-      font-size: 18px;
-      color: $blue;
-      z-index: 999;
-      cursor: pointer;
-      .el-icon-search{
-        line-height: 28px;
-      }
-    }
-    &.el-input--prefix {
-      .el-input__inner {
-        background: transparent !important;
-        background-image: none;
-        border: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        padding-left: 35px;
-        border-radius: 0;
-        color: #fff;
-      }
-    }
-
   }
 </style>

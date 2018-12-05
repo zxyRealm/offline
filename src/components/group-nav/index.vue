@@ -7,7 +7,7 @@
       <el-input
         clearable
         v-if="filter"
-        class="filter__input white"
+        class="filter__input"
         placeholder="快速查找社群"
         v-model="filterText">
         <i
