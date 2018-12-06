@@ -21,6 +21,9 @@ const Library = () => import('@/views/member/library.vue')
 const Person = () => import('@/views/member/person.vue')
 const Details = () => import('@/views/member/details.vue')
 
+// 行为分析
+const Action = () => import('@/views/action/index.vue')
+
 // 开发者中心
 const Developer = () => import('@/views/developer/index.vue')
 // 消息通知
@@ -377,6 +380,23 @@ export const constantRouterMap = [
           }
         ],
         redirect: '/data/guest-analysis'
+      }
+    ]
+  },
+  {
+    path: '/action',
+    component: Layout,
+    redirect: '/action/index',
+    meta: {
+      title: '行为分析'
+    },
+    children: [
+      {
+        path: '',
+        component: Action,
+        meta: {
+          title: '行为分析'
+        }
       }
     ]
   },

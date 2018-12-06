@@ -54,7 +54,7 @@ exports.install = function (Vue, options) {
       html = ` <img width="72px" src="/static/img/${type}_tip_icon.png" alt="提示信息"><p>${text.text}</p>`
     }
     this.$msgbox({
-      title: '',
+      title: text.title || '',
       message: html,
       center: true,
       dangerouslyUseHTMLString: true,

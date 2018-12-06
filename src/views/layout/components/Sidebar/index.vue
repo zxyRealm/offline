@@ -11,7 +11,7 @@
       active-text-color="#fff"
     >
       <el-menu-item index="/index">
-        <i class="ob-icon__console"></i>
+        <i class="ob-icon__index"></i>
         <span slot="title">首页</span>
       </el-menu-item>
       <el-menu-item index="/console">
@@ -30,14 +30,18 @@
         <i class="ob-icon__member"></i>
         <span slot="title">人员管理</span>
       </el-menu-item>
+      <el-menu-item index="/action">
+        <i class="ob-icon__action"></i>
+        <span slot="title">行为分析</span>
+      </el-menu-item>
       <el-menu-item index="/data">
         <i class="ob-icon__data"></i>
-        <span slot="title">数据可视化</span>
+        <span slot="title">数据分析</span>
       </el-menu-item>
-      <el-menu-item index="/developer">
-        <i class="ob-icon__developer"></i>
-        <span slot="title">开发者中心</span>
-      </el-menu-item>
+      <!--<el-menu-item index="/developer">-->
+        <!--<i class="ob-icon__developer"></i>-->
+        <!--<span slot="title">开发者中心</span>-->
+      <!--</el-menu-item>-->
     </el-menu>
   </el-scrollbar>
 </template>
@@ -98,6 +102,12 @@ export default {
       }
       &.ob-icon__console {
         background-image: url("../../image/nav_console_icon.png");
+      }
+      &.ob-icon__index {
+        background-image: url("../../image/nav_index_icon.png");
+      }
+      &.ob-icon__action {
+        background-image: url("../../image/nav_action_icon.png");
       }
       &.ob-icon__member {
         background-image: url("../../image/nav_member_icon.png");

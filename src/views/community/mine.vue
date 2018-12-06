@@ -33,43 +33,44 @@
               @current-change="currentChange"></ob-group-nav>
           </div>
           <div class="community--main">
-            <el-scrollbar ref="faceScrollItem">
-              <div class="cmm-top" ref="ciContentTop">
-                <h2 class="cmm-sub-title">
+            <div class="cmm-top" ref="ciContentTop">
+              <h2 class="cmm-sub-title">
                   <span>{{communityInfo.name}}{{communityInfo.groupNickName?`（${communityInfo.groupNickName}）`:''}}
                     <a v-if="communityInfo.groupNickName !== undefined || communityInfo.groupPid || (communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId)"  class="fs12" @click="showDialog" href="javascript:void (0)">
                       <i class="el-icon-edit"></i>
                       {{(communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId) ? dialogTitle : ''}}
                     </a>
                   </span>
-                  <p class="handle fr fs14">
-                    <i>添加成员</i>
-                    <i class="el-icon-edit"></i>
-                    <i class="el-icon-delete"></i>
-                  </p>
-                </h2>
-                <div class="cm-info-wrap">
-                  <p class="g-mb18">
-                    <span class="info__label">社群名称：</span><span class="ellipsis-64">{{communityInfo.name}}</span></p>
-                  <p class="g-mb18">
-                    <span class="info__label">联系人：</span>
-                    {{communityInfo.contact}}</p>
-                  <p class="g-mb18" v-if="communityInfo.role === 0">
-                    <span class="info__label"> 索权范围：</span>
-                    {{communityInfo.rule | authority }}</p>
-                  <p v-if="communityInfo.role === 0">
-                    <span class="info__label"> 邀请码：</span>
-                    {{communityInfo.code}}
-                    <a href="javascript:void (0)" @click="clipboard($event)">复制</a></p>
-                  <p>
-                    <span class="info__label">联系电话：</span>
-                    {{communityInfo.phone}}</p>
-                  <p>
-                    <span class="info__label">地区：</span>
-                    <span class="ellipsis-64">{{communityInfo.fullAddress}}北京</span></p>
-                </div>
+                <p class="handle fr fs12">
+                  <i @click="showAddForm(communityInfo.role === 0?5:7)">{{communityInfo.role === 0 ? '添加成员' : '加入管理员'}}</i>
+                  <i class="el-icon-edit" @click="showAddForm(4)"></i>
+                  <i class="el-icon-delete" @click="deleteGroup"></i>
+                </p>
+              </h2>
+              <div class="cm-info-wrap">
+                <p class="g-mb18">
+                  <span class="info__label">社群名称：</span><span class="ellipsis-64">{{communityInfo.name}}</span></p>
+                <p class="g-mb18">
+                  <span class="info__label">联系人：</span>
+                  {{communityInfo.contact}}</p>
+                <p class="g-mb18" v-if="communityInfo.role === 0">
+                  <span class="info__label"> 索权范围：</span>
+                  {{communityInfo.rule | authority }}</p>
+                <p v-if="communityInfo.role === 0">
+                  <span class="info__label"> 邀请码：</span>
+                  {{communityInfo.code}}
+                  <a href="javascript:void (0)" @click="clipboard($event)">复制</a></p>
+                <p>
+                  <span class="info__label">联系电话：</span>
+                  {{communityInfo.phone}}</p>
+                <p>
+                  <span class="info__label">地区：</span>
+                  <span class="ellipsis-64">{{communityInfo.fullAddress}}北京</span></p>
               </div>
-            </el-scrollbar>
+            </div>
+            <div class="three__map--wrap">
+
+            </div>
           </div>
         </div>
       </div>
@@ -137,7 +138,7 @@
         <div class="create__community--content" slot="content">
           <div class="cc__item">
             <div class="icon--wrap" @click="showAddForm(1)">
-              <img src="/static/img/logo.png" alt="">
+              <img src="@/assets/community/market_icon@2x.png" alt="">
               <p>商场</p>
             </div>
             <p class="c-grey fs12">可包含单店，如：银泰商城</p>
@@ -145,7 +146,7 @@
 
           <div class="cc__item">
             <div class="icon--wrap" @click="showAddForm(2)">
-              <img src="/static/img/logo.png" alt="">
+              <img src="@/assets/community/chain_icon@2x.png" alt="">
               <p>连锁总店</p>
             </div>
             <p class="c-grey fs12">可包含单店，如：屈臣氏总店</p>
@@ -153,7 +154,7 @@
 
           <div class="cc__item">
             <div class="icon--wrap" @click="showAddForm(3)">
-              <img src="/static/img/logo.png" alt="">
+              <img src="@/assets/community/single_icon@2x.png" alt="">
               <p>单个门店</p>
             </div>
             <p class="c-grey fs12">如：银泰商城下的屈臣氏</p>
@@ -163,67 +164,155 @@
       </ob-dialog-form>
       <!--加入其他管理员社群-->
       <ob-dialog-form
-        class="dialog__content--vm"
         :show-button="false"
-        title="加入社群"
+        :title="communityDialogTitle"
         :visible.sync="joinFormVisible">
-        <div slot="form" class="vam" style="height: 130px">
-          <el-form
+        <el-form
             slot="form"
-            ref="joinForm"
+            ref="joinManageForm"
             block-message
             style="width: 330px"
             @submit.native.prevent
             label-position="left"
             class="common-form white"
             label-width="82px"
-            :model="joinForm"
-            :rules="joinRules"
+            :model="joinManageForm"
+            :rules="joinManageRules"
           >
             <el-form-item label="邀请码：" prop="code">
-              <el-input placeholder="请输入10位数字、字母" v-model="joinForm.code"></el-input>
+              <el-input placeholder="请输入10位数字、字母" v-model="joinManageForm.code"></el-input>
             </el-form-item>
-            <span v-show="textState">
-              <div
-                class="name--text vam"
-                :class="textState === 'danger' ? 'danger c-h50': textState">
-                <div>
-                  {{textState ==='danger'?'无法加入社群：':''}}{{joinCommunityInfo.name}}
-                  <div class="c-grey" v-if="textState === 'danger'">设备操作权限已上送至其他社群</div>
+            <template v-if="ManageInfo.guid">
+              <el-form-item label-width="0">
+                <div class="custom__form--item">
+                  <div class="custom__form--label">
+                    管理员<br/>社群信息：
+                  </div>
+                  <div class="custom__form--content">
+                    <span class="c-grey">名称：</span><span class="ellipsis">屈臣氏总店</span>
+                    <span class="c-grey">类型：</span><span>{{ManageInfo.type === 1 ? '连锁' : '商场' }}</span>
+                  </div>
                 </div>
-              </div>
-            </span>
+              </el-form-item>
+              <template v-if="ManageInfo.type === 1">
+                <el-form-item label="地区：" prop="pca">
+                  <area-select placeholder="请选择地区" v-model="joinManageForm.pca"></area-select>
+                </el-form-item>
+                <el-form-item prop="address">
+                  <el-input type="text" placeholder="请输入详细地址"
+                            v-model.trim="joinManageForm.address"></el-input>
+                </el-form-item>
+              </template>
+              <template v-else>
+                <el-form-item label="业态：" prop="format">
+                  <el-select placeholder="请选择门店所属业态类型" v-model="joinManageForm.format">
+                    <el-option value="1">餐饮</el-option>
+                    <el-option value="2">娱乐</el-option>
+                    <el-option value="3">运动</el-option>
+                    <el-option value="4">服装</el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="楼层：" prop="floor">
+                  <el-select placeholder="请选择门店所在楼层" v-model="joinManageForm.floor">
+                    <el-option value="1">F1</el-option>
+                    <el-option value="2">F2</el-option>
+                    <el-option value="3">F3</el-option>
+                    <el-option value="4">F4</el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label-width="0">
+                  <div class="three__map--wrap">
+                  </div>
+                </el-form-item>
+              </template>
+            </template>
           </el-form>
-        </div>
         <div slot="footer" class="dialog-footer">
           <el-button class="cancel" @click="joinFormVisible = false">返 回</el-button>
-          <el-button class="affirm" :disabled="textState!=='safe'" type="primary" @click="joinManageCommunity('joinForm')">加入</el-button>
+          <el-button
+            class="affirm"
+            :disabled="textState!=='safe'"
+            type="primary"
+            @click="joinManageCommunity('joinManageForm')">加入</el-button>
         </div>
       </ob-dialog-form>
-      <!--添加社群-->
-      <!--<ob-dialog-form-->
-        <!--filter-->
-        <!--showButton-->
-        <!--multiple-->
-        <!--title="添加社群"-->
-        <!--:disabled-keys="disabledKeys"-->
-        <!--@remote-submit="addCommunity"-->
-        <!--:group="addCommunityList"-->
-        <!--type="group"-->
-        <!--:visible.sync="addCommunityVisible"-->
-      <!--&gt;</ob-dialog-form>-->
+      <!--向商场或连锁总店添加成员社群、 编辑商场或连锁总店的成员社群-->
+      <ob-dialog-form
+        :title="communityDialogTitle"
+        :visible.sync="handleMemberVisible"
+      >
+        <el-form
+          slot="form"
+          ref="handleMemberForm"
+          block-message
+          style="width: 330px"
+          label-position="left"
+          class="common-form white"
+          label-width="82px"
+          :model="handleMemberForm"
+          :rules="handleMemberRules"
+        >
+          <el-form-item label="名称：" prop="name">
+            <el-input placeholder="请输入社群名称" v-model="handleMemberForm.name"></el-input>
+          </el-form-item>
+          <template v-if="communityInfo.type === 2">
+            <el-form-item label="地区：" prop="pca">
+              <area-select placeholder="请选择地区" v-model="handleMemberForm.pca"></area-select>
+            </el-form-item>
+            <el-form-item prop="address">
+              <el-input type="text" placeholder="请输入详细地址"
+                        v-model.trim="handleMemberForm.address"></el-input>
+            </el-form-item>
+          </template>
+          <template v-else>
+            <el-form-item label="业态：" prop="format">
+              <el-select placeholder="请选择门店所属业态类型" v-model="handleMemberForm.format">
+                <el-option value="1">餐饮</el-option>
+                <el-option value="2">娱乐</el-option>
+                <el-option value="3">运动</el-option>
+                <el-option value="4">服装</el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="楼层：" prop="floor">
+              <el-select placeholder="请选择门店所在楼层" v-model="handleMemberForm.floor">
+                <el-option value="1">F1</el-option>
+                <el-option value="2">F2</el-option>
+                <el-option value="3">F3</el-option>
+                <el-option value="4">F4</el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label-width="0">
+              <div class="three__map--dialog">
+                <three-map></three-map>
+              </div>
+              <!--<el-input placeholder="导入地图" v-model="handleMemberForm.map"></el-input>-->
+            </el-form-item>
+          </template>
+          <el-form-item label="联系人：" prop="contact">
+            <el-input type="text" placeholder="请输入联系人"
+                      v-model.trim="communityForm.contact"></el-input>
+          </el-form-item>
+          <el-form-item label="联系电话：" prop="phone">
+            <el-input type="text" placeholder="11位手机号"
+                      v-model.trim="communityForm.phone"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button class="cancel" @click="handleMemberVisible = false">返 回</el-button>
+          <el-button class="affirm" type="primary" @click="addCommunity('addCommunityForm')">加入</el-button>
+        </div>
+      </ob-dialog-form>
 
       <!--添加社群（商场、连锁总店、单个门店）-->
       <ob-dialog-form
-        :title="addDialogTitle"
+        :title="communityDialogTitle"
         :visible.sync="addCommunityVisible"
       >
         <el-form
           slot="form"
-          ref="communityForm"
+          ref="addCommunityForm"
           block-message
           style="width: 330px"
-          @submit.native.prevent
           label-position="left"
           class="common-form white"
           label-width="82px"
@@ -240,10 +329,10 @@
             <el-input type="text" placeholder="请输入详细地址"
                       v-model.trim="communityForm.address"></el-input>
           </el-form-item>
-          <el-form-item label="楼层：" prop="floor">
+          <el-form-item v-if="handleCommunityType !== 4" label="楼层：" prop="floor">
             <el-input placeholder="请输入社群名称" v-model="communityForm.floor"></el-input>
           </el-form-item>
-          <el-form-item prop="map">
+          <el-form-item v-if="handleCommunityType !== 4" prop="map">
             <el-input placeholder="导入地图" v-model="communityForm.map"></el-input>
           </el-form-item>
           <el-form-item label="联系人：" prop="contact">
@@ -254,47 +343,50 @@
             <el-input type="text" placeholder="11位手机号"
                       v-model.trim="communityForm.phone"></el-input>
           </el-form-item>
-          <el-form-item v-if="addCommunityType === 1" label="索权范围：" prop="rule">
+          <el-form-item label="索权范围：" prop="rule">
             <el-checkbox-group class="g-pt10" v-model="communityForm.rule">
-              <div>
-                <el-checkbox :label="1">设备操作权限
-                  <p class="form__item--des">查看成员社群的客流数据（必选项）</p>
-                </el-checkbox>
-              </div>
-              <div>
-                <el-checkbox :label="0">数据查看权限
-                  <p class="form__item--des">对成员社群的设备进行添加、升级等所有操作</p>
-                </el-checkbox>
-              </div>
+              <el-checkbox class="block" :label="1">设备操作权限
+                <p class="form__item--des">查看成员社群的客流数据（必选项）</p>
+              </el-checkbox>
+              <el-checkbox style="margin:0;" :label="0">数据查看权限
+                <p class="form__item--des">对成员社群的设备进行添加、升级等所有操作</p>
+              </el-checkbox>
             </el-checkbox-group>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer mt50">
-          <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
-          <el-button class="affirm" type="primary" @click="setNickName('nameForm')">{{communityInfo.GroupNickName?'添加': '确  定'}}</el-button>
+          <el-button class="cancel" @click="addCommunityVisible = false">返 回</el-button>
+          <el-button class="affirm" type="primary" @click="addCommunity('addCommunityForm')">{{communityInfo.GroupNickName?'添加': '确  定'}}</el-button>
+        </div>
+      </ob-dialog-form>
+
+      <!--添加商场社群成功确认弹框-->
+      <ob-dialog-form
+        title="已添加成功，下方是自动生成的邀请码"
+        :visible.sync="addCommunitySuccess"
+        :showButton="false"
+      >
+        <div slot="content" class="affirm__content--warp">
+          <span>1234568</span>
+          <p class="c-grey tc">
+            通过邀请码，可以邀请下属门店加入到您创建的社群，您可在社群详情中查看该邀请码
+          </p>
         </div>
       </ob-dialog-form>
     </div>
 </template>
 
 <script>
-import CustomPopover from '@/components/CustomPopover'
-import FaceRecognition from '@/components/screening/FaceRecognition'
-import VisitedDetailInfo from './VisitedDetailInfo.vue'
-import FaceRecognitionStore from './FaceRecognitionStore'
-import {eventObject} from '@/utils/event'
-import {uniqueKey, makeCustomName} from '@/utils'
+import {makeCustomName} from '@/utils'
 import {validateRule} from '@/utils/validate'
 import {mapState} from 'vuex'
 import Clipboard from '@/utils/clipboard'
 import area from '@/components/area-select/area-select'
+import ThreeMap from '@/views/three/index'
 export default {
   name: 'mineCommunity',
   components: {
-    CustomPopover,
-    FaceRecognitionStore,
-    VisitedDetailInfo,
-    FaceRecognition,
+    ThreeMap,
     'area-select': area
   },
   data () {
@@ -390,11 +482,13 @@ export default {
       },
       groupsNameForm: {
       },
+      ManageInfo: { // 通过邀请码获取的管理员社群信息
+      },
       joinCommunityInfo: {},
-      joinForm: { // 创建分组form数据对象
+      joinManageForm: { // 创建分组form数据对象
         code: ''
       },
-      joinRules: {
+      joinManageRules: {
         code: [
           {validator: validateCode, trigger: 'change'}
         ]
@@ -415,15 +509,19 @@ export default {
       dialogFormVisible: false, // 修改社群昵称dialog 显示状态
       groupsNameFormVisible: false, // 修改自定义分组名dialog 显示状态
       joinFormVisible: false, // 加入其他管理员社群 dialog显示状态
+      editCommunityVisible: false, // 编辑社群dialog显示状态
+      addCommunitySuccess: false, // 添加商场社群成功弹窗
       addCommunityVisible: false, // 添加社群
-      addCommunityType: 1, // 添加社群的类型 1 商场 2 连锁总店 3 单个门店
+      handleMemberVisible: false,
+      handleCommunityType: 1, // 添加社群的类型 1 商场 2 连锁总店 3 单个门店 4 编辑 商场、连锁总店、单个门店 5 添加成员 6 编辑成员 7 加入管理员社群
       communityForm: { // 添加社群表单对象
         name: '',
         code: '',
         pca: '',
         address: '',
+        floor: '',
         contact: '',
-        rule: '',
+        rule: [0],
         phone: ''
       },
       addCommunityRules: {
@@ -434,17 +532,48 @@ export default {
           {required: true, message: '请获取社群邀请码', trigger: 'blur'}
         ],
         pca: [
-          {message: '请选择省市区', trigger: 'blur'}
+          {required: true, message: '请选择省市区', trigger: 'blur'}
         ],
         address: [
-          {message: '请输入详细地址', trigger: 'blur'},
+          {required: true, message: '请输入详细地址', trigger: 'blur'},
           {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
+        ],
+        floor: [
+          {required: true, message: '请选取楼层', trigger: 'blur'}
         ],
         contact: [
           {validator: validateContact, trigger: 'blur'}
         ],
         rule: [
-          {type: 'array', message: '请选择索权范围', trigger: 'blur'}
+          {required: true, type: 'array', message: '请选择索权范围', trigger: 'blur'}
+        ],
+        phone: [
+          {validator: validatePhone, trigger: 'blur'}
+        ]
+      },
+      handleMemberForm: { // 添加/编辑成员社群
+        name: '',
+        pca: '',
+        address: '',
+        format: '',
+        floor: ''
+      },
+      handleMemberRules: {
+        name: [
+          {required: true, validator: validateName, trigger: 'blur'}
+        ],
+        pca: [
+          {required: true, message: '请选择省市区', trigger: 'blur'}
+        ],
+        address: [
+          {required: true, message: '请输入详细地址', trigger: 'blur'},
+          {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
+        ],
+        floor: [
+          {required: true, message: '请选取楼层', trigger: 'blur'}
+        ],
+        contact: [
+          {validator: validateContact, trigger: 'blur'}
         ],
         phone: [
           {validator: validatePhone, trigger: 'blur'}
@@ -470,9 +599,9 @@ export default {
   mounted () {
   },
   computed: {
-    addDialogTitle () {
+    communityDialogTitle () {
       let title
-      switch (this.addCommunityType) {
+      switch (this.handleCommunityType) {
         case 1:
           title = '添加商场'
           break
@@ -481,6 +610,16 @@ export default {
           break
         case 3:
           title = '添加门店'
+          break
+        case 4:
+        case 6:
+          title = '编辑社群'
+          break
+        case 5:
+          title = '添加成员'
+          break
+        case 7:
+          title = '加入管理员社群'
           break
       }
       return title
@@ -708,7 +847,7 @@ export default {
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
-      // console.log('change', data)
+      console.log('change', data)
       if (!data.button) {
         this.currentCommunity = data
         if (data.groupPid === undefined && node.parent.parent) {
@@ -864,18 +1003,15 @@ export default {
       })
     },
     // 向分组添加社群
-    addCommunity (data) {
-      data = data.map(item => {
-        item.groupCustomGuid = this.communityInfo.guid
-        return item
-      }).filter(item => !item.disabled)
-      if (!data.length) {
-        this.$tip('请选取社群', 'error')
-        return
-      }
-      this.$http('/groupCustom/member/add', {groupCustomMemberInfo: data}).then(res => {
-        this.addCommunityVisible = false
-        this.getGroupList()
+    addCommunity (formName) {
+      console.log(this.communityForm)
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          this.addCommunityVisible = false
+          this.addCommunitySuccess = true
+          console.log('success', this.communityForm)
+        } else {
+        }
       })
     },
     // 复制邀请码
@@ -884,16 +1020,41 @@ export default {
     },
     // 显示添加社群弹窗（商场、连锁店、单个门店）
     showAddForm (type) {
-      this.addCommunityType = type
-      this.createFormVisible = false
-      this.addCommunityVisible = true
+      this.handleCommunityType = type
+      switch (type) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+          this.createFormVisible = false
+          this.addCommunityVisible = true
+          break
+        case 5:
+          this.handleMemberVisible = true
+          break
+        case 7:
+          this.joinFormVisible = true
+      }
+    },
+    // 删除社群
+    deleteGroup () {
+      this.$affirm({text: `删除社群前，请先删除出入口`, title: '删除社群', confirm: '我知道了'}, (action, instance, done) => {
+        if (action === 'confirm') {
+        }
+        done()
+      })
     }
   },
   watch: {
     joinFormVisible (val) {
+      // if (!val) {
+      //   this.joinForm.code = ''
+      //   this.joinCommunityInfo = {}
+      // }
+    },
+    addCommunityVisible (val) {
       if (!val) {
-        this.joinForm.code = ''
-        this.joinCommunityInfo = {}
+        this.$refs.addCommunityForm.clearValidate()
       }
     }
   },
@@ -907,6 +1068,36 @@ export default {
 <style lang="scss" scoped>
 .mine__community--wrap{
   /*padding: 0 20px;*/
+  .three__map--dialog{
+    height: 190px;
+  }
+  /*加入管理员社群 显示社群信息自定义样式*/
+  .custom__form--item {
+    height: 50px;
+    font-size: 12px;
+    .custom__form--label{
+      float: left;
+      width: 82px;
+      line-height: 1.3;
+      padding: 10px 0;
+      color: rgba(85,85,85,0.50);
+    }
+    .custom__form--content{
+      overflow: hidden;
+      height: 50px;
+      line-height: 50px;
+      padding: 0 10px;
+      background: #F8F8F8;
+      border-radius: 2px;
+      .ellipsis{
+        width: 8em;
+        vertical-align: top;
+      }
+    }
+  }
+  .three__map--wrap{
+    height: calc(100% - 150px);
+  }
 }
 .mine__community--main{
   &.data-empty{
@@ -959,7 +1150,6 @@ export default {
       box-sizing: border-box;
     }
     .cmm-top {
-      margin-bottom: 10px;
       .cm-info-wrap {
         padding: 20px;
         background: rgba(1,8,20,0.10);
@@ -1129,5 +1319,14 @@ export default {
       color: rgba(0,0,0,0.30);
     }
   }
+}
+.affirm__content--warp{
+  > span{
+    font-size: 50px;
+  }
+  width: 288px;
+  margin: 16px auto 50px;
+  font-size: 12px;
+  text-align: center;
 }
 </style>

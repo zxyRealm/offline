@@ -262,26 +262,28 @@ export default {
         let img = new Image()
         img.src = src
         img.onload = function () {
-          // canvas.height = 300
+          canvas.width = 600
+          canvas.height = 450
           ctx.drawImage(img, 90, 0, 120, 80)
           ctx.fillStyle = '#ffff00'
           ctx.textAlign = 'center'
           ctx.font = 'Bold 100px Arial'
           ctx.lineWidth = 4
-          ctx.fillText(text, 150, 144)
+          ctx.fillText(text, 300, 144)
           let texture = new THREE.Texture(canvas)
           texture.needsUpdate = true
           // 使用Sprite显示文字
           let material = new THREE.SpriteMaterial({map: texture, transparent: true})
           let textObj = new THREE.Sprite(material)
-          textObj.scale.set(0.75 * 60, 0.25 * 60, 1)
+          textObj.scale.set(0.75 * 200, 0.25 * 200, 1)
           textObj.position.set(x, y - 5, 1)
           c(textObj)
         }
-
       } else {
         let canvas = document.createElement('canvas')
         let ctx = canvas.getContext('2d')
+        // canvas.width = 2000
+        // canvas.height = 1500
         ctx.fillStyle = '#ffff00'
         ctx.font = 'Bold 100px Arial'
         ctx.lineWidth = 4
@@ -291,8 +293,8 @@ export default {
         // 使用Sprite显示文字
         let material = new THREE.SpriteMaterial({map: texture, transparent: true})
         let textObj = new THREE.Sprite(material)
-        textObj.scale.set(0.75 * 60, 0.25 * 60, 1)
-        textObj.position.set(x, y, 10)
+        // textObj.scale.set(0.75 * 60, 0.25 * 60, 1)
+        textObj.position.set(x, y, 1)
         c(textObj)
       }
     },

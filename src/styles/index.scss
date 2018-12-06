@@ -174,7 +174,7 @@ div:focus {
     margin-top: $mt + px;
   }
 }
-@each $mb in 5, 8, 10, 12, 16, 18, 22{
+@each $mb in 5, 8, 10, 12, 16, 18, 22, 30{
   .g-mb#{$mb} {
     margin-bottom: $mb + px;
   }

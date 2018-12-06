@@ -179,9 +179,6 @@
       .el-form-item__label {
         color: #333;
         padding: 0;
-        &:before {
-          display: none;
-        }
       }
       .el-form-item__content {
         line-height: 30px;
@@ -208,6 +205,15 @@
             }
           }
         }
+        .el-checkbox{
+          .el-checkbox__label{
+            font-size:12px;
+            color: #333;
+          }
+        }
+      }
+      .form__item--des{
+        color: #555;
       }
     }
   }
