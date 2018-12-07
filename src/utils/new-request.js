@@ -21,6 +21,18 @@ function endLoading () {
   loading.close()
 }
 
+// 加载层
+export function load (text, target) {
+  // target 必须用id
+  target = target ? document.getElementById(target) : document.body
+  return Loading.service({
+    text: text,
+    target: target,
+    spinner: 'el-icon-loading',
+    background: 'transparent'
+  })
+}
+
 function showFullScreenLoading (isLoading = true) { // isLoading 请求是否需要添加loading动画
   if (store.state.needLoadingRequestCount === 0 && isLoading) {
     startLoading()
@@ -52,7 +64,7 @@ let errMsg = msg => {
 
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.BASE_URL, // api的base_url
+  baseURL: process.env.BASE_API, // api的base_url
   // timeout: 5000, // request timeout
   method: 'POST'
 })
@@ -60,19 +72,11 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(config => {
   // Do something before request is sent
-  // 重定义传参格式
-  let customParams = {}
-  let user = JSON.parse(sessionStorage.getItem('user_info'))
-  customParams[config.custom] = config.data !== undefined ? config.data : {}
-  if (config.custom !== 'Login') {
-    customParams.id = user ? user.id : ''
-  }
-  config.data = JSON.stringify(customParams)
-  config.url = ''
-  showFullScreenLoading(config.loading)
+  load('数据加载中...')
   return config
 }, error => {
   // Do something with request error
+  load('数据加载中...').close()
   if (error.status === '504') {
     errMsg('网关超时，请重试！')
   } else {
@@ -85,19 +89,23 @@ service.interceptors.request.use(config => {
 // respone interceptor
 service.interceptors.response.use(
   response => {
-    tryHideFullScreenLoading()
+    // tryHideFullScreenLoading()
     // 格式化返回参数格式
+    load('数据加载中...').close()
     if (response.status === 200) {
       return Promise.resolve(response.data)
     } else {
       if (response.data.code) {
-
+        errMsg(response.data.msg)
+      } else {
+        errMsg('网络异常，请稍后重试')
       }
     }
   },
   error => {
     // 此处错误已由node项目中finalResult方法包装处理
-    tryHideFullScreenLoading()
+    // tryHideFullScreenLoading()
+    load('数据加载中...').close()
     if (error.response && /^5/.test(error.response.status)) {
       errMsg('网络异常，重新尝试')
     } else {

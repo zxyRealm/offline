@@ -8,7 +8,7 @@
 export default {
   name: 'App',
   created () {
-    console.log('version 2018-11-22 09:30')
+    console.log('version 2018-12-06 09:30')
     this.$store.dispatch('GET_USER_INFO')
     if (!this.userInfo.company) {
       this.$http('/merchant/getInfo').then(res => {

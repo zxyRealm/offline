@@ -4,23 +4,19 @@
         class="pd--lr20"
         show-button
         btn-size="small"
-        :show-popover="showPopover"
-        popover="社群添加点这里"
-        :sub-btn="{text: '创建社群'}"
         @handle-btn="() =>  createFormVisible = true"
         @remote-search="remoteSearch"
-        placeholder="输入社群名称"
-        :btn-array="btnArray"
-        :menu-array="[{title: '我的社群'}]">
+        :menu-array="[{title: '社群管理'}]">
       </uu-sub-tab>
       <div class="mine__community--main" :class="{'data-empty': !groupList.length || searchEmpty}">
         <ob-list-empty v-if="!groupList.length || searchEmpty" top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
         <div class="mine__community--content" v-else>
           <div class="community--sidebar">
-            <ob-group-nav
+            <group-sidebar
               is-edit
               rights
               filter
+              :asyn-data="true"
               :expanded-all="false"
               ref="groupNav"
               only-checked
@@ -30,7 +26,7 @@
               type="community"
               @handle-plus="showAddDialog"
               @refresh="getGroupList"
-              @current-change="currentChange"></ob-group-nav>
+              @node-click="currentChange"></group-sidebar>
           </div>
           <div class="community--main">
             <div class="cmm-top" ref="ciContentTop">
@@ -48,24 +44,51 @@
                 </p>
               </h2>
               <div class="cm-info-wrap">
-                <p class="g-mb18">
-                  <span class="info__label">社群名称：</span><span class="ellipsis-64">{{communityInfo.name}}</span></p>
-                <p class="g-mb18">
+                <div >
+                  <span class="info__label">社群名称：</span><span class="ellipsis-64">{{communityInfo.name}}</span></div>
+                <div >
                   <span class="info__label">联系人：</span>
-                  {{communityInfo.contact}}</p>
-                <p class="g-mb18" v-if="communityInfo.role === 0">
-                  <span class="info__label"> 索权范围：</span>
-                  {{communityInfo.rule | authority }}</p>
-                <p v-if="communityInfo.role === 0">
-                  <span class="info__label"> 邀请码：</span>
-                  {{communityInfo.code}}
-                  <a href="javascript:void (0)" @click="clipboard($event)">复制</a></p>
-                <p>
+                  {{communityInfo.contact}}</div>
+                <template v-if="communityInfo.role === 0">
+                  <div>
+                    <span class="info__label"> 索权范围：</span>
+                    <el-popover
+                      placement="top"
+                      trigger="hover">
+                      <div class="fs12">
+                        <p>数据查看：查看成员社群的客流数据</p>
+                        <p>设备操作：对成员社群的设备进行升级、重启等操作</p>
+                      </div>
+                      <i class="el-icon-question" slot="reference"></i>
+                    </el-popover>
+                    {{communityInfo.rule | authority }}</div>
+                  <div>
+                    <span class="info__label"> 邀请码：</span>
+                    <span>{{communityInfo.code}}</span>
+                    <a href="javascript:void (0)" @click="clipboard($event)">复制</a></div>
+                </template>
+                <div>
                   <span class="info__label">联系电话：</span>
-                  {{communityInfo.phone}}</p>
-                <p>
+                  {{communityInfo.phone}}</div>
+                <div>
                   <span class="info__label">地区：</span>
-                  <span class="ellipsis-64">{{communityInfo.fullAddress}}北京</span></p>
+                  <span class="ellipsis-64">{{communityInfo.fullAddress}}北京</span></div>
+                <!--如果成员社群加入了管理员社群即展示其管理员社群列表-->
+                <div class="parent__list" v-if="communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.role === 1 && communityInfo.type!==3">
+                  <span class="fl info__label">已加入：</span>
+                  <div
+                    v-for="(item,$index) in communityInfo.parentGroups"
+                    :key="$index"
+                    class="parents-item">
+                    <span>{{item.name}}</span>
+                    <uu-icon size="small" type="data"></uu-icon>
+                    <uu-icon v-if="item.rule.length > 2" size="small" type="handle"></uu-icon>
+                    <uu-icon
+                      size="small" type="quit"
+                      v-show="communityInfo.merchantGuid === userInfo.developerId"
+                      @click.native="leaveCommunity('quit',communityInfo, item)"></uu-icon>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="three__map--wrap">
@@ -126,52 +149,16 @@
           <el-button class="affirm" type="primary" @click="setGroupsName('groupsNameForm')">确定</el-button>
         </div>
       </ob-dialog-form>
-
-      <!--创建社群-->
-      <ob-dialog-form
-        width="600px"
-        custom-class="el-dialog--pd0"
-        :show-button="false"
-        title="请根据实际情况创建一个社群"
-        :visible.sync="createFormVisible"
-      >
-        <div class="create__community--content" slot="content">
-          <div class="cc__item">
-            <div class="icon--wrap" @click="showAddForm(1)">
-              <img src="@/assets/community/market_icon@2x.png" alt="">
-              <p>商场</p>
-            </div>
-            <p class="c-grey fs12">可包含单店，如：银泰商城</p>
-          </div>
-
-          <div class="cc__item">
-            <div class="icon--wrap" @click="showAddForm(2)">
-              <img src="@/assets/community/chain_icon@2x.png" alt="">
-              <p>连锁总店</p>
-            </div>
-            <p class="c-grey fs12">可包含单店，如：屈臣氏总店</p>
-          </div>
-
-          <div class="cc__item">
-            <div class="icon--wrap" @click="showAddForm(3)">
-              <img src="@/assets/community/single_icon@2x.png" alt="">
-              <p>单个门店</p>
-            </div>
-            <p class="c-grey fs12">如：银泰商城下的屈臣氏</p>
-          </div>
-
-        </div>
-      </ob-dialog-form>
       <!--加入其他管理员社群-->
       <ob-dialog-form
         :show-button="false"
         :title="communityDialogTitle"
         :visible.sync="joinFormVisible">
-        <el-form
-            slot="form"
+        <div slot="form" class="vam" style="min-height: 80px;">
+          <el-form
             ref="joinManageForm"
             block-message
-            style="width: 330px"
+            style="width: 330px;"
             @submit.native.prevent
             label-position="left"
             class="common-form white"
@@ -227,11 +214,11 @@
               </template>
             </template>
           </el-form>
+        </div>
         <div slot="footer" class="dialog-footer">
           <el-button class="cancel" @click="joinFormVisible = false">返 回</el-button>
           <el-button
             class="affirm"
-            :disabled="textState!=='safe'"
             type="primary"
             @click="joinManageCommunity('joinManageForm')">加入</el-button>
         </div>
@@ -303,7 +290,7 @@
         </div>
       </ob-dialog-form>
 
-      <!--添加社群（商场、连锁总店、单个门店）-->
+      <!--编辑社群（商场、连锁总店、单个门店）-->
       <ob-dialog-form
         :title="communityDialogTitle"
         :visible.sync="addCommunityVisible"
@@ -330,10 +317,24 @@
                       v-model.trim="communityForm.address"></el-input>
           </el-form-item>
           <el-form-item v-if="handleCommunityType !== 4" label="楼层：" prop="floor">
-            <el-input placeholder="请输入社群名称" v-model="communityForm.floor"></el-input>
+            <el-input placeholder="请选择楼层" v-model="communityForm.floor"></el-input>
           </el-form-item>
           <el-form-item v-if="handleCommunityType !== 4" prop="map">
-            <el-input placeholder="导入地图" v-model="communityForm.map"></el-input>
+            <el-upload
+              class="dialog__upload--wrap"
+              ref="upload"
+              multiple
+              :show-file-list="false"
+              :http-request="httpRequest"
+              action=""
+              :file-list="fileList"
+              :on-change="onChange"
+              :on-success="handleSuccess"
+              :before-upload="beforeUpload"
+              :auto-upload="false">
+              <div slot="trigger" class="g__input--btn">导入地图</div>
+            </el-upload>
+            <!--<el-input placeholder="导入地图" v-model="communityForm.map"></el-input>-->
           </el-form-item>
           <el-form-item label="联系人：" prop="contact">
             <el-input type="text" placeholder="请输入联系人"
@@ -343,7 +344,7 @@
             <el-input type="text" placeholder="11位手机号"
                       v-model.trim="communityForm.phone"></el-input>
           </el-form-item>
-          <el-form-item label="索权范围：" prop="rule">
+          <el-form-item v-if="handleCommunityType !== 4 && handleCommunityType !== 3" label="索权范围：" prop="rule">
             <el-checkbox-group class="g-pt10" v-model="communityForm.rule">
               <el-checkbox class="block" :label="1">设备操作权限
                 <p class="form__item--des">查看成员社群的客流数据（必选项）</p>
@@ -383,9 +384,13 @@ import {mapState} from 'vuex'
 import Clipboard from '@/utils/clipboard'
 import area from '@/components/area-select/area-select'
 import ThreeMap from '@/views/three/index'
+import GroupSidebar from '@/components/group-nav/tree'
+import {GetMarketList} from '../../api/community'
+
 export default {
   name: 'mineCommunity',
   components: {
+    GroupSidebar,
     ThreeMap,
     'area-select': area
   },
@@ -464,6 +469,7 @@ export default {
       }
     }
     return {
+      fileList: [], // 文件列表
       isSon: false, // 是否是成员社群
       tipMsg: '暂无社群', // 空数据是页面提示信息
       supply: '',
@@ -594,9 +600,10 @@ export default {
         window.addEventListener('click', this.firstCreate)
       }
     })
-    this.getGroupList()
+    // this.getGroupList()
   },
   mounted () {
+    console.log('======', this.currentManage)
   },
   computed: {
     communityDialogTitle () {
@@ -636,7 +643,7 @@ export default {
       },
       set () {}
     },
-    ...mapState(['loading', 'aliveState', 'userInfo']),
+    ...mapState(['loading', 'aliveState', 'userInfo', 'currentManage']),
     activeUrl: {
       get () {
         let type = 'edit'
@@ -697,6 +704,22 @@ export default {
     }
   },
   methods: {
+    // 文件上传成功回调
+    handleSuccess (res, file) {
+      console.log(res)
+    },
+    onChange (file, fileList) {
+      console.log(file, fileList)
+      if (file.row.type === 'image/svg+xml') {}
+    },
+    // 上传前校验文件类型 只允许svg 文件上传
+    beforeUpload (file) {
+      console.log(file)
+      if (file) {
+      }
+    },
+    // 自定义文件上传
+    httpRequest () {},
     // 第一次进入设备列表，给出操作提示，点击页面后提示消失
     firstCreate () {
       this.btnArray.map(item => {
@@ -707,7 +730,6 @@ export default {
       this.joinManageVisible = false
       window.removeEventListener('click', this.firstCreate)
     },
-    // 社群搜索
     // 搜索社群
     remoteSearch (val) {
       this.searchEmpty = false
@@ -767,19 +789,15 @@ export default {
         }
       })
     },
-    // 获取社群列表
-    getGroupList (data, pid) {
-      this.$http('/group/list').then(res => {
-        res.data.map(item => {
-          if (item.role === 0 && item.memberItem && item.memberItem.length) {
-            item.memberItem.unshift({button: 'groups', parentNode: JSON.parse(JSON.stringify(item))})
-          }
-        })
-        this.groupList = res.data || []
+    // 获取商场社群列表
+    getGroupList (pid) {
+      GetMarketList({parentId: pid}).then(res => {
+        console.log(res)
+        this.groupList = res || []
         // 当key 返回string时,即恢复默认选中状态
-        if (typeof data === 'string') data = res.data[0]
+        // if (typeof data === 'string') data = res.data[0]
         // 编辑页返回时记住当前页状态
-        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || data || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || this.groupList[0] || {}
+        let currentNode = (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || (this.currentCommunity.uniqueKey ? this.currentCommunity : false) || this.groupList[0] || {}
         let uniqueKey
         this.$nextTick(() => {
           if (this.$refs.groupNav) {
@@ -847,8 +865,7 @@ export default {
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
-      console.log('change', data)
-      if (!data.button) {
+      if (data.$treeNodeId !== this.currentCommunity.$treeNodeId && node.level !== 2) {
         this.currentCommunity = data
         if (data.groupPid === undefined && node.parent.parent) {
           this.$set(this.currentCommunity, 'parents', JSON.parse(JSON.stringify(node.parent.parent.data)))
@@ -862,17 +879,9 @@ export default {
           this.communityInfo = JSON.parse(JSON.stringify(data))
         }
       } else {
-        // 点击新建分组是默认选中状态值不改变
-        this.$refs.groupNav.setCurrentKey(this.currentCommunity.uniqueKey)
-        // 根据自定义分组名规则筛选已存在的文件，排序过滤后重新定义新的文件名
-        let cName = makeCustomName(data.parentNode.memberItem, 'name', '分组')
-        this.groupsNameForm = {
-          name: cName,
-          customType: 'create',
-          groupPid: data.parentNode.groupGuid
-        }
-        this.groupsNameFormVisible = true
+        console.log('asyn data')
       }
+      // console.log('change', data, node)
     },
     // 解散社群
     disbandGroup () {
@@ -1046,6 +1055,13 @@ export default {
     }
   },
   watch: {
+    currentManage: {
+      handler (val) {
+        this.getGroupList(val.id)
+        console.log('community---', val)
+      },
+      deep: true
+    },
     joinFormVisible (val) {
       // if (!val) {
       //   this.joinForm.code = ''
@@ -1157,9 +1173,33 @@ export default {
         font-size: 12px;
         box-sizing: border-box;
         overflow: hidden;
-        > p {
+        > div {
           float: left;
           width: 33%;
+          height: 16px;
+          &:nth-child(1),&:nth-child(2),&:nth-child(3){
+            margin-bottom: 18px;
+          }
+          > * {
+            float: left;
+          }
+        }
+        .parent__list{
+          width: auto;
+          .parents-item{
+            .uu-icon{
+              margin-top: 1px;
+              margin-left: 6px;
+            }
+            > * {
+              float: left;
+            }
+          }
+        }
+        .el-icon-question{
+          margin-right: 3px;
+          color: #515055;
+          font-size: 14px;
         }
         &.custom{
           padding: 20px 40px;
@@ -1253,73 +1293,7 @@ export default {
     }
   }
 }
-/*创建社群弹框样式*/
-.create__community--content{
-  overflow: hidden;
-  margin-top: 42px;
-  margin-bottom: 50px;
-  text-align: center;
-  .cc__item{
-    display: inline-block;
-    width: 32%;
-    .icon--wrap{
-      cursor: pointer;
-      img {
-        width: 86px;
-        height: 86px;
-      }
-      color: #0F9EE9;
-    }
-  }
-  .cc-sub-title{
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
-    color: #fff;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
-  }
-  .cc__content{
-    width: 220px;
-    height: 184px;
-    padding: 2px;
-    padding-top: 0;
-    overflow: hidden;
-    text-align: center;
-    border-radius: 2px;
-    background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
-    box-sizing: border-box;
-    &.fl{
-      width: 390px;
-      margin-right: 10px;
-    }
-    .content__text--wrap{
-      position: relative;
-      height: calc(100% - 30px);
-      background: #fff;
-      z-index: 9;
-    }
-    .g-custom__button{
-      width: 160px;
-      height: 24px;
-      line-height: 24px;
-      margin-bottom: 8px;
-      text-align: center;
-      color: #0F9EE9;
-      cursor: pointer;
-    }
-    .content--text{
-      display: inline-block;
-      width: 160px;
-      margin: 20px 10px 0;
-      text-align: left;
-      font-size: 12px;
-      vertical-align: top;
-      color: rgba(0,0,0,0.30);
-    }
-  }
-}
+
 .affirm__content--warp{
   > span{
     font-size: 50px;

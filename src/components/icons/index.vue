@@ -119,6 +119,22 @@ export default {
         width: $s14;
       }
     }
+    /*树形组件社群角色图标（商场、连锁、门店）*/
+    &.role01{
+      background-image: url('../../assets/community/market_role_icon.png');
+      width: 24px;
+      height: 14px;
+    }
+    &.role02{
+      background-image: url('../../assets/community/chain_role_icon.png');
+      width: 24px;
+      height: 14px;
+    }
+    &.role03{
+      background-image: url('../../assets/community/single_role_icon.png');
+      width: 24px;
+      height: 14px;
+    }
     /*社群绑定*/
     &.binding {
       background-image: url(/static/img/binding.png);

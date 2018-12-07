@@ -79,7 +79,7 @@
         background-color: #EBEBEB;
       }
       > span {
-        line-height: 20px !important;
+        line-height: 20px;
       }
     }
   }
@@ -321,5 +321,73 @@
     .el-dialog__body {
       padding: 0;
     }
+  }
+}
+
+//添加社群调入地图按钮
+.dialog__upload--wrap{
+  .el-upload--text{
+    display: block;
+  }
+}
+
+//头部导航管理层社群下拉选框定制样式
+.nav__select--manage{
+  width: 140px;
+  > .el-input{
+    background: none;
+    .el-input__inner{
+      text-align: center;
+      font-size: 14px;
+    }
+  }
+}
+.select__dropdown--manage{
+  width: 200px;
+  background: #26232B;
+  box-shadow: 1px 3px 8px 0 rgba(0,0,0,0.60);
+  border-radius: 2px;
+  border: none;
+  &.el-popper{
+    margin-top: 0;
+  }
+  .el-select-dropdown__list{
+    padding: 14px 0;
+    .el-select-dropdown__item{
+      height: 24px;
+      line-height: 24px;
+      background: #26232B!important;
+      color: #fff;
+      &:nth-last-child(2){
+        margin-bottom: 5px;
+      }
+      span{
+        line-height: 24px!important;
+      }
+      .el-button{
+        span{
+          line-height: 1!important;
+        }
+      }
+      .ellipsis{
+        width: auto;
+        max-width: 132px;
+      }
+      .uu-icon{
+        margin: 5px 0 5px 10px;
+        vertical-align: initial;
+      }
+      &.selected, &:hover, &.hover{
+        color: #0f9ee9;
+      }
+    }
+    .affirm{
+      display: block;
+      width: 160px;
+      margin: 0 auto;
+    }
+  }
+  .popper__arrow{
+    display: none;
   }
 }

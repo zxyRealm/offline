@@ -116,6 +116,7 @@ export default {
       let svgLoader = new THREE.SVGLoader()
       let psJson = JSON.parse(localStorage.getItem('group_local'))
       console.log(psJson, new Float32Array(psJson.position))
+      // http://testfile-1994.oss-cn-hangzhou.aliyuncs.com/1544081041343.svg
       svgLoader.load('/static/floor/floor' + floor + '.svg', (paths) => {
         this.group.position.x = -290
         this.group.position.y = 214
@@ -267,7 +268,7 @@ export default {
           ctx.drawImage(img, 90, 0, 120, 80)
           ctx.fillStyle = '#ffff00'
           ctx.textAlign = 'center'
-          ctx.font = 'Bold 100px Arial'
+          ctx.font = 'Bold 200px Arial'
           ctx.lineWidth = 4
           ctx.fillText(text, 300, 144)
           let texture = new THREE.Texture(canvas)

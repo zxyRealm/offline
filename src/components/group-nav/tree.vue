@@ -3,57 +3,69 @@
     class="ob-group-nav"
     :type="type"
   >
-    <el-input v-if="isSearch"></el-input>
-    <el-tree
-      style="width: 400px;"
-      :multiple="multiple"
-      :only-checked="onlyChecked"
-      :check-strictly="checkStrictly"
-      :show-checkbox="showChecked"
-      :class="theme"
-      class="filter-tree"
-      :node-key="nodeKey"
-      :data="GroupList"
-      :props="defaultProps"
-      :default-expanded-keys="expandedKeys"
-      :default-expand-all="expandedAll"
-      @node-click="nodeClick"
-      @check="nodeCheck"
-      @current-change="currentChange"
-      ref="GroupTree">
-      <span class="custom-tree-node" slot-scope="{ node, data }">
-        <span>{{data[defaultProps.label]}}</span>
-       <img class="role-icon-img" v-if="data.memberItem && node.level === 1" src="./image/manager_icon.png" alt="">
-       <img src="./image/children_icon.png" alt="" v-else-if="node.level===1">
-        <template>
-           <el-popover
-             placement="right"
-             class="popover-wrap"
-             @show='()=>getParentList(data)'
-             trigger="hover">
-              <div v-if="data.parentList&&data.parentList.length" class="clearfix">
-                <div class="parent-item clearfix" v-for="(item,$index) in data.parentList" :key="$index">
-                  <div style="width: 36px;margin-right: 5px;">
-                    <el-tooltip class="fl" effect="dark" content="数据查看权限" placement="top">
-                      <uu-icon type="data"></uu-icon>
-                    </el-tooltip>
-                    <el-tooltip class="fl" v-show="isHandle(item.rule)" effect="dark" content="设备操作权限" placement="top">
-                      <uu-icon type="handle"></uu-icon>
-                    </el-tooltip>
-                  </div>
-                  <div class="name">{{item.name}}</div>
-                  <uu-icon type="quit" @click.native="()=>leaveCommunity('quit',data,item)"></uu-icon>
-                </div>
-              </div>
-              <div class="tac fs12" v-else>暂未加入社群</div>
-          <el-button v-if="node.level===1 && !data.groupPid && type==='community'" type="text" class="popover fr"
-                     size="mini" slot="reference">上级</el-button>
-        </el-popover>
-        </template>
-        <i v-if="type==='community'&& node.level===2" class="el-icon-remove-outline danger fr"
-           @click="leaveCommunity('kick',data,node.parent.data)"></i>
-      </span>
-    </el-tree>
+    <el-scrollbar>
+      <el-input
+        clearable
+        v-if="filter"
+        class="filter__input"
+        placeholder="快速查找社群"
+        v-model="filterText">
+        <i
+          class="el-icon-search el-input__icon"
+          slot="prefix">
+        </i>
+      </el-input>
+      <el-tree
+        :filter-node-method="filterNode"
+        :multiple="multiple"
+        :only-checked="onlyChecked"
+        :check-strictly="checkStrictly"
+        :show-checkbox="showChecked"
+        :class="theme"
+        class="filter-tree"
+        :node-key="nodeKey"
+        :data="TreeList"
+        :props="defaultProps"
+        :default-expanded-keys="expandedKeys"
+        :default-expand-all="expandedAll"
+        @node-click="nodeClick"
+        @check="nodeCheck"
+        @current-change="currentChange"
+        ref="GroupTree">
+        <span class="custom-tree-node" slot-scope="{ node, data }">
+          <uu-icon v-if="node.level === 2 && data.memberItem" type="groups" size="mini"></uu-icon>
+          <span
+            v-if="type==='custom-community'"
+            :class="{ellipsis:true,'dialog-tree':type === 'custom'}"
+            :custom-type="customType(data.type)"
+            :style="{maxWidth:''}"
+          >
+            {{data[defaultProps.label]}}
+          </span>
+          <span
+            v-if="type!=='custom-community'"
+            :class="{ellipsis:true,'dialog-tree':type === 'custom'}">
+            {{ data[defaultProps.label] }}
+          </span>
+          <i v-if="node.level === 2 && data.memberItem && data.groupPid && isEdit" class="el-icon-plus fr" @click="addCommunity(data,node)"></i>
+          <!--商场-->
+          <uu-icon class="role__icon--img" v-if="data.role === 0 && node.level === 1" type="role01"></uu-icon>
+          <!--连锁总店-->
+          <uu-icon class="role__icon--img" v-else-if="data.type !== 3 && data.role === 1 && node.level === 1" type="role02"></uu-icon>
+          <!--单个门店-->
+          <uu-icon v-else-if="data.type === 3 && node.level === 1" class="role__icon--img" type="role03"></uu-icon>
+
+          <el-tooltip v-if="rights && data.role === 0 && node.level === 1" content="数据查看权限" placement="top" effect="light">
+            <uu-icon class="role__icon--img" size="small" type="data"></uu-icon>
+          </el-tooltip>
+          <el-tooltip v-if="rights && data.role === 0 && data.rule && data.rule.length > 2" content="设备操作权限" placement="top" effect="light">
+             <uu-icon size="mini" class="role__icon--img" type="handle"></uu-icon>
+          </el-tooltip>
+          <i v-if="type==='community' && node.level > 2 && isEdit" class="el-icon-remove-outline danger fr"
+             @click="leaveCommunity(data, node)"></i>
+        </span>
+      </el-tree>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -128,9 +140,25 @@ export default {
     select: { // 社群设备默认值
       type: Object,
       default: () => ({})
+    },
+    filter: { // 是否启用关键词过滤
+      type: Boolean,
+      default: false
+    },
+    rights: { // 是否展示管理员社群索权状态
+      type: Boolean,
+      default: false
+    },
+    isEdit: {
+      type: Boolean,
+      default: false
+    },
+    asynData: { // 三级子节点数据异步获取
+      type: Boolean,
+      default: false
     }
   },
-  name: 'obGroupTree',
+  name: 'ob-group-nav',
   data () {
     return {
       currentGroup: '',
@@ -138,34 +166,7 @@ export default {
       currentNode: '',
       checkedKeys: [],
       agency: [],
-      treeData: [{
-        id: 1,
-        label: '一级 2',
-        children: [{
-          id: 3,
-          label: '二级 2-1',
-          children: [{
-            id: 4,
-            label: '三级 3-1-1'
-          }, {
-            id: 5,
-            label: '三级 3-1-2',
-            disabled: true
-          }]
-        }, {
-          id: 2,
-          label: '二级 2-2',
-          disabled: true,
-          children: [{
-            id: 6,
-            label: '三级 3-2-1'
-          }, {
-            id: 7,
-            label: '三级 3-2-2',
-            disabled: true
-          }]
-        }]
-      }]
+      filterText: '' // 关键词
     }
   },
   methods: {
@@ -193,6 +194,7 @@ export default {
           }
         }
       }
+      this.$emit('node-click', val, node)
     },
     // 当前选中节点变化时触发的事件
     currentChange (val, node) {
@@ -211,7 +213,7 @@ export default {
     },
     // el-select 组件value 值变化时通知父组件
     selectChange (index) {
-      // this.TreeList = this.GroupList[index][this.defaultProps.children]
+      this.TreeList = this.GroupList[index][this.defaultProps.children]
       this.currentNode = ''
       this.$emit('current-change', {
         selectNode: index,
@@ -221,16 +223,6 @@ export default {
     },
     isHandle (val) {
       return (val || '').split(',').length === 2
-    },
-    // 获取社群列表
-    getGroupList (gid) {
-      gid = (gid || '')
-      this.$http('/group/list', {searchText: gid}).then(res => {
-        this.GroupList = uniqueKey(res.data, 'memberItem')
-        if (this.type !== 'device') {
-          this.TreeList = this.GroupList
-        }
-      })
     },
     // 获取父社群列表
     getParentList (value) {
@@ -249,32 +241,42 @@ export default {
     customType (type, txt) {
       return customType(type, txt)
     },
-    // 离开社群
-    leaveCommunity (type, current, parent) {
+    addCommunity (data, node) {
+      this.$emit('handle-plus', node, data)
+    },
+    // 离开社群/ 退出自定义分组
+    leaveCommunity (current, node) {
       // type 可选类型 quit、kick
-      let [url, des] = ['/group/exit', '']
-      let params = {
-        groupPid: parent.guid || parent.groupGuid,
-        groupGuid: current.groupGuid,
-        groupNickName: current.groupNickName,
-        parentGroupNickName: parent.groupNickName || parent.name
+      let [url, des, parent] = ['/group/remove', '', node.parent]
+      let type = parent.data.groupPid ? 'quit' : 'kick' // quit 退出分组 kick 踢出社群（默认分组中操作相当于踢出社群）
+      let params
+      if (type === 'quit') {
+        params = {
+          groupGuids: [current.groupGuid],
+          groupCustomGuid: current.groupCustomGuid
+        }
+      } else {
+        params = {
+          groupPid: node.parent.parent.data.groupGuid,
+          groupGuid: current.groupGuid,
+          groupNickName: current.name,
+          parentGroupNickName: node.parent.parent.data.name
+        }
       }
       switch (type) {
-        case 'quit':
+        case 'kick':
           des = `确定要退出【<span class="maxw200 ellipsis">${params.parentGroupNickName}</span>】社群？`
-          url = '/group/exit'
+          url = '/group/remove'
           break
         default:
-          des = `移除成员社群将失去对该社群设备的数据查看权限/操作权限。<br>
-            确定要移除成员社群【<span class="maxw200 ellipsis">
-            ${params.groupNickName}</span>】？`
-          url = '/group/remove'
+          des = `确定将社群从分组移除？`
+          url = '/groupCustom/member/remove'
       }
       this.$affirm({text: `${des}`}, (action, instance, done) => {
         if (action === 'confirm') {
           this.$http(url, params).then(res => {
             this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
-            this.$emit('refresh')
+            this.$emit('refresh', type)
           })
           done()
         } else {
@@ -309,10 +311,16 @@ export default {
       if (!this.multiple) {
         this.$refs.GroupTree.setCheckedNodes([nodes])
       }
+      this.$emit('current-change', nodes)
     },
     // 获取已选中对象 键值数组
     getCheckedKeys () {
       return this.$refs.GroupTree.getCheckedKeys()
+    },
+    // 社群列表树型结构关键字过滤
+    filterNode (value, data) {
+      if (!value) return true
+      return data[this.defaultProps.label].indexOf(value) !== -1
     },
     // 一键全选
     checkedAll (val) {
@@ -323,8 +331,14 @@ export default {
       }
     }
   },
+  created () {
+    this.$emit('input', uniqueKey(this.value, this.defaultProps.children))
+  },
   mounted () {
-    this.getGroupList()
+    this.GroupList = this.value || []
+    if (this.type === 'device') {
+      this.currentGroup = this.select.selectNode
+    }
     this.setCurrentKey(this.currentKey)
   },
   watch: {
@@ -336,7 +350,7 @@ export default {
         if (this.type === 'community' || this.type === 'custom-community') {
           this.TreeList = val
         }
-        this.$emit('input', val)
+        this.$emit('input', uniqueKey(val, this.defaultProps.children))
       },
       deep: true
     },
@@ -347,6 +361,11 @@ export default {
       if (this.type === 'device') {
         this.setCurrentKey(this.select.currentNode ? this.select.currentNode.uniqueKey : '')
       }
+    },
+    filterText (val) {
+      this.$nextTick(() => {
+        this.$refs.GroupTree.filter(val)
+      })
     }
   },
   computed: {
@@ -356,40 +375,39 @@ export default {
     showChecked: function () {
       return this.onlyChecked ? this.onlyChecked : this.showCheckbox
     },
-    // TreeList: {
-    //   get () {
-    //     // 设置默认不可选节点
-    //     if (this.isDisabled) {
-    //       let [setKeys, disabledKeys] = [new Set(this.disabledKeys), []]
-    //       let setDisabled = (arr) => {
-    //         for (let i = 0, len = arr.length; i < len; i++) {
-    //           if (setKeys.has(arr[i][this.dataKey])) {
-    //             disabledKeys.push(arr[i][this.nodeKey])
-    //             this.$set(arr[i], 'disabled', true)
-    //           } else {
-    //             if (arr[i].disabled) {
-    //               this.$set(arr[i], 'disabled', false)
-    //             }
-    //           }
-    //           if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
-    //             setDisabled(arr[i][this.defaultProps.children])
-    //           }
-    //         }
-    //       }
-    //       setDisabled(this.GroupList)
-    //       this.setCheckedKeys(disabledKeys)
-    //     }
-    //     if (this.type !== 'device') {
-    //       this.agency = this.GroupList
-    //     } else {
-    //       return this.GroupList[this.currentGroup] ? this.GroupList[this.currentGroup][this.defaultProps.children] : []
-    //     }
-    //     return this.agency
-    //   },
-    //   set (model) {
-    //     this.agency = model
-    //   }
-    // },
+    TreeList: {
+      get () {
+        // 设置默认不可选节点
+        let [setKeys, disabledKeys] = [new Set(this.disabledKeys), []]
+        let setDisabled = (arr) => {
+          arr = JSON.parse(JSON.stringify(arr))
+          for (let i = 0, len = arr.length; i < len; i++) {
+            if (setKeys.has(arr[i][this.dataKey])) {
+              disabledKeys.push(arr[i][this.nodeKey])
+              this.$set(arr[i], 'disabled', true)
+            } else {
+              if (arr[i].disabled) {
+                this.$set(arr[i], 'disabled', false)
+              }
+            }
+            if (arr[i][this.defaultProps.children] && arr[i][this.defaultProps.children].length) {
+              setDisabled(arr[i][this.defaultProps.children])
+            }
+          }
+          return arr
+        }
+        // 添加默认不可选节点后新数组
+        let newList = setDisabled(this.GroupList)
+        this.setCheckedKeys(disabledKeys)
+        if (this.type === 'device') {
+          return newList[this.currentGroup] ? newList[this.currentGroup][this.defaultProps.children] : []
+        }
+        return newList
+      },
+      set (model) {
+        this.GroupList = model
+      }
+    },
     originList: function () {
       return this.$restoreArray(this.TreeList, this.defaultProps.children)
     }
@@ -411,14 +429,23 @@ export default {
     position: relative;
     display: inline-block;
     width: 100%;
+    &:hover{
+      > .el-icon-plus{
+        display: inline-block;
+      }
+    }
+    > .el-icon-plus{
+      display: none;
+      margin: 9px;
+      color: #3a8ee6;
+    }
     > .ellipsis {
-      float: left;
-      max-width: 94px;
+      max-width: 90px;
       width: auto;
       vertical-align: middle;
-      font-size: 12px;
+      font-size: 14px;
       &.dialog-tree {
-        max-width: calc(100% - 100px);
+        /*max-width: calc(100% - 100px);*/
       }
     }
     .mine {
@@ -432,7 +459,7 @@ export default {
     }
     .el-icon-remove-outline {
       font-size: 18px;
-      margin: 6px 0;
+      margin: 7px 0;
     }
     .el-button {
       &.el-popover__reference {
@@ -441,7 +468,26 @@ export default {
         border: 1px solid #0F9EE9;
       }
     }
-
+    /*新建分组/添加社群 按钮*/
+    .group__custom--btn{
+      display: inline-block;
+      width: 138px;
+      color: #fff;
+      font-size: 12px;
+      &.groups-btn{
+        width: 80px;
+        height: 20px;
+        line-height: 20px;
+        background: url(./image/create_groups_icon@2x.png) no-repeat center;
+        background-size: 100% 100%;
+        text-align: center;
+      }
+      .el-icon-plus {
+        margin-right: 5px;
+        color: #3a8ee6;
+        font-weight: bold;
+      }
+    }
   }
 
   .parent-item {
@@ -467,11 +513,37 @@ export default {
 </style>
 <style lang="scss">
   @import "@/styles/variables.scss";
-
   .ob-group-nav {
+    height: 100%;
+    >.el-scrollbar{
+      height: 100%;
+      .el-scrollbar__wrap{
+        overflow-x: hidden;
+      }
+      .el-scrollbar__bar.is-horizontal{
+        display: none;
+      }
+    }
     &[type=custom-community] {
       .el-icon-caret-right {
         width: 8px;
+      }
+    }
+  }
+  .el-dialog{
+    .filter__input{
+      width: 190px;
+      color: #333;
+      border-bottom: 1px solid #BFBFBF;
+      &.white{
+        background: rgba(0,0,0,0);
+      }
+      .el-input__inner{
+        color: #333;
+      }
+      .el-icon-search{
+        color: #4BC5EB;
+        font-size: 18px;
       }
     }
   }
@@ -534,6 +606,7 @@ export default {
   }
 
   .ob-group-nav {
+    box-sizing: border-box;
     &[type=custom] {
       padding: 15px 20px;
       > .el-checkbox {
@@ -579,6 +652,23 @@ export default {
   }
 
   .custom-tree-node {
+    > * {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .role__icon--label{
+      display: inline-block;
+      width: 2.5em;
+      height: 1.2em;
+      line-height: 1.2em;
+      font-size: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .role__icon--img{
+      height: 14px;
+      margin-left: 5px;
+    }
     .el-button {
       &.el-popover__reference {
         span {
