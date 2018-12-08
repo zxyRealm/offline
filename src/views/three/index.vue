@@ -116,7 +116,7 @@ export default {
       let svgLoader = new THREE.SVGLoader()
       let psJson = JSON.parse(localStorage.getItem('group_local'))
       console.log(psJson, new Float32Array(psJson.position))
-      // http://testfile-1994.oss-cn-hangzhou.aliyuncs.com/1544081041343.svg
+      // let imgUrl = 'http://offline-browser-images-test.oss-cn-hangzhou.aliyuncs.com/floor_map/A684E231460F4EA080BF64C9A87EF64D/floorF1.svg'
       svgLoader.load('/static/floor/floor' + floor + '.svg', (paths) => {
         this.group.position.x = -290
         this.group.position.y = 214

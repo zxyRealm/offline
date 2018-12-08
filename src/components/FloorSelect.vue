@@ -1,26 +1,23 @@
 <template>
-  <el-popover
-    placement="bottom"
-    v-model="visible"
-    trigger="click"
-    width="240"
-    class="floor__select--wrap">
-    <ul >
-      <li v-for="(item,$index) in floorList" class="fs__dropdown--item" :key="$index">{{item}}</li>
+  <div class="floor__select--wrap" tabindex="0" hidefocus="true"  >
+    <ul v-show="dropShow" class="fs__dropdown--wrap" @mousedown="cancelBlur">
+      <li v-for="(item,$index) in floorList"
+          @click="selectFloor($index)"
+          class="fs__dropdown--item"
+          :class="{active:item.select}"
+          :key="$index">{{item.name}}</li>
     </ul>
-    <el-input slot="reference" ref="floorInput" style="z-index: 2007;"  readonly v-model="showText"></el-input>
-  </el-popover>
+    <el-input ref="floorInput" @focus="dropShow = true" @blur="dropShow = false"  readonly v-model="showText"></el-input>
+  </div>
 </template>
 
 <script>
-import ElPopover from 'element-ui/packages/popover/src/main'
 
 export default {
-  components: {ElPopover},
   name: 'floor-select',
   props: {
     value: {
-      type: [String, Array],
+      type: [Array],
       default: () => []
     }
   },
@@ -28,30 +25,123 @@ export default {
     return {
       visible: false,
       dropShow: false,
+      isSelf: false,
       showText: '',
+      startIndex: '', // 第一次选中的元素的序列
       floorList: [
-        'B2',
-        'B1',
-        'F1',
-        'F2',
-        'F3',
-        'F4',
-        'F5',
-        'F6',
-        'F7'
-      ]
+        {name: 'B6', value: -6},
+        {name: 'B5', value: -5},
+        {name: 'B4', value: -4},
+        {name: 'B3', value: -3},
+        {name: 'B2', value: -2},
+        {name: 'B1', value: -1},
+        {name: 'F1', value: 1},
+        {name: 'F2', value: 2},
+        {name: 'F3', value: 3},
+        {name: 'F4', value: 4},
+        {name: 'F5', value: 5},
+        {name: 'F6', value: 6},
+        {name: 'F7', value: 7},
+        {name: 'F8', value: 8},
+        {name: 'F9', value: 9},
+        {name: 'F10', value: 10},
+        {name: 'F11', value: 11},
+        {name: 'F12', value: 12}
+      ],
+      selectList: []
     }
   },
   created () {
+    // this.floorList.map(item => {
+    //   this.$set(item, 'select', false)
+    // })
+    console.log(this.floorList)
   },
-  mounted () {},
-  computed: {},
+  mounted () {
+    this.setSelected()
+  },
+  computed: {
+  },
   methods: {
+    // 点击下拉框是不触发input 的失焦事件
+    cancelBlur (e) {
+      if (e && e.preventDefault()) {
+        e.prpreventDefault()
+      } else {
+        window.event.returnValue = false
+      }
+    },
+    // 选择楼层
+    selectFloor (index) {
+      let selected = this.floorList.filter(item => item.select)
+      if (!selected.length) {
+        this.startIndex = index
+        this.$set(this.floorList[index], 'select', true)
+      } else if (selected.length === 1) {
+        this.selectList = []
+        // 当选择第二个时将其与第一个之间的值全部变成选中状态
+        // 当第一个选中值序列比第二个小时
+        if (this.startIndex < index) {
+          this.floorList.map((item, index2) => {
+            if (index2 >= this.startIndex && index2 <= index) {
+              this.$set(item, 'select', true)
+              // 保存所有选中值
+              this.selectList.push(item)
+            }
+            return item
+          })
+          this.$emit('input', this.selectList.map(item => item.value))
+          // 选中第二个后自动隐藏下拉框
+          this.$refs.floorInput.blur()
+        } else { // 当第一个选中值序列比第二个大时
+          this.floorList.map((item, index2) => {
+            if (index2 <= this.startIndex && index2 >= index) {
+              this.$set(item, 'select', true)
+              this.selectList.push(item)
+            }
+            return item
+          })
+          this.$emit('input', this.selectList.map(item => item.value))
+          this.$refs.floorInput.blur()
+        }
+      } else if (selected.length >= 2) {
+        this.floorList.map((item) => {
+          this.$set(item, 'select', false)
+          return item
+        })
+        this.startIndex = index
+        this.$set(this.floorList[index], 'select', true)
+      }
+    },
+    // 设置默认值已选中状态
+    setSelected () {
+      if (this.value.length) {
+        this.showText = `${this.backText(this.value[0])}-${this.backText(this.value[this.value.length - 1])}`
+        let setObj = new Set(this.value)
+        this.floorList.map(item => {
+          if (setObj.has(item.value)) this.$set(item, 'select', true)
+          return item
+        })
+      } else {
+        this.showText = ''
+        this.floorList.map(item => {
+          this.$set(item, 'select', false)
+          return item
+        })
+      }
+    },
+    backText (int) {
+      if (int > 0) {
+        return `F${int}`
+      } else {
+        return `B${-int}`
+      }
+    }
   },
   watch: {
     value: {
       handler (val) {
-        console.log(val)
+        this.setSelected()
       },
       deep: true
     }
@@ -62,10 +152,13 @@ export default {
 <style lang="scss" scoped>
 .floor__select--wrap{
   position: relative;
+  outline: 0;
 }
 .fs__dropdown--wrap{
-  width: 200px;
-  height: 100px;
+  position: absolute;
+  top: 32px;
+  left: 0;
+  width: 100%;
   padding: 4px 6px;
   border-radius: 4px;
   box-sizing: border-box;
@@ -81,7 +174,8 @@ export default {
     line-height: 18px;
     text-align: center;
     background: #F7F7F7;
-    &.active{
+    cursor: pointer;
+    &.active,&:hover{
       background: rgba(15,158,233,0.20);
     }
     &:nth-child(6n) {

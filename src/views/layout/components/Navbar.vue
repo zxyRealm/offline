@@ -19,18 +19,19 @@
         </div>
         <el-select ref="manageSelect" popper-class="select__dropdown--manage" class="nav__select--manage" v-model="manageGroup">
           <el-option
-            v-for="item in manageList"
+            v-for="(item, $index) in manageList"
             :key="item.id"
             :label="item.name"
-            :value="item">
+            :value="$index">
             <span class="ellipsis" style="float: left">{{ item.name }}</span>
             <uu-icon v-if="item.type === 1" type="role01"></uu-icon>
             <uu-icon v-if="item.type === 2" type="role02"></uu-icon>
             <uu-icon v-if="item.type === 3" type="role03"></uu-icon>
           </el-option>
-          <el-option value="" style="height: 30px;">
+          <el-option v-if="!manageList.length" value="" style="height: 30px;">
             <el-button class="affirm" @click="addNewGroup">添加新社群</el-button>
           </el-option>
+          <el-button v-else class="affirm" @click="addNewGroup">添加新社群</el-button>
         </el-select>
         <div class="right-menu-item vam">
           <a href="javascript:void(0);"
@@ -148,23 +149,15 @@
           <el-input type="text" placeholder="请输入详细地址"
                     v-model.trim="communityForm.address"></el-input>
         </el-form-item>
-        <el-form-item v-if="handleCommunityType !== 4" label="楼层：" prop="floor">
-          <floor-select></floor-select>
+        <el-form-item v-if="handleCommunityType !== 4" label="楼层：" prop="floorList">
+          <floor-select v-model="communityForm.floorList"></floor-select>
           <!--<el-input placeholder="请选择楼层" v-model="communityForm.floor"></el-input>-->
         </el-form-item>
         <el-form-item v-if="handleCommunityType !== 4" prop="map">
-          <el-upload
-            class="dialog__upload--wrap"
-            ref="upload"
-            multiple
-            :show-file-list="false"
-            :http-request="httpRequest"
-            action=""
-            :file-list="fileList"
-            :on-change="onChange"
-            :auto-upload="false">
-            <div slot="trigger" class="g__input--btn">导入地图</div>
-          </el-upload>
+          <label for="map__input--file" @change="onChange" class="g__input--btn">
+            <span>导入地图</span>
+            <input type="file" id="map__input--file" multiple="multiple">
+          </label>
         </el-form-item>
         <el-form-item label="联系人：" prop="contact">
           <el-input type="text" placeholder="请输入联系人"
@@ -276,7 +269,6 @@ export default {
         code: '',
         pca: '',
         address: '',
-        floor: '',
         floorList: [],
         imgUrlList: [],
         contact: '',
@@ -297,8 +289,8 @@ export default {
           {required: true, message: '请输入详细地址', trigger: 'blur'},
           {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
         ],
-        floor: [
-          {required: true, message: '请选取楼层', trigger: 'blur'}
+        floorList: [
+          {required: true,type: 'array', message: '请选取楼层', trigger: 'blur'}
         ],
         contact: [
           {validator: validateContact, trigger: 'blur'}
@@ -327,7 +319,7 @@ export default {
       },
       manageGroup: { // 当前管理层社群
       },
-      manageList: [{label: '银泰'}, {label: '必胜客'}]
+      manageList: []
     }
   },
   computed: {
@@ -369,7 +361,7 @@ export default {
   watch: {
     manageGroup: {
       handler (val) {
-        this.$store.commit('SET_CURRENT_MANAGE', val)
+        this.$store.commit('SET_CURRENT_MANAGE', this.manageList[val])
       },
       deep: true
     },
@@ -407,6 +399,11 @@ export default {
           }
         }, 500)
       }
+    },
+    addCommunityVisible (val) {
+      if (!val) {
+        this.$refs.addCommunityForm.resetFields()
+      }
     }
   },
   methods: {
@@ -414,6 +411,10 @@ export default {
     getManageList () {
       GetManageList().then(res => {
         this.manageList = res
+        if (res.length) {
+          this.manageGroup = 0
+          this.$store.commit('SET_CURRENT_MANAGE', this.manageList[0])
+        }
       })
     },
     addNewGroup () {
@@ -434,26 +435,29 @@ export default {
       console.log(this.handleCommunityType, this.communityForm)
       this.$refs[formName].validate(valid => {
         if (valid) {
+          if (!this.fileList.length) {
+            this.$tip('请上传地图文件', 'error')
+            return
+          }
+          if (this.communityForm.floorList.length !== this.fileList.length) {
+            this.$tip('文件和所选楼层数不符,请重新选择', 'error')
+            return
+          }
           this.httpRequest()
-          console.log(this.communityForm)
         } else {
         }
       })
     },
-    byTypeAddCommunity () {
+    byTypeAddCommunity (imgUrl) {
       let subData = JSON.parse(JSON.stringify(this.communityForm))
       let address = subData.pca.split(',').map(Number)
       subData.provinceAreaID = address[0] || 0
       subData.cityAreaID = address[1] || 0
       subData.districtAreaID = address[2] || 0
       subData.rule = subData.rule.toString()
-      if (!this.fileList.length) {
-        this.$tip('请上传地图文件', 'error')
-        return
-      }
-      if (subData.floorList.length !== this.fileList.length) {
-        this.$tip('文件和所选楼层数不符,请重新选择', 'error')
-        return
+      subData.imgUrlList = []
+      for (let k = 0; k < this.fileList.length; k++) {
+        subData.imgUrlList.push(`${imgUrl}${this.fileList[k].name}`)
       }
       let url
       switch (this.handleCommunityType) {
@@ -469,8 +473,9 @@ export default {
       }
       AddNewCommunity(url, subData).then(res => {
         this.$tip('添加成功')
+        this.addCommunityVisible = false
         this.getManageList()
-        console.log(res)
+        this.fileList = []
       }).catch(error => {
         if (error.code) {
           this.$tip(error.msg, 'error')
@@ -541,24 +546,29 @@ export default {
             this.uploadOss(signature, index + 1)
           }
           // 所图片成功上完成后 进行表单提交
-          if (index === this.fileList.length - 1) {
-            this.byTypeAddCommunity()
+          if (index === (this.fileList.length - 1)) {
+            console.log('file list --------------', this.fileList, this.communityForm.floorList)
+            this.byTypeAddCommunity(`${signature.host}/floor_map/${uid}/`)
           }
         } else {
           this.$tip('上传失败，请稍后重试', 'error')
         }
-      }).catch(() => {
+      }).catch((error) => {
+        console.log('error', error)
         this.$tip('网络异常，请稍后重新尝试', 'error')
       })
     },
     // 文件改变事件监听
-    onChange (file, filelist) {
-      if (file.raw.type !== 'image/svg+xml') {
-        this.fileList = []
-        this.$tip('文件格式只支持svg', 'error')
-        return
+    onChange (e) {
+      let files = e.target.files
+      for (let i = 0, len = files.length; i < len; i++) {
+        if (files[i].type !== 'image/svg+xml') {
+          this.fileList = []
+          this.$tip('文件格式只支持svg', 'error')
+          break
+        }
       }
-      this.fileList = filelist
+      this.fileList = files
     },
     // 文件上传成功回调
     handleSuccess () {}

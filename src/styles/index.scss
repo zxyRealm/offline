@@ -673,16 +673,27 @@ button, input {
 
 //渐变边框按钮
 .g__input--btn{
+  position: relative;
+  display: block;
   background: url(/static/img/input_border_bg@2x.png) no-repeat center;
   background-size: 100% 100%;
   text-align: center;
   height: 30px;
   line-height: 30px;
   cursor: pointer;
+  font-weight: 500;
+  overflow: hidden;
+  input[type=file]{
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    z-index: -1;
+  }
 }
 
-//form表单元素风格
 
+//form表单元素风格
 
 .el-input {
   background: url(/static/img/input_border_bg@2x.png) no-repeat center;

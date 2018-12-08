@@ -12,7 +12,7 @@
         <ob-list-empty v-if="!groupList.length || searchEmpty" top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
         <div class="mine__community--content" v-else>
           <div class="community--sidebar">
-            <group-sidebar
+            <ob-group-nav
               is-edit
               rights
               filter
@@ -26,7 +26,7 @@
               type="community"
               @handle-plus="showAddDialog"
               @refresh="getGroupList"
-              @node-click="currentChange"></group-sidebar>
+              @node-click="currentChange"></ob-group-nav>
           </div>
           <div class="community--main">
             <div class="cmm-top" ref="ciContentTop">
@@ -386,10 +386,12 @@ import area from '@/components/area-select/area-select'
 import ThreeMap from '@/views/three/index'
 import GroupSidebar from '@/components/group-nav/tree'
 import {GetMarketList} from '../../api/community'
+import ObGroupNav from '../../components/group-nav/index'
 
 export default {
   name: 'mineCommunity',
   components: {
+    ObGroupNav,
     GroupSidebar,
     ThreeMap,
     'area-select': area
