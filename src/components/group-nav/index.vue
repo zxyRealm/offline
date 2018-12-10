@@ -6,9 +6,10 @@
     <el-scrollbar>
       <el-input
         clearable
-        v-if="filter"
+        v-if="filter || isSearch"
         class="filter__input"
         placeholder="快速查找社群"
+        @keyup.enter.native="search"
         v-model="filterText">
         <i
           class="el-icon-search el-input__icon"
@@ -61,7 +62,7 @@
           <uu-icon class="role__icon--img" v-else-if="data.type !== 3 && data.role === 1 && node.level === 1" type="role02"></uu-icon>
           <!--单个门店-->
           <uu-icon v-else-if="data.type === 3 && node.level === 1" class="role__icon--img" type="role03"></uu-icon>
-
+          <uu-icon v-if="node.level === 3 && !data.self" class="role__icon--img" type="foreign"></uu-icon>
           <el-tooltip v-if="rights && data.role === 0 && node.level === 1" content="数据查看权限" placement="top" effect="light">
             <uu-icon class="role__icon--img" size="small" type="data"></uu-icon>
           </el-tooltip>
@@ -140,13 +141,17 @@ export default {
     defaultProps: { // 默认子类键名、显示文本键名
       type: Object,
       default: () => ({
-        children: 'memberItem',
+        children: 'subGroupSon',
         label: 'name'
       })
     },
     select: { // 社群设备默认值
       type: Object,
       default: () => ({})
+    },
+    isSearch: { // 搜索功能（搜索和过滤功能不共存，只能使用一种功能）
+      type: Boolean,
+      default: false
     },
     filter: { // 是否启用关键词过滤
       type: Boolean,
@@ -173,6 +178,9 @@ export default {
     }
   },
   methods: {
+    search () {
+      this.$emit('remote-search', this.filterText)
+    },
     loadNodeList (node, resolve) {
       console.log(node)
       if (node.level > 1) {
@@ -207,18 +215,18 @@ export default {
     },
     // 当前选中节点变化时触发的事件
     currentChange (val, node) {
-      if (val[this.nodeKey] !== this.currentNode) {
-        if (this.type === 'device') {
-          this.$emit('current-change', {
-            selectNode: this.currentGroup,
-            currentNode: val,
-            node: this.GroupList[this.currentGroup][this.defaultProps.children]
-          })
-        } else {
-          this.$emit('current-change', val, node)
-        }
-        this.currentNode = val[this.nodeKey]
+      // if (val[this.nodeKey] !== this.currentNode || !this.currentNode) {
+      if (this.type === 'device') {
+        this.$emit('current-change', {
+          selectNode: this.currentGroup,
+          currentNode: val,
+          node: this.GroupList[this.currentGroup][this.defaultProps.children]
+        })
+      } else {
+        this.$emit('current-change', val, node)
       }
+      this.currentNode = val[this.nodeKey]
+      // }
     },
     // el-select 组件value 值变化时通知父组件
     selectChange (index) {
@@ -373,7 +381,9 @@ export default {
     },
     filterText (val) {
       this.$nextTick(() => {
-        this.$refs.GroupTree.filter(val)
+        if (!this.isSearch) {
+          this.$refs.GroupTree.filter(val)
+        }
       })
     }
   },

@@ -135,6 +135,12 @@ export default {
       width: 24px;
       height: 14px;
     }
+    /*外来的社群标识*/
+    &.foreign{
+      background-image: url('../../assets/community/foreign_role_icon.png');
+      width: 12px;
+      height: 10px;
+    }
     /*社群绑定*/
     &.binding {
       background-image: url(/static/img/binding.png);

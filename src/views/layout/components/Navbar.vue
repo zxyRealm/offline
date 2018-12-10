@@ -451,9 +451,9 @@ export default {
     byTypeAddCommunity (imgUrl) {
       let subData = JSON.parse(JSON.stringify(this.communityForm))
       let address = subData.pca.split(',').map(Number)
-      subData.provinceAreaID = address[0] || 0
-      subData.cityAreaID = address[1] || 0
-      subData.districtAreaID = address[2] || 0
+      subData.provinceAreaId = address[0] || 0
+      subData.cityAreaId = address[1] || 0
+      subData.districtAreaId = address[2] || 0
       subData.rule = subData.rule.toString()
       subData.imgUrlList = []
       for (let k = 0; k < this.fileList.length; k++) {
@@ -547,7 +547,6 @@ export default {
           }
           // 所图片成功上完成后 进行表单提交
           if (index === (this.fileList.length - 1)) {
-            console.log('file list --------------', this.fileList, this.communityForm.floorList)
             this.byTypeAddCommunity(`${signature.host}/floor_map/${uid}/`)
           }
         } else {

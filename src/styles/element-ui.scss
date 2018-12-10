@@ -79,7 +79,7 @@
         background-color: #EBEBEB;
       }
       > span {
-        line-height: 20px;
+        line-height: 20px!important;
       }
     }
   }
@@ -296,6 +296,11 @@
     }
     .el-icon-search{
       line-height: 24px;
+    }
+    .el-input__suffix{
+      .el-input__icon{
+        line-height: 24px;
+      }
     }
   }
 }

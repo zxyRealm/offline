@@ -9,6 +9,22 @@ export function CheckNameExist (data) {
   })
 }
 
+// 校验成员社群名称是否存在
+export function CheckMemberNameExist (data) {
+  return request({
+    url: '/group/son/name/exist',
+    data
+  })
+}
+
+// 社群业态
+export function GetIndustry (data) {
+  return request({
+    url: '/dictionary/type',
+    data: {type: 'industry'}
+  })
+}
+
 // 创建商场连锁总店单个门店社群
 export function AddNewCommunity (url, data) {
   return request({
@@ -21,6 +37,134 @@ export function AddNewCommunity (url, data) {
 export function GetMarketList (data) {
   return request({
     url: '/group/son/market/list',
+    data
+  })
+}
+
+// 获取商场楼层数据
+export function GetMarketFloorList (data) {
+  return request({
+    url: '/group/floor',
+    data
+  })
+}
+
+// 删除社群
+export function DeleteCommunity (data) {
+  return request({
+    url: '/group/delete',
+    data
+  })
+}
+
+// 获取社群信息
+export function GetCommunityInfo (data) {
+  return request({
+    url: '/group/info',
+    data
+  })
+}
+
+// 获取成员社群下信息（包含昵称信息）
+export function GetMemberDetail (data) {
+  return request({
+    url: '/group/son/detail',
+    data
+  })
+}
+
+// 获取成员社群下信息（不包含昵称信息）
+export function GetMemberInfo (data) {
+  return request({
+    url: '/group/son/info',
+    data
+  })
+}
+
+// 通过邀请码获取社群信息
+export function GetCommunityInfoByCode (data) {
+  return request({
+    url: '/group/code',
+    data
+  })
+}
+
+// 更新社群信息
+export function GetCommunityUpdate (data) {
+  return request({
+    url: '/group/update',
+    data
+  })
+}
+
+// 添加成员
+export function AddMember (data) {
+  return request({
+    url: '/group/son/create',
+    data
+  })
+}
+
+// 加入其他管理社群
+export function JoinOtherManage (data) {
+  return request({
+    url: '/group/son/join',
+    data
+  })
+}
+
+// 成员社群信息搜索
+export function SonCommunitySearch (data) {
+  return request({
+    url: '/group/son/search',
+    data
+  })
+}
+
+// 创建出入口
+export function CreatePortal (data) {
+  return request({
+    url: '/group/portal/create',
+    data
+  })
+}
+
+// 编辑出入口
+export function EditPortal (data) {
+  return request({
+    url: '/group/portal/edit',
+    data
+  })
+}
+
+// 删除出入口
+export function DeletePortal (data) {
+  return request({
+    url: '/group/portal/delete',
+    data
+  })
+}
+
+// 获取出入口信息
+export function GetPortalInfo (data) {
+  return request({
+    url: '/group/portal/info',
+    data
+  })
+}
+
+// 获取社群下出入口信息
+export function GetGroupPortalInfo (data) {
+  return request({
+    url: '/group/portal/group/info',
+    data
+  })
+}
+
+// 获取社群下出入口信息
+export function CheckPortalNameExist (data) {
+  return request({
+    url: '/group/portal/group/info',
     data
   })
 }

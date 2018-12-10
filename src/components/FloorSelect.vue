@@ -52,9 +52,6 @@ export default {
     }
   },
   created () {
-    // this.floorList.map(item => {
-    //   this.$set(item, 'select', false)
-    // })
     console.log(this.floorList)
   },
   mounted () {

@@ -423,3 +423,12 @@ export function byKeyDeviceType (keys) {
   }
   return backObj
 }
+
+// 数字转楼层信息
+export function IntToFloor (int) {
+  if (int > 0) {
+    return `F${int}`
+  } else {
+    return `B${-int}`
+  }
+}
