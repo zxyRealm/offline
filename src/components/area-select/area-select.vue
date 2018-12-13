@@ -44,6 +44,7 @@
         :readonly="readonly">
         <el-input
           readonly
+          ref="areaInput"
           :placeholder="placeholder"
           v-model="addressText">
         </el-input>
@@ -101,18 +102,7 @@ export default {
             this.$set(item, 'initial', makePy(item.name))
             return item
           }))
-          let idArr = this.value.split(',').map(Number)
-          if (this.value && idArr[0] && idArr[1] && idArr[2]) {
-            let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()]
-            this.originAddress[0].map(item => pMap.set(item.id, item))
-            this.originAddress[1].map(item => cMap.set(item.id, item))
-            this.originAddress[2].map(item => aMap.set(item.id, item))
-            this.currentValue = [
-              pMap.get(idArr[0]), cMap.get(idArr[1]), aMap.get(idArr[2])
-            ]
-            this.currentAddress = aMap.get(idArr[2])
-            this.currentType = 2
-          }
+          this.showDefaultValue()
           this.addressOption = this.originAddress[0]
         }
       })
@@ -124,12 +114,33 @@ export default {
       } else {
         return this.originAddress[type] || ''
       }
+    },
+    // 展示默认数据
+    showDefaultValue () {
+      let idArr = this.value.split(',').map(Number)
+      if (this.value && idArr[0] && idArr[1] && idArr[2]) {
+        let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()]
+        this.originAddress[0].map(item => pMap.set(item.id, item))
+        this.originAddress[1].map(item => cMap.set(item.id, item))
+        this.originAddress[2].map(item => aMap.set(item.id, item))
+        this.currentValue = [
+          pMap.get(idArr[0]), cMap.get(idArr[1]), aMap.get(idArr[2])
+        ]
+        this.currentAddress = aMap.get(idArr[2])
+        this.currentType = 2
+      } else if (!this.value) {
+        this.address = ''
+      }
     }
   },
   mounted () {
     this.getAddressList()
   },
   watch: {
+    value () {
+      this.showDefaultValue()
+      // this.getAddressList()
+    },
     currentType: function (val) {
       this.addressOption = this.filterAddress(val)
     },
@@ -187,6 +198,7 @@ export default {
           this.search = ''
           this.$emit('input', '')
         }
+        this.$refs.areaInput.blur()
       }
     }
   },

@@ -151,7 +151,6 @@
         </el-form-item>
         <el-form-item v-if="handleCommunityType !== 4" label="楼层：" prop="floorList">
           <floor-select v-model="communityForm.floorList"></floor-select>
-          <!--<el-input placeholder="请选择楼层" v-model="communityForm.floor"></el-input>-->
         </el-form-item>
         <el-form-item v-if="handleCommunityType !== 4" prop="map">
           <label for="map__input--file" @change="onChange" class="g__input--btn">
@@ -188,6 +187,19 @@
       </div>
     </ob-dialog-form>
 
+    <!--添加商场社群成功确认弹框-->
+    <ob-dialog-form
+      title="已添加成功，下方是自动生成的邀请码"
+      :visible.sync="addCommunitySuccess"
+      :showButton="false"
+    >
+      <div slot="content" class="affirm__content--warp">
+        <span>{{communityCode}}</span>
+        <p class="c-grey tc">
+          通过邀请码，可以邀请下属门店加入到您创建的社群，您可在社群详情中查看该邀请码
+        </p>
+      </div>
+    </ob-dialog-form>
   </div>
 </template>
 
@@ -261,12 +273,13 @@ export default {
       }
     }
     return {
+      addCommunitySuccess: false,
+      communityCode: '',
       handleCommunityType: 1,
       addCommunityVisible: false, // 添加社群表单弹框
       addFormVisible: false, // 添加弹框
       communityForm: { // 添加社群表单对象
         name: '',
-        code: '',
         pca: '',
         address: '',
         floorList: [],
@@ -283,7 +296,7 @@ export default {
           {required: true, message: '请获取社群邀请码', trigger: 'blur'}
         ],
         pca: [
-          {required: true, message: '请选择省市区', trigger: 'blur'}
+          {required: true, message: '请选择地区', trigger: ['blur']}
         ],
         address: [
           {required: true, message: '请输入详细地址', trigger: 'blur'},
@@ -410,8 +423,8 @@ export default {
     // 获取商户所有管管理层社群
     getManageList () {
       GetManageList().then(res => {
-        this.manageList = res
-        if (res.length) {
+        this.manageList = res.data
+        if (res.data.length) {
           this.manageGroup = 0
           this.$store.commit('SET_CURRENT_MANAGE', this.manageList[0])
         }
@@ -474,6 +487,8 @@ export default {
       AddNewCommunity(url, subData).then(res => {
         this.$tip('添加成功')
         this.addCommunityVisible = false
+        this.addCommunitySuccess = true
+        this.communityCode = res.data
         this.getManageList()
         this.fileList = []
       }).catch(error => {
@@ -612,6 +627,16 @@ export default {
     font-size: 12px;
     line-height: 1;
     color: #333;
+  }
+  /*创建商场成功确认弹框*/
+  .affirm__content--warp{
+    > span{
+      font-size: 50px;
+    }
+    width: 288px;
+    margin: 16px auto 50px;
+    font-size: 12px;
+    text-align: center;
   }
 
   /*操作引导弹框 图标闪烁效果*/

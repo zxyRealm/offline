@@ -5,7 +5,7 @@
       <ul class="floor__sidebar--wrap">
         <li class="sidebar__item" v-for="(item,$Index) in floorList" :key="$Index" @click="selectFloor(item)">{{item}}</li>
       </ul>
-      <iframe id="iframe__three" src="/three" width="100%" scrolling="no" height="100%" frameborder="0"></iframe>
+      <!--<iframe id="iframe__three" src="/three" width="100%" scrolling="no" height="100%" frameborder="0"></iframe>-->
       <!--<build-floor ref="floorMap" @handle-block-click="bindGroupMap"></build-floor>-->
     </div>
     <!--楼宇3D/平面分布图展示 end-->

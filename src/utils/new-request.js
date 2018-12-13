@@ -72,11 +72,11 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(config => {
   // Do something before request is sent
-  load('数据加载中...')
+  if (config.tip === undefined || config.tip) load('数据加载中...')
   return config
 }, error => {
   // Do something with request error
-  load('数据加载中...').close()
+  if (error.response.config.tip === undefined || error.response.config.tip) load('数据加载中...').close()
   if (error.status === '504') {
     errMsg('网关超时，请重试！')
   } else {
@@ -91,9 +91,14 @@ service.interceptors.response.use(
   response => {
     // tryHideFullScreenLoading()
     // 格式化返回参数格式
-    load('数据加载中...').close()
+    if (response.config.tip === undefined || response.config.tip) load('数据加载中...').close()
     if (response.status === 200) {
-      return Promise.resolve(response.data)
+      if (response.data.result) {
+        return Promise.resolve(response.data instanceof String ? JSON.parse(response.data) : response.data)
+      } else {
+        if (response.config.tip === undefined || response.config.tip) errMsg(response.data.msg)
+        return Promise.reject(response.data)
+      }
     } else {
       if (response.data.code) {
         errMsg(response.data.msg)
@@ -105,7 +110,7 @@ service.interceptors.response.use(
   error => {
     // 此处错误已由node项目中finalResult方法包装处理
     // tryHideFullScreenLoading()
-    load('数据加载中...').close()
+    if (error.response.config.tip === undefined || error.response.config.tip) load('数据加载中...').close()
     if (error.response && /^5/.test(error.response.status)) {
       errMsg('网络异常，重新尝试')
     } else {

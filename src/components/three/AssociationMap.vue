@@ -13,7 +13,7 @@
     <div id="WebGL-output"></div>
     <div class="levitaten" id="levitaten">
       <div class="title">
-        <div class="pull-left">{{deviceInfo.title}}</div>
+        <div class="pull-left ellipsis">{{deviceInfo.title}}</div>
         <div class="pull-right">
           <i class="el-icon-edit" @click="editGateway" style="color: #0F9EE9; cursor: pointer;"></i>
           <i class="el-icon-delete" @click="deleteGateway" style="color: #FF6660; cursor: pointer;"></i>
@@ -23,8 +23,11 @@
         <ul>
           <li v-for="(item, index) in deviceInfo.list" :key="index">
             <img src="/static/floor/camera1.png" width="11">
-            <span>{{item.device}}</span>
+            <span class="ellipsis">{{item.name}}</span>
             <i class="el-icon-close" @click="deleteDevice(item)"></i>
+          </li>
+          <li v-if="!deviceInfo.list || !deviceInfo.list.length" class="text-center ">
+            暂无设备
           </li>
         </ul>
       </el-scrollbar>
@@ -35,22 +38,40 @@
     <div class="amount">
       <div class="gateway">
         <div class="title">出入口数量</div>
-        <div class="count">5</div>
+        <div class="count">{{totalCounts.portalNumber}}</div>
       </div>
       <div class="camera">
         <div class="title">摄像头数量</div>
-        <div class="count">10</div>
+        <div class="count">{{totalCounts.portalDeviceNumber}}</div>
       </div>
     </div>
+    <ul class="floor__list--wrap">
+      <li
+        class="floor__list--item"
+        v-for="(item, $index) in floorList"
+        :class="{active: item.active}"
+        @click="changeFloor(item)"
+        :key="$index">{{IntToFloor(item.floor)}}</li>
+    </ul>
   </div>
 </template>
 
 <script>
 import * as THREE from 'three'
+import Mixins from '@/utils/mixins'
+import {GetPortalDeviceList, PortalBindDevice, PortalUnbindDevice, GetGroupPortalInfo, GetGroupPortalCount} from '../../api/community'
+
 require('three/examples/js/controls/OrbitControls')
 require('three/examples/js/loaders/SVGLoader')
 export default {
   name: 'association-map',
+  mixins: [Mixins],
+  props: {
+    floorValue: {
+      type: [Array, Object],
+      default: () => {}
+    }
+  },
   data () {
     return {
       renderer: null,
@@ -61,12 +82,8 @@ export default {
       textList: [],
       spriteList: [],
       deviceInfo: {
-        list: [
-          {device: '北门1', id: '1'},
-          {device: '北门2', id: '2'},
-          {device: '北门3', id: '3'}
-        ],
-        title: '北门'
+        list: [],
+        title: ''
       },
       gateway: [
         {text: '北门', position: {x: -8, y: 36}, flat: 'qizi1'},
@@ -76,7 +93,10 @@ export default {
       width: null,
       height: null,
       offsetLeft: null,
-      offsetTop: null
+      offsetTop: null,
+      currentFloor: '', // 当前楼层信息
+      totalCounts: {}, // 出入口及设备数量
+      userData: '' // 贴图保存的用户数据
     }
   },
   methods: {
@@ -86,26 +106,38 @@ export default {
       this.renderer.setClearColor('#ffffff', 1.0)
       this.scene = new THREE.Scene()
       this.scene.background = new THREE.Color('#232027')
-      this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000)
+      this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 5000)
       this.camera.position.set(0, 0, 250)
       this.scene.add(this.camera)
-
       this.group = new THREE.Group()
       this.scene.add(this.group)
       this.loadSvg()
-
       document.getElementById('WebGL-output').appendChild(this.renderer.domElement)
       window.addEventListener('mousedown', this.onDocumentMouseClick, false)
       window.addEventListener('resize', this.onWindowResize, false)
     },
     initGateway () {
-      for (let i in this.gateway) {
-        this.createSprite(this.gateway[i])
-      }
+      this.spriteList.map(item => {
+        this.scene.remove(item)
+        // item.remove()
+      })
+      this.textList.map(item => {
+        this.scene.remove(item)
+      })
+      let wrap = document.getElementById('levitaten')
+      if (wrap) wrap.style.display = 'none'
+      this.spriteList = []
+      this.textList = []
+      GetGroupPortalInfo({groupSonId: this.currentFloor.id}).then(res => {
+        res.data.map(item => {
+          this.createSprite(item)
+        })
+      })
     },
-    loadSvg () {
+    loadSvg (url) {
       let svgLoad = new THREE.SVGLoader()
-      svgLoad.load('/static/floor/floorF1.svg', (paths) => {
+      url = url || this.currentFloor.mapUrl
+      svgLoad.load(url, (paths) => {
         this.group.position.x = -290 * 0.4
         this.group.position.y = 214 * 0.4
         this.group.scale.set(0.4, -0.4, 0.4)
@@ -133,6 +165,8 @@ export default {
           }
         }
       })
+      this.initGateway()
+      this.getPortalCount()
     },
     initMouseEvent () {
       let body = document.getElementsByTagName('body')[0]
@@ -237,7 +271,8 @@ export default {
         raycaster.setFromCamera(mouse, this.camera)
         let intersects = raycaster.intersectObjects(this.spriteList)
         if (intersects.length > 0) {
-          this.createLevitatenBox(screenAlex)
+          this.userData = intersects[ 0 ].object.userData
+          this.createLevitatenBox(screenAlex, this.userData)
         } else {
           let box = document.getElementById('levitaten')
           let boxLeft = box.offsetLeft
@@ -262,8 +297,11 @@ export default {
       }
     },
     // 创建悬浮盒子
-    createLevitatenBox (screenAlex) {
+    createLevitatenBox (screenAlex, data) {
       let levitaten = document.getElementById('levitaten')
+      if (data) {
+        this.getDeviceList()
+      }
       if (screenAlex) {
         levitaten.style.top = screenAlex.y - 172 + 'px'
         levitaten.style.left = screenAlex.x - 100 + 'px'
@@ -276,18 +314,18 @@ export default {
     createSprite (obj) {
       // 创建图片
       let sprite = this.createPictureSprite(obj)
+      let position = JSON.parse(obj.coordinates)
       sprite.scale.set(6, 8, 6)
-      sprite.position.set(obj.position.x, obj.position.y, 1)
+      sprite.position.set(position[0], position[1], 1)
       this.scene.add(sprite)
 
       // 创建文字
       let textObj = this.createTextSprite(obj)
-      textObj.scale.set(0.75 * 17, 0.25 * 25, 100)
-      textObj.position.set(obj.position.x + 2.7, obj.position.y + 6, 1)
+      textObj.scale.set(0.75 * 20, 0.25 * 20, 10)
+      textObj.position.set(position[0] + 2.7, position[1] + 6, 1)
       this.scene.add(textObj)
-
       // 文字贴图的参数传递到图片贴图的userData中
-      sprite.userData = { text: obj.text }
+      sprite.userData = { portal: obj }
 
       // 将文字保存到数组中
       this.textList.push(textObj)
@@ -296,8 +334,10 @@ export default {
     },
     // 创建图片贴纸
     createPictureSprite (obj) {
+      // type 1 代表主出入口 2 代表其他出入口
+      let img = obj.type === 1 ? 'qizi2' : 'qizi1'
       let spriteMaterial = new THREE.SpriteMaterial({
-        map: new THREE.ImageUtils.loadTexture('/static/floor/' + obj.flat + '.png'),
+        map: new THREE.ImageUtils.loadTexture('/static/floor/' + img + '.png'),
         depthTest: false,
         blending: THREE.AdditiveBlending
       })
@@ -309,9 +349,10 @@ export default {
       let canvas = document.createElement('canvas')
       let ctx = canvas.getContext('2d')
       ctx.fillStyle = '#ffffff'
-      ctx.font = 'Normal 110px Arial'
+      ctx.textAlign = 'center'
+      ctx.font = 'Normal 100px Arial'
       ctx.lineWidth = 4
-      ctx.fillText(obj.text, 4, 104)
+      ctx.fillText(obj.name, 150, 104)
       let texture = new THREE.Texture(canvas)
       texture.needsUpdate = true
       // 使用Sprite显示文字
@@ -319,20 +360,30 @@ export default {
       let textObj = new THREE.Sprite(material)
       return textObj
     },
+    // 获取出入口设备列表
+    getDeviceList () {
+      this.$set(this.deviceInfo, 'title', this.userData.portal.name)
+      this.$set(this.deviceInfo, 'list', [])
+      GetPortalDeviceList({portalGuid: this.userData.portal.guid}).then(res => {
+        this.$set(this.deviceInfo, 'list', res.data || [])
+      })
+    },
     // 添加设备
     addDevice () {
-      this.$emit('addDevice', this.deviceInfo)
+      // PortalBindDevice().then(res => {
+      // })
+      this.$emit('addDevice', this.userData.portal)
     },
     deleteDevice (deviceItem) {
       this.$emit('deleteDevice', deviceItem)
     },
     // 编辑出入口
     editGateway () {
-      this.$emit('editGateway', this.deviceInfo.title)
+      this.$emit('editGateway', this.userData.portal)
     },
     // 删除出入口
     deleteGateway () {
-      this.$emit('deleteGateway', this.deviceInfo.title)
+      this.$emit('deleteGateway', this.userData.portal)
     },
     // 获取设备列表
     getDevice (deviceInfo) {
@@ -342,6 +393,24 @@ export default {
     animate () {
       requestAnimationFrame(this.animate)
       this.renderer.render(this.scene, this.camera)
+    },
+    // 切换楼层
+    changeFloor (data) {
+      this.currentFloor = data
+      this.floorList.map(item => {
+        if (data.id === item.id) {
+          this.$set(item, 'active', true)
+        } else {
+          this.$set(item, 'active', false)
+        }
+        return item
+      })
+      this.loadSvg(data.mapUrl)
+    },
+    getPortalCount () {
+      GetGroupPortalCount({groupSonId: this.currentFloor.id}).then(res => {
+        this.totalCounts = res.data
+      })
     }
   },
   mounted () {
@@ -350,9 +419,29 @@ export default {
     this.offsetLeft = document.getElementById('associationMap').offsetLeft
     this.offsetTop = document.getElementById('associationMap').offsetTop
     this.init()
-    this.initGateway()
     this.animate()
     this.initMouseEvent()
+    console.log(this.floorValue)
+  },
+  computed: {
+    floorList: {
+      get () {
+        let List = this.floorValue[0].subGroupSon
+        if (!this.currentFloor) {
+          List.map(item => {
+            if (item.floor === 1) {
+              this.$set(item, 'active', true)
+            }
+            return item
+          })
+          this.currentFloor = List.filter(item => item.floor === 1)[0]
+        }
+        return List
+      },
+      set (val) {
+        // this.floorList = val
+      }
+    }
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.onWindowResize)
@@ -366,6 +455,30 @@ export default {
     height: 100%;
     background: rgba(64,58,73,0.30);
     position: relative;
+  }
+  /*楼层信息侧边栏*/
+  .floor__list--wrap{
+    position: absolute;
+    top: 45%;
+    left: 20px;
+    width: 40px;
+    text-align: center;
+    z-index: 999;
+    transform: translateY(-50%);
+    .floor__list--item{
+      height: 40px;
+      line-height: 40px;
+      background: rgba(15,14,17,0.7);
+      margin-bottom: 2px;
+      font-size: 14px;
+      cursor: pointer;
+      &.active,&:hover{
+        background-image: linear-gradient(-135deg, #4417AD 4%, #1169D3 100%);
+      }
+      &:last-child{
+        margin-bottom: 0;
+      }
+    }
   }
   .flat{
     position: absolute;
@@ -420,6 +533,7 @@ export default {
         list-style: none;
         position: relative;
         span{
+          width: 70px;
           top: -3px;
           margin-left: 5px;
           position: absolute;
@@ -433,10 +547,13 @@ export default {
         }
       }
     }
-    .add-button > a{
-      margin-left: 14px;
-      color: #0f9ee9;
-      text-decoration: none;
+    .add-button{
+      text-align: center;
+      > a{
+        /*margin-left: 14px;*/
+        color: #0f9ee9;
+        text-decoration: none;
+      }
     }
     &:before {
       content: '';
@@ -460,6 +577,7 @@ export default {
   }
   .pull-left{
     float: left;
+    width: 64px;
   }
   .pull-right{
     float: right;

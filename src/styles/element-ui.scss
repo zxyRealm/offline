@@ -396,3 +396,17 @@
     display: none;
   }
 }
+
+//社群管理添加设备dialog 设备列表
+.device__dialog--list{
+  .el-checkbox{
+    &.is-disabled{
+      .el-checkbox__label{
+        color: #606266;
+      }
+    }
+  }
+  .el-checkbox__label{
+    font-size: 12px;
+  }
+}

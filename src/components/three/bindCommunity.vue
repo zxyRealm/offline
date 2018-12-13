@@ -1,7 +1,14 @@
 <template>
-  <div style="height: 100%">
+  <div class="three__map--wrap" style="height: 100%">
     <div :id="id" class="three-wrap">
     </div>
+    <ul class="three__floor--wrap">
+      <li
+        class="three__floor--item"
+        v-for="(item, $index) in floorList"
+        :class="{active: item.active}"
+        :key="$index">{{IntToFloor(item.floor)}}</li>
+    </ul>
   </div>
 </template>
 
@@ -24,6 +31,7 @@
 import * as THREE from 'three'
 import fonts from 'three/examples/fonts/gentilis_regular.typeface.json'
 import {Contour, changeArrayLevel, d3threeD, addGeoObject} from '../../utils/three'
+import Mixins from '@/utils/mixins'
 // import * as TWEEN from ''
 // three.js控制器插件 文件引入后才可使用THREE.OrbitControls() 构造函数
 require('three/examples/js/controls/OrbitControls')
@@ -35,14 +43,19 @@ d3threeD($d3g)
 // const Stats = THREE.Status()
 export default {
   name: 'threeTest',
+  mixins: [Mixins],
   props: {
     id: {
       type: String,
-      default: 'bulid-3d'
+      default: 'build-3d'
     },
     pd: {
       type: Number,
       default: 0
+    },
+    floor: {
+      type: [Array],
+      default: () => []
     }
   },
   data () {
@@ -63,47 +76,77 @@ export default {
       clock: '',
       controls: '', // 轨迹控制器
       copy32Array: '',
-      totalMesh: [] // 全部mesh(包括sprite)
+      totalMesh: [], // 全部mesh(包括sprite)
+      currentFloor: '' // 当前楼层信息
     }
   },
   created () {
   },
   mounted () {
     this.initScene()
-    console.log(this.$data)
   },
-  computed: {},
+  computed: {
+    floorList: {
+      get () {
+        let List = this.floor[0].subGroupSon || []
+        if (!this.currentFloor) {
+          List.map(item => {
+            if (item.floor === 1) {
+              this.$set(item, 'active', true)
+            }
+            return item
+          })
+          this.currentFloor = List.filter(item => item.floor === 1)[0]
+        }
+        return List
+      },
+      set (val) {
+        this.floorList = val
+      }
+    }
+  },
   methods: {
     /* 初始化创建场景
     * @params eid 外部容器id
     * @params pd 左右padding总距离值
     * @params floor 渲染的楼层
     * */
-    initScene (floor = (this.$route.query.floor || 'F1')) {
+    initScene () {
       this.container = document.getElementById(this.id)
-      //
-      if (this.renderer) {
-        this.disposeTotal(this.scene)
-        this.scene.remove(this.scene.children)
-        this.container.innerHTML = ''
-      }
+      this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
+      this.renderer.setPixelRatio(window.devicePixelRatio)
+      this.renderer.setClearColor(0xeeeeee)
+      this.renderer.setSize(this.container.clientWidth - this.pd, this.container.clientHeight)
       this.scene = new THREE.Scene()
-      this.scene.background = new THREE.Color(0x0F0E11)
-      //
+      this.scene.background = new THREE.Color(0x17151A)
       this.camera = new THREE.PerspectiveCamera(56, (this.container.clientWidth - this.pd) / this.container.clientHeight, 1, 5000)
       this.camera.position.set(0, 0, 450)
-      //
+      this.scene.add(this.camera)
       this.group = new THREE.Group()
       this.scene.add(this.group)
       // 通过svg文件构画出分布图
+      this.loadSvg()
+      this.raycaster = new THREE.Raycaster()
+      // 轨道控制器
+      this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement)
+      this.controls.enableRotate = false
+      // this.controls.enablePan = false
+      this.animate()
+      // this.renderer.render(this.scene, this.camera)
+      // 窗口变化时重置模型尺寸和摄像头视角比例
+      this.container.appendChild(this.renderer.domElement)
+      // window.addEventListener('mousemove', this.onDocumentMouseMove, false)
+      window.addEventListener('click', this.onDocumentMouseClick, false)
+      window.addEventListener('resize', this.onWindowResize, false)
+    },
+    // 渲染svg地图模型
+    loadSvg (url) {
       let svgLoader = new THREE.SVGLoader()
-      let psJson = JSON.parse(localStorage.getItem('group_local'))
-      console.log(psJson, new Float32Array(psJson.position))
-      // let imgUrl = 'http://offline-browser-images-test.oss-cn-hangzhou.aliyuncs.com/floor_map/A684E231460F4EA080BF64C9A87EF64D/floorF1.svg'
-      svgLoader.load('/static/floor/floor' + floor + '.svg', (paths) => {
+      url = url || this.currentFloor.mapUrl
+      svgLoader.load(url, (paths) => {
         this.group.position.x = -290
         this.group.position.y = 214
-        this.group.scale.y *= -1
+        this.group.scale.set(1, -1, 1)
         for (let i = 0; i < paths.length; i++) {
           let path = paths[i]
           let materialLine = new THREE.LineBasicMaterial({
@@ -117,7 +160,6 @@ export default {
             let geometry = new THREE.ShapeBufferGeometry(shape)
             let mesh = new THREE.Mesh(geometry, materialLine)
             let edges = new THREE.EdgesHelper(mesh, '#979797')
-            edges.material.linewidth = 1
             this.group.add(edges)
             mesh.name = i
             if (i !== 0) this.meshList.push(mesh)
@@ -125,25 +167,7 @@ export default {
           }
         }
       })
-      this.raycaster = new THREE.Raycaster()
-      this.renderer = new THREE.WebGLRenderer({antialias: true})
-      this.renderer.setPixelRatio(window.devicePixelRatio)
-      this.renderer.setClearColor(0xeeeeee)
-      this.renderer.setSize(this.container.clientWidth - this.pd, this.container.clientHeight)
-      this.container.appendChild(this.renderer.domElement)
-      // 轨道控制器
-      this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement)
-      this.controls.enableRotate = false
-      // this.controls.enablePan = false
-      // console.log(this.controls)
-      this.animate()
-      // this.renderer.render(this.scene, this.camera)
-      // 窗口变化时重置模型尺寸和摄像头视角比例
-      window.addEventListener('mousemove', this.onDocumentMouseMove, false)
-      window.addEventListener('click', this.onDocumentMouseClick, false)
-      window.addEventListener('resize', this.onWindowResize, false)
     },
-
     // 窗口尺寸改变时重新渲染
     onWindowResize () {
       let el = document.getElementById(this.id)
@@ -327,6 +351,19 @@ export default {
           mesh = null
         }
       }
+    },
+    // 改变楼层展示
+    changeFloor (int) {
+      this.currentFloor = this.floorList.filter(item => item.floor === int)[0]
+      this.floorList.map(item => {
+        if (this.currentFloor.id === item.id) {
+          this.$set(item, 'active', true)
+        } else {
+          this.$set(item, 'active', false)
+        }
+        return item
+      })
+      this.loadSvg(this.currentFloor.mapUrl)
     }
   },
   watch: {},
@@ -343,6 +380,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .three__map--wrap{
+    position: relative;
+  }
+  .three__floor--wrap{
+    position: absolute;
+    width: 30px;
+    top: 45%;
+    left: 10px;
+    transform: translateY(-50%);
+    .three__floor--item{
+      height: 30px;
+      line-height: 30px;
+      margin-bottom: 2px;
+      text-align: center;
+      background: rgba(15, 14, 17, 0.7);
+      color: #fff;
+      &:last-child{
+        margin-bottom: 0;
+      }
+      &.active{
+        background: rgba(28, 56, 108, 0.7);
+      }
+    }
+  }
   .three-wrap {
     height: 100%;
     position: relative;

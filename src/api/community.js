@@ -4,6 +4,7 @@ import request from '@/utils/new-request'
 // 校验社群名称是否存在
 export function CheckNameExist (data) {
   return request({
+    tip: false,
     url: '/group/name/exist',
     data
   })
@@ -12,6 +13,7 @@ export function CheckNameExist (data) {
 // 校验成员社群名称是否存在
 export function CheckMemberNameExist (data) {
   return request({
+    tip: false,
     url: '/group/son/name/exist',
     data
   })
@@ -81,9 +83,18 @@ export function GetMemberInfo (data) {
   })
 }
 
+// 更新成员社群信息
+export function UpdateMemberInfo (data) {
+  return request({
+    url: '/group/son/update',
+    data
+  })
+}
+
 // 通过邀请码获取社群信息
 export function GetCommunityInfoByCode (data) {
   return request({
+    tip: false,
     url: '/group/code',
     data
   })
@@ -101,6 +112,13 @@ export function GetCommunityUpdate (data) {
 export function AddMember (data) {
   return request({
     url: '/group/son/create',
+    data
+  })
+}
+// 删除成员
+export function DeleteMember (data) {
+  return request({
+    url: '/group/son/delete',
     data
   })
 }
@@ -153,6 +171,55 @@ export function GetPortalInfo (data) {
   })
 }
 
+// 出入口下设备列表
+export function GetPortalDeviceList (data) {
+  return request({
+    url: '/portal/device/list',
+    data
+  })
+}
+
+// 出入口绑定设备
+export function PortalBindDevice (data) {
+  return request({
+    url: '/portal/device/bind',
+    data
+  })
+}
+
+// 出入口批量绑定设备
+export function PortalBatchBindDevice (data) {
+  return request({
+    url: '/portal/device/bind/batch',
+    data
+  })
+}
+
+// 出入口解绑设备
+export function PortalUnbindDevice (data) {
+  return request({
+    url: '/portal/device/unbind',
+    data
+  })
+}
+
+// 出入口下设备名是否存在
+export function PortalDeviceNameExist (data) {
+  return request({
+    tip: false,
+    url: '/portal/deviceName/exist',
+    data
+  })
+}
+
+// 获取社群下出入口及设备数量
+export function GetGroupPortalCount (data) {
+  return request({
+    url: '/group/portal/count',
+    data
+  })
+}
+
 // 获取社群下出入口信息
 export function GetGroupPortalInfo (data) {
   return request({
@@ -161,10 +228,11 @@ export function GetGroupPortalInfo (data) {
   })
 }
 
-// 获取社群下出入口信息
+// 社群出入口名称是否存在
 export function CheckPortalNameExist (data) {
   return request({
-    url: '/group/portal/group/info',
+    tip: false,
+    url: '/group/portal/name/exist',
     data
   })
 }
