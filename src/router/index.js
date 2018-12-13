@@ -12,6 +12,10 @@ const addCommunity = () => import('@/views/community/add-community.vue')
 const joinCommunity = () => import('@/views/community/join-community.vue')
 // 设备管理
 const Equipment = () => import('@/views/equipment/mine.vue')
+const EquipmentList = () => import('@/views/equipment/list.vue')
+const EquipmentOwn = () => import('@/views/equipment/own.vue')
+const EquipmentOther = () => import('@/views/equipment/other.vue')
+const EquipmentServer = () => import('@/views/equipment/server.vue')
 const EquipmentMore = () => import('@/views/equipment/more.vue')
 const EquipmentChildren = () => import('@/views/equipment/children.vue')
 const EquipmentService = () => import('@/views/equipment/service.vue')
@@ -220,7 +224,8 @@ export const constantRouterMap = [
       }
     ]
   },
-  {path: '/equipment', redirect: '/equipment/mine'},
+  {path: '/equipment', redirect: '/equipment/list/own'},
+  {path: '/equipment/list', redirect: '/equipment/list/own'},
   {
     path: '/equipment',
     component: Layout,
@@ -229,13 +234,42 @@ export const constantRouterMap = [
     },
     children: [
       {
-        path: 'mine',
+        path: 'list',
         name: 'equipment',
         meta: {
-          title: '自有设备-设备管理-线下浏览器服务平台',
+          title: '设备列表-设备管理-线下浏览器服务平台',
           keepAlive: true
         },
-        component: Equipment
+        component: EquipmentList,
+        children: [
+          {
+            path: 'own',
+            name: 'equipment',
+            meta: {
+              title: '自有设备-设备管理-线下浏览器服务平台',
+              keepAlive: true
+            },
+            component: EquipmentOwn
+          },
+          {
+            path: 'other',
+            name: 'equipment',
+            meta: {
+              title: '非自有设备-设备管理-线下浏览器服务平台',
+              keepAlive: true
+            },
+            component: EquipmentOther
+          },
+          {
+            path: 'server',
+            name: 'equipment',
+            meta: {
+              title: '服务器-设备管理-线下浏览器服务平台',
+              keepAlive: true
+            },
+            component: EquipmentServer
+          }
+        ]
       },
       {
         path: 'children',

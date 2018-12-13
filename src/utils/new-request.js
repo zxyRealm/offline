@@ -1,25 +1,7 @@
 import axios from 'axios'
-import { Message, Loading } from 'element-ui'
+import { Message, Loading, MessageBox } from 'element-ui'
 import router from '@/router'
 import store from '@/store'
-
-// create loading
-let loading
-
-function startLoading () {
-  loading = Loading.service({
-    target: '#app',
-    lock: false,
-    text: '加载中……',
-    spinner: 'el-icon-loading',
-    background: 'rgba(0,0,0,0)',
-    fullscreen: true
-  })
-}
-
-function endLoading () {
-  loading.close()
-}
 
 // 加载层
 export function load (text, target) {
@@ -33,33 +15,45 @@ export function load (text, target) {
   })
 }
 
-function showFullScreenLoading (isLoading = true) { // isLoading 请求是否需要添加loading动画
-  if (store.state.needLoadingRequestCount === 0 && isLoading) {
-    startLoading()
-  }
-  if (isLoading) {
-    store.state.needLoadingRequestCount++
-  }
-}
+// 重新登录确认框
 
-function tryHideFullScreenLoading () {
-  if (store.state.needLoadingRequestCount <= 0) {
-    return false
-  }
-  store.state.needLoadingRequestCount--
-  if (store.state.needLoadingRequestCount === 0) {
-    endLoading()
-  }
-}
-
-// create an error messsage
-let errMsg = msg => {
-  Message({
-    customClass: 'custom-tip__wrap',
-    message: msg,
-    type: 'error',
-    duration: 3 * 1000
+export function exitMessage (href) {
+  let html = `
+              <p>请登录！</p>
+            `
+  return MessageBox.confirm(html, '登录确认', {
+    center: true,
+    dangerouslyUseHTMLString: true,
+    showCancelButton: false,
+    customClass: 'confirm__message--login'
+  }).then(() => {
+    window.location.href = `${href}?redirectURL=${window.location.href}`
   })
+}
+
+// 消息提示
+export function message (txt, type, delay = 1500) {
+  const icon = (type !== 'waiting' && type !== 'caution' && type !== 'error') ? 'success' : type
+  let cs = type === 'waiting' || type === 'caution' ? 'device' : ''
+  let options = {
+    message: `<div class="tip_message_content ${type}">
+        <img class="tip_img_icon" src="/static/img/${icon}_tip_icon.png" alt="">
+        <p style="padding:0px" class="text">${txt}</p>
+      </div>`,
+    center: true,
+    customClass: `tip_message ${cs}`,
+    duration: typeof delay === 'function' ? 0 : delay,
+    dangerouslyUseHTMLString: true,
+    type: type
+  }
+  if (typeof delay === 'function') {
+    options.callback = (action, instance, done) => {
+      if (typeof delay === 'function') {
+        delay(action, instance, done)
+      }
+    }
+  }
+  return typeof delay === 'function' ? Message(options) : Message(options).startTimer()
 }
 
 // create an axios instance
@@ -78,9 +72,9 @@ service.interceptors.request.use(config => {
   // Do something with request error
   if (error.response.config.tip === undefined || error.response.config.tip) load('数据加载中...').close()
   if (error.status === '504') {
-    errMsg('网关超时，请重试！')
+    message('网关超时，请重试！', 'error', 3000)
   } else {
-    errMsg(`网络异常[-${error.status}]`)
+    message(`网络异常[-${error.status}]`, 'error', 3000)
     console.log(error) // for debug
   }
   Promise.reject(error)
@@ -93,7 +87,10 @@ service.interceptors.response.use(
     // 格式化返回参数格式
     if (response.config.tip === undefined || response.config.tip) load('数据加载中...').close()
     if (response.status === 200) {
-      if (response.data.result) {
+      if (response.data.code === 'ERR-110') {
+        exitMessage(response.data.data)
+        return Promise.reject(response.data)
+      } else if (response.data.result) {
         return Promise.resolve(response.data instanceof String ? JSON.parse(response.data) : response.data)
       } else {
         if (response.config.tip === undefined || response.config.tip) errMsg(response.data.msg)
@@ -101,9 +98,9 @@ service.interceptors.response.use(
       }
     } else {
       if (response.data.code) {
-        errMsg(response.data.msg)
+        message(response.data.msg, 'error', 3000)
       } else {
-        errMsg('网络异常，请稍后重试')
+        message('网络异常，请稍后重试', 'error', 3000)
       }
     }
   },
@@ -112,9 +109,9 @@ service.interceptors.response.use(
     // tryHideFullScreenLoading()
     if (error.response.config.tip === undefined || error.response.config.tip) load('数据加载中...').close()
     if (error.response && /^5/.test(error.response.status)) {
-      errMsg('网络异常，重新尝试')
+      message('网络异常，请稍后重试', 'error', 3000)
     } else {
-      errMsg(error.response.statusText)
+      message(error.response.statusText, 'error', 3000)
     }
     return Promise.reject(error.response || error)
   })

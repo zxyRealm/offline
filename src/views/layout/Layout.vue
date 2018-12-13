@@ -38,7 +38,7 @@ export default {
       }
     },
     cornerBg () {
-      if (/^(\/data|\/index)/.test(this.$route.path)) {
+      if (/^(\/data)/.test(this.$route.path)) {
         return 'no-padding transparent'
       } else if (this.$route.name === 'console-lwh' || this.$route.name === 'community') {
         return 'no-padding'

@@ -123,6 +123,14 @@ export function DeleteMember (data) {
   })
 }
 
+// 成员退出管理员社群
+export function ExitManage (data) {
+  return request({
+    url: '/group/son/exit',
+    data
+  })
+}
+
 // 加入其他管理社群
 export function JoinOtherManage (data) {
   return request({

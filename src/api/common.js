@@ -14,3 +14,11 @@ export function OssSignature (data) {
     data
   })
 }
+
+// 获取socket服务地址
+export function GetSocketIP (data) {
+  return request({
+    url: '/getServiceIp',
+    data
+  })
+}

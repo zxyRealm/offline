@@ -99,7 +99,7 @@ export default {
             name: '访问来源',
             type: 'funnel',
             center: ['30%', '50%'],
-            radius: ['35%', '84%'],
+            radius: ['35%', '74%'],
             min: 0,
             max: 100,
             minSize: '0%',

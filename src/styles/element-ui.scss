@@ -410,3 +410,44 @@
     font-size: 12px;
   }
 }
+
+//设备管理导航切换菜单
+.device__sub--title{
+  .el-select{
+    float: left;
+    height: 40px;
+    line-height: 40px;
+    margin-right: 8px;
+    .el-select__caret{
+      background: none;
+      &.el-icon-arrow-up:before{
+        content: '\E605'
+      }
+    }
+    .el-input{
+      width: 110px;
+      height: 40px;
+      line-height: 40px;
+      background: transparent;
+    }
+  }
+}
+.device__sub--popper{
+  &.el-popper[x-placement^=bottom]{
+    margin-top: 0;
+  }
+  .el-select-group__wrap{
+    .el-select-group__title{
+      line-height: 24px;
+    }
+    &:not(:last-of-type) {
+      padding-bottom: 14px;
+      &:after{
+        bottom: 6px;
+      }
+    }
+  }
+  .popper__arrow{
+    display: none;
+  }
+}

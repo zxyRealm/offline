@@ -92,15 +92,19 @@ export default {
           tooltip: { // 鼠标悬浮提示消息
             show: true,
             trigger: 'item',
-            formatter: '{a} <br/>{b}: {c} ({d}%)'
+            formatter: '{a} <br/>{b}: {c} ({d}%)',
+            textStyle: {
+              fontSize: 12
+            }
           },
           legend: {
             orient: 'vertical',
-            top: 15,
-            right: '30%',
+            top: 20,
+            right: '20%',
             align: 'left',
             itemWidth: 16,
-            itemGap: 12,
+            itemHeight: 10,
+            itemGap: 10,
             textStyle: {
               color: '#ffffff',
               fontSize: '12',
@@ -129,8 +133,8 @@ export default {
             {
               name: '访问来源',
               type: 'pie',
-              center: ['30%', '50%'],
-              radius: ['35%', '84%'],
+              center: ['28%', '56%'],
+              radius: ['35%', '80%'],
               avoidLabelOverlap: false,
               roseType: 'radius',
               label: {
@@ -184,9 +188,18 @@ export default {
             }
           },
           tooltip: { // 鼠标悬浮提示消息
-            show: true,
+            show: false,
             trigger: 'item',
-            formatter: '{a} <br/>{b}: {c} ({d}%)'
+            formatter: '{a} <br/>{b}: {c} ({d}%)',
+            // position: function (pos, params, dom, rect, size) {
+            //   // 鼠标在左侧时 tooltip 显示到右侧，鼠标在右侧时 tooltip 显示到左侧。
+            //   var obj = {top: '10%'}
+            //   obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 5
+            //   return obj
+            // },
+            textStyle: {
+              fontSize: 12
+            }
           },
           legend: {
             orient: 'vertical',
@@ -215,24 +228,24 @@ export default {
               name: '访问来源',
               type: 'pie',
               center: ['50%', '56%'],
-              radius: ['35%', '60%'],
-              avoidLabelOverlap: false,
+              radius: ['30%', '60%'],
               label: {
                 normal: {
                   show: true,
-                  fontSize: 13,
-                  formatter: '{b}\n{per|{d}%}', // '{per|{d}%}',//'{d}%',  //显示百分比
+                  fontSize: 12,
+                  formatter: '{per|{b}}\n{per|{d}%}', // '{per|{d}%}',//'{d}%',  //显示百分比
                   position: 'outside',
                   rich: {
-                    gray: {
-                      color: 'rgba(109,46,187,1)',
-                      fontSize: 16
-                    },
-                    green: {
-                      color: 'rgba(15,158,233,1)',
-                      fontSize: 16
-                    },
+                    // gray: {
+                    //   color: 'rgba(109,46,187,1)',
+                    //   fontSize: 12
+                    // },
+                    // green: {
+                    //   color: 'rgba(15,158,233,1)',
+                    //   fontSize: 12
+                    // },
                     per: {
+                      color: '#fff',
                       fontSize: 12,
                       align: 'left'
                     }
@@ -258,8 +271,8 @@ export default {
                 }
               },
               data: [
-                {value: 100, name: '会员'},
-                {value: 15, name: '普通顾客'}
+                {value: 10, name: '会员'},
+                {value: 150, name: '普通顾客'}
               ]
             }
           ]
@@ -277,13 +290,13 @@ export default {
   }
   .percent-wrap{
     position: absolute;
-    top: 14px;
-    right: 20%;
+    top: 20px;
+    right: 2%;
     display: inline-block;
     font-size: 12px;
     color: #0F9EE9;
   }
   .percent-wrap p{
-    line-height: 26px;
+    line-height: 22px;
   }
 </style>

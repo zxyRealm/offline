@@ -79,15 +79,17 @@
                   <span class="info__label">地区：</span>
                   <span class="ellipsis-64">{{communityInfo.fullAddress}}</span></div>
                 <!--如果成员社群加入了管理员社群即展示其管理员社群列表-->
-                <div class="parent__list" v-if="communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.role === 1 && communityInfo.type!==3">
+                <div
+                  class="parent__list"
+                  v-if="communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.type === 3">
                   <span class="fl info__label">已加入：</span>
                   <div
-                    v-for="(item,$index) in communityInfo.parentGroups"
+                    v-for="(item,$index) in parentGroups"
                     :key="$index"
                     class="parents-item">
                     <span>{{item.name}}</span>
                     <uu-icon size="small" type="data"></uu-icon>
-                    <uu-icon v-if="item.rule.length > 2" size="small" type="handle"></uu-icon>
+                    <uu-icon v-if="item.rule && item.rule.length > 2" size="small" type="handle"></uu-icon>
                     <uu-icon
                       size="small" type="quit"
                       v-show="communityInfo.merchantGuid === userInfo.developerId"
@@ -384,6 +386,33 @@
         </div>
       </ob-dialog-form>
 
+      <!--编辑其他社群备注名-->
+      <ob-dialog-form
+        :title="communityDialogTitle"
+        :visible.sync="editNicknameVisible"
+        :showButton="false"
+      >
+        <el-form
+          slot="form"
+          ref="editNicknameForm"
+          block-message
+          @submit.native.prevent
+          style="width: 330px"
+          label-position="left"
+          class="common-form white"
+          label-width="82px"
+          :model="editNicknameForm"
+          :rules="editNicknameRules"
+        >
+          <el-form-item label="备注名：" prop="name">
+            <el-input placeholder="请输入备注名" v-model="editNicknameForm.name"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer mt50">
+          <el-button class="cancel" @click="editNicknameVisible = false">返 回</el-button>
+          <el-button class="affirm" type="primary" @click="editNickname('editNicknameForm')">保 存</el-button>
+        </div>
+      </ob-dialog-form>
       <!--添加设备弹框-->
       <ob-dialog-form
         :title="communityDialogTitle"
@@ -419,7 +448,7 @@ import {mapState} from 'vuex'
 import Clipboard from '@/utils/clipboard'
 import area from '@/components/area-select/area-select'
 import ThreeMap from '@/components/three/bindCommunity'
-import {GetMarketList, GetCommunityInfo, GetCommunityInfoByCode, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, GetGroupPortalInfo, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CreatePortal, EditPortal, DeletePortal, PortalBatchBindDevice, PortalUnbindDevice, GetGroupPortalCount, CheckPortalNameExist, JoinOtherManage, SonCommunitySearch, DeleteMember} from '../../api/community'
+import {GetMarketList, GetCommunityInfo, GetCommunityInfoByCode, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, GetGroupPortalInfo, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CreatePortal, EditPortal, DeletePortal, PortalBatchBindDevice, PortalUnbindDevice, GetGroupPortalCount, CheckPortalNameExist, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
 import {GetOwnDeviceList} from '../../api/device'
 import ThreeAssociationMap from '@/components/three/AssociationMap'
 export default {
@@ -560,6 +589,9 @@ export default {
       }
     }
     return {
+      parentGroups: [
+        {name: '西溪'}
+      ],
       portalGuid: '', // 要绑定的出入口id
       ownDeviceList: [
         {name: '设备001', deviceKey: 'SLD61SFG4484'},
@@ -637,6 +669,7 @@ export default {
       editCommunityVisible: false, // 编辑社群dialog显示状态
       addCommunityVisible: false, // 添加社群
       handleMemberVisible: false,
+      editNicknameVisible: false, // 编辑其他社群备注名
       handlePortalVisible: false, // 操作出入口
       AddDeviceVisible: false, // 添加设备
       handleCommunityType: 1, // 添加社群的类型 1 商场 2 连锁总店 3 单个门店 4 编辑 商场、连锁总店、单个门店 5 添加成员 6 编辑成员 7 加入管理员社群
@@ -722,6 +755,14 @@ export default {
           {
             validator: validatePortalName, trigger: 'blur'
           }
+        ]
+      },
+      editNicknameForm: {
+        name: ''
+      },
+      editNicknameRules: {
+        name: [
+          {required: true, validator: validateName, trigger: 'blur'}
         ]
       },
       nameForm: {
@@ -1105,25 +1146,26 @@ export default {
       // type 可选类型 quit、kick
       let [url, des] = ['/group/exit', '']
       let params = {
-        groupPid: parent.guid || parent.groupGuid,
-        groupGuid: current.groupGuid || current.guid,
+        groupPid: parent.parentId || parent.groupGuid,
+        groupId: current.id || current.guid,
         groupNickName: current.groupNickName || current.name,
         parentGroupNickName: parent.groupNickName || parent.name
       }
       switch (type) {
         case 'quit':
-          des = `确定退出该管理员社群？`
+          des = `退出管理员社群后，当前社群的数据与设备将不会被<br/>管理员社群显示与操作`
           url = '/group/exit'
           break
         default:
           des = `确定删除该社群？`
           url = '/group/remove'
       }
-      this.$affirm({text: `${des}`}, (action, instance, done) => {
+      this.$affirm({text: `${des}`, confirm: '退出'}, (action, instance, done) => {
         if (action === 'confirm') {
-          this.$http(url, params).then(res => {
+          ExitManage(params).then(res => {
             this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
-            this.getGroupList()
+            this.getCommunityInfo(this.communityInfo, {level: 3})
+            // this.getGroupList()
           })
         }
         done()
@@ -1195,6 +1237,13 @@ export default {
             })
           }
         } else {
+        }
+      })
+    },
+    // 编辑其他社群备注名
+    editNickname (formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
         }
       })
     },

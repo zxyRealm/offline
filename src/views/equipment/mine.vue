@@ -1,15 +1,40 @@
 <template>
   <div class="equipment-list-wrap g-prl20">
-    <uu-sub-tab
-      search
-      show-button
-      :sub-btn="{text: '创建社群'}"
-      @remote-search="search"
-      @handle-btn="handleBtn"
-      placeholder="快速查找设备"
-      :btn-array="btnArray"
-      :menu-array="menu2">
-    </uu-sub-tab>
+    <div class="device__sub--title">
+      <router-link to="/equipment/mine">
+        设备列表
+      </router-link>
+      <!--<el-select-->
+        <!--popper-class="device__sub&#45;&#45;popper"-->
+        <!--:class="{'router-link-active': true}"-->
+        <!--v-model="currentRouter"-->
+        <!--placeholder="请选择">-->
+        <!--<el-option-group-->
+          <!--v-for="group in options3"-->
+          <!--:key="group.label"-->
+          <!--:label="group.label">-->
+          <!--<el-option-->
+            <!--v-for="item in group.options"-->
+            <!--:key="item.value"-->
+            <!--:label="item.label"-->
+            <!--:value="item.value">-->
+          <!--</el-option>-->
+        <!--</el-option-group>-->
+      <!--</el-select>-->
+      <router-link to="/equipment/children">
+        出入口设备
+      </router-link>
+    </div>
+    <!--<uu-sub-tab-->
+      <!--search-->
+      <!--show-button-->
+      <!--:sub-btn="{text: '创建社群'}"-->
+      <!--@remote-search="search"-->
+      <!--@handle-btn="handleBtn"-->
+      <!--placeholder="快速查找设备"-->
+      <!--:btn-array="btnArray"-->
+      <!--:menu-array="menu2">-->
+    <!--</uu-sub-tab>-->
     <ob-list-empty
       top="106px"
       v-if="!equipmentList.length"
@@ -201,7 +226,22 @@ export default {
       }
     }
     return {
-      drag: false,
+      currentRouter: '/equipment/mine',
+      options3: [{
+        label: '单设备',
+        options: [{
+          value: '/equipment/mine',
+          label: '自有设备'
+        }, {
+          value: '/equipment/other',
+          label: '非自有设备'
+        }]
+      }, {
+        options: [{
+          value: '/equipment/server',
+          label: '服务器'
+        }]
+      }],
       dialogOptions: { // dialog 弹窗配置 类型 标题文本
         type: 'device',
         title: '添加设备'
@@ -547,6 +587,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .device__sub--title{
+    height: 56px;
+    line-height: 40px;
+    padding-top: 14px;
+    border-bottom: 1px dashed rgba(151,151,151,0.10);
+    box-sizing: border-box;
+    .router-link-active{
+      border-bottom: 2px solid #f8f8f8;
+      color: #fff;
+    }
+    > a{
+      display: inline-block;
+      padding: 0 5px;
+      color: rgba(255, 255, 255, 0.5);
+      & + a {
+        margin-left: 44px;
+      }
+    }
+    .el-select{
+      .el-input{
+        background: transparent;
+      }
+    }
+  }
   ul.wrap{
     li{
       height: 20px;

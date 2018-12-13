@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="echart__funnel--wrap">
+    <div v-for="item in 6" :key="item" class="funnel__item"></div>
   </div>
 </template>
 
@@ -19,6 +20,10 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.funnel__item{
+  height: 15px;
+  margin-bottom: 4px;
+  background: #8ED4FD;
+}
 </style>
