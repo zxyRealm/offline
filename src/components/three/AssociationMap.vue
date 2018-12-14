@@ -137,6 +137,7 @@ export default {
     loadSvg (url) {
       let svgLoad = new THREE.SVGLoader()
       url = url || this.currentFloor.mapUrl
+      // url = '/static/origin-floor/F1.svg'
       svgLoad.load(url, (paths) => {
         this.group.position.x = -290 * 0.4
         this.group.position.y = 214 * 0.4

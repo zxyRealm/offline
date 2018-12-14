@@ -236,7 +236,7 @@ export default {
             callback()
           } else {
             CheckNameExist({name: value, tip: false}).then(res => {
-              !res ? callback() : callback(new Error('社群名称已存在'))
+              !res.data ? callback() : callback(new Error('社群名称已存在'))
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
             })
@@ -484,6 +484,7 @@ export default {
           url = '/group/store'
           break
       }
+      console.log(subData)
       AddNewCommunity(url, subData).then(res => {
         this.$tip('添加成功')
         this.addCommunityVisible = false

@@ -1,8 +1,5 @@
 <template>
   <div class="three__floor--wrap">
-    <div class="floor__3d--wrap corner-bg">
-      <input type="file" @change="changeSvg">
-    </div>
     <!--<el-button @click="downloadSvg('http://localhost/copy.svg')">下载</el-button>-->
     <div id="svg" style="width: 580px;"></div>
   </div>
@@ -54,12 +51,13 @@ export default {
             items = nodeList[i]
             break
           case 'g':
-            this.styleList.push(nodeList[i].childNodes[0].style.fill)
+            // this.styleList.push(nodeList[i].childNodes[0].style.fill)
             break
           case 'clipPath':
             let dom = document.createElement('g')
             let child = nodeList[i].childNodes[0]
-            child.style.fill = this.styleList[i]
+            // child.style.fill = this.styleList[i]
+            child.style.fill = '#f0f'
             dom.appendChild(child)
             this.newSvgChild.appendChild(dom)
             break
@@ -115,6 +113,7 @@ export default {
 <style lang="scss" type="text/scss" scoped>
   .three__floor--wrap {
     background: #0F0E11;
+    height: 100vh;
   }
   .floor__3d--wrap{
     position: relative;

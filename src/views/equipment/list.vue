@@ -4,35 +4,23 @@
       <router-link to="/equipment/list">
         设备列表
       </router-link>
-      <router-link to="/equipment/children">
+      <router-link to="/equipment/portal">
         出入口设备
       </router-link>
     </div>
-    <div class="device__sub--title title-pd0">
+    <div v-if="$route.name !== 'equipmentPortal'" class="device__sub--title title-pd0">
       <el-select
         @change="changeRoute"
-        :class="{'router-link-active': currentRouter === $route.path}"
-        popper-class="device__sub--popper" v-model="currentRouter" placeholder="请选择">
+        @focus="changeRoute"
+        :class="{'router-link-active': currentRoute === $route.path}"
+        popper-class="device__sub--popper" v-model="currentRoute" placeholder="请选择">
         <el-option label="自有设备" value="/equipment/list/own"></el-option>
         <el-option label="非自有设备" value="/equipment/list/other"></el-option>
       </el-select>
-      <!--<router-link class="drop__link" @click="() => dropHide ? dropHide = false : dropHide = true" to="/equipment/list/own">-->
-        <!--<span>自有设备</span>-->
-        <!--<div class="drop__select&#45;&#45;wrap" v-show="dropHide">-->
-          <!--<p :class="{active: $route.path === '/equipment/list/own'}">自有设备</p>-->
-          <!--<p :class="{active: $route.path === '/equipment/list/other'}" >非自有设备</p>-->
-        <!--</div>-->
-      <!--</router-link>-->
       <router-link to="/equipment/list/server">
         服务器
       </router-link>
     </div>
-    <!--<ob-list-empty-->
-      <!--top="106px"-->
-      <!--v-if="!equipmentList.length"-->
-      <!--:supply="!isSearch ? '少量添加点击【添加一体机】按钮，大批量添加点击【添加服务器】按钮。' : ''"-->
-      <!--:text="isSearch?'查询不到该设备':'暂无设备'">-->
-    <!--</ob-list-empty>-->
     <router-view></router-view>
   </div>
 </template>
@@ -124,8 +112,9 @@ export default {
       }
     }
     return {
+      searchValue: '',
       dropHide: true,
-      currentRouter: '/equipment/list/own',
+      currentRoute: '/equipment/list/own',
       options3: [{
         label: '单设备',
         options: [{
@@ -202,7 +191,7 @@ export default {
   methods: {
     // 切换路由
     changeRoute (path) {
-      this.$router.push(path)
+      this.$router.push(this.currentRoute)
     },
     // 自有设备搜索
     search (val) {
@@ -210,7 +199,7 @@ export default {
         this.$router.push(`/equipment/mine/search/${val}`)
       } else {
         this.$router.push('/equipment/mine')
-        this.getGroupList()
+
       }
     },
     // 弹窗表单提交
@@ -275,9 +264,6 @@ export default {
       this.$http('/device/list', {index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination
-        if (!this.groupList.length) {
-          this.getGroupList()
-        }
       })
     },
     // 解绑社群
@@ -376,7 +362,6 @@ export default {
           this.$http('/device/deviceCamera/info/add', this.addCameraForm).then(res => {
             this.$tip('添加成功')
             this.addCameraVisible = false
-            this.getGroupList()
           })
         }
       })
@@ -391,6 +376,7 @@ export default {
     }
   },
   created () {
+    if (this.$route.path === '/equipment/list/other' || this.$route.path === '/equipment/list/own') this.currentRoute = this.$route.path
     this.$http('/firstCheck', {name: 'insight_device_list_first'}).then(res => {
       if (res.data) {
         this.btnArray.map(item => {
@@ -509,6 +495,7 @@ export default {
       display: inline-block;
       padding: 0 5px;
       color: rgba(255, 255, 255, 0.5);
+      box-sizing: border-box;
       & + a {
         margin-left: 44px;
       }
@@ -552,5 +539,15 @@ export default {
 
   .data-list-wrap > .el-scrollbar {
     height: 100%;
+  }
+</style>
+<style lang="scss">
+  /*搜索框*/
+  .device__search--wrap{
+    height: 47px;
+    padding-top: 16px;
+    line-height: 28px;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 </style>

@@ -48,35 +48,35 @@
       </el-table-column>
       <el-table-column
         width="80"
-        label="设备类型">
+        label="类型">
         <template slot-scope="scope">
           {{scope.row.deviceType | deviceType}}
         </template>
       </el-table-column>
-      <el-table-column
-        width="106"
-        label="用途">
-        <template slot-scope="scope">
-          {{scope.row.deviceType | deviceType('use')}}
-        </template>
-      </el-table-column>
-      <el-table-column
-        v-if="$route.name !== 'equipmentChildren'"
-        label="绑定社群">
-        <template slot-scope="scope">
-          <span
-            :class="{'ellipsis-28': isMine,'ellipsis': !isMine, 'c-grey': !scope.row.groupName}">
-            {{scope.row.deviceType === 1 ? '—': scope.row.groupName || '暂无'}}
-          </span>
-          <uu-icon
-            :type="scope.row.groupName ? 'unbinding' : 'binding'"
-            v-if="isMine && scope.row.deviceType !== 1"
-            @click.native="showDialogForm(scope.row, scope.$index)"></uu-icon>
-        </template>
-      </el-table-column>
+      <!--<el-table-column-->
+        <!--width="106"-->
+        <!--label="用途">-->
+        <!--<template slot-scope="scope">-->
+          <!--{{scope.row.deviceType | deviceType('use')}}-->
+        <!--</template>-->
+      <!--</el-table-column>-->
+      <!--<el-table-column-->
+        <!--v-if="$route.name !== 'equipmentChildren'"-->
+        <!--label="绑定社群">-->
+        <!--<template slot-scope="scope">-->
+          <!--<span-->
+            <!--:class="{'ellipsis-28': isMine,'ellipsis': !isMine, 'c-grey': !scope.row.groupName}">-->
+            <!--{{scope.row.deviceType === 1 ? '—': scope.row.groupName || '暂无'}}-->
+          <!--</span>-->
+          <!--<uu-icon-->
+            <!--:type="scope.row.groupName ? 'unbinding' : 'binding'"-->
+            <!--v-if="isMine && scope.row.deviceType !== 1"-->
+            <!--@click.native="showDialogForm(scope.row, scope.$index)"></uu-icon>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
       <el-table-column
         v-if="isMine"
-        label="下辖设备">
+        label="所属服务器">
         <template slot-scope="scope">
           <span class="ellipsis-28">{{scope.row.deviceType === 1? scope.row.deviceNum: '—'}}</span>
           <router-link v-if="scope.row.deviceType === 1" :to="($route.name === 'equipment' ? '/equipment/mine' : '/equipment') + '/service/' + scope.row.deviceKey + '?name=' + scope.row.deviceName">{{isMine ? '管理' : '查看'}}</router-link>
@@ -137,6 +137,40 @@
       :visible.sync="dialogFormVisible"
     >
     </ob-dialog-form>
+    <!--设备升级-->
+    <ob-dialog-form
+      class="dialog__content--vm"
+      :show-button="false"
+      :title="'设备升级'"
+      :visible.sync="deviceUpdateVisible">
+      <div slot="form" class="vam">
+        <div class="version__list--wrap">
+          <div class="c-grey fs12 g-pl20 mt16">设备当前版本：{{currentVersion}}</div>
+          <el-radio-group v-model="selectVersion">
+            <p class="radio-box last-version fs12" >
+              <el-radio :label="-1">最新版本 {{'2.2'}}</el-radio>
+              <a href="javascript:void(0)" @click="() => {showHistory ? showHistory = false: showHistory = true}">查看历史版本
+                <i class="el-icon-d-arrow-right" :class="{'arrow-up': showHistory}"></i>
+              </a>
+            </p>
+            <el-scrollbar v-show="showHistory">
+              <p
+                v-for="(item, $index) in 5"
+                :key="$index"
+                class="radio-box">
+                <el-radio
+                  :value="item"
+                  :label="$index">备选项</el-radio>
+              </p>
+            </el-scrollbar>
+          </el-radio-group>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button class="cancel" @click="deviceUpdateVisible = false">取消</el-button>
+        <el-button class="affirm" type="primary" @click="deviceUpdate()">升级</el-button>
+      </div>
+    </ob-dialog-form>
   </div>
 </template>
 
@@ -190,7 +224,12 @@ export default {
           {required: true, validator: validateName, trigger: 'blur'}
         ]
       },
-      btnList: ['run', 'reboot', 'upgrade', 'reset']
+      btnList: ['run', 'reboot', 'upgrade', 'reset'],
+      showHistory: false, // 显示历史版本列表
+      selectVersion: '', // 选中的版本
+      currentVersion: '', // 当前的版本
+      deviceUpdateVisible: false, // 设备升级弹框显示与否
+      versionList: [] // 历史版本信息列表
     }
   },
   created () {
@@ -497,34 +536,41 @@ export default {
             done()
             let subData = {deviceKey: value.deviceKey}
             if (type === 'run') subData.operationCode = value.deviceStatus === 5 ? 0 : 1
-            this.$load(`正在${des}中...`)
-            this.$http(url, subData).then(res => {
-              this.$load().close()
-              switch (type) {
-                case 'reboot':
-                  this.$set(value, 'deviceStatus', 2)
-                  break
-                case 'reset':
-                  this.$set(value, 'deviceStatus', 3)
-                  break
-                case 'upgrade':
-                  this.$set(value, 'deviceStatus', 4)
-                  break
-                case 'run':
-                  if (value.deviceStatus === 0) {
-                    this.$set(value, 'deviceStatus', 7)
-                  } else {
-                    this.$set(value, 'deviceStatus', 6)
-                  }
-                  break
-              }
-              this.$tip(`设备【<span class="maxw110 ellipsis">${value.deviceName}</span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
-            }).catch(error => {
-              this.$load().close()
-              if (error.code && error.msg) {
-                this.$set(value, 'deviceStatus', error.data === null ? 1 : error.data)
-              }
-            })
+            // 升级时单独处理
+            if (type === 'upgrade') {
+              this.currentDevice = value
+              this.deviceUpdateVisible = true
+              // 获取设备历史版本信息
+            } else {
+              this.$load(`正在${des}中...`)
+              this.$http(url, subData).then(res => {
+                this.$load().close()
+                switch (type) {
+                  case 'reboot':
+                    this.$set(value, 'deviceStatus', 2)
+                    break
+                  case 'reset':
+                    this.$set(value, 'deviceStatus', 3)
+                    break
+                  case 'upgrade':
+                    this.$set(value, 'deviceStatus', 4)
+                    break
+                  case 'run':
+                    if (value.deviceStatus === 0) {
+                      this.$set(value, 'deviceStatus', 7)
+                    } else {
+                      this.$set(value, 'deviceStatus', 6)
+                    }
+                    break
+                }
+                this.$tip(`设备【<span class="maxw110 ellipsis">${value.deviceName}</span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
+              }).catch(error => {
+                this.$load().close()
+                if (error.code && error.msg) {
+                  this.$set(value, 'deviceStatus', error.data === null ? 1 : error.data)
+                }
+              })
+            }
           } else {
             done()
           }
@@ -583,6 +629,13 @@ export default {
     // 上传失败时回调
     handleError (res) {
       this.$tip(res.msg || '上传失败', 'error', 3000)
+    },
+    deviceUpdate () {
+      if (this.selectVersion) {
+        console.log(this.selectVersion)
+      } else {
+        this.$tip('请选择要升级的版本', 'error')
+      }
     }
   },
   watch: {
@@ -643,7 +696,43 @@ export default {
     }
   }
 }
-.cell {
-
+/*设备升级弹框 版本列表*/
+.version__list--wrap {
+  .radio-box{
+    display: block;
+    padding-left: 20px;
+  }
+  .last-version{
+    margin: 16px 0 28px;
+    > a{
+      margin-left: 15px;
+      .el-icon-d-arrow-right{
+        transform: rotate(90deg);
+        &.arrow-up{
+          transform: rotate(-90deg);
+        }
+      }
+    }
+  }
+  .el-scrollbar {
+    width: 310px;
+    height: 140px;
+    padding: 16px 0;
+    margin-bottom: 20px;
+    overflow: hidden;
+    background: #F8F8F8;
+    box-sizing: border-box;
+    .radio-box{
+      &:not(:last-of-type){
+        margin-bottom: 14px;
+      }
+      .el-radio{
+        display: block;
+      }
+      &+.el-radio{
+        margin-left: 0;
+      }
+    }
+  }
 }
 </style>

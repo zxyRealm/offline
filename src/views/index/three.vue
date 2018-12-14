@@ -51,10 +51,19 @@
         </div>
         <!--业态客流排行榜-->
         <div class="format-flow-rank items">
-          <!--<div class="floor__sub&#45;&#45;title">-->
-          <!--业态客流排行榜-->
-          <!--</div>-->
-          <chart-bar title="业态客流排行榜" width="100%" height="100%"></chart-bar>
+          <div class="floor__sub--title">
+          业态客流排行榜
+          </div>
+          <div>
+            <ul class="right__sidebar">
+              <li
+                v-for="(item, $index) in industryList"
+                :key="$index"
+                v-if="$index > 2"
+                class="sidebar--item"><span>{{$index + 1}}.{{item.name}}</span><span>{{item.value}}</span> </li>
+            </ul>
+          </div>
+          <!--<chart-bar title="业态客流排行榜" width="100%" height="100%"></chart-bar>-->
         </div>
         <!--门店客流排行榜-->
         <div class="store-flow-rank items">
@@ -191,6 +200,17 @@ export default {
         { name: '外婆家', percent: 8 },
         { name: '外婆家', percent: 8 }
       ],
+      industryList: [
+        {name: '文体', value: '30%'},
+        {name: '文体', value: '22%'},
+        {name: '文体', value: '18%'},
+        {name: '文体', value: '9%'},
+        {name: '文体', value: '7%'},
+        {name: '文体', value: '5%'},
+        {name: '文体', value: '3%'},
+        {name: '文体', value: '2%'},
+        {name: '文体', value: '1.6%'}
+      ],
       floorList: [
         'F4',
         'F3',
@@ -242,7 +262,7 @@ export default {
     getWebsocket () {
       GetSocketIP().then(res => {
         let _this = this
-        let wsServer = 'ws://' + res.data // 服务器地址
+        let wsServer = `ws://192.168.1.153:8010/websocket/${this.currentManage.id}` // 服务器地址
         this.websocket = new WebSocket(wsServer)
         this.websocket.onopen = function (evt) {
           // 已经建立连接
@@ -251,7 +271,7 @@ export default {
         }
         this.websocket.onmessage = function (evt) {
           // 收到服务器消息，使用evt.data提取
-          console.log('push message', evt.data)
+          console.log('push message', evt)
           // _this.resolveDatad(evt.data)
         }
         this.websocket.onclose = function (evt) {
@@ -407,7 +427,21 @@ export default {
     }
     /*业态客流排行榜*/
     .format-flow-rank{
-      height: 180px;
+      height: 200px;
+      .right__sidebar{
+        float: right;
+        width: 70px;
+        margin-top: 15px;
+        font-size: 12px;
+        .sidebar--item{
+          span + span{
+            margin-left: 4px;
+          }
+           &:not(:last-of-type){
+             margin-bottom: 8px;
+           }
+        }
+      }
     }
     /*门店客流排行*/
     .store-flow-rank{

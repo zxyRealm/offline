@@ -16,6 +16,7 @@ const EquipmentList = () => import('@/views/equipment/list.vue')
 const EquipmentOwn = () => import('@/views/equipment/own.vue')
 const EquipmentOther = () => import('@/views/equipment/other.vue')
 const EquipmentServer = () => import('@/views/equipment/server.vue')
+const EquipmentPortal = () => import('@/views/equipment/portal.vue')
 const EquipmentMore = () => import('@/views/equipment/more.vue')
 const EquipmentChildren = () => import('@/views/equipment/children.vue')
 const EquipmentService = () => import('@/views/equipment/service.vue')
@@ -244,7 +245,7 @@ export const constantRouterMap = [
         children: [
           {
             path: 'own',
-            name: 'equipment',
+            name: 'equipmentOwn',
             meta: {
               title: '自有设备-设备管理-线下浏览器服务平台',
               keepAlive: true
@@ -253,7 +254,7 @@ export const constantRouterMap = [
           },
           {
             path: 'other',
-            name: 'equipment',
+            name: 'equipmentOther',
             meta: {
               title: '非自有设备-设备管理-线下浏览器服务平台',
               keepAlive: true
@@ -262,12 +263,22 @@ export const constantRouterMap = [
           },
           {
             path: 'server',
-            name: 'equipment',
+            name: 'equipmentServer',
             meta: {
               title: '服务器-设备管理-线下浏览器服务平台',
               keepAlive: true
             },
             component: EquipmentServer
+          },
+          {
+            path: '/equipment/portal',
+            name: 'equipmentPortal',
+            meta: {
+              title: '出入口设备-设备管理-线下浏览器服务平台',
+              auth: true,
+              keepAlive: false
+            },
+            component: EquipmentPortal
           }
         ]
       },
@@ -551,17 +562,15 @@ export const constantRouterMap = [
     name: 'ThreeTest',
     meta: {
       title: 'Three.js 示例使用'
+    }
+  },
+  {
+    path: '/transform',
+    name: 'ThreeTransform',
+    meta: {
+      title: 'Three.js svg 文件转换'
     },
-    children: [
-      {
-        path: 'transform',
-        name: 'ThreeTransform',
-        meta: {
-          title: 'Three.js svg 文件转换'
-        },
-        component: transformSvg
-      }
-    ]
+    component: transformSvg
   },
   {
     path: '*',

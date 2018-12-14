@@ -12,6 +12,7 @@
 
 //element-ui分页组件样式
 .el-pagination {
+  margin-top: 15px;
   text-align: right;
   color: #fff;
   .el-pagination__total, .el-pagination__sizes {
@@ -43,6 +44,9 @@
   }
 }
 
+.white .el-input .el-input__inner {
+  color: #333;
+}
 
 //自定义element-ui加载层样式(全局)
 .el-loading-mask {
@@ -417,7 +421,8 @@
     float: left;
     height: 40px;
     line-height: 40px;
-    margin-right: 8px;
+    margin-right: 16px;
+    box-sizing: border-box;
     .el-select__caret{
       background: none;
       &.el-icon-arrow-up:before{
@@ -425,10 +430,37 @@
       }
     }
     .el-input{
-      width: 110px;
+      width: 100px;
       height: 40px;
       line-height: 40px;
       background: transparent;
+      .el-input__inner{
+        padding: 0 6px;
+      }
+    }
+  }
+}
+//自有设备、非自有设备 搜索
+.device__search--wrap{
+  .el-input{
+    float: left;
+    width: 190px;
+    background: none;
+    .el-input__inner{
+      height: 28px;
+      line-height: 28px;
+      border-bottom: 1px solid rgba(255,255,255, 0.3);
+      border-radius: 0;
+      padding: 0;
+    }
+    .el-input__suffix-inner{
+      font-size: 18px;
+      line-height: 0;
+    }
+    .el-icon-search{
+      color: #2493D2;
+      line-height: 28px;
+      cursor: pointer;
     }
   }
 }
@@ -449,5 +481,31 @@
   }
   .popper__arrow{
     display: none;
+  }
+}
+
+
+//设备管理-自有设备 添加设备弹框
+.device__dialog--wrap{
+  .el-dialog__header{
+    height: 46px;
+    line-height: 46px;
+    padding: 0;
+    text-align: center;
+    font-size: 16px;
+    background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
+    .el-dialog__headerbtn{
+      top: 15px;
+      .el-dialog__close{
+        color: #fff;
+      }
+    }
+    .el-dialog__title{
+      color: #fff;
+      font-size: 16px;
+    }
+  }
+  .ad-item{
+    text-align: center;
   }
 }

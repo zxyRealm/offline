@@ -1,4 +1,6 @@
-const svg = `<svg version="1.1" id="_x5F__x5F__x5F_.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="_x5F__x5F__x5F_.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
 	 y="0px" viewBox="0 0 580.1 428.6" style="enable-background:new 0 0 580.1 428.6;" xml:space="preserve">
 <style type="text/css">
 	.st0{display:none;}
@@ -90,5 +92,4 @@ const svg = `<svg version="1.1" id="_x5F__x5F__x5F_.2" xmlns="http://www.w3.org/
 <polygon class="st2" points="364.3,73.7 365.2,85.7 368.2,85.7 369.4,87.7 376.5,86.7 378.4,97.2 414.4,91.7 408.8,54.9 "/>
 <polygon class="st2" points="437.6,41.7 408.8,54.9 411.2,71.6 452.6,65.3 452.6,62.7 475.2,59.7 474.2,50.7 "/>
 <polygon class="st2" points="458.8,103.5 448,105.7 450.2,115.8 483.2,109.7 475.2,59.7 452.6,62.7 452.6,65.3 "/>
-</svg>`
-export default svg
+</svg>

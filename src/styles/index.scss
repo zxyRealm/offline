@@ -212,7 +212,7 @@ div:focus {
   }
 }
 
-@each $pl in 5, 8, 10, 16, 100, 106 {
+@each $pl in 5, 8, 10, 16, 20, 100, 106 {
   .g-pl#{$pl} {
     padding-left: $pl + px;
   }
@@ -391,6 +391,8 @@ button, input {
 }
 //确定按钮样式
 .el-button {
+  padding-left: 0;
+  padding-right: 0;
   &[disabled] {
     background: $disable;
     box-shadow: 0 2px 4px 0 #161418;
@@ -595,7 +597,7 @@ button, input {
   height: calc(100% - 84px);
   overflow: hidden;
   width: 100%;
-  padding-top: 24px;
+  padding-top: 16px;
   box-sizing: border-box;
   > .el-scrollbar {
     height: 100%;
