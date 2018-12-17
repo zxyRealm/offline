@@ -25,6 +25,8 @@ export function exitMessage (href) {
     center: true,
     dangerouslyUseHTMLString: true,
     showCancelButton: false,
+    closeOnClickModal: false,
+    closeOnPressEscape: false,
     customClass: 'confirm__message--login'
   }).then(() => {
     window.location.href = `${href}?redirectURL=${window.location.href}`
@@ -93,7 +95,7 @@ service.interceptors.response.use(
       } else if (response.data.result) {
         return Promise.resolve(response.data instanceof String ? JSON.parse(response.data) : response.data)
       } else {
-        if (response.config.tip === undefined || response.config.tip) errMsg(response.data.msg)
+        if (response.config.tip === undefined || response.config.tip) message(response.data.msg, 'error', 3000)
         return Promise.reject(response.data)
       }
     } else {

@@ -47,7 +47,10 @@
 .white .el-input .el-input__inner {
   color: #333;
 }
-
+.el-form-item__label{
+  position: relative;
+  font-weight: 500;
+}
 //自定义element-ui加载层样式(全局)
 .el-loading-mask {
   .el-loading-spinner {
@@ -508,4 +511,10 @@
   .ad-item{
     text-align: center;
   }
+}
+
+//设备列表 ? 图标信息 样式
+.table__popper--help{
+  font-size: 12px;
+  padding: 7px 12px;
 }

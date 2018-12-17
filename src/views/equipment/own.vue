@@ -2,7 +2,10 @@
   <div class="equipment__data--list">
     <!--设备搜索-->
     <div class="device__search--wrap">
-      <el-input placeholder="设备名称/序列号" v-model="searchValue">
+      <el-input
+        @keyup.enter.native="search"
+        @blur="search"
+        placeholder="设备名称/序列号" v-model="searchValue">
         <i
           class="el-icon-search el-input__icon"
           slot="suffix"
@@ -11,13 +14,7 @@
       </el-input>
       <el-button class="affirm fr medium" @click="addDeviceVisible = true">添加设备</el-button>
     </div>
-    <ob-list-empty
-      top="106px"
-      v-if="!equipmentList.length"
-      :supply="!isSearch ? '少量添加点击【添加一体机】按钮，大批量添加点击【添加服务器】按钮。' : ''"
-      :text="isSearch?'查询不到该设备':'暂无设备'">
-    </ob-list-empty>
-    <div class="data-list-wrap" v-if="equipmentList.length">
+    <div class="data-list-wrap">
       <device-table
         is-mine
         @handle-add="showAddCameraForm"
@@ -60,12 +57,12 @@
           </el-form-item>
           <el-form-item label="服务器：" prop="serverKey">
             <el-select v-model="addCameraForm.serverKey">
-              <el-option v-for="item in 3" :key="item" :value="item" :label="item"></el-option>
+              <el-option v-for="item in serverList" :key="item.deviceKey" :value="item.deviceKey" :label="item.name"></el-option>
             </el-select>
           </el-form-item>
-          <span v-show="textState.text">
-            <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
-          </span>
+          <!--<span v-show="textState.text">-->
+            <!--<div class="name&#45;&#45;text vam" :class="textState.name"><div>{{textState.text}}</div></div>-->
+          <!--</span>-->
         </el-form>
         <div class="c-grey" v-else>请先添加服务器</div>
       </div>
@@ -104,7 +101,7 @@
         <p class="handle">
           <a href="javascript:void(0)" @click="handleAddCamera">手动添加</a>
           <span>|</span>
-          <a href="javascript:void(0)" @click="() => {importType = 2;ExcelAddVisible = true;addDeviceVisible = false}">批量导入</a>
+          <a href="javascript:void(0)" @click="handleAddCamera('batch')">批量导入</a>
         </p>
       </div>
     </el-dialog>
@@ -132,9 +129,9 @@
           <el-form-item label="序列号：" prop="deviceKey">
             <el-input placeholder="请输入16位序列号" v-model="addAioForm.deviceKey"></el-input>
           </el-form-item>
-          <span v-show="textState.text">
-          <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
-        </span>
+          <!--<span v-show="textState.text">-->
+            <!--<div class="name&#45;&#45;text vam" :class="textState.name"><div>{{textState.text}}</div></div>-->
+          <!--</span>-->
         </el-form>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -155,20 +152,21 @@
           slot="form"
           ref="excelImportForm"
           block-message
-          style="width: 330px"
+          style="width: 360px"
           label-position="left"
+          label-width="72px"
           class="white mt16"
           :model="excelImportForm"
           :rules="excelImportRules"
         >
-          <el-form-item prop="filename">
+          <el-form-item label="导入文件:" prop="filename">
             <el-input placeholder="请选取文件" readonly v-model="excelImportForm.filename"></el-input>
             <el-upload
               ref="excelUpload"
-              :data="{serverKey: $route.params.key}"
+              :data="{serverKey: excelImportForm.serverKey,merchantGuid: userInfo.developerId}"
               name="excelFile"
               class="import--excel white"
-              :action="baseApi + '/manage/device/deviceCamera/info/addBatch'"
+              :action="excelUrl"
               :on-change="handleChange"
               :on-progress="handleProgress"
               :on-success="handleSuccess"
@@ -180,6 +178,11 @@
               <a href="javascript:void(0)">导入</a>
             </el-upload>
           </el-form-item>
+          <el-form-item label="服务器:" prop="serverKey" v-if="importType !== 1">
+            <el-select v-model="excelImportForm.serverKey">
+              <el-option v-for="item in serverList" :key="item.deviceKey" :value="item.deviceKey" :label="item.name"></el-option>
+            </el-select>
+          </el-form-item>
         </el-form>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -187,22 +190,15 @@
         <el-button class="affirm" type="primary" @click="ExcelImportDevice('excelImportForm')">添加</el-button>
       </div>
     </ob-dialog-form>
-    <!--设备绑定社群-->
-    <ob-dialog-form
-      filter
-      @remote-submit="submitForm"
-      :group="groupList"
-      title="添加社群"
-      type="group"
-      :visible.sync="dialogFormVisible">
-    </ob-dialog-form>
   </div>
 </template>
 <script>
 import {mapState} from 'vuex'
-import {simplifyGroups, makeCustomName, byKeyDeviceType} from '@/utils'
+import {simplifyGroups, byKeyDeviceType} from '@/utils'
 import DeviceTable from '@/components/DeviceTable'
 import {validateRule} from '../../utils/validate'
+import {GetOwnDeviceList, GetServerDeviceList, AddDevice, AddCamera, DeviceAliasExist, CameraAliasExist, DeviceIsExisted, DeviceIsAdded} from '../../api/device'
+
 const UPLOAD_API = process.env.UPLOAD_API
 export default {
   name: 'index',
@@ -219,35 +215,41 @@ export default {
       } else {
         if (value.length === 16) {
           // 设备序列号是否存在
-          this.$http('/device/deviceKey', {deviceKey: value}).then(res => {
-            if (res.data) {
-              // 校验设备是否被绑定过
-              this.$http('/merchant/device/exist', {deviceKey: value}, false).then(res2 => {
-                let dType = byKeyDeviceType(value)
-                if (!res2.data) {
-                  this.deviceInfo.exist = false
-                } else {
-                  this.deviceInfo.exist = true
-                }
-                // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
-                if ((this.dialogType === 1 && dType.type === 1) || (this.dialogType === 2 && (dType.type === 2 || dType.type === 3)) || (this.dialogType === 3 && (dType.type === 4 || dType.type === 5))) {
-                  this.deviceInfo.type = dType.type
-                  callback()
+          let dType = byKeyDeviceType(value)
+          console.log('设备类型', dType)
+          if (dType.type) {
+            if ((this.addAioVisible && new Set([2, 3]).has(dType.type)) || (this.addCameraVisible && new Set([4, 5]).has(dType.type))) {
+              DeviceIsExisted({deviceKey: value}).then(res => {
+                if (res.data) {
+                  // 校验设备是否被绑定过
+                  DeviceIsAdded({deviceKey: value}).then(res2 => {
+                    if (res2.data) {
+                      callback(new Error('设备已存在'))
+                    } else {
+                      callback()
+                    }
+                    this.deviceInfo.type = dType.type
+                    // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
+                    callback()
+                  }).catch(err => {
+                    this.deviceInfo.type = ''
+                    this.deviceInfo.exist = ''
+                    callback(new Error(err.msg || '服务器异常'))
+                  })
                 } else {
                   this.deviceInfo.exist = ''
+                  this.deviceInfo.type = ''
                   callback(new Error('设备序列号不存在'))
                 }
               }).catch(err => {
-                this.deviceInfo.type = ''
-                this.deviceInfo.exist = ''
                 callback(new Error(err.msg || '服务器异常'))
               })
             } else {
-              this.deviceInfo.exist = ''
-              this.deviceInfo.type = ''
               callback(new Error('设备序列号不存在'))
             }
-          })
+          } else {
+            callback(new Error('设备序列号不存在'))
+          }
         } else {
           this.deviceInfo.type = ''
           this.deviceInfo.exist = ''
@@ -261,23 +263,24 @@ export default {
           callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
           // 一体机、服务器名称验重
-          let url = '/merchant/device/alias/exist'
           let subData = {name: value}
-          switch (this.dialogType) {
-            case 3:
-              // 摄像头名称验重
-              url = '/device/existName'
-              subData = {
-                name: value,
-                serverKey: this.addCameraForm.serverKey
-              }
-              break
+          if (this.dialogType === 3) {
+            subData = {
+              name: value,
+              serverKey: this.addCameraForm.serverKey
+            }
+            CameraAliasExist(subData).then(res => {
+              res.data ? callback(new Error('设备别名已存在')) : callback()
+            }).catch(err => {
+              callback(new Error(err.msg || '验证失败'))
+            })
+          } else {
+            DeviceAliasExist(subData).then(res => {
+              res.data ? callback(new Error('设备别名已存在')) : callback()
+            }).catch(err => {
+              callback(new Error(err.msg || '验证失败'))
+            })
           }
-          this.$http(url, subData, false).then(res => {
-            res.data ? callback(new Error('设备别名已存在')) : callback()
-          }).catch(err => {
-            callback(new Error(err.msg || '验证失败'))
-          })
         } else {
           callback(new Error('请输入正确的设备别名'))
         }
@@ -290,7 +293,8 @@ export default {
       if (!value || !file) {
         callback(new Error('请选取文件'))
       } else {
-        if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        console.log(file)
+        if (file.raw.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
           callback(new Error('只允许上传Excel文件'))
         } else if (file.name === '') {
           callback(new Error('导入文件名与模版不同'))
@@ -352,7 +356,8 @@ export default {
         type: ''
       },
       excelImportForm: {
-        filename: ''
+        filename: '',
+        serverKey: ''
       }, // 批量导入一体机、摄像头 表单对象
       excelImportRules: {
         filename: [
@@ -371,11 +376,7 @@ export default {
   methods: {
     // 自有设备搜索
     search (val) {
-      if (val) {
-        this.$router.push(`/equipment/mine/search/${val}`)
-      } else {
-        this.$router.push('/equipment/mine')
-      }
+      this.getMineEquipment()
     },
     // 弹窗表单提交
     submitForm (data) {
@@ -394,12 +395,6 @@ export default {
         data.groupGuid = this.groupList[data.groupGuid].groupGuid
         this.bindCommunity(data)
       }
-    },
-    // 获取社群树形结构数据
-    getGroupList () {
-      this.$http('/group/list/self').then(res => {
-        this.groupList = simplifyGroups(res.data)
-      })
     },
     showDialog (type, data) {
       this.dialogFormVisible = false
@@ -436,62 +431,25 @@ export default {
     // 获取自有设备
     getMineEquipment (page) {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
-      this.$http('/device/list', {index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
+      GetOwnDeviceList({index: page, searchText: this.searchValue || '', length: 10}).then(res => {
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination
       })
     },
-    // 解绑社群
-    unBindCommunity (value, index) {
-      this.$affirm({
-        confirm: '确定',
-        cancel: '返回',
-        text: '将设备从社群解绑，您将无法查看该设备数据/无法操作设备。<br>确定要将【<span class="maxw110 ellipsis">' + value.deviceName + '</span>】设备从【<span class="maxw110 ellipsis">' + value.groupName + '</span>】社群解绑？'
-      }, (action, instance, done) => {
-        if (action === 'confirm') {
-          done()
-          this.$http('/device/unbinding', {
-            deviceKey: value.deviceKey,
-            groupGuid: value.groupGuid
-          }).then(res => {
-            this.$tip('解绑成功')
-            this.$set(value, 'groupGuid', null)
-            this.$refs.deviceItem[index].getDeviceState(value, value.deviceStatus === undefined ? null : undefined)
-          })
-        } else {
-          // 隐藏hover 提示信息
-          setTimeout(() => { value.tipShow = false }, 5)
-          done()
-        }
-      })
-    },
-    // 绑定社群
-    bindCommunity (data) {
-      this.dialogFormVisible = false
-      this.$load('设备绑定中...')
-      data.name = data.deviceName
-      this.$http('/device/binding', data).then(res => {
-        this.$load().close()
-        this.$tip('绑定成功')
-        this.getMineEquipment(this.pagination.index)
-      }).catch(() => {
-        this.$load().close()
-      })
-    },
     // 添加服务器
-    handleBtn (index) {
-      this.deviceInfo = {
-        type: '',
-        exist: ''
-      }
-      if (index === 1) {
-        this.dialogType = 1
-      } else {
-        this.dialogType = 2
-      }
-      this.addAioVisible = true
-    },
-    // 添加一体机设备、添加服务器
+    // handleBtn (index) {
+    //   this.deviceInfo = {
+    //     type: '',
+    //     exist: ''
+    //   }
+    //   if (index === 1) {
+    //     this.dialogType = 1
+    //   } else {
+    //     this.dialogType = 2
+    //   }
+    //   this.addAioVisible = true
+    // },
+    // 添加一体机设备
     addAioDevice (formName) {
       // 添加商户设备
       this.$refs[formName].validate(valid => {
@@ -501,7 +459,7 @@ export default {
             deviceKey: this.addAioForm.deviceKey,
             type: this.deviceInfo.type
           }
-          this.$http('/merchant/device/create', subData).then(res => {
+          AddDevice(subData).then(res => {
             this.addAioVisible = false
             this.$tip('创建成功')
             this.getMineEquipment()
@@ -529,15 +487,17 @@ export default {
         this.$refs.addCameraForm.clearValidate()
       })
     },
+    // 添加摄像头设备
     addCameraDevice (formName) {
-      // console.log(this.addCameraForm)
       if (this.serverList.length) {
         this.$refs[formName].validate(valid => {
           if (valid) {
             this.addCameraForm.type = this.deviceInfo.type
-            this.$http('/device/deviceCamera/info/add', this.addCameraForm).then(res => {
+            console.log('=-=--=', this.addCameraForm)
+            AddCamera(this.addCameraForm).then(res => {
               this.$tip('添加成功')
               this.addCameraVisible = false
+              this.getMineEquipment(1)
             })
           }
         })
@@ -554,14 +514,24 @@ export default {
       window.removeEventListener('click', this.firstCreate)
     },
     // 手动添加摄像头
-    handleAddCamera () {
-      let len = 1
-      setTimeout(() => {
-        if (len) {
+    handleAddCamera (type) {
+      GetServerDeviceList().then(res => {
+        if (res.data.content && res.data.content.length) {
+          this.serverList = res.data.content
+          if (type === 'batch') {
+            this.importType = 2
+            this.ExcelAddVisible = true
+            this.addDeviceVisible = false
+          } else {
+            this.addDeviceVisible = false
+            this.addCameraVisible = true
+          }
+        } else {
+          this.serverList = []
           this.addDeviceVisible = false
           this.addCameraVisible = true
         }
-      }, 300)
+      })
     },
     // 显示上传进度
     handleProgress (event) {
@@ -624,7 +594,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loading', 'aliveState']),
+    ...mapState(['loading', 'aliveState', 'userInfo']),
     textState: {
       get () {
         let [cName, text] = ['', '']
@@ -665,19 +635,13 @@ export default {
         this.textValue = val
       }
     },
-    baseApi () {
-      return UPLOAD_API
+    excelUrl () {
+      let url = `${UPLOAD_API}/manage/device/deviceCamera/info/addBatch` // excel批量导入摄像头信息
+      if (this.importType === 1) url = `${UPLOAD_API}/manage/merchant/device/import` // excel批量导入一体机
+      return url
     }
   },
   watch: {
-    '$route': {
-      handler (val) {
-        this.isSearch = (val.name === 'searchMine')
-        this.equipmentList = []
-        this.getMineEquipment()
-      },
-      deep: true
-    },
     addAioVisible (val) {
       if (val) {
         this.addAioForm = {
@@ -693,9 +657,14 @@ export default {
     },
     // 上传弹框隐藏后清空文件列表，并重置表单
     ExcelAddVisible (val) {
-      if (!val) {
+      if (!val && this.$refs.excelImportForm) {
         this.$refs.excelImportForm.resetFields()
         this.fileList = []
+      }
+    },
+    addCameraVisible (val) {
+      if (!val && this.$refs.addCameraForm) {
+        this.$refs.addCameraForm.resetFields()
       }
     }
   },
@@ -709,7 +678,7 @@ export default {
 
 <style lang="scss" scoped>
   .equipment__data--list{
-    /*height: 100%;*/
+    height: calc(100% - 116px);
   }
   .device__dialog--wrap{
     .ad--item{
@@ -738,7 +707,7 @@ export default {
       margin-top: 18px;
     }
     .el-input{
-      width: 240px;
+      width: 212px;
     }
     .import--excel{
       display: inline-block;

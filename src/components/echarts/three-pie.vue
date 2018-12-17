@@ -288,6 +288,9 @@ export default {
   .echarts--wrap{
     position: relative;
   }
+  .empty--data .percent-wrap{
+    color: #fff;
+  }
   .percent-wrap{
     position: absolute;
     top: 20px;

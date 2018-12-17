@@ -4,23 +4,17 @@
     <div class="device__search--wrap">
       <el-button class="affirm fr medium" @click="addServerVisible = true">添加服务器</el-button>
     </div>
-    <ob-list-empty
-      top="106px"
-      v-if="!equipmentList.length"
-      :supply="!isSearch ? '少量添加点击【添加一体机】按钮，大批量添加点击【添加服务器】按钮。' : ''"
-      :text="isSearch?'查询不到该设备':'暂无设备'">
-    </ob-list-empty>
-    <div class="data-list-wrap" v-if="equipmentList.length">
+    <div class="data-list-wrap">
       <device-table
-        is-mine
+        data-type="server"
         @handle-add="showAddCameraForm"
-        @refresh="getMineEquipment"
+        @refresh="getServerEquipment"
         v-model="equipmentList"
       >
       </device-table>
       <el-pagination
         v-if="pagination.total && pagination.total > pagination.length"
-        @current-change="getMineEquipment"
+        @current-change="getServerEquipment"
         :current-page="pagination.index"
         :page-size="pagination.length"
         layout="total,prev, pager, next, jumper"
@@ -73,9 +67,10 @@
         </el-button>
       </div>
     </ob-dialog-form>
-    <!--添加一体机-->
+    <!--添加服务器-->
     <ob-dialog-form
       class="dialog__content--vm"
+      @close="resetForm"
       :show-button="false"
       :title="'添加服务器'"
       :visible.sync="addServerVisible">
@@ -111,6 +106,8 @@ import {mapState} from 'vuex'
 import {simplifyGroups, byKeyDeviceType} from '@/utils'
 import DeviceTable from '@/components/DeviceTable'
 import {validateRule} from '../../utils/validate'
+import {GetServerDeviceList, AddDevice, DeviceAliasExist, DeviceIsExisted, DeviceIsAdded} from '../../api/device'
+
 const UPLOAD_API = process.env.UPLOAD_API
 export default {
   name: 'server',
@@ -126,36 +123,40 @@ export default {
         callback(new Error('请输入16位序列号'))
       } else {
         if (value.length === 16) {
+          let dType = byKeyDeviceType(value)
+          console.log(dType)
           // 设备序列号是否存在
-          this.$http('/device/deviceKey', {deviceKey: value}).then(res => {
-            if (res.data) {
-              // 校验设备是否被绑定过
-              this.$http('/merchant/device/exist', {deviceKey: value}, false).then(res2 => {
-                let dType = byKeyDeviceType(value)
-                if (!res2.data) {
-                  this.deviceInfo.exist = false
-                } else {
-                  this.deviceInfo.exist = true
-                }
-                // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
-                if ((this.dialogType === 1 && dType.type === 1) || (this.dialogType === 2 && (dType.type === 2 || dType.type === 3)) || (this.dialogType === 3 && (dType.type === 4 || dType.type === 5))) {
-                  this.deviceInfo.type = dType.type
-                  callback()
-                } else {
-                  this.deviceInfo.exist = ''
-                  callback(new Error('设备序列号不存在'))
-                }
-              }).catch(err => {
-                this.deviceInfo.type = ''
-                this.deviceInfo.exist = ''
-                callback(new Error(err.msg || '服务器异常'))
-              })
-            } else {
-              this.deviceInfo.exist = ''
-              this.deviceInfo.type = ''
+          if (dType.type) {
+            if (!new Set([1]).has(dType.type)) {
               callback(new Error('设备序列号不存在'))
+              return
             }
-          })
+            DeviceIsExisted({deviceKey: value}).then(res => {
+              if (res.data) {
+                // 校验设备是否被绑定过
+                DeviceIsAdded({deviceKey: value}).then(res2 => {
+                  if (res2.data) {
+                    callback(new Error('设备已存在'))
+                  } else {
+                    callback()
+                  }
+                  this.deviceInfo.type = dType.type
+                  // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
+                  callback()
+                }).catch(err => {
+                  this.deviceInfo.type = ''
+                  this.deviceInfo.exist = ''
+                  callback(new Error(err.msg || '服务器异常'))
+                })
+              } else {
+                this.deviceInfo.exist = ''
+                this.deviceInfo.type = ''
+                callback(new Error('设备序列号不存在'))
+              }
+            })
+          } else {
+            callback(new Error('设备序列号不存在'))
+          }
         } else {
           this.deviceInfo.type = ''
           this.deviceInfo.exist = ''
@@ -168,20 +169,9 @@ export default {
         if (value.length > 20) {
           callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
-          // 一体机、服务器名称验重
-          let url = '/merchant/device/alias/exist'
+          // 服务器名称验重
           let subData = {name: value}
-          switch (this.dialogType) {
-            case 3:
-              // 摄像头名称验重
-              url = '/device/existName'
-              subData = {
-                name: value,
-                serverKey: this.addCameraForm.serverKey
-              }
-              break
-          }
-          this.$http(url, subData, false).then(res => {
+          DeviceAliasExist(subData).then(res => {
             res.data ? callback(new Error('设备别名已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
@@ -201,7 +191,7 @@ export default {
         title: '添加设备'
       },
       equipmentEmpty: false,
-      addCameraVisible: false, // 添加服务器dialog 是否显示
+      addCameraVisible: false, // 添加摄像头dialog 是否显示
       addServerVisible: false, // 添加服务器dialog 是否显示
       dialogType: 1, // 1 ：服务器 2：一体机 3：摄像头
       deviceInfo: { // 一体机设备信息
@@ -211,23 +201,6 @@ export default {
       addServerForm: { // 添加服务器表单对象
         deviceKey: '',
         deviceName: ''
-      },
-      addCameraForm: { // 添加服务器表单对象
-        serverKey: '',
-        deviceKey: '',
-        type: '',
-        name: ''
-      },
-      addCameraRules: {
-        deviceKey: [
-          {required: true, validator: validateKey, trigger: ['change', 'blur']}
-        ],
-        name: [
-          {required: true, validator: validateName, trigger: 'blur'}
-        ],
-        serverKey: [
-          {required: true, message: '请选择服务器', trigger: 'blur'}
-        ]
       },
       addServerRules: {
         deviceKey: [
@@ -267,7 +240,7 @@ export default {
         this.$http('/merchant/device/create', data).then(res => {
           this.dialogFormVisible = false
           this.$tip('创建成功')
-          this.getMineEquipment()
+          this.getServerEquipment()
         }).catch(() => {
           this.dialogFormVisible = false
         })
@@ -316,49 +289,12 @@ export default {
         this.dialogFormVisible = true
       }
     },
-    // 获取自有设备
-    getMineEquipment (page) {
+    // 获取服务器列表
+    getServerEquipment (page) {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
-      this.$http('/device/list', {index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
+      GetServerDeviceList({index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination
-      })
-    },
-    // 解绑社群
-    unBindCommunity (value, index) {
-      this.$affirm({
-        confirm: '确定',
-        cancel: '返回',
-        text: '将设备从社群解绑，您将无法查看该设备数据/无法操作设备。<br>确定要将【<span class="maxw110 ellipsis">' + value.deviceName + '</span>】设备从【<span class="maxw110 ellipsis">' + value.groupName + '</span>】社群解绑？'
-      }, (action, instance, done) => {
-        if (action === 'confirm') {
-          done()
-          this.$http('/device/unbinding', {
-            deviceKey: value.deviceKey,
-            groupGuid: value.groupGuid
-          }).then(res => {
-            this.$tip('解绑成功')
-            this.$set(value, 'groupGuid', null)
-            this.$refs.deviceItem[index].getDeviceState(value, value.deviceStatus === undefined ? null : undefined)
-          })
-        } else {
-          // 隐藏hover 提示信息
-          setTimeout(() => { value.tipShow = false }, 5)
-          done()
-        }
-      })
-    },
-    // 绑定社群
-    bindCommunity (data) {
-      this.dialogFormVisible = false
-      this.$load('设备绑定中...')
-      data.name = data.deviceName
-      this.$http('/device/binding', data).then(res => {
-        this.$load().close()
-        this.$tip('绑定成功')
-        this.getMineEquipment(this.pagination.index)
-      }).catch(() => {
-        this.$load().close()
       })
     },
     // 添加服务器
@@ -387,7 +323,7 @@ export default {
           this.$http('/merchant/device/create', subData).then(res => {
             this.addAioVisible = false
             this.$tip('创建成功')
-            this.getMineEquipment()
+            this.getServerEquipment()
           }).catch(() => {
             this.addAioVisible = false
           })
@@ -412,21 +348,22 @@ export default {
         this.$refs.addCameraForm.clearValidate()
       })
     },
-    addCameraDevice (formName) {
-      // console.log(this.addCameraForm)
-      if (this.serverList.length) {
-        this.$refs[formName].validate(valid => {
-          if (valid) {
-            this.addCameraForm.type = this.deviceInfo.type
-            this.$http('/device/deviceCamera/info/add', this.addCameraForm).then(res => {
-              this.$tip('添加成功')
-              this.addCameraVisible = false
-            })
-          }
-        })
-      } else {
-        this.$router.push('/equipment/list/server')
-      }
+    // 重置添加服务器表单
+    resetForm () {
+      this.$refs.addServerForm.resetFields()
+    },
+    // 添加服务器
+    addServerDevice (formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          this.addServerForm.type = this.deviceInfo.type
+          AddDevice(this.addServerForm).then(res => {
+            this.$tip('添加成功')
+            this.addServerVisible = false
+            this.getServerEquipment()
+          })
+        }
+      })
     },
     // 第一次进入设备列表，给出操作提示，点击页面后提示消失
     firstCreate () {
@@ -448,17 +385,8 @@ export default {
     }
   },
   created () {
-    this.$http('/firstCheck', {name: 'insight_device_list_first'}).then(res => {
-      if (res.data) {
-        this.btnArray.map(item => {
-          item.showPopover = true
-          return item
-        })
-        window.addEventListener('click', this.firstCreate)
-      }
-    })
     this.isSearch = this.$route.name === 'searchMine'
-    this.getMineEquipment()
+    this.getServerEquipment()
   },
   filters: {
     type: function (val) {
@@ -519,14 +447,6 @@ export default {
     }
   },
   watch: {
-    '$route': {
-      handler (val) {
-        this.isSearch = (val.name === 'searchMine')
-        this.equipmentList = []
-        this.getMineEquipment()
-      },
-      deep: true
-    },
     addAioVisible (val) {
       if (val) {
         this.addAioForm = {

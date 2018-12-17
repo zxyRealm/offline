@@ -179,6 +179,7 @@ export default {
       }
     },
     closeDialog () {
+      this.$emit('close')
       this.$emit('update:visible', false)
       if (this.$refs.dialogForm) {
         this.$refs.dialogForm.clearValidate()

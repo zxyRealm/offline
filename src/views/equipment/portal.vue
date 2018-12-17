@@ -34,7 +34,7 @@
         align="center"
         label="操作">
         <template slot-scope="scope">
-          <a href="javascript:void(0)">添加</a>
+          <a href="javascript:void(0)" @click="showAddDialog(scope.row)">添加</a>
         </template>
       </el-table-column>
     </el-table>
@@ -46,14 +46,45 @@
       layout="total,sizes,prev, pager, next, jumper"
       :total="pagination.total">
     </el-pagination>
+
+    <!--添加设备弹框-->
+    <ob-dialog-form
+      title="添加设备"
+      :visible.sync="AddDeviceVisible"
+      :showButton="false"
+    >
+      <div slot="content" class="device__dialog--list">
+        <div class="c-grey fs12 g-mb12">设备名称</div>
+        <el-scrollbar>
+          <el-checkbox-group
+            v-model="checkedItems">
+            <el-checkbox
+              v-for="(item,$index) in ownDeviceList"
+              :label="item"
+              :disabled="item.disabled"
+              :key="$index">{{item.name}}</el-checkbox>
+          </el-checkbox-group>
+        </el-scrollbar>
+      </div>
+      <div slot="footer" class="dialog-footer mt16">
+        <el-button class="cancel" @click="AddDeviceVisible = false">返 回</el-button>
+        <el-button class="affirm" type="primary" @click="portalAddDevice()">添加</el-button>
+      </div>
+    </ob-dialog-form>
   </div>
 </template>
 
 <script>
+import {GetOwnDeviceList} from '../../api/device'
+
 export default {
   name: 'portal',
   data () {
     return {
+      checkedItems: [],
+      ownDeviceList: [], // 自有设备列表
+      AddDeviceVisible: false,
+      currentPortal: '', // 当前出入口信息
       currentGroup: '', // 当前选中社群
       groupList: [
         {name: '城西'}
@@ -73,6 +104,16 @@ export default {
   methods: {
     // 获取出入口设备列表
     getPortalEquipment () {
+    },
+    // 添加出入口设备
+    portalAddDevice () {},
+    // 显示添加设备弹框
+    showAddDialog (row) {
+      GetOwnDeviceList().then(res => {
+        this.ownDeviceList = res.data.content || []
+        this.currentPortal = row
+        this.AddDeviceVisible = true
+      })
     },
     deletePortalDevice () {
       this.$affirm({
@@ -98,7 +139,28 @@ export default {
     width: 154px;
   }
 }
-  .table__scrollbar--wrap{
+/*添加设备弹框*/
+.device__dialog--list{
+  width: 320px;
+  height: 240px;
+  margin: 0 auto;
+  background: #f8f8f8;
+  padding: 20px;
+  box-sizing: border-box;
+  .el-scrollbar {
+    height: calc(100% - 30px);
+    overflow: hidden;
+    .el-checkbox{
+      display: block;
+      margin-bottom: 12px;
+      &+.el-checkbox{
+        margin-left: 0;
+      }
+    }
+  }
+}
+
+.table__scrollbar--wrap{
     height: 80px;
     overflow: hidden;
     .table__device--list{
