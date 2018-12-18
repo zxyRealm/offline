@@ -1,0 +1,305 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OrbitControls</title>
+  <script src="/static/three/three.min.js"></script>
+  <script src="/static/three/OrbitControls.js"></script>
+  <script src="/static/three/SVGLoader.js"></script>
+  <style>
+    html, body{
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+<div id="WebGL-output"></div>
+<script type="text/javascript">
+  let renderer, scene, camera;
+  let scale = 0.5; // 缩放比
+  let clock = new THREE.Clock();
+  let mixArr = [], pointArr = new Array(1000)
+  let floorHeight = 35
+  let floorArr = [-3*floorHeight, -2*floorHeight, -floorHeight, 0, floorHeight, 2*floorHeight, 3*floorHeight, 4*floorHeight, 5*floorHeight, 6*floorHeight]
+  function init() {
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth-160, window.innerHeight-100);
+    renderer.setClearColor('#ffffff', 1.0);
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color('#232027');
+
+    camera = new THREE.PerspectiveCamera(45, (window.innerWidth-160) / (window.innerHeight-100), 1, 1000 );
+    camera.position.set( 220, 140, 330 );
+    scene.add(camera);
+
+    let light = new THREE.PointLight( 0xffffff, 0.8 );
+    camera.add( light );
+
+    let axesHelper = new THREE.AxesHelper( 10 );
+    scene.add( axesHelper );
+
+    document.getElementById("WebGL-output").appendChild(renderer.domElement);
+    window.addEventListener('resize', onWindowResize, false);
+    window.addEventListener('mousemove', onDocumentMouseMove, false)
+    window.addEventListener('click', onDocumentMouseClick, false)
+
+    addControl();
+
+    let group = new THREE.Group();
+    group.position.set(-290*scale, 0, -241*scale)
+    scene.add(group);
+
+
+    // 创建楼层图片
+    loadSvg(group, floorArr[9], '10');
+    loadSvg(group, floorArr[8], '9');
+    loadSvg(group, floorArr[7], '8');
+    loadSvg(group, floorArr[6], '7');
+    loadSvg(group, floorArr[5], '6');
+    loadSvg(group, floorArr[4], '5');
+    loadSvg(group, floorArr[3], '4');
+    loadSvg(group, floorArr[2], '3');
+    loadSvg(group, floorArr[1], '2');
+    loadSvg(group, floorArr[0], '1');
+
+  }
+
+  function onWindowResize () {
+    camera.aspect = (window.innerWidth-160) / (window.innerHeight-100)
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth-160, window.innerHeight-100)
+  }
+
+  function onDocumentMouseClick(event) {
+    let vector = new THREE.Vector3((event.clientX / (window.innerWidth-160)) * 2 - 1, -( event.clientY / (window.innerHeight-100) ) * 2 + 1, 0.5);
+    vector = vector.unproject(camera);
+    let raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+    let intersects = raycaster.intersectObjects(planeList);
+    if (intersects.length > 0) {
+      window.parent.postMessage({
+        cmd: 'change-floor',
+        params: {
+          data: intersects[0].object.position.y / 35 + 1
+        }
+      }, '*');
+    }
+  }
+
+  function onDocumentMouseMove () {
+    let vector = new THREE.Vector3(( event.clientX / (window.innerWidth-160) ) * 2 - 1, -( event.clientY / (window.innerHeight-100) ) * 2 + 1, 0.5);
+    vector = vector.unproject(camera);
+    let raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+    let intersects = raycaster.intersectObjects(planeList);
+    if (intersects.length > 0) {
+      for (let i = 0; i < planeList.length; i++) {
+        if (intersects[0].object === planeList[i]) {
+          planeList[i].material.color = new THREE.Color('#162b68')
+          planeList[i].material.opacity = 0.7
+        } else {
+          planeList[i].material.color = new THREE.Color('#091331')
+          planeList[i].material.opacity = 0.5
+          planeList[i].material.side = THREE.DoubleSide
+        }
+      }
+    }else{
+      for (let i = 0; i < planeList.length; i++) {
+        planeList[i].material.color = new THREE.Color('#091331')
+        planeList[i].material.opacity = 0.5
+        planeList[i].material.side = THREE.DoubleSide
+      }
+    }
+  }
+
+  // 添加Orbit控制器
+  function addControl() {
+    controls = new THREE.OrbitControls(camera);
+    controls.dampingFactor = 0.25;
+    controls.enableZoom = true;
+    controls.enableRotate = false;
+    controls.screenSpacePanning = true;
+  }
+
+  // 加载SVG图片
+  function loadSvg (group, positionY, image) {
+    let svgLoader = new THREE.SVGLoader()
+    svgLoader.load('/static/origin-floor/' + image + '.svg', (paths) => {
+      for ( let i = 0; i < paths.length; i ++ ) {
+        let path = paths[i];
+        let shapes = path.toShapes(true);
+        for (let j = 0; j < shapes.length; j++) {
+          let shape = shapes[j];
+          if (i === 0) {
+            addShape(shape, group, '#091331', positionY);
+          } else {
+            addLineShape(shape, group, 'rgb(59, 180, 243)', positionY);
+          }
+        }
+      }
+    })
+  }
+
+  let planeList = [];
+  function addShape(shape, group, color, y) {
+    let geometry = new THREE.ShapeBufferGeometry( shape );
+    let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }));
+    mesh.position.set(0, y, 0);
+    mesh.rotation.set(0.5*Math.PI, 0, 0);
+    mesh.scale.set(scale, scale, scale);
+    planeList.push(mesh);
+    group.add(mesh);
+  }
+
+  let meshList = [];
+  // 绘制单层平面图
+  function addLineShape( shape, group, color, y) {
+    shape.autoClose = true;
+    let points = shape.getPoints();
+    let geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
+
+    let line = new THREE.Line(geometryPoints, new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.4  }));
+    line.position.set(0, y, 0);
+    line.rotation.set(0.5*Math.PI, 0, 0);
+    line.scale.set(scale, scale, scale);
+    meshList.push(line)
+    group.add(line );
+  }
+
+  // 创建闪光粒子canvas
+  function generateSprite() {
+    let canvas = document.createElement('canvas');
+    canvas.width = 16;
+    canvas.height = 16;
+
+    let context = canvas.getContext('2d');
+    let gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.2, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.4, 'rgba(157,159,13,1)');
+    gradient.addColorStop(0.7, 'rgba(0,0,0,1)');
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    let texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }
+
+  let geometryArr = [];
+  let materialArr = [];
+  // 创建闪光粒子: 接收从父页面中传递进来的值
+  function createPointCloud(i) {
+
+    if (i<100) {
+      geometryArr[i] = new THREE.CircleGeometry(4, 50, 32)
+      materialArr[i] = new THREE.MeshBasicMaterial({
+        color: new THREE.Color('#fcff15'),
+        transparent: true,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        map: generateSprite()
+      });
+
+      pointArr[i] = new THREE.Mesh(geometryArr[i], materialArr[i]);
+      pointArr[i].sortParticles = true;
+      pointArr[i].position.x = getRandom(-100, 100)
+      pointArr[i].position.y = floorArr[getRandom(-1, 9)]
+      pointArr[i].position.z = getRandom(-30, 30)
+      pointArr[i].rotation.x = 0.5*Math.PI
+      scene.add(pointArr[i]);
+      createAnimate(pointArr[i], i)
+    } else {
+      i = i%100
+      pointArr[i].position.x = getRandom(-100, 100)
+      pointArr[i].position.y = floorArr[getRandom(-1, 9)]
+      pointArr[i].position.z = getRandom(-30, 30)
+      pointArr[i].rotation.x = 0.5*Math.PI
+      createAnimate(pointArr[i], i)
+    }
+  }
+
+  // 获取随机数方法
+  function getRandom(n,m){
+    let n1 = Number(n); //强制转换成数字
+    let m2 = Number(m);
+    if(isNaN(n1) || isNaN(m2)){ //判断是否为有效数字 ，其中一个不是有效数字就返回[0,1)之间的随机小数
+      return math.random();
+    }
+    if(n1 > m2){ //如果n>m则交换
+      let temp=n1;
+      n1 = m2;
+      m2 = temp;
+    }
+    return Math.round(Math.random()*(m2-n1)+n1);
+
+  }
+
+  // 创建闪烁动画
+  function createAnimate (knot, i) {
+    let scaleKF = new THREE.VectorKeyframeTrack( '.scale', [ 0, 0.15, 0.3, 0.5 ], [ 0, 0, 0, 1.4, 1.4, 1.4, 1, 1, 1, 0, 0, 0 ] );
+    let opacityKF = new THREE.NumberKeyframeTrack( '.material.opacity', [ 0, 0.15, 0.3, 0.5 ], [ 0.3, 0.4, 1, 0 ] );
+    let clip = new THREE.AnimationClip( 'Action', 0.5, [ scaleKF, opacityKF ] );
+    let mixer = new THREE.AnimationMixer( knot );
+    let clipAction = mixer.clipAction( clip );
+    mixArr[i] = mixer
+    clipAction.play();
+    clipAction.loop = THREE.LoopOnce
+  }
+
+  function render() {
+    requestAnimationFrame( render );
+    let delta = clock.getDelta();
+    for (let i = 0; i < mixArr.length; i++) {
+      mixArr[i].update( delta );
+    }
+    renderer.render(scene, camera)
+  }
+
+  function dispose(o) {
+    try {
+      if (o && typeof o === 'object') {
+        if (Array.isArray(o)) {
+          o.forEach(dispose);
+        } else
+        if (o instanceof THREE.Object3D) {
+          dispose(o.geometry);
+          dispose(o.material);
+          if (o.parent) {
+            o.parent.remove(o);
+          }
+          dispose(o.children);
+        } else
+        if (o instanceof THREE.Geometry) {
+          o.dispose();
+        } else
+        if (o instanceof THREE.Material) {
+          o.dispose();
+          dispose(o.materials);
+          dispose(o.map);
+          dispose(o.lightMap);
+          dispose(o.bumpMap);
+          dispose(o.normalMap);
+          dispose(o.specularMap);
+          dispose(o.envMap);
+        } else
+        if (typeof o.dispose === 'function') {
+          o.dispose();
+        } else {
+          Object.values(o).forEach(dispose);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  ///////////////////
+  ////// 传值 ///////
+  //////////////////
+
+  init()
+  render()
+</script>
+</body>
+</html>
