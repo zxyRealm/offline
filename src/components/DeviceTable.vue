@@ -2,12 +2,13 @@
   <div>
     <el-table
       border
+      empty-text="暂无设备"
       :data="data"
     >
       <el-table-column
         label="名称">
         <template slot-scope="scope">
-          <span :class="isMine?'ellipsis-20':'ellipsis'">{{scope.row.deviceName || '暂无'}}</span>
+          <span :class="isMine?'ellipsis-20':'ellipsis'">{{scope.row.name || '暂无'}}</span>
           <el-popover
               v-if="isMine"
               placement="top"
@@ -35,6 +36,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        width="90"
         label="状态">
         <template slot-scope="scope">
           <span :class="stateClass(scope.row.deviceStatus)">{{scope.row.deviceStatus | lineState}}</span>
@@ -50,35 +52,24 @@
         width="80"
         label="类型">
         <template slot-scope="scope">
-          {{scope.row.deviceType | deviceType}}
+          {{scope.row.type | deviceType}}
         </template>
       </el-table-column>
-      <!--<el-table-column-->
-        <!--width="106"-->
-        <!--label="用途">-->
-        <!--<template slot-scope="scope">-->
-          <!--{{scope.row.deviceType | deviceType('use')}}-->
-        <!--</template>-->
-      <!--</el-table-column>-->
-      <!--<el-table-column-->
-        <!--v-if="$route.name !== 'equipmentChildren'"-->
-        <!--label="绑定社群">-->
-        <!--<template slot-scope="scope">-->
-          <!--<span-->
-            <!--:class="{'ellipsis-28': isMine,'ellipsis': !isMine, 'c-grey': !scope.row.groupName}">-->
-            <!--{{scope.row.deviceType === 1 ? '—': scope.row.groupName || '暂无'}}-->
-          <!--</span>-->
-          <!--<uu-icon-->
-            <!--:type="scope.row.groupName ? 'unbinding' : 'binding'"-->
-            <!--v-if="isMine && scope.row.deviceType !== 1"-->
-            <!--@click.native="showDialogForm(scope.row, scope.$index)"></uu-icon>-->
-        <!--</template>-->
-      <!--</el-table-column>-->
+      <el-table-column
+        v-if="dataType === 'server'"
+        width="106"
+        align="center"
+        prop="deviceNum"
+        label="下辖设备数量">
+        <template slot-scope="scope">
+          <router-link :to="{name: 'equipment'}">{{scope.row.deviceNum}}</router-link>
+        </template>
+      </el-table-column>
       <el-table-column
         v-if="isMine"
         label="所属服务器">
         <template slot-scope="scope">
-          <span class="ellipsis-28">{{scope.row.deviceType === 1? scope.row.deviceNum: '—'}}</span>
+          <span class="ellipsis-28">{{scope.row.serverName || '—'}}</span>
           <router-link v-if="scope.row.deviceType === 1" :to="($route.name === 'equipment' ? '/equipment/mine' : '/equipment') + '/service/' + scope.row.deviceKey + '?name=' + scope.row.deviceName">{{isMine ? '管理' : '查看'}}</router-link>
         </template>
       </el-table-column>
@@ -86,44 +77,51 @@
         min-width="150"
         label="操作">
         <template slot-scope="scope">
-          <template v-if="isHandle">
             <template v-if="scope.row.deviceType !== 1">
-              <template v-if="scope.row.deviceStatus === undefined">
-                <span class="c-grey"><a href="javascript:void (0)" @click="getDeviceState(scope.row)">获取状态</a>后可操作设备</span>
-              </template>
-              <template v-else>
-                 <span
-                   v-for="(item,$index) in filterBtn(scope.row)"
-                   :key="$index"
-                   :disabled="!btnState(scope.row,item).state"
-                   @click="handleDevice(item, scope.row)"
-                   :class="btnState(scope.row,item).going?item +' ongoing':item"
-                   class="table__btn">
-                    {{btnState(scope.row,item).text}}
-                 </span>
-              </template>
+              <el-popover
+                popper-class="table__popper--help"
+                placement="top"
+                trigger="hover">
+                <ul class="order-list">
+                  <li v-show="scope.row.deviceStatus===undefined">尚未【获取】设备状态，无法操作</li>
+                  <li v-if="scope.row.isHandle===false">{{!showDelete ? '尚无该设备的操作权限，无法操作' : '设备操作权限已上送，无法操作'}}</li>
+                  <li v-else-if="scope.row.deviceStatus">{{scope.row.deviceStatus | handleMsg}}</li>
+                </ul>
+                <uu-icon
+                  :style="{visibility: scope.row.deviceStatus === 0 ? 'hidden' : 'visible'}"
+                  class="g-mr10"
+                  slot="reference"
+                  type="problem"></uu-icon>
+              </el-popover>
+              <span
+                v-for="(item,$index) in filterBtn(scope.row)"
+                :key="$index"
+                :disabled="!btnState(scope.row,item).state"
+                @click="handleDevice(item, scope.row)"
+                :class="btnState(scope.row,item).going?item +' ongoing':item"
+                class="table__btn">
+                {{btnState(scope.row,item).text}}
+              </span>
             </template>
-            <template v-else>
-              <el-upload
-                :data="{serverKey: scope.row.deviceKey}"
-                name="excelFile"
-                class="import--excel"
-                :action="baseApi + '/manage/device/deviceCamera/info/addBatch'"
-                :on-progress="handleProgress"
-                :before-upload="beforeUpload"
-                :on-success="handleSuccess"
-                :on-error="handleError"
-                :multiple="false"
-                :limit="1"
-                :show-file-list="false"
-                :file-list="fileList">
-                <a href="javascript:void (0)" class="table_btn g-mr18">导入设备</a>
-              </el-upload>
-              <a href="javascript:void (0)" class="table_btn g-mr18" @click="addCamera(scope.row)">手动添加</a>
-            </template>
-            <span v-if="isMine" class="error-color delete_btn fr" @click="deleteEquipment(scope.row)">删除</span>
-          </template>
-          <span class="c-grey" v-else>未索权<br>无设备操作权限</span>
+            <!--<template v-else>-->
+              <!--<el-upload-->
+                <!--:data="{serverKey: scope.row.deviceKey}"-->
+                <!--name="excelFile"-->
+                <!--class="import&#45;&#45;excel"-->
+                <!--:action="baseApi + '/manage/device/deviceCamera/info/addBatch'"-->
+                <!--:on-progress="handleProgress"-->
+                <!--:before-upload="beforeUpload"-->
+                <!--:on-success="handleSuccess"-->
+                <!--:on-error="handleError"-->
+                <!--:multiple="false"-->
+                <!--:limit="1"-->
+                <!--:show-file-list="false"-->
+                <!--:file-list="fileList">-->
+                <!--<a href="javascript:void (0)" class="table_btn g-mr18">导入设备</a>-->
+              <!--</el-upload>-->
+              <!--<a href="javascript:void (0)" class="table_btn g-mr18" @click="addCamera(scope.row)">手动添加</a>-->
+            <!--</template>-->
+            <span class="error-color delete_btn fr" @click="deleteEquipment(scope.row)">删除</span>
         </template>
       </el-table-column>
     </el-table>
@@ -177,6 +175,8 @@
 <script>
 import {validateRule} from '@/utils/validate'
 import {simplifyGroups} from '../utils'
+import {ChangeDeviceAlias, DeviceAliasExist, DeleteDevice, GetDeviceState, DeviceHandleUrl, DeviceUpgrade} from '../api/device'
+
 const UPLOAD_API = process.env.UPLOAD_API
 export default {
   name: 'device-table',
@@ -192,6 +192,14 @@ export default {
     isHandle: {
       type: Boolean,
       default: true
+    },
+    showDelete: {
+      type: Boolean,
+      default: false
+    },
+    dataType: { // 数据类型 mine 自有设备 other 非自有设备列表 server 服务器列表
+      type: String,
+      default: 'mine'
     }
   },
   data () {
@@ -202,7 +210,7 @@ export default {
         if (value.length > 20) {
           callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
-          this.$http('/merchant/device/alias/exist', {name: value}, false).then(res => {
+          DeviceAliasExist({name: value}).then(res => {
             res.data ? callback(new Error('设备别名已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
@@ -252,7 +260,9 @@ export default {
   methods: {
     // 显示修改昵称popover
     showPopover (index) {
-      this.equipmentForm = JSON.parse(JSON.stringify(this.data[index]))
+      let data = JSON.parse(JSON.stringify(this.data[index]))
+      data.deviceName = data.name
+      this.equipmentForm = data
     },
     // 隐藏修改昵称popover, 隐藏时清除校验结果，避免展示时显示隐藏前的校验结果
     hidePopover (index) {
@@ -264,10 +274,11 @@ export default {
     changeEquipmentName (index) {
       this.$refs['tableForm' + index].validate((valid) => {
         if (valid) {
-          this.$http('/merchant/device/alias', this.equipmentForm).then(res => {
+          // ChangeDeviceAlias(this.equipmentForm).then()
+          ChangeDeviceAlias(this.equipmentForm).then(res => {
             this.$tip('修改成功')
             this.$set(this.data[index], 'popover', false)
-            this.data[index].deviceName = this.equipmentForm.deviceName
+            this.data[index].name = this.equipmentForm.deviceName
           })
         } else {
           console.log('error submit')
@@ -283,11 +294,12 @@ export default {
       if (show === null) {
         return
       }
-      this.$http('/device/state/use', {deviceKey: value.deviceKey}).then(res => {
-        if (this.data.deviceStatus !== undefined && show) {
+      // GetDeviceState({deviceKey: value.deviceKey})
+      GetDeviceState({deviceKey: value.deviceKey}).then(res => {
+        if (value.deviceStatus !== undefined && show) {
           this.$tip('刷新成功')
         }
-        // res.data = Math.floor(Math.random() * 7)
+        res.data = Math.floor(Math.random() * 7)
         console.log('state', res.data)
         if (res.data !== 1) {
           if (value.groupGuid) {
@@ -486,15 +498,21 @@ export default {
     // 过滤展示操作按钮
     filterBtn (data) {
       let showBtn = []
-      showBtn = this.btnList.map(item => {
+      let btnList = ['run', 'reboot', 'upgrade', 'reset']
+      if (this.dataType === 'server') { // 展示服务器列表时只有升级功能
+        btnList = ['upgrade']
+      }
+      showBtn = btnList.map(item => {
         if (this.btnState(data, item).going) {
           return item
         }
       }).filter(item => item)
-      return showBtn.length ? showBtn : this.btnList
+      return showBtn.length ? showBtn : btnList
     },
     // 设备重启/重置/升级
     handleDevice (type, value) {
+      let state = this.btnState(value, type).state
+      if (!state) return
       let [des, url] = ['', '']
       switch (type) {
         case 'upgrade':
@@ -530,20 +548,20 @@ export default {
             </span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
         return false
       }
-      this.$affirm({text: `确定${des}设备【<span class="maxw200 ellipsis">${value.deviceName}</span>】?`},
-        (action, instance, done) => {
-          if (action === 'confirm') {
-            done()
-            let subData = {deviceKey: value.deviceKey}
-            if (type === 'run') subData.operationCode = value.deviceStatus === 5 ? 0 : 1
-            // 升级时单独处理
-            if (type === 'upgrade') {
-              this.currentDevice = value
-              this.deviceUpdateVisible = true
-              // 获取设备历史版本信息
-            } else {
+      if (type === 'upgrade') {
+        this.currentDevice = value
+        this.deviceUpdateVisible = true
+        // 获取设备历史版本信息
+      } else {
+        this.$affirm({text: `确定${des}设备【<span class="maxw200 ellipsis">${value.deviceName}</span>】?`},
+          (action, instance, done) => {
+            if (action === 'confirm') {
+              done()
+              let subData = {deviceKey: value.deviceKey}
+              if (type === 'run') subData.operationCode = value.deviceStatus === 5 ? 0 : 1
+              // 升级时单独处理
               this.$load(`正在${des}中...`)
-              this.$http(url, subData).then(res => {
+              DeviceHandleUrl(url, subData).then(res => {
                 this.$load().close()
                 switch (type) {
                   case 'reboot':
@@ -570,22 +588,26 @@ export default {
                   this.$set(value, 'deviceStatus', error.data === null ? 1 : error.data)
                 }
               })
+            } else {
+              done()
             }
-          } else {
-            done()
-          }
-        })
+          })
+      }
     },
     // 删除设备
     deleteEquipment (item) {
+      let content = {
+        title: this.dataType === 'server' ? '删除服务器' : '删除设备',
+        text: this.dataType === 'server' ? '删除服务器后，服务器上的设备也将被删除' : '删除设备后，设备上的信息将被清空'
+      }
       this.$affirm(
         {
-          confirm: '确定',
-          cancel: '返回',
-          text: `确定删除设备【<span class="maxw200 ellipsis">${item.deviceName}</span>】？`
+          title: content.title,
+          confirm: '删除',
+          text: content.text
         }, (action, instance, done) => {
           if (action === 'confirm') {
-            this.$http('/merchant/device/delete', {deviceKey: item.deviceKey}).then(res => {
+            DeleteDevice({deviceKey: item.deviceKey}).then(res => {
               this.$tip('删除成功')
               this.$emit('refresh')
             })
@@ -632,7 +654,11 @@ export default {
     },
     deviceUpdate () {
       if (this.selectVersion) {
-        console.log(this.selectVersion)
+        console.log(this.selectVersion, this.currentDevice)
+        DeviceUpgrade({deviceKey: this.currentDevice.deviceKey}).then(res => {
+          this.$set(this.currentDevice, 'deviceStatus', 4)
+          this.deviceUpdateVisible = false
+        })
       } else {
         this.$tip('请选择要升级的版本', 'error')
       }
@@ -647,6 +673,35 @@ export default {
     }
   },
   filters: {
+    handleMsg (val) {
+      let msg = ''
+      switch (val) {
+        case 1:
+          msg = '设备状态异常，无法操作'
+          break
+        case 2:
+          msg = '设备重启中，无法进行其他操作'
+          break
+        case 3:
+          msg = '设备重置中，无法进行其他操作'
+          break
+        case 4:
+          msg = '设备升级中，无法进行其他操作'
+          break
+        case 5:
+          msg = '设备未启用，无法操作'
+          break
+        case 6:
+          msg = '设备启用中，无法进行其他操作'
+          break
+        case 7:
+          msg = '设备禁用中，无法进行其他操作'
+          break
+        default:
+          msg = ''
+      }
+      return msg
+    }
   }
 }
 </script>

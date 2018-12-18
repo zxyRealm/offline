@@ -391,8 +391,6 @@ button, input {
 }
 //确定按钮样式
 .el-button {
-  padding-left: 0;
-  padding-right: 0;
   &[disabled] {
     background: $disable;
     box-shadow: 0 2px 4px 0 #161418;
@@ -401,6 +399,8 @@ button, input {
     border: none;
     height: 30px;
     width: 150px;
+    padding-left: 0;
+    padding-right: 0;
     background-position: center center;
     background-repeat: no-repeat;
     > span {

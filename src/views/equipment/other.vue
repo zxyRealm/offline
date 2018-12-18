@@ -2,7 +2,10 @@
   <div class="equipment__data--list">
     <!--设备搜索-->
     <div class="device__search--wrap">
-      <el-input placeholder="设备名称/序列号" v-model="searchValue">
+      <el-input
+        @keyup.enter.native="search"
+        @blur="search"
+        placeholder="设备名称/序列号" v-model="searchValue">
         <i
           class="el-icon-search el-input__icon"
           slot="suffix"
@@ -10,15 +13,9 @@
         </i>
       </el-input>
     </div>
-    <ob-list-empty
-      top="106px"
-      v-if="!equipmentList.length"
-      :supply="!isSearch ? '少量添加点击【添加一体机】按钮，大批量添加点击【添加服务器】按钮。' : ''"
-      :text="isSearch?'查询不到该设备':'暂无设备'">
-    </ob-list-empty>
-    <div class="data-list-wrap" v-if="equipmentList.length">
+    <div class="data-list-wrap">
       <device-table
-        @refresh="getMineEquipment"
+        @refresh="getOtherEquipment"
         v-model="equipmentList"
       >
       </device-table>
@@ -37,6 +34,7 @@
 import {mapState} from 'vuex'
 // import {simplifyGroups, byKeyDeviceType} from '@/utils'
 import DeviceTable from '@/components/DeviceTable'
+import {GetOtherDeviceList} from '../../api/device'
 // import {validateRule} from '../../utils/validate'
 export default {
   name: 'index',
@@ -62,16 +60,13 @@ export default {
   methods: {
     // 自有设备搜索
     search (val) {
-      if (val) {
-        this.$router.push(`/equipment/mine/search/${val}`)
-      } else {
-        this.$router.push('/equipment/mine')
-      }
+      this.getOtherEquipment(1)
     },
-    // 获取自有设备
-    getMineEquipment (page) {
+    // 获取非自有设备
+    getOtherEquipment (page) {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
-      this.$http('/device/list', {index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
+      if (!this.currentManage.id) return
+      GetOtherDeviceList({parentId: this.currentManage.id, index: page, searchText: this.searchValue || '', length: 8}).then(res => {
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination
       })
@@ -88,7 +83,9 @@ export default {
       }
     })
     this.isSearch = this.$route.name === 'searchMine'
-    this.getMineEquipment()
+  },
+  mounted () {
+    this.getOtherEquipment()
   },
   filters: {
     type: function (val) {
@@ -103,7 +100,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loading', 'aliveState']),
+    ...mapState(['loading', 'aliveState', 'currentManage']),
     textState: {
       get () {
         let [cName, text] = ['', '']
@@ -146,11 +143,9 @@ export default {
     }
   },
   watch: {
-    '$route': {
+    currentManage: {
       handler (val) {
-        this.isSearch = (val.name === 'searchMine')
-        this.equipmentList = []
-        this.getMineEquipment()
+        this.getOtherEquipment()
       },
       deep: true
     }
@@ -165,7 +160,7 @@ export default {
 
 <style lang="scss" scoped>
   .equipment__data--list{
-    /*height: 100%;*/
+    height: calc(100% - 116px);
   }
   .device__dialog--wrap{
     .ad--item{

@@ -1,6 +1,7 @@
 <template>
   <div class="three__floor--wrap">
     <!--楼宇3D/平面分布图展示 start-->
+    <!--没有管理层信息是空数据状态 使用class="empty--data"-->
     <div class="floor__data--wrap">
       <el-scrollbar>
         <div class="float-block clearfix">
@@ -13,12 +14,13 @@
             <div class="floor__sub--title">
               男女比例
             </div>
-            <div class="sex__data--wrap vam empty--data">
+            <div class="sex__data--wrap vam">
               <div>
                 <span class="gc--color">38%</span>
                 <p><img width="15" src="@/assets/three/girl_icon@2x.png" alt="">女</p>
               </div>
-              <img width="48" class="sex__ratio--icon" src="@/assets/three/sex_ratio_icon.png" alt="">
+              <div class="sex__ratio--icon"></div>
+              <!--<img width="48" class="sex__ratio&#45;&#45;icon" src="@/assets/three/sex_ratio_icon.png" alt="">-->
               <div>
                 <p><img width="15" src="@/assets/three/boy_icon@2x.png" alt="">男</p>
                 <span class="bc--color">62%</span>
@@ -54,7 +56,18 @@
           <div class="floor__sub--title">
           业态客流排行榜
           </div>
-          <div>
+          <div class="clearfix">
+            <div class="industry__rank--wrap">
+              <div class="rank-items">
+                <span>服饰 <br> 19%</span>
+              </div>
+              <div class="rank-items">
+                <span>餐饮 <br> 25%</span>
+              </div>
+              <div class="rank-items">
+                <span>娱乐 <br> 16%</span>
+              </div>
+            </div>
             <ul class="right__sidebar">
               <li
                 v-for="(item, $index) in industryList"
@@ -222,7 +235,8 @@ export default {
         'B2',
         'B3'
       ],
-      iframeSrc: '/three'
+      iframeSrc: '/three',
+      websocket: '' // websocket连接
     }
   },
   components: {
@@ -265,7 +279,7 @@ export default {
     getWebsocket () {
       GetSocketIP().then(res => {
         let _this = this
-        let wsServer = `ws://192.168.1.153:8010/websocket/${this.currentManage.id}` // 服务器地址
+        let wsServer = `ws://192.168.1.153:8010/websocket/84E0F22222228045` // 服务器地址
         this.websocket = new WebSocket(wsServer)
         this.websocket.onopen = function (evt) {
           // 已经建立连接
@@ -274,7 +288,7 @@ export default {
         }
         this.websocket.onmessage = function (evt) {
           // 收到服务器消息，使用evt.data提取
-          console.log('push message', evt)
+          console.log('push message', JSON.parse(evt.data))
           // _this.resolveDatad(evt.data)
         }
         this.websocket.onclose = function (evt) {
@@ -286,7 +300,12 @@ export default {
       })
     }
   },
-  watch: {}
+  watch: {},
+  beforeDestroy () {
+    if (this.websocket) {
+      this.websocket.close()
+    }
+  }
 }
 </script>
 
@@ -298,6 +317,20 @@ export default {
   /*未选择社群，无数据是字体默认颜色*/
   .empty--data{
     color: #79787B ;
+    .gc--color{
+      color: #79787B ;
+    }
+    .bc--color{
+      color: #79787B ;
+    }
+    .float-block{
+      .sex__ratio--icon{
+        background-image: url(../../assets/three/sex_ratio_icon2.png)!important;
+      }
+    }
+    .percent-wrap{
+      color: #fff;
+    }
   }
   .three__floor--wrap {
     > div {
@@ -325,17 +358,17 @@ export default {
     }
   }
   /*分析数据展示部分*/
+  .bc--color{
+    color: #005BC9;
+  }
+  .gc--color{
+    color: #8663FF ;
+  }
   .floor__data--wrap{
     float:left;
     width: 332px;
     height: 100%;
     margin-right: 5px;
-    .bc--color{
-      color: #005BC9;
-    }
-    .gc--color{
-      color: #8663FF ;
-    }
     .el-scrollbar{
       height: 100%;
       overflow: hidden;
@@ -373,10 +406,15 @@ export default {
             margin-right: 3px;
           }
         }
-        .sex__ratio--icon{
-          width: 48px;
-          margin: 0  8px;
-        }
+      }
+      .sex__ratio--icon{
+        width: 48px;
+        height: 106px;
+        margin: 0  8px;
+        background-position: left center;
+        background-repeat: no-repeat;
+        background-image: url(../../assets/three/sex_ratio_icon.png);
+        background-size: contain;
       }
     }
     /*回头客比例*/
@@ -431,6 +469,40 @@ export default {
     /*业态客流排行榜*/
     .format-flow-rank{
       height: 200px;
+      .industry__rank--wrap{
+        float: left;
+        width: 230px;
+        height: 160px;
+        .rank-items{
+          float: left;
+          width: 66px;
+          height: 100%;
+          text-align: center;
+          background-repeat: no-repeat;
+          background-position: left bottom;
+          background-image: url(../../assets/three/industry_rank_two.png);
+          background-size: contain;
+          span{
+            display: inline-block;
+            margin-top: 94px;
+          }
+          &:nth-child(2){
+            width: 70px;
+            margin: 0 6px;
+            background-image: url(../../assets/three/industry_rank_one.png);
+            span{
+              margin-top: 84px;
+            }
+          }
+          &:nth-child(3) {
+            width: 62px;
+            background-image: url(../../assets/three/industry_rank_three.png);
+            span{
+              margin-top: 108px;
+            }
+          }
+        }
+      }
       .right__sidebar{
         float: right;
         width: 70px;

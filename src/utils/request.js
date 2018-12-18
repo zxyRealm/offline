@@ -128,6 +128,8 @@ export function exitMessage (href) {
     center: true,
     dangerouslyUseHTMLString: true,
     showCancelButton: false,
+    closeOnClickModal: false,
+    closeOnPressEscape: false,
     customClass: 'confirm__message--login'
   }).then(() => {
     window.location.href = `${href}?redirectURL=${window.location.href}`
