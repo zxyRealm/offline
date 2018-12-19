@@ -1,6 +1,7 @@
 <template>
   <div class="portal__container--wrap" style="height: 100%;width: 100%;">
     <iframe scrolling="no" ref="bindGroupIframe" :src="iframeSrc" width="100%" height="100%" frameborder="0"></iframe>
+    <div class="title--wrap">出入口管理</div>
     <!--出入口数量-->
     <div class="amount">
       <div class="gateway">
@@ -350,11 +351,17 @@ export default {
   .portal__container--wrap{
     position: relative;
   }
-
+  .title--wrap{
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 14px;
+    user-select: none;
+  }
   /*楼层信息侧边栏*/
   .floor__list--wrap{
     position: absolute;
-    top: 45%;
+    top: 48%;
     left: 20px;
     width: 40px;
     text-align: center;

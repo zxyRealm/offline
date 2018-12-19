@@ -225,7 +225,7 @@
     <span>其他出入口</span>
   </div>
 </div>
-<script src="/static/three/three.js"></script>
+<script src="/static/three/three.min.js"></script>
 <script src="/static/three/OrbitControls.js"></script>
 <script src="/static/three/SVGLoader.js"></script>
 <script>
@@ -478,19 +478,19 @@
     var textKey = 'name'
     var textObj = createTextSprite(obj, textKey)
     if (obj[textKey].length > 2) {
-      textObj.scale.set(0.75 * obj[textKey].length * 8, 0.25 * obj[textKey].length * 7, 100)
-      textObj.position.set(obj.position.x + 2 + (obj[textKey].length+1)*(0.5/0.4), obj.position.y - 3 - obj[textKey].length/0.4, 1/0.4)
+      textObj.scale.set(0.75 * obj[textKey].length * 16, 0.25 * obj[textKey].length * 13, 250)
+      textObj.position.set(obj.position.x + 2.5 + (obj[textKey].length+1)*(0.6/0.4), obj.position.y - 4 - obj[textKey].length/0.4, 1/0.4)
     } else if(obj[textKey].length === 2){
-      textObj.scale.set(0.75 * 15, 0.25 * 25, 100)
-      textObj.position.set(obj.position.x + 1.2, obj.position.y - 4.5 - obj[textKey].length, 1)
+      textObj.scale.set(0.75 * 35, 0.25 * 46, 250)
+      textObj.position.set(obj.position.x + 2, obj.position.y - 14, 1)
     } else {
-      textObj.scale.set(0.75 * 15, 0.25 * 25, 100)
-      textObj.position.set(obj.position.x + 3.2, obj.position.y - 5.5 - obj[textKey].length, 1)
+      textObj.scale.set(0.75 * 40, 0.25 * 40, 250)
+      textObj.position.set(obj.position.x + 7, obj.position.y - 10 - obj[textKey].length, 2.5)
     }
     scene.add(textObj)
     // 创建图片
     let sprite = createPictureSprite(obj)
-    sprite.scale.set(6, 6, 6)
+    sprite.scale.set(10, 12, 10)
     sprite.position.set(obj.position.x, obj.position.y, 1)
     scene.add(sprite)
     // 文字贴图的参数传递到图片贴图的userData中
@@ -530,7 +530,7 @@
     ctx.fillStyle = '#ffffff'
     ctx.font = '600 100px Arial'
     ctx.textAlign = 'left'
-    ctx.fillText(obj[key], 4, 104)
+    ctx.fillText(obj[key], 0, 104)
 
     let texture = new THREE.Texture(canvas)
     texture.needsUpdate = true

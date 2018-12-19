@@ -97,6 +97,7 @@
       <ul class="floor__sidebar--wrap">
         <li class="sidebar__item" v-for="(item,$Index) in floorList" :key="$Index" @click="selectFloor(item)">{{item}}</li>
       </ul>
+      <general-map></general-map>
     </div>
     <!--楼宇3D/平面分布图展示 end-->
     <!--实时客流 start-->
@@ -188,6 +189,7 @@
 <script>
 import Chart from '@/components/echarts/three-pie'
 import ChartBar from '@/components/echarts/three-bar'
+import GeneralMap from '@/components/three/GeneralMap'
 import buildFloor from '@/views/three/index'
 import CustomPie from '@/components/echarts/custom-pie'
 import {GetSocketIP} from '../../api/common'
@@ -240,6 +242,7 @@ export default {
   components: {
     Chart,
     ChartBar,
+    GeneralMap,
     buildFloor,
     CustomPie
   },
@@ -540,7 +543,6 @@ export default {
   .floor__3d--wrap{
     overflow: hidden;
     height: 100%;
-    border: 1px solid #ddd;
     .floor__sidebar--wrap{
       position: absolute;
       top: 20px;
