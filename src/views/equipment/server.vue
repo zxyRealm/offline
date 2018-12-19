@@ -120,15 +120,14 @@ export default {
       if (!value) {
         this.deviceInfo.type = ''
         this.deviceInfo.exist = ''
-        callback(new Error('请输入16位序列号'))
+        callback(new Error('请输入序列号'))
       } else {
         if (value.length === 16) {
           let dType = byKeyDeviceType(value)
-          console.log(dType)
           // 设备序列号是否存在
           if (dType.type) {
             if (!new Set([1]).has(dType.type)) {
-              callback(new Error('设备序列号不存在'))
+              callback(new Error('非服务器序列号'))
               return
             }
             DeviceIsExisted({deviceKey: value}).then(res => {
@@ -136,7 +135,7 @@ export default {
                 // 校验设备是否被绑定过
                 DeviceIsAdded({deviceKey: value}).then(res2 => {
                   if (res2.data) {
-                    callback(new Error('设备已存在'))
+                    callback(new Error('该设备已添加'))
                   } else {
                     callback()
                   }
@@ -151,16 +150,16 @@ export default {
               } else {
                 this.deviceInfo.exist = ''
                 this.deviceInfo.type = ''
-                callback(new Error('设备序列号不存在'))
+                callback(new Error('序列号不存在'))
               }
             })
           } else {
-            callback(new Error('设备序列号不存在'))
+            callback(new Error('序列号不存在'))
           }
         } else {
           this.deviceInfo.type = ''
           this.deviceInfo.exist = ''
-          callback(new Error('请输入16位序列号'))
+          callback(new Error('请输入序列号'))
         }
       }
     }
@@ -172,7 +171,7 @@ export default {
           // 服务器名称验重
           let subData = {name: value}
           DeviceAliasExist(subData).then(res => {
-            res.data ? callback(new Error('设备别名已存在')) : callback()
+            res.data ? callback(new Error('该名称已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
           })
@@ -294,7 +293,7 @@ export default {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
       GetServerDeviceList({index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
         this.equipmentList = res.data.content || []
-        this.pagination = res.data.pagination
+        this.pagination = res.data.pagination || {}
       })
     },
     // 添加服务器

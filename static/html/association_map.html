@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <title>线下浏览器</title>
+  <style type="text/css">
+    body,html {
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+    .ellipsis {
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      box-sizing: border-box;
+      vertical-align: middle;
+    }
+    .flat {
+      position: absolute;
+      top: 30px;
+      right: 24px;
+      user-select: none;
+
+    }
+    .flat div {
+      cursor: pointer;
+      margin-bottom: 5px;
+    }
+    .flat div img {
+      width: 10px;
+      top: 3px;
+      position: relative;
+    }
+    .flat span {
+      font-size: 12px;
+      color: #0f9ce7;
+    }
+    .levitaten .title {
+      padding: 3px 5px;
+      color: #ffffff;
+      overflow: hidden;
+      border-bottom: 1px dashed #979797;
+    }
+    .levitaten ul {
+      margin: 0;
+      padding: 4px 2px 0;
+      text-decoration: none;
+      color: #ffffff;
+    }
+    .levitaten .device-list-wrap{
+      height: 85px;
+      overflow: hidden;;
+    }
+    .levitaten .device-list {
+      height: 85px;
+      width: calc(100% + 15px);
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+    .levitaten .device-list .delete--icon{
+      width: 12px;
+      cursor: pointer;
+      float: right;
+      margin: 2px 0;
+    }
+    .levitaten li {
+      height: 20px;
+      line-height: 20px;
+      margin-bottom: 8px;
+      list-style: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .levitaten .text-center{
+      text-align: center;
+    }
+    .levitaten li span {
+      width: 70px;
+      top: -3px;
+      margin-left: 5px;
+      position: absolute;
+    }
+
+    .levitaten li i {
+      position: absolute;
+      cursor: pointer;
+      right: 0;
+      top: 7px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .levitaten {
+      width: 114px;
+      height: 146px;
+      background-color: rgba(35, 92, 194, 0.3);
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      padding: 5px;
+      font-size: 12px;
+      box-sizing: border-box;
+      display: none;
+    }
+    .add-button {
+      text-align: center;
+      line-height: 20px;
+    }
+    .add-button > a {
+      color: #0f9ee9;
+      text-decoration: none;
+    }
+    .add-button:before {
+      content: '';
+      position: absolute;
+      top: 140px;
+      left: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      width: 1px;
+      height: 30px;
+    }
+
+    .add-button:after {
+      content: '';
+      position: absolute;
+      top: 170px;
+      left: 50%;
+      background: #ffffff;
+      background: rgba(255, 255, 255, 0.5);
+      width: 30px;
+      height: 1px;
+    }
+    .pull-left {
+      float: left;
+      width: 60px;
+    }
+
+    .pull-right {
+      float: right;
+    }
+    .pull-right > img{
+      width: 12px;
+      cursor: pointer;
+    }
+    .pull-right > img:last-child{
+      margin-left: 4px;
+    }
+    .amount {
+      position: absolute;
+      top: 144px;
+      right: 50px;
+      user-select: none;
+    }
+    .gateway, .count {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 4px;
+    }
+
+    .count {
+      font-size: 24px;
+      color: #ffffff;
+    }
+
+  </style>
+</head>
+<body>
+<!--出入口设备列表信息-->
+<div class="levitaten" id="device__popper--wrap">
+  <div class="title">
+    <div class="pull-left ellipsis" id="device--title"></div>
+    <div class="pull-right">
+      <img src="/static/img/edit_icon2x.png" data-type="editPortal" alt="">
+      <img src="/static/img/delete_icon.png" data-type="deletePortal" alt="">
+    </div>
+  </div>
+  <div class="device-list-wrap">
+    <ul class="device-list" id="device--list">
+      <!--<li>-->
+        <!--<img src="/static/floor/camera1.png" width="11">-->
+        <!--<span class="ellipsis">设备一号</span>-->
+        <!--<img class="delete&#45;&#45;icon" src="/static/img/close_icon.png" alt="">-->
+      <!--</li>-->
+      <!--<li>-->
+        <!--<img src="/static/floor/camera1.png" width="11">-->
+        <!--<span class="ellipsis">设备2号</span>-->
+        <!--<i class="el-icon-close"></i>-->
+      <!--</li>-->
+      <!--<li>-->
+        <!--<img src="/static/floor/camera1.png" width="11">-->
+        <!--<span class="ellipsis">设备3号</span>-->
+        <!--<i class="el-icon-close"></i>-->
+      <!--</li>-->
+      <!--<li>-->
+        <!--<img src="/static/floor/camera1.png" width="11">-->
+        <!--<span class="ellipsis">设备4号</span>-->
+        <!--<i class="el-icon-close"></i>-->
+      <!--</li>-->
+      <!--<li>-->
+        <!--<img src="/static/floor/camera1.png" width="11">-->
+        <!--<span class="ellipsis">设备5号</span>-->
+        <!--<i class="el-icon-close"></i>-->
+      <!--</li>-->
+    </ul>
+  </div>
+  <div class="add-button">
+    <a href="javascript:void (0);" data-type="add">添加设备</a>
+  </div>
+</div>
+
+<div class="flat">
+  <div id="image1">
+    <img src="/static/floor/qizi2.png" alt="">
+    <span>主出入口</span>
+  </div>
+  <div id="image2">
+    <img src="/static/floor/qizi1.png" alt="">
+    <span>其他出入口</span>
+  </div>
+</div>
+<script src="/static/three/three.js"></script>
+<script src="/static/three/OrbitControls.js"></script>
+<script src="/static/three/SVGLoader.js"></script>
+<script>
+  var renderer, scene, camera, group, meshList = [], textList = [], spriteList = []
+  var width, height, userData
+  function init () {
+    renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setClearColor('#ffffff', 1.0)
+    scene = new THREE.Scene()
+    scene.background = new THREE.Color('#232027')
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000)
+    camera.position.set(0, 0, 420)
+    scene.add(camera)
+    group = new THREE.Group()
+    scene.add(group)
+    loadSvg()
+    document.body.appendChild(renderer.domElement)
+    window.addEventListener('mousedown', onDocumentMouseClick, false)
+    window.addEventListener('resize', onWindowResize, false)
+  }
+
+  function initGateway () {
+    spriteList.map(item => {
+      scene.remove(item)
+    })
+    textList.map(item => {
+      scene.remove(item)
+    })
+    var wrap = document.getElementById('device__popper--wrap')
+    if (wrap) wrap.style.display = 'none'
+    spriteList = []
+    textList = []
+    window.parent.postMessage({type: 'GET_PORTAL_LIST'})
+  }
+
+  // 加载渲染svg地图
+  function loadSvg () {
+    var svgLoad = new THREE.SVGLoader()
+    var url = parseUrlParams('map_url') || ''
+    // url = '/static/origin-floor/F1.svg'
+    svgLoad.load(url, (paths) => {
+      group.position.x = -290
+      group.position.y = 214
+      group.scale.set(1, -1, 1)
+      var materials = []
+      for (var i = 0; i < paths.length; i++) {
+        if (i === 0) continue
+        var path = paths[i]
+        var materialLine = new THREE.LineBasicMaterial({
+          color: new THREE.Color('#403E42'),
+          side: THREE.DoubleSide,
+          depthWrite: false
+        })
+
+        var shapes = path.toShapes(true)
+        materials.push(materialLine)
+        for (var j = 0; j < shapes.length; j++) {
+          var shape = shapes[j]
+          var geometry = new THREE.ShapeBufferGeometry(shape)
+          var mesh = new THREE.Mesh(geometry, materialLine)
+
+          var edges = new THREE.EdgesHelper(mesh, '#979797')
+          edges.material.linewidth = 1
+          group.add(edges)
+          group.add(mesh)
+        }
+      }
+      initGateway()
+    })
+    // getPortalCount()
+  }
+
+  function initMouseEvent () {
+    var body = document.getElementsByTagName('body')[0]
+    var image1 = document.getElementById('image1')
+    var image2 = document.getElementById('image2')
+    image2.onmousedown = function (event) {
+      var box = document.createElement('img')
+      box.src = '/static/floor/qizi1.png'
+      box.style.width = '10px'
+      box.style.position = 'absolute'
+      var divX = event.clientX - image2.children[0].offsetWidth / 2
+      var divY = event.clientY - image2.children[0].offsetHeight / 2
+      box.style.left = divX + 'px'
+      box.style.top = divY + 'px'
+      body.appendChild(box)
+      document.onmousemove = function (event) {
+        event = event || window.event
+        var divX = event.clientX - image2.children[0].offsetWidth / 2
+        var divY = event.clientY - image2.children[0].offsetHeight / 2
+        box.style.left = divX + 'px'
+        box.style.top = divY + 'px'
+      }
+      box.onmousedown = function (event) {
+        event = event || window.event
+        document.onmousemove = null
+        body.removeChild(box)
+        var newScreen = screenToWorld({x: event.clientX, y: event.clientY})
+        // todo：模态框
+        // 创建出入口事件通知(其他出入口)
+        window.parent.postMessage({type: 'CREATE_PORTAL_CLICK', data: {position: newScreen, type: 2}})
+      }
+    }
+    image1.onmousedown = function (event) {
+      var box = document.createElement('img')
+      box.style.width = '10px'
+      box.src = '/static/floor/qizi2.png'
+      box.style.position = 'absolute'
+      var divX = event.clientX - image1.children[0].offsetWidth / 2
+      var divY = event.clientY - image1.children[0].offsetHeight / 2
+      box.style.left = divX + 'px'
+      box.style.top = divY + 'px'
+      body.appendChild(box)
+
+      document.onmousemove = function (event){
+        event = event || window.event
+        // console.log(event.clientX)
+        var divX = event.clientX - image1.children[0].offsetWidth / 2
+        var divY = event.clientY - image1.children[0].offsetHeight / 2
+        box.style.left = divX + 'px'
+        box.style.top = divY + 'px'
+      }
+
+      box.onmousedown = function (event) {
+        event = event || window.event
+        document.onmousemove = null
+        body.removeChild(box)
+        var newScreen = screenToWorld({x: event.clientX, y: event.clientY})
+        // todo：模态框
+        // 创建出入口事件通知(主出入口)
+        console.log('origin ---position', newScreen)
+        window.parent.postMessage({type: 'CREATE_PORTAL_CLICK', data: {position: newScreen, type: 1}})
+      }
+    }
+  }
+  // 将url参数对象化
+  function parseUrlParams (key) {
+    var params = window.location.href.split('?')[1]
+    var obj = {}
+    if (params) {
+      var arr = params.split('&')
+      for (var i = 0, len = arr.length; i < len; i++) {
+        var kv = arr[i].split('=')
+        obj[kv[0]] = kv[1]
+      }
+    }
+    return obj[key]
+  }
+  // 屏幕坐标转世界坐标
+  function screenToWorld (screenPoint) {
+    // 获取屏幕坐标投影在相机上的x和y轴的值
+    var pX = (screenPoint.x / window.innerWidth) * 2 - 1
+    var pY = -(screenPoint.y / window.innerHeight) * 2 + 1
+    // var p = new THREE.Vector3(pX, pY, -1).unproject(camera);
+    // 设置二维向量
+    // var p2 = new THREE.Vector2(pX, pY);
+    // 获取z轴深度 即视距
+    var zd = camera.position.z
+    // 获取相机角度 (180-45)/2
+    var za = 67.5 * Math.PI / 180
+    // 获取世界坐标中的x轴边界
+    var bx = (zd / Math.tan(za)) * (window.innerWidth / window.innerHeight)
+    // 获取世界坐标中的y轴边界
+    var by = zd / Math.tan(za)
+    // 获取世界坐标中x轴的实际坐标点
+    var sx = pX * bx
+    // 获取世界坐标中y轴的实际坐标点
+    var sy = pY * by
+    // console.log(sx, sy)
+    return {x: sx, y: sy}
+  }
+
+  // 点击事件处理
+  function onDocumentMouseClick (event) {
+    var mouse = {
+      x: (event.clientX / window.innerWidth) * 2 - 1,
+      y: -(event.clientY / window.innerHeight) * 2 + 1
+    }
+    var screenAlex = {
+      x: event.clientX,
+      y: event.clientY
+    }
+    var raycaster = new THREE.Raycaster()
+    raycaster.setFromCamera(mouse, camera)
+    var intersects = raycaster.intersectObjects(spriteList)
+    if (intersects.length > 0) {
+      userData = intersects[0].object.userData
+      window.parent.postMessage({type: 'GET_CAMERA_LIST', data: userData.portal})
+      createLevitatenBox(screenAlex, userData)
+    } else {
+      var box = document.getElementById('device__popper--wrap')
+      var boxLeft = box.offsetLeft
+      var boxRight = box.offsetWidth + box.offsetLeft
+      var boxTop = box.offsetTop
+      var boxBottom = box.offsetHeight + box.offsetTop
+
+      if (event.clientX < boxLeft ||
+        event.clientX > boxRight ||
+        event.clientY < boxTop ||
+        event.clientY > boxBottom) {
+        createLevitatenBox()
+      }
+    }
+  }
+
+  // 窗口缩放时自适应
+  function onWindowResize () {
+    width = window.innerWidth
+    height = window.innerHeight
+    camera.aspect = width / height
+    camera.updateProjectionMatrix()
+    renderer.setSize(width, height)
+  }
+
+  // 创建悬浮盒子
+  function createLevitatenBox (screenAlex, data) {
+    var levitaten = document.getElementById('device__popper--wrap')
+    if (screenAlex) {
+      levitaten.style.top = screenAlex.y - 172 + 'px'
+      levitaten.style.left = screenAlex.x - 100 + 'px'
+      levitaten.style.display = 'block'
+    } else {
+      levitaten.style.display = 'none'
+    }
+  }
+  // 生成设备列表数据
+  function createDeviceList (data) {
+    var title = `<div class="pull-left">${data.title}</div>`
+    document.getElementById('device--title').innerHTML = data.title
+    var cameraList = '';
+    for(let i = 0, len = data.list.length; i < len; i++){
+      cameraList += `<li>
+        <img src="/static/floor/camera1.png" width="11">
+        <span class="ellipsis">${data.list[i].name}</span>
+        <img class="delete--icon" src="/static/img/close_icon.png" data-type="delete" data-index="${i}" alt="">
+      </li>`;
+    }
+    if (!data.list.length) cameraList = `<li class="text-center">暂无设备</li>`
+    document.getElementById('device--list').innerHTML = cameraList
+  }
+
+  // 添加贴图
+  function createSprite(obj) {
+    // 创建文字
+
+    // 位置信息
+    var ps = obj.coordinates instanceof Object ? obj.coordinates : JSON.parse(obj.coordinates)
+    obj.position = {x: ps[0], y: ps[1]}
+    var textKey = 'name'
+    var textObj = createTextSprite(obj, textKey)
+    if (obj[textKey].length > 2) {
+      textObj.scale.set(0.75 * obj[textKey].length * 8, 0.25 * obj[textKey].length * 7, 100)
+      textObj.position.set(obj.position.x + 2 + (obj[textKey].length+1)*(0.5/0.4), obj.position.y - 3 - obj[textKey].length/0.4, 1/0.4)
+    } else if(obj[textKey].length === 2){
+      textObj.scale.set(0.75 * 15, 0.25 * 25, 100)
+      textObj.position.set(obj.position.x + 1.2, obj.position.y - 4.5 - obj[textKey].length, 1)
+    } else {
+      textObj.scale.set(0.75 * 15, 0.25 * 25, 100)
+      textObj.position.set(obj.position.x + 3.2, obj.position.y - 5.5 - obj[textKey].length, 1)
+    }
+    scene.add(textObj)
+    // 创建图片
+    let sprite = createPictureSprite(obj)
+    sprite.scale.set(6, 6, 6)
+    sprite.position.set(obj.position.x, obj.position.y, 1)
+    scene.add(sprite)
+    // 文字贴图的参数传递到图片贴图的userData中
+    sprite.userData = { portal: obj }
+    // 将文字保存到数组中
+    textList.push(textObj)
+    // 将图片贴图保存到数组中
+    spriteList.push(sprite)
+
+  }
+
+  // 创建图片贴图
+  function createPictureSprite (obj) {
+    var img = obj.type === 1 ? 'qizi2' : 'qizi1'
+    var spriteMaterial = new THREE.SpriteMaterial({
+      map: new THREE.ImageUtils.loadTexture('/static/floor/' + img + '.png'),
+      depthTest: false,
+      blending: THREE.AdditiveBlending,
+    })
+    var sprite = new THREE.Sprite(spriteMaterial)
+    return sprite
+  }
+
+  // 创建文字贴图
+  /*
+  * @params [obj]   出入口信息对象
+  * @params [key]  文本对象的键值
+  * */
+  function createTextSprite (obj, key) {
+    let canvas = document.createElement('canvas')
+    if (obj[key].length > 2) {
+      canvas.width = obj[key].length * 160
+      canvas.height = canvas.width / 4
+    }
+
+    let ctx = canvas.getContext('2d')
+    ctx.fillStyle = '#ffffff'
+    ctx.font = '600 100px Arial'
+    ctx.textAlign = 'left'
+    ctx.fillText(obj[key], 4, 104)
+
+    let texture = new THREE.Texture(canvas)
+    texture.needsUpdate = true
+
+    // 使用Sprite显示文字
+    let material = new THREE.SpriteMaterial({map: texture, transparent: true})
+    let textObj = new THREE.Sprite(material)
+    return textObj
+  }
+
+  // 动画循环
+  function animate () {
+    requestAnimationFrame(animate)
+    renderer.render(scene, camera)
+  }
+
+  window.onload = function () {
+    init()
+    animate()
+    initMouseEvent()
+    var popper = document.getElementById('device__popper--wrap');
+    popper.onclick = function(ev){
+      var ev = ev || window.event;
+      var target = ev.target || ev.srcElement;
+      var dType = target.getAttribute('data-type')
+      console.log(dType)
+      switch (dType) {
+        case 'deletePortal': // 删除出入口
+          window.parent.postMessage({type: 'DELETE_PORTAL_CLICK', data: userData.portal})
+          break
+        case 'editPortal': // 编辑出入口信息
+          window.parent.postMessage({type: 'EDIT_PORTAL_CLICK', data: userData.portal})
+          break
+        case 'add': // 出入口新增设备
+          window.parent.postMessage({type: 'PORTAL_ADD_DEVICE', data: userData.portal})
+          break
+        case 'delete': // 删除出入口设备
+          window.parent.postMessage({type: 'DELETE_PORTAL_DEVICE', data: {detail: userData.portal, index: target.getAttribute('data-index')}})
+          break
+      }
+    }
+  }
+</script>
+</body>
+</html>

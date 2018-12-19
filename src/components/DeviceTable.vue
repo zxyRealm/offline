@@ -139,7 +139,7 @@
     <ob-dialog-form
       class="dialog__content--vm"
       :show-button="false"
-      :title="'设备升级'"
+      :title="dataType === 'server' ? '服务器升级' : '设备升级'"
       :visible.sync="deviceUpdateVisible">
       <div slot="form" class="vam">
         <div class="version__list--wrap">

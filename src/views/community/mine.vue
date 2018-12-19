@@ -41,10 +41,10 @@
                 <p class="handle fr fs12">
                   <i
                     v-if="userInfo.developerId === communityInfo.merchantGuid"
-                    @click="showAddForm(communityInfo.level === 1 ? 5 : 7)">
-                    {{communityInfo.level === 1 ? '添加成员' : '加入管理员'}}
+                    @click="showAddForm(communityInfo.level === 2 ? 5 : 7)">
+                    {{communityInfo.level === 2 ? '添加成员' : '加入管理员'}}
                   </i>
-                  <i class="el-icon-edit" @click="showAddForm(communityInfo.level === 1 ? 4 : 6)"></i>
+                  <i class="el-icon-edit" @click="showAddForm(communityInfo.level === 2 ? 4 : 6)"></i>
                   <i class="el-icon-delete" @click="deleteGroup"></i>
                 </p>
               </h2>
@@ -54,7 +54,7 @@
                 <div >
                   <span class="info__label">联系人：</span>
                   {{communityInfo.contact}}</div>
-                <template v-if="communityInfo.level === 1">
+                <template v-if="communityInfo.level === 2">
                   <div>
                     <span class="info__label"> 索权范围：</span>
                     <el-popover
@@ -99,16 +99,11 @@
               </div>
             </div>
             <div class="three__map--wrap">
-              <ob-list-empty v-if="communityInfo.level ===3 && !communityInfo.mapUrl" top="0px" :supply="supply" text="暂无地图，敬请期待！"></ob-list-empty>
+              <ob-list-empty v-if="communityInfo.level ===1 && !communityInfo.mapUrl" top="0px" :supply="supply" text="暂无地图，敬请期待！"></ob-list-empty>
               <three-association-map
                 v-else
                 ref="associationMap"
-                :floor-value="groupList"
-                @addDevice="addDevice"
-                @deleteDevice="deleteDevice"
-                @addGateway="addGateway"
-                @editGateway="editGateway"
-                @deleteGateway="deleteGateway">
+                :floor-list="floor">
               </three-association-map>
             </div>
           </div>
@@ -282,12 +277,16 @@
             </el-form-item>
             <el-form-item label="楼层：" prop="floor">
               <el-select @change="FloorChange" placeholder="请选择门店所在楼层" v-model="handleMemberForm.floor">
-                <el-option v-for="(item, $index) in floorList" :key="$index" :label="IntToFloor(item)" :value="item"></el-option>
+                <el-option v-for="item in floorList" :key="item" :label="IntToFloor(item)" :value="item"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label-width="0">
               <div class="three__map--dialog">
-                <three-map ref="bindGroupMap" :floor="groupList" @handle-block-click="handleBlockClick"></three-map>
+                <bind-community
+                  ref="bindGroupMap"
+                  :default-select="handleMemberForm.coordinates"
+                  @handle-block-click="handleBlockClick"
+                  :floor-list="floor"></bind-community>
               </div>
             </el-form-item>
           </template>
@@ -357,35 +356,6 @@
           <el-button class="affirm" type="primary" @click="handleCommunity('addCommunityForm')">{{communityInfo.GroupNickName?'添加': '确  定'}}</el-button>
         </div>
       </ob-dialog-form>
-
-      <!--添加出入口-->
-      <ob-dialog-form
-        :title="communityDialogTitle"
-        :visible.sync="handlePortalVisible"
-        :showButton="false"
-      >
-        <el-form
-          slot="form"
-          ref="handlePortalForm"
-          block-message
-          @submit.native.prevent
-          style="width: 330px"
-          label-position="left"
-          class="common-form white"
-          label-width="82px"
-          :model="handlePortalForm"
-          :rules="handlePortalRules"
-        >
-          <el-form-item label="名称：" prop="name">
-            <el-input placeholder="请输入出入口名称" v-model="handlePortalForm.name"></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer mt50">
-          <el-button class="cancel" @click="handlePortalVisible = false">返 回</el-button>
-          <el-button class="affirm" type="primary" @click="handlePortal('handlePortalForm')">{{handleCommunityType === 8?'添加': '保 存'}}</el-button>
-        </div>
-      </ob-dialog-form>
-
       <!--编辑其他社群备注名-->
       <ob-dialog-form
         :title="communityDialogTitle"
@@ -413,30 +383,6 @@
           <el-button class="affirm" type="primary" @click="editNickname('editNicknameForm')">保 存</el-button>
         </div>
       </ob-dialog-form>
-      <!--添加设备弹框-->
-      <ob-dialog-form
-        :title="communityDialogTitle"
-        :visible.sync="AddDeviceVisible"
-        :showButton="false"
-      >
-        <div slot="content" class="device__dialog--list">
-          <div class="c-grey fs12 g-mb12">设备名称</div>
-          <el-scrollbar>
-            <el-checkbox-group
-              v-model="checkedItems">
-              <el-checkbox
-                v-for="(item,$index) in ownDeviceList"
-                :label="item"
-                :disabled="item.disabled"
-                :key="$index">{{item.name}}</el-checkbox>
-            </el-checkbox-group>
-          </el-scrollbar>
-        </div>
-        <div slot="footer" class="dialog-footer mt16">
-          <el-button class="cancel" @click="AddDeviceVisible = false">返 回</el-button>
-          <el-button class="affirm" type="primary" @click="portalAddDevice()">添加</el-button>
-        </div>
-      </ob-dialog-form>
     </div>
 </template>
 
@@ -447,15 +393,15 @@ import {validateRule} from '@/utils/validate'
 import {mapState} from 'vuex'
 import Clipboard from '@/utils/clipboard'
 import area from '@/components/area-select/area-select'
-import ThreeMap from '@/components/three/bindCommunity'
-import {GetMarketList, GetCommunityInfo, GetCommunityInfoByCode, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, GetGroupPortalInfo, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CreatePortal, EditPortal, DeletePortal, PortalBatchBindDevice, PortalUnbindDevice, GetGroupPortalCount, CheckPortalNameExist, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
-import {GetOwnDeviceList} from '../../api/device'
-import ThreeAssociationMap from '@/components/three/AssociationMap'
+import BindCommunity from '@/components/three/bind_community'
+import {eventObject} from '../../utils/event'
+import {GetMarketList, GetCommunityInfo, GetCommunityInfoByCode, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, PortalBatchBindDevice, GetGroupPortalCount, CheckPortalNameExist, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
+import ThreeAssociationMap from '@/components/three/association_map'
 export default {
   name: 'mineCommunity',
   mixins: [Mixins],
   components: {
-    ThreeMap,
+    BindCommunity,
     ThreeAssociationMap,
     'area-select': area
   },
@@ -782,9 +728,7 @@ export default {
     })
   },
   mounted () {
-    if (this.currentManage.id) {
-      this.getGroupList(this.currentManage.id)
-    }
+    this.getGroupList()
   },
   computed: {
     communityDialogTitle () {
@@ -809,17 +753,15 @@ export default {
         case 7:
           title = '加入管理员社群'
           break
-        case 8:
-          title = '添加出入口'
-          break
-        case 9:
-          title = '编辑出入口'
-          break
-        case 10:
-          title = '添加设备'
-          break
       }
       return title
+    },
+    // 商场下楼层列表信息
+    floor: {
+      get () {
+        return this.groupList[0] ? this.groupList[0].subGroupSon : []
+      },
+      set () {}
     },
     dialogTitle: {
       get () {
@@ -958,9 +900,6 @@ export default {
             })
           } else {
             this.$tip(`搜不到包含“${val}”的内容`, 'error')
-            // this.searchEmpty = true
-            // this.tipMsg = `搜不到包含“${val}”的内容`
-            // this.supply = '设备请到左侧［设备管理］中添加'
             this.setDefaultData()
           }
         })
@@ -982,8 +921,8 @@ export default {
     },
     // 获取商场社群列表
     getGroupList () {
-      if (!this.currentManage) return
       let pid = this.currentManage.id
+      if (!pid) return
       GetMarketList({parentId: pid}).then(res => {
         this.groupList = res.data || []
         // 当key 返回string时,即恢复默认选中状态
@@ -1045,20 +984,12 @@ export default {
     },
     // 获取社群详细信息
     getCommunityInfo (val, node) {
-      let guid = val.parentId || val.guid
-      if (!guid) return
-      if (node && node.level === 3) {
-        GetMemberDetail({groupSonId: val.id, parentId: this.currentManage.id}).then(res => {
-          res.data.level = node.level
-          this.communityInfo = res.data || {}
-        })
-      } else {
-        GetCommunityInfo({id: guid}).then(res => {
-          if (res.data) res.data.groupPid = val.groupPid
-          res.data.level = 1
-          this.communityInfo = res.data || {}
-        })
-      }
+      if (!this.currentManage.id) return
+      GetMemberDetail({groupSonId: val.id, parentId: this.currentManage.id}).then(res => {
+        res.data.level = val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
+        if (val.type === 2) res.data.sonId = val.id
+        this.communityInfo = res.data || {}
+      })
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
@@ -1250,30 +1181,7 @@ export default {
     // 楼层选中值改变时触发
     FloorChange (val) {
       this.handleMemberForm.coordinates = []
-      this.$refs.bindGroupMap.changeFloor(val)
-    },
-    // 添加、编辑出入口
-    handlePortal (formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          let subData = JSON.parse(JSON.stringify(this.handlePortalForm))
-          subData.groupSonId = this.groupList[0].subGroupSon[0].id
-          subData.floor = this.groupList[0].subGroupSon[0].floor
-          console.log(this.subData, this.handleCommunityType)
-          if (this.handleCommunityType === 8) { // 添加出入口
-            CreatePortal(subData).then(res => {
-              this.$tip('添加成功')
-              this.handlePortalVisible = false
-              this.$refs.associationMap.loadSvg()
-            })
-          } else { // 编辑出入口
-            EditPortal(subData).then(res => {
-              this.$tip('保存成功')
-              this.handlePortalVisible = false
-            })
-          }
-        }
-      })
+      this.$refs.bindGroupMap.initFloor(val)
     },
     // 显示添加社群dialog, 并设置数据
     showAddDialog (node, data) {
@@ -1294,30 +1202,6 @@ export default {
         } else {
         }
       })
-    },
-    // 向出入口添加设备
-    portalAddDevice () {
-      if (!this.checkedItems.length) {
-        this.$tip('请选择要添加的设备', 'error')
-        return false
-      }
-      if (this.portalGuid) {
-        let arr = this.checkedItems.map(item => {
-          return {
-            deviceKey: item.deviceKey,
-            name: item.name,
-            merchantGuid: this.userInfo.developerId,
-            portalGuid: this.portalGuid
-          }
-        })
-        PortalBatchBindDevice({deviceGroupPortalReqs: arr}).then(res => {
-          this.$tip('添加成功')
-          this.AddDeviceVisible = false
-          this.$refs.associationMap.getDeviceList()
-        })
-      } else {
-        console.error('portalGuid is not exist')
-      }
     },
     // 复制邀请码
     clipboard (event) {
@@ -1375,9 +1259,10 @@ export default {
       }
       console.log(this.handleCommunityType, this.handleMemberForm)
     },
-    // 解散社群
+    // 删除社群
     deleteGroup () {
-      GetGroupPortalCount({groupSonId: this.communityInfo.id}).then(res => {
+      eventObject().$emit('ManageListRefresh')
+      GetGroupPortalCount({groupSonId: this.communityInfo.sonId || this.communityInfo.id}).then(res => {
         if (res.data.portalNumber) {
           this.$affirm({text: `删除社群前，请先删除出入口`, title: '删除社群', confirm: '我知道了'}, (action, instance, done) => {
             done()
@@ -1385,7 +1270,7 @@ export default {
         } else {
           this.$affirm({text: `删除社群后，社群下的所有信息都将被删除`, title: '删除社群', confirm: '删除'}, (action, instance, done) => {
             if (action === 'confirm') {
-              if (this.communityInfo.level === 3) {
+              if (this.communityInfo.level === 1) {
                 DeleteMember({groupSonId: this.communityInfo.id}).then(res => {
                   this.$tip('删除成功')
                   this.getGroupList()
@@ -1405,90 +1290,7 @@ export default {
     // 地图区块点击事件
     handleBlockClick (data) {
       console.log('block position', data)
-      this.$set(this.handleMemberForm, 'coordinates', JSON.stringify(data.geometry.attributes.position.array.toString().split(',').map(Number)))
-    },
-    /************
-     *** three ***
-     ************/
-    // 添加设备
-    // deviceInfo: list: 出入口绑定设备 title: 出入口名称
-    addDevice (data) {
-      GetOwnDeviceList().then(res => {
-        this.ownDeviceList = res.data.content || []
-      })
-      this.portalGuid = data.guid
-      this.handleCommunityType = 10
-      this.AddDeviceVisible = true
-      // let myConfirm = confirm('添加一个设备')
-      // if (myConfirm === true) {
-      //   deviceInfo.list.push({device: '北门4', id: 4})
-      //   this.$refs.associationMap.getDevice(deviceInfo)
-      // } else if (myConfirm === false) {
-      //   console.log('cancel')
-      // }
-    },
-    // 删除设备
-    // deviceItem：单条设备数据
-    deleteDevice (data) {
-      console.log('unbind', data)
-      this.$affirm({text: `解绑设备后，设备所有信息都将被删除`, title: '解绑设备', confirm: '解绑'}, (action, instance, done) => {
-        if (action === 'confirm') {
-          PortalUnbindDevice({deviceKey: data.deviceKey}).then(res => {
-            this.$tip('解绑成功')
-            this.$refs.associationMap.getDeviceList()
-          })
-        }
-        done()
-      })
-      // confirm(`删除一个设备 - 设备id: ${deviceItem.id} - 设备名: ${deviceItem.device}`)
-    },
-    // 添加出入口
-    // position: 坐标，flat: 图片名字（qizi1，qizi2）
-    addGateway (position, flat) {
-      this.handlePortalForm.coordinates = [position.x, position.y, 0]
-      this.handleCommunityType = 8
-      this.handlePortalVisible = true
-      if (flat === 'qizi2') {
-        // 主出入口
-        this.handlePortalForm.type = 1
-      } else {
-        // 其他出入口
-        this.handlePortalForm.type = 2
-      }
-      console.log(flat)
-      // let myConfirm = confirm(`出入口当前坐标点: ${position.x}, ${position.y}, 0`)
-      // if (myConfirm === true) {
-      //   let obj = {
-      //     text: '123',
-      //     position: position,
-      //     flat: flat
-      //   }
-      //   this.$refs.associationMap.createSprite(obj)
-      // } else if (myConfirm === false) {
-      //   console.log('cancel')
-      // }
-    },
-    // 编辑出入口
-    // name: 出入口名称
-    editGateway (data) {
-      this.handleCommunityType = 9
-      this.handlePortalVisible = true
-      let copy = JSON.parse(JSON.stringify(data))
-      copy.originName = JSON.parse(JSON.stringify(copy.name || ''))
-      this.handlePortalForm = copy
-    },
-    // 删除出入口
-    deleteGateway (data) {
-      this.$affirm({text: `删除出入口后，出入口与设备之间的绑定关系也会被删除`, title: '删除出入口', confirm: '删除'}, (action, instance, done) => {
-        if (action === 'confirm') {
-          DeletePortal({portalGuid: data.guid}).then(res => {
-            this.$tip('删除成功')
-            this.$refs.associationMap.loadSvg()
-          })
-        }
-        done()
-      })
-      // confirm(`删除出入口: ${name}`)
+      this.$set(this.handleMemberForm, 'coordinates', data)
     }
   },
   watch: {
@@ -1499,8 +1301,11 @@ export default {
       deep: true
     },
     handleMemberVisible (val) {
-      if (!val) {
+      // 弹框消失时清除表单默认数据（地图选中状态）
+      if (!val && this.$refs.handleMemberForm) {
+        this.handleMemberForm.coordinates = []
         this.$refs.handleMemberForm.resetFields()
+        if (this.$refs.bindGroupMap) this.$refs.bindGroupMap.initFloor()
       }
     },
     joinFormVisible (val) {
@@ -1518,11 +1323,6 @@ export default {
       if (!val) {
         this.$refs.addCommunityForm.resetFields()
       }
-    },
-    // 监听楼层变化，楼层改变时清空位置信息
-    'handleMemberForm.floor' (val) {
-      console.log('change floor ===============')
-      // this.handleMemberForm.coordinates = []
     }
   },
   beforeDestroy () {

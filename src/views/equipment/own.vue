@@ -211,20 +211,23 @@ export default {
       if (!value) {
         this.deviceInfo.type = ''
         this.deviceInfo.exist = ''
-        callback(new Error('请输入16位序列号'))
+        callback(new Error('请输入序列号'))
       } else {
         if (value.length === 16) {
           // 设备序列号是否存在
           let dType = byKeyDeviceType(value)
-          console.log('设备类型', dType)
           if (dType.type) {
-            if ((this.addAioVisible && new Set([2, 3]).has(dType.type)) || (this.addCameraVisible && new Set([4, 5]).has(dType.type))) {
+            if (this.addAioVisible && !new Set([2, 3]).has(dType.type)) {
+              callback(new Error('非一体机序列号'))
+            } else if (this.addCameraVisible && !new Set([4, 5]).has(dType.type)) {
+              callback(new Error('非摄像头序列号'))
+            } else {
               DeviceIsExisted({deviceKey: value}).then(res => {
                 if (res.data) {
                   // 校验设备是否被绑定过
                   DeviceIsAdded({deviceKey: value}).then(res2 => {
                     if (res2.data) {
-                      callback(new Error('设备已存在'))
+                      callback(new Error('该设备已添加'))
                     } else {
                       callback()
                     }
@@ -239,21 +242,19 @@ export default {
                 } else {
                   this.deviceInfo.exist = ''
                   this.deviceInfo.type = ''
-                  callback(new Error('设备序列号不存在'))
+                  callback(new Error('序列号不存在'))
                 }
               }).catch(err => {
                 callback(new Error(err.msg || '服务器异常'))
               })
-            } else {
-              callback(new Error('设备序列号不存在'))
             }
           } else {
-            callback(new Error('设备序列号不存在'))
+            callback(new Error('序列号不存在'))
           }
         } else {
           this.deviceInfo.type = ''
           this.deviceInfo.exist = ''
-          callback(new Error('请输入16位序列号'))
+          callback(new Error('请输入序列号'))
         }
       }
     }
@@ -270,13 +271,13 @@ export default {
               serverKey: this.addCameraForm.serverKey
             }
             CameraAliasExist(subData).then(res => {
-              res.data ? callback(new Error('设备别名已存在')) : callback()
+              res.data ? callback(new Error('该名称已存在')) : callback()
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
             })
           } else {
             DeviceAliasExist(subData).then(res => {
-              res.data ? callback(new Error('设备别名已存在')) : callback()
+              res.data ? callback(new Error('该名称已存在')) : callback()
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
             })
@@ -293,10 +294,10 @@ export default {
       if (!value || !file) {
         callback(new Error('请选取文件'))
       } else {
-        console.log(file)
+        let name = file.name.substring(0, file.name.lastIndexOf('.'))
         if (file.raw.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
           callback(new Error('只允许上传Excel文件'))
-        } else if (file.name === '') {
+        } else if ((this.importType === 1 && name !== '7045/8045') || (this.importType === 2 && name !== '7A45/8A45')) {
           callback(new Error('导入文件名与模版不同'))
         } else {
           callback()
@@ -433,7 +434,7 @@ export default {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
       GetOwnDeviceList({index: page, searchText: this.searchValue || '', length: 10}).then(res => {
         this.equipmentList = res.data.content || []
-        this.pagination = res.data.pagination
+        this.pagination = res.data.pagination || {}
       })
     },
     // 添加服务器
@@ -546,6 +547,8 @@ export default {
     handleSuccess (res) {
       this.fileList = []
       if (res.result) {
+        this.ExcelAddVisible = false
+        this.$tip('导入成功')
         this.progress.close()
         this.getMineEquipment()
       } else {

@@ -1,8 +1,12 @@
 <template>
   <div class="portal__content--wrap">
     <div class="group__select--wrap">
-      <el-select v-model="currentGroup">
-        <el-option v-for="(item, $index) in groupList" :key="$index" :value="item.name"></el-option>
+      <el-select @change="groupChange" v-model="currentGroup">
+        <el-option
+          v-for="(item, $index) in groupList"
+          :key="$index"
+          :value="$index"
+          :label="item.name"></el-option>
       </el-select>
     </div>
     <el-table
@@ -10,20 +14,27 @@
       :data="portalList"
     >
       <el-table-column
-        prop="name"
+        prop="portalName"
         width="120"
+        :show-overflow-tooltip="true"
         align="center"
         label="出入口">
       </el-table-column>
       <el-table-column
         prop="name"
+        header-align="center"
         label="设备">
         <template slot-scope="scope">
           <el-scrollbar class="table__scrollbar--wrap">
             <ul class="table__device--list">
-              <li v-for="item in 5" :key="item" class="vam">
-                <span class="ellipsis">{{'设备'+ item}}</span>
+              <li v-for="(item, index) in scope.row.portalDeviceList" :key="index" class="vam">
+                <span class="ellipsis">{{item.name}}</span>
                 <i class="el-icon-delete" @click="deletePortalDevice(item)"></i>
+              </li>
+              <li class="vam"
+                  style="line-height: 80px"
+                  v-if="!scope.row.portalDeviceList || !scope.row.portalDeviceList.length">
+                暂无设备
               </li>
             </ul>
           </el-scrollbar>
@@ -34,12 +45,13 @@
         align="center"
         label="操作">
         <template slot-scope="scope">
-          <a href="javascript:void(0)" @click="showAddDialog(scope.row)">添加</a>
+          <a href="javascript:void(0)" @click="showAddDialog(scope.row)">添加设备</a>
         </template>
       </el-table-column>
     </el-table>
     <el-pagination
       @current-change="getPortalEquipment"
+      @size-change="sizeChange"
       :page-sizes="[4, 10, 20, 30]"
       :current-page="pagination.index"
       :page-size="pagination.length"
@@ -59,23 +71,25 @@
           <el-checkbox-group
             v-model="checkedItems">
             <el-checkbox
-              v-for="(item,$index) in ownDeviceList"
-              :label="item"
+              v-for="(item) in ownDeviceList"
+              :label="item.deviceKey"
               :disabled="item.disabled"
-              :key="$index">{{item.name}}</el-checkbox>
+              :key="item.deviceKey">{{item.name}}</el-checkbox>
           </el-checkbox-group>
         </el-scrollbar>
       </div>
       <div slot="footer" class="dialog-footer mt16">
         <el-button class="cancel" @click="AddDeviceVisible = false">返 回</el-button>
-        <el-button class="affirm" type="primary" @click="portalAddDevice()">添加</el-button>
+        <el-button class="affirm" type="primary" @click="portalAddDevice">添加</el-button>
       </div>
     </ob-dialog-form>
   </div>
 </template>
 
 <script>
-import {GetOwnDeviceList} from '../../api/device'
+import {mapState} from 'vuex'
+import {GetOwnDeviceList, PortalDeviceList, PortalMemberDevice } from '../../api/device'
+import {MemberNoFloor, PortalBatchBindDevice, PortalUnbindDevice} from '../../api/community'
 
 export default {
   name: 'portal',
@@ -87,47 +101,113 @@ export default {
       currentPortal: '', // 当前出入口信息
       currentGroup: '', // 当前选中社群
       groupList: [
-        {name: '城西'}
       ], // 自有社群列表
       portalList: [
-        {name: '出入口A'}
       ], // 出入口设备列表
       pagination: {
-        total: 30,
-        length: 5
       } // 设备列表分页信息
     }
   },
   created () {},
-  mounted () {},
-  computed: {},
+  mounted () {
+    this.getGroupList()
+    this.getPortalEquipment()
+  },
+  computed: {
+    ...mapState(['userInfo', 'currentManage'])
+  },
   methods: {
+    getGroupList () {
+      if (!this.currentManage.id) return
+      MemberNoFloor({groupId: this.currentManage.id}).then(res => {
+        this.groupList = res.data
+      })
+    },
     // 获取出入口设备列表
-    getPortalEquipment () {
+    getPortalEquipment (page, size) {
+      if (!this.currentManage.id) return
+      if (this.groupList[this.currentGroup] && this.groupList[this.currentGroup].id) {
+        PortalMemberDevice({groupSonId: this.groupList[this.currentGroup].id, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
+          this.portalList = res.data.content
+          this.pagination = res.data.pagination
+        })
+      } else {
+        PortalDeviceList({groupId: this.currentManage.id, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
+          this.portalList = res.data.content
+          this.pagination = res.data.pagination
+        })
+      }
     },
     // 添加出入口设备
-    portalAddDevice () {},
+    portalAddDevice () {
+      let checkSet = new Set(this.checkedItems)
+      let checked = this.ownDeviceList.filter(item => !item.disabled).filter(item => checkSet.has(item.deviceKey))
+      if (!checked.length) {
+        this.$tip('请选择要添加的设备', 'error')
+        return false
+      }
+      let arr = checked.map(item => {
+        return {
+          deviceKey: item.deviceKey,
+          name: item.name,
+          merchantGuid: this.userInfo.developerId,
+          portalGuid: this.currentPortal.portalGuid
+        }
+      })
+      PortalBatchBindDevice({deviceGroupPortalReqs: arr}).then(res => {
+        this.$tip('添加成功')
+        this.AddDeviceVisible = false
+        this.getPortalEquipment()
+      })
+    },
     // 显示添加设备弹框
     showAddDialog (row) {
+      this.checkedItems = row.portalDeviceList.map(item => item.deviceKey)
       GetOwnDeviceList().then(res => {
-        this.ownDeviceList = res.data.content || []
         this.currentPortal = row
+        let deviceKeySet = new Set(this.currentPortal.portalDeviceList.map(item => item.deviceKey))
+        res.data.content = res.data.content.map(item => {
+          if (deviceKeySet.has(item.deviceKey)) {
+            item.disabled = true
+          }
+          return item
+        })
+        this.ownDeviceList = res.data.content || []
         this.AddDeviceVisible = true
       })
     },
-    deletePortalDevice () {
+    deletePortalDevice (data) {
       this.$affirm({
         title: '删除绑定关系',
         confirm: '删除',
         text: '删除关系后，该出入口下将不包含该设备'
       }, (action, instance, done) => {
         if (action === 'confirm') {
+          PortalUnbindDevice({deviceKey: data.deviceKey}).then(res => {
+            this.$tip('删除成功')
+            this.getPortalEquipment()
+          })
         }
         done()
       })
+    },
+    sizeChange (size) {
+      this.getPortalEquipment(this.pagination.index, size)
+    },
+    groupChange () {
+      this.getPortalEquipment()
     }
   },
-  watch: {}
+  watch: {
+    currentManage: {
+      handler (val) {
+        this.currentGroup = ''
+        this.getGroupList()
+        this.getPortalEquipment(1, 4)
+      },
+      deep: true
+    }
+  }
 }
 </script>
 

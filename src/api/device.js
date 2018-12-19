@@ -139,3 +139,19 @@ export function DeviceUpgrade (data) {
 //     data
 //   })
 // }
+
+// 社群下出口设备列表（管理层ID）
+export function PortalDeviceList (data) {
+  return request({
+    url: '/portal/device/group',
+    data
+  })
+}
+
+// 社群下出口设备列表(通过成员ID获取)
+export function PortalMemberDevice (data) {
+  return request({
+    url: '/portal/member/device',
+    data
+  })
+}

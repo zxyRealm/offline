@@ -604,6 +604,10 @@ export default {
     eventObject().$on('change', msg => { // eventObject接收事件
       this.dialogFormVisible = true
     })
+    eventObject().$on('ManageListRefresh', () => { // 刷新管理层社群列表
+      console.log('refresh data')
+      this.getManageList()
+    })
   },
   beforeRouteLeave (to, from, next) {
     // 路由跳转后，不需要保存控制台群的信息

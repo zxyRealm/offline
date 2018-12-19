@@ -56,7 +56,7 @@
         <transition-group name="list-customer" class="transition-wrap left" tag="ul">
           <li
             v-for="(item,$index) in pedestrianInData"
-            :key="$index"
+            :key="item.order"
             class="list-customer-item"
           >
             <customer-info :index="pedestrianInData.length -$index" :detailInfo="item" @handleDetailData="showDetailInfo"></customer-info>
@@ -76,7 +76,7 @@
         <transition-group name="list-customer" class="transition-wrap right" tag="ul">
           <li
             v-for="(item,$index) in pedestrianOutData"
-            :key="$index"
+            :key="item.order"
             class="list-customer-item out-li"
           >
             <customer-info :index="pedestrianOutData.length -$index" :detailInfo="item" @handleDetailData="showDetailInfo"></customer-info>

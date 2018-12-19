@@ -108,6 +108,14 @@ export function GetCommunityUpdate (data) {
   })
 }
 
+// 管理层社群下所有成员社群（不包含楼层社群）
+export function MemberNoFloor (data) {
+  return request({
+    url: '/group/son/except/floor',
+    data
+  })
+}
+
 // 添加成员
 export function AddMember (data) {
   return request({

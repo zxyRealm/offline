@@ -34,43 +34,31 @@
         @current-change="currentChange"
         ref="GroupTree">
         <span class="custom-tree-node" slot-scope="{ node, data }">
-          <template v-if="data.button">
-            <!--<span class="group__custom&#45;&#45;btn" :class="{'groups-btn': data.button}">-->
-              <!--&lt;!&ndash;{{data.button === 'groups' ? '': '添加社群'}}&ndash;&gt;-->
-            <!--</span>-->
-          </template>
-          <template v-else>
-            <uu-icon v-if="node.level === 2 && data.memberItem" type="groups" size="mini"></uu-icon>
-            <span
-               v-if="type==='custom-community'"
-               :class="{ellipsis:true,'dialog-tree':type === 'custom'}"
-               :custom-type="customType(data.type)"
-               :style="{maxWidth:''}"
-             >
-              {{data[defaultProps.label]}}
-            </span>
-            <span
-              v-if="type!=='custom-community'"
-              :class="{ellipsis:true,'dialog-tree':type === 'custom'}">
-              {{ data[defaultProps.label] }}
-            </span>
-            <i v-if="node.level === 2 && data.memberItem && data.groupPid && isEdit" class="el-icon-plus fr" @click="addCommunity(data,node)"></i>
-          </template>
-          <!--商场-->
-          <uu-icon class="role__icon--img" v-if="data.role === 0 && node.level === 1" type="role01"></uu-icon>
-          <!--连锁总店-->
-          <uu-icon class="role__icon--img" v-else-if="data.type !== 3 && data.role === 1 && node.level === 1" type="role02"></uu-icon>
-          <!--单个门店-->
-          <uu-icon v-else-if="data.type === 3 && node.level === 1" class="role__icon--img" type="role03"></uu-icon>
+          <!--data.type 1 成员社群 2 管理层(商场/连锁)社群 3楼层社群-->
+          <span
+             v-if="type==='custom-community'"
+             :class="{ellipsis:true,'dialog-tree':type === 'custom'}"
+             :custom-type="customType(data.type)"
+             :style="{maxWidth:''}"
+           >
+            {{data[defaultProps.label]}}
+          </span>
+          <span
+            v-if="type!=='custom-community'"
+            :class="{ellipsis:true,'dialog-tree':type === 'custom'}">
+            {{ data[defaultProps.label] }}
+          </span>
+          <!--role01 商场 role02 连锁总店 role03 单个门店-->
+          <uu-icon class="role__icon--img" v-if="node.level === 1" :type="'role0' + currentManage.type"></uu-icon>
           <uu-icon v-if="node.level === 3 && !data.self" class="role__icon--img" type="foreign"></uu-icon>
-          <el-tooltip v-if="rights && data.role === 0 && node.level === 1" content="数据查看权限" placement="top" effect="light">
-            <uu-icon class="role__icon--img" size="small" type="data"></uu-icon>
-          </el-tooltip>
-          <el-tooltip v-if="rights && data.role === 0 && data.rule && data.rule.length > 2" content="设备操作权限" placement="top" effect="light">
-             <uu-icon size="mini" class="role__icon--img" type="handle"></uu-icon>
-          </el-tooltip>
-          <i v-if="type==='community' && node.level > 2 && isEdit" class="el-icon-remove-outline danger fr"
-             @click="leaveCommunity(data, node)"></i>
+          <!--<el-tooltip v-if="rights && data.type === 2" content="数据查看权限" placement="top" effect="light">-->
+            <!--<uu-icon class="role__icon&#45;&#45;img" size="small" type="data"></uu-icon>-->
+          <!--</el-tooltip>-->
+          <!--<el-tooltip v-if="rights && data.rule.length > 2" content="设备操作权限" placement="top" effect="light">-->
+             <!--<uu-icon size="mini" class="role__icon&#45;&#45;img" type="handle"></uu-icon>-->
+          <!--</el-tooltip>-->
+          <!--<i v-if="type==='community' && node.level > 2 && isEdit" class="el-icon-remove-outline danger fr"-->
+             <!--@click="leaveCommunity(data, node)"></i>-->
         </span>
       </el-tree>
     </el-scrollbar>
@@ -79,7 +67,7 @@
 
 <script>
 import {customType, uniqueKey} from '@/utils'
-
+import {mapState} from 'vuex'
 export default {
   props: {
     value: { // 社群列表数组对象
@@ -388,6 +376,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['currentManage']),
     isCheckAll: function () {
       return this.multiple
     },
