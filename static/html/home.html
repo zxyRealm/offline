@@ -16,11 +16,27 @@
 <div id="WebGL-output"></div>
 <script type="text/javascript">
   let renderer, scene, camera;
-  let scale = 0.5; // 缩放比
+  let scale = 0.6; // 缩放比
   let clock = new THREE.Clock();
   let mixArr = [], pointArr = new Array(1000)
-  let floorHeight = 35
-  let floorArr = [-3*floorHeight, -2*floorHeight, -floorHeight, 0, floorHeight, 2*floorHeight, 3*floorHeight, 4*floorHeight, 5*floorHeight, 6*floorHeight]
+  let meshList = [];
+  let planeList = [];
+  let geometryArr = [];
+  let materialArr = [];
+  let pointCloudArr = [];
+  let floorHeight = 35;
+  let floorArr = [
+    -3*floorHeight, 
+    -2*floorHeight, 
+    -floorHeight, 
+    0, 
+    floorHeight, 
+    2*floorHeight, 
+    3*floorHeight, 
+    4*floorHeight, 
+    5*floorHeight, 
+    6*floorHeight
+  ]
   function init() {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth-160, window.innerHeight-100);
@@ -30,7 +46,7 @@
     scene.background = new THREE.Color('#232027');
 
     camera = new THREE.PerspectiveCamera(45, (window.innerWidth-160) / (window.innerHeight-100), 1, 1000 );
-    camera.position.set( 220, 140, 330 );
+    camera.position.set( 260, 200, 330 );
     scene.add(camera);
 
     let light = new THREE.PointLight( 0xffffff, 0.8 );
@@ -49,7 +65,6 @@
     let group = new THREE.Group();
     group.position.set(-290*scale, 0, -241*scale)
     scene.add(group);
-
 
     // 创建楼层图片
     loadSvg(group, floorArr[9], '10');
@@ -138,8 +153,7 @@
       }
     })
   }
-
-  let planeList = [];
+  
   function addShape(shape, group, color, y) {
     let geometry = new THREE.ShapeBufferGeometry( shape );
     let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }));
@@ -150,7 +164,6 @@
     group.add(mesh);
   }
 
-  let meshList = [];
   // 绘制单层平面图
   function addLineShape( shape, group, color, y) {
     shape.autoClose = true;
@@ -186,36 +199,35 @@
     return texture;
   }
 
-  let geometryArr = [];
-  let materialArr = [];
   // 创建闪光粒子: 接收从父页面中传递进来的值
-  function createPointCloud(i) {
+  function createPointCloud(alx, floor) {
+    alx = alx.replace('[', '')
+    alx = alx.replace(']', '')
+    alx = alx.split(',')
+    pointCloudArr.push(alx)
+    let icount = pointCloudArr.length - 1
+    console.log(icount)
 
-    if (i<100) {
-      geometryArr[i] = new THREE.CircleGeometry(4, 50, 32)
-      materialArr[i] = new THREE.MeshBasicMaterial({
+    if (pointCloudArr.length<100) {
+      geometryArr[icount] = new THREE.CircleGeometry(4, 50, 32)
+      materialArr[icount] = new THREE.MeshBasicMaterial({
         color: new THREE.Color('#fcff15'),
         transparent: true,
         side: THREE.DoubleSide,
         blending: THREE.AdditiveBlending,
         map: generateSprite()
       });
-
-      pointArr[i] = new THREE.Mesh(geometryArr[i], materialArr[i]);
-      pointArr[i].sortParticles = true;
-      pointArr[i].position.x = getRandom(-100, 100)
-      pointArr[i].position.y = floorArr[getRandom(-1, 9)]
-      pointArr[i].position.z = getRandom(-30, 30)
-      pointArr[i].rotation.x = 0.5*Math.PI
-      scene.add(pointArr[i]);
-      createAnimate(pointArr[i], i)
+      pointArr[icount] = new THREE.Mesh(geometryArr[icount], materialArr[icount]);
+      pointArr[icount].sortParticles = true;
+      pointArr[icount].position.set(alx[0], (floor-1)*35+1, alx[1])
+      pointArr[icount].rotation.x = 0.5*Math.PI
+      scene.add(pointArr[icount]);
+      createAnimate(pointArr[icount], icount)
     } else {
-      i = i%100
-      pointArr[i].position.x = getRandom(-100, 100)
-      pointArr[i].position.y = floorArr[getRandom(-1, 9)]
-      pointArr[i].position.z = getRandom(-30, 30)
-      pointArr[i].rotation.x = 0.5*Math.PI
-      createAnimate(pointArr[i], i)
+      icount = icount%100
+      pointArr[icount].position.set(alx[0], (floor-1)*35+1, alx[1])
+      pointArr[icount].rotation.x = 0.5*Math.PI
+      createAnimate(pointArr[icount], icount)
     }
   }
 
@@ -244,7 +256,7 @@
     let clipAction = mixer.clipAction( clip );
     mixArr[i] = mixer
     clipAction.play();
-    clipAction.loop = THREE.LoopOnce
+    // clipAction.loop = THREE.LoopOnce
   }
 
   function render() {

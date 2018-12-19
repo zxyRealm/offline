@@ -17,10 +17,10 @@
             <span class="gender">{{item.gender}}</span>
             <span class="age">{{item.age}}</span>
           </div>
-          <div class="time">{{item.time}}</div>
+          <div class="time">{{item.appearanceDate}}</div>
         </div>
         <div class="box-right">
-          <img :class="{'glow-border': index === 0}" :src="item.image" alt="">
+          <img :class="{'glow-border': index === 0}" :src="item.imgUrl" alt="">
         </div>
       </div>
     </div>
@@ -91,31 +91,24 @@ export default {
         {name: 'B2', path: '/static/html/plane.html?floor=' + '2', id: 'threeFrame2'},
         {name: 'B1', path: '/static/html/plane.html?floor=' + '1', id: 'threeFrame1'}
       ],
-      personList: [
-        {name: '张木木', gender: '女', age: '18', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '19', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '20', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '21', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '22', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '23', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '12', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '12', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '12', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '12', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '12', time: '14:00', image: '/static/UV_Grid_Sm.jpg'},
-        {name: '张木木', gender: '女', age: '12', time: '14:00', image: '/static/UV_Grid_Sm.jpg'}
-      ],
+      personList: [],
       frame: {
         id: 'threeFrame',
         name: 'threeFrame',
         path: '/static/html/home.html'
       },
       iframe: null,
-      cloudTimer: null
+      cloudTimer: null,
+      websocket: '' // websocket连接
     }
   },
   computed: {
     ...mapState(['currentManage'])
+  },
+  beforeDestroy () {
+    if (this.websocket) {
+      this.websocket.close()
+    }
   },
   methods: {
     updateFrameArea (path, name) {
@@ -141,21 +134,30 @@ export default {
       current.style.width = (general.offsetWidth - 185) * 3 / 11 + 'px'
       floor.style.left = ((general.offsetWidth - 185) - floor.offsetWidth) / 2 + 'px'
     },
+    timestampToTime (timestamp) {
+      let date = new Date(timestamp)
+      let h = date.getHours() + ':'
+      let m = date.getMinutes()
+      return h + m
+    },
     // 获取socket服务地址并建立websocket链接
     getWebsocket () {
       GetSocketIP().then(res => {
         let _this = this
-        let wsServer = `ws://192.168.1.153:8010/websocket/${this.currentManage.id}` // 服务器地址
+        let data = {}
+        let wsServer = `ws://192.168.1.153:8010/websocket/88` // 服务器地址
         this.websocket = new WebSocket(wsServer)
         this.websocket.onopen = function (evt) {
           // 已经建立连接
-          _this.websocket.send(_this.currentManage.id + '_channel') // 向服务器发送消息
+          _this.websocket.send('88_channel') // 向服务器发送消息
           console.info('已经连接')
         }
-        this.websocket.onmessage = function (evt) {
-          // 收到服务器消息，使用evt.data提取
-          console.log('push message', evt)
-          // _this.resolveDatad(evt.data)
+        this.websocket.onmessage = (evt) => {
+          console.log('push message', JSON.parse(evt.data))
+          data = JSON.parse(evt.data)
+          if (data.data.coordinates && data.type === 'SHINING') {
+            this.iframe.createPointCloud(data.data.coordinates, data.data.floor)
+          }
         }
         this.websocket.onclose = function (evt) {
           console.info('已经关闭连接')
@@ -165,13 +167,30 @@ export default {
         }
       })
     },
+    handleSocketData (data, ...fieldName) {
+      let arr = fieldName[0]
+      let options = {
+        'coordinates': () => {
+          if (data.coordinates) {
+            this.iframe.createPointCloud(data.coordinates)
+          }
+        },
+        'memberInfo': () => {
+          if (data.memberInfo) {
+            data.memberInfo.appearanceDate = this.timestampToTime(data.memberInfo.appearanceDate)
+            this.personList.unshift(data.memberInfo)
+          }
+        }
+      }
+      arr.forEach(item => { options[item] })
+    },
     /****************************************************
      *********************  发送值  **********************
      ****************************************************/
     // plane：传递色块
     sendColor () {
       let storeInfoArr = [
-        {position: 10, logo: 'starbucks.jpg', name: '星一克', count: 5},
+        {position: 10, logo: 'starbucks.jpg', name: '星克', count: 5},
         {position: 15, logo: 'starbucks.jpg', name: '星二克', count: 12},
         {position: 20, logo: 'starbucks.jpg', name: '星三克', count: 14},
         {position: 25, logo: 'starbucks.jpg', name: '星四克', count: 20},
@@ -192,8 +211,7 @@ export default {
       let count = 0
       this.cloudTimer = setInterval(() => {
         this.iframe.createPointCloud(count)
-        count++
-      }, 100)
+      }, 1000)
     },
     // 悬浮框数据
     sendStoreData () {
@@ -230,8 +248,10 @@ export default {
     }
   },
   mounted () {
-    this.sendAlex()
+    // this.sendAlex()
+    this.handleSocketData('1', ['coordinates', 'memberInfo'])
     this.setFrameSize()
+    this.getWebsocket()
     this.iframe = this.$refs.iframe.contentWindow
     window.addEventListener('message', this.handleMessage)
     window.addEventListener('resize', this.setFrameSize, false)
@@ -240,7 +260,7 @@ export default {
     'frame.name': {
       handler (val) {
         if (val === 'threeFrame') {
-          this.sendAlex()
+          // this.sendAlex()
         } else {
           clearInterval(this.cloudTimer)
         }

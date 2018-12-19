@@ -181,15 +181,17 @@
   let hasColorBoxArr = [] // 用来保存有颜色的块的数组
 
   function init() {
+    let innerWidth = window.innerWidth - 160 // 减去右侧aside的宽度
+    let innerHeight = window.innerHeight - 100 // 减去底部div的宽度
     renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
-    renderer.setSize(window.innerWidth-160, window.innerHeight-100);
+    renderer.setSize(innerWidth, innerHeight);
     renderer.setClearColor('#ffffff', 1.0);
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color( '#232027' );
 
-    camera = new THREE.PerspectiveCamera(45, (window.innerWidth-160) / (window.innerHeight-100), 1, 1000 );
-    camera.position.set(0, 0, 250);
+    camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 1, 1000 );
+    camera.position.set(0, 0, 520);
     scene.add(camera);
 
     let light = new THREE.PointLight( 0xffffff, 0.8 );
@@ -231,9 +233,9 @@
 
       // 创建分组容器
       group = new THREE.Group()
-      group.position.x = -290 * scale // 图片尺寸 * 缩放比
-      group.position.y = 214 * scale
-      group.scale.set(scale, -scale, scale)
+      group.position.x = -290 // 图片尺寸 * 缩放比
+      group.position.y = 214
+      group.scale.set(1, -1, 1)
       scene.add(group)
 
       for (let i = 0; i < paths.length; i++) {
@@ -272,22 +274,21 @@
     // 创建文字
     let textObj = createTextSprite(obj)
     if (obj.text.length > 2) {
-      textObj.scale.set(0.75 * obj.text.length * 8, 0.25 * obj.text.length * 7, 100)
-      textObj.position.set(obj.position.x + 2 + (obj.text.length+1)*0.5, obj.position.y - 3 - obj.text.length, 1)
+      textObj.scale.set(0.75 * obj.text.length * 20, 0.25 * obj.text.length * 17, 250)
+      textObj.position.set(obj.position.x + 2.5 + (obj.text.length+1)*(0.6/0.4), obj.position.y - 4 - obj.text.length/0.4, 2.5)
     } else if(obj.text.length === 2){
-      textObj.scale.set(0.75 * 15, 0.25 * 25, 100)
-      textObj.position.set(obj.position.x + 1.2, obj.position.y - 4.5 - obj.text.length, 1)
+      textObj.scale.set(0.75 * 40, 0.25 * 62.5, 250)
+      textObj.position.set(obj.position.x + 4.5, obj.position.y - 14, 1)
     } else {
       textObj.scale.set(0.75 * 15, 0.25 * 25, 100)
-      textObj.position.set(obj.position.x + 3.2, obj.position.y - 5.5 - obj.text.length, 1)
+      textObj.position.set(obj.position.x + 15, obj.position.y - 5.5 - obj.text.length, 2.5)
     }
 
     scene.add(textObj)
-    console.log(obj)
     // 创建图片
     if(obj.logo){
       let sprite = createPictureSprite(obj.logo)
-      sprite.scale.set(6, 6, 6)
+      sprite.scale.set(15, 15, 15)
       sprite.position.set(obj.position.x, obj.position.y, 1)
       scene.add(sprite)
       // 文字贴图的参数传递到图片贴图的userData中
@@ -377,7 +378,7 @@
             }
             if (boxArr[j].count < 10) {
               shapesMeshArr[i].material.color = new THREE.Color('#213A65')
-            } else if(boxArr[j].count >=10 && boxArr[j].count <20) {
+            } else if(boxArr[j].count >=10 && boxArr[j].count < 20) {
               shapesMeshArr[i].material.color = new THREE.Color('#0F9EE9')
             } else if(boxArr[j].count >= 20 && boxArr[j].count < 30) {
               shapesMeshArr[i].material.color = new THREE.Color('#005BC9')
@@ -462,9 +463,11 @@
 
   // 监听屏幕尺寸变化
   function onWindowResize () {
-    camera.aspect = (window.innerWidth-160) / (window.innerHeight-100)
+    let innerWidth = window.innerWidth - 160
+    let innerHeight = window.innerHeight - 100
+    camera.aspect = innerWidth / innerHeight
     camera.updateProjectionMatrix()
-    renderer.setSize((window.innerWidth-160), window.innerHeight-100)
+    renderer.setSize(innerWidth, innerHeight)
     let label = document.getElementById('label');
     label.style.right = ((window.innerWidth)/2 - (label.offsetWidth/2)) + 80 + 'px'
   }
@@ -567,9 +570,9 @@
     let a = changeArrayLevel(array)
     let ps = new Contour(a.buffer).centroid()
     return {
-      rx: (a.maxLeft-290) * 0.4,
-      cx: (ps.x-290) * 0.4,
-      cy: (214-ps.y) * 0.4
+      rx: (a.maxLeft-290),
+      cx: (ps.x-290),
+      cy: (214-ps.y)
     }
   }
 
