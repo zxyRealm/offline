@@ -13,10 +13,12 @@
       padding: 0;
     }
     #label{
-      width: 540px;
+      width: 556px;
+      left: 50%;
+      margin-left: -238px;
       height: 16px;
       position: absolute;
-      bottom: 130px;
+      bottom: 30px;
     }
     #label .item{
       padding-top: 1px;
@@ -143,6 +145,7 @@
     <div class="label">40人以上</div>
   </div>
 </div>
+
 <div class="levitaten" id="levitaten">
   <div class="title" id="levitaten-title"></div>
   <div class="device-list" id="levitaten-list">
@@ -181,8 +184,8 @@
   let hasColorBoxArr = [] // 用来保存有颜色的块的数组
 
   function init() {
-    let innerWidth = window.innerWidth - 160 // 减去右侧aside的宽度
-    let innerHeight = window.innerHeight - 100 // 减去底部div的宽度
+    let innerWidth = window.innerWidth // 减去右侧aside的宽度
+    let innerHeight = window.innerHeight // 减去底部div的宽度
     renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
     renderer.setSize(innerWidth, innerHeight);
     renderer.setClearColor('#ffffff', 1.0);
@@ -199,7 +202,6 @@
 
     // 计算label位置
     let label = document.getElementById('label');
-    label.style.right = ((window.innerWidth)/2 - (label.offsetWidth/2)) + 80 + 'px'
 
     // 获取当前src并截取楼层号码
     let floor = window.location.search.split('=')[1]
@@ -463,13 +465,11 @@
 
   // 监听屏幕尺寸变化
   function onWindowResize () {
-    let innerWidth = window.innerWidth - 160
-    let innerHeight = window.innerHeight - 100
+    let innerWidth = window.innerWidth
+    let innerHeight = window.innerHeight
     camera.aspect = innerWidth / innerHeight
     camera.updateProjectionMatrix()
     renderer.setSize(innerWidth, innerHeight)
-    let label = document.getElementById('label');
-    label.style.right = ((window.innerWidth)/2 - (label.offsetWidth/2)) + 80 + 'px'
   }
 
   // 监听点击事件
