@@ -4,37 +4,10 @@
       <router-link to="/equipment/mine">
         设备列表
       </router-link>
-      <!--<el-select-->
-        <!--popper-class="device__sub&#45;&#45;popper"-->
-        <!--:class="{'router-link-active': true}"-->
-        <!--v-model="currentRouter"-->
-        <!--placeholder="请选择">-->
-        <!--<el-option-group-->
-          <!--v-for="group in options3"-->
-          <!--:key="group.label"-->
-          <!--:label="group.label">-->
-          <!--<el-option-->
-            <!--v-for="item in group.options"-->
-            <!--:key="item.value"-->
-            <!--:label="item.label"-->
-            <!--:value="item.value">-->
-          <!--</el-option>-->
-        <!--</el-option-group>-->
-      <!--</el-select>-->
       <router-link to="/equipment/children">
         出入口设备
       </router-link>
     </div>
-    <!--<uu-sub-tab-->
-      <!--search-->
-      <!--show-button-->
-      <!--:sub-btn="{text: '创建社群'}"-->
-      <!--@remote-search="search"-->
-      <!--@handle-btn="handleBtn"-->
-      <!--placeholder="快速查找设备"-->
-      <!--:btn-array="btnArray"-->
-      <!--:menu-array="menu2">-->
-    <!--</uu-sub-tab>-->
     <ob-list-empty
       top="106px"
       v-if="!equipmentList.length"
@@ -78,10 +51,10 @@
           :rules="addCameraRules"
         >
           <el-form-item label="名称：" prop="name">
-            <el-input placeholder="请输入设备名称" v-model="addCameraForm.name"></el-input>
+            <el-input placeholder="请输入设备名称" v-model.trim="addCameraForm.name"></el-input>
           </el-form-item>
           <el-form-item label="序列号：" prop="deviceKey">
-            <el-input placeholder="请输入16位序列号" v-model="addCameraForm.deviceKey"></el-input>
+            <el-input placeholder="请输入16位序列号" v-model.trim="addCameraForm.deviceKey"></el-input>
           </el-form-item>
           <span v-show="textState.text">
             <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>
@@ -112,10 +85,10 @@
           :rules="addAioRules"
         >
           <el-form-item label="名称：" prop="deviceName">
-            <el-input placeholder="请输入设备名称" v-model="addAioForm.deviceName"></el-input>
+            <el-input placeholder="请输入设备名称" v-model.trim="addAioForm.deviceName"></el-input>
           </el-form-item>
           <el-form-item label="序列号：" prop="deviceKey">
-            <el-input placeholder="请输入16位序列号" v-model="addAioForm.deviceKey"></el-input>
+            <el-input placeholder="请输入16位序列号" v-model.trim="addAioForm.deviceKey"></el-input>
           </el-form-item>
           <span v-show="textState.text">
           <div class="name--text vam" :class="textState.name"><div>{{textState.text}}</div></div>

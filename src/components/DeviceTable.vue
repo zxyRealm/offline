@@ -8,9 +8,8 @@
       <el-table-column
         label="名称">
         <template slot-scope="scope">
-          <span :class="isMine?'ellipsis-20':'ellipsis'">{{scope.row.name || '暂无'}}</span>
+          <span :class="'ellipsis-20'">{{scope.row.name || '暂无'}}</span>
           <el-popover
-              v-if="isMine"
               placement="top"
               popper-class="nick_name--popover"
               @show="showPopover(scope.$index)"
@@ -31,28 +30,28 @@
                   <uu-icon type="error" @click.native="scope.row.popover = false"></uu-icon>
                 </el-form-item>
               </el-form>
-              <i slot="reference" v-if="isMine" class="el-icon-edit"></i>
+              <i slot="reference" class="el-icon-edit"></i>
             </el-popover>
-        </template>
-      </el-table-column>
-      <el-table-column
-        width="90"
-        label="状态">
-        <template slot-scope="scope">
-          <span :class="stateClass(scope.row.deviceStatus)">{{scope.row.deviceStatus | lineState}}</span>
-          <i @click="getDeviceState(scope.row)" class="el-icon-refresh success-color"></i>
         </template>
       </el-table-column>
       <el-table-column
         prop="deviceKey"
         label="序列号"
-        width="168">
+        :width="dataType !== 'camera' ? 168 : ''">
       </el-table-column>
       <el-table-column
-        width="80"
-        label="类型">
+        v-if="dataType !== 'camera'"
+        prop="deviceVersion"
+        label="版本号"
+        width="100">
+      </el-table-column>
+      <el-table-column
+        v-if="dataType !== 'camera'"
+        width="90"
+        label="状态">
         <template slot-scope="scope">
-          {{scope.row.type | deviceType}}
+          <span :class="stateClass(scope.row.deviceStatus)">{{scope.row.deviceStatus | lineState}}</span>
+          <i @click="getDeviceState(scope.row)" class="el-icon-refresh success-color"></i>
         </template>
       </el-table-column>
       <el-table-column
@@ -62,22 +61,16 @@
         prop="deviceNum"
         label="下辖设备数量">
         <template slot-scope="scope">
-          <router-link :to="{name: 'equipment'}">{{scope.row.deviceNum}}</router-link>
-        </template>
-      </el-table-column>
-      <el-table-column
-        v-if="isMine"
-        label="所属服务器">
-        <template slot-scope="scope">
-          <span class="ellipsis-28">{{scope.row.serverName || '—'}}</span>
-          <router-link v-if="scope.row.deviceType === 1" :to="($route.name === 'equipment' ? '/equipment/mine' : '/equipment') + '/service/' + scope.row.deviceKey + '?name=' + scope.row.deviceName">{{isMine ? '管理' : '查看'}}</router-link>
+          <router-link :to="{name: 'equipmentCamera',query: {server_key: scope.row.deviceKey, name: scope.row.name}}">{{scope.row.deviceNum}}</router-link>
         </template>
       </el-table-column>
       <el-table-column
         min-width="150"
+        :align="dataType === 'camera'? 'center': ''"
+        :width="dataType === 'camera'? 160: ''"
         label="操作">
         <template slot-scope="scope">
-            <template v-if="scope.row.deviceType !== 1">
+            <template v-if="dataType !== 'camera'">
               <el-popover
                 popper-class="table__popper--help"
                 placement="top"
@@ -121,7 +114,7 @@
               <!--</el-upload>-->
               <!--<a href="javascript:void (0)" class="table_btn g-mr18" @click="addCamera(scope.row)">手动添加</a>-->
             <!--</template>-->
-            <span class="error-color delete_btn fr" @click="deleteEquipment(scope.row)">删除</span>
+            <span class="error-color delete_btn" :class="{fr: dataType !== 'camera'}" @click="deleteEquipment(scope.row)">删除</span>
         </template>
       </el-table-column>
     </el-table>
@@ -142,25 +135,28 @@
       :title="dataType === 'server' ? '服务器升级' : '设备升级'"
       :visible.sync="deviceUpdateVisible">
       <div slot="form" class="vam">
-        <div class="version__list--wrap">
-          <div class="c-grey fs12 g-pl20 mt16">设备当前版本：{{currentVersion}}</div>
+        <div class="version__list--wrap text-center">
+          <div class="c-grey fs12 g-pl20 mt16">{{dataType ==='server'? '服务器': '设备'}}当前版本：{{currentVersion}}</div>
+          <p class="radio-box last-version fs12" >
+            最新版本 {{'2.2'}}
+          </p>
           <el-radio-group v-model="selectVersion">
-            <p class="radio-box last-version fs12" >
-              <el-radio :label="-1">最新版本 {{'2.2'}}</el-radio>
-              <a href="javascript:void(0)" @click="() => {showHistory ? showHistory = false: showHistory = true}">查看历史版本
-                <i class="el-icon-d-arrow-right" :class="{'arrow-up': showHistory}"></i>
-              </a>
-            </p>
-            <el-scrollbar v-show="showHistory">
-              <p
-                v-for="(item, $index) in 5"
-                :key="$index"
-                class="radio-box">
-                <el-radio
-                  :value="item"
-                  :label="$index">备选项</el-radio>
-              </p>
-            </el-scrollbar>
+            <!--<p class="radio-box last-version fs12" >-->
+              <!--<el-radio :label="-1">最新版本 {{'2.2'}}</el-radio>-->
+              <!--<a href="javascript:void(0)" @click="() => {showHistory ? showHistory = false: showHistory = true}">查看历史版本-->
+                <!--<i class="el-icon-d-arrow-right" :class="{'arrow-up': showHistory}"></i>-->
+              <!--</a>-->
+            <!--</p>-->
+            <!--<el-scrollbar v-show="showHistory">-->
+              <!--<p-->
+                <!--v-for="(item, $index) in 5"-->
+                <!--:key="$index"-->
+                <!--class="radio-box">-->
+                <!--<el-radio-->
+                  <!--:value="item"-->
+                  <!--:label="$index">备选项</el-radio>-->
+              <!--</p>-->
+            <!--</el-scrollbar>-->
           </el-radio-group>
         </div>
       </div>
@@ -175,7 +171,7 @@
 <script>
 import {validateRule} from '@/utils/validate'
 import {simplifyGroups} from '../utils'
-import {ChangeDeviceAlias, DeviceAliasExist, DeleteDevice, GetDeviceState, DeviceHandleUrl, DeviceUpgrade} from '../api/device'
+import {ChangeDeviceAlias, DeviceAliasExist, UpdateCameraName, CheckCameraName, DeleteCameraBatch, DeleteDevice, GetDeviceState, DeviceHandleUrl, DeviceUpgrade} from '../api/device'
 
 const UPLOAD_API = process.env.UPLOAD_API
 export default {
@@ -210,11 +206,19 @@ export default {
         if (value.length > 20) {
           callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
-          DeviceAliasExist({name: value}).then(res => {
-            res.data ? callback(new Error('设备别名已存在')) : callback()
-          }).catch(err => {
-            callback(new Error(err.msg || '验证失败'))
-          })
+          if (this.$route.name === 'equipmentCamera') {
+            CheckCameraName({serverKey: this.$route.query.server_key, name: value}).then(res => {
+              res.data ? callback(new Error('设备别名已存在')) : callback()
+            }).catch(err => {
+              callback(new Error(err.msg || '验证失败'))
+            })
+          } else {
+            DeviceAliasExist({name: value}).then(res => {
+              res.data ? callback(new Error('设备别名已存在')) : callback()
+            }).catch(err => {
+              callback(new Error(err.msg || '验证失败'))
+            })
+          }
         } else {
           callback(new Error('请输入正确的设备别名'))
         }
@@ -274,12 +278,22 @@ export default {
     changeEquipmentName (index) {
       this.$refs['tableForm' + index].validate((valid) => {
         if (valid) {
+          let subData = JSON.parse(JSON.stringify(this.data[index]))
           // ChangeDeviceAlias(this.equipmentForm).then()
-          ChangeDeviceAlias(this.equipmentForm).then(res => {
-            this.$tip('修改成功')
-            this.$set(this.data[index], 'popover', false)
-            this.data[index].name = this.equipmentForm.deviceName
-          })
+          if (subData.type === 4 || subData.type === 5) {
+            subData.name = this.equipmentForm.deviceName
+            UpdateCameraName(subData).then(res => {
+              this.$tip('修改成功')
+              this.$set(this.data[index], 'popover', false)
+              this.data[index].name = this.equipmentForm.deviceName
+            })
+          } else {
+            ChangeDeviceAlias(this.equipmentForm).then(res => {
+              this.$tip('修改成功')
+              this.$set(this.data[index], 'popover', false)
+              this.data[index].name = this.equipmentForm.deviceName
+            })
+          }
         } else {
           console.log('error submit')
         }
@@ -299,7 +313,7 @@ export default {
         if (value.deviceStatus !== undefined && show) {
           this.$tip('刷新成功')
         }
-        res.data = Math.floor(Math.random() * 7)
+        // res.data = Math.floor(Math.random() * 7)
         console.log('state', res.data)
         if (res.data !== 1) {
           if (value.groupGuid) {
@@ -513,7 +527,7 @@ export default {
     handleDevice (type, value) {
       let state = this.btnState(value, type).state
       if (!state) return
-      let [des, url] = ['', '']
+      let [des, url, tip] = ['', '', '']
       switch (type) {
         case 'upgrade':
           des = '升级'
@@ -521,17 +535,21 @@ export default {
           break
         case 'reboot':
           des = '重启'
+          tip = '设备将被重启'
           url = '/device/restart'
           break
         case 'reset':
           des = '重置'
+          tip = '重置设备后，设备上的信息将被清空'
           url = '/device/reset'
           break
         case 'run':
           if (value.deviceStatus === 0) {
             des = '禁用'
+            tip = '禁用设备后，设备将不再产生数据'
           } else {
             des = '启用'
+            tip = '启用设备后，设备将产生数据'
           }
           url = '/device/startOrShutdown'
           break
@@ -551,9 +569,10 @@ export default {
       if (type === 'upgrade') {
         this.currentDevice = value
         this.deviceUpdateVisible = true
+        this.currentVersion = value.deviceVersion
         // 获取设备历史版本信息
       } else {
-        this.$affirm({text: `确定${des}设备【<span class="maxw200 ellipsis">${value.deviceName}</span>】?`},
+        this.$affirm({title: `${des}设备`, text: tip, confirm: des},
           (action, instance, done) => {
             if (action === 'confirm') {
               done()
@@ -581,7 +600,7 @@ export default {
                     }
                     break
                 }
-                this.$tip(`设备【<span class="maxw110 ellipsis">${value.deviceName}</span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
+                this.$tip(`设备正在${des}中，请稍后重新获取设备状态`, 'waiting')
               }).catch(error => {
                 this.$load().close()
                 if (error.code && error.msg) {
@@ -607,10 +626,17 @@ export default {
           text: content.text
         }, (action, instance, done) => {
           if (action === 'confirm') {
-            DeleteDevice({deviceKey: item.deviceKey}).then(res => {
-              this.$tip('删除成功')
-              this.$emit('refresh')
-            })
+            if (item.type === 4 || item.type === 5) {
+              DeleteCameraBatch([item.deviceKey]).then(res => {
+                this.$tip('删除成功')
+                this.$emit('refresh')
+              })
+            } else {
+              DeleteDevice({deviceKey: item.deviceKey}).then(res => {
+                this.$tip('删除成功')
+                this.$emit('refresh')
+              })
+            }
             done()
           } else {
             done()
@@ -653,15 +679,16 @@ export default {
       this.$tip(res.msg || '上传失败', 'error', 3000)
     },
     deviceUpdate () {
-      if (this.selectVersion) {
-        console.log(this.selectVersion, this.currentDevice)
-        DeviceUpgrade({deviceKey: this.currentDevice.deviceKey}).then(res => {
-          this.$set(this.currentDevice, 'deviceStatus', 4)
-          this.deviceUpdateVisible = false
-        })
-      } else {
-        this.$tip('请选择要升级的版本', 'error')
-      }
+      DeviceUpgrade({deviceKey: this.currentDevice.deviceKey}).then(res => {
+        this.$set(this.currentDevice, 'deviceStatus', 4)
+        this.deviceUpdateVisible = false
+      })
+      // if (this.selectVersion) {
+      //   console.log(this.selectVersion, this.currentDevice)
+      //
+      // } else {
+      //   this.$tip('请选择要升级的版本', 'error')
+      // }
     }
   },
   watch: {

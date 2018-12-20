@@ -9,55 +9,57 @@
           :label="item.name"></el-option>
       </el-select>
     </div>
-    <el-table
-      border
-      :data="portalList"
-    >
-      <el-table-column
-        prop="portalName"
-        width="120"
-        :show-overflow-tooltip="true"
-        align="center"
-        label="出入口">
-      </el-table-column>
-      <el-table-column
-        prop="name"
-        header-align="center"
-        label="设备">
-        <template slot-scope="scope">
-          <el-scrollbar class="table__scrollbar--wrap">
-            <ul class="table__device--list">
-              <li v-for="(item, index) in scope.row.portalDeviceList" :key="index" class="vam">
-                <span class="ellipsis">{{item.name}}</span>
-                <i class="el-icon-delete" @click="deletePortalDevice(item)"></i>
-              </li>
-              <li class="vam"
-                  style="line-height: 80px"
-                  v-if="!scope.row.portalDeviceList || !scope.row.portalDeviceList.length">
-                暂无设备
-              </li>
-            </ul>
-          </el-scrollbar>
-        </template>
-      </el-table-column>
-      <el-table-column
-        width="160"
-        align="center"
-        label="操作">
-        <template slot-scope="scope">
-          <a href="javascript:void(0)" @click="showAddDialog(scope.row)">添加设备</a>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      @current-change="getPortalEquipment"
-      @size-change="sizeChange"
-      :page-sizes="[4, 10, 20, 30]"
-      :current-page="pagination.index"
-      :page-size="pagination.length"
-      layout="total,sizes,prev, pager, next, jumper"
-      :total="pagination.total">
-    </el-pagination>
+    <div class="data-list-wrap">
+      <el-table
+        border
+        :data="portalList"
+      >
+        <el-table-column
+          prop="portalName"
+          width="120"
+          :show-overflow-tooltip="true"
+          align="center"
+          label="出入口">
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          header-align="center"
+          label="设备">
+          <template slot-scope="scope">
+            <el-scrollbar class="table__scrollbar--wrap">
+              <ul class="table__device--list">
+                <li v-for="(item, index) in scope.row.portalDeviceList" :key="index" class="vam">
+                  <span class="ellipsis">{{item.name}}</span>
+                  <i class="el-icon-delete" @click="deletePortalDevice(item)"></i>
+                </li>
+                <li class="vam"
+                    style="line-height: 80px"
+                    v-if="!scope.row.portalDeviceList || !scope.row.portalDeviceList.length">
+                  暂无设备
+                </li>
+              </ul>
+            </el-scrollbar>
+          </template>
+        </el-table-column>
+        <el-table-column
+          width="160"
+          align="center"
+          label="操作">
+          <template slot-scope="scope">
+            <a href="javascript:void(0)" @click="showAddDialog(scope.row)">添加设备</a>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        @current-change="getPortalEquipment"
+        @size-change="sizeChange"
+        :page-sizes="[4, 10, 20, 30]"
+        :current-page="pagination.index"
+        :page-size="pagination.length"
+        layout="total,sizes,prev, pager, next, jumper"
+        :total="pagination.total">
+      </el-pagination>
+    </div>
 
     <!--添加设备弹框-->
     <ob-dialog-form
@@ -213,8 +215,7 @@ export default {
 
 <style lang="scss" scoped>
 .group__select--wrap{
-  margin-top: 16px;
-  margin-bottom: 12px;
+  padding: 16px 20px 0;
   .el-select{
     width: 154px;
   }

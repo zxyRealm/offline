@@ -13,7 +13,7 @@ const joinCommunity = () => import('@/views/community/join-community.vue')
 // 设备管理
 const Equipment = () => import('@/views/equipment/mine.vue')
 const EquipmentList = () => import('@/views/equipment/list.vue')
-const EquipmentOwn = () => import('@/views/equipment/own.vue')
+const EquipmentAio = () => import('@/views/equipment/aio.vue')
 const EquipmentOther = () => import('@/views/equipment/other.vue')
 const EquipmentServer = () => import('@/views/equipment/server.vue')
 const EquipmentPortal = () => import('@/views/equipment/portal.vue')
@@ -225,8 +225,8 @@ export const constantRouterMap = [
       }
     ]
   },
-  {path: '/equipment', redirect: '/equipment/list/own'},
-  {path: '/equipment/list', redirect: '/equipment/list/own'},
+  {path: '/equipment', redirect: '/equipment/list/aio'},
+  {path: '/equipment/list', redirect: '/equipment/list/aio'},
   {
     path: '/equipment',
     component: Layout,
@@ -244,22 +244,22 @@ export const constantRouterMap = [
         component: EquipmentList,
         children: [
           {
-            path: 'own',
-            name: 'equipmentOwn',
+            path: 'aio',
+            name: 'equipmentAio',
             meta: {
               title: '自有设备-设备管理-线下浏览器服务平台',
               keepAlive: true
             },
-            component: EquipmentOwn
+            component: EquipmentAio
           },
           {
-            path: 'other',
-            name: 'equipmentOther',
+            path: 'camera',
+            name: 'equipmentCamera',
             meta: {
-              title: '非自有设备-设备管理-线下浏览器服务平台',
+              title: '摄像头管理-设备管理-线下浏览器服务平台',
               keepAlive: true
             },
-            component: EquipmentOther
+            component: EquipmentMore
           },
           {
             path: 'server',

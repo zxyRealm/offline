@@ -36,7 +36,7 @@
                       v-model.trim="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
-            <area-select placeholder="选择商铺所在区域" :readonly="!editable" v-model="userInfoForm.pca"></area-select>
+            <area-select placeholder="选择商铺所在区域" :readonly="!editable" v-model.trim="userInfoForm.pca"></area-select>
           </el-form-item>
           <el-form-item prop="address">
             <p class="readonly__text" v-if="!editable">{{userInfoForm.address}}</p>

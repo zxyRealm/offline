@@ -9,7 +9,7 @@
         v-if="filter"
         class="filter__input"
         placeholder="快速查找社群"
-        v-model="filterText">
+        v-model.trim="filterText">
         <i
           class="el-icon-search el-input__icon"
           slot="prefix">

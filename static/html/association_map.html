@@ -505,8 +505,10 @@
   // 创建图片贴图
   function createPictureSprite (obj) {
     var img = obj.type === 1 ? 'qizi2' : 'qizi1'
+    var texture = new THREE.TextureLoader().load('/static/floor/' + img + '.png')
+    // texture.minFilter = THREE.minFilter
     var spriteMaterial = new THREE.SpriteMaterial({
-      map: new THREE.ImageUtils.loadTexture('/static/floor/' + img + '.png'),
+      map: texture,
       depthTest: false,
       blending: THREE.AdditiveBlending,
     })

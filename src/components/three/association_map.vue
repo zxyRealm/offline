@@ -181,7 +181,6 @@ export default {
     // 处理iframe传递出来的事件
     handleEvent (event) {
       let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
-      console.log('post message', data)
       switch (data.type) {
         case 'CREATE_PORTAL_CLICK': // 创建出入口
           this.createGateway(data.data)
@@ -214,7 +213,6 @@ export default {
     setPortalList () {
       GetGroupPortalInfo({groupSonId: this.currentFloor.id}).then(res => {
         res.data.map(item => {
-          console.log('this is iframe list')
           this.iframeObj.createSprite(item)
         })
       })

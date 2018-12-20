@@ -3,7 +3,7 @@
     <div class="table-search">
       <span>表格数据</span>
       <div v-if="false">
-        <input v-model="fuzzyQuery" type="text" placeholder="输入关键字"/>
+        <input v-model.trim="fuzzyQuery" type="text" placeholder="输入关键字"/>
         <img src="/static/img/table-input-search.png" @click="doSearch">
       </div>
     </div>

@@ -2,7 +2,7 @@
   <div class="face--recognition__wrap">
     <div class="label_div">
       <span>抓拍设备：</span>
-      <el-select v-model="params.deviceKey" clearable placeholder="请选择" class="el--select__default">
+      <el-select v-model.trim="params.deviceKey" clearable placeholder="请选择" class="el--select__default">
         <el-option
           v-for="item in options"
           :key="item.deviceKey"

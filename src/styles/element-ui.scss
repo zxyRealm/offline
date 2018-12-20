@@ -508,9 +508,28 @@
       font-size: 16px;
     }
   }
-  .ad-item{
+  .el-dialog__body{
     text-align: center;
   }
+  .ad--item{
+    display: inline-block;
+    margin:0 26px;
+    text-align: center;
+    box-sizing: border-box;
+    > img{
+      margin-bottom: 6px;
+    }
+    .handle{
+      margin-top: 10px;
+      font-size: 12px;
+      span{
+        margin: 0 12px;
+      }
+    }
+  }
+  //.ad-item{
+  //  text-align: center;
+  //}
 }
 
 //设备列表 ? 图标信息 样式

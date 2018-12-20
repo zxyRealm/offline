@@ -836,22 +836,6 @@ export default {
     }
   },
   methods: {
-    // 文件上传成功回调
-    handleSuccess (res, file) {
-      console.log(res)
-    },
-    onChange (file, fileList) {
-      console.log(file, fileList)
-      if (file.row.type === 'image/svg+xml') {}
-    },
-    // 上传前校验文件类型 只允许svg 文件上传
-    beforeUpload (file) {
-      console.log(file)
-      if (file) {
-      }
-    },
-    // 自定义文件上传
-    httpRequest () {},
     // 第一次进入设备列表，给出操作提示，点击页面后提示消失
     firstCreate () {
       this.btnArray.map(item => {
@@ -1261,7 +1245,6 @@ export default {
     },
     // 删除社群
     deleteGroup () {
-      eventObject().$emit('ManageListRefresh')
       GetGroupPortalCount({groupSonId: this.communityInfo.sonId || this.communityInfo.id}).then(res => {
         if (res.data.portalNumber) {
           this.$affirm({text: `删除社群前，请先删除出入口`, title: '删除社群', confirm: '我知道了'}, (action, instance, done) => {
@@ -1278,6 +1261,7 @@ export default {
               } else {
                 DeleteCommunity({id: this.communityInfo.id}).then(res => {
                   this.$tip('删除成功')
+                  eventObject().$emit('ManageListRefresh')
                   this.getGroupList()
                 })
               }

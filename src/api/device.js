@@ -32,10 +32,52 @@ export function AddDevice (data) {
   })
 }
 
+// 摄像头
+
 // 商户添加设备(摄像头)
 export function AddCamera (data) {
   return request({
     url: '/device/camera/add',
+    data
+  })
+}
+
+// 摄像头列表
+export function GetCameraList (data) {
+  return request({
+    url: '/device/camera',
+    data
+  })
+}
+
+// 摄像头设备查询
+export function SearchCamera (data) {
+  return request({
+    url: '/device/camera/search',
+    data
+  })
+}
+
+// 摄像头名称验重
+export function CheckCameraName (data) {
+  return request({
+    tip: false,
+    url: '/device/existName',
+    data
+  })
+}
+
+// 摄像头名称修改
+export function UpdateCameraName (data) {
+  return request({
+    url: '/device/camera/name/update',
+    data
+  })
+}
+// 摄像头批量删除
+export function DeleteCameraBatch (data) {
+  return request({
+    url: '/device/camera/delete',
     data
   })
 }
@@ -73,11 +115,10 @@ export function DeviceAliasExist (data) {
   })
 }
 
-// (摄像头)设备别名是否存在
-export function CameraAliasExist (data) {
+// (一体机、服务器)批量导入模板下载地址获取
+export function DownloadSrc (data) {
   return request({
-    tip: false,
-    url: '/device/existName',
+    url: '/merchant/import/template',
     data
   })
 }

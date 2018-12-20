@@ -592,12 +592,39 @@ button, input {
 .ob-table-wrap {
   margin: 0 20px;
 }
+//设备列表页公用样式
+.equipment-list-wrap{
+  .device__search--wrap{
+    padding: 16px 20px 0;
+    overflow: hidden;
+    .el-input{
+      float: right;
+    }
+  }
+}
+
+//设备管理二级导航样式表
+.device__sub--nav{
+  height: 50px;
+  line-height: 30px;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  color: rgba(255,255,255, 0.5);
+  background: rgba(255, 255, 255, 0.03);
+  > a {
+    padding: 0 15px;
+    color: rgba(255,255,255, 0.5);
+    &.router-link-active{
+      color: #fff;
+    }
+  }
+}
 
 .data-list-wrap {
   height: calc(100% - 84px);
   overflow: hidden;
   width: 100%;
-  padding-top: 16px;
+  padding: 16px 20px 0;
   box-sizing: border-box;
   > .el-scrollbar {
     height: 100%;
@@ -606,6 +633,27 @@ button, input {
     }
   }
 }
+
+/*一体机、摄像头批量导入*/
+.excel__import--wrap{
+  padding: 30px 50px 10px;
+  box-sizing: border-box;
+  margin-bottom: 25px;
+  > p {
+    margin-bottom: 26px;
+  }
+  .input--wrap{
+    margin-top: 18px;
+  }
+  .el-input{
+    width: 212px;
+  }
+  .import--excel{
+    display: inline-block;
+    margin-left: 18px;
+  }
+}
+
 
 [class^='no-data'] {
   text-align: center;
@@ -1071,3 +1119,5 @@ p>.ellipsis{
 .menber__person .el-radio+.el-radio{
   margin-left: 100px;
 }
+
+

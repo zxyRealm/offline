@@ -5,7 +5,7 @@
       <el-input
         @keyup.enter.native="search"
         @blur="search"
-        placeholder="设备名称/序列号" v-model="searchValue">
+        placeholder="设备名称/序列号" v-model.trim="searchValue">
         <i
           class="el-icon-search el-input__icon"
           slot="suffix"

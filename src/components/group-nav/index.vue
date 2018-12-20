@@ -10,7 +10,7 @@
         class="filter__input"
         placeholder="快速查找社群"
         @keyup.enter.native="search"
-        v-model="filterText">
+        v-model.trim="filterText">
         <i
           class="el-icon-search el-input__icon"
           slot="prefix">

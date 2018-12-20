@@ -7,7 +7,7 @@
           :class="{active:item.select}"
           :key="$index">{{item.name}}</li>
     </ul>
-    <el-input ref="floorInput" @focus="dropShow = true" @blur="dropShow = false"  readonly v-model="showText"></el-input>
+    <el-input ref="floorInput" @focus="dropShow = true" @blur="dropShow = false"  readonly v-model.trim="showText"></el-input>
   </div>
 </template>
 

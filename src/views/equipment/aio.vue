@@ -1,15 +1,28 @@
 <template>
   <div class="equipment__data--list">
+    <!--设备搜索-->
+    <div class="device__search--wrap">
+      <el-input
+        @keyup.enter.native="search"
+        @blur="search"
+        placeholder="设备名称/序列号" v-model.trim="searchValue">
+        <i
+          class="el-icon-search el-input__icon"
+          slot="suffix"
+          @click="search">
+        </i>
+      </el-input>
+    </div>
     <div class="data-list-wrap">
       <device-table
-        data-type="server"
-        @refresh="getServerEquipment"
+        data-type="aio"
+        @refresh="getMineEquipment"
         v-model="equipmentList"
       >
       </device-table>
       <el-pagination
         v-if="pagination.total && pagination.total > pagination.length"
-        @current-change="getServerEquipment"
+        @current-change="getMineEquipment"
         :current-page="pagination.index"
         :page-size="pagination.length"
         layout="total,prev, pager, next, jumper"
@@ -20,12 +33,13 @@
 </template>
 <script>
 import {mapState} from 'vuex'
-import {simplifyGroups} from '@/utils'
 import DeviceTable from '@/components/DeviceTable'
 import {eventObject} from '../../utils/event'
-import {GetServerDeviceList} from '../../api/device'
+import {GetOwnDeviceList} from '../../api/device'
+
+const UPLOAD_API = process.env.UPLOAD_API
 export default {
-  name: 'server',
+  name: 'index',
   components: {
     DeviceTable
   },
@@ -37,6 +51,7 @@ export default {
         type: 'device',
         title: '添加设备'
       },
+      importType: 1, // 批量导入类型 1 一体机批量导入 2 摄像头批量导入
       equipmentEmpty: false,
       dialogType: 1, // 1 ：服务器 2：一体机 3：摄像头
       deviceInfo: { // 一体机设备信息
@@ -54,17 +69,14 @@ export default {
       equipmentList: [], // 设备列表
       pagination: {}, // 分页信息
       dialogFormVisible: false,
-      isSearch: false
+      isSearch: false,
+      progress: null
     }
   },
   methods: {
     // 自有设备搜索
     search (val) {
-      if (val) {
-        this.$router.push(`/equipment/mine/search/${val}`)
-      } else {
-        this.$router.push('/equipment/mine')
-      }
+      this.getMineEquipment()
     },
     // 弹窗表单提交
     submitForm (data) {
@@ -73,7 +85,7 @@ export default {
         this.$http('/merchant/device/create', data).then(res => {
           this.dialogFormVisible = false
           this.$tip('创建成功')
-          this.getServerEquipment()
+          this.getMineEquipment()
         }).catch(() => {
           this.dialogFormVisible = false
         })
@@ -84,23 +96,45 @@ export default {
         this.bindCommunity(data)
       }
     },
-    // 获取社群树形结构数据
-    getGroupList () {
-      this.$http('/group/list/self').then(res => {
-        this.groupList = simplifyGroups(res.data)
-      })
+    showDialog (type, data) {
+      this.dialogFormVisible = false
+      this.dialogOptions.type = type || 'device'
+      this.dialogOptions.title = type === 'device' ? '添加设备' : '绑定社群'
+      if (this.dialogOptions.type === 'device') {
+        this.dialogForm = {
+          deviceKey: '',
+          deviceName: '',
+          type: ''
+        }
+      } else {
+        this.dialogForm = {
+          deviceKey: data.deviceKey,
+          deviceName: data.deviceName,
+          groupGuid: '',
+          deviceScene: ''
+        }
+      }
+      if (type === 'community' && !this.groupList.length) {
+        this.$affirm({
+          text: '没有可绑定的社群，前往<a href="/community/create">创建社群</a>。'
+        }, (action, instance, done) => {
+          if (action === 'confirm') {
+            done()
+          } else {
+            done()
+          }
+        }, 'caution')
+      } else {
+        this.dialogFormVisible = true
+      }
     },
-    // 获取服务器列表
-    getServerEquipment (page) {
+    // 获取自有设备
+    getMineEquipment (page) {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
-      GetServerDeviceList({index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
+      GetOwnDeviceList({index: page, searchText: this.searchValue || '', length: 10}).then(res => {
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination || {}
       })
-    },
-    // 重置添加服务器表单
-    resetForm () {
-      this.$refs.addServerForm.resetFields()
     },
     // 第一次进入设备列表，给出操作提示，点击页面后提示消失
     firstCreate () {
@@ -112,9 +146,18 @@ export default {
     }
   },
   created () {
+    this.$http('/firstCheck', {name: 'insight_device_list_first'}).then(res => {
+      if (res.data) {
+        this.btnArray.map(item => {
+          item.showPopover = true
+          return item
+        })
+        window.addEventListener('click', this.firstCreate)
+      }
+    })
     this.isSearch = this.$route.name === 'searchMine'
-    this.getServerEquipment()
-    eventObject().$on('REFRESH_DEVICE_LIST', this.getServerEquipment)
+    this.getMineEquipment()
+    eventObject().$on('REFRESH_DEVICE_LIST', this.getMineEquipment)
   },
   filters: {
     type: function (val) {
@@ -129,13 +172,59 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loading', 'aliveState'])
+    ...mapState(['loading', 'aliveState', 'userInfo']),
+    textState: {
+      get () {
+        let [cName, text] = ['', '']
+        switch (this.deviceInfo.type) {
+          case 1:
+            text = '服务器'
+            break
+          case 2:
+            text = `客行分析一体机`
+            break
+          case 3:
+            text = `人脸抓拍一体机`
+            break
+          case 4:
+            text = `客行分析摄像头`
+            break
+          case 5:
+            text = `人脸抓拍摄像头`
+            break
+        }
+        switch (this.deviceInfo.exist) {
+          case '':
+            cName = ''
+            text = ''
+            break
+          case false:
+            cName = 'safe'
+            text = `可添加的${text}`
+            break
+          case true:
+            cName = 'danger'
+            text = `已添加的${text}`
+            break
+        }
+        return {text: text, name: cName}
+      },
+      set (val) {
+        this.textValue = val
+      }
+    },
+    excelUrl () {
+      let url = `${UPLOAD_API}/manage/device/deviceCamera/info/addBatch` // excel批量导入摄像头信息
+      if (this.importType === 1) url = `${UPLOAD_API}/manage/merchant/device/import` // excel批量导入一体机
+      return url
+    }
   },
   watch: {
   },
   beforeDestroy () {
-    eventObject().$off('REFRESH_DEVICE_LIST', this.getServerEquipment)
+    eventObject().$off('REFRESH_DEVICE_LIST', this.getMineEquipment)
     this.$store.commit('SET_ALIVE_STATE', {
+      // pagination: this.pagination
     })
   }
 }
@@ -143,7 +232,7 @@ export default {
 
 <style lang="scss" scoped>
   .equipment__data--list{
-    /*height: 100%;*/
+    height: calc(100% - 116px);
   }
   .device__dialog--wrap{
     .ad--item{
@@ -161,22 +250,6 @@ export default {
           margin: 0 12px;
         }
       }
-    }
-  }
-  /*一体机、摄像头批量导入*/
-  .excel__import--wrap{
-    padding: 15px 50px;
-    box-sizing: border-box;
-    margin-bottom: 25px;
-    .input--wrap{
-      margin-top: 18px;
-    }
-    .el-input{
-      width: 240px;
-    }
-    .import--excel{
-      display: inline-block;
-      margin-left: 18px;
     }
   }
   ul.wrap{

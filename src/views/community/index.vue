@@ -61,7 +61,7 @@
                         :model="communityForm"
                       >
                         <el-form-item prop="groupNickName">
-                          <el-input type="text" v-model="communityForm.groupNickName"></el-input>
+                          <el-input type="text" v-model.trim="communityForm.groupNickName"></el-input>
                           <uu-icon type="success" @click.native="changeCommunityName('nickNameForm')"></uu-icon>
                           <uu-icon type="error" @click.native="nickNamePopover = false"></uu-icon>
                         </el-form-item>

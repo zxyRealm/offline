@@ -37,7 +37,7 @@
       :placeholder="placeholder"
       @keyup.native.enter="searchMethod"
       @blur="searchMethod"
-      v-model="searchValue">
+      v-model.trim="searchValue">
       <i slot="prefix" @click="searchMethod" class="el-input__icon el-icon-search"></i>
     </el-input>
   </div>
