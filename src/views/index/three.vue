@@ -99,90 +99,6 @@
       </ul>
       <general-map></general-map>
     </div>
-    <!--楼宇3D/平面分布图展示 end-->
-    <!--实时客流 start-->
-    <!--<div class="floor__block&#45;&#45;passenger corner-bg items vam">-->
-      <!--<div class="floor__sub&#45;&#45;title vertical">-->
-        <!--实时客流-->
-      <!--</div>-->
-      <!--<div class="passenger-items">-->
-        <!--<div class="items-icon">-->
-          <!--<img src="../../assets/three/enter-flow-icon@2x.png" alt="">-->
-          <!--<p>进客流</p>-->
-        <!--</div>-->
-        <!--<div class="items-data">-->
-          <!--<div class="sub-items">-->
-            <!--<strong>210</strong><span>5%</span>-->
-            <!--<p>今日数据</p>-->
-          <!--</div>-->
-          <!--<div class="sub-items">-->
-            <!--<strong>2000</strong>-->
-            <!--<p>昨日数据</p>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
-      <!--<div class="passenger-items">-->
-        <!--<div class="items-icon">-->
-          <!--<img src="../../assets/three/visitor-icon@2x.png" alt="">-->
-          <!--<p>到访会员</p>-->
-        <!--</div>-->
-        <!--<div class="items-data vam">-->
-          <!--<div class="sub-items">-->
-            <!--<strong>2100</strong><span>5%</span>-->
-            <!--<p>今日数据</p>-->
-          <!--</div>-->
-          <!--<div class="sub-items">-->
-            <!--<strong>20000</strong>-->
-            <!--<p>昨日数据</p>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
-      <!--<div class="passenger-items vam">-->
-        <!--<div class="items-icon">-->
-          <!--<img src="../../assets/three/current-number-icon@2x.png" alt="">-->
-          <!--<p>当前人数</p>-->
-        <!--</div>-->
-        <!--<div class="items-data">-->
-          <!--<div class="sub-items">-->
-            <!--<strong>21000</strong>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
-    <!--</div>-->
-    <!--实时客流 end-->
-    <!--详细数据展示-->
-    <!--<div class="floor__block&#45;&#45;child">-->
-      <!--<div class="fc-left">-->
-        <!--&lt;!&ndash;到访会员&ndash;&gt;-->
-        <!--<div class="floor-visitor corner-bg items">-->
-          <!--<div class="floor__sub&#45;&#45;title">-->
-            <!--到访会员-->
-          <!--</div>-->
-          <!--<div class="visitor-info-wrap vam">-->
-            <!--<img class="visitor-photo" src="/static/img/logo@2x.png" alt="">-->
-            <!--<div class="detail-info">-->
-              <!--<p>姓名</p>-->
-              <!--<p>会员库名</p>-->
-              <!--<p>女</p>-->
-              <!--<p>18岁</p>-->
-              <!--<p>2018-11-29 17:50</p>-->
-            <!--</div>-->
-          <!--</div>-->
-          <!--<el-scrollbar class="visitor-history&#45;&#45;list">-->
-            <!--<img class="visitor-avatar" src="/static/img/logo@2x.png" v-for="(item, $index) in 30" :key="$index" alt="">-->
-          <!--</el-scrollbar>-->
-        <!--</div>-->
-        <!--&lt;!&ndash;业态客流排行榜&ndash;&gt;-->
-        <!--<div class="format-flow-rank corner-bg items">-->
-          <!--&lt;!&ndash;<div class="floor__sub&#45;&#45;title">&ndash;&gt;-->
-            <!--&lt;!&ndash;业态客流排行榜&ndash;&gt;-->
-          <!--&lt;!&ndash;</div>&ndash;&gt;-->
-          <!--<chart-funnel title="业态客流排行榜" width="100%" height="100%"></chart-funnel>-->
-        <!--</div>-->
-      <!--</div>-->
-      <!--<div class="fc-right">-->
-      <!--</div>-->
-    <!--</div>-->
   </div>
 </template>
 
@@ -193,6 +109,7 @@ import GeneralMap from '@/components/three/GeneralMap'
 import buildFloor from '@/views/three/index'
 import CustomPie from '@/components/echarts/custom-pie'
 import {GetSocketIP} from '../../api/common'
+import {GetFlowRank, GetTimeRatio, GetChartLine, GetChartPie} from '../../api'
 import {mapState} from 'vuex'
 export default {
   name: 'index',
@@ -249,6 +166,7 @@ export default {
   created () {},
   mounted () {
     this.getWebsocket()
+    this.initBaseData()
   },
   computed: {
     ...mapState(['currentManage'])
@@ -298,9 +216,34 @@ export default {
           console.info('产生异常')
         }
       })
+    },
+    // 初始化获取数据
+    initBaseData () {
+      if (!this.currentManage.id) return
+      // 获取客流排行
+      GetFlowRank({floor: 1, topType: 1, parentId: this.currentManage.id}).then(res => {
+        console.log('flow rank', res)
+      })
+      // 获取实时比率
+      GetTimeRatio({type: 1, groupFloor: 1, parentId: this.currentManage.id}).then(res => {
+        console.log('time ratio', res)
+      })
+      GetChartLine({groupSonId: 2328, type: 'age', timeIntervalUnit: 'day', startTime: '2018-10-12', endTime: '2018-12-12'}).then(res => {
+        console.log('chart line', res)
+      })
+      GetChartPie({}).then(res => {
+        console.log('chart pie', res)
+      })
     }
   },
-  watch: {},
+  watch: {
+    currentManage: {
+      handler (val) {
+        this.initBaseData()
+      },
+      deep: true
+    }
+  },
   beforeDestroy () {
     if (this.websocket) {
       this.websocket.close()

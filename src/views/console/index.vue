@@ -102,7 +102,7 @@ import pie from '@/components/echarts/pie.vue'
 import lineConsole from '@/components/echarts/line.vue'
 import CustomerInfo from './componets/CustomerInfo.vue'
 import {mapState} from 'vuex'
-import {eventObject} from '@/utils/event.js'
+import {eventObject} from '@/utils/event'
 import ObDialogInfo from './componets/ObDialogInfo'
 export default {
   name: 'console',
