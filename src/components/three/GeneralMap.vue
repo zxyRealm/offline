@@ -1,12 +1,58 @@
-<template>
+ <template>
   <div class="general-map" id="general-map">
-    <div id="floor">
-      <a href="javascript:;" v-for="(item, index) in routerList" :class="{'active': item.id === frame.id}" :key="index" @click="updateFrameArea(item.path, item.id)">
-        {{item.name}}
-      </a>
+    <div class="map-left">
+      <div id="floor2">
+        <a href="javascript:;" v-for="(item, index) in routerList" :class="{'active': item.id === frame.id}" :key="index" @click="updateFrameArea(item.path, item.id)">
+          {{item.name}}
+        </a>
+      </div>
+      <div id="iframeWrap">
+        <iframe :src="frame.path" :id="frame.id" :name="frame.name" scrolling="no" frameborder="0" ref="iframe" class="iframe"></iframe>
+      </div>
+      
+      <div id="statisticInfo"> 
+        <div class="statistic-box" id="incoming">
+          <div class="item" :class="{'no-background': !statisticInfo.Incoming_Today && !statisticInfo.Incoming_Yesterday}">
+            <div class="title">进客流</div>
+            <div class="data">
+              <div class="date today">
+                <div class="amount">{{statisticInfo.Incoming_Today}}</div>
+                <div class="key">今日数据</div>
+              </div>
+              <div class="date yesterday">
+                <div class="amount">{{statisticInfo.Incoming_Yesterday}}</div>
+                <div class="key">昨日数据</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="statistic-box" id="member">
+          <div class="item" :class="{'no-background': !statisticInfo.Member_Today && !statisticInfo.Member_Yesterday}">
+            <div class="title">到访会员</div>
+            <div class="data">
+              <div class="date today">
+                <div class="amount">{{statisticInfo.Member_Today}}</div>
+                <div class="key">今日数据</div>
+              </div>
+              <div class="date yesterday">
+                <div class="amount">{{statisticInfo.Member_Yesterday}}</div>
+                <div class="key">昨日数据</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="statistic-box" id="current">
+          <div class="item" :class="{'no-background': !statisticInfo.Current}">
+            <div class="title">商场当前人数</div>
+            <div class="data">
+              <div class="amount">{{statisticInfo.Current}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <iframe :src="frame.path" :id="frame.id" :name="frame.name" scrolling="no" frameborder="0" width="100%" ref="iframe"></iframe>
-    <div id="sideInfo" @mouseenter="maskToggle=true" @mouseleave="maskToggle=false">
+    <div class="map-right">
+      <div id="sideInfo" @mouseenter="maskToggle=true" @mouseleave="maskToggle=false">
       <transition name="fade">
         <div id="sideMask" v-if="!maskToggle"></div>
       </transition>
@@ -20,53 +66,15 @@
           <div class="time">{{item.appearanceDate}}</div>
         </div>
         <div class="box-right">
-          <img :class="{'glow-border': index === 0}" :src="item.imgUrl" alt="">
+          <img :class="{'glow-border': index === 0 && personList.length > 10}" :src="item.imgUrl" alt="">
         </div>
       </div>
     </div>
-    <div id="statisticInfo">
-      <div class="statistic-box" id="incoming">
-        <div class="item">
-          <div class="title">进客流</div>
-          <div class="data">
-            <div class="date today">
-              <div class="amount">105000</div>
-              <div class="key">今日数据</div>
-            </div>
-            <div class="date yesterday">
-              <div class="amount">100000</div>
-              <div class="key">昨日数据</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="statistic-box" id="member">
-        <div class="item">
-          <div class="title">到访会员</div>
-          <div class="data">
-            <div class="date today">
-              <div class="amount">5000</div>
-              <div class="key">今日数据</div>
-            </div>
-            <div class="date yesterday">
-              <div class="amount">4000</div>
-              <div class="key">昨日数据</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="statistic-box" id="current">
-        <div class="item">
-          <div class="title">商场当前人数</div>
-          <div class="data">
-            <div class="amount">100000</div>
-          </div>
-        </div>
-      </div>
     </div>
-    <div id="option" style="position: absolute;top: 10px; left: 10px">
+  
+    <!-- <div id="option" style="position: absolute;top: 10px; left: 10px">
       <a href="javascript:;" @click="sendColor">传递坐标</a>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -91,11 +99,28 @@ export default {
         {name: 'B2', path: '/static/html/plane.html?floor=' + '2', id: 'threeFrame2'},
         {name: 'B1', path: '/static/html/plane.html?floor=' + '1', id: 'threeFrame1'}
       ],
-      personList: [],
+      personList: [
+        {imgUrl: '/static/avatar2.png'},
+        {imgUrl: '/static/avatar2.png'},
+        {imgUrl: '/static/avatar2.png'},
+        {imgUrl: '/static/avatar2.png'},
+        {imgUrl: '/static/avatar2.png'},
+        {imgUrl: '/static/avatar2.png'},
+        {imgUrl: '/static/avatar2.png'},
+        {imgUrl: '/static/avatar2.png'},
+        {imgUrl: '/static/avatar2.png'}
+      ],
       frame: {
         id: 'threeFrame',
         name: 'threeFrame',
         path: '/static/html/home.html'
+      },
+      statisticInfo: {
+        Incoming_Today: 10,
+        Incoming_Yesterday: 0,
+        Member_Today: 0,
+        Member_Yesterday: 0,
+        Current: 0
       },
       iframe: null,
       cloudTimer: null,
@@ -115,24 +140,6 @@ export default {
       this.$set(this.frame, 'path', path)
       this.$set(this.frame, 'name', name)
       this.$set(this.frame, 'id', name)
-    },
-    setFrameSize () {
-      let frame = document.getElementById(this.frame.name)
-      let general = document.getElementById('general-map')
-      let sideInfo = document.getElementById('sideInfo')
-      let statisticInfo = document.getElementById('statisticInfo')
-      let incoming = document.getElementById('incoming')
-      let member = document.getElementById('member')
-      let current = document.getElementById('current')
-      let floor = document.getElementById('floor')
-      frame.style.width = general.offsetWidth + 'px'
-      frame.style.height = general.parentElement.offsetHeight + 'px'
-      sideInfo.style.height = general.parentElement.offsetHeight + 'px'
-      statisticInfo.style.width = (general.offsetWidth - 185) + 'px'
-      incoming.style.width = (general.offsetWidth - 185) * 4 / 11 + 'px'
-      member.style.width = (general.offsetWidth - 185) * 4 / 11 + 'px'
-      current.style.width = (general.offsetWidth - 185) * 3 / 11 + 'px'
-      floor.style.left = ((general.offsetWidth - 185) - floor.offsetWidth) / 2 + 'px'
     },
     timestampToTime (timestamp) {
       let date = new Date(timestamp)
@@ -166,23 +173,6 @@ export default {
           console.info('产生异常')
         }
       })
-    },
-    handleSocketData (data, ...fieldName) {
-      let arr = fieldName[0]
-      let options = {
-        'coordinates': () => {
-          if (data.coordinates) {
-            this.iframe.createPointCloud(data.coordinates)
-          }
-        },
-        'memberInfo': () => {
-          if (data.memberInfo) {
-            data.memberInfo.appearanceDate = this.timestampToTime(data.memberInfo.appearanceDate)
-            this.personList.unshift(data.memberInfo)
-          }
-        }
-      }
-      arr.forEach(item => { options[item] })
     },
     /****************************************************
      *********************  发送值  **********************
@@ -248,13 +238,9 @@ export default {
     }
   },
   mounted () {
-    // this.sendAlex()
-    this.handleSocketData('1', ['coordinates', 'memberInfo'])
-    this.setFrameSize()
     this.getWebsocket()
     this.iframe = this.$refs.iframe.contentWindow
     window.addEventListener('message', this.handleMessage)
-    window.addEventListener('resize', this.setFrameSize, false)
   },
   watch: {
     'frame.name': {
@@ -273,48 +259,125 @@ export default {
 
 <style lang="scss" scoped>
   .general-map{
+    height: 100%;
     position: relative;
-    #floor{
-      position: absolute;
-      top: 10px;
-      font-size:0;
-      a{
-        display: inline-block;
-        width: 40px;
-        height: 40px;
-        cursor: pointer;
-        line-height: 40px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+    .map-left{
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      #floor2{
+        top: 10px;
         text-align: center;
-        background: #0F0E11;
-        font-size: 14px;
-        margin-right: 1px;
-        color: #FFFFFF;
-        &:hover {
+        height: 55px;
+        a{
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          cursor: pointer;
+          line-height: 40px;
+          text-align: center;
+          background: #0F0E11;
+          font-size: 14px;
+          margin-right: 1px;
+          color: #FFFFFF;
+          &:hover {
+            background: linear-gradient(135deg, rgba(68, 23, 173, 0.6), rgba(17, 105, 211, 0.4));
+          }
+        }
+        .active{
           background: linear-gradient(135deg, rgba(68, 23, 173, 0.6), rgba(17, 105, 211, 0.4));
         }
       }
-      .active{
-        background: linear-gradient(135deg, rgba(68, 23, 173, 0.6), rgba(17, 105, 211, 0.4));
+      #iframeWrap {
+        flex:1;
+        display: flex;
+        .iframe{
+          width: 100%
+        }
+      }
+      #statisticInfo{
+      height: 100px;
+      overflow: hidden;
+      .statistic-box:last-child{
+        width: 28%
+      }
+      .statistic-box{
+        float: left;
+        height: 100px;
+        width: 36%;
+        box-sizing: border-box;
+        padding-right: 5px;
+        position: relative;
+        &:first-child{
+          padding-left: 5px;
+        }
+        .item{
+          height: 100%;
+          border-radius: 4px;
+          background: linear-gradient(135deg, rgba(68, 23, 173, 0.6), rgba(17, 105, 211, 0.4));
+          padding: 10px 20px;
+          box-sizing: border-box;
+          color: #FFFFFF;
+          font-size: 12px;
+          overflow: hidden;
+          .title{
+            margin-bottom: 13px;
+          }
+          .date{
+            float: left;
+            .amount{
+              font-size: 20px;
+              margin-bottom: 3px;
+            }
+            .key{
+              color: rgba(255, 255, 255, 0.5)
+            }
+          }
+          .today{
+            margin-right: 59px;
+          }
+          .data{
+            .yesterday{
+              position: absolute;
+              left: 50%;
+            }
+          }
+        }
+        .no-background{
+          background: rgba(216, 216, 216, 0.05)
+        }
+      }
+      #current{
+        .amount{
+          width: 100%;
+          text-align: center;
+          font-size: 20px;
+        }
       }
     }
-    #sideInfo{
-      position: absolute;
-      top: 0;
-      right: 0;
+    }
+    .map-right{
       width: 160px;
-      height: 100%;
+      flex: 0 0 160px;
+      #sideInfo{
+    
       color: #FFFFFF;
-      background: #17151A;
+      background: #232027;
       padding: 15px 20px;
       box-sizing: border-box;
       overflow: hidden;
+      position: relative;
       #sideMask{
         position: absolute;
         top: 0;
         left: 0;
         width: 160px;
         height: 100%;
-        background: linear-gradient(to bottom, rgba(23,21,26,0), rgba(23,21,26,1));
+        background: linear-gradient(to bottom, rgba(35, 32, 39, 0), rgb(35, 32, 39));
       }
       .side-box{
         font-size: 12px;
@@ -350,55 +413,9 @@ export default {
         }
       }
     }
-    #statisticInfo{
-      position: absolute;
-      right: 170px;
-      bottom: 10px;
-      height: 100px;
-      overflow: hidden;
-      .statistic-box{
-        float: left;
-        height: 100px;
-        box-sizing: border-box;
-        padding-right: 5px;
-        &:first-child{
-          padding-left: 5px;
-        }
-        .item{
-          height: 100%;
-          border-radius: 4px;
-          background: linear-gradient(135deg, rgba(68, 23, 173, 0.6), rgba(17, 105, 211, 0.4));
-          padding: 10px 20px;
-          box-sizing: border-box;
-          color: #FFFFFF;
-          font-size: 12px;
-          overflow: hidden;
-          .title{
-            margin-bottom: 13px;
-          }
-          .date{
-            float: left;
-            .amount{
-              font-size: 20px;
-              margin-bottom: 3px;
-            }
-            .key{
-              color: rgba(255, 255, 255, 0.5)
-            }
-          }
-          .today{
-            margin-right: 59px;
-          }
-        }
-      }
-      #current{
-        .amount{
-          width: 100%;
-          text-align: center;
-          font-size: 20px;
-        }
-      }
     }
+    
+    
     .fade-enter-active, .fade-leave-active {
       transition: opacity .5s;
     }
