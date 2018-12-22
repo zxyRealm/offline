@@ -218,11 +218,24 @@
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('mousemove', onDocumentMouseMove, false);
     window.addEventListener('click', onDocumentMouseClick, false);
+    loadSignal()
+  }
+
+  function loadSignal () {
+    window.parent.postMessage({
+      cmd: 'plane-load_signal',
+      params: {}
+    }, '*');
   }
 
   function animate() {
     requestAnimationFrame(animate)
     renderer.render(scene, camera)
+  }
+
+  // 接收组件中传入的社群信息
+  function getCommunityInfo(data) {
+    console.log(data)
   }
 
   init();

@@ -15,7 +15,7 @@
 <body>
 <div id="WebGL-output"></div>
 <script type="text/javascript">
-  let renderer, scene, camera;
+  let renderer, scene, camera, group;
   let scale = 0.6; // 缩放比
   let clock = new THREE.Clock();
   let mixArr = [], pointArr = new Array(1000)
@@ -24,18 +24,18 @@
   let geometryArr = [];
   let materialArr = [];
   let pointCloudArr = [];
-  let floorHeight = 40;
+  let floorHeight = 55;
   let floorArr = [
-    -3*floorHeight, 
-    -2*floorHeight, 
-    -floorHeight, 
-    0, 
-    floorHeight, 
-    2*floorHeight, 
-    3*floorHeight, 
-    4*floorHeight, 
-    5*floorHeight, 
-    6*floorHeight
+    (-3-1)*floorHeight, 
+    (-2-1)*floorHeight, 
+    (-1-1)*floorHeight, 
+    (0-1)*floorHeight, 
+    (1-1)*floorHeight, 
+    (2-1)*floorHeight, 
+    (3-1)*floorHeight, 
+    (4-1)*floorHeight, 
+    (5-1)*floorHeight, 
+    (6-1)*floorHeight
   ]
   function init() {
     renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -46,7 +46,7 @@
     scene.background = new THREE.Color('#232027');
 
     camera = new THREE.PerspectiveCamera(45, (window.innerWidth) / (window.innerHeight), 0.1, 10000 );
-    camera.position.set( 260, 200, 330 );
+    camera.position.set( 260, 200, 350 );
     scene.add(camera);
 
     let light = new THREE.PointLight( 0xffffff, 0.8 );
@@ -55,29 +55,25 @@
     // let axesHelper = new THREE.AxesHelper( 10 );
     // scene.add(axesHelper);
 
+    group = new THREE.Group();
+    group.position.set(-290*scale, 0, -241*scale)
+    scene.add(group);
+
     document.getElementById("WebGL-output").appendChild(renderer.domElement);
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('mousemove', onDocumentMouseMove, false)
     window.addEventListener('click', onDocumentMouseClick, false)
 
     addControl();
+    loadSignal();
 
-    let group = new THREE.Group();
-    group.position.set(-290*scale, 0, -241*scale)
-    scene.add(group);
+  }
 
-    // 创建楼层图片
-    loadSvg(group, floorArr[9], '10');
-    loadSvg(group, floorArr[8], '9');
-    loadSvg(group, floorArr[7], '8');
-    loadSvg(group, floorArr[6], '7');
-    loadSvg(group, floorArr[5], '6');
-    loadSvg(group, floorArr[4], '5');
-    loadSvg(group, floorArr[3], '4');
-    loadSvg(group, floorArr[2], '3');
-    loadSvg(group, floorArr[1], '2');
-    loadSvg(group, floorArr[0], '1');
-
+  function loadSignal () {
+    window.parent.postMessage({
+      cmd: 'home-load_signal',
+      params: {}
+    }, '*');
   }
 
   function onWindowResize () {
@@ -95,13 +91,13 @@
       window.parent.postMessage({
         cmd: 'change-floor',
         params: {
-          data: intersects[0].object.position.y / 40 + 1
+          data: intersects[0].object.position.y
         }
       }, '*');
     }
   }
 
-  function onDocumentMouseMove () {
+  function onDocumentMouseMove (event) {
     let vector = new THREE.Vector3(( event.clientX / (window.innerWidth) ) * 2 - 1, -( event.clientY / (window.innerHeight) ) * 2 + 1, 0.5);
     vector = vector.unproject(camera);
     let raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
@@ -126,13 +122,24 @@
     }
   }
 
+  // 接收楼层信息
+  function setFloorInfo(floorArr) {
+    // 创建楼层图片
+    console.log(floorArr);
+    for (let i=0; i<floorArr.length; i++) {
+      if (floorArr[i]>=-55 && floorArr[i]<=110) {
+        loadSvg(group, floorArr[i], parseInt(floorArr[i]/55+5))
+      }
+    }
+  }
+
   // 添加Orbit控制器
   function addControl() {
     controls = new THREE.OrbitControls(camera);
     controls.dampingFactor = 0.25;
     controls.enableZoom = true;
     controls.enableRotate = false;
-    controls.screenSpacePanning = true;
+    controls.screenSpacePanning = false;
   }
 
   // 加载SVG图片
@@ -158,7 +165,7 @@
     let geometry = new THREE.ShapeBufferGeometry( shape );
     let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }));
     mesh.position.set(0, y, 0);
-    mesh.rotation.set(0.5*Math.PI, 0, 0);
+    mesh.rotation.set(0.52*Math.PI, 0, 0);
     mesh.scale.set(scale, scale, scale);
     planeList.push(mesh);
     group.add(mesh);
@@ -172,7 +179,7 @@
 
     let line = new THREE.Line(geometryPoints, new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.4  }));
     line.position.set(0, y, 0);
-    line.rotation.set(0.5*Math.PI, 0, 0);
+    line.rotation.set(0.52*Math.PI, 0, 0);
     line.scale.set(scale, scale, scale);
     meshList.push(line)
     group.add(line );

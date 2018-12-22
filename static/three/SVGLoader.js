@@ -975,8 +975,6 @@ THREE.SVGLoader.prototype = {
       return Math.sqrt(te[3] * te[3] + te[4] * te[4])
     }
 
-    //
-
     // console.log( 'THREE.SVGLoader' );
 
     var paths = []
@@ -995,18 +993,16 @@ THREE.SVGLoader.prototype = {
     var xml = new DOMParser().parseFromString(text, 'image/svg+xml') // application/xml
 
     // console.timeEnd( 'THREE.SVGLoader: DOMParser' );
-    //
+
     // console.time( 'THREE.SVGLoader: Parse' );
 
     parseNode(xml.documentElement, {fill: '#000'})
 
     // console.log( paths );
 
-
     // console.timeEnd( 'THREE.SVGLoader: Parse' );
 
     return paths
-
   }
 
 }

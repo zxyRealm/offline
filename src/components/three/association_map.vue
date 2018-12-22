@@ -176,16 +176,17 @@ export default {
   methods: {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
-      console.log('map---------', this.data)
       if (this.data.guid === this.currentManage.id) {
         this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor || 1))[0] || this.this.floorList[0]
       } else {
         this.currentFloor = this.data
       }
       this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
-      GetGroupPortalCount({groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
-        this.totalCounts = res.data
-      })
+      if (this.currentFloor.groupSonGuid) {
+        GetGroupPortalCount({groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
+          this.totalCounts = res.data
+        })
+      }
     },
     // 处理iframe传递出来的事件
     handleEvent (event) {
