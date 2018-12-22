@@ -2,7 +2,7 @@
   <div class="general-map" id="general-map">
     <div class="map-left">
       <div id="floor2">
-        <a href="javascript:;" v-for="(item, index) in routerList" :class="{'active': item.id === frame.id}" :key="index" @click="updateFrameArea(item.path, item.id)">
+        <a href="javascript:;" v-for="(item, index) in routerList" :class="{'active': item.id === frame.id}" :key="index" @click="updateFrameArea(item, index)">
           {{item.name}}
         </a>
       </div>
@@ -81,23 +81,14 @@
 <script>
 import {GetSocketIP} from '@/api/common'
 import {mapState} from 'vuex'
+import {GetMarketList, GetGroupPortalInfo} from '@/api/community'
 export default {
   name: 'GeneralMap',
   data () {
     return {
       maskToggle: false,
       routerList: [
-        {name: '总', path: '/static/html/home.html', id: 'threeFrame'},
-        {name: 'F7', path: '/static/html/plane.html?floor=' + '10', id: 'threeFrame10'},
-        {name: 'F6', path: '/static/html/plane.html?floor=' + '9', id: 'threeFrame9'},
-        {name: 'F5', path: '/static/html/plane.html?floor=' + '8', id: 'threeFrame8'},
-        {name: 'F4', path: '/static/html/plane.html?floor=' + '7', id: 'threeFrame7'},
-        {name: 'F3', path: '/static/html/plane.html?floor=' + '6', id: 'threeFrame6'},
-        {name: 'F2', path: '/static/html/plane.html?floor=' + '5', id: 'threeFrame5'},
-        {name: 'F1', path: '/static/html/plane.html?floor=' + '4', id: 'threeFrame4'},
-        {name: 'B3', path: '/static/html/plane.html?floor=' + '3', id: 'threeFrame3'},
-        {name: 'B2', path: '/static/html/plane.html?floor=' + '2', id: 'threeFrame2'},
-        {name: 'B1', path: '/static/html/plane.html?floor=' + '1', id: 'threeFrame1'}
+        {name: '总', path: '/static/html/home.html', id: 'threeFrame'}
       ],
       personList: [
         {imgUrl: '/static/avatar2.png'},
@@ -110,6 +101,12 @@ export default {
         {imgUrl: '/static/avatar2.png'},
         {imgUrl: '/static/avatar2.png'}
       ],
+      floorArr: [],
+      community: {
+        infoArr: [],
+        index: null,
+        minus: 0
+      },
       frame: {
         id: 'threeFrame',
         name: 'threeFrame',
@@ -136,10 +133,12 @@ export default {
     }
   },
   methods: {
-    updateFrameArea (path, name) {
-      this.$set(this.frame, 'path', path)
-      this.$set(this.frame, 'name', name)
-      this.$set(this.frame, 'id', name)
+    updateFrameArea (item, index) {
+      this.$set(this.frame, 'path', item.path)
+      this.$set(this.frame, 'name', item.id)
+      this.$set(this.frame, 'id', item.id)
+      this.community.index = index + 1
+      this.$emit('updateCommunity', this.community.infoArr[this.community.index])
     },
     timestampToTime (timestamp) {
       let date = new Date(timestamp)
@@ -148,15 +147,15 @@ export default {
       return h + m
     },
     // 获取socket服务地址并建立websocket链接
-    getWebsocket () {
+    getWebsocket (groupSonGuid, groupParentGuid) {
       GetSocketIP().then(res => {
         let _this = this
         let data = {}
-        let wsServer = `ws://192.168.1.153:8010/websocket/88` // 服务器地址
+        let wsServer = `ws://192.168.1.153:8010/websocket/${groupSonGuid}_${groupParentGuid}` // 服务器地址
         this.websocket = new WebSocket(wsServer)
         this.websocket.onopen = function (evt) {
           // 已经建立连接
-          _this.websocket.send('88_channel') // 向服务器发送消息
+          _this.websocket.send(`${groupSonGuid}_${groupParentGuid}_channel`) // 向服务器发送消息
           console.info('已经连接')
         }
         this.websocket.onmessage = (evt) => {
@@ -173,6 +172,58 @@ export default {
           console.info('产生异常')
         }
       })
+    },
+    getCommunityInfo (val) {
+      GetMarketList({parentId: 88}).then(res => {
+        let floorInfo = this.sortRouterList(res.data[0].subGroupSon)
+        let allInfo = res.data
+        delete allInfo[0].subGroupSon
+        this.community.infoArr = allInfo.concat(floorInfo)
+        this.caculateMinus(this.community.infoArr)
+        for (let i in floorInfo) {
+          let obj = {
+            name: floorInfo[i].name,
+            id: floorInfo[i].floor + this.community.minus + 1
+          }
+          if (floorInfo[i].floor >= 0) {
+            this.floorArr.push(floorInfo[i].floor * 55 - 110)
+            obj.path = '/static/html/plane.html?floor=' + (floorInfo[i].floor + this.community.minus)
+          } else {
+            this.floorArr.push(floorInfo[i].floor * 55 - 55)
+            obj.path = '/static/html/plane.html?floor=' + (floorInfo[i].floor + this.community.minus + 1)
+          }
+          this.routerList.push(obj)
+        }
+        this.$emit('updateComunity', allInfo[0])
+        this.getWebsocket(res.data[0].groupSonGuid, res.data[0].groupParentGuid)
+      })
+    },
+    getSingleCommunityInfo () {
+      let params = this.community.infoArr[this.community.index]
+      GetGroupPortalInfo({groupSonId: params.groupSonId}).then(res => {
+        this.iframe.getCommunityInfo(res.data)
+      })
+    },
+    // 排序
+    sortRouterList (arr) {
+      if (arr.length <= 1) { return arr }
+      let pivotIndex = Math.floor(arr.length / 2)
+      let pivot = arr.splice(pivotIndex, 1)[0]
+      let left = []
+      let right = []
+      for (let i=0; i<arr.length; i++) {
+        if (arr[i].floor < pivot.floor) {
+          right.push(arr[i])
+        } else {
+          left.push(arr[i])
+        }
+      }
+      return this.sortRouterList(left).concat([pivot], this.sortRouterList(right))
+    },
+    caculateMinus (arr) {
+      if (arr[i].floor < 0) {
+        this.community.minus++
+      }
     },
     /****************************************************
      *********************  发送值  **********************
@@ -207,11 +258,7 @@ export default {
     sendStoreData () {
       let obj = {
         gateway: 'Gateway',
-        camera: [
-          'camera-one',
-          'camera-two',
-          'camera-three'
-        ]
+        camera: [ 'camera-one', 'camera-two', 'camera-three' ]
       }
       if (this.iframe.receiveStoreInfo) {
         this.iframe.receiveStoreInfo(obj)
@@ -224,9 +271,20 @@ export default {
       const data = event.data
       switch (data.cmd) {
         case 'change-floor':
-          let path = '/static/html/plane.html?floor=' + (parseInt(data.params.data) + 3)
-          let name = 'threeFrame' + (parseInt(data.params.data) + 3)
-          this.updateFrameArea(path, name)
+          console.log(data.params.data)
+          let currentFloor = ''
+          this.floorArr.forEach((val, index) => {
+            if (val === data.params.data){
+              let path = '/static/html/plane.html?floor=' + parseInt(val/55+5)
+              let name = 'threeFrame' + parseInt(val/55+5)
+              let item = {
+                path: path,
+                name: name
+              }
+              this.updateFrameArea(item, index)
+            }
+          })
+          
           break
         case 'post-coordinate':
           // 通过data.params调用接口
@@ -234,11 +292,16 @@ export default {
           // 发送单点信息
           this.sendStoreData()
           break
+        case 'home-load_signal':
+          this.iframe.setFloorInfo(this.floorArr)
+          break
+        case 'plane-load_signal':
+          this.getSingleCommunityInfo()
+          break
       }
     }
   },
   mounted () {
-    this.getWebsocket()
     this.iframe = this.$refs.iframe.contentWindow
     window.addEventListener('message', this.handleMessage)
   },
@@ -249,6 +312,14 @@ export default {
           // this.sendAlex()
         } else {
           clearInterval(this.cloudTimer)
+        }
+      },
+      deep: true
+    },
+    'currentManage': {
+       handler (val) {
+        if (val) {
+          this.getCommunityInfo(val)
         }
       },
       deep: true

@@ -990,20 +990,20 @@ THREE.SVGLoader.prototype = {
 
 		var currentTransform = new THREE.Matrix3();
 
-		console.time( 'THREE.SVGLoader: DOMParser' );
+		// console.time( 'THREE.SVGLoader: DOMParser' );
 
 		var xml = new DOMParser().parseFromString( text, 'image/svg+xml' ); // application/xml
 
-		console.timeEnd( 'THREE.SVGLoader: DOMParser' );
+		// console.timeEnd( 'THREE.SVGLoader: DOMParser' );
 
-		console.time( 'THREE.SVGLoader: Parse' );
+		// console.time( 'THREE.SVGLoader: Parse' );
 
 		parseNode( xml.documentElement, { fill: '#000' } );
 
 		// console.log( paths );
 
 
-		console.timeEnd( 'THREE.SVGLoader: Parse' );
+		// console.timeEnd( 'THREE.SVGLoader: Parse' );
 
 		return paths;
 

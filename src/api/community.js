@@ -236,7 +236,7 @@ export function GetGroupPortalCount (data) {
   })
 }
 
-// 获取社群下出入口信息
+// 获取社群下出入口信息 =======
 export function GetGroupPortalInfo (data) {
   return request({
     url: '/group/portal/group/info',
