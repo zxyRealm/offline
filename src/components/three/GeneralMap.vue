@@ -186,10 +186,10 @@ export default {
             id: floorInfo[i].floor + this.community.minus + 1
           }
           if (floorInfo[i].floor >= 0) {
-            this.floorArr.push(floorInfo[i].floor * 55 - 110)
+            this.floorArr.push(floorInfo[i].floor * 65 - 130)
             obj.path = '/static/html/plane.html?floor=' + (floorInfo[i].floor + this.community.minus)
           } else {
-            this.floorArr.push(floorInfo[i].floor * 55 - 55)
+            this.floorArr.push(floorInfo[i].floor * 65 - 65)
             obj.path = '/static/html/plane.html?floor=' + (floorInfo[i].floor + this.community.minus + 1)
           }
           this.routerList.push(obj)
@@ -277,8 +277,8 @@ export default {
           let currentFloor = ''
           this.floorArr.forEach((val, index) => {
             if (val === data.params.data){
-              let path = '/static/html/plane.html?floor=' + parseInt(val/55+5)
-              let name = 'threeFrame' + parseInt(val/55+5)
+              let path = '/static/html/plane.html?floor=' + parseInt(val/65+5)
+              let name = 'threeFrame' + parseInt(val/65+5)
               let item = {
                 path: path,
                 name: name

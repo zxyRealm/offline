@@ -14,6 +14,10 @@
 </head>
 <body>
 <div id="WebGL-output"></div>
+<div style="position: absolute;top: 0;">
+  <a href="javascript:;" onclick="upFloor()">上一层</a>
+  <a href="javascript:;" onclick="downFloor()">下一层</a>
+</div>
 <script type="text/javascript">
   let renderer, scene, camera, group;
   let scale = 0.6; // 缩放比
@@ -24,18 +28,18 @@
   let geometryArr = [];
   let materialArr = [];
   let pointCloudArr = [];
-  let floorHeight = 55;
+  let floorHeight = 65;
   let floorArr = [
-    (-3-1)*floorHeight, 
-    (-2-1)*floorHeight, 
-    (-1-1)*floorHeight, 
-    (0-1)*floorHeight, 
-    (1-1)*floorHeight, 
-    (2-1)*floorHeight, 
-    (3-1)*floorHeight, 
-    (4-1)*floorHeight, 
-    (5-1)*floorHeight, 
-    (6-1)*floorHeight
+    0 * floorHeight, 
+    1 * floorHeight, 
+    2 * floorHeight, 
+    3 * floorHeight, 
+    4 * floorHeight, 
+    5 * floorHeight, 
+    6 * floorHeight, 
+    7 * floorHeight, 
+    8 * floorHeight, 
+    9 * floorHeight
   ]
   function init() {
     renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -47,6 +51,7 @@
 
     camera = new THREE.PerspectiveCamera(45, (window.innerWidth) / (window.innerHeight), 0.1, 10000 );
     camera.position.set( 260, 200, 350 );
+    camera.lookAt(0, 65, 0)
     scene.add(camera);
 
     let light = new THREE.PointLight( 0xffffff, 0.8 );
@@ -67,6 +72,30 @@
     addControl();
     loadSignal();
 
+  }
+
+  function upFloor() {
+    let height = 0
+    let timer = setInterval(function(){
+      group.position.y += 1
+      height += 1
+      // group.matrixAutoUpdate  = false;
+      // group.updateMatrix();
+      if(height >= 65){
+        clearInterval(timer)
+      }
+    }, 10)
+  }
+
+  function downFloor() {
+    let height = 65
+    let timer = setInterval(function(){
+      group.position.y -= 1
+      height -= 1
+      if(height<=0){
+        clearInterval(timer)
+      }
+    }, 10)
   }
 
   function loadSignal () {
@@ -109,27 +138,29 @@
           planeList[i].material.opacity = 0.7
         } else {
           planeList[i].material.color = new THREE.Color('#091331')
-          planeList[i].material.opacity = 0.5
+          if (planeList[i].position.y<-65) {
+            planeList[i].material.opacity = 0
+          }
           planeList[i].material.side = THREE.DoubleSide
         }
       }
     }else{
       for (let i = 0; i < planeList.length; i++) {
         planeList[i].material.color = new THREE.Color('#091331')
-        planeList[i].material.opacity = 0.5
+        if (planeList[i].position.y<-65) {
+            planeList[i].material.opacity = 0
+          }
         planeList[i].material.side = THREE.DoubleSide
       }
     }
   }
 
   // 接收楼层信息
-  function setFloorInfo(floorArr) {
+  function setFloorInfo() {
     // 创建楼层图片
     console.log(floorArr);
     for (let i=0; i<floorArr.length; i++) {
-      if (floorArr[i]>=-55 && floorArr[i]<=110) {
-        loadSvg(group, floorArr[i], parseInt(floorArr[i]/55+5))
-      }
+      loadSvg(group, floorArr[i], parseInt(floorArr[i]/65+1))
     }
   }
 
@@ -163,9 +194,14 @@
   
   function addShape(shape, group, color, y) {
     let geometry = new THREE.ShapeBufferGeometry( shape );
-    let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }));
+    let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ 
+      color: color, 
+      side: THREE.DoubleSide, 
+      transparent: true, 
+      opacity: y<-65 ? 0 : 0.5 
+    }));
     mesh.position.set(0, y, 0);
-    mesh.rotation.set(0.52*Math.PI, 0, 0);
+    mesh.rotation.set(0.5*Math.PI, 0, 0);
     mesh.scale.set(scale, scale, scale);
     planeList.push(mesh);
     group.add(mesh);
@@ -177,12 +213,16 @@
     let points = shape.getPoints();
     let geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
 
-    let line = new THREE.Line(geometryPoints, new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.4  }));
+    let line = new THREE.Line(geometryPoints, new THREE.LineBasicMaterial({ 
+      color: color, 
+      transparent: true, 
+      opacity: y<-65 ? 0 : 0.5 
+    }));
     line.position.set(0, y, 0);
-    line.rotation.set(0.52*Math.PI, 0, 0);
+    line.rotation.set(0.5*Math.PI, 0, 0);
     line.scale.set(scale, scale, scale);
     meshList.push(line)
-    group.add(line );
+    group.add(line);
   }
 
   // 创建闪光粒子canvas
@@ -226,13 +266,13 @@
       });
       pointArr[icount] = new THREE.Mesh(geometryArr[icount], materialArr[icount]);
       pointArr[icount].sortParticles = true;
-      pointArr[icount].position.set(alx[0], (floor-1)*35+1, alx[1])
+      pointArr[icount].position.set(alx[0], (floor-1)*65+1, alx[1])
       pointArr[icount].rotation.x = 0.5*Math.PI
       scene.add(pointArr[icount]);
       createAnimate(pointArr[icount], icount)
     } else {
       icount = icount%100
-      pointArr[icount].position.set(alx[0], (floor-1)*35+1, alx[1])
+      pointArr[icount].position.set(alx[0], (floor-1)*65+1, alx[1])
       pointArr[icount].rotation.x = 0.5*Math.PI
       createAnimate(pointArr[icount], icount)
     }
