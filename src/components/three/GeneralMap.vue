@@ -221,9 +221,11 @@ export default {
       return this.sortRouterList(left).concat([pivot], this.sortRouterList(right))
     },
     caculateMinus (arr) {
-      if (arr[i].floor < 0) {
-        this.community.minus++
-      }
+      for (let i=0; i<arr.length; i++) {
+        if (arr[i].floor < 0) {
+          this.community.minus++
+        }
+      } 
     },
     /****************************************************
      *********************  发送值  **********************
