@@ -19,6 +19,15 @@ export function CheckMemberNameExist (data) {
   })
 }
 
+// 校验外来成员社群昵称是否存在
+export function CheckMemberNickNameExist (data) {
+  return request({
+    tip: false,
+    url: '/group/son/nickName/exist',
+    data
+  })
+}
+
 // 社群业态
 export function GetIndustry (data) {
   return request({
@@ -63,6 +72,14 @@ export function DeleteCommunity (data) {
 export function GetCommunityInfo (data) {
   return request({
     url: '/group/info',
+    data
+  })
+}
+
+// 更新外来成员社群昵称
+export function UpdateMemberNickName (data) {
+  return request({
+    url: '/group/son/nickName/update',
     data
   })
 }

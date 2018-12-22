@@ -166,20 +166,20 @@
           <el-input type="text" placeholder="11位手机号"
                     v-model.trim="communityForm.phone"></el-input>
         </el-form-item>
-        <el-form-item v-if="handleCommunityType !== 3" label="索权范围：" prop="rule">
-          <el-checkbox-group class="g-pt10" v-model="communityForm.rule">
-            <el-checkbox class="block" :label="1">设备操作权限
-              <p class="form__item--des">查看成员社群的客流数据（必选项）</p>
-            </el-checkbox>
-            <div class="text--wrap">
-              <i class="el-icon-check"></i>
-              <div class="text--content">
-                <p> 数据查看权限</p>
-                <p class="form__item--des">对成员社群的设备进行添加、升级等所有操作</p>
-              </div>
-            </div>
-          </el-checkbox-group>
-        </el-form-item>
+        <!--<el-form-item v-if="handleCommunityType !== 3" label="索权范围：" prop="rule">-->
+          <!--<el-checkbox-group class="g-pt10" v-model="communityForm.rule">-->
+            <!--<el-checkbox class="block" :label="1">设备操作权限-->
+              <!--<p class="form__item&#45;&#45;des">查看成员社群的客流数据（必选项）</p>-->
+            <!--</el-checkbox>-->
+            <!--<div class="text&#45;&#45;wrap">-->
+              <!--<i class="el-icon-check"></i>-->
+              <!--<div class="text&#45;&#45;content">-->
+                <!--<p> 数据查看权限</p>-->
+                <!--<p class="form__item&#45;&#45;des">对成员社群的设备进行添加、升级等所有操作</p>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</el-checkbox-group>-->
+        <!--</el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer mt50">
         <el-button class="cancel" @click="addCommunityVisible = false">返 回</el-button>
@@ -232,15 +232,11 @@ export default {
         if (value.length > 20) {
           callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
-          if (this.type === 'update' && this.originName === value) {
-            callback()
-          } else {
-            CheckNameExist({name: value, tip: false}).then(res => {
-              !res.data ? callback() : callback(new Error('社群名称已存在'))
-            }).catch(err => {
-              callback(new Error(err.msg || '验证失败'))
-            })
-          }
+          CheckNameExist({name: value}).then(res => {
+            !res.data ? callback() : callback(new Error('社群名称已存在'))
+          }).catch(err => {
+            callback(new Error(err.msg || '验证失败'))
+          })
         } else {
           callback(new Error('请输入正确的社群名称'))
         }

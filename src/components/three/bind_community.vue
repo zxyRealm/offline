@@ -41,7 +41,6 @@ export default {
     // 处理iframe传递出来的事件
     handleEvent (event) {
       let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
-      console.log('post message', data)
       if (data.type === 'BIND_GROUP_CLICK') {
         this.$emit('handle-block-click', data.data)
       } else if (data.type === 'SET_DEFAULT_DATA') {

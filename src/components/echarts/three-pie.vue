@@ -2,7 +2,7 @@
   <div class="echarts--wrap" :style="{width: width, height: height}">
     <div :id="eid" :style="{width: width, height: height}"></div>
     <div class="percent-wrap" v-if="type === 'age'">
-      <p v-for="(item, $index) in dataList" :key="$index">{{getPercent(item.value)}}</p>
+      <p v-for="(item, $index) in data" :key="$index">{{getPercent(item.num)}}</p>
     </div>
   </div>
 </template>
@@ -16,14 +16,40 @@ export default {
   data () {
     return {
       chart: null,
+      dataMap: {
+        age: {
+          1: '0-10岁',
+          2: '10-20岁',
+          3: '20-30岁',
+          4: '30-40岁',
+          5: '50岁以上'
+        },
+        member: {
+          1: '会员',
+          2: '顾客'
+        }
+      },
       dataList: [
-        {value: 10, name: '0-10岁'},
-        {value: 25, name: '10-20岁'},
-        {value: 30, name: '20-30岁'},
-        {value: 20, name: '30-40岁'},
-        {value: 20, name: '50岁以上'}
+        {value: 0, name: '0-10岁'},
+        {value: 0, name: '10-20岁'},
+        {value: 0, name: '20-30岁'},
+        {value: 0, name: '30-40岁'},
+        {value: 0, name: '50岁以上'}
       ],
-      options: {}
+      options: {},
+      ratio: {
+        // 会员比例
+        memberRatio: {
+          leaguer: { // 会员
+            num: 60,
+            percent: '60%'
+          },
+          normal: { // 顾客
+            num: 40,
+            percent: '40%'
+          }
+        }
+      }
     }
   },
   props: {
@@ -53,9 +79,9 @@ export default {
     }
   },
   created () {
-    this.setOptions()
   },
   mounted () {
+    this.chart = echarts.init(document.getElementById(this.eid))
     this.initData()
   },
   computed: {
@@ -65,19 +91,20 @@ export default {
   },
   methods: {
     initData () {
-      this.chart = echarts.init(document.getElementById(this.eid))
+      this.setOptions()
       this.chart.setOption(this.options)
     },
     // 计算百分比
     getPercent (val) {
       let total = 0
-      for (let i = 0, l = this.dataList.length; i < l; i++) {
-        total += this.dataList[i].value
+      for (let i = 0, l = this.data.length; i < l; i++) {
+        total += this.data[i].num
       }
       return ((val / total) * 100).toFixed(2) + '%'
     },
     // 根据type定义配置信息
     setOptions () {
+      let seriesData = this.formatData()
       if (this.type === 'age') {
         this.options = {
           color: ['#0F9EE9', '#005BC9', '#213A65', '#2C0189', '#8663FF', '#A9B7CE'], // ['#2187DF','#6D2EBB']
@@ -166,13 +193,7 @@ export default {
                   }
                 }
               },
-              data: [
-                {value: 10, name: '0-10岁'},
-                {value: 25, name: '10-20岁'},
-                {value: 30, name: '20-30岁'},
-                {value: 20, name: '30-40岁'},
-                {value: 20, name: '50岁以上'}
-              ]
+              data: seriesData
             }
           ]
         }
@@ -234,7 +255,7 @@ export default {
                   show: true,
                   fontSize: 12,
                   formatter: '{per|{b}}\n{per|{d}%}', // '{per|{d}%}',//'{d}%',  //显示百分比
-                  position: 'outside',
+                  position: 'inner',
                   rich: {
                     // gray: {
                     //   color: 'rgba(109,46,187,1)',
@@ -270,17 +291,45 @@ export default {
                   }
                 }
               },
-              data: [
-                {value: 10, name: '会员'},
-                {value: 150, name: '普通顾客'}
-              ]
+              data: seriesData
             }
           ]
         }
       }
+    },
+    formatData () {
+      let _data = []
+      console.log('chart data----', this.data)
+      switch (this.type) {
+        case 'age':
+          _data = this.data.map(item => {
+            return {
+              name: this.dataMap.age[item.name],
+              value: item.num
+            }
+          })
+          break
+        default:
+          _data = this.data.map(item => {
+            return {
+              name: this.dataMap.member[item.name],
+              value: item.num
+            }
+          })
+          break
+      }
+      return _data
     }
   },
-  watch: {}
+  watch: {
+    data: {
+      handler (val) {
+        this.initData()
+        console.log('data change', val)
+      },
+      deep: true
+    }
+  }
 }
 </script>
 

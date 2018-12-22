@@ -88,6 +88,10 @@ export default {
   name: 'association_map',
   mixins: [Mixins],
   props: {
+    data: { // 当前社群信息
+      type: Object,
+      default: () => ({})
+    },
     floorList: {
       type: [Array],
       default: () => []
@@ -104,7 +108,7 @@ export default {
           if (this.handleDialogType === 2 && this.handlePortalForm.originName === value) {
             callback(new Error('该名称已存在'))
           } else {
-            CheckPortalNameExist({name: value, groupSonId: this.currentFloor.id}).then(res => {
+            CheckPortalNameExist({name: value, groupSonId: this.currentFloor.groupSonGuid}).then(res => {
               !res.data ? callback() : callback(new Error('该名称已存在'))
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
@@ -172,14 +176,21 @@ export default {
   methods: {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
-      this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor || 1))[0] || this.this.floorList[0]
+      if (this.data.guid === this.currentManage.id) {
+        this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor || 1))[0] || this.this.floorList[0]
+      } else {
+        this.currentFloor = this.data
+      }
       this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
-      GetGroupPortalCount({groupSonId: this.currentFloor.id}).then(res => {
-        this.totalCounts = res.data
-      })
+      if (this.currentFloor.groupSonGuid) {
+        GetGroupPortalCount({groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
+          this.totalCounts = res.data
+        })
+      }
     },
     // 处理iframe传递出来的事件
     handleEvent (event) {
+      console.log('event data---------', event.data)
       let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
       switch (data.type) {
         case 'CREATE_PORTAL_CLICK': // 创建出入口
@@ -211,7 +222,7 @@ export default {
     },
     // 获取出入口信息，并在地图上展示标注
     setPortalList () {
-      GetGroupPortalInfo({groupSonId: this.currentFloor.id}).then(res => {
+      GetGroupPortalInfo({groupSonId: this.currentFloor.groupSonGuid}).then(res => {
         res.data.map(item => {
           this.iframeObj.createSprite(item)
         })
@@ -306,7 +317,7 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.handlePortalForm))
-          subData.groupSonId = this.currentFloor.id
+          subData.groupSonId = this.currentFloor.groupSonGuid
           subData.floor = this.currentFloor.floor
           console.log('add portal -----------', subData, this.handleDialogType)
           if (this.handleDialogType === 1) { // 添加出入口
@@ -328,6 +339,12 @@ export default {
   },
   watch: {
     floorList: {
+      handler (val) {
+        this.initFloor()
+      },
+      deep: true
+    },
+    data: {
       handler (val) {
         this.initFloor()
       },
