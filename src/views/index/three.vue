@@ -16,14 +16,14 @@
             </div>
             <div class="sex__data--wrap vam">
               <div>
-                <span class="gc--color">38%</span>
+                <span class="gc--color">{{ratioData.gender[0] ? ratioData.gender[0].ratio * 100 + '%':'0%'}}</span>
                 <p><img width="15" src="@/assets/three/girl_icon@2x.png" alt="">女</p>
               </div>
               <div class="sex__ratio--icon"></div>
               <!--<img width="48" class="sex__ratio&#45;&#45;icon" src="@/assets/three/sex_ratio_icon.png" alt="">-->
               <div>
                 <p><img width="15" src="@/assets/three/boy_icon@2x.png" alt="">男</p>
-                <span class="bc--color">62%</span>
+                <span class="bc--color">{{ratioData.gender[1] ? ratioData.gender[1].ratio * 100 + '%':'0%'}}</span>
               </div>
             </div>
           </div>
@@ -34,16 +34,16 @@
             回头客比例
           </div>
           <div class="return__ratio--wrap">
-            <custom-pie :percent="36"></custom-pie>
+            <custom-pie :percent="100"></custom-pie>
           </div>
           <div class="return__data--wrap">
             <div class="multi__box vam">
               <img width="15" src="@/assets/three/return_multi_icon@2x.png" alt=""><span>多次</span>
-              <span class="gc--color">36%</span>
+              <span class="gc--color">{{ratioData.appearance[1] + '%'}}</span>
             </div>
             <div class="single__box vam">
               <img width="15" src="@/assets/three/return_single_icon@2x.png" alt=""><span>单次</span>
-              <span class="bc--color">64%</span>
+              <span class="bc--color">{{ratioData.appearance[1] + '%'}}</span>
             </div>
           </div>
         </div>
@@ -59,21 +59,21 @@
           <div class="clearfix">
             <div class="industry__rank--wrap">
               <div class="rank-items">
-                <span>{{rankData.industryList[0].name}} <br> {{rankData.industryList[0].value}}</span>
+                <span>{{rankData.INDUSTRY[0].name}} <br> {{rankData.INDUSTRY[0].percent}}</span>
               </div>
               <div class="rank-items">
-                <span>{{rankData.industryList[0].name}} <br> {{rankData.industryList[0].value}}</span>
+                <span>{{rankData.INDUSTRY[0].name}} <br> {{rankData.INDUSTRY[0].percent}}</span>
               </div>
               <div class="rank-items">
-                <span>{{rankData.industryList[0].name}} <br> {{rankData.industryList[0].value}}</span>
+                <span>{{rankData.INDUSTRY[0].name}} <br> {{rankData.INDUSTRY[0].percent}}</span>
               </div>
             </div>
             <ul class="right__sidebar">
               <li
-                v-for="(item, $index) in rankData.industryList"
+                v-for="(item, $index) in rankData.INDUSTRY"
                 :key="$index"
                 v-if="$index > 2"
-                class="sidebar--item"><span>{{$index + 1}}.{{item.name}}</span><span>{{item.value}}</span> </li>
+                class="sidebar--item"><span>{{$index + 1}}.{{item.name}}</span><span>{{item.percent}}</span> </li>
             </ul>
           </div>
           <!--<chart-bar title="业态客流排行榜" width="100%" height="100%"></chart-bar>-->
@@ -84,7 +84,7 @@
             门店客流排行榜
           </div>
           <div class="process__list--wrap">
-            <div class="pl-items vam" v-for="(item, $index) in rankData.group" :key="$index" v-if="$index < 6">
+            <div class="pl-items vam" v-for="(item, $index) in rankData.GROUP" :key="$index" v-if="$index < 6">
               <span class="ellipsis">{{$index + 1}}.{{item.name}}</span>
               <el-progress :percentage="item.percent" color="##0F9EE9"></el-progress>
               <el-icon class="el-icon-d-arrow-right"></el-icon>
@@ -97,7 +97,7 @@
       <ul class="floor__sidebar--wrap">
         <li class="sidebar__item" v-for="(item,$Index) in floorList" :key="$Index" @click="selectFloor(item)">{{item}}</li>
       </ul>
-      <general-map></general-map>
+      <general-map @update-community="initBaseData"></general-map>
     </div>
   </div>
 </template>
@@ -135,20 +135,13 @@ export default {
       iframeSrc: '/three',
       websocket: '', // websocket连接
       ratioData: { // 比例（会员、男女、回头客、年龄）
-        age: [
-          {name: '1', num: 120, percent: '12%'},
-          {name: '2', num: 300, percent: '30%'},
-          {name: '3', num: 150, percent: '15%'},
-          {name: '4', num: 220, percent: '22%'},
-          {name: '5', num: 110, percent: '11%'}
-        ],
-        member: [
-          {name: '1', num: 200, percent: ''},
-          {name: '2', num: 100, percent: ''}
-        ]
+        age: [],
+        member: [],
+        appearance: [],
+        gender: []
       },
       rankData: { // 排行榜 （业态、门店）
-        group: [
+        GROUP: [
           { name: '无印良品', percent: 50 },
           { name: '优衣库', percent: 30 },
           { name: '传奇奢华影城', percent: 18 },
@@ -157,16 +150,16 @@ export default {
           { name: '外婆家', percent: 8 },
           { name: '外婆家', percent: 8 }
         ],
-        industryList: [
-          {name: '文体', value: '30%'},
-          {name: '文体', value: '22%'},
-          {name: '文体', value: '18%'},
-          {name: '文体', value: '9%'},
-          {name: '文体', value: '7%'},
-          {name: '文体', value: '5%'},
-          {name: '文体', value: '3%'},
-          {name: '文体', value: '2%'},
-          {name: '文体', value: '1.6%'}
+        INDUSTRY: [
+          {name: '文体', percent: '30%'},
+          {name: '文体', percent: '22%'},
+          {name: '文体', percent: '18%'},
+          {name: '文体', percent: '9%'},
+          {name: '文体', percent: '7%'},
+          {name: '文体', percent: '5%'},
+          {name: '文体', percent: '3%'},
+          {name: '文体', percent: '2%'},
+          {name: '文体', percent: '1.6%'}
         ]
       }
     }
@@ -241,25 +234,37 @@ export default {
     initBaseData () {
       // if (!this.currentManage.id) return
       // 获取客流排行
-      GetFlowRank({floor: 2, topType: 1, parentId: 88}).then(res => {
+      GetFlowRank({floor: 2, parentId: 88}).then(res => {
         console.log('flow rank', res)
+        if (res.data.INDUSTRY && res.data.GROUP) {
+          res.data.INDUSTRY = res.data.INDUSTRY.map(item => {
+            item.percent = item.percentage * 100
+            return item
+          })
+          res.data.GROUP = res.data.GROUP.map(item => {
+            item.percent = item.percentage * 100 + '%'
+            return item
+          })
+        }
+        console.log(res.data)
       })
       // 获取实时比率
-      GetTimeRatio({type: 'age', groupFloor: 1, parentId: 88}).then(res => {
+      GetTimeRatio({groupFloor: 0, groupGuid: 88}).then(res => {
         console.log('time ratio', res)
+        this.ratioData = res.data
       })
-      GetChartLine({groupSonId: 2328, type: 'age', timeIntervalUnit: 'day', startTime: '2018-10-12', endTime: '2018-12-12'}).then(res => {
-        console.log('chart line', res)
-      })
-      GetChartPie({}).then(res => {
-        console.log('chart pie', res)
-      })
+      // GetChartLine({groupSonId: 2328, type: 'age', timeIntervalUnit: 'day', startTime: '2018-10-12', endTime: '2018-12-12'}).then(res => {
+      //   console.log('chart line', res)
+      // })
+      // GetChartPie({}).then(res => {
+      //   console.log('chart pie', res)
+      // })
     }
   },
   watch: {
     currentManage: {
       handler (val) {
-        this.initBaseData()
+        // this.initBaseData()
       },
       deep: true
     }
