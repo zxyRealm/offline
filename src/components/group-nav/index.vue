@@ -50,7 +50,8 @@
           </span>
           <!--role01 商场 role02 连锁总店 role03 单个门店-->
           <uu-icon class="role__icon--img" v-if="node.level === 1" :type="'role0' + currentManage.type"></uu-icon>
-          <uu-icon v-if="node.level === 3 && !data.self" class="role__icon--img" type="foreign"></uu-icon>
+          <!---->
+          <uu-icon v-if="node.level === 3 && !data.self"  class="role__icon--img" type="foreign"></uu-icon>
           <!--<el-tooltip v-if="rights && data.type === 2" content="数据查看权限" placement="top" effect="light">-->
             <!--<uu-icon class="role__icon&#45;&#45;img" size="small" type="data"></uu-icon>-->
           <!--</el-tooltip>-->
@@ -78,13 +79,13 @@ export default {
       type: String,
       default: 'default'
     },
-    nodeKey: { // 节点唯一标识键值
+    nodeKey: { // (uniqueKey)节点唯一标识键值
       type: String,
       default: 'uniqueKey'
     },
     dataKey: { // 数组对象自有唯一标识
       type: String,
-      default: 'groupGuid'
+      default: 'groupSonGuid'
     },
     onlyChecked: { //
       type: Boolean,

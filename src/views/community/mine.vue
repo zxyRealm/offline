@@ -12,15 +12,16 @@
         <ob-list-empty v-if="!groupList.length || searchEmpty" top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
         <div class="mine__community--content" v-else>
           <div class="community--sidebar">
+            <!---->
             <ob-group-nav
               is-edit
               rights
               isSearch
+              node-key="groupSonGuid"
               :asyn-data="true"
               :expanded-all="false"
               ref="groupNav"
               only-checked
-              node-key="uniqueKey"
               :expanded-keys="expandedKeys"
               v-model="groupList"
               type="community"
@@ -32,7 +33,8 @@
           <div class="community--main">
             <div class="cmm-top" ref="ciContentTop">
               <h2 class="cmm-sub-title">
-                  <span>{{communityInfo.name}}{{communityInfo.groupNickName?`（${communityInfo.groupNickName}）`:''}}
+                  <span>{{communityInfo.name}}{{showNickName?`（${communityInfo.nickName}）`:''}}
+                    <uu-icon v-if="showNickName"  class="role__icon--img" type="foreign"></uu-icon>
                     <!--<a v-if="communityInfo.groupNickName !== undefined || communityInfo.groupPid || (communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId)"  class="fs12" @click="showDialog" href="javascript:void (0)">-->
                       <!--<i class="el-icon-edit"></i>-->
                       <!--{{(communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId) ? dialogTitle : ''}}-->
@@ -41,10 +43,10 @@
                 <p class="handle fr fs12">
                   <i
                     v-if="userInfo.developerId === communityInfo.merchantGuid"
-                    @click="showAddForm(communityInfo.level === 2 ? 5 : 7)">
+                    @click="showAddForm(backDialogType('add'))">
                     {{communityInfo.level === 2 ? '添加成员' : '加入管理员'}}
                   </i>
-                  <i class="el-icon-edit" @click="showAddForm(communityInfo.level === 2 ? 4 : 6)"></i>
+                  <i class="el-icon-edit" @click="showAddForm(backDialogType())"></i>
                   <i class="el-icon-delete" @click="deleteGroup"></i>
                 </p>
               </h2>
@@ -54,42 +56,31 @@
                 <div >
                   <span class="info__label">联系人：</span>
                   {{communityInfo.contact}}</div>
-                <template v-if="communityInfo.level === 2">
-                  <div>
-                    <span class="info__label"> 索权范围：</span>
-                    <el-popover
-                      placement="top"
-                      trigger="hover">
-                      <div class="fs12">
-                        <p>数据查看：查看成员社群的客流数据</p>
-                        <p>设备操作：对成员社群的设备进行升级、重启等操作</p>
-                      </div>
-                      <i class="el-icon-question" slot="reference"></i>
-                    </el-popover>
-                    {{communityInfo.rule | authority }}</div>
-                  <div>
-                    <span class="info__label"> 邀请码：</span>
-                    <span>{{communityInfo.code}}</span>
-                    <a href="javascript:void (0)" @click="clipboard($event)">复制</a></div>
-                </template>
                 <div>
                   <span class="info__label">联系电话：</span>
                   {{communityInfo.phone}}</div>
+                <div v-if="communityInfo.level === 2">
+                  <span class="info__label"> 邀请码：</span>
+                  <span>{{communityInfo.code}}</span>
+                  <a href="javascript:void (0)" @click="clipboard($event)">复制</a></div>
                 <div>
                   <span class="info__label">地区：</span>
                   <span class="ellipsis-64">{{communityInfo.fullAddress}}</span></div>
+                <div v-if="communityInfo.industryType">
+                  <span class="info__label">业态：</span>
+                  <span class="ellipsis-64">{{communityInfo.industryTypeName}}</span></div>
                 <!--如果成员社群加入了管理员社群即展示其管理员社群列表-->
+                <!--v-if="userInfo.developerId === communityInfo.merchantGuid && communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.level === 1"-->
                 <div
+                  v-if="userInfo.developerId === communityInfo.merchantGuid && communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.level === 2"
                   class="parent__list"
-                  v-if="communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.type === 3">
+                  >
                   <span class="fl info__label">已加入：</span>
                   <div
                     v-for="(item,$index) in parentGroups"
                     :key="$index"
                     class="parents-item">
-                    <span>{{item.name}}</span>
-                    <uu-icon size="small" type="data"></uu-icon>
-                    <uu-icon v-if="item.rule && item.rule.length > 2" size="small" type="handle"></uu-icon>
+                    <span class="ellipsis">{{item.name}}</span>
                     <uu-icon
                       size="small" type="quit"
                       v-show="communityInfo.merchantGuid === userInfo.developerId"
@@ -99,9 +90,10 @@
               </div>
             </div>
             <div class="three__map--wrap">
-              <ob-list-empty v-if="communityInfo.level ===1 && !communityInfo.mapUrl" top="0px" :supply="supply" text="暂无地图，敬请期待！"></ob-list-empty>
+              <ob-list-empty v-if="communityInfo.level === 1 && !communityInfo.mapUrl" top="0px" :supply="supply" text="暂无地图，敬请期待！"></ob-list-empty>
               <three-association-map
                 v-else
+                :data="communityInfo"
                 ref="associationMap"
                 :floor-list="floor">
               </three-association-map>
@@ -111,7 +103,7 @@
       </div>
       <!--修改社群昵称-->
       <ob-dialog-form
-        :title="dialogTitle"
+        :title="communityDialogTitle"
         :visible.sync="dialogFormVisible"
       >
         <el-form
@@ -126,8 +118,8 @@
           :model="nameForm"
           :rules="rules"
         >
-          <el-form-item label="昵称：" prop="groupName">
-            <el-input placeholder="请输入社群昵称" v-model="nameForm.groupName"></el-input>
+          <el-form-item label="备注名：" prop="groupName">
+            <el-input placeholder="请输入备注名" v-model="nameForm.groupName"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer mt50">
@@ -340,16 +332,6 @@
             <el-input type="text" placeholder="11位手机号"
                       v-model.trim="communityForm.phone"></el-input>
           </el-form-item>
-          <el-form-item v-if="handleCommunityType !== 4 && handleCommunityType !== 3" label="索权范围：" prop="rule">
-            <el-checkbox-group class="g-pt10" v-model="communityForm.rule">
-              <el-checkbox class="block" :label="1">设备操作权限
-                <p class="form__item--des">查看成员社群的客流数据（必选项）</p>
-              </el-checkbox>
-              <el-checkbox style="margin:0;" :label="0">数据查看权限
-                <p class="form__item--des">对成员社群的设备进行添加、升级等所有操作</p>
-              </el-checkbox>
-            </el-checkbox-group>
-          </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer mt50">
           <el-button class="cancel" @click="addCommunityVisible = false">返 回</el-button>
@@ -395,7 +377,7 @@ import Clipboard from '@/utils/clipboard'
 import area from '@/components/area-select/area-select'
 import BindCommunity from '@/components/three/bind_community'
 import {eventObject} from '../../utils/event'
-import {GetMarketList, GetCommunityInfo, GetCommunityInfoByCode, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, PortalBatchBindDevice, GetGroupPortalCount, CheckPortalNameExist, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
+import {GetMarketList, GetCommunityInfoByCode, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CheckMemberNickNameExist, UpdateMemberNickName, GetGroupPortalCount, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
 import ThreeAssociationMap from '@/components/three/association_map'
 export default {
   name: 'mineCommunity',
@@ -444,31 +426,17 @@ export default {
         if (value.length > 20) {
           callback(new Error('请输入1-20位字符'))
         } else if (validateRule(value, 2)) {
-          if (this.handleCommunityType === 4 && this.communityForm.originName === value) {
+          if ((this.handleCommunityType === 4 && this.communityForm.originName === value) || (this.handleCommunityType === 8 && this.editNicknameForm.originName === value)) {
             callback()
-          } else {
+          } else if (this.handleCommunityType === 4) {
             CheckNameExist({name: value}).then(res => {
               !res.data ? callback() : callback(new Error('社群名称已存在'))
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
             })
-          }
-        } else {
-          callback(new Error('请输入正确的社群名称'))
-        }
-      }
-    }
-    const validatePortalName = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请输入社群名称'))
-      } else {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
-        } else if (validateRule(value, 2)) {
-          if (this.handleCommunityType === 9 && this.handlePortalForm.originName === value) {
-            callback()
           } else {
-            CheckPortalNameExist({name: value, groupSonId: this.groupList[0].subGroupSon[0].id}).then(res => {
+            // 校验其他成员社群昵称是否存在
+            CheckMemberNickNameExist({name: value, parentGuid: this.currentManage.id}).then(res => {
               !res.data ? callback() : callback(new Error('社群名称已存在'))
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
@@ -526,17 +494,11 @@ export default {
         callback()
       }
     }
-    const validateFloor = (rule, value, callback) => {
-      this.handleMemberForm.coordinates = []
-      if (value) {
-        callback()
-      } else {
-        callback(new Error('请选择所在楼层'))
-      }
-    }
     return {
       parentGroups: [
-        {name: '西溪'}
+        {name: '西溪'},
+        {name: '西湖'},
+        {name: '城西'}
       ],
       portalGuid: '', // 要绑定的出入口id
       ownDeviceList: [
@@ -616,7 +578,6 @@ export default {
       addCommunityVisible: false, // 添加社群
       handleMemberVisible: false,
       editNicknameVisible: false, // 编辑其他社群备注名
-      handlePortalVisible: false, // 操作出入口
       AddDeviceVisible: false, // 添加设备
       handleCommunityType: 1, // 添加社群的类型 1 商场 2 连锁总店 3 单个门店 4 编辑 商场、连锁总店、单个门店 5 添加成员 6 编辑成员 7 加入管理员社群
       communityForm: { // 添加社群表单对象
@@ -626,7 +587,6 @@ export default {
         address: '',
         floor: '',
         contact: '',
-        rule: [0],
         phone: ''
       },
       addCommunityRules: {
@@ -648,9 +608,6 @@ export default {
         ],
         contact: [
           {validator: validateContact, trigger: 'blur'}
-        ],
-        rule: [
-          {required: true, type: 'array', message: '请选择索权范围', trigger: 'blur'}
         ],
         phone: [
           {validator: validatePhone, trigger: 'blur'}
@@ -688,19 +645,6 @@ export default {
         ],
         phone: [
           {validator: validatePhone, trigger: 'blur'}
-        ]
-      },
-      handlePortalForm: {
-        coordinates: [],
-        floor: '',
-        name: '',
-        type: ''
-      },
-      handlePortalRules: {
-        name: [
-          {
-            validator: validatePortalName, trigger: 'blur'
-          }
         ]
       },
       editNicknameForm: {
@@ -748,10 +692,24 @@ export default {
           title = '编辑社群'
           break
         case 5:
-          title = '添加成员社群'
+          let gText = ''
+          switch (this.currentManage.type) {
+            case 1:
+              gText = '商场'
+              break
+            case 2:
+              gText = '连锁'
+              break
+            default:
+              gText = ''
+          }
+          title = `添加${gText}成员`
           break
         case 7:
           title = '加入管理员社群'
+          break
+        case 8:
+          title = '编辑非自有成员'
           break
       }
       return title
@@ -776,63 +734,8 @@ export default {
       set () {}
     },
     ...mapState(['loading', 'aliveState', 'userInfo', 'currentManage']),
-    activeUrl: {
-      get () {
-        let type = 'edit'
-        if (this.communityInfo.type === 3) {
-          type = 'single'
-        } else if (this.communityInfo.role === 1) {
-          type = 'apply'
-        }
-        return `/community/${type}/${this.communityInfo.guid}`
-      },
-      set () {}
-    },
-    textState: {
-      get () {
-        let className = ''
-        if (this.communityInfo.parentGroups && this.joinCommunityInfo.guid) {
-          let cName = ''
-          for (let item of this.communityInfo.parentGroups) {
-            if (item.rule.length > 2) {
-              cName = item.name
-              break
-            }
-          }
-          if (this.joinCommunityInfo.rule.length > 2 && cName) {
-            this.$set(this.joinCommunityInfo, 'name', cName)
-            className = 'danger'
-          } else {
-            className = 'safe'
-          }
-        }
-        return className
-      },
-      set () {}
-    },
-    tableHeight: {
-      get () {
-        let baseHeight = 203
-        if ((this.communityInfo.parentGroups && this.communityInfo.parentGroups.length) || this.communityInfo.role === 0) baseHeight = 173
-        return this.deviceList.length ? (this.deviceList.length >= 5 ? 246 : (this.deviceList.length + 1) * 41) : baseHeight
-      },
-      set () {}
-    },
-    emptyMsg: {
-      get () {
-        // 自有社群/默认分组/自定义分组，无设备信息时显示信息
-        let msg = {
-          supply: '设备请到左侧［设备管理］中添加',
-          text: '您尚未添加设备'
-        }
-        // 分组下无成员社群时提示信息显示
-        if (this.currentCommunity.groupPid && this.currentCommunity.memberItem && !this.currentCommunity.memberItem.length) {
-          msg.supply = ''
-          msg.text = '尚无成员社群'
-        }
-        return msg
-      },
-      set () {}
+    showNickName () {
+      return this.userInfo.developerId !== this.communityInfo.merchantGuid && this.communityInfo.nickName
     }
   },
   methods: {
@@ -858,7 +761,7 @@ export default {
               // 多层for循环嵌套只能用return跳出整个循环，break 只能跳出当前循环
               for (let i = 0, len = restoreArray.length; i < len; i++) {
                 for (let k = 0, len2 = res.data.length; k < len2; k++) {
-                  if (res.data[k] === restoreArray[i].groupGuid) {
+                  if (res.data[k] === restoreArray[i].groupSonGuid) {
                     return restoreArray[i]
                   }
                 }
@@ -869,8 +772,8 @@ export default {
             let setArr = []
             // 获取匹配值列表
             restoreArray.map(item => {
-              if (setKey.has(item.groupGuid)) {
-                setArr.push(item.uniqueKey)
+              if (setKey.has(item.groupSonGuid)) {
+                setArr.push(item.groupSonGuid)
               }
             })
             let current = getCurrent()
@@ -878,7 +781,7 @@ export default {
             this.$nextTick(() => {
               if (this.$refs.groupNav) {
                 this.$refs.groupNav.setCheckedKeys(setArr)
-                this.$refs.groupNav.setCurrentKey(current.uniqueKey)
+                this.$refs.groupNav.setCurrentKey(current.groupSonGuid)
                 this.getCommunityInfo(current)
               }
             })
@@ -897,7 +800,7 @@ export default {
       this.expandedKeys = []
       this.$nextTick(() => {
         if (this.$refs.groupNav) {
-          this.$refs.groupNav.setCurrentKey(current.uniqueKey)
+          this.$refs.groupNav.setCurrentKey(current.groupSonGuid)
           this.$refs.groupNav.setCheckedKeys([])
           this.getCommunityInfo(current)
         }
@@ -913,14 +816,13 @@ export default {
         // if (typeof data === 'string') data = res.data[0]
         // 编辑页返回时记住当前页状态
         // (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || (this.currentCommunity.uniqueKey ? this.currentCommunity : false)
-        let currentNode = this.groupList[0] || {}
-        let uniqueKey
+        let currentNode = Object.keys(this.currentCommunity).length ? this.currentCommunity : this.groupList[0]
         this.$nextTick(() => {
           if (this.$refs.groupNav) {
             // 默认只展开默认分组列表
             // 创建成员社群后返回我的社群列表时默认显示管理员社群
             // 根据当前选中的社群的guid重新确定当前社群在树形结构的uniqueKey
-            // if (this.$route.params.groupGuid || pid || currentNode.id) {
+            // if (currentNode.groupSonGuid) {
             //   for (let i = 0, len = this.groupList.length; i < len; i++) {
             //     let item = this.groupList[i]
             //     if (pid && pid === item.id) {
@@ -938,27 +840,23 @@ export default {
             //   }
             //   this.$route.params.groupGuid = ''
             // }
-            this.groupList.filter(item => item.subGroupSon && item.subGroupSon.length).map(item => {
-              if (item.memberItem && item.subGroupSon[item.subGroupSon.length - 1]) {
-                this.expandedKeys.push(item.subGroupSon[item.subGroupSon.length - 1].uniqueKey)
-              }
-              this.expandedKeys.push(item.uniqueKey)
-            })
-            console.log('uniqueKey', uniqueKey, this.groupList[0])
-            this.expandedKeys.push(this.groupList[0].uniqueKey)
+            // this.groupList.filter(item => item.subGroupSon && item.subGroupSon.length).map(item => {
+            //   if (item.subGroupSon && item.subGroupSon[item.subGroupSon.length - 1]) {
+            //     this.expandedKeys.push(item.subGroupSon[item.subGroupSon.length - 1].groupSonGuid)
+            //   }
+            //   this.expandedKeys.push(item.groupSonGuid)
+            // })
+            this.expandedKeys.push(currentNode.groupSonGuid)
             if (!Object.keys(this.communityInfo).length) this.communityInfo = currentNode
             if (!Object.keys(this.currentCommunity).length) this.currentCommunity = currentNode
             // 通过自定义唯一标识uniqueKey 设置默认选中项
-            this.$refs.groupNav.setCurrentKey(this.groupList[0].uniqueKey)
+            this.$refs.groupNav.setCurrentKey(this.currentCommunity.groupSonGuid)
             this.$nextTick(() => {
               // 在树形组件中重新获取当前选中项，并保存当前值
               let node = this.$refs.groupNav.$refs.GroupTree.getCurrentNode()
               this.currentCommunity = node
-              if (this.currentCommunity.groupPid) {
-                this.communityInfo = node
-              }
-              if (currentNode.parentId) {
-                this.getCommunityInfo(node)
+              if (currentNode.groupParentGuid) {
+                this.getCommunityInfo(this.currentCommunity)
               }
             })
           }
@@ -969,17 +867,17 @@ export default {
     // 获取社群详细信息
     getCommunityInfo (val, node) {
       if (!this.currentManage.id) return
-      GetMemberDetail({groupSonId: val.id, parentId: this.currentManage.id}).then(res => {
+      GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: this.currentManage.id}).then(res => {
         res.data.level = val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
-        if (val.type === 2) res.data.sonId = val.id
         this.communityInfo = res.data || {}
       })
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
-      console.log('change', data, node)
+      console.log('change', data, data.groupSonGuid)
       if (node.level !== 2) {
-        this.getCommunityInfo(data, node)
+        this.currentCommunity = data
+        this.getCommunityInfo(data)
       }
     },
     // 解散社群
@@ -1009,22 +907,6 @@ export default {
           done()
         }
       })
-    },
-    // 显示修改昵称dialog
-    showDialog () {
-      // 编辑分组名
-      if (this.communityInfo.groupPid) {
-        this.groupsNameForm = JSON.parse(JSON.stringify(this.communityInfo))
-        this.groupsNameFormVisible = true
-      } else {
-        // 修改、添加昵称
-        this.nameForm = {
-          groupGuid: this.communityInfo.guid,
-          groupName: this.communityInfo.groupNickName,
-          groupPid: this.currentCommunity.parents.groupGuid
-        }
-        this.dialogFormVisible = true
-      }
     },
     // 设置昵称
     setNickName (formName) {
@@ -1059,15 +941,16 @@ export default {
     // 离开社群
     leaveCommunity (type, current, parent) {
       // type 可选类型 quit、kick
-      let [url, des] = ['/group/exit', '']
+      let [des, title] = ['', '']
       let params = {
-        groupPid: parent.parentId || parent.groupGuid,
-        groupId: current.id || current.guid,
+        groupPid: parent.guid || parent.guid,
+        groupId: current.guid,
         groupNickName: current.groupNickName || current.name,
         parentGroupNickName: parent.groupNickName || parent.name
       }
       switch (type) {
         case 'quit':
+          title = '退出管理员社群'
           des = `退出管理员社群后，当前社群的数据与设备将不会被<br/>管理员社群显示与操作`
           url = '/group/exit'
           break
@@ -1075,12 +958,11 @@ export default {
           des = `确定删除该社群？`
           url = '/group/remove'
       }
-      this.$affirm({text: `${des}`, confirm: '退出'}, (action, instance, done) => {
+      this.$affirm({title: title, text: `${des}`, confirm: '退出'}, (action, instance, done) => {
         if (action === 'confirm') {
           ExitManage(params).then(res => {
             this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
-            this.getCommunityInfo(this.communityInfo, {level: 3})
-            // this.getGroupList()
+            this.getCommunityInfo(this.communityInfo)
           })
         }
         done()
@@ -1092,7 +974,7 @@ export default {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.joinManageForm))
           subData.pid = this.ManageInfo.id
-          subData.groupId = this.communityInfo.id
+          subData.groupId = this.communityInfo.guid
           JoinOtherManage(subData).then(res => {
             this.$tip('加入成功')
             this.joinFormVisible = false
@@ -1110,7 +992,6 @@ export default {
           subData.provinceAreaId = address[0] || 0
           subData.cityAreaId = address[1] || 0
           subData.districtAreaId = address[2] || 0
-          subData.rule = subData.rule.toString()
           GetCommunityUpdate(subData).then(res => {
             this.$tip('保存成功')
             this.addCommunityVisible = false
@@ -1122,18 +1003,15 @@ export default {
     },
     // 处理成员信息
     handleMember (formName) {
-      console.log(this.handleMemberForm)
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.handleMemberForm))
           let address = subData.pca.split(',').map(Number)
-          console.log('form data -------', subData)
           subData.provinceAreaId = address[0] || 0
           subData.cityAreaId = address[1] || 0
           subData.districtAreaId = address[2] || 0
-          // subData.rule = subData.rule.toString()
-          if (!subData.parentId) subData.parentId = this.currentManage.id
-
+          subData.industryTypeName = this.industryList.filter(item => item.code === subData.industryType)[0].value
+          if (!subData.parentGuid) subData.parentGuid = this.currentManage.id
           if (!subData.coordinates || !subData.coordinates.length) {
             this.$tip('请选取绑定区域', 'error')
             return
@@ -1159,6 +1037,11 @@ export default {
     editNickname (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
+          UpdateMemberNickName(this.editNicknameForm).then(res => {
+            this.$tip('保存成功')
+            this.editNicknameVisible = false
+            this.getGroupList()
+          })
         }
       })
     },
@@ -1173,18 +1056,6 @@ export default {
       this.addCommunityList = node.parent.childNodes[node.parent.childNodes.length - 1].data.memberItem.filter(item => !new Set(this.disabledKeys).has(item.groupGuid))
       this.$nextTick(() => {
         this.addCommunityVisible = true
-      })
-    },
-    // 向分组添加社群
-    addCommunity (formName) {
-      console.log(this.communityForm)
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          this.addCommunityVisible = false
-          this.addCommunitySuccess = true
-          console.log('success', this.communityForm)
-        } else {
-        }
       })
     },
     // 复制邀请码
@@ -1204,7 +1075,6 @@ export default {
         if (type === 6) {
           let copyData = JSON.parse(JSON.stringify(this.communityInfo))
           copyData.pca = `${copyData.provinceAreaId},${copyData.cityAreaId},${copyData.districtAreaId}`
-          copyData.rule = (copyData.rule || '1').split(',').map(Number)
           copyData.originName = JSON.parse(JSON.stringify(copyData.name))
           this.handleMemberForm = copyData
         } else if (type === 5) {
@@ -1219,12 +1089,24 @@ export default {
             phone: ''
           }
         }
-      } else if (type === 4) {
+      } else if (type === 4 || type === 8) {
         let copyData = JSON.parse(JSON.stringify(this.communityInfo))
         copyData.pca = `${copyData.provinceAreaId},${copyData.cityAreaId},${copyData.districtAreaId}`
-        copyData.rule = (copyData.rule || '1').split(',').map(Number)
         copyData.originName = JSON.parse(JSON.stringify(copyData.name))
-        this.communityForm = copyData
+        console.log('dialog data', copyData)
+        switch (type) {
+          case 4:
+            this.communityForm = copyData
+            break
+          case 8:
+            this.editNicknameForm = {
+              name: copyData.name,
+              originName: copyData.originName,
+              groupSonGuid: copyData.guid,
+              parentGuid: copyData.parentId
+            }
+            break
+        }
       }
       switch (type) {
         case 1:
@@ -1240,12 +1122,29 @@ export default {
           break
         case 7:
           this.joinFormVisible = true
+          break
+        case 8: // 编辑非自有成员
+          this.editNicknameVisible = true
+          break
       }
       console.log(this.handleCommunityType, this.handleMemberForm)
     },
+    // 定义弹框类型
+    backDialogType (type) {
+      let int
+      switch (type) {
+        case 'add':
+          int = this.communityInfo.level === 2 ? 5 : 7
+          break
+        default:
+          int = this.userInfo.developerId === this.communityInfo.merchantGuid ? this.communityInfo.level === 2 ? 4 : 6 : 8
+          break
+      }
+      return int
+    },
     // 删除社群
     deleteGroup () {
-      GetGroupPortalCount({groupSonId: this.communityInfo.sonId || this.communityInfo.id}).then(res => {
+      GetGroupPortalCount({groupSonId: this.communityInfo.guid}).then(res => {
         if (res.data.portalNumber) {
           this.$affirm({text: `删除社群前，请先删除出入口`, title: '删除社群', confirm: '我知道了'}, (action, instance, done) => {
             done()
@@ -1254,12 +1153,12 @@ export default {
           this.$affirm({text: `删除社群后，社群下的所有信息都将被删除`, title: '删除社群', confirm: '删除'}, (action, instance, done) => {
             if (action === 'confirm') {
               if (this.communityInfo.level === 1) {
-                DeleteMember({groupSonId: this.communityInfo.id}).then(res => {
+                DeleteMember({groupSonId: this.communityInfo.guid}).then(res => {
                   this.$tip('删除成功')
                   this.getGroupList()
                 })
               } else {
-                DeleteCommunity({id: this.communityInfo.id}).then(res => {
+                DeleteCommunity({id: this.communityInfo.guid}).then(res => {
                   this.$tip('删除成功')
                   eventObject().$emit('ManageListRefresh')
                   this.getGroupList()
@@ -1296,11 +1195,6 @@ export default {
       if (!val) {
         this.$refs.joinManageForm.resetFields()
         this.ManageInfo = {}
-      }
-    },
-    handlePortalVisible (val) {
-      if (!val) {
-        this.$refs.handlePortalForm.resetFields()
       }
     },
     addCommunityVisible (val) {
@@ -1402,7 +1296,7 @@ export default {
     }
     .cmm-top {
       .cm-info-wrap {
-        padding: 20px;
+        padding: 20px 20px 2px;
         background: rgba(1,8,20,0.10);
         border-bottom: 1px dashed rgba(151,151,151, 0.1);
         font-size: 12px;
@@ -1412,9 +1306,10 @@ export default {
           float: left;
           width: 33%;
           height: 16px;
-          &:nth-child(1),&:nth-child(2),&:nth-child(3){
-            margin-bottom: 18px;
-          }
+          margin-bottom: 18px;
+          /*&:nth-child(1),&:nth-child(2),&:nth-child(3){*/
+            /**/
+          /*}*/
           > * {
             float: left;
           }
@@ -1422,6 +1317,17 @@ export default {
         .parent__list{
           width: auto;
           .parents-item{
+            .ellipsis{
+              width: auto;
+              max-width: 120px;
+            }
+            &:nth-child(2){
+              padding-right: 20px;
+            }
+            &+.parents-item{
+              padding: 0 20px;
+              border-left: 1px solid #979797;
+            }
             .uu-icon{
               margin-top: 1px;
               margin-left: 6px;

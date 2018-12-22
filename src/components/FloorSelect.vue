@@ -46,7 +46,13 @@ export default {
         {name: 'F9', value: 9},
         {name: 'F10', value: 10},
         {name: 'F11', value: 11},
-        {name: 'F12', value: 12}
+        {name: 'F12', value: 12},
+        {name: 'F13', value: 13},
+        {name: 'F14', value: 14},
+        {name: 'F15', value: 15},
+        {name: 'F16', value: 16},
+        {name: 'F17', value: 17},
+        {name: 'F18', value: 18}
       ],
       selectList: []
     }

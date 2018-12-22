@@ -162,8 +162,6 @@
               :action="excelUrl"
               :on-change="handleChange"
               :on-progress="handleProgress"
-              :on-success="handleSuccess"
-              :on-error="handleError"
               :multiple="false"
               :auto-upload="false"
               :show-file-list="false"
@@ -379,32 +377,23 @@ export default {
     handleProgress (event) {
       this.progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
     },
-    // 文件改变时事件处理
+    // 文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用
     handleChange (file) {
       // 上传完成后会清空文件列表，触发此方法（若包含response说明文件上传已经结束）
       if (!file.response) {
         this.fileList = [file]
         this.excelImportForm.filename = this.fileList[0].name
+      } else { // 上传成功或者失败时清空文件列表
+        this.progress.close()
+        this.fileList = []
+        this.excelImportForm.filename = ''
+        if (file.response.result) {
+          this.$tip('导入成功')
+          eventObject().$emit('REFRESH_DEVICE_LIST')
+        } else {
+          this.$tip(file.response.msg || '上传失败', 'error', 3000)
+        }
       }
-    },
-    // 上传成功时回调
-    handleSuccess (res) {
-      this.fileList = []
-      this.excelImportForm.filename = ''
-      this.progress.close()
-      if (res.result) {
-        this.$tip('导入成功')
-        eventObject().$emit('REFRESH_DEVICE_LIST')
-      } else {
-        this.$tip(res.msg, 'error', 3000)
-      }
-    },
-    // 上传失败时回调
-    handleError (res) {
-      this.fileList = []
-      this.excelImportForm.filename = ''
-      this.progress.close()
-      this.$tip(res.msg || '上传失败', 'error', 3000)
     },
     // 导入设备
     ExcelImportDevice (formName) {

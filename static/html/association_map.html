@@ -243,6 +243,9 @@
     group = new THREE.Group()
     scene.add(group)
     loadSvg()
+    // 轨道控制器
+    controls = new THREE.OrbitControls(camera, renderer.domElement)
+    controls.enableRotate = false
     document.body.appendChild(renderer.domElement)
     window.addEventListener('mousedown', onDocumentMouseClick, false)
     window.addEventListener('resize', onWindowResize, false)
@@ -296,7 +299,6 @@
       }
       initGateway()
     })
-    // getPortalCount()
   }
 
   function initMouseEvent () {

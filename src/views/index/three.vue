@@ -7,7 +7,7 @@
         <div class="float-block clearfix">
           <!--会员比例-->
           <div class="member-ratio items">
-            <Chart title="会员比例" type="member" width="100%" height="100%"></Chart>
+            <Chart title="会员比例" :data="ratioData.member" type="member" width="100%" height="100%"></Chart>
           </div>
           <!--男女比例-->
           <div class="sex-ratio items">
@@ -34,22 +34,22 @@
             回头客比例
           </div>
           <div class="return__ratio--wrap">
-            <custom-pie :percent="50"></custom-pie>
+            <custom-pie :percent="36"></custom-pie>
           </div>
           <div class="return__data--wrap">
             <div class="multi__box vam">
               <img width="15" src="@/assets/three/return_multi_icon@2x.png" alt=""><span>多次</span>
-              <span class="gc--color">59%</span>
+              <span class="gc--color">36%</span>
             </div>
             <div class="single__box vam">
               <img width="15" src="@/assets/three/return_single_icon@2x.png" alt=""><span>单次</span>
-              <span class="bc--color">41%</span>
+              <span class="bc--color">64%</span>
             </div>
           </div>
         </div>
         <!--年龄比例-->
         <div class="age-ratio items">
-          <Chart title="年龄比例" type="age" width="100%" height="100%"></Chart>
+          <Chart :data="ratioData.age" title="年龄比例" type="age" width="100%" height="100%"></Chart>
         </div>
         <!--业态客流排行榜-->
         <div class="format-flow-rank items">
@@ -59,18 +59,18 @@
           <div class="clearfix">
             <div class="industry__rank--wrap">
               <div class="rank-items">
-                <span>服饰 <br> 19%</span>
+                <span>{{rankData.industryList[0].name}} <br> {{rankData.industryList[0].value}}</span>
               </div>
               <div class="rank-items">
-                <span>餐饮 <br> 25%</span>
+                <span>{{rankData.industryList[0].name}} <br> {{rankData.industryList[0].value}}</span>
               </div>
               <div class="rank-items">
-                <span>娱乐 <br> 16%</span>
+                <span>{{rankData.industryList[0].name}} <br> {{rankData.industryList[0].value}}</span>
               </div>
             </div>
             <ul class="right__sidebar">
               <li
-                v-for="(item, $index) in industryList"
+                v-for="(item, $index) in rankData.industryList"
                 :key="$index"
                 v-if="$index > 2"
                 class="sidebar--item"><span>{{$index + 1}}.{{item.name}}</span><span>{{item.value}}</span> </li>
@@ -84,7 +84,7 @@
             门店客流排行榜
           </div>
           <div class="process__list--wrap">
-            <div class="pl-items vam" v-for="(item, $index) in list" :key="$index" v-if="$index < 6">
+            <div class="pl-items vam" v-for="(item, $index) in rankData.group" :key="$index" v-if="$index < 6">
               <span class="ellipsis">{{$index + 1}}.{{item.name}}</span>
               <el-progress :percentage="item.percent" color="##0F9EE9"></el-progress>
               <el-icon class="el-icon-d-arrow-right"></el-icon>
@@ -123,26 +123,6 @@ export default {
           href: '/static/img/logo@2x.png'
         }
       ],
-      list: [
-        { name: '无印良品', percent: 50 },
-        { name: '优衣库', percent: 30 },
-        { name: '传奇奢华影城', percent: 18 },
-        { name: '外婆家', percent: 8 },
-        { name: '外婆家', percent: 8 },
-        { name: '外婆家', percent: 8 },
-        { name: '外婆家', percent: 8 }
-      ],
-      industryList: [
-        {name: '文体', value: '30%'},
-        {name: '文体', value: '22%'},
-        {name: '文体', value: '18%'},
-        {name: '文体', value: '9%'},
-        {name: '文体', value: '7%'},
-        {name: '文体', value: '5%'},
-        {name: '文体', value: '3%'},
-        {name: '文体', value: '2%'},
-        {name: '文体', value: '1.6%'}
-      ],
       floorList: [
         'F4',
         'F3',
@@ -153,7 +133,42 @@ export default {
         'B3'
       ],
       iframeSrc: '/three',
-      websocket: '' // websocket连接
+      websocket: '', // websocket连接
+      ratioData: { // 比例（会员、男女、回头客、年龄）
+        age: [
+          {name: '1', num: 120, percent: '12%'},
+          {name: '2', num: 300, percent: '30%'},
+          {name: '3', num: 150, percent: '15%'},
+          {name: '4', num: 220, percent: '22%'},
+          {name: '5', num: 110, percent: '11%'}
+        ],
+        member: [
+          {name: '1', num: 200, percent: ''},
+          {name: '2', num: 100, percent: ''}
+        ]
+      },
+      rankData: { // 排行榜 （业态、门店）
+        group: [
+          { name: '无印良品', percent: 50 },
+          { name: '优衣库', percent: 30 },
+          { name: '传奇奢华影城', percent: 18 },
+          { name: '外婆家', percent: 8 },
+          { name: '外婆家', percent: 8 },
+          { name: '外婆家', percent: 8 },
+          { name: '外婆家', percent: 8 }
+        ],
+        industryList: [
+          {name: '文体', value: '30%'},
+          {name: '文体', value: '22%'},
+          {name: '文体', value: '18%'},
+          {name: '文体', value: '9%'},
+          {name: '文体', value: '7%'},
+          {name: '文体', value: '5%'},
+          {name: '文体', value: '3%'},
+          {name: '文体', value: '2%'},
+          {name: '文体', value: '1.6%'}
+        ]
+      }
     }
   },
   components: {
@@ -206,7 +221,12 @@ export default {
         }
         this.websocket.onmessage = function (evt) {
           // 收到服务器消息，使用evt.data提取
-          console.log('push message', JSON.parse(evt.data))
+          console.log()
+          try {
+            console.log('push message', JSON.parse(evt.data))
+          } catch (err) {
+            // console.error('data is not JSON.stringify')
+          }
           // _this.resolveDatad(evt.data)
         }
         this.websocket.onclose = function (evt) {
@@ -219,13 +239,13 @@ export default {
     },
     // 初始化获取数据
     initBaseData () {
-      if (!this.currentManage.id) return
+      // if (!this.currentManage.id) return
       // 获取客流排行
-      GetFlowRank({floor: 1, topType: 1, parentId: this.currentManage.id}).then(res => {
+      GetFlowRank({floor: 2, topType: 1, parentId: 88}).then(res => {
         console.log('flow rank', res)
       })
       // 获取实时比率
-      GetTimeRatio({type: 1, groupFloor: 1, parentId: this.currentManage.id}).then(res => {
+      GetTimeRatio({type: 'age', groupFloor: 1, parentId: 88}).then(res => {
         console.log('time ratio', res)
       })
       GetChartLine({groupSonId: 2328, type: 'age', timeIntervalUnit: 'day', startTime: '2018-10-12', endTime: '2018-12-12'}).then(res => {
