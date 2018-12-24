@@ -1173,7 +1173,9 @@ export default {
     // 地图区块点击事件
     handleBlockClick (data) {
       console.log('block position', data)
-      this.$set(this.handleMemberForm, 'coordinates', data)
+      this.$set(this.handleMemberForm, 'coordinates', data.position)
+      this.$set(this.handleMemberForm, 'shapePath', data.path)
+      sessionStorage.setItem('three_shape_path', JSON.stringify(data.path))
     }
   },
   watch: {

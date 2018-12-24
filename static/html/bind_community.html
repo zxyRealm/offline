@@ -106,6 +106,7 @@
       group.scale.set(1, -1, 1)
       for (var i = 0; i < paths.length; i++) {
         var path = paths[i]
+        // console.log('material path', path)
         var materialLine = new THREE.LineBasicMaterial({
           color: new THREE.Color('#403E42'),
           side: THREE.DoubleSide,
@@ -115,6 +116,7 @@
         for (var j = 0; j < shapes.length; j++) {
           var shape = shapes[j]
           var geometry = new THREE.ShapeBufferGeometry(shape)
+          geometry.shapePath = path
           var mesh = new THREE.Mesh(geometry, materialLine)
           var edges = new THREE.EdgesHelper(mesh, '#979797')
           group.add(edges)
@@ -164,7 +166,8 @@
         INTERSECTED = intersects[ 0 ].object
         INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
         INTERSECTED.material.color.setHex(0xff0000)
-        window.parent.postMessage({type: 'BIND_GROUP_CLICK', data: intersects[0].object.geometry.attributes.position.array.toString().split(',').map(Number)})
+        console.log(intersects[0].object.geometry)
+        window.parent.postMessage({type: 'BIND_GROUP_CLICK', data: intersects[0].object.geometry.attributes.position.array.toString().split(',').map(Number), path: intersects[0].object.geometry.shapePath})
       }
     } else {
       if (INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex)

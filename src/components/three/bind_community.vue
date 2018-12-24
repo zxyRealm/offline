@@ -42,7 +42,7 @@ export default {
     handleEvent (event) {
       let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
       if (data.type === 'BIND_GROUP_CLICK') {
-        this.$emit('handle-block-click', data.data)
+        this.$emit('handle-block-click', {position: data.data, path: data.path})
       } else if (data.type === 'SET_DEFAULT_DATA') {
         this.setDefaultSelect()
       }

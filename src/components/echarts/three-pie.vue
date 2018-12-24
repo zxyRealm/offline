@@ -112,7 +112,7 @@ export default {
       let seriesData = this.formatData()
       if (this.type === 'age') {
       // #979797
-        let color = this.total ? ['#0F9EE9', '#005BC9', '#213A65', '#2C0189', '#8663FF', '#8663FF', '#A9B7CE'] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
+        let color = this.total ? ['#0F9EE9', '#005BC9', '#213A65', '#2C0189', '#8663FF', '#A9B7CE'] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
         this.options = {
           color: color, // ['#2187DF','#6D2EBB']
           title: {
@@ -310,7 +310,6 @@ export default {
     },
     formatData () {
       let _data = []
-      console.log('chart data----', this.data)
       switch (this.type) {
         case 'age':
           _data = this.dataMap.age.map(item => {
@@ -332,7 +331,6 @@ export default {
           break
       }
       this.percentList = _data
-      console.log('chart data', _data)
       return _data
     }
   },
@@ -340,7 +338,6 @@ export default {
     data: {
       handler (val) {
         this.initData()
-        console.log('data change', val)
       },
       deep: true
     }

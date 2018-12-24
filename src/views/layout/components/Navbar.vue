@@ -17,7 +17,11 @@
             :toggleClick="toggleSideBar"
             :isActive="sidebar.opened"></hamburger>
         </div>
-        <el-select ref="manageSelect" popper-class="select__dropdown--manage" class="nav__select--manage" v-model="manageGroup">
+        <el-select
+          ref="manageSelect"
+          placeholder="添加社群"
+          popper-class="select__dropdown--manage"
+          class="nav__select--manage" v-model="manageGroup">
           <el-option
             v-for="(item, $index) in manageList"
             :key="item.id"
@@ -212,6 +216,7 @@ import ConsoleDialog from '@/components/console'
 import {GetManageList, OssSignature} from '../../../api/common'
 import {CheckNameExist, AddNewCommunity} from '../../../api/community'
 import {validateRule} from '../../../utils/validate'
+import {parseTime} from '../../../utils'
 import axios from 'axios'
 // import {simplifyGroups} from '@/utils'
 import AreaSelect from '@/components/area-select/area-select'
@@ -533,19 +538,20 @@ export default {
     httpRequest () {
       OssSignature({superKey: 'floor_map'}).then(res => {
         if (res.data) {
-          this.uploadOss(res.data, 0)
+          let time = parseTime(new Date()).replace(/[ :-]/g, '')
+          this.uploadOss(res.data, 0, time)
         }
       }).catch(() => {
         this.$tip('服务器错误，请重新尝试')
       })
     },
     // 图片上传阿里云
-    uploadOss (signature, index) {
+    uploadOss (signature, index, time) {
       let file = this.fileList[index]
       if (!file) return
       let formData = new FormData()
       let uid = this.userInfo.developerId
-      formData.append('key', `floor_map/${uid}/${file.name}`)
+      formData.append('key', `floor_map/${uid}/${time}/${file.name}`)
       formData.append('policy', signature['policy'])
       formData.append('OSSAccessKeyId', signature['accessid'])
       formData.append('success_action_status', '200')
@@ -559,7 +565,7 @@ export default {
           }
           // 所图片成功上完成后 进行表单提交
           if (index === (this.fileList.length - 1)) {
-            this.byTypeAddCommunity(`${signature.host}/floor_map/${uid}/`)
+            this.byTypeAddCommunity(`${signature.host}/floor_map/${uid}/${time}/`)
           }
         } else {
           this.$tip('上传失败，请稍后重试', 'error')
@@ -586,6 +592,7 @@ export default {
   },
   created () {
     // 是否有新的消息
+    console.log(parseTime(new Date()).replace(/[ :-]/g, ''))
     this.$http('/siteNotice/unRead').then(res => {
       this.notifState = res.data > 0
     }).catch(error => {
@@ -600,9 +607,9 @@ export default {
     eventObject().$on('change', msg => { // eventObject接收事件
       this.dialogFormVisible = true
     })
-    eventObject().$on('ManageListRefresh', () => { // 刷新管理层社群列表
-      console.log('refresh data')
-      this.getManageList()
+    eventObject().$on('ManageListRefresh', this.getManageList)
+    eventObject().$on('CREATE_COMMUNITY-INDEX', () => {
+      this.addFormVisible = true
     })
   },
   beforeRouteLeave (to, from, next) {
