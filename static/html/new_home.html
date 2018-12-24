@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="/static/three/three.min.js"></script>
+  <script src="/static/three/SVGLoader.js"></script>
+  <script src="/static/three/OrbitControls.js"></script>
+  <style>
+    html, body{
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+</head>
+
+<body>
+  <div id="WebGL-output"></div>
+  <script type="text/javascript">
+    var renderer, scene, camera, group;
+    var scale = 0.6;
+    var floorHeight = 65;
+    var floorArr = [
+      { coordinate_y: -3 * floorHeight - 65, img_url: 1, floor: '-3' },
+      { coordinate_y: -2 * floorHeight - 65, img_url: 2, floor: '-2' },
+      { coordinate_y: -1 * floorHeight - 65, img_url: 3, floor: '-1' },
+      { coordinate_y: 1 * floorHeight - 130, img_url: 4, floor: '1' },
+      { coordinate_y: 2 * floorHeight - 130, img_url: 5, floor: '2' },
+      { coordinate_y: 3 * floorHeight - 130, img_url: 6, floor: '3' },
+      { coordinate_y: 4 * floorHeight - 130, img_url: 7, floor: '4' },
+      { coordinate_y: 5 * floorHeight - 130, img_url: 8, floor: '5' },
+      { coordinate_y: 6 * floorHeight - 130, img_url: 9, floor: '6' },
+      { coordinate_y: 7 * floorHeight - 130, img_url: 10, floor: '7' }
+    ]
+
+    function init() {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+      })
+      renderer.setSize(window.innerWidth, window.innerHeight)
+      renderer.setClearColor('#ffffff', 1.0)
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color('#232027')
+
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
+      camera.position.set(260, 200, 350)
+      camera.lookAt(0, -195, 0)
+      scene.add(camera)
+
+      var light = new THREE.PointLight('#ffffff', 0.8)
+      camera.add(light)
+
+      var axesHelper = new THREE.AxesHelper(10)
+      scene.add(axesHelper)
+
+      group = new THREE.Group()
+      group.position.set(-290 * scale, 0, -241 * scale)
+      scene.add(group)
+
+      document.getElementById("WebGL-output").appendChild(renderer.domElement)
+      setFloorInfo()
+    }
+
+    init()
+    render()
+
+    // 接收楼层信息
+    function setFloorInfo() {
+      // 创建楼层图片
+      for (let i = 0; i < floorArr.length; i++) {
+        loadSvg(group, floorArr[i].coordinate_y, floorArr[i].floor)
+      }
+    }
+
+    function loadSvg(group, coordinate_y, image_url) {
+      var loader = new THREE.SVGLoader()
+      loader.load('/static/origin-floor/' + image_url + '.svg', paths => {
+        for (var i = 0; i < paths.length; i++) {
+          var path = paths[i]
+          let shapes = path.toShapes(true);
+          for (let j = 0; j < shapes.length; j++) {
+            let shape = shapes[j];
+            if (i === 0) {
+              addShape(shape, group, '#091331', coordinate_y);
+            } else {
+              addLineShape(shape, group, 'rgb(59, 180, 243)', coordinate_y);
+            }
+          }
+        }
+      })
+    }
+
+    function addShape(shape, group, color, coordinate_y) {
+      let geometry = new THREE.ShapeBufferGeometry(shape);
+      let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+        color: color,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.5
+      }));
+      mesh.position.set(0, coordinate_y, 0);
+      mesh.rotation.set(0.5 * Math.PI, 0, 0);
+      mesh.scale.set(scale, scale, scale);
+      group.add(mesh);
+    }
+
+    function addLineShape(shape, group, color, coordinate_y) {
+      shape.autoClose = true;
+      let points = shape.getPoints();
+      let geometryPoints = new THREE.BufferGeometry().setFromPoints(points);
+
+      let line = new THREE.Line(geometryPoints, new THREE.LineBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: 0.5
+      }));
+      line.position.set(0, coordinate_y, 0);
+      line.rotation.set(0.5 * Math.PI, 0, 0);
+      line.scale.set(scale, scale, scale);
+      group.add(line);
+    }
+
+    function render() {
+      requestAnimationFrame(render);
+      renderer.render(scene, camera)
+    }
+
+  </script>
+</body>
+
+</html>

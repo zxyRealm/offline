@@ -88,7 +88,7 @@ export default {
     return {
       maskToggle: false,
       routerList: [
-        {name: '总', path: '/static/html/home.html', id: 'threeFrame'}
+        {name: '总', path: '/static/html/new_home.html', id: 'threeFrame'}
       ],
       personList: [
         {imgUrl: '/static/avatar2.png'},
@@ -110,7 +110,7 @@ export default {
       frame: {
         id: 'threeFrame',
         name: 'threeFrame',
-        path: '/static/html/home.html'
+        path: '/static/html/new_home.html'
       },
       statisticInfo: {
         Incoming_Today: 10,
@@ -173,8 +173,11 @@ export default {
         }
       })
     },
-    getCommunityInfo (val) {
-      GetMarketList({parentId: 88}).then(res => {
+    getCommunityInfo () {
+      if (!this.currentManage.id) {
+        return
+      }
+      GetMarketList({parentId: this.currentManage.id}).then(res => {
         let floorInfo = this.sortRouterList(res.data[0].subGroupSon)
         let allInfo = res.data
         delete allInfo[0].subGroupSon
@@ -194,6 +197,7 @@ export default {
           }
           this.routerList.push(obj)
         }
+        console.log(this.floorArr)
         this.$emit('updateComunity', allInfo[0])
         this.getWebsocket(res.data[0].groupSonGuid, res.data[0].groupParentGuid)
       })
@@ -305,6 +309,7 @@ export default {
   },
   mounted () {
     this.iframe = this.$refs.iframe.contentWindow
+    this.getCommunityInfo()
     window.addEventListener('message', this.handleMessage)
   },
   watch: {
