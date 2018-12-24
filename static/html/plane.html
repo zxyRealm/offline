@@ -205,6 +205,7 @@
 
     // 获取当前src并截取楼层号码
     let floor = window.location.search.split('=')[1]
+    console.log(window.location.search)
     loadSvg(floor)
 
     // 放置控制器
@@ -243,6 +244,7 @@
 
   // 加载图片
   function loadSvg(floor) {
+    console.log(floor)
     let svgLoad = new THREE.SVGLoader()
     svgLoad.load('/static/origin-floor/'+ floor +'.svg', (paths) => {
 

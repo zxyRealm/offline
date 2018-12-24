@@ -184,20 +184,18 @@ export default {
         this.community.infoArr = allInfo.concat(floorInfo)
         this.caculateMinus(this.community.infoArr)
         for (let i in floorInfo) {
+          this.floorArr.push({
+            coordinate_y: floorInfo[i].floor >= 0 ? floorInfo[i].floor * 65 - 130 : floorInfo[i].floor * 65 - 65,
+            img_url: floorInfo[i].floor >= 0 ? floorInfo[i].floor + 3 : floorInfo[i].floor + 4,
+            floor: floorInfo[i].floor
+          })
           let obj = {
             name: floorInfo[i].name,
             id: floorInfo[i].floor + this.community.minus + 1
           }
-          if (floorInfo[i].floor >= 0) {
-            this.floorArr.push(floorInfo[i].floor * 65 - 130)
-            obj.path = '/static/html/plane.html?floor=' + (floorInfo[i].floor + this.community.minus)
-          } else {
-            this.floorArr.push(floorInfo[i].floor * 65 - 65)
-            obj.path = '/static/html/plane.html?floor=' + (floorInfo[i].floor + this.community.minus + 1)
-          }
+          obj.path = '/static/html/plane.html?floor=' + this.floorArr[i].img_url
           this.routerList.push(obj)
         }
-        console.log(this.floorArr)
         this.$emit('updateComunity', allInfo[0])
         this.getWebsocket(res.data[0].groupSonGuid, res.data[0].groupParentGuid)
       })
@@ -280,9 +278,9 @@ export default {
           console.log(data.params.data)
           let currentFloor = ''
           this.floorArr.forEach((val, index) => {
-            if (val === data.params.data){
-              let path = '/static/html/plane.html?floor=' + parseInt(val/65+5)
-              let name = 'threeFrame' + parseInt(val/65+5)
+            if (val.coordinate_y === data.params.data){
+              let path = '/static/html/plane.html?floor=' + parseInt(val.img_url)
+              let name = 'threeFrame' + parseInt(val.img_url)
               let item = {
                 path: path,
                 name: name
@@ -290,7 +288,6 @@ export default {
               this.updateFrameArea(item, index)
             }
           })
-          
           break
         case 'post-coordinate':
           // 通过data.params调用接口

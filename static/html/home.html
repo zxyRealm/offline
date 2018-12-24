@@ -266,13 +266,13 @@
       });
       pointArr[icount] = new THREE.Mesh(geometryArr[icount], materialArr[icount]);
       pointArr[icount].sortParticles = true;
-      pointArr[icount].position.set(alx[0], (floor-1)*65+1, alx[1])
+      pointArr[icount].position.set(alx[0], floor < 0 ? (floor * floorHeight - 65) : (floor * floorHeight - 130), alx[1])
       pointArr[icount].rotation.x = 0.5*Math.PI
       scene.add(pointArr[icount]);
       createAnimate(pointArr[icount], icount)
     } else {
       icount = icount%100
-      pointArr[icount].position.set(alx[0], (floor-1)*65+1, alx[1])
+      pointArr[icount].position.set(alx[0], floor < 0 ? (floor * floorHeight - 65) : (floor * floorHeight - 130), alx[1])
       pointArr[icount].rotation.x = 0.5*Math.PI
       createAnimate(pointArr[icount], icount)
     }
