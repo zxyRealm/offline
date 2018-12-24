@@ -135,9 +135,11 @@ export default {
   methods: {
     updateFrameArea (item, index) {
       this.$set(this.frame, 'path', item.path)
-      this.$set(this.frame, 'name', item.id)
+      this.$set(this.frame, 'name', item.name)
       this.$set(this.frame, 'id', item.id)
+      console.log(this.frame, this.routerList)
       this.community.index = index + 1
+      console.log(this.community.infoArr[this.community.index])
       this.$emit('updateCommunity', this.community.infoArr[this.community.index])
     },
     timestampToTime (timestamp) {
@@ -184,16 +186,19 @@ export default {
         this.community.infoArr = allInfo.concat(floorInfo)
         this.caculateMinus(this.community.infoArr)
         for (let i in floorInfo) {
+          let coordinate_y = floorInfo[i].floor >= 0 ? floorInfo[i].floor * 65 - 130 : floorInfo[i].floor * 65 - 65
+          let img_url = floorInfo[i].floor >= 0 ? floorInfo[i].floor + 3 : floorInfo[i].floor + 4
+          let floor = floorInfo[i].floor
           this.floorArr.push({
-            coordinate_y: floorInfo[i].floor >= 0 ? floorInfo[i].floor * 65 - 130 : floorInfo[i].floor * 65 - 65,
-            img_url: floorInfo[i].floor >= 0 ? floorInfo[i].floor + 3 : floorInfo[i].floor + 4,
-            floor: floorInfo[i].floor
+            coordinate_y: coordinate_y,
+            img_url: img_url,
+            floor: floor
           })
           let obj = {
             name: floorInfo[i].name,
-            id: floorInfo[i].floor + this.community.minus + 1
+            id: img_url
           }
-          obj.path = '/static/html/plane.html?floor=' + this.floorArr[i].img_url
+          obj.path = '/static/html/plane.html?floor=' + img_url
           this.routerList.push(obj)
         }
         this.$emit('updateComunity', allInfo[0])
@@ -283,7 +288,8 @@ export default {
               let name = 'threeFrame' + parseInt(val.img_url)
               let item = {
                 path: path,
-                name: name
+                name: name,
+                id: val.img_url
               }
               this.updateFrameArea(item, index)
             }
