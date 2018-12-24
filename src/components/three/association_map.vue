@@ -188,11 +188,17 @@ export default {
         })
       }
     },
+    loadIframeSvg () { // 加载iframe svg 地图
+      this.iframeObj.loadSvg(this.data.shapePathParam ? JSON.parse(this.data.shapePathParam) : '')
+    },
     // 处理iframe传递出来的事件
     handleEvent (event) {
       console.log('event data---------', event.data)
       let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
       switch (data.type) {
+        case 'LOAD_SVG_PATH': // 渲染地图
+          this.loadIframeSvg()
+          break
         case 'CREATE_PORTAL_CLICK': // 创建出入口
           this.createGateway(data.data)
           break

@@ -1174,7 +1174,7 @@ export default {
     handleBlockClick (data) {
       console.log('block position', data)
       this.$set(this.handleMemberForm, 'coordinates', data.position)
-      this.$set(this.handleMemberForm, 'shapePath', data.path)
+      this.$set(this.handleMemberForm, 'shapePathParam', JSON.stringify(data.path))
       sessionStorage.setItem('three_shape_path', JSON.stringify(data.path))
     }
   },
