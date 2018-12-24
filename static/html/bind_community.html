@@ -106,7 +106,7 @@
       group.scale.set(1, -1, 1)
       for (var i = 0; i < paths.length; i++) {
         var path = paths[i]
-        console.log('material path', path)
+        // console.log('material path', path)
         var materialLine = new THREE.LineBasicMaterial({
           color: new THREE.Color('#403E42'),
           side: THREE.DoubleSide,
@@ -116,7 +116,7 @@
         for (var j = 0; j < shapes.length; j++) {
           var shape = shapes[j]
           var geometry = new THREE.ShapeBufferGeometry(shape)
-          geometry.shapePath = shapes
+          // geometry.shapePath = geometry
           var mesh = new THREE.Mesh(geometry, materialLine)
           var edges = new THREE.EdgesHelper(mesh, '#979797')
           group.add(edges)
@@ -125,6 +125,7 @@
           group.add(mesh)
         }
       }
+      console.log(meshList[0])
       // iframe加载完成是通知父页面初始化数据(svg 渲染完成后设置默认值，否侧meshList会是个空数组)
       window.parent.postMessage({type: 'SET_DEFAULT_DATA'})
     })
@@ -166,8 +167,9 @@
         INTERSECTED = intersects[ 0 ].object
         INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
         INTERSECTED.material.color.setHex(0xff0000)
-        console.log(intersects[0].object.geometry)
-        window.parent.postMessage({type: 'BIND_GROUP_CLICK', data: intersects[0].object.geometry.attributes.position.array.toString().split(',').map(Number), path: intersects[0].object.geometry.shapePath})
+        console.log(intersects[0].object.toJSON(), JSON.parse(JSON.stringify(intersects[0].object)))
+        // sessionStorage.setItem('three_shape_path', JSON.stringify(intersects[0].object.geometry.toJSON()))
+        window.parent.postMessage({type: 'BIND_GROUP_CLICK', data: intersects[0].object.geometry.attributes.position.array.toString().split(',').map(Number), path: JSON.parse(JSON.stringify(intersects[0].object))})
       }
     } else {
       if (INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex)

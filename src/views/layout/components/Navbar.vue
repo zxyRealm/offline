@@ -561,7 +561,7 @@ export default {
       axios.post(signature.host, formData).then(back => {
         if (!back.data) {
           if (index < this.fileList.length - 1) {
-            this.uploadOss(signature, index + 1)
+            this.uploadOss(signature, index + 1, time)
           }
           // 所图片成功上完成后 进行表单提交
           if (index === (this.fileList.length - 1)) {

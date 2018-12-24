@@ -14,7 +14,7 @@
       </div>
     </div>
     <!--楼层列表-->
-    <ul class="floor__list--wrap">
+    <ul v-if="!data.shapePathParam" class="floor__list--wrap">
       <li
         class="floor__list--item"
         v-for="(item, $index) in floorList"
@@ -182,53 +182,55 @@ export default {
         this.currentFloor = this.data
       }
       this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
-      if (this.currentFloor.groupSonGuid) {
-        GetGroupPortalCount({groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
+      if ((!this.data.shapePathParam && this.currentFloor.groupSonGuid) || (this.data.guid)) {
+        GetGroupPortalCount({groupSonId: this.data.shapePathParam ? this.data.guid : this.currentFloor.groupSonGuid}).then(res => {
           this.totalCounts = res.data
         })
       }
     },
     loadIframeSvg () { // 加载iframe svg 地图
-      this.iframeObj.loadSvg(this.data.shapePathParam ? JSON.parse(this.data.shapePathParam) : '')
+      this.iframeObj.loadSvg(this.data)
     },
     // 处理iframe传递出来的事件
     handleEvent (event) {
-      console.log('event data---------', event.data)
-      let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
-      switch (data.type) {
-        case 'LOAD_SVG_PATH': // 渲染地图
-          this.loadIframeSvg()
-          break
-        case 'CREATE_PORTAL_CLICK': // 创建出入口
-          this.createGateway(data.data)
-          break
-        case 'GET_PORTAL_LIST': // 设置出入口信息
-          this.setPortalList()
-          break
-        case 'GET_CAMERA_LIST': // 展示出入口设备列表
-          this.getDeviceList(data.data)
-          break
-        case 'DELETE_PORTAL_CLICK': // 删除出入口
-          this.deletePortal(data.data)
-          break
-        case 'EDIT_PORTAL_CLICK': // 编辑出入口信息
-          this.handleDialogType = 2
-          this.handlePortalVisible = true
-          let copy = JSON.parse(JSON.stringify(data.data))
-          copy.originName = JSON.parse(JSON.stringify(copy.name || ''))
-          this.handlePortalForm = copy
-          break
-        case 'PORTAL_ADD_DEVICE': // 出入口新增设备
-          this.showAddDialog(data.data)
-          break
-        case 'DELETE_PORTAL_DEVICE': // 删除出入口设备
-          this.deletePortalDevice(data.data)
-          break
-      }
+      try {
+        let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
+        switch (data.type) {
+          case 'LOAD_SVG_PATH': // 渲染地图
+            this.loadIframeSvg()
+            break
+          case 'CREATE_PORTAL_CLICK': // 创建出入口
+            this.createGateway(data.data)
+            break
+          case 'GET_PORTAL_LIST': // 设置出入口信息
+            this.setPortalList()
+            break
+          case 'GET_CAMERA_LIST': // 展示出入口设备列表
+            this.getDeviceList(data.data)
+            break
+          case 'DELETE_PORTAL_CLICK': // 删除出入口
+            this.deletePortal(data.data)
+            break
+          case 'EDIT_PORTAL_CLICK': // 编辑出入口信息
+            this.handleDialogType = 2
+            this.handlePortalVisible = true
+            let copy = JSON.parse(JSON.stringify(data.data))
+            copy.originName = JSON.parse(JSON.stringify(copy.name || ''))
+            this.handlePortalForm = copy
+            break
+          case 'PORTAL_ADD_DEVICE': // 出入口新增设备
+            this.showAddDialog(data.data)
+            break
+          case 'DELETE_PORTAL_DEVICE': // 删除出入口设备
+            this.deletePortalDevice(data.data)
+            break
+        }
+      } catch (err) {}
     },
     // 获取出入口信息，并在地图上展示标注
     setPortalList () {
-      GetGroupPortalInfo({groupSonId: this.currentFloor.groupSonGuid}).then(res => {
+      if (!this.data.guid) return
+      GetGroupPortalInfo({groupSonId: this.data.shapePathParam ? this.data.guid : this.currentFloor.groupSonGuid}).then(res => {
         res.data.map(item => {
           this.iframeObj.createSprite(item)
         })
@@ -323,8 +325,8 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.handlePortalForm))
-          subData.groupSonId = this.currentFloor.groupSonGuid
-          subData.floor = this.currentFloor.floor
+          subData.groupSonId = this.data.shapePathParam ? this.data.guid : this.currentFloor.groupSonGuid
+          subData.floor = this.data.floor
           console.log('add portal -----------', subData, this.handleDialogType)
           if (this.handleDialogType === 1) { // 添加出入口
             CreatePortal(subData).then(res => {

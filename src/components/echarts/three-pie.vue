@@ -19,16 +19,16 @@ export default {
       chart: null,
       dataMap: {
         age: [
-          {key: '0-10岁', name: '0-10岁'},
-          {key: '11-20岁', name: '10-20岁'},
-          {key: '21-30岁', name: '20-30岁'},
-          {key: '31-40岁', name: '30-40岁'},
-          {key: '41-50岁', name: '40-50岁'},
-          {key: '50岁以上', name: '50岁以上'}
+          {key: 'child', name: '0-10岁'},
+          {key: 'teen', name: '10-20岁'},
+          {key: 'youth', name: '20-30岁'},
+          {key: 'man', name: '30-40岁'},
+          {key: 'middle', name: '40-50岁'},
+          {key: 'old', name: '50岁以上'}
         ],
         member: [
-          {key: '非会员', name: '普通顾客'},
-          {key: '会员', name: '会员'}
+          {key: 'not_member', name: '普通顾客'},
+          {key: 'member', name: '会员'}
         ]
       },
       dataList: [
@@ -60,7 +60,7 @@ export default {
       default: ''
     },
     data: {
-      type: Array,
+      type: [Array, Object],
       default: () => []
     },
     type: {
@@ -92,8 +92,8 @@ export default {
     },
     total () {
       let total = 0
-      for (let i = 0, l = this.data.length; i < l; i++) {
-        total += this.data[i] ? this.data[i].typeCount : 0
+      for (let item in this.data) {
+        total += this.data[item] ? this.data[item].typeCount : 0
       }
       return total
     }
@@ -313,7 +313,7 @@ export default {
       switch (this.type) {
         case 'age':
           _data = this.dataMap.age.map(item => {
-            let num = this.data.filter(item2 => item2.type === item.key)[0]
+            let num = this.data[item.key]
             return {
               name: item.name,
               value: num ? num.typeCount : 0
@@ -322,7 +322,7 @@ export default {
           break
         default:
           _data = this.dataMap.member.map(item => {
-            let num = this.data.filter(item2 => item2.type === item.key)[0]
+            let num = this.data[item.key]
             return {
               name: item.name,
               value: num ? num.typeCount : 0

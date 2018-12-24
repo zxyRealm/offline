@@ -42,7 +42,7 @@
                   </span>
                 <p class="handle fr fs12">
                   <i
-                    v-if="userInfo.developerId === communityInfo.merchantGuid"
+                    v-if="communityInfo.self"
                     @click="showAddForm(backDialogType('add'))">
                     {{communityInfo.level === 2 ? '添加成员' : '加入管理员'}}
                   </i>
@@ -72,25 +72,25 @@
                 <!--如果成员社群加入了管理员社群即展示其管理员社群列表-->
                 <!--v-if="userInfo.developerId === communityInfo.merchantGuid && communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.level === 1"-->
                 <div
-                  v-if="userInfo.developerId === communityInfo.merchantGuid && communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.level === 2"
+                  v-if="communityInfo.self && communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.level === 2"
                   class="parent__list"
                   >
                   <span class="fl info__label">已加入：</span>
                   <div
-                    v-for="(item,$index) in parentGroups"
+                    v-for="(item,$index) in communityInfo.parentGroups"
                     :key="$index"
                     class="parents-item">
                     <span class="ellipsis">{{item.name}}</span>
                     <uu-icon
                       size="small" type="quit"
-                      v-show="communityInfo.merchantGuid === userInfo.developerId"
+                      v-show="communityInfo.self"
                       @click.native="leaveCommunity('quit',communityInfo, item)"></uu-icon>
                   </div>
                 </div>
               </div>
             </div>
             <div class="three__map--wrap">
-              <ob-list-empty v-if="communityInfo.level === 1 && !communityInfo.mapUrl" top="0px" :supply="supply" text="暂无地图，敬请期待！"></ob-list-empty>
+              <ob-list-empty v-if="communityInfo.level === 1 && !communityInfo.shapePathParam" top="0px" :supply="supply" text="暂无地图，敬请期待！"></ob-list-empty>
               <three-association-map
                 v-else
                 :data="communityInfo"
@@ -869,6 +869,7 @@ export default {
       if (!this.currentManage.id) return
       GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: this.currentManage.id}).then(res => {
         res.data.level = val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
+        res.data.self = res.data.merchantGuid === this.userInfo.developerId
         this.communityInfo = res.data || {}
       })
     },
@@ -1023,11 +1024,25 @@ export default {
               this.getGroupList()
             })
           } else {
-            UpdateMemberInfo(subData).then(res => {
-              this.$tip('保存成功')
-              this.handleMemberVisible = false
-              this.getGroupList()
-            })
+            if (subData.originCoordinates.toString() !== subData.coordinates.toString()) {
+              GetGroupPortalCount({groupSonId: this.communityInfo.guid}).then(res => {
+                if (res.data.portalNumber) {
+                  this.$tip('更换绑定区域时请先解绑出入口', 'error')
+                } else {
+                  UpdateMemberInfo(subData).then(res => {
+                    this.$tip('保存成功')
+                    this.handleMemberVisible = false
+                    this.getGroupList()
+                  })
+                }
+              })
+            } else {
+              UpdateMemberInfo(subData).then(res => {
+                this.$tip('保存成功')
+                this.handleMemberVisible = false
+                this.getGroupList()
+              })
+            }
           }
         } else {
         }
@@ -1076,6 +1091,7 @@ export default {
           let copyData = JSON.parse(JSON.stringify(this.communityInfo))
           copyData.pca = `${copyData.provinceAreaId},${copyData.cityAreaId},${copyData.districtAreaId}`
           copyData.originName = JSON.parse(JSON.stringify(copyData.name))
+          copyData.originCoordinates = JSON.parse(JSON.stringify(copyData.coordinates))
           this.handleMemberForm = copyData
         } else if (type === 5) {
           this.handleMemberForm = { // 添加成员社群
@@ -1137,7 +1153,7 @@ export default {
           int = this.communityInfo.level === 2 ? 5 : 7
           break
         default:
-          int = this.userInfo.developerId === this.communityInfo.merchantGuid ? this.communityInfo.level === 2 ? 4 : 6 : 8
+          int = this.communityInfo.self ? this.communityInfo.level === 2 ? 4 : 6 : 8
           break
       }
       return int
@@ -1155,13 +1171,14 @@ export default {
               if (this.communityInfo.level === 1) {
                 DeleteMember({groupSonId: this.communityInfo.guid}).then(res => {
                   this.$tip('删除成功')
+                  this.currentCommunity = {}
                   this.getGroupList()
                 })
               } else {
                 DeleteCommunity({id: this.communityInfo.guid}).then(res => {
                   this.$tip('删除成功')
+                  this.currentCommunity = {}
                   eventObject().$emit('ManageListRefresh')
-                  this.getGroupList()
                 })
               }
             }
@@ -1172,15 +1189,15 @@ export default {
     },
     // 地图区块点击事件
     handleBlockClick (data) {
-      console.log('block position', data)
+      console.log('block position', data.path, JSON.parse(JSON.stringify(data.path)))
       this.$set(this.handleMemberForm, 'coordinates', data.position)
       this.$set(this.handleMemberForm, 'shapePathParam', JSON.stringify(data.path))
-      sessionStorage.setItem('three_shape_path', JSON.stringify(data.path))
     }
   },
   watch: {
     currentManage: {
       handler () {
+        this.currentCommunity = {}
         this.getGroupList()
       },
       deep: true

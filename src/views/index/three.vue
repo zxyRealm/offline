@@ -11,40 +11,40 @@
               <Chart title="会员比例" :data="ratioData.member" type="member" width="100%" height="100%"></Chart>
             </div>
             <!--男女比例-->
-            <div class="sex-ratio items" :class="{'empty--data': !ratioData.gender[0] || !ratioData.gender[0].total}">
+            <div class="sex-ratio items" :class="{'empty--data': !ratioData.gender.man || !ratioData.gender.man.total}">
               <div class="floor__sub--title">
                 男女比例
               </div>
               <div class="sex__data--wrap vam">
                 <div>
-                  <span class="gc--color">{{ratioData.gender[0] ? parseInt(ratioData.gender[0].ratio * 100) + '%':'0%'}}</span>
+                  <span class="gc--color">{{ratioData.gender.woman ? parseInt(ratioData.gender.woman.ratio * 100) + '%':'0%'}}</span>
                   <p><img width="15" src="@/assets/three/girl_icon@2x.png" alt="">女</p>
                 </div>
                 <div class="sex__ratio--icon"></div>
                 <!--<img width="48" class="sex__ratio&#45;&#45;icon" src="@/assets/three/sex_ratio_icon.png" alt="">-->
                 <div>
                   <p><img width="15" src="@/assets/three/boy_icon@2x.png" alt="">男</p>
-                  <span class="bc--color">{{ratioData.gender[1] ? parseInt(ratioData.gender[1].ratio * 100) + '%':'0%'}}</span>
+                  <span class="bc--color">{{ratioData.gender.man ? parseInt(ratioData.gender.man.ratio * 100) + '%':'0%'}}</span>
                 </div>
               </div>
             </div>
           </div>
           <!--回头客比例-->
-          <div class="return-ratio items" :class="{'empty--data': !ratioData.appearance[1] || !ratioData.appearance[1].total}">
+          <div class="return-ratio items" :class="{'empty--data': !ratioData.appearance.many || !ratioData.appearance.many.total}">
             <div class="floor__sub--title">
               回头客比例
             </div>
             <div class="return__ratio--wrap">
-              <custom-pie :percent="ratioData.appearance[1] ? parseInt(ratioData.appearance[1].ratio * 100) : 0"></custom-pie>
+              <custom-pie :percent="ratioData.appearance.many ? parseInt(ratioData.appearance.many.ratio * 100) : 0"></custom-pie>
             </div>
             <div class="return__data--wrap">
               <div class="multi__box vam">
                 <img width="15" src="@/assets/three/return_multi_icon@2x.png" alt=""><span>多次</span>
-                <span class="gc--color">{{ratioData.appearance[1] ? (ratioData.appearance[1].ratio * 100).toFixed(0) + '%': '0%'}}</span>
+                <span class="gc--color">{{ratioData.appearance.many ? parseInt(ratioData.appearance.many.ratio * 100) + '%': '0%'}}</span>
               </div>
               <div class="single__box vam">
                 <img width="15" src="@/assets/three/return_single_icon@2x.png" alt=""><span>单次</span>
-                <span class="bc--color">{{ratioData.appearance[0] ? (ratioData.appearance[0].ratio * 100).toFixed(0) + '%': '0%'}}</span>
+                <span class="bc--color">{{ratioData.appearance.first ? parseInt(ratioData.appearance.first.ratio * 100) + '%': '0%'}}</span>
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@
         <ul class="floor__sidebar--wrap">
           <li class="sidebar__item" v-for="(item,$Index) in floorList" :key="$Index" @click="selectFloor(item)">{{item}}</li>
         </ul>
-        <general-map @update-community="initBaseData"></general-map>
+        <general-map @updateCommunity="initBaseData"></general-map>
       </div>
     </template>
     <ob-list-empty v-else :text="'您尚未创建社群'">
@@ -241,7 +241,7 @@ export default {
       console.log('post data ===========', floor)
       // if (!this.currentManage.id) return
       // 获取客流排行
-      GetFlowRank({floor: 2, parentId: 88}).then(res => {
+      GetFlowRank({floor: floor.floor, parentId: floor.groupParentGuid}).then(res => {
         console.log('flow rank', res)
         if (res.data.INDUSTRY && res.data.GROUP) {
           res.data.INDUSTRY = res.data.INDUSTRY.map(item => {
@@ -257,7 +257,7 @@ export default {
         console.log(res.data)
       })
       // 获取实时比率
-      GetTimeRatio({groupFloor: 0, groupGuid: 88}).then(res => {
+      GetTimeRatio({groupFloor: floor.floor, groupGuid: floor.groupSonGuid}).then(res => {
         console.log('time ratio', res)
         this.ratioData = res.data
       })

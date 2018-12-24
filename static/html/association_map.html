@@ -29,6 +29,9 @@
       cursor: pointer;
       margin-bottom: 5px;
     }
+    .flat #image2 {
+      display: none;
+    }
     .flat div img {
       width: 10px;
       top: 3px;
@@ -37,6 +40,13 @@
     .flat span {
       font-size: 12px;
       color: #0f9ce7;
+    }
+    .horizontal-line{
+      position: absolute;
+      right: 0;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.5);
+
     }
     .levitaten .title {
       padding: 3px 5px;
@@ -132,6 +142,9 @@
       width: 30px;
       height: 1px;
     }
+    .add-button[data-visible=true]:after, .add-button[data-visible=true]:before{
+      display: none;
+    }
     .pull-left {
       float: left;
       width: 60px;
@@ -213,12 +226,13 @@
   <div class="add-button">
     <a href="javascript:void (0);" data-type="add">添加设备</a>
   </div>
+  <div class="horizontal-line"></div>
 </div>
 
 <div class="flat">
   <div id="image1">
     <img src="/static/floor/qizi2.png" alt="">
-    <span>主出入口</span>
+    <span>出入口</span>
   </div>
   <div id="image2">
     <img src="/static/floor/qizi1.png" alt="">
@@ -228,6 +242,7 @@
 <script src="/static/three/three.min.js"></script>
 <script src="/static/three/OrbitControls.js"></script>
 <script src="/static/three/SVGLoader.js"></script>
+<script src="/static/three/util.js"></script>
 <script>
   var renderer, scene, camera, group, meshList = [], textList = [], spriteList = []
   var width, height, userData
@@ -267,28 +282,38 @@
   }
 
   // 加载渲染svg地图
-  function loadSvg (shapes) {
+  function loadSvg (data) {
     var svgLoad = new THREE.SVGLoader()
     var url = parseUrlParams('map_url') || ''
+    var shapes = !data.shapePathParam || data.shapePathParam instanceof Object ? data.shapePathParam : JSON.parse(data.shapePathParam)
     // url = '/static/origin-floor/F1.svg'
-    console.log('iframe load svg --------', shapes)
+    var img1 = document.getElementById('image1')
+    var img2 = document.getElementById('image2')
+    if (!data.self) img1.style.display = 'none'
     if (shapes) {
+      img1.children[1].innerText = '门店出入口'
+      img2.style.display = 'none'
+      let objLoader = new THREE.ObjectLoader();
+      let geometry = objLoader.parse(shapes).geometry;
       var materialLine = new THREE.LineBasicMaterial({
         color: new THREE.Color('#403E42'),
         side: THREE.DoubleSide,
         depthWrite: false
       })
-      // var shapes = shapePath.toShapes(true)
-      for (var j = 0; j < shapes.length; j++) {
-        var shape = shapes[j]
-        var geometry = new THREE.ShapeBufferGeometry(shape)
-        var mesh = new THREE.Mesh(geometry, materialLine)
-        var edges = new THREE.EdgesHelper(mesh, '#979797')
-        edges.material.linewidth = 1
-        group.add(edges)
-        group.add(mesh)
-      }
+      let ps = changeArrayLevel(geometry.attributes.position.array.toString().split(',').map(Number))
+      let center = new Contour(ps.buffer).centroid()
+      group.scale.set(1, 1, 1)
+      group.position.x = -Math.ceil(center.x)
+      group.position.y = -Math.ceil(center.y)
+      camera.position.set(0, 0,120)
+      var mesh = new THREE.Mesh(geometry, materialLine)
+      var edges = new THREE.EdgesHelper(mesh, '#979797')
+      group.add(edges)
+      group.add(mesh)
+      initGateway()
     } else {
+      img1.children[1].innerText = '主出入口'
+      img2.style.display = 'block'
       svgLoad.load(url, (paths) => {
         group.position.x = -290
         group.position.y = 214
@@ -363,7 +388,6 @@
 
       document.onmousemove = function (event){
         event = event || window.event
-        // console.log(event.clientX)
         var divX = event.clientX - image1.children[0].offsetWidth / 2
         var divY = event.clientY - image1.children[0].offsetHeight / 2
         box.style.left = divX + 'px'
@@ -377,7 +401,6 @@
         var newScreen = screenToWorld({x: event.clientX, y: event.clientY})
         // todo：模态框
         // 创建出入口事件通知(主出入口)
-        console.log('origin ---position', newScreen)
         window.parent.postMessage({type: 'CREATE_PORTAL_CLICK', data: {position: newScreen, type: 1}})
       }
     }
@@ -415,7 +438,7 @@
     var sx = pX * bx
     // 获取世界坐标中y轴的实际坐标点
     var sy = pY * by
-    // console.log(sx, sy)
+
     return {x: sx, y: sy}
   }
 
@@ -465,8 +488,27 @@
   function createLevitatenBox (screenAlex, data) {
     var levitaten = document.getElementById('device__popper--wrap')
     if (screenAlex) {
-      levitaten.style.top = screenAlex.y - 172 + 'px'
-      levitaten.style.left = screenAlex.x - 100 + 'px'
+      var hl = document.getElementsByClassName('horizontal-line')[0]
+      var line = document.getElementsByClassName('add-button')[0]
+      line.setAttribute('data-visible', false)
+      hl.style.width = '0px'
+      let wy = screenAlex.y - 172
+      let wx = screenAlex.x - 100
+      if (wx < 0 ) {
+        wx = 0
+      }
+      if (wy < 0) {
+        if ((wx + 114> screenAlex.x) && 150 > screenAlex.y) {
+          hl.style.top = screenAlex.y + 'px'
+          hl.style.right = -24 + 'px'
+          hl.style.width = 22 + 'px'
+          line.setAttribute('data-visible', true)
+          wx -= 44
+        }
+        wy = 0
+      }
+      levitaten.style.top = wy + 'px'
+      levitaten.style.left = wx + 'px'
       levitaten.style.display = 'block'
     } else {
       levitaten.style.display = 'none'
@@ -496,21 +538,22 @@
     var ps = obj.coordinates instanceof Object ? obj.coordinates : JSON.parse(obj.coordinates)
     obj.position = {x: ps[0], y: ps[1]}
     var textKey = 'name'
+    var cz = camera.position.z // 摄像头z轴视距
     var textObj = createTextSprite(obj, textKey)
     if (obj[textKey].length > 2) {
-      textObj.scale.set(0.75 * obj[textKey].length * 16, 0.25 * obj[textKey].length * 13, 250)
-      textObj.position.set(obj.position.x + 2.5 + (obj[textKey].length+1)*(0.6/0.4), obj.position.y - 4 - obj[textKey].length/0.4, 1/0.4)
+      textObj.scale.set(cz * 0.027 * obj[textKey].length, cz * 0.008 * obj[textKey].length, 250)
+      textObj.position.set(obj.position.x + obj[textKey].length * cz * 0.0028, obj.position.y - cz * 0.03, 1)
     } else if(obj[textKey].length === 2){
-      textObj.scale.set(0.75 * 35, 0.25 * 46, 250)
-      textObj.position.set(obj.position.x + 2, obj.position.y - 14, 1)
+      textObj.scale.set(cz * 0.066 , cz * 0.026 , 250)
+      textObj.position.set(obj.position.x + cz* 0.002, obj.position.y - cz * 0.026, 1)
     } else {
-      textObj.scale.set(0.75 * 40, 0.25 * 40, 250)
-      textObj.position.set(obj.position.x + 7, obj.position.y - 10 - obj[textKey].length, 2.5)
+      textObj.scale.set(cz * 0.075, cz * 0.025, 250)
+      textObj.position.set(obj.position.x + cz * 0.02, obj.position.y - cz * 0.028, 2.5)
     }
     scene.add(textObj)
     // 创建图片
     let sprite = createPictureSprite(obj)
-    sprite.scale.set(10, 12, 10)
+    sprite.scale.set(0.026 * cz , 0.036 * cz , 10)
     sprite.position.set(obj.position.x, obj.position.y, 1)
     scene.add(sprite)
     // 文字贴图的参数传递到图片贴图的userData中
@@ -578,7 +621,6 @@
       var ev = ev || window.event;
       var target = ev.target || ev.srcElement;
       var dType = target.getAttribute('data-type')
-      console.log(dType)
       switch (dType) {
         case 'deletePortal': // 删除出入口
           window.parent.postMessage({type: 'DELETE_PORTAL_CLICK', data: userData.portal})

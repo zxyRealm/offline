@@ -30,15 +30,15 @@
   let pointCloudArr = [];
   let floorHeight = 65;
   let floorArr = [
-    0 * floorHeight, 
-    1 * floorHeight, 
-    2 * floorHeight, 
-    3 * floorHeight, 
-    4 * floorHeight, 
-    5 * floorHeight, 
-    6 * floorHeight, 
-    7 * floorHeight, 
-    8 * floorHeight, 
+    0 * floorHeight,
+    1 * floorHeight,
+    2 * floorHeight,
+    3 * floorHeight,
+    4 * floorHeight,
+    5 * floorHeight,
+    6 * floorHeight,
+    7 * floorHeight,
+    8 * floorHeight,
     9 * floorHeight
   ]
   function init() {
@@ -156,7 +156,7 @@
   }
 
   // 接收楼层信息
-  function setFloorInfo() {
+  function setFloorInfo(floorArr) {
     // 创建楼层图片
     console.log(floorArr);
     for (let i=0; i<floorArr.length; i++) {
@@ -191,14 +191,14 @@
       }
     })
   }
-  
+
   function addShape(shape, group, color, y) {
     let geometry = new THREE.ShapeBufferGeometry( shape );
-    let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ 
-      color: color, 
-      side: THREE.DoubleSide, 
-      transparent: true, 
-      opacity: y<-65 ? 0 : 0.5 
+    let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+      color: color,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: y<-65 ? 0 : 0.5
     }));
     mesh.position.set(0, y, 0);
     mesh.rotation.set(0.5*Math.PI, 0, 0);
@@ -213,10 +213,10 @@
     let points = shape.getPoints();
     let geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
 
-    let line = new THREE.Line(geometryPoints, new THREE.LineBasicMaterial({ 
-      color: color, 
-      transparent: true, 
-      opacity: y<-65 ? 0 : 0.5 
+    let line = new THREE.Line(geometryPoints, new THREE.LineBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: y<-65 ? 0 : 0.5
     }));
     line.position.set(0, y, 0);
     line.rotation.set(0.5*Math.PI, 0, 0);
@@ -266,13 +266,13 @@
       });
       pointArr[icount] = new THREE.Mesh(geometryArr[icount], materialArr[icount]);
       pointArr[icount].sortParticles = true;
-      pointArr[icount].position.set(alx[0], (floor-1)*65+1, alx[1])
+      pointArr[icount].position.set(alx[0], floor < 0 ? (floor * floorHeight - 65) : (floor * floorHeight - 130), alx[1])
       pointArr[icount].rotation.x = 0.5*Math.PI
       scene.add(pointArr[icount]);
       createAnimate(pointArr[icount], icount)
     } else {
       icount = icount%100
-      pointArr[icount].position.set(alx[0], (floor-1)*65+1, alx[1])
+      pointArr[icount].position.set(alx[0], floor < 0 ? (floor * floorHeight - 65) : (floor * floorHeight - 130), alx[1])
       pointArr[icount].rotation.x = 0.5*Math.PI
       createAnimate(pointArr[icount], icount)
     }
