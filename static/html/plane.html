@@ -182,7 +182,7 @@
   let underLine = document.getElementById('underLine');
   let boxAlexArr = []; // 用来保存坐标数据的数组
   let hasColorBoxArr = [] // 用来保存有颜色的块的数组
-
+  var windowOrigin = window.location.origin
   function init() {
     let innerWidth = window.innerWidth // 减去右侧aside的宽度
     let innerHeight = window.innerHeight // 减去底部div的宽度
@@ -226,7 +226,7 @@
     window.parent.postMessage({
       cmd: 'plane-load_signal',
       params: {}
-    }, '*');
+    }, windowOrigin);
   }
 
   function animate() {
@@ -445,7 +445,7 @@
         name: mesh.userData.text,
         logo: mesh.userData.logo
       }
-    })
+    }, windowOrigin)
   }
 
   ///////////////////////////////////////////

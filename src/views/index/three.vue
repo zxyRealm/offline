@@ -60,18 +60,18 @@
             <div class="clearfix">
               <div class="industry__rank--wrap">
                 <div class="rank-items">
-                  <span>{{rankData.INDUSTRY[0].name}} <br> {{rankData.INDUSTRY[0].percent}}</span>
+                  <span>{{rankData.industry[0] ? rankData.industry[0].name : ''}} <br> {{rankData.industry[0] ? rankData.industry[0].percent: ''}}</span>
                 </div>
                 <div class="rank-items">
-                  <span>{{rankData.INDUSTRY[0].name}} <br> {{rankData.INDUSTRY[0].percent}}</span>
+                  <span>{{rankData.industry[1] ? rankData.industry[1].name : ''}} <br> {{rankData.industry[1] ? rankData.industry[1].percent: ''}}</span>
                 </div>
                 <div class="rank-items">
-                  <span>{{rankData.INDUSTRY[0].name}} <br> {{rankData.INDUSTRY[0].percent}}</span>
+                  <span>{{rankData.industry[2] ? rankData.industry[2].name : ''}} <br> {{rankData.industry[2] ? rankData.industry[2].percent : ''}}</span>
                 </div>
               </div>
               <ul class="right__sidebar">
                 <li
-                  v-for="(item, $index) in rankData.INDUSTRY"
+                  v-for="(item, $index) in rankData.industry"
                   :key="$index"
                   v-if="$index > 2"
                   class="sidebar--item"><span>{{$index + 1}}.{{item.name}}</span><span>{{item.percent}}</span> </li>
@@ -85,7 +85,7 @@
               门店客流排行榜
             </div>
             <div class="process__list--wrap">
-              <div class="pl-items vam" v-for="(item, $index) in rankData.GROUP" :key="$index" v-if="$index < 6">
+              <div class="pl-items vam" v-for="(item, $index) in rankData.group" :key="$index" v-if="$index < 6">
                 <span class="ellipsis">{{$index + 1}}.{{item.name}}</span>
                 <el-progress :percentage="item.percent" color="##0F9EE9"></el-progress>
                 <el-icon class="el-icon-d-arrow-right"></el-icon>
@@ -147,25 +147,25 @@ export default {
         gender: []
       },
       rankData: { // 排行榜 （业态、门店）
-        GROUP: [
-          { name: '无印良品', percent: 50 },
-          { name: '优衣库', percent: 30 },
-          { name: '传奇奢华影城', percent: 18 },
-          { name: '外婆家', percent: 8 },
-          { name: '外婆家', percent: 8 },
-          { name: '外婆家', percent: 8 },
-          { name: '外婆家', percent: 8 }
+        group: [
+          // { name: '无印良品', percent: 50 },
+          // { name: '优衣库', percent: 30 },
+          // { name: '传奇奢华影城', percent: 18 },
+          // { name: '外婆家', percent: 8 },
+          // { name: '外婆家', percent: 8 },
+          // { name: '外婆家', percent: 8 },
+          // { name: '外婆家', percent: 8 }
         ],
-        INDUSTRY: [
-          {name: '文体', percent: '30%'},
-          {name: '文体', percent: '22%'},
-          {name: '文体', percent: '18%'},
-          {name: '文体', percent: '9%'},
-          {name: '文体', percent: '7%'},
-          {name: '文体', percent: '5%'},
-          {name: '文体', percent: '3%'},
-          {name: '文体', percent: '2%'},
-          {name: '文体', percent: '1.6%'}
+        industry: [
+          // {name: '文体', percent: '30%'},
+          // {name: '文体', percent: '22%'},
+          // {name: '文体', percent: '18%'},
+          // {name: '文体', percent: '9%'},
+          // {name: '文体', percent: '7%'},
+          // {name: '文体', percent: '5%'},
+          // {name: '文体', percent: '3%'},
+          // {name: '文体', percent: '2%'},
+          // {name: '文体', percent: '1.6%'}
         ]
       }
     }
@@ -243,12 +243,12 @@ export default {
       // 获取客流排行
       GetFlowRank({floor: floor.floor, parentId: floor.groupParentGuid}).then(res => {
         console.log('flow rank', res)
-        if (res.data.INDUSTRY && res.data.GROUP) {
-          res.data.INDUSTRY = res.data.INDUSTRY.map(item => {
+        if (res.data.industry && res.data.group) {
+          res.data.industry = res.data.industry.map(item => {
             item.percent = parseInt(item.percentage * 100) + '%'
             return item
           })
-          res.data.GROUP = res.data.GROUP.map(item => {
+          res.data.group = res.data.group.map(item => {
             item.percent = parseInt(item.percentage * 100)
             return item
           })

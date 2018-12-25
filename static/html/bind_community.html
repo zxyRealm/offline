@@ -66,6 +66,7 @@
 <script>
   var renderer, scene, camera, mouse = {}, group
   var INTERSECTED, controls, raycaster, ratio, meshList = []
+  var windowOrigin = window.location.origin
   /* 初始化创建场景
      * @params eid 外部容器id
      * @params pd 左右padding总距离值
@@ -125,9 +126,8 @@
           group.add(mesh)
         }
       }
-      console.log(meshList[0])
       // iframe加载完成是通知父页面初始化数据(svg 渲染完成后设置默认值，否侧meshList会是个空数组)
-      window.parent.postMessage({type: 'SET_DEFAULT_DATA'})
+      window.parent.postMessage({type: 'SET_DEFAULT_DATA'}, windowOrigin)
     })
   }
   // 将url参数对象化
@@ -167,9 +167,9 @@
         INTERSECTED = intersects[ 0 ].object
         INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
         INTERSECTED.material.color.setHex(0xff0000)
-        console.log(intersects[0].object.toJSON(), JSON.parse(JSON.stringify(intersects[0].object)))
+        // console.log(intersects[0].object.toJSON(), JSON.parse(JSON.stringify(intersects[0].object)))
         // sessionStorage.setItem('three_shape_path', JSON.stringify(intersects[0].object.geometry.toJSON()))
-        window.parent.postMessage({type: 'BIND_GROUP_CLICK', data: intersects[0].object.geometry.attributes.position.array.toString().split(',').map(Number), path: JSON.parse(JSON.stringify(intersects[0].object))})
+        window.parent.postMessage({type: 'BIND_GROUP_CLICK', data: intersects[0].object.geometry.attributes.position.array.toString().split(',').map(Number), path: JSON.parse(JSON.stringify(intersects[0].object))}, windowOrigin)
       }
     } else {
       if (INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex)

@@ -537,3 +537,57 @@
   font-size: 12px;
   padding: 7px 12px;
 }
+
+// 开放API侧边菜单样式
+.custom__menu--api{
+  //.el-submenu__title, .el-menu-item{
+  //
+  //}
+  border-right: none;
+  .el-submenu__title,
+  .el-menu-item{
+    height: 36px;
+    line-height: 36px;
+    &:active,
+    &:visited,
+    &:hover{
+      background: transparent!important;
+    }
+    &.is-active{
+      background: transparent;
+    }
+  }
+
+  >.is-active {
+    > .el-submenu__title, &.el-menu-item{
+      color: #fff!important;
+    }
+  }
+  .el-menu-item-group__title{
+    padding: 0;
+  }
+  .el-submenu{
+    .el-menu-item{
+      padding-left: 30px!important;
+      box-sizing: border-box;
+      font-size: 12px;
+      &.is-active{
+        position: relative;
+        color: #0F9EE9;
+        &:after{
+          content: '';
+          position: absolute;
+          height: 16px;
+          width: 3px;
+          top: 10px;
+          left: 0;
+          background: #0F9EE9;
+        }
+        //border-left: 2px solid #0F9EE9;
+      }
+    }
+  }
+  .el-submenu .el-menu-item{
+    min-width: auto;
+  }
+}

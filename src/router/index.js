@@ -35,6 +35,13 @@ const Developer = () => import('@/views/developer/index.vue')
 const notifyCallback = () => import('@/views/developer/notify/add-info')
 const sysNotify = () => import('@/views/developer/notify/index')
 const apiIndex = () => import('@/views/developer/api/index.vue')
+const ApiCode = () => import('@/views/developer/api/code.vue')
+const apiRule = () => import('@/views/developer/api/rule.vue')
+const apiCommon = () => import('@/views/developer/api/common.vue')
+const apiFlow = () => import('@/views/developer/api/flow.vue')
+const apiCommunity = () => import('@/views/developer/api/community.vue')
+const apiAuth = () => import('@/views/developer/api/auth.vue')
+
 const paramExplain = () => import('@/views/developer/notify/explain.vue')
 
 /* 数据可视化的路由 */
@@ -521,27 +528,79 @@ export const constantRouterMap = [
       },
       {
         path: 'api',
-        redirect: 'api/index'
+        redirect: 'api/rule'
       },
       {
-        path: 'api/index',
-        name: 'apiToken',
+        path: 'api',
+        name: 'developerApi',
         meta: {
           auth: true,
           title: '开放API-开发者中心-线下浏览器服务平台',
           keepAlive: false
         },
-        component: apiIndex
-      },
-      {
-        path: 'api/faceimg',
-        name: 'apiFaceImg',
-        meta: {
-          auth: true,
-          title: '开放API-开发者中心-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: apiIndex
+        component: apiIndex,
+        children: [
+          {
+            path: 'rule',
+            name: 'apiRule',
+            meta: {
+              auth: true,
+              title: 'API通用规则-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: apiRule
+          },
+          {
+            path: 'common',
+            name: 'ApiCommon',
+            meta: {
+              auth: true,
+              title: '通用返回值-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: apiCommon
+          },
+          {
+            path: 'auth',
+            name: 'ApiAuth',
+            meta: {
+              auth: true,
+              title: '鉴权接口-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: apiAuth
+          },
+          {
+            path: 'community',
+            name: 'ApiCommunity',
+            meta: {
+              auth: true,
+              title: '社群数据-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: apiCommunity
+          },
+          {
+            path: 'flow',
+            name: 'ApiFlow',
+            meta: {
+              auth: true,
+              title: '客流数据-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: apiFlow
+          },
+          {
+            path: 'code',
+            name: 'ApiCode',
+            meta: {
+              auth: true,
+              title: '状态码-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: ApiCode
+          }
+        ]
       },
       {
         path: 'param/explain',

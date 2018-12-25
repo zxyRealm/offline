@@ -31,6 +31,7 @@
     let clock = new THREE.Clock();
     let mixArr = [],
       pointArr = new Array(1000)
+    var windowOrigin = window.location.origin
     // var floorArr = [{
     //     coordinate_y: -3 * floorHeight - 65,
     //     img_url: 1,
@@ -124,7 +125,7 @@
       window.parent.postMessage({
         cmd: 'home-load_signal',
         params: {}
-      }, '*');
+      }, windowOrigin);
     }
 
     function onDocumentMouseMove(event) {
@@ -169,7 +170,7 @@
           params: {
             data: intersects[0].object.position.y
           }
-        }, '*');
+        }, windowOrigin);
       }
     }
 

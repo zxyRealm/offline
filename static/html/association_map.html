@@ -245,7 +245,8 @@
 <script src="/static/three/util.js"></script>
 <script>
   var renderer, scene, camera, group, meshList = [], textList = [], spriteList = []
-  var width, height, userData
+  var width, height, userData, communityData
+  var windowOrigin = window.location.origin
   function init () {
     renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
     renderer.setSize(window.innerWidth, window.innerHeight)
@@ -257,7 +258,7 @@
     scene.add(camera)
     group = new THREE.Group()
     scene.add(group)
-    window.parent.postMessage({type: 'LOAD_SVG_PATH'})
+    window.parent.postMessage({type: 'LOAD_SVG_PATH'}, windowOrigin)
     // loadSvg()
     // 轨道控制器
     controls = new THREE.OrbitControls(camera, renderer.domElement)
@@ -278,11 +279,12 @@
     if (wrap) wrap.style.display = 'none'
     spriteList = []
     textList = []
-    window.parent.postMessage({type: 'GET_PORTAL_LIST'})
+    window.parent.postMessage({type: 'GET_PORTAL_LIST'}, windowOrigin)
   }
 
   // 加载渲染svg地图
   function loadSvg (data) {
+    communityData = data
     var svgLoad = new THREE.SVGLoader()
     var url = parseUrlParams('map_url') || ''
     var shapes = !data.shapePathParam || data.shapePathParam instanceof Object ? data.shapePathParam : JSON.parse(data.shapePathParam)
@@ -372,7 +374,7 @@
         var newScreen = screenToWorld({x: event.clientX, y: event.clientY})
         // todo：模态框
         // 创建出入口事件通知(其他出入口)
-        window.parent.postMessage({type: 'CREATE_PORTAL_CLICK', data: {position: newScreen, type: 2}})
+        window.parent.postMessage({type: 'CREATE_PORTAL_CLICK', data: {position: newScreen, type: 2}}, windowOrigin)
       }
     }
     image1.onmousedown = function (event) {
@@ -401,7 +403,7 @@
         var newScreen = screenToWorld({x: event.clientX, y: event.clientY})
         // todo：模态框
         // 创建出入口事件通知(主出入口)
-        window.parent.postMessage({type: 'CREATE_PORTAL_CLICK', data: {position: newScreen, type: 1}})
+        window.parent.postMessage({type: 'CREATE_PORTAL_CLICK', data: {position: newScreen, type: 1}}, windowOrigin)
       }
     }
   }
@@ -457,7 +459,7 @@
     var intersects = raycaster.intersectObjects(spriteList)
     if (intersects.length > 0) {
       userData = intersects[0].object.userData
-      window.parent.postMessage({type: 'GET_CAMERA_LIST', data: userData.portal})
+      window.parent.postMessage({type: 'GET_CAMERA_LIST', data: userData.portal}, windowOrigin)
       createLevitatenBox(screenAlex, userData)
     } else {
       var box = document.getElementById('device__popper--wrap')
@@ -567,7 +569,7 @@
 
   // 创建图片贴图
   function createPictureSprite (obj) {
-    var img = obj.type === 1 ? 'qizi2' : 'qizi1'
+    var img = communityData.shapePathParam ? 'qizi2' : obj.type === 1 ? 'qizi2' : 'qizi1'
     var texture = new THREE.TextureLoader().load('/static/floor/' + img + '.png')
     // texture.minFilter = THREE.minFilter
     var spriteMaterial = new THREE.SpriteMaterial({
@@ -623,16 +625,16 @@
       var dType = target.getAttribute('data-type')
       switch (dType) {
         case 'deletePortal': // 删除出入口
-          window.parent.postMessage({type: 'DELETE_PORTAL_CLICK', data: userData.portal})
+          window.parent.postMessage({type: 'DELETE_PORTAL_CLICK', data: userData.portal}, windowOrigin)
           break
         case 'editPortal': // 编辑出入口信息
-          window.parent.postMessage({type: 'EDIT_PORTAL_CLICK', data: userData.portal})
+          window.parent.postMessage({type: 'EDIT_PORTAL_CLICK', data: userData.portal}, windowOrigin)
           break
         case 'add': // 出入口新增设备
-          window.parent.postMessage({type: 'PORTAL_ADD_DEVICE', data: userData.portal})
+          window.parent.postMessage({type: 'PORTAL_ADD_DEVICE', data: userData.portal}, windowOrigin)
           break
         case 'delete': // 删除出入口设备
-          window.parent.postMessage({type: 'DELETE_PORTAL_DEVICE', data: {detail: userData.portal, index: target.getAttribute('data-index')}})
+          window.parent.postMessage({type: 'DELETE_PORTAL_DEVICE', data: {detail: userData.portal, index: target.getAttribute('data-index')}}, windowOrigin)
           break
       }
     }

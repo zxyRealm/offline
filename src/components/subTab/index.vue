@@ -162,7 +162,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
   // 主题内容区tab 菜单样式
   .sub-tab-wrap {
-    padding: 20px 0 8px;
+    padding: 20px 20px 8px;
     line-height: 24px;
     font-size: 16px;
     border-bottom: 1px dashed rgba(151,151,151,0.10);

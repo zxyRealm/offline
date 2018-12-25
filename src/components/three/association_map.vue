@@ -182,11 +182,7 @@ export default {
         this.currentFloor = this.data
       }
       this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
-      if ((!this.data.shapePathParam && this.currentFloor.groupSonGuid) || (this.data.guid)) {
-        GetGroupPortalCount({groupSonId: this.data.shapePathParam ? this.data.guid : this.currentFloor.groupSonGuid}).then(res => {
-          this.totalCounts = res.data
-        })
-      }
+      this.getPortalCameraCount()
     },
     loadIframeSvg () { // 加载iframe svg 地图
       this.iframeObj.loadSvg(this.data)
@@ -264,9 +260,11 @@ export default {
       PortalBatchBindDevice({deviceGroupPortalReqs: arr}).then(res => {
         this.$tip('添加成功')
         this.AddDeviceVisible = false
+        this.getPortalCameraCount()
         this.getDeviceList(this.currentPortal)
       })
     },
+    // 删除出入口设备
     deletePortalDevice (data) {
       this.$affirm({
         title: '删除绑定关系',
@@ -276,11 +274,20 @@ export default {
         if (action === 'confirm') {
           PortalUnbindDevice({deviceKey: this.deviceInfo.list[data.index].deviceKey}).then(res => {
             this.$tip('删除成功')
+            this.getPortalCameraCount()
             this.getDeviceList(data.detail)
           })
         }
         done()
       })
+    },
+    // 获取出入口、设备数量
+    getPortalCameraCount () {
+      if ((!this.data.shapePathParam && this.currentFloor.groupSonGuid) || (this.data.guid)) {
+        GetGroupPortalCount({groupSonId: this.data.shapePathParam ? this.data.guid : this.currentFloor.groupSonGuid}).then(res => {
+          this.totalCounts = res.data
+        })
+      }
     },
     // 添加出入口弹框
     showAddDialog (data) {
@@ -329,6 +336,8 @@ export default {
           subData.floor = this.data.floor
           console.log('add portal -----------', subData, this.handleDialogType)
           if (this.handleDialogType === 1) { // 添加出入口
+            // 如果是成员社群绑定出入口则为副出入口
+            if (this.data.shapePathParam) subData.type = 2
             CreatePortal(subData).then(res => {
               this.$tip('添加成功')
               this.handlePortalVisible = false

@@ -875,7 +875,7 @@ export default {
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
-      console.log('change', data, data.groupSonGuid)
+      // console.log('change', data, data.groupSonGuid)
       if (node.level !== 2) {
         this.currentCommunity = data
         this.getCommunityInfo(data)
@@ -1109,15 +1109,15 @@ export default {
         let copyData = JSON.parse(JSON.stringify(this.communityInfo))
         copyData.pca = `${copyData.provinceAreaId},${copyData.cityAreaId},${copyData.districtAreaId}`
         copyData.originName = JSON.parse(JSON.stringify(copyData.name))
-        console.log('dialog data', copyData)
+        // console.log('dialog data', copyData)
         switch (type) {
           case 4:
             this.communityForm = copyData
             break
           case 8:
             this.editNicknameForm = {
-              name: copyData.name,
-              originName: copyData.originName,
+              name: copyData.nickName,
+              originName: JSON.parse(JSON.stringify(copyData.nickName)),
               groupSonGuid: copyData.guid,
               parentGuid: copyData.parentId
             }
@@ -1143,7 +1143,7 @@ export default {
           this.editNicknameVisible = true
           break
       }
-      console.log(this.handleCommunityType, this.handleMemberForm)
+      // console.log(this.handleCommunityType, this.handleMemberForm)
     },
     // 定义弹框类型
     backDialogType (type) {
@@ -1189,7 +1189,7 @@ export default {
     },
     // 地图区块点击事件
     handleBlockClick (data) {
-      console.log('block position', data.path, JSON.parse(JSON.stringify(data.path)))
+      // console.log('block position', data.path, JSON.parse(JSON.stringify(data.path)))
       this.$set(this.handleMemberForm, 'coordinates', data.position)
       this.$set(this.handleMemberForm, 'shapePathParam', JSON.stringify(data.path))
     }

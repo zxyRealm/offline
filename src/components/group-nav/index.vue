@@ -131,7 +131,7 @@ export default {
       type: Object,
       default: () => ({
         children: 'subGroupSon',
-        label: 'name'
+        label: 'nickName'
       })
     },
     select: { // 社群设备默认值
