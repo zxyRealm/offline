@@ -35,10 +35,6 @@
               <h2 class="cmm-sub-title">
                   <span>{{communityInfo.name}}{{showNickName?`（${communityInfo.nickName}）`:''}}
                     <uu-icon v-if="showNickName"  class="role__icon--img" type="foreign"></uu-icon>
-                    <!--<a v-if="communityInfo.groupNickName !== undefined || communityInfo.groupPid || (communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId)"  class="fs12" @click="showDialog" href="javascript:void (0)">-->
-                      <!--<i class="el-icon-edit"></i>-->
-                      <!--{{(communityInfo.merchantGuid && communityInfo.merchantGuid !== userInfo.developerId) ? dialogTitle : ''}}-->
-                    <!--</a>-->
                   </span>
                 <p class="handle fr fs12">
                   <i
@@ -101,32 +97,6 @@
           </div>
         </div>
       </div>
-      <!--修改社群昵称-->
-      <ob-dialog-form
-        :title="communityDialogTitle"
-        :visible.sync="dialogFormVisible"
-      >
-        <el-form
-          slot="form"
-          ref="nameForm"
-          block-message
-          style="width: 330px"
-          @submit.native.prevent
-          label-position="left"
-          class="common-form white"
-          label-width="82px"
-          :model="nameForm"
-          :rules="rules"
-        >
-          <el-form-item label="备注名：" prop="groupName">
-            <el-input placeholder="请输入备注名" v-model="nameForm.groupName"></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer mt50">
-          <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
-          <el-button class="affirm" type="primary" @click="setNickName('nameForm')">{{communityInfo.GroupNickName?'添加': '确  定'}}</el-button>
-        </div>
-      </ob-dialog-form>
       <!--自定义分组名-->
       <ob-dialog-form
         :title="groupsNameForm.customType ? '新建分组' : '编辑分组名'"
@@ -272,11 +242,11 @@
                 <el-option v-for="item in floorList" :key="item" :label="IntToFloor(item)" :value="item"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label-width="0">
+            <el-form-item v-show="handleMemberForm.floor" label-width="0">
               <div class="three__map--dialog">
                 <bind-community
                   ref="bindGroupMap"
-                  :default-select="handleMemberForm.coordinates"
+                  :default-data="handleMemberForm"
                   @handle-block-click="handleBlockClick"
                   :floor-list="floor"></bind-community>
               </div>
@@ -530,9 +500,7 @@ export default {
       addCommunityList: [], // 添加社群弹框社群列表
       disabledKeys: [],
       currentCommunity: {}, // 当前社群信息
-      communityInfo: {
-        guid: ''
-      },
+      communityInfo: {},
       groupsNameForm: {
       },
       ManageInfo: { // 通过邀请码获取的管理员社群信息
@@ -619,6 +587,7 @@ export default {
         address: '',
         industryType: '',
         floor: '',
+        shapePathParam: '',
         coordinates: [],
         contact: '',
         phone: ''
@@ -721,18 +690,6 @@ export default {
       },
       set () {}
     },
-    dialogTitle: {
-      get () {
-        let txt = '添加昵称'
-        if (this.communityInfo.groupNickName) {
-          txt = '编辑昵称'
-        } else if (this.communityInfo.groupPid) {
-          txt = '编辑分组名'
-        }
-        return txt
-      },
-      set () {}
-    },
     ...mapState(['loading', 'aliveState', 'userInfo', 'currentManage']),
     showNickName () {
       return this.userInfo.developerId !== this.communityInfo.merchantGuid && this.communityInfo.nickName
@@ -812,42 +769,12 @@ export default {
       if (!pid) return
       GetMarketList({parentId: pid}).then(res => {
         this.groupList = res.data || []
-        // 当key 返回string时,即恢复默认选中状态
-        // if (typeof data === 'string') data = res.data[0]
-        // 编辑页返回时记住当前页状态
-        // (this.$route.meta.keepAlive ? this.aliveState.currentCommunity : false) || (this.currentCommunity.uniqueKey ? this.currentCommunity : false)
         let currentNode = Object.keys(this.currentCommunity).length ? this.currentCommunity : this.groupList[0]
         this.$nextTick(() => {
           if (this.$refs.groupNav) {
             // 默认只展开默认分组列表
             // 创建成员社群后返回我的社群列表时默认显示管理员社群
-            // 根据当前选中的社群的guid重新确定当前社群在树形结构的uniqueKey
-            // if (currentNode.groupSonGuid) {
-            //   for (let i = 0, len = this.groupList.length; i < len; i++) {
-            //     let item = this.groupList[i]
-            //     if (pid && pid === item.id) {
-            //       let item2 = item.subGroupSon[item.subGroupSon.length - 1].subGroupSon
-            //       for (let k = 0, len2 = item2.length; k < len2; k++) {
-            //         if (item2[k].id === currentNode.id) {
-            //           uniqueKey = item2[k].uniqueKey
-            //           break
-            //         }
-            //       }
-            //     } else if (item.id === this.$route.params.groupGuid || item.id === currentNode.id) {
-            //       uniqueKey = item.uniqueKey
-            //       break
-            //     }
-            //   }
-            //   this.$route.params.groupGuid = ''
-            // }
-            // this.groupList.filter(item => item.subGroupSon && item.subGroupSon.length).map(item => {
-            //   if (item.subGroupSon && item.subGroupSon[item.subGroupSon.length - 1]) {
-            //     this.expandedKeys.push(item.subGroupSon[item.subGroupSon.length - 1].groupSonGuid)
-            //   }
-            //   this.expandedKeys.push(item.groupSonGuid)
-            // })
             this.expandedKeys.push(currentNode.groupSonGuid)
-            if (!Object.keys(this.communityInfo).length) this.communityInfo = currentNode
             if (!Object.keys(this.currentCommunity).length) this.currentCommunity = currentNode
             // 通过自定义唯一标识uniqueKey 设置默认选中项
             this.$refs.groupNav.setCurrentKey(this.currentCommunity.groupSonGuid)
@@ -908,19 +835,6 @@ export default {
           done()
         } else {
           done()
-        }
-      })
-    },
-    // 设置昵称
-    setNickName (formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          this.$http('/group/nickName/update', this.nameForm).then(res => {
-            this.$tip('操作成功')
-            this.currentCommunity.name = this.nameForm.groupName
-            this.getGroupList()
-            this.dialogFormVisible = false
-          })
         }
       })
     },
@@ -1095,6 +1009,7 @@ export default {
           copyData.originName = JSON.parse(JSON.stringify(copyData.name))
           copyData.originCoordinates = JSON.parse(JSON.stringify(copyData.coordinates))
           this.handleMemberForm = copyData
+          // this.$refs.bindGroupMap.initFloor(this.handleMemberForm.floor)
         } else if (type === 5) {
           this.handleMemberForm = { // 添加成员社群
             name: '',
@@ -1192,8 +1107,10 @@ export default {
     // 地图区块点击事件
     handleBlockClick (data) {
       // console.log('block position', data.path, JSON.parse(JSON.stringify(data.path)))
-      this.$set(this.handleMemberForm, 'coordinates', data.position)
-      this.$set(this.handleMemberForm, 'shapePathParam', JSON.stringify(data.path))
+      this.handleMemberForm.coordinates = data.position
+      this.handleMemberForm.shapePathParam = JSON.stringify(data.path)
+      // this.$set(this.handleMemberForm, 'coordinates', data.position)
+      // this.$set(this.handleMemberForm, 'shapePathParam', JSON.stringify(data.path))
     }
   },
   watch: {

@@ -286,15 +286,16 @@
   function loadSvg (data) {
     communityData = data
     var svgLoad = new THREE.SVGLoader()
-    var url = parseUrlParams('map_url') || ''
     var shapes = !data.shapePathParam || data.shapePathParam instanceof Object ? data.shapePathParam : JSON.parse(data.shapePathParam)
     // url = '/static/origin-floor/F1.svg'
     var img1 = document.getElementById('image1')
     var img2 = document.getElementById('image2')
     if (!data.self) img1.style.display = 'none'
+    // console.log('iframe', data, shapes)
     if (shapes) {
       img1.children[1].innerText = '门店出入口'
       img2.style.display = 'none'
+      group.scale.set(1, -1, 1)
       let objLoader = new THREE.ObjectLoader();
       let geometry = objLoader.parse(shapes).geometry;
       var materialLine = new THREE.LineBasicMaterial({
@@ -304,18 +305,20 @@
       })
       let ps = changeArrayLevel(geometry.attributes.position.array.toString().split(',').map(Number))
       let center = new Contour(ps.buffer).centroid()
-      group.scale.set(1, 1, 1)
       group.position.x = -Math.ceil(center.x)
-      group.position.y = -Math.ceil(center.y)
+      group.position.y = Math.ceil(center.y)
       camera.position.set(0, 0,220)
       var mesh = new THREE.Mesh(geometry, materialLine)
-      var edges = new THREE.EdgesHelper(mesh, '#979797')
-      group.add(edges)
+      var edges = new THREE.EdgesGeometry(geometry)
+      var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
+      mesh.add(line)
       group.add(mesh)
       initGateway()
     } else {
+      var url = parseUrlParams('map_url') || ''
       img1.children[1].innerText = '主出入口'
       img2.style.display = 'block'
+      // console.log('svg url', url)
       svgLoad.load(url, (paths) => {
         group.position.x = -290
         group.position.y = 214
@@ -615,6 +618,7 @@
   }
 
   window.onload = function () {
+    windowOrigin = window.location.origin
     init()
     animate()
     initMouseEvent()

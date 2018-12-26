@@ -60,13 +60,13 @@
             <div class="clearfix">
               <div class="industry__rank--wrap">
                 <div class="rank-items">
-                  <span>{{rankData.industry[0] ? rankData.industry[0].name : ''}} <br> {{rankData.industry[0] ? rankData.industry[0].percent: ''}}</span>
+                  <span>{{rankData.industry[0] ? rankData.industry[0].industryName : ''}} <br> {{rankData.industry[0] ? rankData.industry[0].percent: ''}}</span>
                 </div>
                 <div class="rank-items">
-                  <span>{{rankData.industry[1] ? rankData.industry[1].name : ''}} <br> {{rankData.industry[1] ? rankData.industry[1].percent: ''}}</span>
+                  <span>{{rankData.industry[1] ? rankData.industry[1].industryName : ''}} <br> {{rankData.industry[1] ? rankData.industry[1].percent: ''}}</span>
                 </div>
                 <div class="rank-items">
-                  <span>{{rankData.industry[2] ? rankData.industry[2].name : ''}} <br> {{rankData.industry[2] ? rankData.industry[2].percent : ''}}</span>
+                  <span>{{rankData.industry[2] ? rankData.industry[2].industryName : ''}} <br> {{rankData.industry[2] ? rankData.industry[2].percent : ''}}</span>
                 </div>
               </div>
               <ul class="right__sidebar">
@@ -74,7 +74,7 @@
                   v-for="(item, $index) in rankData.industry"
                   :key="$index"
                   v-if="$index > 2"
-                  class="sidebar--item"><span>{{$index + 1}}.{{item.name}}</span><span>{{item.percent}}</span> </li>
+                  class="sidebar--item"><span>{{$index + 1}}.{{item.industryName}}</span><span>{{item.percent}}</span> </li>
               </ul>
             </div>
             <!--<chart-bar title="业态客流排行榜" width="100%" height="100%"></chart-bar>-->
@@ -85,10 +85,10 @@
               门店客流排行榜
             </div>
             <div class="process__list--wrap">
-              <div class="pl-items vam" v-for="(item, $index) in rankData.group" :key="$index" v-if="$index < 6">
-                <span class="ellipsis">{{$index + 1}}.{{item.name}}</span>
-                <el-progress :percentage="item.percent" color="##0F9EE9"></el-progress>
-                <el-icon class="el-icon-d-arrow-right"></el-icon>
+              <div class="pl-items vam" v-for="(val, $index) in 6" :key="val">
+                <span class="ellipsis">{{val}}.{{rankData.group[$index] ? rankData.group[$index].groupName : `门店${$index + 1}`}}</span>
+                <el-progress :percentage="rankData.group[$index] ? rankData.group[$index].percent : 0" color="##0F9EE9"></el-progress>
+                <el-icon class="el-icon-d-arrow-right" :class="{'c-grey': !rankData.group[$index]}"></el-icon>
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@
         <ul class="floor__sidebar--wrap">
           <li class="sidebar__item" v-for="(item,$Index) in floorList" :key="$Index" @click="selectFloor(item)">{{item}}</li>
         </ul>
-        <general-map @updateCommunity="initBaseData"></general-map>
+        <general-map @updateCommunity="setFloorInfo"></general-map>
       </div>
     </template>
     <ob-list-empty v-else :text="'您尚未创建社群'">
@@ -147,27 +147,11 @@ export default {
         gender: []
       },
       rankData: { // 排行榜 （业态、门店）
-        group: [
-          // { name: '无印良品', percent: 50 },
-          // { name: '优衣库', percent: 30 },
-          // { name: '传奇奢华影城', percent: 18 },
-          // { name: '外婆家', percent: 8 },
-          // { name: '外婆家', percent: 8 },
-          // { name: '外婆家', percent: 8 },
-          // { name: '外婆家', percent: 8 }
-        ],
-        industry: [
-          // {name: '文体', percent: '30%'},
-          // {name: '文体', percent: '22%'},
-          // {name: '文体', percent: '18%'},
-          // {name: '文体', percent: '9%'},
-          // {name: '文体', percent: '7%'},
-          // {name: '文体', percent: '5%'},
-          // {name: '文体', percent: '3%'},
-          // {name: '文体', percent: '2%'},
-          // {name: '文体', percent: '1.6%'}
-        ]
-      }
+        group: [],
+        industry: []
+      },
+      currentFloor: {}, // 当前查看的楼层信息
+      timer: null // 数据获取定时器
     }
   },
   components: {
@@ -186,6 +170,9 @@ export default {
     ...mapState(['currentManage'])
   },
   methods: {
+    setFloorInfo (data) {
+      this.currentFloor = data
+    },
     selectFloor (name) {
       console.log(name)
       document.getElementById('iframe__three').src = `/three?floor=${name}`
@@ -237,34 +224,38 @@ export default {
       })
     },
     // 初始化获取数据
-    initBaseData (floor) {
-      console.log('post data ===========', floor)
+    initBaseData () {
+      let info = this.currentFloor
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        this.initBaseData()
+      }, 5000)
       // if (!this.currentManage.id) return
-      // 获取客流排行
-      GetFlowRank({floor: floor.floor, parentId: floor.groupParentGuid}).then(res => {
-        console.log('flow rank', res)
-        res.data.industry = res.data.industry ? res.data.industry.map(item => {
-          item.percent = parseInt(item.percentage * 100) + '%'
-          return item
-        }) : []
-        res.data.group = res.data.group ? res.data.group.map(item => {
-          item.percent = parseInt(item.percentage * 100)
-          return item
-        }) : []
+      // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
+      if (!info) return
+      GetFlowRank({floor: info.floor, parentId: info.groupParentGuid}).then(res => {
+        res.data = JSON.parse(res.data)
+        let industryTotal = 0
+        let groupTotal = 0
+        res.data.industry.map(item => {
+          industryTotal += item.count
+        })
+        res.data.industry.map(item => {
+          groupTotal += item.count
+        })
+        res.data.industry.map(item => {
+          this.$set(item, 'percent', industryTotal ? (item.count / industryTotal).toFixed(1) + '%' : '0%')
+        })
+        res.data.group.map(item => {
+          this.$set(item, 'percent', groupTotal ? Number((item.count / groupTotal).toFixed(1)) : 0)
+        })
         this.rankData = res.data
-        console.log(res.data)
+        console.log('flow data----------', res.data)
       })
       // 获取实时比率
-      GetTimeRatio({groupFloor: floor.floor, groupGuid: floor.groupSonGuid}).then(res => {
-        console.log('time ratio', res)
+      GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupSonGuid}).then(res => {
         this.ratioData = res.data
       })
-      // GetChartLine({groupSonId: 2328, type: 'age', timeIntervalUnit: 'day', startTime: '2018-10-12', endTime: '2018-12-12'}).then(res => {
-      //   console.log('chart line', res)
-      // })
-      // GetChartPie({}).then(res => {
-      //   console.log('chart pie', res)
-      // })
     },
     createCommunity () {
       eventObject().$emit('CREATE_COMMUNITY-INDEX')
@@ -281,6 +272,9 @@ export default {
   beforeDestroy () {
     if (this.websocket) {
       this.websocket.close()
+    }
+    if (this.timer) {
+      clearTimeout(this.timer)
     }
   }
 }
@@ -502,7 +496,7 @@ export default {
           font-size: 12px;
           margin-right: 5px;
         }
-        .el-icon-d-arrow-right{
+        .el-icon-d-arrow-right:not(.c-grey){
           color: #3a8ee6;
         }
         .el-progress{

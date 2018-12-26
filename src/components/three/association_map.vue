@@ -181,7 +181,9 @@ export default {
       } else {
         this.currentFloor = this.data
       }
+      // if (this.currentFloor.mapUrl) {
       this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
+      // }
       this.getPortalCameraCount()
     },
     loadIframeSvg () { // 加载iframe svg 地图
@@ -363,7 +365,9 @@ export default {
     },
     data: {
       handler (val) {
-        this.initFloor()
+        if (Object.keys(val).length) {
+          this.initFloor()
+        }
       },
       deep: true
     },

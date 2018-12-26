@@ -8,8 +8,8 @@
 export default {
   name: 'bind_community',
   props: {
-    defaultSelect: {
-      type: [Array, String],
+    defaultData: {
+      type: [Array, String, Object],
       default: () => []
     },
     floorList: {
@@ -35,7 +35,7 @@ export default {
   methods: {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
-      this.currentFloor = this.floorList.filter(item => item.floor === (int || 1))[0] || this.floorList[0]
+      this.currentFloor = this.floorList.filter(item => item.floor === (this.defaultData.floor || 1))[0] || this.floorList[0]
       this.iframeSrc = `/static/html/bind_community.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
     },
     // 处理iframe传递出来的事件
@@ -50,7 +50,8 @@ export default {
     // 设置默认选中区域
     setDefaultSelect () {
       // 位置信息数组
-      let ps = this.defaultSelect instanceof Object ? this.defaultSelect : JSON.parse(this.defaultSelect)
+      let ps = this.defaultData.coordinates instanceof Object ? this.defaultData.coordinates : JSON.parse(this.defaultData.coordinates)
+      console.log(this.defaultData, ps)
       this.$nextTick(() => {
         this.iframeObj.setDefaultSelect(ps)
       })
@@ -63,9 +64,9 @@ export default {
       },
       deep: true
     },
-    defaultSelect: {
-      handler (val) {
-        this.setDefaultSelect()
+    'defaultData.floor': {
+      handler () {
+        this.initFloor()
       },
       deep: true
     }

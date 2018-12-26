@@ -157,19 +157,22 @@
           <floor-select v-model="communityForm.floorList"></floor-select>
         </el-form-item>
         <el-form-item v-if="handleCommunityType !== 4" prop="map">
-          <div class="import__map--wrap">
+          <div v-if="fileList.length" class="import__map--wrap">
             <el-scrollbar>
               <div class="file__items vam" v-for="(item,$index) in fileList" :key="$index">
                 <img src="@/assets/public/file_icon.png" width="12" alt="">
                 {{item.name}}
               </div>
-              <!--<div v-if="!fileList.length" class="text-center g-grey">请选取楼层地图</div>-->
             </el-scrollbar>
             <label for="map__input--file" @change="onChange" class="g__input--btn">
-              <a>{{fileList.length? '重新导入': '导入地图'}}</a>
+              <a>重新导入</a>
               <input type="file" id="map__input--file" multiple="multiple">
             </label>
           </div>
+          <label for="map__input--file" @change="onChange" class="g__input--btn" v-else>
+            <a>导入地图</a>
+            <input type="file" id="map__input--file" multiple="multiple">
+          </label>
         </el-form-item>
         <el-form-item label="联系人：" prop="contact">
           <el-input type="text" placeholder="请输入联系人"
@@ -441,9 +444,6 @@ export default {
     },
     // 新建社群 （商场、连锁总店、单个门店）
     addNewCommunity (formName) {
-      console.log(this.handleCommunityType, this.communityForm)
-      let file = document.getElementById('map__input--file').files
-      console.log(file)
       this.$refs[formName].validate(valid => {
         if (valid) {
           if (!this.fileList.length) {
@@ -454,6 +454,20 @@ export default {
             this.$tip('文件和所选楼层数不符,请重新选择', 'error')
             return
           }
+          // 校验选取文件与所选楼层数据是否能够一一对应
+          let nameList = []
+          for (let k = 0, len = this.fileList.length; k < len; k++) {
+            nameList.push(this.fileList[k].name.substring(0, this.fileList[k].name.lastIndexOf('.')))
+          }
+          let nameSet = new Set(nameList)
+          console.log(nameSet)
+          for (let k = 0, len = this.communityForm.floorList.length; k < len; k++) {
+            if (!nameSet.has(k + 1)) {
+              this.$tip(`缺少${this.communityForm.floorList[k]}楼层地图`, 'error')
+              return
+            }
+          }
+          console.log('map error ------------')
           this.httpRequest()
         } else {
         }
