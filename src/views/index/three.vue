@@ -227,10 +227,10 @@ export default {
     // 初始化获取数据
     initBaseData () {
       let info = this.currentFloor
-      clearTimeout(this.timer)
-      this.timer = setTimeout(() => {
-        this.initBaseData()
-      }, 5000)
+      // clearTimeout(this.timer)
+      // this.timer = setTimeout(() => {
+      //   this.initBaseData()
+      // }, 5000)
       // if (!this.currentManage.id) return
       // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
       if (!info) return

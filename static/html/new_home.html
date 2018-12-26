@@ -400,7 +400,7 @@
         floorArr = floor
       else
         floorArr = floor.reverse()
-
+      console.log(floorArr)
       // 创建楼层图片
       for (var i = 0; i < floorArr.length; i++) {
         loadSvg(group, floorArr[i])
@@ -418,7 +418,7 @@
     }
 
     function loadSvg(group, floorInfo) {
-
+      console.log(floorInfo)
       var floorGroup = new THREE.Group()
       if (floorInfo.floor < 0) floorGroup.name = 'B' + Math.abs(floorInfo.floor)
       else floorGroup.name = 'F' + Math.abs(floorInfo.floor)
@@ -486,8 +486,8 @@
 
       var alex = '[' + getRandom(-80, 80) + ',' + getRandom(-50, 50) + ']';
       var floor = getRandom(-4, 5)
-
-      if (count && upClick === false && downClick === false) {
+      if ((count || count===0) && upClick === false && downClick === false) {
+        
         createShine(alex, floor * floorHeight - (count - standardCount) * floorHeight)
       }
 
