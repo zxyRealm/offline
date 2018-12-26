@@ -1,8 +1,8 @@
 <template>
-  <div class="echarts--wrap" :style="{width: width, height: height}">
+  <div class="echarts--wrap" :style="{width: width, height: height}" :class="{'empty--data': total === 0}">
     <div :id="eid" :style="{width: width, height: height}"></div>
     <div class="percent-wrap" v-if="type === 'age'">
-      <p v-for="(item, $index) in data" :key="$index">{{getPercent(item.num)}}</p>
+      <p v-for="(item, $index) in percentList" :key="$index">{{getPercent(item.value)}}</p>
     </div>
   </div>
 </template>
@@ -15,19 +15,21 @@ export default {
   mixins: [resize],
   data () {
     return {
+      percentList: [],
       chart: null,
       dataMap: {
-        age: {
-          1: '0-10岁',
-          2: '10-20岁',
-          3: '20-30岁',
-          4: '30-40岁',
-          5: '50岁以上'
-        },
-        member: {
-          1: '会员',
-          2: '顾客'
-        }
+        age: [
+          {key: 'child', name: '0-10岁'},
+          {key: 'teen', name: '10-20岁'},
+          {key: 'youth', name: '20-30岁'},
+          {key: 'man', name: '30-40岁'},
+          {key: 'middle', name: '40-50岁'},
+          {key: 'old', name: '50岁以上'}
+        ],
+        member: [
+          {key: 'not_member', name: '普通顾客'},
+          {key: 'member', name: '会员'}
+        ]
       },
       dataList: [
         {value: 0, name: '0-10岁'},
@@ -58,7 +60,7 @@ export default {
       default: ''
     },
     data: {
-      type: Array,
+      type: [Array, Object],
       default: () => []
     },
     type: {
@@ -87,6 +89,13 @@ export default {
   computed: {
     eid () {
       return this.id || 'echarts_' + this.type
+    },
+    total () {
+      let total = 0
+      for (let item in this.data) {
+        total += this.data[item] ? this.data[item].typeCount : 0
+      }
+      return total
     }
   },
   methods: {
@@ -96,18 +105,16 @@ export default {
     },
     // 计算百分比
     getPercent (val) {
-      let total = 0
-      for (let i = 0, l = this.data.length; i < l; i++) {
-        total += this.data[i].num
-      }
-      return ((val / total) * 100).toFixed(2) + '%'
+      return (this.total ? ((val / this.total) * 100).toFixed(2) : 0) + '%'
     },
     // 根据type定义配置信息
     setOptions () {
       let seriesData = this.formatData()
       if (this.type === 'age') {
+      // #979797
+        let color = this.total ? ['#0F9EE9', '#005BC9', '#213A65', '#2C0189', '#8663FF', '#A9B7CE'] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
         this.options = {
-          color: ['#0F9EE9', '#005BC9', '#213A65', '#2C0189', '#8663FF', '#A9B7CE'], // ['#2187DF','#6D2EBB']
+          color: color, // ['#2187DF','#6D2EBB']
           title: {
             text: this.title,
             textStyle: {
@@ -131,7 +138,7 @@ export default {
             align: 'left',
             itemWidth: 16,
             itemHeight: 10,
-            itemGap: 10,
+            itemGap: 7,
             textStyle: {
               color: '#ffffff',
               fontSize: '12',
@@ -150,6 +157,9 @@ export default {
               },
               {
                 name: '30-40岁'
+              },
+              {
+                name: '40-50岁'
               },
               {
                 name: '50岁以上'
@@ -198,8 +208,9 @@ export default {
           ]
         }
       } else {
+        let color = this.total ? ['#0F9EE9', '#4D6FB5'] : ['#403E42', '#403E42']
         this.options = {
-          color: ['#0F9EE9', '#4D6FB5'], // ['#2187DF','#6D2EBB']
+          color: color, // ['#2187DF','#6D2EBB']
           title: {
             text: this.title,
             textStyle: {
@@ -254,7 +265,7 @@ export default {
                 normal: {
                   show: true,
                   fontSize: 12,
-                  formatter: '{per|{b}}\n{per|{d}%}', // '{per|{d}%}',//'{d}%',  //显示百分比
+                  formatter: '{per|{b}} {per|{d}%}', // '{per|{d}%}',//'{d}%',  //显示百分比
                   position: 'inner',
                   rich: {
                     // gray: {
@@ -299,25 +310,27 @@ export default {
     },
     formatData () {
       let _data = []
-      console.log('chart data----', this.data)
       switch (this.type) {
         case 'age':
-          _data = this.data.map(item => {
+          _data = this.dataMap.age.map(item => {
+            let num = this.data[item.key]
             return {
-              name: this.dataMap.age[item.name],
-              value: item.num
+              name: item.name,
+              value: num ? num.typeCount : 0
             }
           })
           break
         default:
-          _data = this.data.map(item => {
+          _data = this.dataMap.member.map(item => {
+            let num = this.data[item.key]
             return {
-              name: this.dataMap.member[item.name],
-              value: item.num
+              name: item.name,
+              value: num ? num.typeCount : 0
             }
           })
           break
       }
+      this.percentList = _data
       return _data
     }
   },
@@ -325,7 +338,6 @@ export default {
     data: {
       handler (val) {
         this.initData()
-        console.log('data change', val)
       },
       deep: true
     }
@@ -342,13 +354,13 @@ export default {
   }
   .percent-wrap{
     position: absolute;
-    top: 20px;
+    top: 22px;
     right: 2%;
     display: inline-block;
     font-size: 12px;
     color: #0F9EE9;
   }
   .percent-wrap p{
-    line-height: 22px;
+    line-height: 19px;
   }
 </style>

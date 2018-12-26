@@ -337,17 +337,18 @@
   let pointCloudArr = [];
   let floorHeight = 65;
   let floorArr = [
-    0 * floorHeight, 
-    1 * floorHeight, 
-    2 * floorHeight, 
-    3 * floorHeight, 
-    4 * floorHeight, 
-    5 * floorHeight, 
-    6 * floorHeight, 
-    7 * floorHeight, 
-    8 * floorHeight, 
+    0 * floorHeight,
+    1 * floorHeight,
+    2 * floorHeight,
+    3 * floorHeight,
+    4 * floorHeight,
+    5 * floorHeight,
+    6 * floorHeight,
+    7 * floorHeight,
+    8 * floorHeight,
     9 * floorHeight
   ]
+  var windowOrigin = window.location.origin
   function init() {
     renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -409,7 +410,7 @@
     window.parent.postMessage({
       cmd: 'home-load_signal',
       params: {}
-    }, '*');
+    },windowOrigin);
   }
 
   function onWindowResize () {
@@ -429,7 +430,7 @@
         params: {
           data: intersects[0].object.position.y
         }
-      }, '*');
+      }, windowOrigin);
     }
   }
 
@@ -463,7 +464,7 @@
   }
 
   // 接收楼层信息
-  function setFloorInfo() {
+  function setFloorInfo(floorArr) {
     // 创建楼层图片
     console.log(floorArr);
     for (let i=0; i<floorArr.length; i++) {
@@ -498,14 +499,14 @@
       }
     })
   }
-  
+
   function addShape(shape, group, color, y) {
     let geometry = new THREE.ShapeBufferGeometry( shape );
-    let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ 
-      color: color, 
-      side: THREE.DoubleSide, 
-      transparent: true, 
-      opacity: y<-65 ? 0 : 0.5 
+    let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+      color: color,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: y<-65 ? 0 : 0.5
     }));
     mesh.position.set(0, y, 0);
     mesh.rotation.set(0.5*Math.PI, 0, 0);
@@ -520,10 +521,10 @@
     let points = shape.getPoints();
     let geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
 
-    let line = new THREE.Line(geometryPoints, new THREE.LineBasicMaterial({ 
-      color: color, 
-      transparent: true, 
-      opacity: y<-65 ? 0 : 0.5 
+    let line = new THREE.Line(geometryPoints, new THREE.LineBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: y<-65 ? 0 : 0.5
     }));
     line.position.set(0, y, 0);
     line.rotation.set(0.5*Math.PI, 0, 0);

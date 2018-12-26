@@ -1,10 +1,10 @@
 <template>
-  <div class="developer-api-wrap g-prl20">
+  <div class="developer-api-wrap">
     <uu-sub-tab :menu-array="menu"></uu-sub-tab>
     <div class="developer-api-inner">
       <div class="developer-api-header">
         <h3 :class="{fl:!devInfo || !devInfo.accessKey}">{{(devInfo && devInfo.accessKey) ? '开发者信息': '开发者申请'}}</h3>
-        <div class="developer-detail fs12 clearfix mt10">
+        <div class="developer-detail fs12 clearfix">
           <template v-if="devInfo && devInfo.accessKey">
             <p>AccessKey：{{devInfo.accessKey}}</p>
             <p>AccessSecret：{{devInfo.accessSecret}}</p>
@@ -15,49 +15,49 @@
       <div class="developer-api-container clearfix">
         <div class="developer-api-nav">
           <div class="da-nav-item">
-            <div class="da-nav-title">
-              API说明
-            </div>
-            <div class="da-nav-items">
-              <router-link to="/developer/api/index"> Token API</router-link>
-            </div>
-            <div class="da-nav-items">
-              <router-link to="/developer/api/faceimg"> FaceImg API</router-link>
-            </div>
+            <el-menu
+              :default-active="$route.path"
+              class="custom__menu--api"
+              background-color="#232027"
+              text-color="#8A898B"
+              :router="true"
+              active-text-color="#0F9EE9">
+              <el-submenu index="1">
+                <template slot="title">
+                  <span>API入门</span>
+                </template>
+                <el-menu-item-group>
+                  <el-menu-item index="/developer/api/rule">API通用规则</el-menu-item>
+                  <el-menu-item index="/developer/api/common">通用返回值</el-menu-item>
+                </el-menu-item-group>
+              </el-submenu>
+              <el-submenu index="2">
+                <template slot="title">
+                  <span>API说明</span>
+                </template>
+                <el-menu-item-group>
+                  <el-menu-item index="/developer/api/auth">鉴权接口</el-menu-item>
+                  <el-menu-item index="/developer/api/community">社群数据</el-menu-item>
+                  <el-menu-item index="/developer/api/flow">客流数据</el-menu-item>
+                </el-menu-item-group>
+              </el-submenu>
+              <el-menu-item index="/developer/api/code">
+                <span slot="title">状态码</span>
+              </el-menu-item>
+            </el-menu>
           </div>
         </div>
         <div class="developer-api-content">
           <el-scrollbar ref="scrollContent">
             <div class="scroll-inner">
               <div class="total-content">
-                <ul class="api-list-item" v-for="(item,index) in currentData" :key="index">
-                  <li class="api-list-title">{{item.title}}</li>
-                  <li class="api-list-context fs12" v-if="index<4">{{item.info}}
-                  </li>
-                  <li v-else-if="item.info[0].code" v-for="(items,$index) in item.info" :key="$index">
-                    <p class="des">{{items.des}}</p>
-                    <pre v-html="items.code">{{items.code}}</pre>
-                  </li>
-                  <li v-else>
-                    <el-table
-                      :data="item.info[1].tableData"
-                      border
-                      style="width: 100%">
-                      <el-table-column v-for="(items) in item.info[0].tableTitle" :key="items.id"
-                                       :prop="items.prop"
-                                       :label="items.label"
-                                       :width="items.width||''">
-                      </el-table-column>
-                    </el-table>
-                  </li>
-                </ul>
+                <router-view></router-view>
               </div>
             </div>
           </el-scrollbar>
         </div>
       </div>
     </div>
-
     <ob-dialog-form
       v-model="applyForm"
       @remote-submit="applyDeveloper"
@@ -70,6 +70,7 @@
 
 <script>
 import {mapState} from 'vuex'
+
 export default {
   name: 'api',
   data () {
@@ -389,13 +390,19 @@ export default {
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
+  .developer-api-wrap{
+    padding: 0!important;
+  }
   .developer-api-inner {
     height: calc(100% - 64px);
     /*padding: 0 20px;*/
     .developer-api-header {
-      padding-bottom: 10px;
+      padding: 10px 20px;
       border-bottom: 1px dashed rgba(151, 151, 151, 0.10);
+      background: rgba(255, 255, 255, 0.03);
       > h3 {
+        float: left;
+        width: 180px;
         font-size: 14px;
         line-height: 30px;
       }
@@ -405,7 +412,8 @@ export default {
           display: inline-block;
           margin-right: 100px;
           min-width: 190px;
-          line-height: 26px;
+          line-height: 30px;
+          color: rgba(255,255,255, 0.7);
           &:last-child {
             margin-right: 0;
           }
@@ -419,7 +427,7 @@ export default {
       height: calc(100% - 72px);
       .developer-api-nav {
         float: left;
-        width: 128px;
+        width: 148px;
         height: 100%;
         border-right: 1px dashed rgba(151, 151, 151, 0.10);
         .da-nav-title {
@@ -438,7 +446,8 @@ export default {
       }
       .developer-api-content {
         height: calc(100% - 30px);
-        margin-left: 128px;
+        margin-left: 148px;
+        padding-right: 20px;
         box-sizing: border-box;
         overflow: hidden;
         .el-scrollbar {

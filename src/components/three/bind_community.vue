@@ -35,14 +35,14 @@ export default {
   methods: {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
-      this.currentFloor = this.floorList.filter(item => item.floor === (int || 1))[0] || this.this.floorList[0]
+      this.currentFloor = this.floorList.filter(item => item.floor === (int || 1))[0] || this.floorList[0]
       this.iframeSrc = `/static/html/bind_community.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
     },
     // 处理iframe传递出来的事件
     handleEvent (event) {
       let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
       if (data.type === 'BIND_GROUP_CLICK') {
-        this.$emit('handle-block-click', data.data)
+        this.$emit('handle-block-click', {position: data.data, path: data.path})
       } else if (data.type === 'SET_DEFAULT_DATA') {
         this.setDefaultSelect()
       }

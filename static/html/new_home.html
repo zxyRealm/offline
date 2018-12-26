@@ -13,75 +13,80 @@
     html, body{
         margin: 0;
         padding: 0;
+        color: rgb(86, 191, 248)
       }
     </style>
 </head>
 
 <body>
   <div id="WebGL-output"></div>
+  <div style="position: absolute;top: 0;">
+    <a href="javascript:;" onclick="upTrigger()">上升</a>
+    <a href="javascript:;" onclick="downTrigger()">下降</a>
+  </div>
   <script type="text/javascript">
     var renderer, scene, camera, group;
-    var scale = 0.6;
-    var floorHeight = 65;
-    let meshList = [];
-    let planeList = [];
-    let geometryArr = [];
-    let materialArr = [];
-    let pointCloudArr = [];
-    let clock = new THREE.Clock();
-    let mixArr = [],
+    var scale = 1;
+    var floorHeight = 100;
+    var planeList = [];
+    var geometryArr = [];
+    var materialArr = [];
+    var pointCloudArr = [];
+    var clock = new THREE.Clock();
+    var mixArr = [],
       pointArr = new Array(1000)
-    var floorArr = [{
-        coordinate_y: -3 * floorHeight - 65,
-        img_url: 1,
-        floor: '-3'
-      },
-      {
-        coordinate_y: -2 * floorHeight - 65,
-        img_url: 2,
-        floor: '-2'
-      },
-      {
-        coordinate_y: -1 * floorHeight - 65,
-        img_url: 3,
-        floor: '-1'
-      },
-      {
-        coordinate_y: 1 * floorHeight - 130,
-        img_url: 4,
-        floor: '1'
-      },
-      {
-        coordinate_y: 2 * floorHeight - 130,
-        img_url: 5,
-        floor: '2'
-      },
-      {
-        coordinate_y: 3 * floorHeight - 130,
-        img_url: 6,
-        floor: '3'
-      },
-      {
-        coordinate_y: 4 * floorHeight - 130,
-        img_url: 7,
-        floor: '4'
-      },
-      {
-        coordinate_y: 5 * floorHeight - 130,
-        img_url: 8,
-        floor: '5'
-      },
-      {
-        coordinate_y: 6 * floorHeight - 130,
-        img_url: 9,
-        floor: '6'
-      },
-      {
-        coordinate_y: 7 * floorHeight - 130,
-        img_url: 10,
-        floor: '7'
-      }
-    ]
+      var floorArr;
+    // var floorArr = [{
+    //     coordinate_y: -3 * floorHeight - floorHeight,
+    //     img_url: 1,
+    //     floor: '-3'
+    //   },
+    //   {
+    //     coordinate_y: -2 * floorHeight - floorHeight,
+    //     img_url: 2,
+    //     floor: '-2'
+    //   },
+    //   {
+    //     coordinate_y: -1 * floorHeight - floorHeight,
+    //     img_url: 3,
+    //     floor: '-1'
+    //   },
+    //   {
+    //     coordinate_y: 1 * floorHeight - floorHeight * 2,
+    //     img_url: 4,
+    //     floor: '1'
+    //   },
+    //   {
+    //     coordinate_y: 2 * floorHeight - floorHeight * 2,
+    //     img_url: 5,
+    //     floor: '2'
+    //   },
+    //   {
+    //     coordinate_y: 3 * floorHeight - floorHeight * 2,
+    //     img_url: 6,
+    //     floor: '3'
+    //   },
+    //   {
+    //     coordinate_y: 4 * floorHeight - floorHeight * 2,
+    //     img_url: 7,
+    //     floor: '4'
+    //   },
+    //   {
+    //     coordinate_y: 5 * floorHeight - floorHeight * 2,
+    //     img_url: 8,
+    //     floor: '5'
+    //   },
+    //   {
+    //     coordinate_y: 6 * floorHeight - floorHeight * 2,
+    //     img_url: 9,
+    //     floor: '6'
+    //   },
+    //   {
+    //     coordinate_y: 7 * floorHeight - floorHeight * 2,
+    //     img_url: 10,
+    //     floor: '7'
+    //   }
+    // ]
 
     function init() {
       renderer = new THREE.WebGLRenderer({
@@ -92,11 +97,11 @@
       renderer.setClearColor('#ffffff', 1.0)
 
       scene = new THREE.Scene();
-      scene.background = new THREE.Color('#232027')
+      scene.background = new THREE.Color('#17151a')
 
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
-      camera.position.set(260, 200, 350)
-      camera.lookAt(0, 20, 0)
+      camera.position.set(445, 295, 580)
+      camera.lookAt(0, 400, 0)
       scene.add(camera)
 
       var light = new THREE.PointLight('#ffffff', 0.8)
@@ -112,45 +117,295 @@
       document.getElementById("WebGL-output").appendChild(renderer.domElement)
       window.addEventListener('resize', onWindowResize, false)
       window.addEventListener('mousemove', onDocumentMouseMove, false)
+      window.addEventListener('click', onDocumentMouseClick, false)
+
       addControl()
-      setFloorInfo()
+      loadSignal()
+
     }
 
     init()
     render()
 
+    function parseFloor(floorName) {
+      console.log(floorName)
+    }
+
+    function getUpDownFloorCount() {
+      var downFloorCount = 0
+      var upFloorCount = 0
+      var position = 0
+      console.log(floorArr)
+      floorArr.forEach((item, index) => {
+        if (item.floor < 0) {
+          downFloorCount += 1
+        } else {
+          if (item.floor === 1) position = index
+          upFloorCount += 1
+        }
+      })
+      return {
+        position: position,
+        down: downFloorCount,
+        up: upFloorCount
+      }
+    }
+
+    // 参考点：
+    // 将第一层在数组中的索引值作为基准数以便参考
+    // 临界点：
+    // 最小count: 基准数-(地下层数-1)
+    // 最大count：基准数+(地上层数-5)
+    var floorCount
+    var count
+    var standardCount
+    var positionSpeed = 2
+    var opacitySpeed = 0.4 * positionSpeed / floorHeight
+    var upClick = false
+    var upHeight = 0
+    var downClick = false
+    var downHeight = floorHeight
+
+    function setSlideInfo() {
+      floorCount = getUpDownFloorCount()
+      count = floorCount.position // 动态基准数
+      console.log(count)
+      standardCount = floorCount.position // 固定基准数
+      floorCount.down = standardCount - (floorCount.down - 1)
+      floorCount.up = standardCount + (floorCount.up - 5)
+    }
+
+    function upTrigger() {
+      if (count > floorCount.down - 1 && upClick === false && downClick === false) 
+        upClick = true
+    }
+
+    function downTrigger() {
+      if (count < floorCount.up + 1 && downClick === false && upClick === false)
+        downClick = true
+    }
+
+    function upFloor() {
+      upHeight += positionSpeed
+      group.position.y += positionSpeed
+      group.children[count - 1].children.forEach(item => {
+        item.material.opacity += opacitySpeed
+      })
+      group.children[count + 3].children.forEach(item => {
+        item.material.opacity -= opacitySpeed
+      })
+      if (upHeight >= floorHeight) {
+        upClick = false
+        upHeight = 0
+        count--
+      }
+    }
+
+    function downFloor() {
+      downHeight -= positionSpeed
+      group.position.y -= positionSpeed
+      group.children[count].children.forEach(item => {
+        item.material.opacity -= opacitySpeed
+      })
+      group.children[count + 4].children.forEach(item => {
+        item.material.opacity += opacitySpeed
+      })
+      if (downHeight <= 0) {
+        downClick = false
+        downHeight = floorHeight
+        count++
+      }
+    }
+
+    // 闪光粒子map
+    function ShineCanvas() {
+      var canvas = document.createElement('canvas');
+      canvas.width = 32;
+      canvas.height = 32;
+      var context = canvas.getContext('2d');
+      var gradient = context.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        canvas.width / 2
+      );
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 1');
+      gradient.addColorStop(0.2, 'rgba(255,255,255,1)');
+      gradient.addColorStop(0.4, 'rgba(157,159,13,1)');
+      gradient.addColorStop(0.7, 'rgba(0,0,0,1)');
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      this.texture = new THREE.Texture(canvas);
+      this.texture.needsUpdate = true;
+    }
+
+    // 闪光粒子mesh
+    function Shine(i, alex, floor) {
+      if (i < 100) {
+        geometryArr[i] = new THREE.CircleGeometry(6, 50, 32)
+        materialArr[i] = new THREE.MeshBasicMaterial({
+          color: new THREE.Color('#fcff15'),
+          transparent: true,
+          side: THREE.DoubleSide,
+          blending: THREE.AdditiveBlending,
+          map: new ShineCanvas().texture
+        })
+        pointArr[i] = new THREE.Mesh(
+          geometryArr[i],
+          materialArr[i]
+        )
+        pointArr[i].sortParticles = true;
+        pointArr[i].position.set(alex[0], floor, alex[1])
+        pointArr[i].rotation.x = 0.5 * Math.PI
+        scene.add(pointArr[i])
+      } else {
+        i = i % 100;
+        pointArr[i].position.set(alex[0], floor, alex[1])
+        pointArr[i].rotation.x = 0.5 * Math.PI
+      }
+      if (floor < -100 || floor > 200) {
+        pointArr[i].visible = false
+      } else {
+        pointArr[i].visible = true
+      }
+      return pointArr[i]
+    }
+
+    // 闪光粒子animate
+    function createAnimate(knot, index) {
+      var scaleKF = new THREE.VectorKeyframeTrack(
+        '.scale',
+        [0, 0.15, 0.3, 0.5],
+        [0, 0, 0, 1.4, 1.4, 1.4, 1, 1, 1, 0, 0, 0]
+      );
+      var opacityKF = new THREE.NumberKeyframeTrack(
+        '.material.opacity',
+        [0, 0.15, 0.3, 0.5],
+        [0.3, 0.4, 1, 0]
+      );
+      var clip = new THREE.AnimationClip(
+        'Action',
+        0.5,
+        [scaleKF, opacityKF]
+      );
+      var mixer = new THREE.AnimationMixer(knot);
+      var clipAction = mixer.clipAction(clip);
+      mixArr[index] = mixer
+      clipAction.play();
+      clipAction.loop = THREE.LoopOnce
+    }
+
+    var shine;
+
+    // 创建闪点
+    function createShine(alx, floor) {
+      alx = alx.replace('[', '')
+      alx = alx.replace(']', '')
+      alx = alx.split(',')
+      pointCloudArr.push(alx)
+      var index = pointCloudArr.length - 1
+      shine = Shine(index, alx, floor)
+      createAnimate(shine, index)
+    }
+
+    function getRandom(n, m) {
+      var n1 = Number(n); //强制转换成数字
+      var m2 = Number(m);
+      if (isNaN(n1) || isNaN(m2)) { //判断是否为有效数字 ，其中一个不是有效数字就返回[0,1)之间的随机小数
+        return math.random();
+      }
+      if (n1 > m2) { //如果n>m则交换
+        var temp = n1;
+        n1 = m2;
+        m2 = temp;
+      }
+      return Math.round(Math.random() * (m2 - n1) + n1);
+    }
+
     function onDocumentMouseMove(event) {
-      let vector = new THREE.Vector3((event.clientX / (window.innerWidth)) * 2 - 1, -(event.clientY / (window.innerHeight)) *
-        2 + 1, 0.5);
+      var vector = new THREE.Vector3(
+        (event.clientX / (window.innerWidth)) * 2 - 1,
+        -(event.clientY / (window.innerHeight)) * 2 + 1,
+        0.5
+      );
       vector = vector.unproject(camera);
-      let raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
-      let intersects = raycaster.intersectObjects(planeList);
+      console.log(count)
+      var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+      var rayPlaneList = planeList.slice(count, count + 4)
+      var subRayList = group.children.slice(count, count + 4)
+      var intersects = raycaster.intersectObjects(rayPlaneList);
+
       if (intersects.length > 0) {
-        for (let i = 0; i < planeList.length; i++) {
-          if (intersects[0].object === planeList[i]) {
-            planeList[i].material.color = new THREE.Color('#162b68')
-            planeList[i].material.opacity = 0.7
+        for (var i = 0; i < rayPlaneList.length; i++) {
+          if (intersects[0].object === rayPlaneList[i]) {
+            moveChange(subRayList[i], 0x2a4586, 0xA1BCD4)
           } else {
-            planeList[i].material.color = new THREE.Color('#091331')
-            planeList[i].material.opacity = 0.7
-            planeList[i].material.side = THREE.DoubleSide
+            moveChange(subRayList[i], 0x030c17, 0x26678F)
           }
         }
       } else {
-        for (let i = 0; i < planeList.length; i++) {
-          planeList[i].material.color = new THREE.Color('#091331')
-          planeList[i].material.opacity = 0.7
-          planeList[i].material.side = THREE.DoubleSide
+        for (var i = 0; i < rayPlaneList.length; i++) {
+          console.log(group.children)
+          moveChange(subRayList[i], 0x030c17, 0x26678F)
         }
       }
     }
 
-    // 接收楼层信息
-    function setFloorInfo() {
-      // 创建楼层图片
-      for (let i = 0; i < floorArr.length; i++) {
-        loadSvg(group, floorArr[i].coordinate_y, floorArr[i].img_url)
+    function moveChange(objectList, meshColor, lineColor) {
+      objectList.children.forEach(item => {
+        if (item.type === 'Mesh') {
+          item.material.color = new THREE.Color(meshColor)
+        } else {
+          item.material.color = new THREE.Color(lineColor)
+        }
+        item.material.opacity = 0.4
+      })
+    }
+
+    function onDocumentMouseClick(event) {
+      var vector = new THREE.Vector3(
+        (event.clientX / (window.innerWidth)) * 2 - 1,
+        -(event.clientY / (window.innerHeight)) * 2 + 1,
+        0.5
+      );
+      vector = vector.unproject(camera);
+      var raycaster = new THREE.Raycaster(
+        camera.position,
+        vector.sub(camera.position).normalize()
+      );
+      var rayPlaneList = planeList.slice(count, count + 4)
+      var intersects = raycaster.intersectObjects(rayPlaneList);
+      if (intersects.length > 0) {
+        window.parent.postMessage({
+          cmd: 'change-floor',
+          params: {
+            data: intersects[0].object.position.y
+          }
+        }, '*');
       }
+    }
+
+    function loadSignal() {
+      window.parent.postMessage({
+        cmd: 'home-load_signal',
+        params: {}
+      }, '*');
+    }
+
+    // 接收楼层信息
+    function setFloorInfo(floor) {
+      if (floor[0].floor < floor[1].floor)
+        floorArr = floor
+      else
+        floorArr = floor.reverse()
+        
+      // 创建楼层图片
+      for (var i = 0; i < floorArr.length; i++) {
+        loadSvg(group, floorArr[i])
+      }
+      setSlideInfo()
     }
 
     // 添加Orbit控制器
@@ -162,62 +417,87 @@
       controls.screenSpacePanning = true;
     }
 
-    function loadSvg(group, coordinate_y, image_url) {
+    function loadSvg(group, floorInfo) {
+
+      var floorGroup = new THREE.Group()
+      if (floorInfo.floor < 0) floorGroup.name = 'B' + Math.abs(floorInfo.floor)
+      else floorGroup.name = 'F' + Math.abs(floorInfo.floor)
+
+      addLineShape(floorInfo, floorGroup)
+      addShape(floorInfo, floorGroup);
+
+      group.add(floorGroup)
+    }
+
+    function addLineShape(info, group) {
       var loader = new THREE.SVGLoader()
-      loader.load('/static/origin-floor/' + image_url + '.svg', paths => {
+      loader.load(info.img_url, paths => {
         for (var i = 0; i < paths.length; i++) {
           var path = paths[i]
-          let shapes = path.toShapes(true);
-          for (let j = 0; j < shapes.length; j++) {
-            let shape = shapes[j];
-            if (i === 0) {
-              addShape(shape, group, '#091331', coordinate_y);
-            } else {
-              addLineShape(shape, group, 'rgb(59, 180, 243)', coordinate_y);
+          var shapes = path.toShapes(true);
+          var opacity = info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.4
+          for (var j = 0; j < shapes.length; j++) {
+            var shape = shapes[j];
+            if (i !== 0) {
+              shape.autoClose = true
+              var points = shape.getPoints()
+              var geometryPoints = new THREE.BufferGeometry().setFromPoints(points)
+              var materialPoints = new THREE.LineBasicMaterial({
+                color: '#26678f',
+                transparent: true,
+                opacity: opacity
+              })
+              var line = new THREE.Line(geometryPoints, materialPoints)
+              line.position.set(0, info.coordinate_y, 0)
+              line.rotation.set(0.5 * Math.PI, 0, 0)
+              group.add(line)
             }
           }
         }
       })
     }
 
-    function addShape(shape, group, color, coordinate_y) {
-      let geometry = new THREE.ShapeBufferGeometry(shape);
-      let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-        color: color,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.5
-      }));
-      mesh.position.set(0, coordinate_y, 0);
-      mesh.rotation.set(0.5 * Math.PI, 0, 0);
-      mesh.scale.set(scale, scale, scale);
-      planeList.push(mesh);
-      group.add(mesh);
-    }
-
-    function addLineShape(shape, group, color, coordinate_y) {
-      shape.autoClose = true;
-      let points = shape.getPoints();
-      let geometryPoints = new THREE.BufferGeometry().setFromPoints(points);
-
-      let line = new THREE.Line(geometryPoints, new THREE.LineBasicMaterial({
-        color: color,
-        transparent: true,
-        opacity: 0.5
-      }));
-      line.position.set(0, coordinate_y, 0);
-      line.rotation.set(0.5 * Math.PI, 0, 0);
-      line.scale.set(scale, scale, scale);
-      meshList.push(line)
-      group.add(line);
+    function addShape(info, group) {
+      var loader = new THREE.SVGLoader()
+      loader.load('/static/origin-floor/bottom.svg', paths => {
+        for (var i = 0; i < paths.length; i++) {
+          var path = paths[i]
+          var shapes = path.toShapes(true);
+          for (var j = 0; j < shapes.length; j++) {
+            var shape = shapes[j];
+            var geometry = new THREE.ShapeBufferGeometry(shape);
+            var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+              color: '#030c17',
+              side: THREE.DoubleSide,
+              transparent: true,
+              opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.4
+            }));
+            mesh.position.set(0, info.coordinate_y, 0);
+            mesh.rotation.set(0.5 * Math.PI, 0, 0);
+            planeList.push(mesh);
+            group.add(mesh);
+          }
+        }
+      })
     }
 
     function render() {
-      requestAnimationFrame(render);
-      let delta = clock.getDelta();
-      for (let i = 0; i < mixArr.length; i++) {
-        mixArr[i].update(delta);
+      requestAnimationFrame(render)
+
+      var alex = '[' + getRandom(-80, 80) + ',' + getRandom(-50, 50) + ']';
+      var floor = getRandom(-4, 5)
+      
+      if (count && upClick === false && downClick === false) {
+        createShine(alex, floor * floorHeight - (count - standardCount) * floorHeight)
       }
+
+      var delta = clock.getDelta()
+      for (var i = 0; i < mixArr.length; i++) {
+        mixArr[i].update(delta)
+      }
+
+      if (upClick === true) upFloor()
+      if (downClick === true) downFloor()
       renderer.render(scene, camera)
     }
 
