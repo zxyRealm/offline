@@ -135,7 +135,7 @@ export default {
     updateFrameArea (item, index) {
       this.$set(this.frame, 'path', item.path)
       this.$set(this.frame, 'id', item.id)
-      this.community.index = index + 1
+      this.community.index = index
       this.$emit('updateCommunity', this.community.infoArr[this.community.index])
     },
     timestampToTime (timestamp) {
