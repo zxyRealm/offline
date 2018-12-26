@@ -9,8 +9,8 @@
       <div id="iframeWrap">
         <iframe :src="frame.path" :id="frame.id" scrolling="no" frameborder="0" ref="iframe" class="iframe"></iframe>
       </div>
-      
-      <div id="statisticInfo"> 
+
+      <div id="statisticInfo">
         <div class="statistic-box" id="incoming">
           <div class="item" :class="{'no-background': !statisticInfo.Incoming_Today && !statisticInfo.Incoming_Yesterday}">
             <div class="title">进客流</div>
@@ -71,7 +71,7 @@
       </div>
     </div>
     </div>
-  
+
     <!-- <div id="option" style="position: absolute;top: 10px; left: 10px">
       <a href="javascript:;" @click="sendColor">传递坐标</a>
     </div> -->
@@ -199,7 +199,7 @@ export default {
           obj.path = '/static/html/plane.html?floor=' + img_url
           this.routerList.push(obj)
         }
-        this.$emit('updateComunity', allInfo[0])
+        this.$emit('updateCommunity', allInfo[0])
         this.getWebsocket(res.data[0].groupSonGuid, res.data[0].groupParentGuid)
       })
     },
@@ -230,7 +230,7 @@ export default {
         if (arr[i].floor < 0) {
           this.community.minus++
         }
-      } 
+      }
     },
     /****************************************************
      *********************  发送值  **********************
@@ -451,7 +451,7 @@ export default {
       width: 160px;
       flex: 0 0 160px;
       #sideInfo{
-    
+
       color: #FFFFFF;
       background: #232027;
       padding: 15px 20px;
@@ -501,8 +501,8 @@ export default {
       }
     }
     }
-    
-    
+
+
     .fade-enter-active, .fade-leave-active {
       transition: opacity .5s;
     }

@@ -53,7 +53,7 @@
             <Chart :data="ratioData.age" title="年龄比例" type="age" width="100%" height="100%"></Chart>
           </div>
           <!--业态客流排行榜-->
-          <div class="format-flow-rank items">
+          <div class="format-flow-rank items" v-if="currentFloor && currentFloor.floor === 0">
             <div class="floor__sub--title">
             业态客流排行榜
             </div>
@@ -172,6 +172,7 @@ export default {
   methods: {
     setFloorInfo (data) {
       this.currentFloor = data
+      this.initBaseData()
     },
     selectFloor (name) {
       console.log(name)
@@ -254,7 +255,7 @@ export default {
       })
       // 获取实时比率
       GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupSonGuid}).then(res => {
-        this.ratioData = res.data
+        this.ratioData = JSON.parse(res.data)
       })
     },
     createCommunity () {
