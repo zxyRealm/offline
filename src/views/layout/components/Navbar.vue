@@ -461,12 +461,12 @@ export default {
           }
           let nameSet = new Set(nameList)
           console.log(nameSet)
-          for (let k = 0, len = this.communityForm.floorList.length; k < len; k++) {
-            if (!nameSet.has(k + 1)) {
-              this.$tip(`缺少${this.communityForm.floorList[k]}楼层地图`, 'error')
-              return
-            }
-          }
+          // for (let k = 0, len = this.communityForm.floorList.length; k < len; k++) {
+          //   if (!nameSet.has(k + 1)) {
+          //     this.$tip(`缺少${this.communityForm.floorList[k]}楼层地图`, 'error')
+          //     return
+          //   }
+          // }
           console.log('map error ------------')
           this.httpRequest()
         } else {

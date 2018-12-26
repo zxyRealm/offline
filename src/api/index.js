@@ -19,6 +19,7 @@ export function GetChartPie (data) {
 // 客流排行榜查询
 export function GetFlowRank (data) {
   return request({
+    tip: false,
     url: '/chart/top/flow',
     data
   })
@@ -26,6 +27,7 @@ export function GetFlowRank (data) {
 // 获取实时比率
 export function GetTimeRatio (data) {
   return request({
+    tip: false,
     url: '/chart/ratio',
     data
   })

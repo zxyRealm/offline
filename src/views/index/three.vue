@@ -17,14 +17,14 @@
               </div>
               <div class="sex__data--wrap vam">
                 <div>
-                  <span class="gc--color">{{ratioData.gender.woman ? parseInt(ratioData.gender.woman.ratio * 100) + '%':'0%'}}</span>
+                  <span class="gc--color">{{ratioData.gender.woman ? ratioData.gender.woman.percent: '0%'}}</span>
                   <p><img width="15" src="@/assets/three/girl_icon@2x.png" alt="">女</p>
                 </div>
                 <div class="sex__ratio--icon"></div>
                 <!--<img width="48" class="sex__ratio&#45;&#45;icon" src="@/assets/three/sex_ratio_icon.png" alt="">-->
                 <div>
                   <p><img width="15" src="@/assets/three/boy_icon@2x.png" alt="">男</p>
-                  <span class="bc--color">{{ratioData.gender.man ? parseInt(ratioData.gender.man.ratio * 100) + '%':'0%'}}</span>
+                  <span class="bc--color">{{ratioData.gender.man ? ratioData.gender.man.percent: '0%'}}</span>
                 </div>
               </div>
             </div>
@@ -35,16 +35,16 @@
               回头客比例
             </div>
             <div class="return__ratio--wrap">
-              <custom-pie :percent="ratioData.appearance.many ? parseInt(ratioData.appearance.many.ratio * 100) : 0"></custom-pie>
+              <custom-pie :percent="ratioData.appearance.many ? ratioData.appearance.many.percent : 0"></custom-pie>
             </div>
             <div class="return__data--wrap">
               <div class="multi__box vam">
                 <img width="15" src="@/assets/three/return_multi_icon@2x.png" alt=""><span>多次</span>
-                <span class="gc--color">{{ratioData.appearance.many ? parseInt(ratioData.appearance.many.ratio * 100) + '%': '0%'}}</span>
+                <span class="gc--color">{{ratioData.appearance.many ? ratioData.appearance.many.percent : '0%'}}</span>
               </div>
               <div class="single__box vam">
                 <img width="15" src="@/assets/three/return_single_icon@2x.png" alt=""><span>单次</span>
-                <span class="bc--color">{{ratioData.appearance.first ? parseInt(ratioData.appearance.first.ratio * 100) + '%': '0%'}}</span>
+                <span class="bc--color">{{ratioData.appearance.first ? ratioData.appearance.first.percent : '0%'}}</span>
               </div>
             </div>
           </div>
@@ -224,17 +224,34 @@ export default {
         }
       })
     },
+    ComunicationPer (data) {
+      for (let val in data) {
+        if (Array.isArray(data[val])) {
+          let total = 0
+          data[val].map(item => {
+            total += item.count
+          })
+          data[val] = data[val].map(item => {
+            item.total = total
+            item.percent = total ? (item.count / total).toFixed(1) : '0%'
+            return item
+          })
+        }
+      }
+      return data
+    },
     // 初始化获取数据
     initBaseData () {
       let info = this.currentFloor
+      console.log('three components data', info)
       clearTimeout(this.timer)
-      this.timer = setTimeout(() => {
-        this.initBaseData()
-      }, 5000)
+      // this.timer = setTimeout(() => {
+      //   this.initBaseData()
+      // }, 5000)
       // if (!this.currentManage.id) return
       // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
       if (!info) return
-      GetFlowRank({floor: info.floor, parentId: info.groupParentGuid}).then(res => {
+      GetFlowRank({groupFloor: info.floor, groupGuid: info.groupParentGuid}).then(res => {
         res.data = JSON.parse(res.data)
         let industryTotal = 0
         let groupTotal = 0
@@ -251,11 +268,26 @@ export default {
           this.$set(item, 'percent', groupTotal ? Number((item.count / groupTotal).toFixed(1)) : 0)
         })
         this.rankData = res.data
-        console.log('flow data----------', res.data)
+        // console.log('flow data----------', res.data)
+      }).catch(err => {
+        this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })
       // 获取实时比率
       GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupSonGuid}).then(res => {
-        this.ratioData = JSON.parse(res.data)
+        let resData = JSON.parse(res.data)
+        resData = this.ComunicationPer(resData)
+        resData.gender = {
+          man: resData.gender.filter(item => item.code === 'MAN')[0] || '',
+          woman: resData.gender.filter(item => item.code === 'WOMAN')[0] || ''
+        }
+        resData.appearance = {
+          many: resData.appearance.filter(item => item.code === 'MANY')[0] || '',
+          first: resData.appearance.filter(item => item.code === 'FIRST')[0] || ''
+        }
+        this.ratioData = resData
+        // console.log('ratio ----------', this.ratioData)
+      }).catch(err => {
+        this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })
     },
     createCommunity () {

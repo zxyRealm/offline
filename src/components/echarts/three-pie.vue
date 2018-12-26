@@ -92,9 +92,9 @@ export default {
     },
     total () {
       let total = 0
-      for (let item in this.data) {
-        total += this.data[item] ? this.data[item].typeCount : 0
-      }
+      this.data.map(item => {
+        total += item.count
+      })
       return total
     }
   },
@@ -313,19 +313,19 @@ export default {
       switch (this.type) {
         case 'age':
           _data = this.dataMap.age.map(item => {
-            let num = this.data[item.key]
+            let num = this.data.filter(item2 => item2.code === item.key.toUpperCase())[0]
             return {
               name: item.name,
-              value: num ? num.typeCount : 0
+              value: num ? num.count : 0
             }
           })
           break
         default:
           _data = this.dataMap.member.map(item => {
-            let num = this.data[item.key]
+            let num = this.data.filter(item2 => item2.code === item.key.toUpperCase())[0]
             return {
               name: item.name,
-              value: num ? num.typeCount : 0
+              value: num ? num.count : 0
             }
           })
           break

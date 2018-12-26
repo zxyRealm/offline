@@ -12,8 +12,12 @@
 export default {
   name: 'custom-pie',
   props: {
+    total: {
+      type: [Number],
+      default: 0
+    },
     percent: {
-      type: [Number], // 0 - 100
+      type: [Number, String], // 0 - 100
       default: 50
     }
   },
@@ -26,7 +30,8 @@ export default {
   computed: {
     girlInt: {
       get () {
-        let int = Math.floor((this.percent / 100) * 18)
+        let num = typeof this.percent === 'string' && this.percent.indexOf('%') > 0 ? this.percent.replace('%', '') * 100 : this.percent
+        let int = this.total ? Math.floor((num / 100) * 18) : 9
         return int
       },
       set () {}

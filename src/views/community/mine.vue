@@ -68,12 +68,12 @@
                 <!--如果成员社群加入了管理员社群即展示其管理员社群列表-->
                 <!--v-if="userInfo.developerId === communityInfo.merchantGuid && communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.level === 1"-->
                 <div
-                  v-if="communityInfo.self && communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.level === 2"
+                  v-if="communityInfo.self && communityInfo.parentInfoList && communityInfo.parentInfoList.length && communityInfo.level === 2"
                   class="parent__list"
                   >
                   <span class="fl info__label">已加入：</span>
                   <div
-                    v-for="(item,$index) in communityInfo.parentGroups"
+                    v-for="(item,$index) in parentInfoList.parentGroups"
                     :key="$index"
                     class="parents-item">
                     <span class="ellipsis">{{item.name}}</span>
