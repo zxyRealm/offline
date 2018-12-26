@@ -23,10 +23,10 @@
           popper-class="select__dropdown--manage"
           class="nav__select--manage" v-model="manageGroup">
           <el-option
-            v-for="(item, $index) in manageList"
+            v-for="(item) in manageList"
             :key="item.id"
             :label="item.name"
-            :value="$index">
+            :value="item.id">
             <span class="ellipsis" style="float: left">{{ item.name }}</span>
             <uu-icon v-if="item.type === 1" type="role01"></uu-icon>
             <uu-icon v-if="item.type === 2" type="role02"></uu-icon>
@@ -157,10 +157,19 @@
           <floor-select v-model="communityForm.floorList"></floor-select>
         </el-form-item>
         <el-form-item v-if="handleCommunityType !== 4" prop="map">
-          <label for="map__input--file" @change="onChange" class="g__input--btn">
-            <span>导入地图</span>
-            <input type="file" id="map__input--file" multiple="multiple">
-          </label>
+          <div class="import__map--wrap">
+            <el-scrollbar>
+              <div class="file__items vam" v-for="(item,$index) in fileList" :key="$index">
+                <img src="@/assets/public/file_icon.png" width="12" alt="">
+                {{item.name}}
+              </div>
+              <!--<div v-if="!fileList.length" class="text-center g-grey">请选取楼层地图</div>-->
+            </el-scrollbar>
+            <label for="map__input--file" @change="onChange" class="g__input--btn">
+              <a>{{fileList.length? '重新导入': '导入地图'}}</a>
+              <input type="file" id="map__input--file" multiple="multiple">
+            </label>
+          </div>
         </el-form-item>
         <el-form-item label="联系人：" prop="contact">
           <el-input type="text" placeholder="请输入联系人"
@@ -170,20 +179,6 @@
           <el-input type="text" placeholder="11位手机号"
                     v-model.trim="communityForm.phone"></el-input>
         </el-form-item>
-        <!--<el-form-item v-if="handleCommunityType !== 3" label="索权范围：" prop="rule">-->
-          <!--<el-checkbox-group class="g-pt10" v-model="communityForm.rule">-->
-            <!--<el-checkbox class="block" :label="1">设备操作权限-->
-              <!--<p class="form__item&#45;&#45;des">查看成员社群的客流数据（必选项）</p>-->
-            <!--</el-checkbox>-->
-            <!--<div class="text&#45;&#45;wrap">-->
-              <!--<i class="el-icon-check"></i>-->
-              <!--<div class="text&#45;&#45;content">-->
-                <!--<p> 数据查看权限</p>-->
-                <!--<p class="form__item&#45;&#45;des">对成员社群的设备进行添加、升级等所有操作</p>-->
-              <!--</div>-->
-            <!--</div>-->
-          <!--</el-checkbox-group>-->
-        <!--</el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer mt50">
         <el-button class="cancel" @click="addCommunityVisible = false">返 回</el-button>
@@ -297,7 +292,7 @@ export default {
           {required: true, message: '请获取社群邀请码', trigger: 'blur'}
         ],
         pca: [
-          {required: true, message: '请选择地区', trigger: ['blur']}
+          {required: true, message: '请选择地区', trigger: ['change', 'blur']}
         ],
         address: [
           {required: true, message: '请输入详细地址', trigger: 'blur'},
@@ -375,7 +370,7 @@ export default {
   watch: {
     manageGroup: {
       handler (val) {
-        this.$store.commit('SET_CURRENT_MANAGE', this.manageList[val])
+        this.$store.commit('SET_CURRENT_MANAGE', this.manageList.filter(item => item.id === val)[0])
       },
       deep: true
     },
@@ -426,7 +421,7 @@ export default {
       GetManageList().then(res => {
         this.manageList = res.data
         if (res.data.length) {
-          this.manageGroup = 0
+          this.manageGroup = this.manageList[0].id
           this.$store.commit('SET_CURRENT_MANAGE', this.manageList[0])
         }
       })
@@ -447,6 +442,8 @@ export default {
     // 新建社群 （商场、连锁总店、单个门店）
     addNewCommunity (formName) {
       console.log(this.handleCommunityType, this.communityForm)
+      let file = document.getElementById('map__input--file').files
+      console.log(file)
       this.$refs[formName].validate(valid => {
         if (valid) {
           if (!this.fileList.length) {
@@ -493,6 +490,7 @@ export default {
         this.communityCode = res.data
         this.getManageList()
         this.fileList = []
+        document.getElementById('map__input--file').value = ''
       }).catch(error => {
         if (error.code) {
           this.$tip(error.msg, 'error')
@@ -581,6 +579,7 @@ export default {
       for (let i = 0, len = files.length; i < len; i++) {
         if (files[i].type !== 'image/svg+xml') {
           this.fileList = []
+          document.getElementById('map__input--file').value = ''
           this.$tip('文件格式只支持svg', 'error')
           break
         }
@@ -592,7 +591,7 @@ export default {
   },
   created () {
     // 是否有新的消息
-    console.log(parseTime(new Date()).replace(/[ :-]/g, ''))
+    // console.log(parseTime(new Date()).replace(/[ :-]/g, ''))
     this.$http('/siteNotice/unRead').then(res => {
       this.notifState = res.data > 0
     }).catch(error => {
@@ -646,7 +645,25 @@ export default {
     font-size: 12px;
     text-align: center;
   }
-
+  /*选取地图文件框样式*/
+  .import__map--wrap{
+    > .el-scrollbar{
+      height: 72px;
+      margin-bottom: 5px!important;
+      .file__items{
+        float: left;
+        width: 33%;
+        line-height: 24px;
+        text-align: left;
+        text-transform: uppercase;
+      }
+    }
+    height:130px;
+    padding: 10px;
+    box-sizing: border-box;
+    background: url(/static/img/textarea_border_bg.png) no-repeat center;
+    background-size: 100% 101.7%;
+  }
   /*操作引导弹框 图标闪烁效果*/
   .flicker-animation {
     animation: flicker 1.5s infinite ease-in-out;

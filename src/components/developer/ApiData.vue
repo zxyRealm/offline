@@ -16,18 +16,28 @@
         </li>
       </template>
       <li v-if="item.type === 'table'">
-        <el-table
-          :data="item.info[1].tableData"
-          border
-          style="width: 100%">
-          <el-table-column v-for="(items) in item.info[0].tableTitle" :key="items.id"
-                           :prop="items.prop"
-                           :label="items.label"
-                           :width="items.width||''">
-          </el-table-column>
-        </el-table>
+        <div class="table-column-item" v-for="(subItem, $index2) in item.info" :key="$index2">
+          <p v-if="subItem.title" class="api-list-sub-title">{{subItem.title}}</p>
+          <el-table
+            :data="subItem.tableData"
+            border
+            class="api__table"
+            style="width: 100%">
+            <el-table-column
+              v-for="(items) in subItem.tableTitle" :key="items.id"
+              :prop="items.prop"
+              :label="items.label"
+              :width="items.width||''">
+            </el-table-column>
+          </el-table>
+        </div>
       </li>
-      <li class="api-list-context fs12" v-if="!item.type">{{item.info}}</li>
+      <li class="api-list-context fs12" v-if="!item.type">
+        <template v-if="!item.hrefSwitch">
+          {{item.info}}
+        </template>
+        <a v-else>{{item.info}}</a>
+      </li>
     </ul>
   </div>
 </template>
@@ -118,10 +128,19 @@ export default {
         .scroll-inner {
           margin-left: 20px;
         }
+        .table-column-item{
+          margin-bottom: 10px;
+          &:last-child{
+            margin-bottom: 0;
+          }
+        }
         .api-list-context{
           font-size: 12px;
           line-height: 22px;
           color: rgba(255,255,255, 0.7);
+          > a {
+            cursor: text;
+          }
         }
         .list-items{
           margin-bottom: 14px;
@@ -145,6 +164,10 @@ export default {
         }
         .api-list-item {
           margin-bottom: 28px;
+          pre{
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 2;
+          }
           .des {
             margin-bottom: 10px;
             font-size: 12px;

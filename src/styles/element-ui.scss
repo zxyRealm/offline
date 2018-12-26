@@ -228,6 +228,38 @@
     }
   }
 }
+// 无子成员楼层鼠标悬浮展示箭头样式
+.group__tree{
+  >.el-tree-node{
+    > .el-tree-node__children{
+      >.el-tree-node{
+        >.el-tree-node__content{
+          >.el-tree-node__expand-icon.is-leaf{
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1001;
+            opacity: 0;
+            background: rgba(255,255,255, 0.3);
+            margin: 0;
+            padding: 0;
+            display: block;
+            cursor: default!important;
+            &:hover{
+              cursor: default!important;
+            }
+            &~ .custom-tree-node{
+              padding-left: 22px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 
 //复选框样式（全局应用）
 
@@ -589,5 +621,13 @@
   }
   .el-submenu .el-menu-item{
     min-width: auto;
+  }
+}
+//开发API模块table统一样式
+.api__table{
+  table{
+    th, td{
+      color: rgba(255, 255, 255, 0.7);
+    }
   }
 }

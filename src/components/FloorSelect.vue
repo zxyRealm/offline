@@ -1,5 +1,5 @@
 <template>
-  <div class="floor__select--wrap" tabindex="0" hidefocus="true"  >
+  <div class="floor__select--wrap" :aria-expanded="dropShow">
     <ul v-show="dropShow" class="fs__dropdown--wrap" @mousedown="cancelBlur">
       <li v-for="(item,$index) in floorList"
           @click="selectFloor($index)"
@@ -155,6 +155,22 @@ export default {
 .floor__select--wrap{
   position: relative;
   outline: 0;
+  &:after{
+    position: absolute;
+    content: '';
+    right: 4px;
+    height: 100%;
+    width: 30px;
+    background: url(/static/img/select_arrow_icon.png) no-repeat center;
+    background-size: 10px auto;
+    transition: transform 0.5s;
+    transform: rotate(0deg);
+  }
+  &[aria-expanded]{
+    &:after{
+      transform: rotate(180deg);
+    }
+  }
 }
 .fs__dropdown--wrap{
   position: absolute;

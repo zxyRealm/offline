@@ -177,7 +177,7 @@ export default {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
       if (this.data.guid === this.currentManage.id) {
-        this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor || 1))[0] || this.this.floorList[0]
+        this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor || 1))[0] || this.floorList[0]
       } else {
         this.currentFloor = this.data
       }
@@ -283,7 +283,7 @@ export default {
     },
     // 获取出入口、设备数量
     getPortalCameraCount () {
-      if ((!this.data.shapePathParam && this.currentFloor.groupSonGuid) || (this.data.guid)) {
+      if ((!this.data.shapePathParam && this.currentFloor.groupSonGuid) || (this.data.shapePathParam && this.data.guid)) {
         GetGroupPortalCount({groupSonId: this.data.shapePathParam ? this.data.guid : this.currentFloor.groupSonGuid}).then(res => {
           this.totalCounts = res.data
         })

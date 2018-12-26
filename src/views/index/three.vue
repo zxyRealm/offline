@@ -243,16 +243,14 @@ export default {
       // 获取客流排行
       GetFlowRank({floor: floor.floor, parentId: floor.groupParentGuid}).then(res => {
         console.log('flow rank', res)
-        if (res.data.industry && res.data.group) {
-          res.data.industry = res.data.industry.map(item => {
-            item.percent = parseInt(item.percentage * 100) + '%'
-            return item
-          })
-          res.data.group = res.data.group.map(item => {
-            item.percent = parseInt(item.percentage * 100)
-            return item
-          })
-        }
+        res.data.industry = res.data.industry ? res.data.industry.map(item => {
+          item.percent = parseInt(item.percentage * 100) + '%'
+          return item
+        }) : []
+        res.data.group = res.data.group ? res.data.group.map(item => {
+          item.percent = parseInt(item.percentage * 100)
+          return item
+        }) : []
         this.rankData = res.data
         console.log(res.data)
       })

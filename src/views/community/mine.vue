@@ -879,6 +879,8 @@ export default {
       if (node.level !== 2) {
         this.currentCommunity = data
         this.getCommunityInfo(data)
+      } else {
+        this.$refs.groupNav.setCurrentKey(this.currentCommunity.groupSonGuid)
       }
     },
     // 解散社群
@@ -1160,7 +1162,7 @@ export default {
     },
     // 删除社群
     deleteGroup () {
-      GetGroupPortalCount({groupSonId: this.communityInfo.guid}).then(res => {
+      GetGroupPortalCount({groupSonId: this.currentCommunity.groupSonGuid}).then(res => {
         if (res.data.portalNumber) {
           this.$affirm({text: `删除社群前，请先删除出入口`, title: '删除社群', confirm: '我知道了'}, (action, instance, done) => {
             done()
@@ -1435,6 +1437,7 @@ export default {
           font-size: 12px;
           color: #3a8ee6;
           cursor: pointer;
+          font-style: normal;
         }
         .el-icon-delete {
           color: #C03639;

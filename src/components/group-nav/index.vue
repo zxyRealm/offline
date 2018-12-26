@@ -23,7 +23,7 @@
         :check-strictly="checkStrictly"
         :show-checkbox="showChecked"
         :class="theme"
-        class="filter-tree"
+        class="filter-tree group__tree"
         :node-key="nodeKey"
         :data="TreeList"
         :props="defaultProps"
@@ -317,7 +317,7 @@ export default {
       if (!this.multiple) {
         this.$refs.GroupTree.setCheckedNodes([nodes])
       }
-      this.$emit('current-change', nodes)
+      // this.$emit('current-change', nodes)
     },
     // 获取已选中对象 键值数组
     getCheckedKeys () {

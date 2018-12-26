@@ -35,7 +35,7 @@ export default {
   methods: {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
-      this.currentFloor = this.floorList.filter(item => item.floor === (int || 1))[0] || this.this.floorList[0]
+      this.currentFloor = this.floorList.filter(item => item.floor === (int || 1))[0] || this.floorList[0]
       this.iframeSrc = `/static/html/bind_community.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
     },
     // 处理iframe传递出来的事件

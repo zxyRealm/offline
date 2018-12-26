@@ -81,7 +81,7 @@
     scene = new THREE.Scene()
     scene.background = new THREE.Color(0x17151A)
     camera = new THREE.PerspectiveCamera(45, ratio, 0.1, 5000)
-    camera.position.set(0, 0, 420)
+    camera.position.set(0, 0, 480)
     scene.add(camera)
     group = new THREE.Group()
     scene.add(group)
@@ -106,8 +106,8 @@
       group.position.y = 214
       group.scale.set(1, -1, 1)
       for (var i = 0; i < paths.length; i++) {
+        if (i === 0) continue
         var path = paths[i]
-        // console.log('material path', path)
         var materialLine = new THREE.LineBasicMaterial({
           color: new THREE.Color('#403E42'),
           side: THREE.DoubleSide,
@@ -117,12 +117,12 @@
         for (var j = 0; j < shapes.length; j++) {
           var shape = shapes[j]
           var geometry = new THREE.ShapeBufferGeometry(shape)
-          // geometry.shapePath = geometry
           var mesh = new THREE.Mesh(geometry, materialLine)
-          var edges = new THREE.EdgesHelper(mesh, '#979797')
-          group.add(edges)
+          var edges = new THREE.EdgesGeometry(geometry)
+          var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
+          mesh.add(line)
           mesh.name = i
-          if (i !== 0) meshList.push(mesh)
+          meshList.push(mesh)
           group.add(mesh)
         }
       }

@@ -58,7 +58,6 @@
         </div>
       </div>
     </div>
-
     <ob-dialog-form
       v-model="applyForm"
       @remote-submit="applyDeveloper"
