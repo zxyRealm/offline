@@ -7,10 +7,10 @@
         </a>
       </div>
       <div id="iframeWrap">
-        <iframe :src="frame.path" :id="frame.id" :name="frame.name" scrolling="no" frameborder="0" ref="iframe" class="iframe"></iframe>
+        <iframe :src="frame.path" :id="frame.id" scrolling="no" frameborder="0" ref="iframe" class="iframe"></iframe>
       </div>
-
-      <div id="statisticInfo">
+      
+      <div id="statisticInfo"> 
         <div class="statistic-box" id="incoming">
           <div class="item" :class="{'no-background': !statisticInfo.Incoming_Today && !statisticInfo.Incoming_Yesterday}">
             <div class="title">进客流</div>
@@ -71,7 +71,7 @@
       </div>
     </div>
     </div>
-
+  
     <!-- <div id="option" style="position: absolute;top: 10px; left: 10px">
       <a href="javascript:;" @click="sendColor">传递坐标</a>
     </div> -->
@@ -108,9 +108,8 @@ export default {
         minus: 0
       },
       frame: {
-        id: 'threeFrame',
-        name: 'threeFrame',
-        path: '/static/html/new_home.html'
+        path: '/static/html/new_home.html',
+        id: 'threeFrame'
       },
       statisticInfo: {
         Incoming_Today: 10,
@@ -131,17 +130,14 @@ export default {
     if (this.websocket) {
       this.websocket.close()
     }
-    window.removeEventListener('message', this.handleMessage)
   },
   methods: {
     updateFrameArea (item, index) {
       this.$set(this.frame, 'path', item.path)
-      this.$set(this.frame, 'name', item.name)
       this.$set(this.frame, 'id', item.id)
-      console.log(this.frame, this.routerList)
       this.community.index = index + 1
-      console.log(this.community.infoArr[this.community.index])
       this.$emit('updateCommunity', this.community.infoArr[this.community.index])
+
     },
     timestampToTime (timestamp) {
       let date = new Date(timestamp)
@@ -162,16 +158,11 @@ export default {
           console.info('已经连接')
         }
         this.websocket.onmessage = (evt) => {
-          try {
-            console.log('push message', JSON.parse(evt.data))
-            data = JSON.parse(evt.data)
-            if (data.data.coordinates && data.type === 'SHINING') {
-              this.iframe.createPointCloud(data.data.coordinates, data.data.floor)
-            }
-          } catch (err) {
-            // console.log(err)
+          console.log('push message', JSON.parse(evt.data))
+          data = JSON.parse(evt.data)
+          if (data.data.coordinates && data.type === 'SHINING') {
+            this.iframe.createPointCloud(data.data.coordinates, data.data.floor)
           }
-
         }
         this.websocket.onclose = function (evt) {
           console.info('已经关闭连接')
@@ -189,11 +180,12 @@ export default {
         let floorInfo = this.sortRouterList(res.data[0].subGroupSon)
         let allInfo = res.data
         delete allInfo[0].subGroupSon
+
         this.community.infoArr = allInfo.concat(floorInfo)
         this.caculateMinus(this.community.infoArr)
         for (let i in floorInfo) {
-          let coordinate_y = floorInfo[i].floor >= 0 ? floorInfo[i].floor * 65 - 130 : floorInfo[i].floor * 65 - 65
-          let img_url = floorInfo[i].floor >= 0 ? floorInfo[i].floor + 3 : floorInfo[i].floor + 4
+          let coordinate_y = floorInfo[i].floor >= 0 ? (floorInfo[i].floor-2) * 100 : (floorInfo[i].floor-1) * 100
+          let img_url = floorInfo[i].mapUrl
           let floor = floorInfo[i].floor
           this.floorArr.push({
             coordinate_y: coordinate_y,
@@ -207,7 +199,7 @@ export default {
           obj.path = '/static/html/plane.html?floor=' + img_url
           this.routerList.push(obj)
         }
-        this.$emit('updateCommunity', allInfo[0])
+        this.$emit('updateComunity', allInfo[0])
         this.getWebsocket(res.data[0].groupSonGuid, res.data[0].groupParentGuid)
       })
     },
@@ -238,7 +230,7 @@ export default {
         if (arr[i].floor < 0) {
           this.community.minus++
         }
-      }
+      } 
     },
     /****************************************************
      *********************  发送值  **********************
@@ -286,16 +278,14 @@ export default {
       const data = event.data
       switch (data.cmd) {
         case 'change-floor':
-          console.log(data.params.data)
           let currentFloor = ''
           this.floorArr.forEach((val, index) => {
             if (val.coordinate_y === data.params.data){
-              let path = '/static/html/plane.html?floor=' + parseInt(val.img_url)
-              let name = 'threeFrame' + parseInt(val.img_url)
+              let path = '/static/html/plane.html?floor=' + val.img_url
+              let id = val.img_url
               let item = {
                 path: path,
-                name: name,
-                id: val.img_url
+                id: id
               }
               this.updateFrameArea(item, index)
             }
@@ -308,6 +298,7 @@ export default {
           this.sendStoreData()
           break
         case 'home-load_signal':
+          console.log('setfloor')
           this.iframe.setFloorInfo(this.floorArr)
           break
         case 'plane-load_signal':
@@ -315,6 +306,9 @@ export default {
           break
       }
     }
+  },
+  beforeDestroy () {
+    window.removeEventListener('message')
   },
   mounted () {
     this.iframe = this.$refs.iframe.contentWindow
@@ -360,6 +354,9 @@ export default {
         top: 10px;
         text-align: center;
         height: 55px;
+        background: #17151a;
+        padding: 10px;
+        box-sizing: border-box;
         a{
           display: inline-block;
           width: 40px;
@@ -389,6 +386,9 @@ export default {
       #statisticInfo{
       height: 100px;
       overflow: hidden;
+      background: #17151a;
+      padding-bottom: 5px;
+      // box-sizing: border-box;
       .statistic-box:last-child{
         width: 28%
       }
@@ -451,7 +451,7 @@ export default {
       width: 160px;
       flex: 0 0 160px;
       #sideInfo{
-
+    
       color: #FFFFFF;
       background: #232027;
       padding: 15px 20px;
@@ -501,8 +501,8 @@ export default {
       }
     }
     }
-
-
+    
+    
     .fade-enter-active, .fade-leave-active {
       transition: opacity .5s;
     }
