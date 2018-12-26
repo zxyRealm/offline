@@ -88,7 +88,7 @@ export default {
     return {
       maskToggle: false,
       routerList: [
-        {name: '总', path: '/static/html/new_home.html', id: 'threeFrame'}
+        {name: '总', path: '/static/html/new_home.html?timestamp = ' + Number(new Date()), id: 'threeFrame'}
       ],
       personList: [
         {imgUrl: '/static/avatar2.png'},
@@ -108,7 +108,7 @@ export default {
         minus: 0
       },
       frame: {
-        path: '/static/html/new_home.html',
+        path: '/static/html/new_home.html?timestamp = ' + Number(new Date()),
         id: 'threeFrame'
       },
       statisticInfo: {
@@ -135,9 +135,8 @@ export default {
     updateFrameArea (item, index) {
       this.$set(this.frame, 'path', item.path)
       this.$set(this.frame, 'id', item.id)
-      this.community.index = index + 1
+      this.community.index = index
       this.$emit('updateCommunity', this.community.infoArr[this.community.index])
-
     },
     timestampToTime (timestamp) {
       let date = new Date(timestamp)
@@ -158,11 +157,13 @@ export default {
           console.info('已经连接')
         }
         this.websocket.onmessage = (evt) => {
-          console.log('push message', JSON.parse(evt.data))
-          data = JSON.parse(evt.data)
-          if (data.data.coordinates && data.type === 'SHINING') {
-            this.iframe.createPointCloud(data.data.coordinates, data.data.floor)
-          }
+          try {
+            console.log('push message', JSON.parse(evt.data))
+            data = JSON.parse(evt.data)
+            if (data.data.coordinates && data.type === 'SHINING') {
+              this.iframe.createPointCloud(data.data.coordinates, data.data.floor)
+            }
+          } catch (err) {}
         }
         this.websocket.onclose = function (evt) {
           console.info('已经关闭连接')
@@ -180,11 +181,11 @@ export default {
         let floorInfo = this.sortRouterList(res.data[0].subGroupSon)
         let allInfo = res.data
         delete allInfo[0].subGroupSon
-
         this.community.infoArr = allInfo.concat(floorInfo)
         this.caculateMinus(this.community.infoArr)
+        let minIndex = this.caculateMinusIndex(floorInfo)
         for (let i in floorInfo) {
-          let coordinate_y = floorInfo[i].floor >= 0 ? (floorInfo[i].floor-2) * 100 : (floorInfo[i].floor-1) * 100
+          let coordinate_y = floorInfo[i].floor >= 0 ? (floorInfo[i].floor-2) * 100 - (floorInfo[minIndex].floor-1)*100 : (floorInfo[i].floor-1) * 100
           let img_url = floorInfo[i].mapUrl
           let floor = floorInfo[i].floor
           this.floorArr.push({
@@ -231,6 +232,17 @@ export default {
           this.community.minus++
         }
       }
+    },
+    caculateMinusIndex (arr) {
+      let minFloor = 1000;
+      let index = 0;
+      for (let i=0; i<arr.length; i++) {
+        if (arr[i].floor < minFloor && arr[i].floor>0){
+          minFloor = arr[i].floor;
+          index = i;
+        }
+      }
+      return index
     },
     /****************************************************
      *********************  发送值  **********************
@@ -308,7 +320,7 @@ export default {
     }
   },
   beforeDestroy () {
-    window.removeEventListener('message')
+    window.removeEventListener('message', this.handleMessage)
   },
   mounted () {
     this.iframe = this.$refs.iframe.contentWindow
@@ -329,6 +341,14 @@ export default {
     'currentManage': {
        handler (val) {
         if (val) {
+          this.routerList = [
+            {name: '总', path: '/static/html/new_home.html', id: 'threeFrame'}
+          ]
+          this.floorArr = []
+          this.frame = {
+            path: '/static/html/new_home.html?timestamp = ' + Number(new Date()),
+            id: 'threeFrame'
+          }
           this.getCommunityInfo(val)
         }
       },
