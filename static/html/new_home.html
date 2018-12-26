@@ -35,7 +35,7 @@
     var clock = new THREE.Clock();
     var mixArr = [],
       pointArr = new Array(1000)
-      var floorArr;
+    var floorArr;
     // var floorArr = [{
     //     coordinate_y: -3 * floorHeight - floorHeight,
     //     img_url: 1,
@@ -325,32 +325,35 @@
     }
 
     function onDocumentMouseMove(event) {
-      var vector = new THREE.Vector3(
-        (event.clientX / (window.innerWidth)) * 2 - 1,
-        -(event.clientY / (window.innerHeight)) * 2 + 1,
-        0.5
-      );
-      vector = vector.unproject(camera);
-      // console.log(count)
-      var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
-      var rayPlaneList = planeList.slice(count, count + 4)
-      var subRayList = group.children.slice(count, count + 4)
-      var intersects = raycaster.intersectObjects(rayPlaneList);
+      if (upClick === false && downClick === false) {
+        var vector = new THREE.Vector3(
+          (event.clientX / (window.innerWidth)) * 2 - 1,
+          -(event.clientY / (window.innerHeight)) * 2 + 1,
+          0.5
+        );
+        vector = vector.unproject(camera);
+        // console.log(count)
+        var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+        var rayPlaneList = planeList.slice(count, count + 4)
+        var subRayList = group.children.slice(count, count + 4)
+        var intersects = raycaster.intersectObjects(rayPlaneList);
 
-      if (intersects.length > 0) {
-        for (var i = 0; i < rayPlaneList.length; i++) {
-          if (intersects[0].object === rayPlaneList[i]) {
-            moveChange(subRayList[i], 0x2a4586, 0xA1BCD4)
-          } else {
+        if (intersects.length > 0) {
+          for (var i = 0; i < rayPlaneList.length; i++) {
+            if (intersects[0].object === rayPlaneList[i]) {
+              moveChange(subRayList[i], 0x2a4586, 0xA1BCD4)
+            } else {
+              moveChange(subRayList[i], 0x030c17, 0x26678F)
+            }
+          }
+        } else {
+          for (var i = 0; i < rayPlaneList.length; i++) {
+            // console.log(group.children)
             moveChange(subRayList[i], 0x030c17, 0x26678F)
           }
         }
-      } else {
-        for (var i = 0; i < rayPlaneList.length; i++) {
-          // console.log(group.children)
-          moveChange(subRayList[i], 0x030c17, 0x26678F)
-        }
       }
+
     }
 
     function moveChange(objectList, meshColor, lineColor) {
@@ -486,8 +489,8 @@
 
       var alex = '[' + getRandom(-80, 80) + ',' + getRandom(-50, 50) + ']';
       var floor = getRandom(-4, 5)
-      if ((count || count===0) && upClick === false && downClick === false) {
-        
+      if ((count || count === 0) && upClick === false && downClick === false) {
+
         createShine(alex, floor * floorHeight - (count - standardCount) * floorHeight)
       }
 
