@@ -6,7 +6,7 @@
 <script>
 import {mapState} from 'vuex'
 import echarts from 'echarts'
-
+import {GetChartLine} from '../../api/visual'
 export default {
   name: 'echarts-line',
   props: ['lineHeight', 'lineParams'],
@@ -282,55 +282,56 @@ export default {
         this.drawLine()
         return
       }
-      this.$http('/chart/line', {
-        groupGuid: this.$store.state.groupSelectId,
-        type: 1,
-        dimension: 1,
-        startTime: this.$getNowFormatDate(),
-        endTime: this.$getNowFormatDate()
-      }).then(res => {
-        if (res.result == 1) {
-          this.data = res.data
-          this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
-          this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
-          this.changeSeries()
-          // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
-          this.drawLine()
-        }
-      }).catch(error => {
-        console.info(error)
+      console.log('echart line-------', this.filterParams)
+      GetChartLine(this.filterParams).then(res => {
+        this.data = res.data
+        this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
+        this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
+        this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
+        this.changeSeries()
+        this.drawLine()
       })
+      // this.$http('/chart/line', {
+      //   groupGuid: this.$store.state.groupSelectId,
+      //   type: 1,
+      //   dimension: 1,
+      //   startTime: this.$getNowFormatDate(),
+      //   endTime: this.$getNowFormatDate()
+      // }).then(res => {
+      //   if (res.result == 1) {
+      //     this.data = res.data
+      //     this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
+      //     this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
+      //     this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
+      //     this.changeSeries()
+      //     // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
+      //     this.drawLine()
+      //   }
+      // }).catch(error => {
+      //   console.info(error)
+      // })
     },
     // 请求数据
     getData () {
       let params = this.$store.state.filterParams
       this.option.title = this.$apply(this.option.title, this.lineParams.title)
-      this.$http('/chart/line', {
-        groupGuid: params.groupGuid,
-        type: params.type,
-        dimension: params.dimension,
-        startTime: params.startTime,
-        endTime: params.endTime
-      }).then(res => {
-        if (res.result == 1) {
-          this.data = res.data
-          this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-          this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
-          this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
-          this.changeSeries()
-          // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
-          if (this.$store.state.filterParams.type == 3) {
-            this.option.legend['data'] = this.addColor(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
-          }
-          if (this.$store.state.filterParams.type == 2) {
-            this.option.legend['data'] = this.genderLegend
-          }
-          if (this.$store.state.filterParams.type == 4) {
-            this.option.legend['data'] = this.shopLegend
-          }
-          this.drawLine()
+      console.log('chart line ===============', params)
+      this.$http('/chart/line', params).then(res => {
+        this.data = res.data
+        this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
+        this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
+        this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
+        this.changeSeries()
+        if (this.filterParams.type === 3) {
+          this.option.legend['data'] = this.addColor(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
         }
+        if (this.filterParams.type === 2) {
+          this.option.legend['data'] = this.genderLegend
+        }
+        if (this.filterParams.type === 4) {
+          this.option.legend['data'] = this.shopLegend
+        }
+        this.drawLine()
       }).catch(error => {
         console.info(error)
       })
@@ -396,7 +397,8 @@ export default {
   },
   computed: {
     ...mapState([
-      'groupConsoleId'
+      'groupConsoleId',
+      'filterParams'
     ])
   },
   watch: {

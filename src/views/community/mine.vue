@@ -764,7 +764,11 @@ export default {
       })
     },
     // 获取商场社群列表
-    getGroupList () {
+    getGroupList (type) {
+      if (type === 'refresh') {
+        this.currentCommunity = {}
+        this.communityInfo = {}
+      }
       let pid = this.currentManage.id
       if (!pid) return
       GetMarketList({parentId: pid}).then(res => {
@@ -829,8 +833,7 @@ export default {
         if (action === 'confirm') {
           this.$http(url, subData).then(res => {
             this.$tip(this.communityInfo.groupPid ? '解散成功' : '删除成功')
-            this.currentCommunity = {}
-            this.getGroupList()
+            this.getGroupList('refresh')
           })
           done()
         } else {
@@ -1088,13 +1091,11 @@ export default {
               if (this.communityInfo.level === 1) {
                 DeleteMember({groupSonId: this.communityInfo.guid}).then(res => {
                   this.$tip('删除成功')
-                  this.currentCommunity = {}
-                  this.getGroupList()
+                  this.getGroupList('refresh')
                 })
               } else {
                 DeleteCommunity({id: this.communityInfo.guid}).then(res => {
                   this.$tip('删除成功')
-                  this.currentCommunity = {}
                   eventObject().$emit('ManageListRefresh')
                 })
               }
@@ -1116,8 +1117,7 @@ export default {
   watch: {
     currentManage: {
       handler () {
-        this.currentCommunity = {}
-        this.getGroupList()
+        this.getGroupList('refresh')
       },
       deep: true
     },

@@ -287,27 +287,26 @@
     communityData = data
     var svgLoad = new THREE.SVGLoader()
     var shapes = !data.shapePathParam || data.shapePathParam instanceof Object ? data.shapePathParam : JSON.parse(data.shapePathParam)
-    // url = '/static/origin-floor/F1.svg'
     var img1 = document.getElementById('image1')
     var img2 = document.getElementById('image2')
     if (!data.self) img1.style.display = 'none'
-    // console.log('iframe', data, shapes)
     if (shapes) {
       img1.children[1].innerText = '门店出入口'
       img2.style.display = 'none'
       group.scale.set(1, -1, 1)
-      let objLoader = new THREE.ObjectLoader();
-      let geometry = objLoader.parse(shapes).geometry;
+      var objLoader = new THREE.ObjectLoader();
+      var geometry = objLoader.parse(shapes).geometry;
       var materialLine = new THREE.LineBasicMaterial({
         color: new THREE.Color('#403E42'),
         side: THREE.DoubleSide,
         depthWrite: false
       })
-      let ps = changeArrayLevel(geometry.attributes.position.array.toString().split(',').map(Number))
-      let center = new Contour(ps.buffer).centroid()
+      var ps = changeArrayLevel(geometry.attributes.position.array.toString().split(',').map(Number))
+      var center = new Contour(ps.buffer).centroid()
+      var zDistance = calculateDistance(geometry)
       group.position.x = -Math.ceil(center.x)
       group.position.y = Math.ceil(center.y)
-      camera.position.set(0, 0,220)
+      camera.position.set(0, 0, zDistance * 1.6)
       var mesh = new THREE.Mesh(geometry, materialLine)
       var edges = new THREE.EdgesGeometry(geometry)
       var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
@@ -318,7 +317,6 @@
       var url = parseUrlParams('map_url') || ''
       img1.children[1].innerText = '主出入口'
       img2.style.display = 'block'
-      // console.log('svg url', url)
       svgLoad.load(url, (paths) => {
         group.position.x = -290
         group.position.y = 214
@@ -326,8 +324,10 @@
         for (var i = 0; i < paths.length; i++) {
           if (i === 0) continue
           var path = paths[i]
+          var color = new THREE.Color('#403E42')
           var materialLine = new THREE.LineBasicMaterial({
-            color: new THREE.Color('#403E42'),
+            color: color,
+            // emissive: color
             side: THREE.DoubleSide,
             depthWrite: false
           })
@@ -348,7 +348,21 @@
     }
 
   }
-
+  /* 根据区块边界计算相机z轴距离值
+  * geometry 对象
+  * */
+  function calculateDistance (geometry) {
+    var ps = changeArrayLevel(geometry.attributes.position.array.toString().split(',').map(Number))
+    var boundary = new Contour(ps.buffer).boundary() // 计算上下左右边界坐标点
+    var maxWidth = boundary.right[0] - boundary.left[0]
+    var maxHeight = boundary.top[1] - boundary.bottom[1]
+    var fov = camera.fov * Math.PI / 180 // 角度值转弧度
+    var acspet = camera.aspect // 场景尺寸宽高比例
+    var cz_h = Math.floor((maxHeight / 2) / Math.tan(fov/2)) // 根据内容最大高度计算的相机Z轴距离
+    var cz_w = maxWidth / (2 * Math.tan(fov /2) * acspet) // 根据内容最大宽度计算的相机Z轴距离
+    return Math.floor(cz_h > cz_w ? cz_h : cz_w) // 返回最大Z值
+  }
+  // 添加出入口事件绑定
   function initMouseEvent () {
     var body = document.getElementsByTagName('body')[0]
     var image1 = document.getElementById('image1')
@@ -574,7 +588,6 @@
   function createPictureSprite (obj) {
     var img = communityData.shapePathParam ? 'qizi2' : obj.type === 1 ? 'qizi2' : 'qizi1'
     var texture = new THREE.TextureLoader().load('/static/floor/' + img + '.png')
-    // texture.minFilter = THREE.minFilter
     var spriteMaterial = new THREE.SpriteMaterial({
       map: texture,
       depthTest: false,
@@ -622,6 +635,7 @@
     init()
     animate()
     initMouseEvent()
+    // 出入口弹窗中设备列表事件绑定
     var popper = document.getElementById('device__popper--wrap');
     popper.onclick = function(ev){
       var ev = ev || window.event;

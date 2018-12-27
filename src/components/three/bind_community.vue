@@ -51,7 +51,7 @@ export default {
     setDefaultSelect () {
       // 位置信息数组
       let ps = this.defaultData.coordinates instanceof Object ? this.defaultData.coordinates : JSON.parse(this.defaultData.coordinates)
-      console.log(this.defaultData, ps)
+      // console.log(this.defaultData, ps)
       this.$nextTick(() => {
         this.iframeObj.setDefaultSelect(ps)
       })

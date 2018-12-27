@@ -47,6 +47,7 @@
 <script>
 import {mapState} from 'vuex'
 import {eventObject} from '@/utils/event.js'
+import {GetChartLine} from '../../api/visual'
 
 export default {
   name: 'table-index',
@@ -80,26 +81,15 @@ export default {
     // 请求数据
     getData () {
       let params = this.$store.state.filterParams
-      let filterParams = {
-        groupGuid: params.groupGuid,
-        groupName: params.groupGuidName,
-        type: params.type, // 类型
-        dimension: params.dimension, // 维度
-        startTime: params.startTime, // 开始时间
-        endTime: params.endTime, // 结束时间
-        length: this.pageParams.pageSize,
-        index: this.pageParams.currentPage
-      }
-      if (!this.filterParams.groupGuid) {
+      params.length = this.pageParams.pageSize
+      params.index = this.pageParams.currentPage
+      if (!params.groupSonGuid) {
         this.$tip('请您先选择社群', 'error')
         return
       }
-      this.$http('/chart/flowCount', filterParams).then(res => {
-        if (res.result === 1) {
-          this.tableData = res.data.content || [];
-          // this.pageParams.total = res.data.pagination.total || 0;
-          (!!res.data.pagination) ? this.$set(this.pageParams, 'total', res.data.pagination.total || 0) : this.$set(this.pageParams, 'total', 0)
-        }
+      this.$http('/chart/flowCount', params).then(res => {
+        this.tableData = res.data.content || []
+        this.$set(this.pageParams, 'total', res.data.pagination.total || 0)
       }).catch(error => {
         console.info(error)
       })

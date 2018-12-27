@@ -459,15 +459,13 @@ export default {
           for (let k = 0, len = this.fileList.length; k < len; k++) {
             nameList.push(this.fileList[k].name.substring(0, this.fileList[k].name.lastIndexOf('.')))
           }
-          let nameSet = new Set(nameList)
-          console.log(nameSet)
-          // for (let k = 0, len = this.communityForm.floorList.length; k < len; k++) {
-          //   if (!nameSet.has(k + 1)) {
-          //     this.$tip(`缺少${this.communityForm.floorList[k]}楼层地图`, 'error')
-          //     return
-          //   }
-          // }
-          console.log('map error ------------')
+          let nameSet = new Set(nameList.map(Number))
+          for (let k = 0, len = this.communityForm.floorList.length; k < len; k++) {
+            if (!nameSet.has(k + 1)) {
+              this.$tip(`缺少${this.communityForm.floorList[k]}楼层地图`, 'error', 5000)
+              return
+            }
+          }
           this.httpRequest()
         } else {
         }
