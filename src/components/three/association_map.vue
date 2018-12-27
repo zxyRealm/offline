@@ -108,7 +108,8 @@ export default {
           if (this.handleDialogType === 2 && this.handlePortalForm.originName === value) {
             callback(new Error('该名称已存在'))
           } else {
-            CheckPortalNameExist({name: value, groupSonId: this.currentFloor.groupSonGuid}).then(res => {
+            console.log('currentFloor', this.currentFloor)
+            CheckPortalNameExist({name: value, groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
               !res.data ? callback() : callback(new Error('该名称已存在'))
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
@@ -176,14 +177,12 @@ export default {
   methods: {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
-      if (this.data.guid === this.currentManage.id) {
+      if (!this.data.floor) {
         this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor || 1))[0] || this.floorList[0]
       } else {
         this.currentFloor = this.data
       }
-      // if (this.currentFloor.mapUrl) {
       this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
-      // }
       this.getPortalCameraCount()
     },
     loadIframeSvg () { // 加载iframe svg 地图
@@ -223,7 +222,9 @@ export default {
             this.deletePortalDevice(data.data)
             break
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error('error info -------', err)
+      }
     },
     // 获取出入口信息，并在地图上展示标注
     setPortalList () {
@@ -334,9 +335,9 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.handlePortalForm))
-          subData.groupSonId = this.data.shapePathParam ? this.data.guid : this.currentFloor.groupSonGuid
-          subData.floor = this.data.floor
-          console.log('add portal -----------', subData, this.handleDialogType)
+          subData.groupSonId = this.currentFloor.guid || this.currentFloor.groupSonGuid
+          subData.floor = this.currentFloor.floor
+          // console.log('add portal -----------', subData, this.handleDialogType)
           if (this.handleDialogType === 1) { // 添加出入口
             // 如果是成员社群绑定出入口则为副出入口
             if (this.data.shapePathParam) subData.type = 2

@@ -233,7 +233,7 @@ export default {
           })
           data[val] = data[val].map(item => {
             item.total = total
-            item.percent = total ? (item.count / total).toFixed(1) : '0%'
+            item.percent = total ? ((item.count / total) * 100).toFixed(1) : '0%'
             return item
           })
         }
@@ -260,13 +260,12 @@ export default {
           groupTotal += item.count
         })
         res.data.industry.map(item => {
-          this.$set(item, 'percent', industryTotal ? (item.count / industryTotal).toFixed(1) + '%' : '0%')
+          this.$set(item, 'percent', industryTotal ? ((item.count / industryTotal) * 100).toFixed(1) + '%' : '0%')
         })
         res.data.group.map(item => {
-          this.$set(item, 'percent', groupTotal ? Number((item.count / groupTotal).toFixed(1)) : 0)
+          this.$set(item, 'percent', groupTotal ? Number(((item.count / groupTotal) * 100).toFixed(1)) : 0)
         })
         this.rankData = res.data
-        // console.log('flow data----------', res.data)
       }).catch(err => {
         this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })

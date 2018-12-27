@@ -45,6 +45,51 @@ Contour.prototype.area = function () {
 
   return area
 }
+// 获取多变行边界坐标点（最上、最下、最左、最右）
+Contour.prototype.boundary = function () {
+  var pts = this.pts
+  var nPts = pts.length
+  var t = {}
+  var b = {}
+  var l = {}
+  var r = {}
+
+  for (var i = 0; i < nPts; i++) {
+    if (i === 0) {
+      t.val = pts[i].y
+      t.index = 0
+      b.val = pts[i].y
+      b.index = 0
+      l.val = pts[i].x
+      l.index = 0
+      r.val = pts[i].x
+      r.index = 0
+    } else {
+      if (pts[i].y > t.val) {
+        t.val = pts[i].y
+        t.index = i
+      }
+      if (pts[i].y < b.val) {
+        b.val = pts[i].y
+        b.index = i
+      }
+      if (pts[i].x > r.val) {
+        r.val = pts[i].x
+        r.index = i
+      }
+      if (pts[i].x < l.val) {
+        l.val = pts[i].x
+        l.index = i
+      }
+    }
+  }
+  return {
+    top: [pts[t.index].x, pts[t.index].y],
+    right: [pts[r.index].x, pts[r.index].y],
+    bottom: [pts[b.index].x, pts[b.index].y],
+    left: [pts[l.index].x, pts[l.index].y]
+  }
+}
 
 Contour.prototype.centroid = function () {
   var pts = this.pts

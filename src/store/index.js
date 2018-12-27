@@ -9,13 +9,12 @@ Vue.use(Vuex)
 const state = {
   userInfo: {},
   filterParams: { // 可视化社群条件
-    groupGuid: '', // 选择社群
-    type: 1, // 类型
-    dimension: 1, // 维度
+    groupSonGuid: '',
+    type: 'flow', // 类型
+    timeIntervalUnit: 'hour', // 维度
     startTime: parseTime(new Date(), '{y}-{m}-{d}'), // 开始时间
     endTime: parseTime(new Date(), '{y}-{m}-{d}'), // 结束时间
-    timeArray: [],
-    groupGuidName: ''
+    timeArray: []
   },
   groupConsoleId: '', // 控制台社群设备id
   groupSelectId: '', // 選擇群id

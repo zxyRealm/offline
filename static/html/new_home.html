@@ -399,11 +399,12 @@
 
     // 接收楼层信息
     function setFloorInfo(floor) {
-      if (floor[0].floor < floor[1].floor)
-        floorArr = floor
-      else
-        floorArr = floor.reverse()
-      console.log(floorArr)
+      floorArr = floor
+      // if (floor[0].floor < floor[1].floor)
+      //   floorArr = floor
+      // else
+      //   floorArr = floor.reverse()
+      // console.log(floorArr)
       // 创建楼层图片
       for (var i = 0; i < floorArr.length; i++) {
         loadSvg(group, floorArr[i])
@@ -421,7 +422,7 @@
     }
 
     function loadSvg(group, floorInfo) {
-      console.log(floorInfo)
+      // console.log(floorInfo)
       var floorGroup = new THREE.Group()
       if (floorInfo.floor < 0) floorGroup.name = 'B' + Math.abs(floorInfo.floor)
       else floorGroup.name = 'F' + Math.abs(floorInfo.floor)
@@ -434,6 +435,11 @@
 
     function addLineShape(info, group) {
       var loader = new THREE.SVGLoader()
+      // console.log('floor ----------', info)
+      if (!info.img_url) {
+        console.error('map url is not exist')
+        return
+      }
       loader.load(info.img_url, paths => {
         for (var i = 0; i < paths.length; i++) {
           var path = paths[i]
