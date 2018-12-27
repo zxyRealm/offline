@@ -363,7 +363,7 @@ export default {
   }
   .floor__data--wrap{
     float:left;
-    width: 332px;
+    width: 28%;
     height: 100%;
     margin-right: 5px;
     .el-scrollbar{

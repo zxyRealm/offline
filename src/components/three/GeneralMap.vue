@@ -146,6 +146,7 @@ export default {
     },
     // 获取socket服务地址并建立websocket链接
     getWebsocket (groupSonGuid, groupParentGuid) {
+      console.log(groupSonGuid, groupParentGuid)
       GetSocketIP().then(res => {
         let _this = this
         let data = {}
@@ -161,7 +162,7 @@ export default {
             console.log('push message', JSON.parse(evt.data))
             data = JSON.parse(evt.data)
             if (data.data.coordinates && data.type === 'SHINING') {
-              this.iframe.createPointCloud(data.data.coordinates, data.data.floor)
+              this.iframe.createShine(data.data.coordinates, data.data.floor)
             }
           } catch (err) {}
         }
@@ -185,7 +186,7 @@ export default {
         this.caculateMinus(this.community.infoArr)
         let minIndex = this.caculateMinusIndex(floorInfo)
         for (let i in floorInfo) {
-          let coordinate_y = floorInfo[i].floor >= 0 ? (floorInfo[i].floor-2) * 100 - (floorInfo[minIndex].floor-1)*100 : (floorInfo[i].floor-1) * 100
+          let coordinate_y = floorInfo[i].floor >= 0 ? (floorInfo[i].floor-2) * 120 - (floorInfo[minIndex].floor-1)*120 : (floorInfo[i].floor-1) * 120
           let img_url = floorInfo[i].mapUrl
           let floor = floorInfo[i].floor
           this.floorArr.push({
@@ -310,7 +311,6 @@ export default {
           this.sendStoreData()
           break
         case 'home-load_signal':
-          console.log('setfloor')
           this.iframe.setFloorInfo(this.floorArr)
           break
         case 'plane-load_signal':
