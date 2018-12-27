@@ -160,14 +160,14 @@
   let scale = 0.4
   let spriteList = [];
   let gateway = [
-    {text: '东', position: {x: -4, y: -36}, logo: 'sprite0.png'},
-    {text: '北门', position: {x: -8, y: 36}},
-    {text: '南门', position: {x: 81, y: 31}, logo: 'sprite0.png'},
-    {text: '三个字', position: {x: 4, y: 11}, logo: 'sprite0.png'},
-    {text: '西门吹雪', position: {x: -113, y: 11}, logo: 'sprite0.png'},
-    {text: '我有五个字', position: {x: -63, y: 11}, logo: 'sprite0.png'},
-    {text: '我超过五个字', position: {x: -63, y: -11, logo: 'sprite0.png'}},
-    {text: '我应该有七个字', position: {x: 63, y: -11}, logo: 'sprite0.png'},
+    // {text: '东', position: {x: -4, y: -36}, logo: 'sprite0.png'},
+    // {text: '北门', position: {x: -8, y: 36}},
+    // {text: '南门', position: {x: 81, y: 31}, logo: 'sprite0.png'},
+    // {text: '三个字', position: {x: 4, y: 11}, logo: 'sprite0.png'},
+    // {text: '西门吹雪', position: {x: -113, y: 11}, logo: 'sprite0.png'},
+    // {text: '我有五个字', position: {x: -63, y: 11}, logo: 'sprite0.png'},
+    // {text: '我超过五个字', position: {x: -63, y: -11, logo: 'sprite0.png'}},
+    // {text: '我应该有七个字', position: {x: 63, y: -11}, logo: 'sprite0.png'},
   ];
   let shapesArr = []; // 保存shape几何体路径
   let shapesMaterialArr = []; // 保存shape材质
@@ -237,7 +237,16 @@
 
   // 接收组件中传入的社群信息
   function getCommunityInfo(data) {
-    console.log(data)
+    data.forEach(item => {
+      let positionArr = item.coordinates.replace('[', '').replace(']', '').split(',')
+      let obj = {
+        position: {x: parseInt(positionArr[0]), y: parseInt(positionArr[1])},
+        text: item.name,
+        logo: 'qizi2.png'
+      }
+      createSprite(obj)
+    })
+    
   }
 
   init();
@@ -245,7 +254,6 @@
 
   // 加载图片
   function loadSvg(floor) {
-    console.log('dddddddddd', floor)
     let svgLoad = new THREE.SVGLoader()
     svgLoad.load(floor, (paths) => {
 
@@ -290,7 +298,7 @@
   }
 
   // 添加贴图
-  function createSprite(obj, mesh) {
+  function createSprite(obj) {
     // 创建文字
     let textObj = createTextSprite(obj)
     if (obj.text.length > 2) {
@@ -312,7 +320,7 @@
       sprite.position.set(obj.position.x, obj.position.y, 1)
       scene.add(sprite)
       // 文字贴图的参数传递到图片贴图的userData中
-      mesh.userData = { text: obj.text, logo: obj.logo }
+      sprite.userData = { text: obj.text, logo: obj.logo }
       // 将图片贴图保存到数组中
       spriteList.push(sprite)
     }
@@ -386,9 +394,9 @@
       let meshAlex = getString(shapesMeshArr[i]) // 所有色块的顶点值转换为字符串
       // 遍历从服务端获取到的坐标数据
       for(let j in boxArr){
-        if(shapesMeshArr[boxArr[j].position]){
-          let shapeAlex = getString(shapesMeshArr[boxArr[j].position]) // 目标色块的顶点值转换为字符串
-
+        if(boxArr[j].position){
+          let shapeAlex = boxArr[j].position // 目标色块的顶点值转换为字符串
+          console.log(shapeAlex, meshAlex)
           if (shapeAlex === meshAlex) {
             let point = getCenterExtraPoint(shapesMeshArr[i].geometry.attributes.position.array)
             let ipc = {
