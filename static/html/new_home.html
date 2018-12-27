@@ -183,6 +183,7 @@
       standardCount = floorCount.position // 固定基准数
       floorCount.down = standardCount - (floorCount.down - 1)
       floorCount.up = standardCount + (floorCount.up - 5)
+      minFloor = caculateMinusIndex(floorArr)
     }
 
     function upTrigger() {
@@ -275,7 +276,7 @@
         pointArr[i].position.set(alex[0], floor, alex[1])
         pointArr[i].rotation.x = 0.5 * Math.PI
       }
-      if (floor < -100 || floor > 200) {
+      if (floor < -120 || floor > 240) {
         pointArr[i].visible = false
       } else {
         pointArr[i].visible = true
@@ -316,7 +317,14 @@
       alx = alx.split(',')
       pointCloudArr.push(alx)
       var index = pointCloudArr.length - 1
-      floor = floor * floorHeight - (count - standardCount) * floorHeight
+      // var floor = 1
+      var alpha = 1
+      if(floor > 0) {
+        alpha = 2
+      } else {
+        alpha = 1
+      }
+      floor = floor * floorHeight - (count - standardCount) * floorHeight - (10 - 1) * 120 - alpha * floorHeight
       shine = Shine(index, alx, floor)
       createAnimate(shine, index)
     }
@@ -419,9 +427,11 @@
     // 添加Orbit控制器
     function addControl() {
       controls = new THREE.OrbitControls(camera);
+      controls.maxPolarAngle = 1.15;//上下两极的可视区域的最大角度
+      controls.minPolarAngle = 1.15;//上下两极的可视区域最小角度
       controls.dampingFactor = 0.25;
       controls.enableZoom = true;
-      controls.enableRotate = false;
+      controls.enableRotate = true;
       controls.screenSpacePanning = true;
     }
 
@@ -434,6 +444,17 @@
       addShape(floorInfo, floorGroup);
 
       group.add(floorGroup)
+    }
+
+    var minFloor;
+    function caculateMinusIndex(arr) {
+      let minFloor = 1000
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].floor < minFloor && arr[i].floor > 0) {
+          minFloor = arr[i].floor;
+        }
+      }
+      return minFloor
     }
 
     function addLineShape(info, group) {
