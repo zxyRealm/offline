@@ -251,7 +251,7 @@ export default {
       if (!info) return
       GetFlowRank({groupFloor: info.floor, groupGuid: info.groupParentGuid}).then(res => {
         res.data = JSON.parse(res.data)
-        console.log('rank ------------', res.data)
+        // console.log('rank ------------', res.data)
         let industryTotal = 0
         let groupTotal = 0
         res.data.industry.map(item => {
@@ -273,7 +273,7 @@ export default {
       // 获取实时比率
       GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupSonGuid}).then(res => {
         let resData = JSON.parse(res.data)
-        console.log('ratio ------------', resData)
+        // console.log('ratio ------------', resData)
         resData = this.ComunicationPer(resData)
         resData.gender = {
           man: resData.gender.filter(item => item.code === 'MAN')[0] || '',
