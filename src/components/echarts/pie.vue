@@ -5,6 +5,8 @@
 </template>
 <script>
 import echarts from 'echarts'
+import {mapState} from 'vuex'
+import {GetChartPie} from '../../api/visual'
 
 export default {
   name: 'echarts-pie',
@@ -149,13 +151,13 @@ export default {
     },
     // 自适应
     resizeEcharts () {
-      if (!!this.myChartPie) {
+      if (this.myChartPie) {
         this.myChartPie.resize()
       }
     },
     // 定义颜色
     changeColor () {
-      this.option.color = this.$store.state.filterParams.type === 3 ? ['#F1BB13', '#7FC16A', '#EE6C4B', '#6D2EBB', '#2187DF', '#DDDDDD'] : [
+      this.option.color = this.filterParams.type === 'age' ? ['#F1BB13', '#7FC16A', '#EE6C4B', '#6D2EBB', '#2187DF', '#DDDDDD'] : [
         new echarts.graphic.LinearGradient(
           0, 0, 0, 1,
           [
@@ -207,14 +209,14 @@ export default {
       for (let i = 0; i < data.length; i++) {
         emptyArray.push(data[i]['data'][0])
       }
-      if (this.$store.state.filterParams.type === 3) {
+      if (this.filterParams.type === 'age') { // 年龄
         this.option.series[0].data = data[0].data
         this.option.legend['data'] = this.addColor(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
         // this.option.legend['data'] = this.$legendArray(data[0].data);
-      } else if (this.$store.state.filterParams.type === 2) {
+      } else if (this.filterParams.type === 'sex') { // 性别
         this.option.series[0].data = this.$apply(this.option.series[0].data, emptyArray)
         // this.option.legend['data'] = this.$legendArray(data);
-      } else if (this.$store.state.filterParams.type === 4) {
+      } else if (this.filterParams.type === 'repeat') { // 到店频次
         this.option.series[0].data = this.$apply(this.option.series[0].data, emptyArray)
         this.option.legend['data'] = this.shopLegend
       }
@@ -265,17 +267,13 @@ export default {
     },
     // 请求数据
     getData () {
-      let params = this.$store.state.filterParams
+      let params = JSON.parse(JSON.stringify(this.filterParams))
+      params.startTime = params.startTime + ' 00:00:00'
+      params.endTime = params.endTime + ' 24:00:00'
       this.changeTitle()
-      this.$http('/chart/pie', {
-        groupGuid: params.groupGuid,
-        type: params.type,
-        dimension: params.dimension,
-        startTime: params.startTime,
-        endTime: params.endTime
-      }).then(res => {
+      GetChartPie(params).then(res => {
         this.data = res.data
-        if (this.$store.state.filterParams.type === 3) {
+        if (this.filterParams.type === 'age') {
           this.installSeriesGroup(res.data)
           this.option.series[0] = this.$apply(this.option.series[0], this.roseSeries)
         } else {
@@ -293,12 +291,15 @@ export default {
       }, 300)
     } else {
       this.changeColor()
-      if (!this.$store.state.filterParams.groupGuid || (this.$store.state.filterParams.groupGuid === '')) {
+      if (!this.filterParams.groupSonGuid) {
         this.changeTitle()
         this.defaultShow()
         this.drawPie()
       }
     }
+  },
+  computed: {
+    ...mapState(['filterParams'])
   },
   watch: {
     pieParams (val, oldVal) {

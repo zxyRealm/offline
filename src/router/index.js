@@ -27,8 +27,9 @@ const Person = () => import('@/views/member/person.vue')
 const Details = () => import('@/views/member/details.vue')
 
 // 行为分析
-const Action = () => import('@/views/action/index.vue')
-
+const Behavior = () => import('@/views/Behavior/index.vue')
+const BehaviorAnalyse = () => import('@/views/Behavior/analyse.vue')
+const BehaviorTrail = () => import('@/views/Behavior/trail.vue')
 // 开发者中心
 const Developer = () => import('@/views/developer/index.vue')
 // 消息通知
@@ -435,20 +436,36 @@ export const constantRouterMap = [
       }
     ]
   },
+  {path: '/behavior', redirect: '/behavior/analyse'},
   {
-    path: '/action',
+    path: '/behavior',
     component: Layout,
-    redirect: '/action/index',
     meta: {
       title: '行为分析'
     },
     children: [
       {
         path: '',
-        component: Action,
-        meta: {
-          title: '行为分析'
-        }
+        component: Behavior,
+        name: 'Behavior',
+        children: [
+          {
+            path: 'trail',
+            name: 'BehaviorTrail',
+            component: BehaviorTrail,
+            meta: {
+              title: '移动轨迹'
+            }
+          },
+          {
+            path: 'analyse',
+            component: BehaviorAnalyse,
+            name: 'BehaviorAnalyse',
+            meta: {
+              title: '行为分析'
+            }
+          }
+        ]
       }
     ]
   },

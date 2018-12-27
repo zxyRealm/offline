@@ -172,7 +172,7 @@ export default {
     }
     .sub-tab-main {
       float: left;
-      font-size: 14px;
+      font-size: 16px;
       height: 100%;
       line-height: 24px;
       .el-icon-arrow-left {
@@ -186,25 +186,32 @@ export default {
       a{
         display: inline-block;
         line-height: 30px;
+        padding: 0 5px;
+        box-sizing: border-box;
+        color: rgba(255, 255, 255, 1);
         &:not([href]){
           cursor: text;
         }
       }
-      a.router-link-active{
+      a.router-link-active[href]{
         position: relative;
+        color: rgba(255, 255, 255, 1);
+        /*border-bottom: 2px solid #fff;*/
         &:after{
           content: '';
           position: absolute;
           width: 100%;
           left: 0;
           bottom: -8px;
-          height: 4px;
-          background-image: linear-gradient(-90deg, #6D2EBB 0%, #0F9EE9 100%);
-          border-radius: 100px;
+          height: 2px;
+          background: #fff;
+          // background-image: linear-gradient(-90deg, #6D2EBB 0%, #0F9EE9 100%);
+          border-radius: 4px;
         }
       }
-      a:not(.router-link-active) {
-        color: #fff;
+      a[href] {
+        color: rgba(255, 255, 255, 0.5);
+        /*color: #fff;*/
       }
       > .text {
         cursor: text;

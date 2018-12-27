@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div ref="">
     <span
-      v-for="item in 18"
+      v-for="item in 22"
       :key="item"
       :class="{boy: item > girlInt}"
       class="return__ratio--icon"></span>
@@ -31,7 +31,7 @@ export default {
     girlInt: {
       get () {
         let num = typeof this.percent === 'string' && this.percent.indexOf('%') > 0 ? this.percent.replace('%', '') * 100 : this.percent
-        let int = this.total ? Math.floor((num / 100) * 18) : 9
+        let int = this.total ? Math.floor((num / 100) * 18) : 11
         return int
       },
       set () {}
