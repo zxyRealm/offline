@@ -352,10 +352,9 @@
         );
         vector = vector.unproject(camera);
         var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
-        var rayPlaneList = planeList.slice(count, count + 4)
-        var subRayList = group.children.slice(count, count + 4)
+        var rayPlaneList = planeList.slice(count, count+4)
+        var subRayList = group.children.slice(count, count+4)
         var intersects = raycaster.intersectObjects(rayPlaneList);
-
         if (intersects.length > 0) {
           for (var i = 0; i < rayPlaneList.length; i++) {
             if (intersects[0].object === rayPlaneList[i]) {
@@ -416,7 +415,12 @@
 
     // 接收楼层信息
     function setFloorInfo(floor) {
-      floorArr = floor
+      if(floor.length > 1){
+        if (floor[0].floor < floor[1].floor)
+          floorArr = floor
+        else
+          floorArr = floor.reverse()
+      }
       // 创建楼层图片
       for (var i = 0; i < floorArr.length; i++) {
         loadSvg(group, floorArr[i])
@@ -427,8 +431,8 @@
     // 添加Orbit控制器
     function addControl() {
       controls = new THREE.OrbitControls(camera);
-      controls.maxPolarAngle = 1.15;//上下两极的可视区域的最大角度
-      controls.minPolarAngle = 1.15;//上下两极的可视区域最小角度
+      controls.maxPolarAngle = 1.14;//上下两极的可视区域的最大角度
+      controls.minPolarAngle = 1.14;//上下两极的可视区域最小角度
       controls.dampingFactor = 0.25;
       controls.enableZoom = true;
       controls.enableRotate = true;
