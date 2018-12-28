@@ -113,7 +113,8 @@ export default {
         {
           name: "总",
           path: "/static/html/new_home.html?timestamp = " + Number(new Date()),
-          id: "threeFrame"
+          id: "threeFrame",
+          floor: 0
         }
       ],
       personList: [
@@ -161,9 +162,11 @@ export default {
     updateFrameArea(item, index) {
       this.$set(this.frame, "path", item.path);
       this.$set(this.frame, "id", item.id);
+      console.log(item.floor)
       this.community.infoArr.forEach((value, i) => {
         if (value.floor === item.floor) {
           this.community.index = i;
+          console.log(this.community.infoArr[i])
           this.$emit(
             "updateCommunity",
             this.community.infoArr[i]
