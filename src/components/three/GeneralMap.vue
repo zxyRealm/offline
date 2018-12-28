@@ -25,16 +25,32 @@
         <div class="statistic-box" id="incoming">
           <div
             class="item"
-            :class="{'no-background': !statisticInfo.Incoming_Today && !statisticInfo.Incoming_Yesterday}"
+            :class="{'no-background': !statisticEndInfo.Incoming_Today && !statisticEndInfo.Incoming_Yesterday}"
           >
             <div class="title">进客流</div>
             <div class="data">
               <div class="date today">
-                <div class="amount">{{statisticInfo.Incoming_Today}}</div>
+                <div class="amount">
+                  <count-to
+                    ref="Incoming_Today"
+                    :autoplay="false"
+                    :startVal="statisticInfo.Incoming_Today" 
+                    :endVal="statisticEndInfo.Incoming_Today" 
+                    :duration='1000'>
+                  </count-to>
+                </div>
                 <div class="key">今日数据</div>
               </div>
               <div class="date yesterday">
-                <div class="amount">{{statisticInfo.Incoming_Yesterday}}</div>
+                <div class="amount">
+                  <count-to
+                    ref="Incoming_Yesterday"
+                    :autoplay="false"
+                    :startVal="statisticInfo.Incoming_Yesterday" 
+                    :endVal="statisticEndInfo.Incoming_Yesterday" 
+                    :duration='1000'>
+                  </count-to>
+                </div>
                 <div class="key">昨日数据</div>
               </div>
             </div>
@@ -43,26 +59,50 @@
         <div class="statistic-box" id="member">
           <div
             class="item"
-            :class="{'no-background': !statisticInfo.Member_Today && !statisticInfo.Member_Yesterday}"
+            :class="{'no-background': !statisticEndInfo.Member_Today && !statisticEndInfo.Member_Yesterday}"
           >
             <div class="title">到访会员</div>
             <div class="data">
               <div class="date today">
-                <div class="amount">{{statisticInfo.Member_Today}}</div>
+                <div class="amount">
+                  <count-to
+                    ref="Member_Today"
+                    :autoplay="false"
+                    :startVal="statisticInfo.Member_Today" 
+                    :endVal="statisticEndInfo.Member_Today" 
+                    :duration='1000'>
+                  </count-to>
+                </div>
                 <div class="key">今日数据</div>
               </div>
               <div class="date yesterday">
-                <div class="amount">{{statisticInfo.Member_Yesterday}}</div>
+                <div class="amount">
+                  <count-to
+                    ref="Member_Yesterday"
+                    :autoplay="false"
+                    :startVal="statisticInfo.Member_Yesterday" 
+                    :endVal="statisticEndInfo.Member_Yesterday" 
+                    :duration='1000'>
+                  </count-to>
+                </div>
                 <div class="key">昨日数据</div>
               </div>
             </div>
           </div>
         </div>
         <div class="statistic-box" id="current">
-          <div class="item" :class="{'no-background': !statisticInfo.Current}">
+          <div class="item" :class="{'no-background': !statisticEndInfo.Current}">
             <div class="title">商场当前人数</div>
             <div class="data">
-              <div class="amount">{{statisticInfo.Current}}</div>
+              <div class="amount">
+                <count-to
+                  ref="Current"
+                  :autoplay="false"
+                  :startVal="statisticInfo.Current" 
+                  :endVal="statisticEndInfo.Current" 
+                  :duration='1000'>
+                </count-to>
+              </div>
             </div>
           </div>
         </div>
@@ -73,23 +113,25 @@
         <transition name="fade">
           <div id="sideMask" v-if="!maskToggle"></div>
         </transition>
-        <div class="side-box" v-for="(item, index) in personList" :key="index">
-          <div class="box-left">
-            <div class="name">{{item.name}}</div>
-            <div class="info">
-              <span class="gender">{{item.gender}}</span>
-              <span class="age">{{item.age}}</span>
+        <transition-group name="list-customer" class="transition-wrap right" tag="ul">
+          <li class="side-box" v-for="(item, index) in personList" v-bind:key="item.key">
+            <div class="box-left">
+              <div class="name">{{item.name}}</div>
+              <div class="info">
+                <span class="gender">{{item.gender}}</span>
+                <span class="age">{{item.age}}</span>
+              </div>
+              <div class="time">{{item.appearanceDate}}</div>
             </div>
-            <div class="time">{{item.appearanceDate}}</div>
-          </div>
-          <div class="box-right">
-            <img
-              :class="{'glow-border': index === 0 && personList.length > 10}"
-              :src="item.imgUrl"
-              alt
-            >
-          </div>
-        </div>
+            <div class="box-right">
+              <img
+                :class="{'glow-border': index === 0 && personList.length > 10}"
+                :src="item.imgUrl"
+                alt
+              >
+            </div>
+          </li>
+        </transition-group>
       </div>
     </div>
 
@@ -103,9 +145,13 @@
 import { GetSocketIP } from "@/api/common";
 import { mapState } from "vuex";
 import { GetMarketList, GetGroupPortalInfo } from "@/api/community";
-import { GetFlowRank } from '@/api/index'
+import { GetFlowRank } from "@/api/index";
+import CountTo from 'vue-count-to'
 export default {
   name: "GeneralMap",
+  components: {
+    CountTo
+  },
   data() {
     return {
       maskToggle: false,
@@ -118,16 +164,17 @@ export default {
         }
       ],
       personList: [
-        { imgUrl: "/static/avatar2.png" },
-        { imgUrl: "/static/avatar2.png" },
-        { imgUrl: "/static/avatar2.png" },
-        { imgUrl: "/static/avatar2.png" },
-        { imgUrl: "/static/avatar2.png" },
-        { imgUrl: "/static/avatar2.png" },
-        { imgUrl: "/static/avatar2.png" },
-        { imgUrl: "/static/avatar2.png" },
-        { imgUrl: "/static/avatar2.png" }
+        { imgUrl: "/static/avatar2.png", key: "1" },
+        { imgUrl: "/static/avatar2.png", key: "2" },
+        { imgUrl: "/static/avatar2.png", key: "4" },
+        { imgUrl: "/static/avatar2.png", key: "5" },
+        { imgUrl: "/static/avatar2.png", key: "6" },
+        { imgUrl: "/static/avatar2.png", key: "7" },
+        { imgUrl: "/static/avatar2.png", key: "8" },
+        { imgUrl: "/static/avatar2.png", key: "9" },
+        { imgUrl: "/static/avatar2.png", key: "10" }
       ],
+      personCount: 0,
       floorArr: [],
       community: {
         infoArr: [],
@@ -139,6 +186,13 @@ export default {
         id: "threeFrame"
       },
       statisticInfo: {
+        Incoming_Today: 0,
+        Incoming_Yesterday: 0,
+        Member_Today: 0,
+        Member_Yesterday: 0,
+        Current: 0
+      },
+      statisticEndInfo: {
         Incoming_Today: 0,
         Incoming_Yesterday: 0,
         Member_Today: 0,
@@ -162,18 +216,12 @@ export default {
     updateFrameArea(item, index) {
       this.$set(this.frame, "path", item.path);
       this.$set(this.frame, "id", item.id);
-      console.log(item.floor)
       this.community.infoArr.forEach((value, i) => {
         if (value.floor === item.floor) {
           this.community.index = i;
-          console.log(this.community.infoArr[i])
-          this.$emit(
-            "updateCommunity",
-            this.community.infoArr[i]
-          );
+          this.$emit("updateCommunity", this.community.infoArr[i]);
         }
-      })
-      
+      });
     },
     timestampToTime(timestamp) {
       let date = new Date(timestamp);
@@ -183,7 +231,6 @@ export default {
     },
     // 获取socket服务地址并建立websocket链接
     getWebsocket(groupSonGuid, groupParentGuid) {
-      console.log(groupSonGuid, groupParentGuid);
       GetSocketIP().then(res => {
         let _this = this;
         let data = {};
@@ -201,13 +248,19 @@ export default {
             if (data.data.coordinates && data.type === "SHINING") {
               this.iframe.createShine(data.data.coordinates, data.data.floor);
             } else if (data.data && data.type === "REAL_TIME_COUNTER") {
-              this.statisticInfo = {
+              this.statisticInfo = this.statisticEndInfo
+              this.statisticEndInfo = {
                 Incoming_Today: data.data.newIn,
                 Incoming_Yesterday: data.data.oldIn,
                 Member_Today: data.data.newMember,
                 Member_Yesterday: data.data.oldMember,
                 Current: data.data.newIn - data.data.newOut
               };
+              this.changeStatisticInfo('Incoming_Today')
+              this.changeStatisticInfo('Incoming_Yesterday')
+              this.changeStatisticInfo('Member_Today')
+              this.changeStatisticInfo('Member_Yesterday')
+              this.changeStatisticInfo('Current')
             } else if (data.data.memberInfo && data.type === "FACE") {
               this.imgCut(data.data);
             }
@@ -221,25 +274,33 @@ export default {
         };
       });
     },
-    formatDate(now) { 
-      if (now) {
-        now = new Date(now)
-        var year=now.getFullYear(); 
-        var month=now.getMonth()+1; 
-        var date=now.getDate(); 
-        var hour=now.getHours(); 
-        var minute=now.getMinutes(); 
-        var second=now.getSeconds(); 
-        return hour+":"+minute; 
+    changeStatisticInfo(ref) {
+      if (this.statisticInfo[ref] !== this.statisticEndInfo[ref]) {
+        this.$refs[ref].start()
       } else {
-        return "00:00"
+        this.$refs[ref].pause()
       }
-    }, 
+    },
+    formatDate(now) {
+      if (now) {
+        now = new Date(now);
+        var year = now.getFullYear();
+        var month = now.getMonth() + 1;
+        var date = now.getDate();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var second = now.getSeconds();
+        return hour + ":" + minute;
+      } else {
+        return "00:00";
+      }
+    },
     imgCut(data) {
       var img = new Image();
+      let key = data.memberInfo.imgUrl;
       var canvas = document.createElement("canvas");
-      canvas.width = 46
-      canvas.height = 46
+      canvas.width = 46;
+      canvas.height = 46;
       var context = canvas.getContext("2d");
       var dataURL;
       img.crossOrigin = "*";
@@ -251,17 +312,25 @@ export default {
           data.rect.upperY,
           data.rect.lowerX - data.rect.upperX,
           data.rect.lowerX - data.rect.upperX,
-          0, 0, 46, 46
+          0,
+          0,
+          46,
+          46
         );
-        
+
         dataURL = canvas.toDataURL("image/png");
         let obj = {
-          name: data.memberInfo.type === 'MEMBER' ? data.memberInfo.memberLabelList[0].name : '非会员',
+          name:
+            data.memberInfo.type === "MEMBER"
+              ? data.memberInfo.memberLabelList[0].name
+              : "非会员",
           age: data.memberInfo.age,
-          gender: data.memberInfo.gender === 1 ? '男' : '女',
+          gender: data.memberInfo.gender === 1 ? "男" : "女",
           appearanceDate: this.formatDate(data.memberInfo.appearanceDate),
-          imgUrl: dataURL
+          imgUrl: dataURL,
+          key: key
         };
+        this.personList.pop()
         this.personList.unshift(obj);
       };
     },
@@ -279,7 +348,8 @@ export default {
         for (let i in floorInfo) {
           let coordinate_y =
             floorInfo[i].floor >= 0
-              ? (floorInfo[i].floor - 2) * 120 - (floorInfo[minIndex].floor - 1) * 120
+              ? (floorInfo[i].floor - 2) * 120 -
+                (floorInfo[minIndex].floor - 1) * 120
               : (floorInfo[i].floor - 1) * 120;
           let img_url = floorInfo[i].mapUrl;
           let floor = floorInfo[i].floor;
@@ -355,27 +425,29 @@ export default {
     sendColor() {
       let storeInfoArr = [];
       let params = this.community.infoArr[this.community.index];
-      GetFlowRank({groupFloor: params.floor, groupGuid: params.groupParentGuid}).then(res => {
-        let groupList = JSON.parse(res.data).group
-        console.log(groupList)
+      GetFlowRank({
+        groupFloor: params.floor,
+        groupGuid: params.groupParentGuid
+      }).then(res => {
+        let groupList = JSON.parse(res.data).group;
+        console.log(groupList);
         groupList.forEach(item => {
-          let position = item.coordinates.replace('[', '').replace(']', '')
+          let position = item.coordinates.replace("[", "").replace("]", "");
           // this.transFloat(position)
           storeInfoArr.push({
             position: position,
             count: item.count,
             name: item.groupName
-          })
-        })
+          });
+        });
         this.iframe.addColor(storeInfoArr);
-      })
-      
+      });
     },
-    transFloat (arr) {
-      for(let i=0; i<arr.length; i++){
-        arr[i] = parseFloat(arr[i])
+    transFloat(arr) {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = parseFloat(arr[i]);
       }
-      return arr
+      return arr;
     },
     // home：粒子闪烁
     sendAlex() {
@@ -594,11 +666,13 @@ export default {
   }
   .map-right {
     width: 160px;
+    height: 100%;
     flex: 0 0 160px;
     #sideInfo {
       color: #ffffff;
-      background: #232027;
+      background: rgb(22, 20, 25);
       padding: 15px 20px;
+      height: 100%;
       box-sizing: border-box;
       overflow: hidden;
       position: relative;
@@ -611,14 +685,20 @@ export default {
         height: 100%;
         background: linear-gradient(
           to bottom,
-          rgba(35, 32, 39, 0),
-          rgb(35, 32, 39)
+          rgba(22, 20, 25, 0),
+          rgb(22, 20, 25) 80%,
+          rgb(22, 20, 25) 100%
         );
+      }
+      .list-customer-enter {
+        opacity: 0;
+        transform: translateY(-100%);
       }
       .side-box {
         font-size: 12px;
         overflow: hidden;
         margin-bottom: 20px;
+        transition: all 1s;
         .box-left {
           float: left;
           padding: 8px;

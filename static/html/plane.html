@@ -155,7 +155,6 @@
   <div class="under-line" id="underLine" style="width: 30px;"></div>
 </div>
 <script type="text/javascript">
-    console.log('ddd')
   let renderer, scene, camera, group;
   let scale = 0.4
   let spriteList = [];
@@ -300,19 +299,8 @@
   // 添加贴图
   function createSprite(obj) {
     // 创建文字
-    let textObj = createTextSprite(obj)
-    if (obj.text.length > 2) {
-      textObj.scale.set(0.75 * obj.text.length * 20, 0.25 * obj.text.length * 17, 250)
-      textObj.position.set(obj.position.x + 2.5 + (obj.text.length+1)*(0.6/0.4), obj.position.y - 4 - obj.text.length/0.4, 2.5)
-    } else if(obj.text.length === 2){
-      textObj.scale.set(0.75 * 40, 0.25 * 62.5, 250)
-      textObj.position.set(obj.position.x + 4.5, obj.position.y - 14, 1)
-    } else {
-      textObj.scale.set(0.75 * 15, 0.25 * 25, 100)
-      textObj.position.set(obj.position.x + 15, obj.position.y - 5.5 - obj.text.length, 2.5)
-    }
-
-    scene.add(textObj)
+    initText(obj)
+    
     // 创建图片
     if(obj.logo){
       let sprite = createPictureSprite(obj.logo)
@@ -328,7 +316,6 @@
 
   // 创建图片贴图
   function createPictureSprite (logo) {
-    console.log(logo)
     let spriteMaterial = new THREE.SpriteMaterial({
       map: new THREE.TextureLoader().load('/static/floor/' + logo),
       depthTest: false,
@@ -336,6 +323,30 @@
     })
     let sprite = new THREE.Sprite(spriteMaterial)
     return sprite
+  }
+
+  function initText(obj) {
+    var loader = new THREE.FontLoader();
+    loader.load('/static/three/FZLanTingHei_Regular.json', function (res){
+      var font = res;
+      var textGeometry = new THREE.TextGeometry(obj.text, {
+        font: font,
+        size: 7,
+        height: 1
+      })
+      text = new THREE.Mesh(textGeometry, new THREE.MultiMaterial([
+        new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          shading: THREE.FlatShading
+        })
+      ]))
+      textGeometry.computeBoundingBox();
+      var textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+      var textHeight = textGeometry.boundingBox.max.y - textGeometry.boundingBox.min.y
+      text.position.set(obj.position.x - textWidth / 2, obj.position.y - textHeight / 2 - 12, 1)
+      // console.log(text)
+      scene.add(text)
+    })
   }
 
   // 创建文字贴图
@@ -396,7 +407,6 @@
       for(let j in boxArr){
         if(boxArr[j].position){
           let shapeAlex = boxArr[j].position // 目标色块的顶点值转换为字符串
-          console.log(shapeAlex, meshAlex)
           if (shapeAlex === meshAlex) {
             let point = getCenterExtraPoint(shapesMeshArr[i].geometry.attributes.position.array)
             let ipc = {

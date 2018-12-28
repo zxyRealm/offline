@@ -20,7 +20,7 @@
 
 <body>
   <div id="WebGL-output"></div>
-  <div style="position: absolute;top: 0;">
+  <div id="slide" style="position: absolute;top: 0;">
     <a href="javascript:;" onclick="upTrigger()">上升</a>
     <a href="javascript:;" onclick="downTrigger()">下降</a>
   </div>
@@ -170,7 +170,7 @@
     var count
     var standardCount
     var positionSpeed = 2
-    var opacitySpeed = 0.3 * positionSpeed / floorHeight
+    var opacitySpeed = 0.9 * positionSpeed / floorHeight
     var upClick = false
     var upHeight = 0
     var downClick = false
@@ -276,7 +276,7 @@
         pointArr[i].position.set(alex[0], floor, alex[1])
         pointArr[i].rotation.x = 0.5 * Math.PI
       }
-      if (floor < -120 || floor > 240) {
+      if (floor < -120 || floor > 245) {
         pointArr[i].visible = false
       } else {
         pointArr[i].visible = true
@@ -324,7 +324,7 @@
       } else {
         alpha = 1
       }
-      floor = floor * floorHeight - (count - standardCount) * floorHeight - (10 - 1) * 120 - alpha * floorHeight
+      floor = 5 + floor * floorHeight - (count - standardCount) * floorHeight - (10 - 1) * 120 - alpha * floorHeight
       shine = Shine(index, alx, floor)
       createAnimate(shine, index)
     }
@@ -355,19 +355,19 @@
         var rayPlaneList = planeList.slice(count, count+4)
         var subRayList = group.children.slice(count, count+4)
         var intersects = raycaster.intersectObjects(rayPlaneList);
-        if (intersects.length > 0) {
-          for (var i = 0; i < rayPlaneList.length; i++) {
-            if (intersects[0].object === rayPlaneList[i]) {
-              moveChange(subRayList[i], 0x2a4586, 0xA1BCD4)
-            } else {
-              moveChange(subRayList[i], 0x233E85, 0xA1BCD4)
-            }
-          }
-        } else {
-          for (var i = 0; i < rayPlaneList.length; i++) {
-            moveChange(subRayList[i], 0x233E85, 0xA1BCD4)
-          }
-        }
+        // if (intersects.length > 0) {
+        //   for (var i = 0; i < rayPlaneList.length; i++) {
+        //     if (intersects[0].object === rayPlaneList[i]) {
+        //       moveChange(subRayList[i], 0x2a4586, 0xA1BCD4)
+        //     } else {
+        //       moveChange(subRayList[i], 0x233E85, 0xA1BCD4)
+        //     }
+        //   }
+        // } else {
+        //   for (var i = 0; i < rayPlaneList.length; i++) {
+        //     moveChange(subRayList[i], 0x233E85, 0xA1BCD4)
+        //   }
+        // }
       }
 
     }
@@ -421,6 +421,10 @@
         else
           floorArr = floor.reverse()
       }
+      if (floor.length <= 4) {
+        let slideBox = document.getElementById('slide')
+        slideBox.style.display = 'none'
+      }
       // 创建楼层图片
       for (var i = 0; i < floorArr.length; i++) {
         loadSvg(group, floorArr[i])
@@ -471,22 +475,53 @@
       loader.load(info.img_url, paths => {
         for (var i = 0; i < paths.length; i++) {
           var path = paths[i]
+          var depth = 5
           var shapes = path.toShapes(true);
-          var opacity = info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.3
+          var opacity = info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.9
           for (var j = 0; j < shapes.length; j++) {
             var shape = shapes[j];
             if (i !== 0) {
               shape.autoClose = true
               var points = shape.getPoints()
-              var geometryPoints = new THREE.BufferGeometry().setFromPoints(points)
-              var materialPoints = new THREE.LineBasicMaterial({
-                color: '#A1BCD4',
+              // var geometryPoints = new THREE.BufferGeometry().setFromPoints(points)
+              // var materialPoints = new THREE.LineBasicMaterial({
+              //   color: '#A1BCD4',
+              //   transparent: true,
+              //   opacity: opacity
+              // })
+              // var line = new THREE.Line(geometryPoints, materialPoints)
+              // line.position.set(0, info.coordinate_y, 0)
+              // line.rotation.set(0.5 * Math.PI, 0, 0)
+              // line.add(edgeLine)
+              // group.add(line)
+
+              var geometry = new THREE.ExtrudeBufferGeometry(shape, {depth: depth, bevelEnabled: false})
+              var materialLine = new THREE.MeshPhongMaterial({
+                color: new THREE.Color('#4a5d8c'),
+                emissive: new THREE.Color('#4a5d8c'),
+                transparent: true,
+                opacity: opacity,
+                side: THREE.DoubleSide,
+                // depthWrite: false
+              })
+              var line = new THREE.Mesh(geometry, materialLine)
+
+              var edgeGeometry = new THREE.BufferGeometry().setFromPoints(points)
+              var edgeMaterial = new THREE.LineBasicMaterial({
+                color: '#000000',
                 transparent: true,
                 opacity: opacity
               })
-              var line = new THREE.Line(geometryPoints, materialPoints)
-              line.position.set(0, info.coordinate_y, 0)
+              var edges = new THREE.Line(edgeGeometry, edgeMaterial)
+
+              // var edges = new THREE.EdgesGeometry(geometry)
+              // var edgeLine = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#000000'}))
+              
+              line.position.set(0, info.coordinate_y + depth, 0)
               line.rotation.set(0.5 * Math.PI, 0, 0)
+              edges.position.set(0, info.coordinate_y + depth, 0)
+              edges.rotation.set(0.5 * Math.PI, 0, 0)
+              group.add(edges)
               group.add(line)
             }
           }
@@ -507,7 +542,7 @@
               color: '#233E85',
               side: THREE.DoubleSide,
               transparent: true,
-              opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.3
+              opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.9
             }));
 
             mesh.position.set(0, info.coordinate_y, 0);
