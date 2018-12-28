@@ -87,7 +87,7 @@ export default {
     .app-main-content {
       &:not(.no-padding){
         > div {
-          padding: 0 20px;
+          /*padding: 0 20px;*/
         }
       }
       > div {

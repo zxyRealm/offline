@@ -169,7 +169,7 @@ export default {
     },
     // 定义颜色
     changeColor () {
-      this.option.color = this.$store.state.filterParams.type == 3 ? [
+      this.option.color = this.filterParams.type === 'age' ? [
         new echarts.graphic.LinearGradient(
           0, 1, 0, 0,
           [
@@ -291,32 +291,15 @@ export default {
         this.changeSeries()
         this.drawLine()
       })
-      // this.$http('/chart/line', {
-      //   groupGuid: this.$store.state.groupSelectId,
-      //   type: 1,
-      //   dimension: 1,
-      //   startTime: this.$getNowFormatDate(),
-      //   endTime: this.$getNowFormatDate()
-      // }).then(res => {
-      //   if (res.result == 1) {
-      //     this.data = res.data
-      //     this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-      //     this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
-      //     this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
-      //     this.changeSeries()
-      //     // this.option.legend['data'] = this.$legendArray(this.data.seriesGroup);
-      //     this.drawLine()
-      //   }
-      // }).catch(error => {
-      //   console.info(error)
-      // })
     },
     // 请求数据
     getData () {
-      let params = this.$store.state.filterParams
+      let params = JSON.parse(JSON.stringify(this.$store.state.filterParams))
+      params.endTime = params.endTime + ' 24:00:00'
+      params.startTime = params.startTime + ' 00:00:00'
       this.option.title = this.$apply(this.option.title, this.lineParams.title)
       console.log('chart line ===============', params)
-      this.$http('/chart/line', params).then(res => {
+      GetChartLine(params).then(res => {
         this.data = res.data
         this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
         this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式

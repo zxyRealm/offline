@@ -631,3 +631,73 @@
     }
   }
 }
+
+//行为轨迹 select下拉框定制样式
+.select__popper--wrap{
+  background: #26232B;
+  border: none;
+  padding-bottom: 12px;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+  &.el-popper[x-placement^=bottom]{
+   margin-top: 0;
+  }
+  .popper__arrow{
+    display: none;
+  }
+  .el-select-dropdown__list{
+    padding: 6px 15px;
+    //box-sizing: border-box;
+    .el-select-dropdown__item{
+      height: 24px;
+      line-height: 24px;
+      font-size: 12px;
+      padding: 0 5px;
+      color: #fff;
+      background: transparent;
+      &.selected, &:hover{
+        color: #0F9EE9;
+        background: transparent;
+      }
+    }
+    .el-input{
+      width: 124px;
+      height: 26px;
+      margin-bottom: 14px;
+      line-height: 26px;
+      background: rgba(0,0,0,0.20);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 13px;
+      .el-input__inner{
+        height: 26px;
+        line-height: 26px;
+        vertical-align: top;
+      }
+      .el-icon-search{
+        line-height: 26px;
+        color: #2493D2;
+        font-size: 18px;
+        //background-image: linear-gradient(-135deg, #4BC5EB 0%, #2493D2 100%);
+      }
+    }
+    .inner-left{
+      float: left;
+      width: 66px;
+      height: 100%;
+      .el-select-dropdown__item{
+        padding: 0;
+        &.selected{
+          color: #fff;
+        }
+        &.active{
+          color: #0F9EE9;
+        }
+      }
+    }
+    .inner-right{
+      float: left;
+      width: 124px;
+      padding-left: 10px;
+      border-left: 1px solid rgba(151,151,151,0.10);
+    }
+  }
+}

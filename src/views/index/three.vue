@@ -243,14 +243,15 @@ export default {
     // 初始化获取数据
     initBaseData () {
       let info = this.currentFloor
-      // clearTimeout(this.timer)
-      // this.timer = setTimeout(() => {
-      //   this.initBaseData()
-      // }, 5000)
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        this.initBaseData()
+      }, 5000)
       // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
       if (!info) return
       GetFlowRank({groupFloor: info.floor, groupGuid: info.groupParentGuid}).then(res => {
         res.data = JSON.parse(res.data)
+        // console.log('rank ------------', res.data)
         let industryTotal = 0
         let groupTotal = 0
         res.data.industry.map(item => {
@@ -272,6 +273,7 @@ export default {
       // 获取实时比率
       GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupSonGuid}).then(res => {
         let resData = JSON.parse(res.data)
+        // console.log('ratio ------------', resData)
         resData = this.ComunicationPer(resData)
         resData.gender = {
           man: resData.gender.filter(item => item.code === 'MAN')[0] || '',
@@ -363,7 +365,8 @@ export default {
   }
   .floor__data--wrap{
     float:left;
-    width: 28%;
+    /*width: 28%;*/
+    width: 400px;
     height: 100%;
     margin-right: 5px;
     .el-scrollbar{
@@ -389,9 +392,9 @@ export default {
       .items{
         float: left;
         height: 100%;
-        width: calc(50% - 2px);
+        width: calc(50% - 5px);
         &:first-child{
-          margin-right: 4px;
+          margin-right: 10px;
         }
       }
       .sex__data--wrap{

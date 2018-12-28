@@ -380,6 +380,7 @@ export default {
     $route (to, from) {
       if (to.path === '/console') this.selectName = '请选择您的社群'
       if (to.path.indexOf('index/notify') > -1) this.notifyToggle()
+      if (!this.manageList.length) this.addCommunityVisible = true
     },
     // 当消失的时候不记录上次选择
     dialogFormVisible (val) {
@@ -426,6 +427,8 @@ export default {
         if (res.data.length) {
           this.manageGroup = this.manageList[0].id
           this.$store.commit('SET_CURRENT_MANAGE', this.manageList[0])
+        } else {
+          this.addCommunityVisible = true
         }
       })
     },

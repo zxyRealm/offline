@@ -30,7 +30,7 @@
         <i class="ob-icon__member"></i>
         <span slot="title">人员管理</span>
       </el-menu-item>
-      <el-menu-item index="/action">
+      <el-menu-item index="/behavior">
         <i class="ob-icon__action"></i>
         <span slot="title">行为分析</span>
       </el-menu-item>

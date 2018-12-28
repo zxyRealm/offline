@@ -67,19 +67,20 @@
                   <span class="ellipsis-64">{{communityInfo.industryTypeName}}</span></div>
                 <!--如果成员社群加入了管理员社群即展示其管理员社群列表-->
                 <!--v-if="userInfo.developerId === communityInfo.merchantGuid && communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.level === 1"-->
+                <!--{{communityInfo}}-->
                 <div
-                  v-if="communityInfo.self && communityInfo.parentInfoList && communityInfo.parentInfoList.length && communityInfo.level === 2"
+                  v-if="communityInfo.self && communityInfo.parentInfoList && communityInfo.parentInfoList.length && communityInfo.level === 1"
                   class="parent__list"
                   >
                   <span class="fl info__label">已加入：</span>
                   <div
-                    v-for="(item,$index) in parentInfoList.parentGroups"
+                    v-for="(item,$index) in communityInfo.parentInfoList"
                     :key="$index"
                     class="parents-item">
                     <span class="ellipsis">{{item.name}}</span>
                     <uu-icon
                       size="small" type="quit"
-                      v-show="communityInfo.self"
+                      v-show="!item.self"
                       @click.native="leaveCommunity('quit',communityInfo, item)"></uu-icon>
                   </div>
                 </div>
@@ -370,7 +371,11 @@ export default {
             GetCommunityInfoByCode({code: value}).then(res => {
               if (res.data && res.data.id) {
                 this.ManageInfo = res.data
-                callback()
+                let isManage
+                if (this.communityInfo.parentInfoList) {
+                  isManage = this.communityInfo.parentInfoList.filter(item => item.type === this.ManageInfo.type)[0]
+                }
+                isManage ? callback(new Error(`已加入其他${this.ManageInfo.type === 1 ? '商场' : '连锁'}社群`)) : callback()
               } else {
                 this.ManageInfo = {}
                 callback(new Error('邀请码不存在'))
@@ -872,11 +877,9 @@ export default {
         case 'quit':
           title = '退出管理员社群'
           des = `退出管理员社群后，当前社群的数据与设备将不会被<br/>管理员社群显示与操作`
-          url = '/group/exit'
           break
         default:
           des = `确定删除该社群？`
-          url = '/group/remove'
       }
       this.$affirm({title: title, text: `${des}`, confirm: '退出'}, (action, instance, done) => {
         if (action === 'confirm') {
@@ -1080,30 +1083,47 @@ export default {
     },
     // 删除社群
     deleteGroup () {
-      GetGroupPortalCount({groupSonId: this.currentCommunity.groupSonGuid}).then(res => {
-        if (res.data.portalNumber) {
-          this.$affirm({text: `删除社群前，请先删除出入口`, title: '删除社群', confirm: '我知道了'}, (action, instance, done) => {
-            done()
-          })
-        } else {
-          this.$affirm({text: `删除社群后，社群下的所有信息都将被删除`, title: '删除社群', confirm: '删除'}, (action, instance, done) => {
-            if (action === 'confirm') {
-              if (this.communityInfo.level === 1) {
-                DeleteMember({groupSonId: this.communityInfo.guid}).then(res => {
-                  this.$tip('删除成功')
-                  this.getGroupList('refresh')
-                })
-              } else {
-                DeleteCommunity({id: this.communityInfo.guid}).then(res => {
-                  this.$tip('删除成功')
-                  eventObject().$emit('ManageListRefresh')
-                })
+      if (this.communityInfo.self) {
+        GetGroupPortalCount({groupSonId: this.currentCommunity.groupSonGuid}).then(res => {
+          if (res.data.portalNumber) {
+            this.$affirm({text: `删除社群前，请先删除出入口`, title: '删除社群', confirm: '我知道了'}, (action, instance, done) => {
+              done()
+            })
+          } else {
+            this.$affirm({text: `删除社群后，社群下的所有信息都将被删除`, title: '删除社群', confirm: '删除'}, (action, instance, done) => {
+              if (action === 'confirm') {
+                if (this.communityInfo.level === 1) {
+                  DeleteMember({groupSonId: this.communityInfo.guid}).then(res => {
+                    this.$tip('删除成功')
+                    this.getGroupList('refresh')
+                  })
+                } else {
+                  DeleteCommunity({id: this.communityInfo.guid}).then(res => {
+                    this.$tip('删除成功')
+                    eventObject().$emit('ManageListRefresh')
+                  })
+                }
               }
-            }
-            done()
-          })
-        }
-      })
+              done()
+            })
+          }
+        })
+      } else {
+        this.$affirm({text: `删除社群后，社群下的所有信息都将被删除`, title: '删除社群', confirm: '删除'}, (action, instance, done) => {
+          if (action === 'confirm') {
+            ExitManage({
+              groupId: this.communityInfo.guid,
+              groupPid: this.currentManage.id,
+              groupNickName: this.communityInfo.nickName,
+              parentGroupNickName: this.currentManage.name
+            }).then(res => {
+              this.$tip('删除成功')
+              this.getGroupList('refresh')
+            })
+          }
+          done()
+        })
+      }
     },
     // 地图区块点击事件
     handleBlockClick (data) {
