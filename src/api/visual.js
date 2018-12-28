@@ -32,3 +32,12 @@ export function GetTimeRatio (data) {
     data
   })
 }
+
+// 数据分析客流统计表格数据
+export function GetFlowCount (data) {
+  return request({
+    tip: false,
+    url: '/chart/flow/count',
+    data
+  })
+}

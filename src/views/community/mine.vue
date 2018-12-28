@@ -805,7 +805,7 @@ export default {
       if (!this.currentManage.id) return
       GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: this.currentManage.id}).then(res => {
         res.data.level = val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
-        res.data.self = res.data.merchantGuid === this.userInfo.developerId
+        res.data.self = res.data.merchantGuid === this.userInfo.developerId // slef 属性控制自有与非自有社群操作限制
         this.communityInfo = res.data || {}
       })
     },

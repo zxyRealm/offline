@@ -88,13 +88,13 @@ export default {
           icon: 'line',
           data: [
             {
-              name: '进客流',
+              name: '客流入',
               textStyle: {
                 color: 'rgba(109,46,187,1)'
               }
             },
             {
-              name: '出客流',
+              name: '客流出',
               textStyle: {
                 color: 'rgba(15,158,233,1)'
               }
@@ -236,9 +236,6 @@ export default {
     changeTitle () {
       this.option.title = this.$apply(this.option.title, this.lineParams.title)
     },
-    changeSeriesData () {
-
-    },
     // 改变Series单个项目配置
     changeSeries () {
       let params = {
@@ -294,7 +291,7 @@ export default {
     },
     // 请求数据
     getData () {
-      let params = JSON.parse(JSON.stringify(this.$store.state.filterParams))
+      let params = JSON.parse(JSON.stringify(this.filterParams))
       params.endTime = params.endTime + ' 24:00:00'
       params.startTime = params.startTime + ' 00:00:00'
       this.option.title = this.$apply(this.option.title, this.lineParams.title)
@@ -305,14 +302,16 @@ export default {
         this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
         this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
         this.changeSeries()
-        if (this.filterParams.type === 3) {
-          this.option.legend['data'] = this.addColor(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
-        }
-        if (this.filterParams.type === 2) {
-          this.option.legend['data'] = this.genderLegend
-        }
-        if (this.filterParams.type === 4) {
-          this.option.legend['data'] = this.shopLegend
+        switch (this.filterParams.type) {
+          case 'age':
+            this.option.legend['data'] = this.addColor(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
+            break
+          case 'sex':
+            this.option.legend['data'] = this.genderLegend
+            break
+          case 'repeat':
+            this.option.legend['data'] = this.shopLegend
+            break
         }
         this.drawLine()
       }).catch(error => {
@@ -321,7 +320,7 @@ export default {
     },
     // 模拟假数据series
     simulateSeries (data) {
-      let emptyAaray = []
+      let emptyArray = []
       for (let i = 0; i < data.length; i++) {
         let params = {
           name: data[i],
@@ -330,9 +329,9 @@ export default {
           itemStyle: {normal: {areaStyle: {type: 'default'}}},
           data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
         }
-        emptyAaray.push(params)
+        emptyArray.push(params)
       }
-      return emptyAaray
+      return emptyArray
     },
     // 给legend字体颜色
     addColor (data) {
@@ -351,18 +350,20 @@ export default {
     },
     // 默认数据展示 = 可视化
     defaultShow () {
-      let type = this.$store.state.filterParams.type
-      if (type == 2) {
-        this.option.legend['data'] = this.genderLegend
-        this.option.series = this.simulateSeries(['女', '男'])
-      }
-      if (type == 3) {
-        this.option.legend['data'] = this.addColor(['0-10', '11-20', '21-30', '31-40', '41-50', '50以上'])
-        this.option.series = this.simulateSeries(['0-10', '11-20', '21-30', '31-40', '41-50', '50以上'])
-      }
-      if (type == 4) {
-        this.option.legend['data'] = this.shopLegend
-        this.option.series = this.simulateSeries(['多次', '单次'])
+      // let type = this.$store.state.filterParams.type
+      switch (this.filterParams.type) {
+        case 'sex':
+          this.option.legend['data'] = this.genderLegend
+          this.option.series = this.simulateSeries(['女', '男'])
+          break
+        case 'age':
+          this.option.legend['data'] = this.addColor(['0-10', '11-20', '21-30', '31-40', '41-50', '50以上'])
+          this.option.series = this.simulateSeries(['0-10', '11-20', '21-30', '31-40', '41-50', '50以上'])
+          break
+        case 'repeat':
+          this.option.legend['data'] = this.shopLegend
+          this.option.series = this.simulateSeries(['多次', '单次'])
+          break
       }
     }
   },
@@ -371,7 +372,7 @@ export default {
       this.timing() // 定时刷新数据，一个小时一次
     } else {
       this.changeColor()
-      if (!this.$store.state.filterParams.groupGuid || (this.$store.state.filterParams.groupGuid == '')) {
+      if (!this.filterParams.groupSonGuid) {
         this.changeTitle()
         this.defaultShow()
         this.drawLine()

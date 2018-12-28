@@ -32,6 +32,22 @@ export function AddDevice (data) {
   })
 }
 
+// 查询用户所有设备（一体机、摄像头）
+export function GetAllDevice (data) {
+  return request({
+    url: '/device/all',
+    data
+  })
+}
+
+// 查询用户设备中已经绑定了出入口的一体机
+export function GetAllAioList (data) {
+  return request({
+    url: '/device/all/aio',
+    data
+  })
+}
+
 // 摄像头
 
 // 商户添加设备(摄像头)
@@ -46,6 +62,14 @@ export function AddCamera (data) {
 export function GetCameraList (data) {
   return request({
     url: '/device/camera',
+    data
+  })
+}
+
+// 查询用户设备中已经绑定了出入口的摄像头
+export function GetAllCameraList (data) {
+  return request({
+    url: '/device/all/camera',
     data
   })
 }

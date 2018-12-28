@@ -95,7 +95,8 @@ export default {
         timeIntervalUnit: 'hour', // 维度
         startTime: '', // 开始时间
         endTime: '', // 结束时间
-        timeArray: []
+        timeArray: [],
+        groupName: ''
       },
       groupList: [] // 社群列表信息
 
@@ -110,7 +111,9 @@ export default {
       })
     },
     // 更换选取社群
-    groupChange () {},
+    groupChange () {
+      this.filterParams.groupName = this.groupList.filter(item => item.guid === this.filterParams.groupSonGuid)[0].name
+    },
     // 点击维度
     handleButton (value) {
       this.filterParams.timeIntervalUnit = value.type
