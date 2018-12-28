@@ -1,8 +1,8 @@
 <template>
   <div class="behavior__content--wrap">
     <uu-sub-tab
-      back
-      :menu-array="menu"
+      :back="$route.name === 'BehaviorTrail'"
+      :menu-array="[{title: $route.name === 'BehaviorTrail' ? '行为轨迹' : '行为分析'}]"
     ></uu-sub-tab>
     <router-view></router-view>
   </div>

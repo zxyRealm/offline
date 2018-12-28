@@ -632,18 +632,21 @@
   }
 }
 
-//行为轨迹 select下拉框定制样式
-.select__popper--wrap{
+//黑色主题popper 统一样式
+.theme__popper--wrap{
   background: #26232B;
   border: none;
   padding-bottom: 12px;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
   &.el-popper[x-placement^=bottom]{
-   margin-top: 0;
+    margin-top: 0;
   }
   .popper__arrow{
     display: none;
   }
+}
+//行为轨迹 select下拉框定制样式
+.select__popper--wrap{
   .el-select-dropdown__list{
     padding: 6px 15px;
     //box-sizing: border-box;
@@ -698,6 +701,63 @@
       width: 124px;
       padding-left: 10px;
       border-left: 1px solid rgba(151,151,151,0.10);
+    }
+  }
+}
+
+.trail__detail--wrap{
+  .el-date-editor{
+    height: 24px;
+    line-height: 24px;
+    .el-input__inner{
+      height: 24px;
+      line-height: 24px;
+      padding: 0;
+      cursor: pointer;
+    }
+  }
+
+}
+
+// 日期选择器定制样式
+.date__popper--wrap{
+  &.el-picker-panel{
+    color: #fff;
+  }
+  .el-month-table,
+  .el-year-table{
+    font-size: 14px;
+    td .cell{
+      color: #fff;
+    }
+  }
+  .el-date-table{
+    font-size: 14px;
+    th{
+      border: none;
+    }
+    td{
+      span{
+        height: 28px;
+        width: 28px;
+        line-height: 28px;
+        border-radius: 14px;
+      }
+     &.next-month,
+     &.prev-month{
+       color: rgba(255,255,255, 0.5);
+     }
+     &.current:not(.disabled) span{
+       background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
+     }
+    }
+  }
+  .el-date-picker__header{
+    .el-picker-panel__icon-btn{
+      color: #fff;
+    }
+    .el-date-picker__header-label{
+      color: #fff;
     }
   }
 }
