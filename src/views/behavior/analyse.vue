@@ -4,7 +4,7 @@
       <el-select
         value-key="guid"
         class="behavior__select"
-        popper-class="select__popper--wrap"
+        popper-class="select__popper--wrap theme__popper--wrap"
         v-model="filter.group">
         <el-input placeholder="快速查找社群" class="select__search" v-model="search.group">
           <i slot="prefix" class="el-input__icon el-icon-search"></i>
@@ -20,7 +20,7 @@
         @blur="selectBlur"
         value-key="guid"
         class="behavior__select"
-        popper-class="select__popper--wrap"
+        popper-class="select__popper--wrap theme__popper--wrap"
         v-model="filter.device">
         <div class="behavior__select--inner clearfix">
           <div class="inner-left">
@@ -42,6 +42,63 @@
       </el-select>
       <a href="javascript:void (0)" class="fr">刷新</a>
     </div>
+    <div>
+      <el-table
+      border
+      :data="behaviorList"
+      >
+        <el-table-column
+          prop="portalName"
+          width="120"
+          align="center"
+          label="抓拍图">
+          <template slot-scope="scope">
+            <img width="24" :src="scope.row.url" alt="">
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          prop="name"
+          width="120"
+          align="center"
+          label="姓名">
+        </el-table-column>
+        <el-table-column
+          prop="set"
+          width="120"
+          align="center"
+          label="性别">
+        </el-table-column>
+        <el-table-column
+          prop="age"
+          width="120"
+          align="center"
+          label="年龄">
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          align="center"
+          label="所属会员库">
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="操作">
+          <template slot-scope="scope">
+            <router-link to="/behavior/trail">查看移动轨迹</router-link>
+            <!--<a href="javascript:void (0)">查看移动轨迹</a>-->
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        @current-change="getBehaviorList"
+        @size-change="sizeChange"
+        :page-sizes="[10, 20, 30]"
+        :current-page="pagination.index"
+        :page-size="pagination.length"
+        layout="total,sizes,prev, pager, next, jumper"
+        :total="pagination.total">
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -61,7 +118,16 @@ export default {
         group: -1,
         device: -1
       },
-      groupList: []
+      groupList: [], // 社群列表
+      deviceList: [], // 设备列表
+      behaviorList: [
+        {name: '鱼鱼鱼'}
+      ], // 行为信息列表
+      pagination: {
+        index: 2,
+        length: 4,
+        total: 100
+      }
     }
   },
   created () {
@@ -92,7 +158,10 @@ export default {
     },
     selectBlur () {
       this.selectType = ''
-    }
+    },
+    sizeChange () {},
+    // 获取行为分析信息列表
+    getBehaviorList () {}
   },
   watch: {
     currentManage: {
