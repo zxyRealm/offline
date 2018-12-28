@@ -53,12 +53,12 @@
 
     function initText() {
       var loader = new THREE.FontLoader();
-      loader.load('/three/FZLanTingHei_Regular.json', function (response) {
+      loader.load('/three/FZLanTingHeiS_UL.json', function (response) {
         var font = response;
 
         var textGeometry = new THREE.TextGeometry("中文字", {
           font: font,
-          size: 2,
+          size: 10,
           height: 1
         })
 
