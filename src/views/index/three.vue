@@ -273,7 +273,6 @@ export default {
       // 获取实时比率
       GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupSonGuid}).then(res => {
         let resData = JSON.parse(res.data)
-        // console.log('ratio ------------', resData)
         resData = this.ComunicationPer(resData)
         resData.gender = {
           man: resData.gender.filter(item => item.code === 'MAN')[0] || '',

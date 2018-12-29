@@ -65,7 +65,7 @@
               v-for="(item,$index) in ownDeviceList"
               :label="item.deviceKey"
               :disabled="item.disabled"
-              :key="$index">{{item.name}}</el-checkbox>
+              :key="$index">{{item.deviceName}}</el-checkbox>
           </el-checkbox-group>
         </el-scrollbar>
       </div>
@@ -81,7 +81,7 @@
 import {mapState} from 'vuex'
 import Mixins from '../../utils/mixins'
 import {GetGroupPortalInfo, GetPortalDeviceList, PortalUnbindDevice, PortalBatchBindDevice, CheckPortalNameExist, CreatePortal, EditPortal, DeletePortal, GetGroupPortalCount} from '../../api/community'
-import {GetOwnDeviceList} from '../../api/device'
+import {GetAllDevice} from '../../api/device'
 import {validateRule} from '../../utils/validate'
 
 export default {
@@ -255,7 +255,7 @@ export default {
       let arr = checked.map(item => {
         return {
           deviceKey: item.deviceKey,
-          name: item.name,
+          name: item.deviceName,
           merchantGuid: this.userInfo.developerId,
           portalGuid: this.currentPortal.guid
         }
@@ -269,13 +269,14 @@ export default {
     },
     // 删除出入口设备
     deletePortalDevice (data) {
+      console.log('device portal', data)
       this.$affirm({
         title: '删除绑定关系',
         confirm: '删除',
         text: '删除关系后，该出入口下将不包含该设备'
       }, (action, instance, done) => {
         if (action === 'confirm') {
-          PortalUnbindDevice({deviceKey: this.deviceInfo.list[data.index].deviceKey}).then(res => {
+          PortalUnbindDevice({deviceKey: this.deviceInfo.list[data.index].deviceKey, portalGuid: data.detail.guid}).then(res => {
             this.$tip('删除成功')
             this.getPortalCameraCount()
             this.getDeviceList(data.detail)
@@ -298,16 +299,16 @@ export default {
       this.AddDeviceVisible = true
       this.currentPortal = data
       this.checkedItems = this.deviceInfo.list.map(item => item.deviceKey)
-      GetOwnDeviceList().then(res => {
+      GetAllDevice().then(res => {
         // this.currentPortal = row
         let deviceKeySet = new Set(this.deviceInfo.list.map(item => item.deviceKey))
-        res.data.content = res.data.content.map(item => {
+        res.data = res.data.map(item => {
           if (deviceKeySet.has(item.deviceKey)) {
             item.disabled = true
           }
           return item
         })
-        this.ownDeviceList = res.data.content || []
+        this.ownDeviceList = res.data || []
         this.AddDeviceVisible = true
       })
     },

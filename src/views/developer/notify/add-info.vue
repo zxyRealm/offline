@@ -119,6 +119,7 @@ export default {
       height: 520px;
       width: 690px;
       margin: 0 auto;
+      margin-top: 50px;
       background: rgba(1, 8, 20, 0.10);
       border: 1px dashed rgba(151, 151, 151, 0.10);
     }

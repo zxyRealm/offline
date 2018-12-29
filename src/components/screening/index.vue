@@ -196,11 +196,11 @@ export default {
   .screening-wrap{
     .el-form-item{
       .el-form-item__label{
-        line-height: 28px;
+        line-height: 30px;
       }
       .el-form-item__content{
-        height: 28px;
-        line-height: 28px;
+        height: 30px;
+        line-height: 30px;
       }
     }
   }
@@ -349,6 +349,9 @@ export default {
         cursor: pointer;
         box-sizing: border-box;
         overflow: hidden;
+        &:last-child{
+          margin-right: 0;
+        }
       }
       .actived {
         color: #2187DF;

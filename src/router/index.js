@@ -450,7 +450,7 @@ export const constantRouterMap = [
         name: 'Behavior',
         children: [
           {
-            path: 'trail',
+            path: 'trail/:personId?',
             name: 'BehaviorTrail',
             component: BehaviorTrail,
             meta: {

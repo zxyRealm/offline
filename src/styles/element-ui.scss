@@ -676,10 +676,11 @@
         line-height: 26px;
         vertical-align: top;
       }
-      .el-icon-search{
+      .el-input__icon{
         line-height: 26px;
         color: #2493D2;
         font-size: 18px;
+        cursor: pointer;
         //background-image: linear-gradient(-135deg, #4BC5EB 0%, #2493D2 100%);
       }
     }

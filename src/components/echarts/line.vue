@@ -279,7 +279,7 @@ export default {
         this.drawLine()
         return
       }
-      console.log('echart line-------', this.filterParams)
+      // console.log('echart line-------', this.filterParams)
       GetChartLine(this.filterParams).then(res => {
         this.data = res.data
         this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
@@ -295,7 +295,7 @@ export default {
       params.endTime = params.endTime + ' 24:00:00'
       params.startTime = params.startTime + ' 00:00:00'
       this.option.title = this.$apply(this.option.title, this.lineParams.title)
-      console.log('chart line ===============', params)
+      // console.log('chart line ===============', params)
       GetChartLine(params).then(res => {
         this.data = res.data
         this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])

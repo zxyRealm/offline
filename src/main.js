@@ -16,6 +16,7 @@ import subTab from '@/components/subTab'
 import uuForm from '@/components/form'
 import obList from '@/components/data-list'
 import obListItem from '@/components/data-list/sub-item'
+import ImageBox from '@/components/ImageBox' // 图片展示组件
 import obDialogForm from '@/components/dialog-form'
 import obGroupNav from '@/components/group-nav'
 import obListEmpty from '@/components/list-empty'
@@ -38,6 +39,7 @@ Vue.component(obListItem.name, obListItem)
 Vue.component(obGroupNav.name, obGroupNav)
 Vue.component(obDialogForm.name, obDialogForm)
 Vue.component(obListEmpty.name, obListEmpty)
+Vue.component(ImageBox.name, ImageBox)
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
