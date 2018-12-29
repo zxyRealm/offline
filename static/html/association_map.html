@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <title>线下浏览器</title>
   <style type="text/css">
+    p,input{
+      padding: 0;
+      margin: 0;
+    }
     body,html {
       padding: 0;
       margin: 0;
@@ -13,10 +17,10 @@
     .ellipsis {
       display: inline-block;
       overflow: hidden;
+      max-width: 100%;
       text-overflow: ellipsis;
       white-space: nowrap;
       box-sizing: border-box;
-      vertical-align: middle;
     }
     .flat {
       position: absolute;
@@ -49,7 +53,7 @@
 
     }
     .levitaten .title {
-      padding: 3px 5px;
+      padding: 3px 2px;
       color: #ffffff;
       overflow: hidden;
       border-bottom: 1px dashed #979797;
@@ -146,11 +150,12 @@
       display: none;
     }
     .pull-left {
-      float: left;
-      width: 60px;
+      margin-right: 34px;
+      overflow: hidden;
     }
 
     .pull-right {
+      width: 34px;
       float: right;
     }
     .pull-right > img{
@@ -188,39 +193,16 @@
 <!--出入口设备列表信息-->
 <div class="levitaten" id="device__popper--wrap">
   <div class="title">
-    <div class="pull-left ellipsis" id="device--title"></div>
     <div class="pull-right">
       <img src="/static/img/edit_icon2x.png" data-type="editPortal" alt="">
       <img src="/static/img/delete_icon.png" data-type="deletePortal" alt="">
     </div>
+    <div class="pull-left">
+      <p id="device--title" class="ellipsis"></p>
+    </div>
   </div>
   <div class="device-list-wrap">
     <ul class="device-list" id="device--list">
-      <!--<li>-->
-        <!--<img src="/static/floor/camera1.png" width="11">-->
-        <!--<span class="ellipsis">设备一号</span>-->
-        <!--<img class="delete&#45;&#45;icon" src="/static/img/close_icon.png" alt="">-->
-      <!--</li>-->
-      <!--<li>-->
-        <!--<img src="/static/floor/camera1.png" width="11">-->
-        <!--<span class="ellipsis">设备2号</span>-->
-        <!--<i class="el-icon-close"></i>-->
-      <!--</li>-->
-      <!--<li>-->
-        <!--<img src="/static/floor/camera1.png" width="11">-->
-        <!--<span class="ellipsis">设备3号</span>-->
-        <!--<i class="el-icon-close"></i>-->
-      <!--</li>-->
-      <!--<li>-->
-        <!--<img src="/static/floor/camera1.png" width="11">-->
-        <!--<span class="ellipsis">设备4号</span>-->
-        <!--<i class="el-icon-close"></i>-->
-      <!--</li>-->
-      <!--<li>-->
-        <!--<img src="/static/floor/camera1.png" width="11">-->
-        <!--<span class="ellipsis">设备5号</span>-->
-        <!--<i class="el-icon-close"></i>-->
-      <!--</li>-->
     </ul>
   </div>
   <div class="add-button">
@@ -285,6 +267,7 @@
   // 加载渲染svg地图
   function loadSvg (data) {
     communityData = data
+    console.log('community info-----------------', data)
     var svgLoad = new THREE.SVGLoader()
     var shapes = !data.shapePathParam || data.shapePathParam instanceof Object ? data.shapePathParam : JSON.parse(data.shapePathParam)
     var img1 = document.getElementById('image1')
@@ -511,6 +494,11 @@
       var line = document.getElementsByClassName('add-button')[0]
       line.setAttribute('data-visible', false)
       hl.style.width = '0px'
+      if (!communityData.self) {
+        document.getElementsByClassName('pull-right')[0].style.display = 'none'
+        document.getElementsByClassName('pull-left')[0].style.marginRight = '0px'
+        line.innerHTML = ''
+      }
       let wy = screenAlex.y - 172
       let wx = screenAlex.x - 100
       if (wx < 0 ) {
@@ -542,7 +530,7 @@
       cameraList += `<li>
         <img src="/static/floor/camera1.png" width="11">
         <span class="ellipsis">${data.list[i].name}</span>
-        <img class="delete--icon" src="/static/img/close_icon.png" data-type="delete" data-index="${i}" alt="">
+        <img class="delete--icon" style="display:${communityData.self ? 'block': 'none'}" src="/static/img/close_icon.png" data-type="delete" data-index="${i}" alt="">
       </li>`;
     }
     if (!data.list.length) cameraList = `<li class="text-center">暂无设备</li>`

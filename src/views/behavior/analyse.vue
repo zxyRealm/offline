@@ -9,7 +9,7 @@
         <el-input placeholder="快速查找社群" class="select__search" v-model="search.group">
           <i slot="prefix" class="el-input__icon el-icon-search"></i>
         </el-input>
-        <el-option :value="-1" label="全部社群"></el-option>
+        <el-option :value="0" label="全部社群"></el-option>
         <el-option
           v-for="(item, $index) in groupList"
           :value="item"
@@ -17,26 +17,28 @@
           :label="item.name"></el-option>
       </el-select>
       <el-select
-        @blur="selectBlur"
-        value-key="guid"
+        @visible-change="visibleChange"
+        value-key="deviceKey"
         class="behavior__select"
         popper-class="select__popper--wrap theme__popper--wrap"
         v-model="filter.device">
         <div class="behavior__select--inner clearfix">
           <div class="inner-left">
-            <el-option :value="-1" :class="{active: filter.device === -1}" label="全部设备"></el-option>
+            <!--<div class="el-select-dropdown__item" @click="() => {selectType = -1;filter.device = -1}" :class="{active: selectType === -1}">一体机</div>-->
+            <el-option :value="0" :class="{active: !filter.device && !selectType}" label="全部设备"></el-option>
             <div class="el-select-dropdown__item" @click="getDeviceList('aio')" :class="{active: selectType === 1}">一体机</div>
             <div class="el-select-dropdown__item" @click="getDeviceList('camera')" :class="{active: selectType === 2}">摄像机</div>
           </div>
-          <div class="inner-right">
+          <div class="inner-right" v-show="selectType">
             <el-input placeholder="快速查找设备" class="select__search" v-model="search.device">
               <i slot="prefix" class="el-input__icon el-icon-search"></i>
             </el-input>
             <el-option
-              v-for="(item, $index) in groupList"
+              v-for="(item, $index) in deviceList"
               :value="item"
               :key="$index"
-              :label="item.name"></el-option>
+              :label="item.deviceName"></el-option>
+            <div v-if="!deviceList.length" class="text-center">暂无设备</div>
           </div>
         </div>
       </el-select>
@@ -104,6 +106,7 @@
 
 <script>
 import {MemberNoFloor} from '../../api/community'
+import {GetAllAioList, GetAllCameraList} from '../../api/device'
 import {mapState} from 'vuex'
 export default {
   name: 'analyse',
@@ -115,10 +118,11 @@ export default {
         device: ''
       },
       filter: {
-        group: -1,
-        device: -1
+        group: 0,
+        device: 0
       },
       groupList: [], // 社群列表
+      deviceOriginList: [], // 原始设备列表数据
       deviceList: [], // 设备列表
       behaviorList: [
         {name: '鱼鱼鱼'}
@@ -141,7 +145,7 @@ export default {
     getGroupList () {
       if (!this.currentManage.id) return
       MemberNoFloor({groupId: this.currentManage.id}).then(res => {
-        this.groupList = res.data
+        this.groupList = res.data.filter(item => item.coordinates)
       })
     },
     // 获取设备
@@ -149,14 +153,24 @@ export default {
       switch (type) {
         case 'aio':
           this.selectType = 1
+          GetAllAioList().then(res => {
+            console.log('device list aio-------', res.data)
+            this.deviceOriginList = res.data
+            this.deviceList = res.data
+          })
           break
         case 'camera':
           this.selectType = 2
+          GetAllCameraList().then(res => {
+            console.log('device list Camera-------', res.data)
+            this.deviceOriginList = res.data
+            this.deviceList = res.data
+          })
           break
         default:
       }
     },
-    selectBlur () {
+    visibleChange () {
       this.selectType = ''
     },
     sizeChange () {},
@@ -167,6 +181,12 @@ export default {
     currentManage: {
       handler (val) {
         this.getGroupList()
+      },
+      deep: true
+    },
+    filter: {
+      handler (val) {
+        console.log('filter', val)
       },
       deep: true
     }

@@ -78,7 +78,7 @@
               v-for="(item) in ownDeviceList"
               :label="item.deviceKey"
               :disabled="item.disabled"
-              :key="item.deviceKey">{{item.name}}</el-checkbox>
+              :key="item.deviceKey">{{item.deviceName}}</el-checkbox>
           </el-checkbox-group>
         </el-scrollbar>
       </div>
@@ -92,7 +92,7 @@
 
 <script>
 import {mapState} from 'vuex'
-import {GetOwnDeviceList, PortalDeviceList, PortalMemberDevice } from '../../api/device'
+import {GetOwnDeviceList, PortalDeviceList, PortalMemberDevice, GetAllDevice } from '../../api/device'
 import {MemberNoFloor, PortalBatchBindDevice, PortalUnbindDevice} from '../../api/community'
 
 export default {
@@ -153,7 +153,7 @@ export default {
       let arr = checked.map(item => {
         return {
           deviceKey: item.deviceKey,
-          name: item.name,
+          name: item.deviceName,
           merchantGuid: this.userInfo.developerId,
           portalGuid: this.currentPortal.portalGuid
         }
@@ -167,16 +167,17 @@ export default {
     // 显示添加设备弹框
     showAddDialog (row) {
       this.checkedItems = row.portalDeviceList.map(item => item.deviceKey)
-      GetOwnDeviceList().then(res => {
+      GetAllDevice().then(res => {
         this.currentPortal = row
         let deviceKeySet = new Set(this.currentPortal.portalDeviceList.map(item => item.deviceKey))
-        res.data.content = res.data.content.map(item => {
+        res.data = res.data.map(item => {
           if (deviceKeySet.has(item.deviceKey)) {
             item.disabled = true
           }
           return item
         })
-        this.ownDeviceList = res.data.content || []
+        this.ownDeviceList = res.data || []
+        console.log(this.ownDeviceList)
         this.AddDeviceVisible = true
       })
     },

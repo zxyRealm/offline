@@ -199,7 +199,6 @@ export default {
         ]
       ), '#F1BB13', '#7FC16A', '#EE6C4B', '#DDDDDD']
       this.option.series[0].data = this.pieParams.seriesData
-      // this.option.legend.data = this.pieParams.legendData;
       this.drawPie()
     },
     // 解析返回seriesGroup
@@ -210,12 +209,11 @@ export default {
         emptyArray.push(data[i]['data'][0])
       }
       if (this.filterParams.type === 'age') { // 年龄
+        let ageLegend = ['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上']
         this.option.series[0].data = data[0].data
-        this.option.legend['data'] = this.addColor(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
-        // this.option.legend['data'] = this.$legendArray(data[0].data);
+        this.option.legend['data'] = this.addColor(ageLegend)
       } else if (this.filterParams.type === 'sex') { // 性别
         this.option.series[0].data = this.$apply(this.option.series[0].data, emptyArray)
-        // this.option.legend['data'] = this.$legendArray(data);
       } else if (this.filterParams.type === 'repeat') { // 到店频次
         this.option.series[0].data = this.$apply(this.option.series[0].data, emptyArray)
         this.option.legend['data'] = this.shopLegend
@@ -231,6 +229,7 @@ export default {
         }
         arr.push(params)
       }
+      console.log('series', arr)
       this.option.series[0].data = arr
     },
     // 给legend字体颜色
@@ -251,18 +250,17 @@ export default {
 
     // 默认数据展示 = 可视化
     defaultShow () {
-      let type = this.$store.state.filterParams.type
-      if (type === 2) {
-      }
-      if (type === 3) {
-        this.option.legend['data'] = ['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上']
-        this.transfromArray(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
-        this.option.series[0] = this.$apply(this.option.series[0], this.roseSeries)
-        this.option.legend['data'] = this.addColor(this.option.legend['data'])
-      }
-      if (type === 4) {
-        this.option.legend['data'] = this.shopLegend
-        this.transfromArray(['多次', '单次'])
+      switch (this.filterParams.type) {
+        case 'age':
+          this.option.legend['data'] = ['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上']
+          this.transfromArray(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
+          this.option.series[0] = this.$apply(this.option.series[0], this.roseSeries)
+          this.option.legend['data'] = this.addColor(this.option.legend['data'])
+          break
+        case 'repeat':
+          this.option.legend['data'] = this.shopLegend
+          this.transfromArray(['多次', '单次'])
+          break
       }
     },
     // 请求数据
@@ -276,6 +274,7 @@ export default {
         if (this.filterParams.type === 'age') {
           this.installSeriesGroup(res.data)
           this.option.series[0] = this.$apply(this.option.series[0], this.roseSeries)
+          console.log('series--------------', this.option.series[0])
         } else {
           this.installSeriesGroup(res.data)
         }

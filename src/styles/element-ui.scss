@@ -649,6 +649,7 @@
 .select__popper--wrap{
   .el-select-dropdown__list{
     padding: 6px 15px;
+    color: #fff;
     //box-sizing: border-box;
     .el-select-dropdown__item{
       height: 24px;
@@ -699,6 +700,7 @@
     .inner-right{
       float: left;
       width: 124px;
+      min-height: 66px;
       padding-left: 10px;
       border-left: 1px solid rgba(151,151,151,0.10);
     }
