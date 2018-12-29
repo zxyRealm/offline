@@ -341,6 +341,7 @@ export default {
       GetMarketList({ parentId: this.currentManage.id }).then(res => {
         let floorInfo = this.sortRouterList(res.data[0].subGroupSon);
         let allInfo = res.data;
+        let floorHeight = 140
         delete allInfo[0].subGroupSon;
         this.community.infoArr = allInfo.concat(floorInfo);
         this.caculateMinus(this.community.infoArr);
@@ -348,9 +349,9 @@ export default {
         for (let i in floorInfo) {
           let coordinate_y =
             floorInfo[i].floor >= 0
-              ? (floorInfo[i].floor - 2) * 120 -
-                (floorInfo[minIndex].floor - 1) * 120
-              : (floorInfo[i].floor - 1) * 120;
+              ? (floorInfo[i].floor - 2) * floorHeight -
+                (floorInfo[minIndex].floor - 1) * floorHeight
+              : (floorInfo[i].floor - 1) * floorHeight;
           let img_url = floorInfo[i].mapUrl;
           let floor = floorInfo[i].floor;
           this.floorArr.push({

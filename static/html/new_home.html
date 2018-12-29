@@ -24,70 +24,86 @@
     <a href="javascript:;" onclick="upTrigger()">上升</a>
     <a href="javascript:;" onclick="downTrigger()">下降</a>
   </div>
+
   <script type="text/javascript">
     var renderer, scene, camera, group;
-    var scale = 1;
-    var floorHeight = 120;
-    // var floorHeight = 140;
-    var planeList = [];
-    var geometryArr = [];
-    var materialArr = [];
-    var pointCloudArr = [];
-    var clock = new THREE.Clock();
-    var mixArr = [],
-      pointArr = new Array(1000)
-    var floorArr;
-    // var floorArr = [{
-    //     coordinate_y: -3 * floorHeight - floorHeight,
-    //     img_url: 1,
-    //     floor: '-3'
-    //   },
-    //   {
-    //     coordinate_y: -2 * floorHeight - floorHeight,
-    //     img_url: 2,
-    //     floor: '-2'
-    //   },
-    //   {
-    //     coordinate_y: -1 * floorHeight - floorHeight,
-    //     img_url: 3,
-    //     floor: '-1'
-    //   },
-    //   {
-    //     coordinate_y: 1 * floorHeight - floorHeight * 2,
-    //     img_url: 4,
-    //     floor: '1'
-    //   },
-    //   {
-    //     coordinate_y: 2 * floorHeight - floorHeight * 2,
-    //     img_url: 5,
-    //     floor: '2'
-    //   },
-    //   {
-    //     coordinate_y: 3 * floorHeight - floorHeight * 2,
-    //     img_url: 6,
-    //     floor: '3'
-    //   },
-    //   {
-    //     coordinate_y: 4 * floorHeight - floorHeight * 2,
-    //     img_url: 7,
-    //     floor: '4'
-    //   },
-    //   {
-    //     coordinate_y: 5 * floorHeight - floorHeight * 2,
-    //     img_url: 8,
-    //     floor: '5'
-    //   },
-    //   {
-    //     coordinate_y: 6 * floorHeight - floorHeight * 2,
-    //     img_url: 9,
-    //     floor: '6'
-    //   },
-    //   {
-    //     coordinate_y: 7 * floorHeight - floorHeight * 2,
-    //     img_url: 10,
-    //     floor: '7'
-    //   }
-    // ]
+    var scale = 1; // 缩放比
+    var floorHeight = 140;
+    var planeList = []; // 面网格集合
+    var geometryArr = []; // 物体集合
+    var materialArr = []; // 材质=集合
+    var clock = new THREE.Clock(); // 动画clock
+    var pointCloudArr = []; // 单个粒子网格集合
+    var mixArr = [], pointArr = new Array(1000) // 粒子集合
+
+    // 将第一层在数组中的索引值作为参考count
+    // 临界点：
+    // 最小count: 参考数-(地下层数-1)
+    // 最大count：参考数+(地上层数-5)
+    var floorCount // 楼层
+    var count // 动态参考值
+    var standardCount // 固定参考值
+    var positionSpeed = 2 // 位移运动速度
+    var opacitySpeed = 0.9 * positionSpeed / floorHeight // 透明度运动速度
+    var upClick = false // 上升trigger变量
+    var upHeight = 0 // 上升起始高度
+    var downClick = false // 下降trigger变量
+    var downHeight = floorHeight // 下降起始高度
+    
+    var floorArr; // 接收楼层信息
+    // 模拟数据
+    var floorArrMock = [
+      {
+        coordinate_y: -3 * floorHeight - floorHeight,
+        img_url: 1,
+        floor: '-3'
+      },
+      {
+        coordinate_y: -2 * floorHeight - floorHeight,
+        img_url: 2,
+        floor: '-2'
+      },
+      {
+        coordinate_y: -1 * floorHeight - floorHeight,
+        img_url: 3,
+        floor: '-1'
+      },
+      {
+        coordinate_y: 1 * floorHeight - floorHeight * 2,
+        img_url: 4,
+        floor: '1'
+      },
+      {
+        coordinate_y: 2 * floorHeight - floorHeight * 2,
+        img_url: 5,
+        floor: '2'
+      },
+      {
+        coordinate_y: 3 * floorHeight - floorHeight * 2,
+        img_url: 6,
+        floor: '3'
+      },
+      {
+        coordinate_y: 4 * floorHeight - floorHeight * 2,
+        img_url: 7,
+        floor: '4'
+      },
+      {
+        coordinate_y: 5 * floorHeight - floorHeight * 2,
+        img_url: 8,
+        floor: '5'
+      },
+      {
+        coordinate_y: 6 * floorHeight - floorHeight * 2,
+        img_url: 9,
+        floor: '6'
+      },
+      {
+        coordinate_y: 7 * floorHeight - floorHeight * 2,
+        img_url: 10,
+        floor: '7'
+      }
+    ]
 
     function init() {
       renderer = new THREE.WebGLRenderer({
@@ -100,34 +116,35 @@
       scene = new THREE.Scene();
       scene.background = new THREE.Color('#17151a')
 
-      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
-      camera.position.set(445, 335, 580)
+      // camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
+      // camera.position.set(762, 399, 1170)
 
-      // camera = new THREE.OrthographicCamera(
-      //   window.innerWidth / - 2,
-      //   window.innerWidth / 2,
-      //   window.innerHeight / 2,
-      //   window.innerHeight / - 2,
-      //   0.1, 10000
-      // )
-      // camera.position.set(345, 335, 580)
-      camera.lookAt(0, 400, 0)
+      camera = new THREE.OrthographicCamera(
+        window.innerWidth / - 2,
+        window.innerWidth / 2,
+        window.innerHeight / 2,
+        window.innerHeight / - 2,
+        0.1, 10000
+      )
+      camera.position.set(480, 200, 580)
+      camera.lookAt(0, 0, 0)
       scene.add(camera)
 
       var light = new THREE.PointLight('#ffffff', 0.8)
       camera.add(light)
 
-      // var axesHelper = new THREE.AxesHelper(10)
+      // var axesHelper = new THREE.AxesHelper(100)
       // scene.add(axesHelper)
 
       group = new THREE.Group()
-      group.position.set(-290 * scale, 0, -241 * scale)
+      group.position.set(-290 * scale, -60, -241 * scale)
+      // group.rotation.set(-0.05*Math.PI, 0, 0)
       scene.add(group)
 
       document.getElementById("WebGL-output").appendChild(renderer.domElement)
       window.addEventListener('resize', onWindowResize, false)
       window.addEventListener('mousemove', onDocumentMouseMove, false)
-      window.addEventListener('click', onDocumentMouseClick, false)
+      window.addEventListener('mousedown', onDocumentMouseClick, false)
 
       addControl()
       loadSignal()
@@ -137,10 +154,7 @@
     init()
     render()
 
-    function parseFloor(floorName) {
-      // console.log(floorName)
-    }
-
+    // 计算上升和下降的变化
     function getUpDownFloorCount() {
       var downFloorCount = 0
       var upFloorCount = 0
@@ -161,21 +175,7 @@
       }
     }
 
-    // 参考点：
-    // 将第一层在数组中的索引值作为基准数以便参考
-    // 临界点：
-    // 最小count: 基准数-(地下层数-1)
-    // 最大count：基准数+(地上层数-5)
-    var floorCount
-    var count
-    var standardCount
-    var positionSpeed = 2
-    var opacitySpeed = 0.9 * positionSpeed / floorHeight
-    var upClick = false
-    var upHeight = 0
-    var downClick = false
-    var downHeight = floorHeight
-
+    // 计算参考点的位置
     function setSlideInfo() {
       floorCount = getUpDownFloorCount()
       count = floorCount.position // 动态基准数
@@ -206,6 +206,7 @@
         item.material.opacity -= opacitySpeed
       })
       if (upHeight >= floorHeight) {
+        console.log(floorArr)
         upClick = false
         upHeight = 0
         count--
@@ -276,7 +277,7 @@
         pointArr[i].position.set(alex[0], floor, alex[1])
         pointArr[i].rotation.x = 0.5 * Math.PI
       }
-      if (floor < -120 || floor > 245) {
+      if (floor < -floorHeight || floor > 2 * floorHeight + 5) {
         pointArr[i].visible = false
       } else {
         pointArr[i].visible = true
@@ -384,18 +385,27 @@
     }
 
     function onDocumentMouseClick(event) {
-      var vector = new THREE.Vector3(
-        (event.clientX / (window.innerWidth)) * 2 - 1,
-        -(event.clientY / (window.innerHeight)) * 2 + 1,
-        0.5
-      );
-      vector = vector.unproject(camera);
-      var raycaster = new THREE.Raycaster(
-        camera.position,
-        vector.sub(camera.position).normalize()
-      );
+      // 透视相机计算raycaster
+      // var vector = new THREE.Vector3(
+      //   (event.clientX / (window.innerWidth)) * 2 - 1,
+      //   -(event.clientY / (window.innerHeight)) * 2 + 1,
+      //   0.5
+      // );
+      // vector = vector.unproject(camera);
+      // var raycaster = new THREE.Raycaster(
+      //   camera.position,
+      //   vector.sub(camera.position).normalize()
+      // );
+
+      // 正交相机计算raycaster
+      var raycaster = new THREE.Raycaster(); // create once
+      var mouse = new THREE.Vector2(); // create once
+      mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+      mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+      raycaster.setFromCamera( mouse, camera );
+
       var rayPlaneList = planeList.slice(count, count + 4)
-      var intersects = raycaster.intersectObjects(rayPlaneList);
+      var intersects = raycaster.intersectObjects( rayPlaneList );
       if (intersects.length > 0) {
         window.parent.postMessage({
           cmd: 'change-floor',
@@ -425,31 +435,47 @@
         let slideBox = document.getElementById('slide')
         slideBox.style.display = 'none'
       }
+      setSlideInfo()
       // 创建楼层图片
       for (var i = 0; i < floorArr.length; i++) {
-        loadSvg(group, floorArr[i])
+        loadSvg(group, floorArr[i], i)
       }
-      setSlideInfo()
     }
 
     // 添加Orbit控制器
     function addControl() {
       controls = new THREE.OrbitControls(camera);
-      controls.maxPolarAngle = 1.14;//上下两极的可视区域的最大角度
-      controls.minPolarAngle = 1.14;//上下两极的可视区域最小角度
+      // controls.maxPolarAngle = 1.14;//上下两极的可视区域的最大角度
+      // controls.minPolarAngle = 1.14;//上下两极的可视区域最小角度
       controls.dampingFactor = 0.25;
       controls.enableZoom = true;
-      controls.enableRotate = true;
+      controls.enableRotate = false;
       controls.screenSpacePanning = true;
     }
 
-    function loadSvg(group, floorInfo) {
+    function loadSvg(group, floorInfo, i) {
       var floorGroup = new THREE.Group()
-      if (floorInfo.floor < 0) floorGroup.name = 'B' + Math.abs(floorInfo.floor)
-      else floorGroup.name = 'F' + Math.abs(floorInfo.floor)
-
+      
+      if (floorInfo.floor < 0) { floorGroup.name = 'B' + Math.abs(floorInfo.floor) }
+      else { floorGroup.name = 'F' + Math.abs(floorInfo.floor) }
+        
       addLineShape(floorInfo, floorGroup)
       addShape(floorInfo, floorGroup);
+
+      // switch (i) {
+      //   case count:
+      //     floorGroup.rotation.x = -0.05 * Math.PI
+      //     break;
+      //   case count+1:
+      //     floorGroup.rotation.x = 0.01 * Math.PI
+      //     break;
+      //   case count+2:
+      //     floorGroup.rotation.x = 0.03 * Math.PI
+      //     break;
+      //   case count+3:
+      //     floorGroup.rotation.x = 0.025 * Math.PI
+      //     break;
+      // }
 
       group.add(floorGroup)
     }
@@ -464,6 +490,10 @@
       }
       return minFloor
     }
+
+    // 初始的四层 旋转不同角度
+    // 上升：第四层回到正常角度 3到-1按次旋转
+    // 下降：第一层回到正常角度 4到2按次序旋转
 
     function addLineShape(info, group) {
       var loader = new THREE.SVGLoader()
