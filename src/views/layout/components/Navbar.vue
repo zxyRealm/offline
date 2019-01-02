@@ -146,7 +146,7 @@
         :rules="communityRules"
       >
         <el-form-item label="名称：" prop="name">
-          <el-input placeholder="请输入社群名称" v-model="communityForm.name"></el-input>
+          <el-input placeholder="请输入社群名称" v-model.trim="communityForm.name"></el-input>
         </el-form-item>
         <el-form-item label="地区：" prop="pca">
           <area-select placeholder="请选择地区" v-model="communityForm.pca"></area-select>
@@ -155,10 +155,10 @@
           <el-input type="text" placeholder="请输入详细地址"
                     v-model.trim="communityForm.address"></el-input>
         </el-form-item>
-        <el-form-item v-if="handleCommunityType !== 4" label="楼层：" prop="floorList">
-          <floor-select v-model="communityForm.floorList"></floor-select>
+        <el-form-item label="楼层：" prop="floorList">
+          <floor-select v-model.trim="communityForm.floorList"></floor-select>
         </el-form-item>
-        <el-form-item v-if="handleCommunityType !== 4" prop="map">
+        <el-form-item prop="map">
           <div v-if="fileList.length" class="import__map--wrap">
             <el-scrollbar>
               <div class="file__items vam" v-for="(item,$index) in fileList" :key="$index">
@@ -218,7 +218,7 @@ import {CheckNameExist, AddNewCommunity} from '../../../api/community'
 import {validateRule} from '../../../utils/validate'
 import {parseTime} from '../../../utils'
 import axios from 'axios'
-// import {simplifyGroups} from '@/utils'
+import {load} from '../../../utils/new-request'
 import AreaSelect from '@/components/area-select/area-select'
 import FloorSelect from '@/components/FloorSelect'
 export default {
@@ -304,7 +304,7 @@ export default {
           {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
         ],
         floorList: [
-          {required: true,type: 'array', message: '请选取楼层', trigger: 'blur'}
+          {required: true, type: 'array', message: '请选取楼层', trigger: 'blur'}
         ],
         contact: [
           {validator: validateContact, trigger: 'blur'}
@@ -334,7 +334,8 @@ export default {
       manageGroup: { // 当前管理层社群
       },
       manageList: [],
-      showClose: true // 是否显示关闭按钮
+      showClose: true, // 是否显示关闭按钮
+      loadModule: null // 加载中遮罩层
     }
   },
   computed: {
@@ -507,11 +508,14 @@ export default {
       AddNewCommunity(url, subData).then(res => {
         this.$tip('添加成功')
         this.addCommunityVisible = false
-        this.addCommunitySuccess = true
-        this.communityCode = res.data
+        if (this.handleCommunityType !== 3) {
+          this.addCommunitySuccess = true
+          this.communityCode = res.data
+        }
         this.getManageList()
         this.fileList = []
         document.getElementById('map__input--file').value = ''
+        this.$router.push('/community/mine')
       }).catch(error => {
         if (error.code) {
           this.$tip(error.msg, 'error')
@@ -558,6 +562,7 @@ export default {
       OssSignature({superKey: 'floor_map'}).then(res => {
         if (res.data) {
           let time = parseTime(new Date()).replace(/[ :-]/g, '')
+          this.loadModule = load('数据加载中...')
           this.uploadOss(res.data, 0, time)
         }
       }).catch(() => {
@@ -584,12 +589,15 @@ export default {
           }
           // 所图片成功上完成后 进行表单提交
           if (index === (this.fileList.length - 1)) {
+            this.loadModule.close()
             this.byTypeAddCommunity(`${signature.host}/floor_map/${uid}/${time}/`)
           }
         } else {
+          this.loadModule.close()
           this.$tip('上传失败，请稍后重试', 'error')
         }
       }).catch((error) => {
+        this.loadModule.close()
         console.log('error', error)
         this.$tip('网络异常，请稍后重新尝试', 'error')
       })

@@ -292,7 +292,7 @@ export default {
     // 请求数据
     getData () {
       let params = JSON.parse(JSON.stringify(this.filterParams))
-      params.endTime = params.endTime + ' 24:00:00'
+      params.endTime = params.endTime + ' 23:59:59'
       params.startTime = params.startTime + ' 00:00:00'
       this.option.title = this.$apply(this.option.title, this.lineParams.title)
       // console.log('chart line ===============', params)

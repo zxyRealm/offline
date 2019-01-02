@@ -2,6 +2,9 @@
   <div class="portal__container--wrap" style="height: 100%;width: 100%;">
     <iframe scrolling="no" ref="bindGroupIframe" :src="iframeSrc" width="100%" height="100%" frameborder="0"></iframe>
     <div class="title--wrap">出入口管理</div>
+    <!--操作提示信息-->
+    <div v-if="showTip" class="handle__tip">将图标放置在地图上某一位置，可设置此处为出入口</div>
+
     <!--出入口数量-->
     <div class="amount">
       <div class="gateway">
@@ -121,6 +124,7 @@ export default {
       }
     }
     return {
+      showTip: true,
       handleDialogType: 1, // 弹窗类型
       AddDeviceVisible: false, // 出入口添加设备
       handlePortalVisible: false, // 新增出入口
@@ -155,6 +159,7 @@ export default {
     window.addEventListener('message', this.handleEvent)
     this.iframeObj = this.$refs.bindGroupIframe.contentWindow
     this.initFloor()
+    this.hideTip()
   },
   computed: {
     ...mapState(['currentManage', 'userInfo']),
@@ -269,7 +274,6 @@ export default {
     },
     // 删除出入口设备
     deletePortalDevice (data) {
-      console.log('device portal', data)
       this.$affirm({
         title: '删除绑定关系',
         confirm: '删除',
@@ -356,6 +360,11 @@ export default {
           }
         }
       })
+    },
+    hideTip () {
+      setTimeout(() => {
+        this.showTip = false
+      }, 3000)
     }
   },
   watch: {
@@ -388,6 +397,18 @@ export default {
 <style lang="scss" scoped>
   .portal__container--wrap{
     position: relative;
+  }
+  .handle__tip{
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    margin-left: -158px;
+    height: 32px;
+    line-height: 32px;
+    padding: 0 20px;
+    background: rgba(255, 233, 79, 0.4);
+    font-size: 12px;
+    border-radius: 4px;
   }
   .title--wrap{
     position: absolute;
