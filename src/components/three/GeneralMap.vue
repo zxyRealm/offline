@@ -38,6 +38,14 @@
                     :endVal="statisticEndInfo.Incoming_Today" 
                     :duration='1000'>
                   </count-to>
+                  <span v-if="statisticInfo.Incoming_Yesterday !== 0" 
+                    style="position:relative;right:-10px;top:25%; font-size:12px; color: #ff6660">
+                    <img v-if="statisticEndInfo.Incoming_percent >= 0" 
+                        src="/static/img/grow_up@2x.png" alt="" width="5">
+                    <img v-if="statisticEndInfo.Incoming_percent < 0" 
+                        src="/static/img/grow_down.png" alt="" width="5">
+                    <span>{{statisticEndInfo.Incoming_percent}}%</span>
+                  </span>
                 </div>
                 <div class="key">今日数据</div>
               </div>
@@ -50,6 +58,7 @@
                     :endVal="statisticEndInfo.Incoming_Yesterday" 
                     :duration='1000'>
                   </count-to>
+                  
                 </div>
                 <div class="key">昨日数据</div>
               </div>
@@ -72,6 +81,14 @@
                     :endVal="statisticEndInfo.Member_Today" 
                     :duration='1000'>
                   </count-to>
+                  <span v-if="statisticInfo.Member_Yesterday !== 0" 
+                    style="position:relative;right:-10px;top:25%; font-size:12px; color: #ff6660">
+                    <img v-if="statisticEndInfo.Member_percent >= 0" 
+                        src="/static/img/grow_up@2x.png" alt="" width="5">
+                    <img v-if="statisticEndInfo.Member_percent < 0" 
+                        src="/static/img/grow_down.png" alt="" width="5">
+                    <span>{{statisticEndInfo.Member_percent}}%</span>
+                  </span>
                 </div>
                 <div class="key">今日数据</div>
               </div>
@@ -172,7 +189,10 @@ export default {
         { imgUrl: "/static/avatar2.png", key: "7" },
         { imgUrl: "/static/avatar2.png", key: "8" },
         { imgUrl: "/static/avatar2.png", key: "9" },
-        { imgUrl: "/static/avatar2.png", key: "10" }
+        { imgUrl: "/static/avatar2.png", key: "10" },
+        { imgUrl: "/static/avatar2.png", key: "11" },
+        { imgUrl: "/static/avatar2.png", key: "12" },
+        { imgUrl: "/static/avatar2.png", key: "13" }
       ],
       personCount: 0,
       floorArr: [],
@@ -214,7 +234,6 @@ export default {
   },
   methods: {
     updateFrameArea(item, index) {
-      console.log(item)
       this.$set(this.frame, "path", item.path);
       this.$set(this.frame, "id", item.id);
       this.community.infoArr.forEach((value, i) => {
@@ -257,7 +276,9 @@ export default {
                 Incoming_Yesterday: data.data.oldIn,
                 Member_Today: data.data.newMember,
                 Member_Yesterday: data.data.oldMember,
-                Current: data.data.newIn - data.data.newOut
+                Current: data.data.newIn - data.data.newOut,
+                Incoming_percent: Math.abs(parseInt(((data.data.newIn - data.data.oldIn) / data.data.oldIn) *100)),
+                Member_percent: Math.abs(parseInt(((data.data.newMember - data.data.oldMember) / data.data.oldMember) *100))
               };
               this.changeStatisticInfo('Incoming_Today')
               this.changeStatisticInfo('Incoming_Yesterday')
@@ -290,8 +311,8 @@ export default {
         var year = now.getFullYear();
         var month = now.getMonth() + 1;
         var date = now.getDate();
-        var hour = now.getHours();
-        var minute = now.getMinutes();
+        var hour = now.getHours().toString().length === 1 ? '0' + now.getHours().toString() : now.getHours();
+        var minute = now.getMinutes().toString().length === 1 ? '0' + now.getMinutes().toString() : now.getMinutes();
         var second = now.getSeconds();
         return hour + ":" + minute;
       } else {
@@ -302,8 +323,8 @@ export default {
       var img = new Image();
       let key = data.memberInfo.imgUrl;
       var canvas = document.createElement("canvas");
-      canvas.width = 46;
-      canvas.height = 46;
+      canvas.width = 60;
+      canvas.height = 60;
       var context = canvas.getContext("2d");
       var dataURL;
       img.crossOrigin = "*";
@@ -317,8 +338,8 @@ export default {
           data.rect.lowerX - data.rect.upperX,
           0,
           0,
-          46,
-          46
+          60,
+          60
         );
 
         dataURL = canvas.toDataURL("image/png");
@@ -347,7 +368,8 @@ export default {
         let floorHeight = 140
         delete allInfo[0].subGroupSon;
         this.community.infoArr = allInfo.concat(floorInfo);
-        console.log(this.community.infoArr)
+        this.routerList[0].groupParentGuid = allInfo[0].groupParentGuid
+        this.routerList[0].groupSonGuid = allInfo[0].groupSonGuid
         this.caculateMinus(this.community.infoArr);
         let minIndex = this.caculateMinusIndex(floorInfo);
         for (let i in floorInfo) {
@@ -439,7 +461,6 @@ export default {
         groupGuid: params.groupParentGuid
       }).then(res => {
         let groupList = JSON.parse(res.data).group;
-        console.log(groupList);
         groupList.forEach(item => {
           let position = item.coordinates.replace("[", "").replace("]", "");
           // this.transFloat(position)
@@ -702,7 +723,7 @@ export default {
     #sideInfo {
       color: #ffffff;
       background: rgb(22, 20, 25);
-      padding: 15px 20px;
+      padding: 15px;
       height: 100%;
       box-sizing: border-box;
       overflow: hidden;
@@ -712,7 +733,7 @@ export default {
         position: absolute;
         top: 0;
         left: 0;
-        width: 160px;
+        width: 166px;
         height: 100%;
         background: linear-gradient(
           to bottom,
@@ -732,16 +753,19 @@ export default {
         transition: all 1s;
         .box-left {
           float: left;
-          padding: 8px;
+          padding: 12px 8px;
           .name {
             letter-spacing: 1.5px;
+            margin-bottom: 3px
           }
           .info {
             color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 3px;
             letter-spacing: 2px;
           }
           .time {
             color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 3px;
             letter-spacing: 2px;
           }
         }
@@ -750,9 +774,9 @@ export default {
           border-radius: 25px;
           padding: 10px 5px;
           img {
-            width: 46px;
-            height: 46px;
-            border-radius: 23px;
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
           }
         }
         .glow-border {

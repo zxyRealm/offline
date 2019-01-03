@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    html,
+    body {
+      margin: 0px;
+      padding: 0px
+    }
+
+  </style>
+  <script src="../three/three.min.js"></script>
+  <script src="../three/trail_data.js"></script>
+</head>
+
+<body>
+  <div id="WebGL-output"></div>
+  <script>
+    var data = TRAIL_JSON;
+    var renderer, scene, camera, group;
+    var floorHeight = 140;
+    var planeList = [];
+    var geometryArr = [];
+    var materialArr = [];
+
+    function init() {
+      // 布置场景
+      createScene() // 创建场景
+      createCamera() // 创建相机
+      createRenderer() // 创建渲染器
+      createLight() // 创建灯光
+      createGeneralGroup() // 创建整体分组
+      createListener() // 创建监听函数
+
+      // 创建楼层
+      createFloor(1)
+
+      // 开始
+      render()
+    }
+
+    init()
+
+
+    function createFloor(url, group, i) {
+      var floorGroup = new THREE.Group();
+      var loader = new THREE.SVGLoader();
+
+      loader.load('../origin-floor/' + url + '.svg', paths => {
+        for (var i = 0; i < paths.length; i++) {
+          var shapes = paths[i].toShapes(true)
+
+          for (var j = 0; j < shapes.length; j++) {
+
+            if (i === 0) continue
+
+            var shape = shapes[j]
+            var points = shape.getPoints()
+            shape.autoClose = true
+
+            createStore(shape, i * 80, floorGroup)
+            createEdge(points, i * 80, floorGroup)
+          }
+        }
+      })
+      group.add(floorGroup)
+    }
+
+    function createStore(shape, y_alex, group) {
+
+      var geometryBuffer = new THREE.ExtrudeBufferGeometry(shape, {
+        depth: depth,
+        bevelEnabled: false
+      })
+
+      var geometry = new THREE.Geometry()
+      geometry.fromBufferGeometry(geometryBuffer)
+
+      var material = new THREE.MeshBasicMaterial({
+        color: new THREE.Color('#5F719E'),
+        emissive: new THREE.Color('#5F719E'),
+        transparent: true,
+        opacity: 0.8,
+        side: THREE.DoubleSide,
+        vertexColors: THREE.FaceColors
+      })
+
+      var mesh = new THREE.Mesh(geometry, material)
+      mesh.position.set(0, y_alex, 0)
+      mesh.rotation.set(0.5 * Math.PI, 0, 0)
+      mesh.name = 'store'
+
+      mesh.geometry.faces.forEach(face => {
+        if (face.normal.y !== 0) {
+          face.color = new THREE.Color('#0E1239')
+        }
+      })
+
+      group.add(mesh)
+    }
+
+    function createEdge(points, y_alex, group) {
+      var geometry = new THREE.BufferGeometry().setFromPoints(points)
+      var material = new THREE.LineBasicMaterial({
+        color: '#2A4586',
+        transparent: true,
+        opacity: opacity
+      })
+      var mesh = new THREE.Line(geometry, material)
+      mesh.position.set(0, y_alex, 0)
+      mesh.rotation.set(0.5 * Math.PI, 0, 0)
+      
+      group.add(mesh)
+    }
+
+    function createRenderer() {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+      })
+      renderer.setSize(window.innerWidth, window.innerHeight)
+      renderer.setClearColor('#ffffff', 1.0)
+      document.getElementById("WebGL-output").appendChild(renderer.domElement)
+    }
+
+    function createListener() {
+      window.addEventListener('resize', onWindowResize, false)
+    }
+
+    function createScene() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color('#17151a')
+    }
+
+    function createCamera() {
+      camera = new THREE.OrthographicCamera(
+        window.innerWidth / -2,
+        window.innerWidth / 2,
+        window.innerHeight / 2,
+        window.innerHeight / -2,
+        0.1, 10000
+      )
+      camera.position.set(330, 180, 450);
+      camera.lookAt(0, 0, 0);
+      scene.add(camera)
+    }
+
+    function createLight() {
+      var light = new THREE.PointLight('#435175', 0.8)
+      camera.add(light)
+    }
+
+    function createGeneralGroup() {
+      group = new THREE.Group();
+      group.position.set(-290, 0, -241)
+    }
+
+    // 渲染函数
+    function render() {
+      requestAnimationFrame(render)
+      renderer.render(scene, camera)
+    }
+
+    function onWindowResize() {
+      camera.left = window.innerWidth / -2;
+      camera.right = window.innerWidth / 2;
+      camera.top = window.innerHeight / 2;
+      camera.bottom = window.innerHeight / -2;
+      camera.updateProjectionMatrix()
+      renderer.setSize(window.innerWidth, window.innerHeight)
+    }
+
+  </script>
+</body>
+
+</html>
