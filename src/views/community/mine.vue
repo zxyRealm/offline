@@ -16,6 +16,8 @@
               is-edit
               rights
               isSearch
+              :isFloor="true"
+              class="community--tree"
               :input-error="inputError"
               node-key="groupSonGuid"
               :asyn-data="true"
@@ -69,7 +71,7 @@
                 <!--v-if="userInfo.developerId === communityInfo.merchantGuid && communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.level === 1"-->
                 <!--{{communityInfo}}-->
                 <div
-                  v-if="communityInfo.self && communityInfo.parentInfoList && communityInfo.parentInfoList.length && communityInfo.level === 1"
+                  v-if="communityInfo.parentInfoList && communityInfo.parentInfoList.length && communityInfo.level === 1"
                   class="parent__list"
                   >
                   <span class="fl info__label">已加入：</span>
@@ -80,19 +82,19 @@
                     <span class="ellipsis">{{item.name}}</span>
                     <uu-icon
                       size="small" type="quit"
-                      v-show="!item.self"
+                      v-show="!item.self && communityInfo.type !== 4"
                       @click.native="leaveCommunity('quit',communityInfo, item)"></uu-icon>
                   </div>
                 </div>
               </div>
             </div>
             <div class="three__map--wrap">
-              <ob-list-empty v-if="communityInfo.level === 1 && !communityInfo.shapePathParam" top="0px" :supply="supply" text="暂无地图，敬请期待！"></ob-list-empty>
+              <ob-list-empty v-if="communityInfo.type === 4 ? false : (communityInfo.level === 1 && !communityInfo.shapePathParam)" top="0px" :supply="supply" text="暂无地图，敬请期待！"></ob-list-empty>
               <three-association-map
                 v-else
                 :data="communityInfo"
                 ref="associationMap"
-                :floor-list="floor">
+                :floor-list="communityInfo.type === 4 ? storeFloor: floor">
               </three-association-map>
             </div>
           </div>
@@ -354,7 +356,7 @@ import Clipboard from '@/utils/clipboard'
 import area from '@/components/area-select/area-select'
 import BindCommunity from '@/components/three/bind_community'
 import {eventObject} from '../../utils/event'
-import {GetMarketList, GetCommunityInfoByCode, GetStoreList, GetCommunityInfo, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CheckMemberNickNameExist, UpdateMemberNickName, GetGroupPortalCount, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
+import {GetMarketList, GetCommunityInfoByCode, GetStoreList, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CheckMemberNickNameExist, UpdateMemberNickName, GetGroupPortalCount, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
 import ThreeAssociationMap from '@/components/three/association_map'
 export default {
   name: 'mineCommunity',
@@ -661,7 +663,8 @@ export default {
           {required: true, validator: validateName, trigger: 'blur'}
         ]
       },
-      inputError: '' // 社群树形结构搜索查询未查询到结果时提示信息显示
+      inputError: '', // 社群树形结构搜索查询未查询到结果时提示信息显示
+      storeFloor: [] // 单店楼层信息
     }
   },
   created () {
@@ -837,12 +840,15 @@ export default {
           break
         case 3:
           GetStoreList({parentGuid: pid}).then(res => {
-            this.groupList = res.data || []
-          })
-          GetCommunityInfo({id: pid}).then(res => {
-            res.data.self = true
-            this.currentCommunity = res.data
-            this.communityInfo = res.data
+            this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
+            if (res.data[0].groupSonGuid) {
+              GetMemberDetail({groupSonId: res.data[0].groupSonGuid, parentId: this.currentManage.id}).then(res2 => {
+                res2.data.level = 1
+                res2.data.self = res2.data.merchantGuid === this.userInfo.developerId
+                this.communityInfo = res2.data || {}
+                this.currentCommunity = res.data || {}
+              })
+            }
           })
           break
       }
@@ -850,9 +856,15 @@ export default {
     // 获取社群详细信息
     getCommunityInfo (val, node) {
       if (!this.currentManage.id) return
-      GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: this.currentManage.id}).then(res => {
-        res.data.level = val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
-        res.data.self = res.data.merchantGuid === this.userInfo.developerId // slef 属性控制自有与非自有社群操作限制
+      console.log('info------------------', val, val.groupSonGuid)
+      if (val.type === 4) {
+        GetStoreList({groupSonGuid: val.groupSonGuid}).then(res => {
+          this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
+        })
+      }
+      GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: val.groupParentGuid}).then(res => {
+        res.data.level = val.type === 1 || val.type === 4 ? 1 : val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
+        res.data.self = val.type === 4 ? false : res.data.merchantGuid === this.userInfo.developerId // slef 属性控制自有与非自有社群操作限制
         this.communityInfo = res.data || {}
       })
     },
@@ -943,7 +955,7 @@ export default {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.joinManageForm))
           subData.pid = this.ManageInfo.id
-          subData.groupId = this.communityInfo.guid || this.communityInfo.id
+          subData.groupId = this.communityInfo.guid || this.groupList[0].groupSonGuid
           JoinOtherManage(subData).then(res => {
             this.$tip('加入成功')
             this.joinFormVisible = false
@@ -961,6 +973,7 @@ export default {
           subData.provinceAreaId = address[0] || 0
           subData.cityAreaId = address[1] || 0
           subData.districtAreaId = address[2] || 0
+          if (subData.type === 4) subData.guid = this.currentManage.id
           GetCommunityUpdate(subData).then(res => {
             this.$tip('保存成功')
             this.addCommunityVisible = false
@@ -1121,15 +1134,15 @@ export default {
           int = this.communityInfo.level === 2 ? 5 : 7
           break
         default:
-          int = this.communityInfo.self ? this.communityInfo.level === 2 ? 4 : 6 : 8
+          int = this.communityInfo.type === 4 ? 4 : this.communityInfo.self ? this.communityInfo.level === 2 ? 4 : 6 : 8
           break
       }
       return int
     },
     // 删除社群
     deleteGroup () {
-      if (this.communityInfo.self || this.currentManage.type === 3) {
-        GetGroupPortalCount({groupSonId: this.currentCommunity.groupSonGuid || this.currentCommunity.id}).then(res => {
+      if ((this.communityInfo.self && this.communityInfo.type !== 4) || this.currentManage.type === 3) {
+        GetGroupPortalCount({groupSonId: this.currentCommunity.groupSonGuid || this.currentCommunity.id || this.communityInfo.guid}).then(res => {
           if (res.data.portalNumber) {
             this.$affirm({text: `删除社群前，请先删除出入口`, title: '删除社群', confirm: '我知道了'}, (action, instance, done) => {
               done()
@@ -1137,13 +1150,13 @@ export default {
           } else {
             this.$affirm({text: `删除社群后，社群下的所有信息都将被删除`, title: '删除社群', confirm: '删除'}, (action, instance, done) => {
               if (action === 'confirm') {
-                if (this.communityInfo.level === 1) {
+                if (this.communityInfo.level === 1 && this.communityInfo.type !== 4) {
                   DeleteMember({groupSonId: this.communityInfo.guid}).then(res => {
                     this.$tip('删除成功')
                     this.getGroupList('refresh')
                   })
                 } else {
-                  DeleteCommunity({id: this.communityInfo.guid}).then(res => {
+                  DeleteCommunity({id: this.currentManage.id}).then(res => {
                     this.$tip('删除成功')
                     eventObject().$emit('ManageListRefresh')
                   })

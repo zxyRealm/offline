@@ -321,14 +321,20 @@
 
 //ob-group-nav 组件搜索框样式定制
 .ob-group-nav {
+  &.community--tree{
+    .filter__input{
+      border-radius: 13px;
+    }
+  }
   .filter__input {
     height: 26px;
     line-height: 0;
     margin-bottom: 20px;
     background: transparent;
     border: 1px solid rgba(255,255,255,0.10);
-    border-radius: 13px;
     box-sizing: border-box;
+    border-radius: 0;
+
     .el-input__inner {
       height: 24px;
       line-height: 24px;
@@ -523,6 +529,10 @@
 
 //设备管理-自有设备 添加设备弹框
 .device__dialog--wrap{
+  .el-dialog{
+    top: 50%;
+    margin-top: -120px!important;
+  }
   .el-dialog__header{
     height: 46px;
     line-height: 46px;

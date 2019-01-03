@@ -58,6 +58,8 @@
 import area from '@/components/area-select/area-select'
 import {mapState, mapGetters} from 'vuex'
 import {validPhone, validateRule} from '@/utils/validate'
+import {OssSignature} from '../../api/common'
+import {UserCenterUpdate, SetUserImage} from '../../api/developer'
 import axios from 'axios'
 export default {
   components: {
@@ -145,7 +147,7 @@ export default {
       data.cityAreaID = pcaArr[1] || 0
       data.districtAreaID = pcaArr[2] || 0
       delete data.pca
-      this.$http('/merchant/usercenter/update', data).then(res => {
+      UserCenterUpdate(data).then(res => {
         if (res.result) {
           this.$tip('保存成功')
           this.$store.dispatch('GET_USER_INFO').then(() => {
@@ -174,7 +176,7 @@ export default {
     avatarUpload (data) {
       let uid = this.userInfo.developerId
       // 获取阿里云oss signature
-      this.$http('/auth/oss/image/signature', {superKey: 'merchant'}).then(res => {
+      OssSignature({superKey: 'merchant'}).then(res => {
         if (res.data) {
           let formData = new FormData()
           let customName = 'avatar_' + uid + '.' + (data.file.type.split('/')[1] === 'png' ? 'png' : 'jpg')
@@ -189,7 +191,7 @@ export default {
             if (!back.data) {
               let avatarHref = res.data.host + '/merchant/' + uid + '/' + customName
               // 图片地址提交后台更新个人头像信息
-              this.$http('/merchant/usercenter/image', {faceImgURL: avatarHref}).then(res => {
+              SetUserImage({faceImgURL: avatarHref}).then(res => {
                 this.$tip('头像上传成功')
                 this.$store.commit('SET_USER_INFO', {faceImgURL: avatarHref + '?time_stamp=' + new Date().getTime()})
               })

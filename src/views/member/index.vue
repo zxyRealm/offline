@@ -89,8 +89,11 @@
 </template>
 
 <script>
-import {simplifyGroups} from '@/utils'
 import {validateRule} from '@/utils/validate'
+import {MemberNoFloor} from '../../api/community'
+import {IsManageGroup} from '../../api/common'
+import {MemberLibraryUpdate, MemberLibrarySearch, MemberLibraryDelete} from '../../api/member'
+import {mapState} from 'vuex'
 export default {
   name: 'index',
   data () {
@@ -146,7 +149,7 @@ export default {
 
   },
   computed: {
-
+    ...mapState(['currentManage'])
   },
   methods: {
     // 获取人员库列表
@@ -155,18 +158,16 @@ export default {
         index: 1,
         length: -1
       }
-      this.$http('/memberLibrary/search', data).then(res => {
-        if (res.result) {
-          for (let i = 0; i < res.data.content.length; i++) {
-            res.data.content[i].showPopver = false
-          }
-          this.tableData = res.data.content
+      MemberLibrarySearch(data).then(res => {
+        for (let i = 0; i < res.data.content.length; i++) {
+          res.data.content[i].showPopver = false
         }
+        this.tableData = res.data.content
       })
     },
     // 添加库
     addNew () {
-      this.$http('/group/faceSetCheck').then(res => {
+      IsManageGroup().then(res => {
         if (!res.data) {
           this.$affirm({
             confirm: '前往【社群管理】',
@@ -200,11 +201,9 @@ export default {
         text: '确定删除该人员库信息？'
       }, (action, instance, done) => {
         if (action === 'confirm') {
-          this.$http('/memberLibrary/delete', data).then(res => {
-            if (res.result) {
-              this.getList()
-              done()
-            }
+          MemberLibraryDelete(data).then(res => {
+            this.getList()
+            done()
           })
         } else {
           done()
@@ -223,11 +222,9 @@ export default {
       }
       this.$refs['tableForm' + index].validate((valid) => {
         if (valid) {
-          this.$http('/memberLibrary/update', data).then(res => {
-            if (res.result) {
-              this.getList()
-              this.removeState()
-            }
+          MemberLibraryUpdate(data).then(res => {
+            this.getList()
+            this.removeState()
           })
         } else {
           console.log('error submit')
@@ -256,26 +253,30 @@ export default {
     // 获取自有社群列表，绑定社群时只能绑定自有社群
     getGroupList (e) {
       this.sendData = e
-      this.$http('/group/list/self').then(res => {
-        this.groupList = simplifyGroups(res.data)
+      if (!this.currentManage.id) return
+      MemberNoFloor({groupId: this.currentManage.id}).then(res => {
+        if (res.data[0]) {
+          res.data[0].subGroupSon = res.data.slice(1)
+          this.groupList = [res.data[0]]
+        }
         this.dialogFormVisible = true
       })
     },
     // 确认关联
     bindCommunity (data) {
-      if (!data) {
+      if (!data.length) {
+        this.$tip('请选择要绑定的社群', 'error')
         return false
       }
+      console.log('row data', this.sendData, data)
       let send = {
         guid: this.sendData.guid,
         name: this.sendData.name,
-        groupGuid: data[0].groupGuid
+        groupGuid: data[0].guid
       }
-      this.$http('/memberLibrary/update', send).then(res => {
-        if (res.result) {
-          this.getList()
-          this.dialogFormVisible = false
-        }
+      MemberLibraryUpdate(send).then(res => {
+        this.getList()
+        this.dialogFormVisible = false
       })
     },
     // 清除表单校验
@@ -285,7 +286,8 @@ export default {
       }
     }
   },
-  watch: {}
+  watch: {
+  }
 }
 </script>
 

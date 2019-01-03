@@ -22,3 +22,11 @@ export function GetSocketIP (data) {
     data
   })
 }
+
+// 账号下是否有管理社群
+export function IsManageGroup (data) {
+  return request({
+    url: '/group/faceSetCheck',
+    data
+  })
+}

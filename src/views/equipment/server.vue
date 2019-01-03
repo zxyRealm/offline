@@ -1,21 +1,23 @@
 <template>
   <div class="equipment__data--list">
-    <div class="data-list-wrap">
-      <device-table
-        data-type="server"
-        @refresh="getServerEquipment"
-        v-model="equipmentList"
-      >
-      </device-table>
-      <el-pagination
-        v-if="pagination.total && pagination.total > pagination.length"
-        @current-change="getServerEquipment"
-        :current-page="pagination.index"
-        :page-size="pagination.length"
-        layout="total,prev, pager, next, jumper"
-        :total="pagination.total">
-      </el-pagination>
-    </div>
+    <!--<div class="data-list-wrap">-->
+      <el-scrollbar>
+        <device-table
+          data-type="server"
+          @refresh="getServerEquipment"
+          v-model="equipmentList"
+        >
+        </device-table>
+        <el-pagination
+          v-if="pagination.total && pagination.total > pagination.length"
+          @current-change="getServerEquipment"
+          :current-page="pagination.index"
+          :page-size="pagination.length"
+          layout="total,prev, pager, next, jumper"
+          :total="pagination.total">
+        </el-pagination>
+      </el-scrollbar>
+    <!--</div>-->
   </div>
 </template>
 <script>
@@ -143,7 +145,12 @@ export default {
 
 <style lang="scss" scoped>
   .equipment__data--list{
-    /*height: 100%;*/
+    height: calc(100% - 120px);
+    padding: 20px 20px;
+    box-sizing: border-box;
+    > .el-scrollbar{
+      height: 100%;
+    }
   }
   .device__dialog--wrap{
     .ad--item{

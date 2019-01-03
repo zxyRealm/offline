@@ -30,7 +30,6 @@
       title="添加设备"
       :visible.sync="addDeviceVisible"
       class="device__dialog--wrap"
-      top="25%"
       width="410px"
     >
       <div v-if="$route.name === 'equipmentCamera'" class="ad--item">
