@@ -11,11 +11,11 @@
   <script src="/static/three/OrbitControls.js"></script>
   <style>
     html, body{
-        margin: 0;
-        padding: 0;
-        color: rgb(86, 191, 248)
-      }
-    </style>
+      margin: 0;
+      padding: 0;
+      color: rgb(86, 191, 248)
+    }
+  </style>
 </head>
 
 <body>
@@ -44,7 +44,9 @@
     var count // 动态参考值
     var standardCount // 固定参考值
     var positionSpeed = 2 // 位移运动速度
-    var opacitySpeed = 0.9 * positionSpeed / floorHeight // 透明度运动速度
+    var opacitySpeed = 0.5 * positionSpeed / floorHeight // 透明度运动速度
+    var opacitySpeed2 = 1 * positionSpeed / floorHeight // 商店透明度运动参数
+    var opacitySpeed3 = 0.6 * positionSpeed / floorHeight // 边缘透明度运动参数
     var upClick = false // 上升trigger变量
     var upHeight = 0 // 上升起始高度
     var downClick = false // 下降trigger变量
@@ -126,18 +128,18 @@
         window.innerHeight / - 2,
         0.1, 10000
       )
-      camera.position.set(480, 200, 580)
+      camera.position.set(330, 180, 450)
       camera.lookAt(0, 0, 0)
       scene.add(camera)
 
-      var light = new THREE.PointLight('#ffffff', 0.8)
+      var light = new THREE.PointLight('#435175', 0.8)
       camera.add(light)
 
       // var axesHelper = new THREE.AxesHelper(100)
       // scene.add(axesHelper)
 
       group = new THREE.Group()
-      group.position.set(-290 * scale, -60, -241 * scale)
+      group.position.set(-290 * scale, -80, -241 * scale)
       // group.rotation.set(-0.05*Math.PI, 0, 0)
       scene.add(group)
 
@@ -200,13 +202,20 @@
       upHeight += positionSpeed
       group.position.y += positionSpeed
       group.children[count - 1].children.forEach(item => {
-        item.material.opacity += opacitySpeed
+        if (item.name === 'plane') {
+          item.material.opacity += opacitySpeed
+        } else {
+          item.material.opacity += opacitySpeed2
+        }
       })
       group.children[count + 3].children.forEach(item => {
-        item.material.opacity -= opacitySpeed
+        if (item.name === 'plane') {
+          item.material.opacity -= opacitySpeed
+        } else {
+          item.material.opacity -= opacitySpeed2
+        }
       })
       if (upHeight >= floorHeight) {
-        console.log(floorArr)
         upClick = false
         upHeight = 0
         count--
@@ -217,10 +226,18 @@
       downHeight -= positionSpeed
       group.position.y -= positionSpeed
       group.children[count].children.forEach(item => {
-        item.material.opacity -= opacitySpeed
+        if (item.name === 'plane') {
+          item.material.opacity -= opacitySpeed
+        } else {
+          item.material.opacity -= opacitySpeed2
+        }
       })
       group.children[count + 4].children.forEach(item => {
-        item.material.opacity += opacitySpeed
+        if (item.name === 'plane') {
+          item.material.opacity += opacitySpeed
+        } else {
+          item.material.opacity += opacitySpeed2
+        }
       })
       if (downHeight <= 0) {
         downClick = false
@@ -445,11 +462,11 @@
     // 添加Orbit控制器
     function addControl() {
       controls = new THREE.OrbitControls(camera);
-      // controls.maxPolarAngle = 1.14;//上下两极的可视区域的最大角度
-      // controls.minPolarAngle = 1.14;//上下两极的可视区域最小角度
-      controls.dampingFactor = 0.25;
+      controls.maxPolarAngle = 1.28;//上下两极的可视区域的最大角度
+      controls.minPolarAngle = 1.28;//上下两极的可视区域最小角度
+      // controls.dampingFactor = 0.25;
       controls.enableZoom = true;
-      controls.enableRotate = false;
+      controls.enableRotate = true;
       controls.screenSpacePanning = true;
     }
 
@@ -505,7 +522,7 @@
       loader.load(info.img_url, paths => {
         for (var i = 0; i < paths.length; i++) {
           var path = paths[i]
-          var depth = 5
+          var depth = 7
           var shapes = path.toShapes(true);
           var opacity = info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.9
           for (var j = 0; j < shapes.length; j++) {
@@ -526,19 +543,30 @@
               // group.add(line)
 
               var geometry = new THREE.ExtrudeBufferGeometry(shape, {depth: depth, bevelEnabled: false})
-              var materialLine = new THREE.MeshPhongMaterial({
-                color: new THREE.Color('#4a5d8c'),
-                emissive: new THREE.Color('#4a5d8c'),
+              
+              var geometry2 = new THREE.Geometry();
+              geometry2.fromBufferGeometry(geometry)
+              
+              var materialLine = new THREE.MeshBasicMaterial({
+                color: new THREE.Color('#5F719E'),
+                emissive: new THREE.Color('#5F719E'),
                 transparent: true,
                 opacity: opacity,
-                side: THREE.DoubleSide,
+                side: THREE.FrontSide,
+                vertexColors: THREE.FaceColors
                 // depthWrite: false
               })
-              var line = new THREE.Mesh(geometry, materialLine)
-
+              var line = new THREE.Mesh(geometry2, materialLine)
+              line.geometry.faces.forEach(face => {
+                if (face.normal.y !== 0) {
+                  face.color = new THREE.Color('#0E1239')
+                }
+                
+              })
+             
               var edgeGeometry = new THREE.BufferGeometry().setFromPoints(points)
               var edgeMaterial = new THREE.LineBasicMaterial({
-                color: '#000000',
+                color: '#2A4586',
                 transparent: true,
                 opacity: opacity
               })
@@ -549,8 +577,10 @@
               
               line.position.set(0, info.coordinate_y + depth, 0)
               line.rotation.set(0.5 * Math.PI, 0, 0)
+              line.name = 'store'
               edges.position.set(0, info.coordinate_y + depth, 0)
               edges.rotation.set(0.5 * Math.PI, 0, 0)
+              edges.name = 'edges'
               group.add(edges)
               group.add(line)
             }
@@ -569,14 +599,15 @@
             var shape = shapes[j];
             var geometry = new THREE.ShapeBufferGeometry(shape);
             var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-              color: '#233E85',
+              color: '#2A4586',
               side: THREE.DoubleSide,
               transparent: true,
-              opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.9
+              opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.5
             }));
 
             mesh.position.set(0, info.coordinate_y, 0);
             mesh.rotation.set(0.5 * Math.PI, 0, 0);
+            mesh.name = 'plane'
             planeList.push(mesh);
             group.add(mesh);
           }
@@ -605,7 +636,10 @@
     }
 
     function onWindowResize() {
-      camera.aspect = (window.innerWidth) / (window.innerHeight)
+      camera.left = window.innerWidth / -2;
+      camera.right = window.innerWidth / 2;
+      camera.top = window.innerHeight / 2;
+      camera.bottom = window.innerHeight / -2;
       camera.updateProjectionMatrix()
       renderer.setSize(window.innerWidth, window.innerHeight)
     }

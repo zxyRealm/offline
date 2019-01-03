@@ -479,7 +479,6 @@
     vector = vector.unproject(camera);
     let raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize()); // raycaster里只保存有颜色的块
     let intersects = raycaster.intersectObjects(hasColorBoxArr);
-    console.log(hasColorBoxArr)
     if (intersects.length > 0) {
       currentIntersect = intersects[0].object
       // 避免在currentIntersect.children中多次添加line
