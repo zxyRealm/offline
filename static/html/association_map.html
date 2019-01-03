@@ -267,7 +267,7 @@
   // 加载渲染svg地图
   function loadSvg (data) {
     communityData = data
-    // console.log('community info-----------------', data)
+    console.log('community info-----------------', data)
     var svgLoad = new THREE.SVGLoader()
     var shapes = !data.shapePathParam || data.shapePathParam instanceof Object ? data.shapePathParam : JSON.parse(data.shapePathParam)
     var img1 = document.getElementById('image1')
@@ -298,8 +298,13 @@
       initGateway()
     } else {
       var url = parseUrlParams('map_url') || ''
-      img1.children[1].innerText = '主出入口'
-      img2.style.display = 'block'
+      if (data.type !== 3) {
+        img1.children[1].innerText = '主出入口'
+        img2.style.display = 'block'
+      } else {
+        img1.children[1].innerText = '门店出入口'
+        img2.style.display = 'none'
+      }
       svgLoad.load(url, (paths) => {
         group.position.x = -290
         group.position.y = 214
@@ -314,7 +319,6 @@
             side: THREE.DoubleSide,
             depthWrite: false
           })
-
           var shapes = path.toShapes(true)
           for (var j = 0; j < shapes.length; j++) {
             var shape = shapes[j]
@@ -574,7 +578,7 @@
 
   // 创建图片贴图
   function createPictureSprite (obj) {
-    var img = communityData.shapePathParam ? 'qizi2' : obj.type === 1 ? 'qizi2' : 'qizi1'
+    var img = communityData.shapePathParam || communityData.type === 3 ? 'qizi2' : obj.type === 1 ? 'qizi2' : 'qizi1'
     var texture = new THREE.TextureLoader().load('/static/floor/' + img + '.png')
     var spriteMaterial = new THREE.SpriteMaterial({
       map: texture,

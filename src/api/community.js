@@ -53,6 +53,15 @@ export function GetMarketList (data, tip = true) {
   })
 }
 
+// 获取单个门店社群列表
+export function GetStoreList (data, tip = true) {
+  return request({
+    tip: tip,
+    url: '/group/son/store/list',
+    data
+  })
+}
+
 // 获取商场楼层数据
 export function GetMarketFloorList (data, tip = true) {
   return request({
