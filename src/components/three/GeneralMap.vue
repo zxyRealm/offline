@@ -214,12 +214,15 @@ export default {
   },
   methods: {
     updateFrameArea(item, index) {
+      console.log(item)
       this.$set(this.frame, "path", item.path);
       this.$set(this.frame, "id", item.id);
       this.community.infoArr.forEach((value, i) => {
         if (value.floor === item.floor) {
           this.community.index = i;
           this.$emit("updateCommunity", this.community.infoArr[i]);
+          this.websocket.close()
+          this.getWebsocket(item.groupSonGuid, item.groupParentGuid)
         }
       });
     },
@@ -275,9 +278,9 @@ export default {
       });
     },
     changeStatisticInfo(ref) {
-      if (this.statisticInfo[ref] !== this.statisticEndInfo[ref]) {
+      if (parseInt(this.statisticInfo[ref]) !== parseInt(this.statisticEndInfo[ref])) {
         this.$refs[ref].start()
-      } else {
+      } else{
         this.$refs[ref].pause()
       }
     },
@@ -344,6 +347,7 @@ export default {
         let floorHeight = 140
         delete allInfo[0].subGroupSon;
         this.community.infoArr = allInfo.concat(floorInfo);
+        console.log(this.community.infoArr)
         this.caculateMinus(this.community.infoArr);
         let minIndex = this.caculateMinusIndex(floorInfo);
         for (let i in floorInfo) {
@@ -357,12 +361,16 @@ export default {
           this.floorArr.push({
             coordinate_y: coordinate_y,
             img_url: img_url,
-            floor: floor
+            floor: floor,
+            groupSonGuid: floorInfo[i].groupSonGuid,
+            groupParentGuid: floorInfo[i].groupParentGuid
           });
           let obj = {
             name: floorInfo[i].name,
             id: img_url,
-            floor: floor
+            floor: floor,
+            groupSonGuid: floorInfo[i].groupSonGuid,
+            groupParentGuid: floorInfo[i].groupParentGuid
           };
           obj.path = "/static/html/plane.html?floor=" + img_url;
           this.routerList.push(obj);
@@ -476,13 +484,16 @@ export default {
         case "change-floor":
           let currentFloor = "";
           this.floorArr.forEach((val, index) => {
+            console.log(val)
             if (val.coordinate_y === data.params.data) {
               let path = "/static/html/plane.html?floor=" + val.img_url;
               let id = val.img_url;
               let item = {
                 path: path,
                 id: id,
-                floor: val.floor
+                floor: val.floor,
+                groupSonGuid: val.groupSonGuid,
+                groupParentGuid: val.groupParentGuid
               };
               this.updateFrameArea(item, index);
             }
@@ -506,6 +517,7 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener("message", this.handleMessage);
+    this.websocket.close()
   },
   mounted() {
     this.iframe = this.$refs.iframe.contentWindow;
@@ -526,6 +538,24 @@ export default {
     currentManage: {
       handler(val) {
         if (val) {
+          console.log(val)
+          if (this.websocket) {
+            this.websocket.close()
+            this.statisticInfo = {
+              Incoming_Today: 0,
+              Incoming_Yesterday: 0,
+              Member_Today: 0,
+              Member_Yesterday: 0,
+              Current: 0
+            }
+            this.statisticEndInfo = {
+              Incoming_Today: 0,
+              Incoming_Yesterday: 0,
+              Member_Today: 0,
+              Member_Yesterday: 0,
+              Current: 0
+            }
+          }
           this.routerList = [
             { name: "总", path: "/static/html/new_home.html", id: "threeFrame" }
           ];
