@@ -84,7 +84,7 @@ export default {
       params.size = this.pageParams.pageSize
       params.page = this.pageParams.currentPage
       params.startTime = params.startTime + ' 00:00:00'
-      params.endTime = params.endTime + ' 24:00:00'
+      params.endTime = params.endTime + ' 23:59:59'
       if (!params.groupSonGuid) {
         this.$tip('请您先选择社群', 'error')
         return

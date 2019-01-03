@@ -3,16 +3,22 @@
     <div class="select__container clearfix">
       <el-select
         value-key="guid"
+        @visible-change="visibleChange"
         class="behavior__select"
         popper-class="select__popper--wrap theme__popper--wrap"
         v-model="filter.group">
-        <el-input placeholder="快速查找社群" class="select__search" v-model="search.group">
-          <i slot="prefix" class="el-input__icon el-icon-search"></i>
+        <el-input
+          :clearable="true"
+          @clear="showAllList"
+          @keyup.enter.native="filterName('group')"
+          placeholder="快速查找社群"
+          class="select__search" v-model.trim="search.group">
+          <i slot="prefix" @click="filterName('group')" class="el-input__icon el-icon-search"></i>
         </el-input>
         <el-option :value="0" label="全部社群"></el-option>
         <el-option
           v-for="(item, $index) in groupList"
-          :value="item"
+          :value="item.guid"
           :key="$index"
           :label="item.name"></el-option>
       </el-select>
@@ -24,38 +30,42 @@
         v-model="filter.device">
         <div class="behavior__select--inner clearfix">
           <div class="inner-left">
-            <!--<div class="el-select-dropdown__item" @click="() => {selectType = -1;filter.device = -1}" :class="{active: selectType === -1}">一体机</div>-->
             <el-option :value="0" :class="{active: !filter.device && !selectType}" label="全部设备"></el-option>
             <div class="el-select-dropdown__item" @click="getDeviceList('aio')" :class="{active: selectType === 1}">一体机</div>
             <div class="el-select-dropdown__item" @click="getDeviceList('camera')" :class="{active: selectType === 2}">摄像机</div>
           </div>
           <div class="inner-right" v-show="selectType">
-            <el-input placeholder="快速查找设备" class="select__search" v-model="search.device">
-              <i slot="prefix" class="el-input__icon el-icon-search"></i>
+            <el-input
+              @clear="showAllList"
+              :clearable="true"
+              placeholder="快速查找设备"
+              @keyup.enter.native="filterName('device')"
+              class="select__search" v-model.trim="search.device">
+              <i slot="prefix" @click="filterName('device')" class="el-input__icon el-icon-search"></i>
             </el-input>
             <el-option
               v-for="(item, $index) in deviceList"
-              :value="item"
+              :value="item.deviceKey"
               :key="$index"
               :label="item.deviceName"></el-option>
-            <div v-if="!deviceList.length" class="text-center">暂无设备</div>
+            <div v-if="!deviceList.length" class="text-center fs12">暂无设备</div>
           </div>
         </div>
       </el-select>
       <a href="javascript:void (0)" class="fr">刷新</a>
     </div>
-    <div>
+    <el-scrollbar class="table__scrollbar">
       <el-table
       border
       :data="behaviorList"
       >
         <el-table-column
-          prop="portalName"
+          prop="imageUrl"
           width="120"
           align="center"
           label="抓拍图">
           <template slot-scope="scope">
-            <img width="24" :src="scope.row.url" alt="">
+            <image-box width="40px" height="40px" :src="scope.row.imageUrl"></image-box>
           </template>
         </el-table-column>
 
@@ -66,10 +76,13 @@
           label="姓名">
         </el-table-column>
         <el-table-column
-          prop="set"
+          prop="gender"
           width="120"
           align="center"
           label="性别">
+          <template slot-scope="scope">
+            {{scope.row.gender ? '男': '女'}}
+          </template>
         </el-table-column>
         <el-table-column
           prop="age"
@@ -78,7 +91,7 @@
           label="年龄">
         </el-table-column>
         <el-table-column
-          prop="name"
+          prop="memberLibaryName"
           align="center"
           label="所属会员库">
         </el-table-column>
@@ -86,27 +99,27 @@
           align="center"
           label="操作">
           <template slot-scope="scope">
-            <router-link to="/behavior/trail">查看移动轨迹</router-link>
-            <!--<a href="javascript:void (0)">查看移动轨迹</a>-->
+            <router-link :to="'/behavior/trail/' + scope.row.personId">查看移动轨迹</router-link>
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
-        @current-change="getBehaviorList"
-        @size-change="sizeChange"
-        :page-sizes="[10, 20, 30]"
-        :current-page="pagination.index"
-        :page-size="pagination.length"
-        layout="total,sizes,prev, pager, next, jumper"
-        :total="pagination.total">
-      </el-pagination>
-    </div>
+    </el-scrollbar>
+    <el-pagination
+      @current-change="getBehaviorList"
+      @size-change="sizeChange"
+      :page-sizes="[10, 20, 30]"
+      :current-page="pagination.index"
+      :page-size="pagination.length"
+      layout="total,sizes,prev, pager, next, jumper"
+      :total="pagination.total">
+    </el-pagination>
   </div>
 </template>
 
 <script>
 import {MemberNoFloor} from '../../api/community'
 import {GetAllAioList, GetAllCameraList} from '../../api/device'
+import {GetBehaviorList} from '../../api/behavior'
 import {mapState} from 'vuex'
 export default {
   name: 'analyse',
@@ -122,20 +135,21 @@ export default {
         device: 0
       },
       groupList: [], // 社群列表
+      groupOriginList: [], // 原始社群列表数据
       deviceOriginList: [], // 原始设备列表数据
       deviceList: [], // 设备列表
       behaviorList: [
-        {name: '鱼鱼鱼'}
       ], // 行为信息列表
       pagination: {
-        index: 2,
-        length: 4,
-        total: 100
+        index: 1,
+        length: 10,
+        total: 0
       }
     }
   },
   created () {
     this.getGroupList()
+    this.getBehaviorList()
   },
   mounted () {},
   computed: {
@@ -145,14 +159,18 @@ export default {
     getGroupList () {
       if (!this.currentManage.id) return
       MemberNoFloor({groupId: this.currentManage.id}).then(res => {
-        this.groupList = res.data.filter(item => item.coordinates)
+        let list = res.data.filter(item => item.coordinates)
+        this.groupList = list
+        this.groupOriginList = list
       })
     },
-    // 获取设备
+    // 获取设备 (一体机、摄像头)
     getDeviceList (type) {
       switch (type) {
         case 'aio':
+          if (this.selectType === 1) return
           this.selectType = 1
+          this.search.device = ''
           GetAllAioList().then(res => {
             console.log('device list aio-------', res.data)
             this.deviceOriginList = res.data
@@ -160,7 +178,9 @@ export default {
           })
           break
         case 'camera':
+          if (this.selectType === 2) return
           this.selectType = 2
+          this.search.device = ''
           GetAllCameraList().then(res => {
             console.log('device list Camera-------', res.data)
             this.deviceOriginList = res.data
@@ -172,21 +192,65 @@ export default {
     },
     visibleChange () {
       this.selectType = ''
+      this.search = {
+        group: '',
+        device: ''
+      }
+      setTimeout(() => {
+        this.groupList = this.groupOriginList
+        this.deviceList = this.deviceOriginList
+      }, 100)
     },
-    sizeChange () {},
+    sizeChange (val) {
+      console.log(this.pagination)
+      this.pagination.length = val
+      this.getBehaviorList()
+    },
     // 获取行为分析信息列表
-    getBehaviorList () {}
+    getBehaviorList (page, size) {
+      if (!this.currentManage.id) return
+      GetBehaviorList({
+        groupSonGuid: this.filter.group || '',
+        deviceKey: this.filter.device || '',
+        groupGuid: this.currentManage.id,
+        length: size || this.pagination.length || 10,
+        index: page || this.pagination.index || 1
+      }).then(res => {
+        this.pagination = res.data.pagination
+        this.behaviorList = res.data.content
+        console.log('behavior list', res.data)
+      })
+    },
+    // 通过名称搜索社群或者设备
+    filterName (type) {
+      console.log('filter type', type, this.search.group, '----0---')
+      switch (type) {
+        case 'group':
+          this.groupList = this.groupOriginList.filter(item => item.name.indexOf(this.search.group) > -1 || item.nickName.indexOf(this.search.group) > -1)
+          break
+        case 'device':
+          this.deviceList = this.deviceOriginList.filter(item => item.deviceName.indexOf(this.search.device) > -1)
+          break
+      }
+    },
+    // 清除搜索内容
+    showAllList () {
+      this.groupList = this.groupOriginList
+      this.deviceList = this.deviceOriginList
+    }
   },
   watch: {
     currentManage: {
       handler (val) {
         this.getGroupList()
+        this.getBehaviorList()
       },
       deep: true
     },
     filter: {
       handler (val) {
         console.log('filter', val)
+        this.getBehaviorList(1)
       },
       deep: true
     }
@@ -195,6 +259,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .table__scrollbar{
+    height: calc(100% - 100px);
+  }
 .select__container{
   padding: 16px 0 12px;
   .behavior__select{

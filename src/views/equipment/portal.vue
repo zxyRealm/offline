@@ -1,11 +1,11 @@
 <template>
   <div class="portal__content--wrap">
     <div class="group__select--wrap">
-      <el-select @change="groupChange" v-model="currentGroup">
+      <el-select value-key="guid" @change="groupChange" v-model="currentGroup">
         <el-option
           v-for="(item, $index) in groupList"
           :key="$index"
-          :value="$index"
+          :value="item"
           :label="item.name"></el-option>
       </el-select>
     </div>
@@ -109,6 +109,7 @@ export default {
       portalList: [
       ], // 出入口设备列表
       pagination: {
+        length: 4
       } // 设备列表分页信息
     }
   },
@@ -130,8 +131,8 @@ export default {
     // 获取出入口设备列表
     getPortalEquipment (page, size) {
       if (!this.currentManage.id) return
-      if (this.groupList[this.currentGroup] && this.groupList[this.currentGroup].id) {
-        PortalMemberDevice({groupSonId: this.groupList[this.currentGroup].id, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
+      if (this.currentGroup && this.currentGroup.guid) {
+        PortalMemberDevice({groupSonId: this.currentGroup.guid, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
           this.portalList = res.data.content
           this.pagination = res.data.pagination
         })
@@ -177,7 +178,6 @@ export default {
           return item
         })
         this.ownDeviceList = res.data || []
-        console.log(this.ownDeviceList)
         this.AddDeviceVisible = true
       })
     },
@@ -188,7 +188,7 @@ export default {
         text: '删除关系后，该出入口下将不包含该设备'
       }, (action, instance, done) => {
         if (action === 'confirm') {
-          PortalUnbindDevice({deviceKey: data.deviceKey}).then(res => {
+          PortalUnbindDevice({deviceKey: data.deviceKey, portalGuid: data.portalGuid}).then(res => {
             this.$tip('删除成功')
             this.getPortalEquipment()
           })

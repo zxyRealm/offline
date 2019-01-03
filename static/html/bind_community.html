@@ -64,7 +64,7 @@
 <script src="/static/three/OrbitControls.js"></script>
 <script src="/static/three/SVGLoader.js"></script>
 <script>
-  var renderer, scene, camera, mouse = {}, group
+  var renderer, scene, camera, mouse = {}, group, currentFloor, bindList = []
   var INTERSECTED, controls, raycaster, ratio, meshList = []
   var windowOrigin = window.location.origin
   /* 初始化创建场景
@@ -86,7 +86,8 @@
     group = new THREE.Group()
     scene.add(group)
     // 通过svg文件构画出分布图
-    loadSvg()
+    window.parent.postMessage({type: 'LOAD_SVG_BIND'}, windowOrigin)
+    // loadSvg()
     raycaster = new THREE.Raycaster()
     // 轨道控制器
     controls = new THREE.OrbitControls(camera, renderer.domElement)
@@ -98,7 +99,8 @@
     window.addEventListener('resize', this.onWindowResize, false)
   }
   // 渲染svg地图模型
-  function loadSvg () {
+  function loadSvg (floor) {
+    currentFloor = floor
     var svgLoader = new THREE.SVGLoader()
     var url = parseUrlParams('map_url') || ''
     svgLoader.load(url, (paths) => {
@@ -117,12 +119,19 @@
         for (var j = 0; j < shapes.length; j++) {
           var shape = shapes[j]
           var geometry = new THREE.ShapeBufferGeometry(shape)
+          if (currentFloor && currentFloor.subGroupSon.filter(item => JSON.parse(item.coordinates).toString() === geometry.attributes.position.array.toString()).length) {
+            materialLine.color = new THREE.Color('#1A3D6A')
+            materialLine.userData.select = true
+          }
           var mesh = new THREE.Mesh(geometry, materialLine)
           var edges = new THREE.EdgesGeometry(geometry)
           var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
           mesh.add(line)
-          mesh.name = i
-          meshList.push(mesh)
+          if (!materialLine.userData.select) {
+            meshList.push(mesh)
+          } else {
+            bindList.push(mesh)
+          }
           group.add(mesh)
         }
       }
@@ -167,8 +176,6 @@
         INTERSECTED = intersects[ 0 ].object
         INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
         INTERSECTED.material.color.setHex(0xff0000)
-        // console.log(intersects[0].object.toJSON(), JSON.parse(JSON.stringify(intersects[0].object)))
-        // sessionStorage.setItem('three_shape_path', JSON.stringify(intersects[0].object.geometry.toJSON()))
         window.parent.postMessage({type: 'BIND_GROUP_CLICK', data: intersects[0].object.geometry.attributes.position.array.toString().split(',').map(Number), path: JSON.parse(JSON.stringify(intersects[0].object))}, windowOrigin)
       }
     } else {
@@ -179,10 +186,13 @@
   // 设置默认选中区域
   function setDefaultSelect (arr) {
     if (!arr) return
-    for (var k = 0, len = meshList.length; k < len; k++) {
-      if (meshList[k].geometry.attributes.position.array.toString() === arr.toString()) {
+    for (var k = 0, len = bindList.length; k < len; k++) {
+      if (bindList[k].geometry.attributes.position.array.toString() === arr.toString()) {
+        bindList[k].material.color = new THREE.Color('#403E42')
+        bindList[k].material.userData.select = false
+        meshList.push(bindList[k])
         if (INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex)
-        INTERSECTED = meshList[k]
+        INTERSECTED = bindList[k]
         INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
         INTERSECTED.material.color.setHex(0xff0000)
       }

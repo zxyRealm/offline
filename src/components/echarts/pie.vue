@@ -206,11 +206,19 @@ export default {
       data = data.seriesGroup
       let emptyArray = []
       for (let i = 0; i < data.length; i++) {
+        data[i]['data'][0].value = Number(data[i]['data'][0].value)
         emptyArray.push(data[i]['data'][0])
       }
+      console.log('emptyArray', emptyArray)
       if (this.filterParams.type === 'age') { // 年龄
         let ageLegend = ['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上']
-        this.option.series[0].data = data[0].data
+        let series = ageLegend.map(item => {
+          return data.filter(item2 => item2.name === item)[0].data[0]
+        })
+        console.log('data ----------', series)
+
+        this.option.series[0].data = series
+        // this.option.series[0].data = this.$apply(this.option.series[0].data, emptyArray)
         this.option.legend['data'] = this.addColor(ageLegend)
       } else if (this.filterParams.type === 'sex') { // 性别
         this.option.series[0].data = this.$apply(this.option.series[0].data, emptyArray)
@@ -267,7 +275,7 @@ export default {
     getData () {
       let params = JSON.parse(JSON.stringify(this.filterParams))
       params.startTime = params.startTime + ' 00:00:00'
-      params.endTime = params.endTime + ' 24:00:00'
+      params.endTime = params.endTime + ' 23:59:59'
       this.changeTitle()
       GetChartPie(params).then(res => {
         this.data = res.data

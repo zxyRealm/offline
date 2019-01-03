@@ -8,15 +8,15 @@
         @remote-search="remoteSearch"
         :menu-array="[{title: '社群管理'}]">
       </uu-sub-tab>
-      <div class="mine__community--main" :class="{'data-empty': !groupList.length || searchEmpty}">
-        <ob-list-empty v-if="!groupList.length || searchEmpty" top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
+      <div class="mine__community--main" :class="{'data-empty': currentManage.type !== 3 && !groupList.length}">
+        <ob-list-empty v-if="currentManage.type !== 3 && !groupList.length" top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
         <div class="mine__community--content" v-else>
-          <div class="community--sidebar">
-            <!---->
+          <div class="community--sidebar" v-if="currentManage.type !== 3">
             <ob-group-nav
               is-edit
               rights
               isSearch
+              :input-error="inputError"
               node-key="groupSonGuid"
               :asyn-data="true"
               :expanded-all="false"
@@ -30,7 +30,7 @@
               @refresh="getGroupList"
               @current-change="currentChange"></ob-group-nav>
           </div>
-          <div class="community--main">
+          <div class="community--main" :class="{single: currentManage.type === 3}">
             <div class="cmm-top" ref="ciContentTop">
               <h2 class="cmm-sub-title">
                   <span>{{communityInfo.name}}{{showNickName?`（${communityInfo.nickName}）`:''}}
@@ -176,7 +176,9 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item label="楼层：" prop="floor">
-                  <el-select placeholder="请选择门店所在楼层" v-model="joinManageForm.floor">
+                  <el-select
+                    @change="FloorChange($event, 'joinManageForm')"
+                    placeholder="请选择门店所在楼层" v-model="joinManageForm.floor">
                     <el-option
                       v-for="(item, $index) in floorList"
                       :key="$index"
@@ -184,8 +186,12 @@
                       :value="item"></el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label-width="0">
-                  <div class="three__map--wrap">
+                <el-form-item v-show="joinManageForm.floor" label-width="0">
+                  <div class="three__map--dialog">
+                    <bind-community
+                      ref="joinManageFormMap"
+                      @handle-block-click="handleBlockClick($event, 'joinManageForm')"
+                      :floor-list="joinCommunityList[0] ? joinCommunityList[0].subGroupSon : []"></bind-community>
                   </div>
                 </el-form-item>
               </template>
@@ -239,16 +245,16 @@
               </el-select>
             </el-form-item>
             <el-form-item label="楼层：" prop="floor">
-              <el-select @change="FloorChange" placeholder="请选择门店所在楼层" v-model="handleMemberForm.floor">
+              <el-select @change="FloorChange($event, 'handleMemberForm')" placeholder="请选择门店所在楼层" v-model="handleMemberForm.floor">
                 <el-option v-for="item in floorList" :key="item" :label="IntToFloor(item)" :value="item"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item v-show="handleMemberForm.floor" label-width="0">
               <div class="three__map--dialog">
                 <bind-community
-                  ref="bindGroupMap"
+                  ref="handleMemberFormMap"
                   :default-data="handleMemberForm"
-                  @handle-block-click="handleBlockClick"
+                  @handle-block-click="handleBlockClick($event, 'handleMemberForm')"
                   :floor-list="floor"></bind-community>
               </div>
             </el-form-item>
@@ -348,7 +354,7 @@ import Clipboard from '@/utils/clipboard'
 import area from '@/components/area-select/area-select'
 import BindCommunity from '@/components/three/bind_community'
 import {eventObject} from '../../utils/event'
-import {GetMarketList, GetCommunityInfoByCode, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CheckMemberNickNameExist, UpdateMemberNickName, GetGroupPortalCount, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
+import {GetMarketList, GetCommunityInfoByCode, GetCommunityInfo, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CheckMemberNickNameExist, UpdateMemberNickName, GetGroupPortalCount, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
 import ThreeAssociationMap from '@/components/three/association_map'
 export default {
   name: 'mineCommunity',
@@ -361,7 +367,6 @@ export default {
   data () {
     const validateCode = (rule, value, callback) => {
       value = value.trim()
-      // this.ManageInfo = {}
       if (!value) {
         this.ManageInfo = {}
         callback(new Error('请输入社群邀请码'))
@@ -375,20 +380,46 @@ export default {
                 if (this.communityInfo.parentInfoList) {
                   isManage = this.communityInfo.parentInfoList.filter(item => item.type === this.ManageInfo.type)[0]
                 }
-                isManage ? callback(new Error(`已加入其他${this.ManageInfo.type === 1 ? '商场' : '连锁'}社群`)) : callback()
+                if (this.originCode !== value) {
+                  if (this.originCode) {
+                    this.joinManageForm.floor = ''
+                    this.joinManageForm.industryType = ''
+                  }
+                  GetMarketFloorList({id: res.data.id}, false).then(res2 => {
+                    this.floorList = res2.data || []
+                  })
+                  GetMarketList({parentId: res.data.id}, false).then(res3 => {
+                    this.joinCommunityList = res3.data || []
+                  })
+                  console.log('code----------------', this.originCode, value)
+                  this.originCode = JSON.parse(JSON.stringify(value))
+                }
+                if (isManage) {
+                  callback(new Error(`已加入其他${this.ManageInfo.type === 1 ? '商场' : '连锁'}社群`))
+                } else {
+                  callback()
+                }
               } else {
+                this.joinManageForm.floor = ''
+                this.joinManageForm.industryType = ''
                 this.ManageInfo = {}
                 callback(new Error('邀请码不存在'))
               }
             }).catch(err => {
+              this.joinManageForm.floor = ''
+              this.joinManageForm.industryType = ''
               this.ManageInfo = {}
               callback(new Error(err.msg || '邀请码不存在'))
             })
           } else {
+            this.joinManageForm.floor = ''
+            this.joinManageForm.industryType = ''
             this.ManageInfo = {}
             callback(new Error('请输入正确的社群邀请码'))
           }
         } else {
+          this.joinManageForm.floor = ''
+          this.joinManageForm.industryType = ''
           this.ManageInfo = {}
           callback(new Error('请输入10位社群邀请码'))
         }
@@ -470,6 +501,7 @@ export default {
       }
     }
     return {
+      originCode: '', // 邀请码
       parentGroups: [
         {name: '西溪'},
         {name: '西湖'},
@@ -506,12 +538,13 @@ export default {
       disabledKeys: [],
       currentCommunity: {}, // 当前社群信息
       communityInfo: {},
-      groupsNameForm: {
-      },
+      groupsNameForm: {},
       ManageInfo: { // 通过邀请码获取的管理员社群信息
       },
       joinCommunityInfo: {},
+      joinCommunityList: [], // 管理层商场楼层信息
       joinManageForm: { // 创建分组form数据对象
+        coordinates: '',
         code: '',
         industryType: '',
         floor: '',
@@ -629,9 +662,7 @@ export default {
           {required: true, validator: validateName, trigger: 'blur'}
         ]
       },
-      nameForm: {
-        name: ''
-      }
+      inputError: '' // 社群树形结构搜索查询未查询到结果时提示信息显示
     }
   },
   created () {
@@ -713,8 +744,8 @@ export default {
     },
     // 搜索社群
     remoteSearch (val) {
-      this.searchEmpty = false
       this.currentCommunity = {}
+      this.inputError = ''
       if (val) {
         SonCommunitySearch({parentId: this.currentManage.id, searchText: val}).then(res => {
           if (res.data[0]) {
@@ -748,7 +779,10 @@ export default {
               }
             })
           } else {
-            this.$tip(`搜不到包含“${val}”的内容`, 'error')
+            if (val) {
+              this.inputError = `未搜索到相关社群`
+            }
+            // this.$tip(`搜不到包含“${val}”的内容`, 'error')
             this.setDefaultData()
           }
         })
@@ -776,29 +810,39 @@ export default {
       }
       let pid = this.currentManage.id
       if (!pid) return
-      GetMarketList({parentId: pid}).then(res => {
-        this.groupList = res.data || []
-        let currentNode = Object.keys(this.currentCommunity).length ? this.currentCommunity : this.groupList[0]
-        this.$nextTick(() => {
-          if (this.$refs.groupNav) {
-            // 默认只展开默认分组列表
-            // 创建成员社群后返回我的社群列表时默认显示管理员社群
-            this.expandedKeys.push(currentNode.groupSonGuid)
-            if (!Object.keys(this.currentCommunity).length) this.currentCommunity = currentNode
-            // 通过自定义唯一标识uniqueKey 设置默认选中项
-            this.$refs.groupNav.setCurrentKey(this.currentCommunity.groupSonGuid)
+      switch (this.currentManage.type) {
+        case 1:
+          GetMarketList({parentId: pid}).then(res => {
+            this.groupList = res.data || []
+            let currentNode = Object.keys(this.currentCommunity).length ? this.currentCommunity : this.groupList[0]
             this.$nextTick(() => {
-              // 在树形组件中重新获取当前选中项，并保存当前值
-              let node = this.$refs.groupNav.$refs.GroupTree.getCurrentNode()
-              this.currentCommunity = node
-              if (currentNode.groupParentGuid) {
-                this.getCommunityInfo(this.currentCommunity)
+              if (this.$refs.groupNav) {
+                // 默认只展开默认分组列表
+                // 创建成员社群后返回我的社群列表时默认显示管理员社群
+                this.expandedKeys.push(currentNode.groupSonGuid)
+                if (!Object.keys(this.currentCommunity).length) this.currentCommunity = currentNode
+                // 通过自定义唯一标识uniqueKey 设置默认选中项
+                this.$refs.groupNav.setCurrentKey(this.currentCommunity.groupSonGuid)
+                this.$nextTick(() => {
+                  // 在树形组件中重新获取当前选中项，并保存当前值
+                  let node = this.$refs.groupNav.$refs.GroupTree.getCurrentNode()
+                  this.currentCommunity = node
+                  if (currentNode.groupParentGuid) {
+                    this.getCommunityInfo(this.currentCommunity)
+                  }
+                })
               }
+              this.$route.meta.keepAlive = false
             })
-          }
-          this.$route.meta.keepAlive = false
-        })
-      })
+          })
+          break
+        case 3:
+          GetCommunityInfo({id: pid}).then(res => {
+            this.currentCommunity = res.data
+            this.communityInfo = res.data
+          })
+          break
+      }
     },
     // 获取社群详细信息
     getCommunityInfo (val, node) {
@@ -893,6 +937,7 @@ export default {
     },
     // 加入其他管理员社群
     joinManageCommunity (formName) {
+      console.log('this.joinManageForm', this.joinManageForm)
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.joinManageForm))
@@ -983,9 +1028,10 @@ export default {
       })
     },
     // 楼层选中值改变时触发
-    FloorChange (val) {
-      this.handleMemberForm.coordinates = []
-      this.$refs.bindGroupMap.initFloor(val)
+    FloorChange (val, formName) {
+      this[formName].coordinates = []
+      console.log('floor --el-select', val, formName)
+      this.$refs[formName + 'Map'].initFloor(val)
     },
     // 显示添加社群dialog, 并设置数据
     showAddDialog (node, data) {
@@ -1006,16 +1052,17 @@ export default {
         GetIndustry().then(res => {
           this.industryList = res.data
         })
-        GetMarketFloorList({id: this.currentManage.id}).then(res => {
-          this.floorList = res.data
-        })
+        if (type !== 7) {
+          GetMarketFloorList({id: this.currentManage.id}).then(res => {
+            this.floorList = res.data
+          })
+        }
         if (type === 6) {
           let copyData = JSON.parse(JSON.stringify(this.communityInfo))
           copyData.pca = `${copyData.provinceAreaId},${copyData.cityAreaId},${copyData.districtAreaId}`
           copyData.originName = JSON.parse(JSON.stringify(copyData.name))
           copyData.originCoordinates = JSON.parse(JSON.stringify(copyData.coordinates))
           this.handleMemberForm = copyData
-          // this.$refs.bindGroupMap.initFloor(this.handleMemberForm.floor)
         } else if (type === 5) {
           this.handleMemberForm = { // 添加成员社群
             name: '',
@@ -1083,8 +1130,8 @@ export default {
     },
     // 删除社群
     deleteGroup () {
-      if (this.communityInfo.self) {
-        GetGroupPortalCount({groupSonId: this.currentCommunity.groupSonGuid}).then(res => {
+      if (this.communityInfo.self || this.currentManage.type === 3) {
+        GetGroupPortalCount({groupSonId: this.currentCommunity.groupSonGuid || this.currentCommunity.id}).then(res => {
           if (res.data.portalNumber) {
             this.$affirm({text: `删除社群前，请先删除出入口`, title: '删除社群', confirm: '我知道了'}, (action, instance, done) => {
               done()
@@ -1126,12 +1173,11 @@ export default {
       }
     },
     // 地图区块点击事件
-    handleBlockClick (data) {
-      // console.log('block position', data.path, JSON.parse(JSON.stringify(data.path)))
-      this.handleMemberForm.coordinates = data.position
-      this.handleMemberForm.shapePathParam = JSON.stringify(data.path)
-      // this.$set(this.handleMemberForm, 'coordinates', data.position)
-      // this.$set(this.handleMemberForm, 'shapePathParam', JSON.stringify(data.path))
+    handleBlockClick (data, form) {
+      console.log('block position', data.position)
+      this[form].coordinates = data.position
+      // this.handleMemberForm.coordinates = data.position
+      this[form].shapePathParam = JSON.stringify(data.path)
     }
   },
   watch: {
@@ -1230,6 +1276,9 @@ export default {
   .community--main {
     height: 100%;
     margin-left: 232px;
+    &.single{
+      margin-left: 0;
+    }
     .el-scrollbar{
       height: 100%;
       .el-scrollbar__wrap{

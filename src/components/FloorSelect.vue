@@ -19,6 +19,10 @@ export default {
     value: {
       type: [Array],
       default: () => []
+    },
+    single: { // 是否使用单层选取效果
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -76,13 +80,21 @@ export default {
     // 选择楼层
     selectFloor (index) {
       let selected = this.floorList.filter(item => item.select)
-      if (!selected.length) {
+      if (this.single) { //  单层选中后自动隐藏下拉框
+        this.floorList.map((item) => {
+          this.$set(item, 'select', false)
+          return item
+        })
+        this.$set(this.floorList[index], 'select', true)
+        this.$emit('input', this.floorList.filter(item => item.select).map(item => item.value))
+        this.$refs.floorInput.blur()
+      } else if (!selected.length) {
         this.startIndex = index
         this.$set(this.floorList[index], 'select', true)
       } else if (selected.length === 1) {
         this.selectList = []
         // 当选择第二个时将其与第一个之间的值全部变成选中状态
-        // 当第一个选中值序列比第二个小时
+        // 当第一个选中值序列比第二个小
         if (this.startIndex < index) {
           this.floorList.map((item, index2) => {
             if (index2 >= this.startIndex && index2 <= index) {

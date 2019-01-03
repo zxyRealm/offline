@@ -57,6 +57,7 @@
 
 <script>
 import {parseTime} from '../../utils'
+import {GetPersonTrail} from '../../api/behavior'
 
 export default {
   name: 'trail',
@@ -79,10 +80,18 @@ export default {
   },
   created () {
     this.spoorDate = parseTime(new Date(), '{y}/{m}/{d}')
+    this.getPersonTrail()
   },
-  mounted () {},
+  mounted () {
+    // this.getPersonTrail()
+  },
   computed: {},
   methods: {
+    getPersonTrail () {
+      GetPersonTrail({personId: this.$route.params.personId}).then(res => {
+        console.log(res.data)
+      })
+    }
   },
   watch: {}
 }

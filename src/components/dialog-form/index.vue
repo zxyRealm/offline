@@ -7,6 +7,9 @@
     @close="closeDialog"
     :custom-class="customClass"
     class="dialog-form-wrapper vam"
+    :show-close="showClose"
+    :close-on-press-escape="closeOnPressEscape"
+    :close-on-click-modal="closeOnClickModal"
     :width="width"
     :title="title"
     :visible.sync="dialogFormVisible">
@@ -130,6 +133,18 @@ export default {
     customClass: {
       type: String,
       default: ''
+    },
+    closeOnClickModal: { // 是否可以通过点击 modal 关闭 Dialog
+      type: Boolean,
+      default: true
+    },
+    showClose: { // 是否显示关闭按钮
+      type: Boolean,
+      default: true
+    },
+    closeOnPressEscape: { // 是否可以通过按下 ESC 关闭 Dialog
+      type: Boolean,
+      default: false
     }
   },
   data () {

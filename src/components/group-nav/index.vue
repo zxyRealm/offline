@@ -4,18 +4,22 @@
     :type="type"
   >
     <el-scrollbar>
-      <el-input
-        clearable
-        v-if="filter || isSearch"
-        class="filter__input"
-        placeholder="快速查找社群"
-        @keyup.enter.native="search"
-        v-model.trim="filterText">
-        <i
-          class="el-icon-search el-input__icon"
-          slot="prefix">
-        </i>
-      </el-input>
+      <div class="input--wrap">
+        <el-input
+          clearable
+          v-if="filter || isSearch"
+          class="filter__input"
+          placeholder="快速查找社群"
+          @keyup.enter.native="search"
+          v-model.trim="filterText">
+          <i
+            @click="search"
+            class="el-icon-search el-input__icon"
+            slot="prefix">
+          </i>
+        </el-input>
+        <p class="error-msg">{{inputError}}</p>
+      </div>
       <el-tree
         :filter-node-method="filterNode"
         :multiple="multiple"
@@ -153,6 +157,10 @@ export default {
     isEdit: {
       type: Boolean,
       default: false
+    },
+    inputError: {
+      type: String,
+      default: ''
     }
   },
   name: 'ob-group-nav',
@@ -433,7 +441,16 @@ export default {
       }
     }
   }
-
+  .input--wrap{
+    position: relative;
+    .error-msg{
+      position: absolute;
+      bottom: 2px;
+      left: 15px;
+      font-size: 12px;
+      color: #F87F21;
+    }
+  }
   .custom-tree-node {
     position: relative;
     display: inline-block;
@@ -553,6 +570,7 @@ export default {
       .el-icon-search{
         color: #4BC5EB;
         font-size: 18px;
+        cursor: pointer;
       }
     }
   }

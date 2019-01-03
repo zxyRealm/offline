@@ -45,16 +45,18 @@ export function AddNewCommunity (url, data) {
 }
 
 // 获取商场社群列表
-export function GetMarketList (data) {
+export function GetMarketList (data, tip = true) {
   return request({
+    tip: tip,
     url: '/group/son/market/list',
     data
   })
 }
 
 // 获取商场楼层数据
-export function GetMarketFloorList (data) {
+export function GetMarketFloorList (data, tip = true) {
   return request({
+    tip: tip,
     url: '/group/floor',
     data
   })

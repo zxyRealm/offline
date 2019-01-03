@@ -267,7 +267,7 @@
   // 加载渲染svg地图
   function loadSvg (data) {
     communityData = data
-    console.log('community info-----------------', data)
+    // console.log('community info-----------------', data)
     var svgLoad = new THREE.SVGLoader()
     var shapes = !data.shapePathParam || data.shapePathParam instanceof Object ? data.shapePathParam : JSON.parse(data.shapePathParam)
     var img1 = document.getElementById('image1')
