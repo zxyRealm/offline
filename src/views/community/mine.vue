@@ -58,7 +58,7 @@
                 <div v-if="communityInfo.level === 2">
                   <span class="info__label"> 邀请码：</span>
                   <span>{{communityInfo.code}}</span>
-                  <a href="javascript:void (0)" @click="clipboard($event)">复制</a></div>
+                  <a href="javascript:void (0)" class="ml5" @click="clipboard($event)">复制</a></div>
                 <div>
                   <span class="info__label">地区：</span>
                   <span class="ellipsis-64">{{communityInfo.fullAddress}}</span></div>
@@ -354,7 +354,7 @@ import Clipboard from '@/utils/clipboard'
 import area from '@/components/area-select/area-select'
 import BindCommunity from '@/components/three/bind_community'
 import {eventObject} from '../../utils/event'
-import {GetMarketList, GetCommunityInfoByCode, GetCommunityInfo, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CheckMemberNickNameExist, UpdateMemberNickName, GetGroupPortalCount, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
+import {GetMarketList, GetCommunityInfoByCode, GetStoreList, GetCommunityInfo, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CheckMemberNickNameExist, UpdateMemberNickName, GetGroupPortalCount, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
 import ThreeAssociationMap from '@/components/three/association_map'
 export default {
   name: 'mineCommunity',
@@ -391,7 +391,6 @@ export default {
                   GetMarketList({parentId: res.data.id}, false).then(res3 => {
                     this.joinCommunityList = res3.data || []
                   })
-                  console.log('code----------------', this.originCode, value)
                   this.originCode = JSON.parse(JSON.stringify(value))
                 }
                 if (isManage) {
@@ -837,7 +836,11 @@ export default {
           })
           break
         case 3:
+          GetStoreList({parentGuid: pid}).then(res => {
+            this.groupList = res.data || []
+          })
           GetCommunityInfo({id: pid}).then(res => {
+            res.data.self = true
             this.currentCommunity = res.data
             this.communityInfo = res.data
           })
@@ -855,7 +858,6 @@ export default {
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
-      // console.log('change', data, data.groupSonGuid)
       if (node.level !== 2) {
         this.currentCommunity = data
         this.getCommunityInfo(data)
@@ -937,12 +939,11 @@ export default {
     },
     // 加入其他管理员社群
     joinManageCommunity (formName) {
-      console.log('this.joinManageForm', this.joinManageForm)
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.joinManageForm))
           subData.pid = this.ManageInfo.id
-          subData.groupId = this.communityInfo.guid
+          subData.groupId = this.communityInfo.guid || this.communityInfo.id
           JoinOtherManage(subData).then(res => {
             this.$tip('加入成功')
             this.joinFormVisible = false
@@ -1030,7 +1031,6 @@ export default {
     // 楼层选中值改变时触发
     FloorChange (val, formName) {
       this[formName].coordinates = []
-      console.log('floor --el-select', val, formName)
       this.$refs[formName + 'Map'].initFloor(val)
     },
     // 显示添加社群dialog, 并设置数据
@@ -1079,7 +1079,6 @@ export default {
         let copyData = JSON.parse(JSON.stringify(this.communityInfo))
         copyData.pca = `${copyData.provinceAreaId},${copyData.cityAreaId},${copyData.districtAreaId}`
         copyData.originName = JSON.parse(JSON.stringify(copyData.name))
-        // console.log('dialog data', copyData)
         switch (type) {
           case 4:
             this.communityForm = copyData
@@ -1113,7 +1112,6 @@ export default {
           this.editNicknameVisible = true
           break
       }
-      // console.log(this.handleCommunityType, this.handleMemberForm)
     },
     // 定义弹框类型
     backDialogType (type) {
@@ -1174,9 +1172,7 @@ export default {
     },
     // 地图区块点击事件
     handleBlockClick (data, form) {
-      console.log('block position', data.position)
       this[form].coordinates = data.position
-      // this.handleMemberForm.coordinates = data.position
       this[form].shapePathParam = JSON.stringify(data.path)
     }
   },
