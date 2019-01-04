@@ -136,15 +136,15 @@ export default {
           {
             name: '进客流',
             type: 'line',
-            smooth: true,
-            itemStyle: {normal: {areaStyle: {type: 'default'}}},
+            // smooth: true,
+            // itemStyle: {normal: {areaStyle: {type: 'default'}}},
             data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
           },
           {
             name: '出客流',
             type: 'line',
-            smooth: true,
-            itemStyle: {normal: {areaStyle: {type: 'default'}}},
+            // smooth: true,
+            // itemStyle: {normal: {areaStyle: {type: 'default'}}},
             data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
           }
         ]
@@ -284,7 +284,10 @@ export default {
         this.data = res.data
         this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
         this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
-        this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
+        // this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
+        this.option.series = this.option.legend['data'].map(item => {
+          return res.data.seriesGroup.filter(item2 => item2.name === item.name)[0]
+        })
         this.changeSeries()
         this.drawLine()
       })
@@ -297,11 +300,9 @@ export default {
       this.option.title = this.$apply(this.option.title, this.lineParams.title)
       // console.log('chart line ===============', params)
       GetChartLine(params).then(res => {
-        this.data = res.data
-        this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-        this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
-        this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
-        this.changeSeries()
+        let data = res.data
+        this.option.xAxis[0] = this.$apply(this.option.xAxis[0], data.xAxisGroup[0])
+        this.option.yAxis[0] = this.$apply(this.option.yAxis[0], data.yAxis) // 这个yAxis是对象形式
         switch (this.filterParams.type) {
           case 'age':
             this.option.legend['data'] = this.addColor(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
@@ -313,6 +314,10 @@ export default {
             this.option.legend['data'] = this.shopLegend
             break
         }
+        this.option.series = this.option.legend['data'].map(item => {
+          return data.seriesGroup.filter(item2 => item2.name === item.name)[0]
+        })
+        this.changeSeries()
         this.drawLine()
       }).catch(error => {
         console.info(error)

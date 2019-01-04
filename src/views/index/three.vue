@@ -95,9 +95,6 @@
         </el-scrollbar>
       </div>
       <div class="floor__3d--wrap black">
-        <ul class="floor__sidebar--wrap">
-          <li class="sidebar__item" v-for="(item,$Index) in floorList" :key="$Index" @click="selectFloor(item)">{{item}}</li>
-        </ul>
         <general-map @updateCommunity="setFloorInfo"></general-map>
       </div>
     </template>
@@ -163,8 +160,6 @@ export default {
   },
   created () {},
   mounted () {
-    this.getWebsocket()
-    // this.initBaseData()
   },
   computed: {
     ...mapState(['currentManage'])
@@ -173,56 +168,6 @@ export default {
     setFloorInfo (data) {
       this.currentFloor = data
       this.initBaseData()
-    },
-    selectFloor (name) {
-      console.log(name)
-      document.getElementById('iframe__three').src = `/three?floor=${name}`
-      // this.iframeSrc =
-      // this.$refs.floorMap.initScene(name)
-      console.log(this.$refs.floorMap)
-    },
-    // 绑定社群
-    bindGroupMap (data) {
-      console.log(data.name, data.geometry.attributes.position.array.toString().split(','))
-      this.$prompt('请输入社群名称', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPattern: /\S+/,
-        customClass: 'white',
-        inputErrorMessage: '社群名称不能为空'
-      }).then(({ value }) => {
-        localStorage.setItem('group_local', JSON.stringify({name: value, position: data.geometry.attributes.position.array.toString().split(',')}))
-        console.log(value, '-----------' + data.name)
-      })
-    },
-    // 获取socket服务地址并建立websocket链接
-    getWebsocket () {
-      GetSocketIP().then(res => {
-        let _this = this
-        let wsServer = `ws://192.168.1.153:8010/websocket/84E0F22222228045` // 服务器地址
-        this.websocket = new WebSocket(wsServer)
-        this.websocket.onopen = function (evt) {
-          // 已经建立连接
-          _this.websocket.send(_this.currentManage.id + '_channel') // 向服务器发送消息
-          console.info('已经连接')
-        }
-        this.websocket.onmessage = function (evt) {
-          // 收到服务器消息，使用evt.data提取
-          console.log()
-          try {
-            console.log('push message', JSON.parse(evt.data))
-          } catch (err) {
-            // console.error('data is not JSON.stringify')
-          }
-          // _this.resolveDatad(evt.data)
-        }
-        this.websocket.onclose = function (evt) {
-          console.info('已经关闭连接')
-        }
-        this.websocket.onerror = function (evt) {
-          console.info('产生异常')
-        }
-      })
     },
     ComunicationPer (data) {
       for (let val in data) {
@@ -300,9 +245,6 @@ export default {
     }
   },
   beforeDestroy () {
-    if (this.websocket) {
-      this.websocket.close()
-    }
     if (this.timer) {
       clearTimeout(this.timer)
     }
@@ -375,7 +317,7 @@ export default {
       .items{
         padding: 10px 15px;
         box-sizing: border-box;
-        background: rgba(216, 216, 216, 0.05);
+        background: #101116;
       }
       > div {
         margin-bottom: 10px;

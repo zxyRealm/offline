@@ -1,13 +1,13 @@
- /* 将一维数组截取固定长度转换成二维数组
+/* 将一维数组截取固定长度转换成二维数组
 * @params len 分隔长度
 * */
-function changeArrayLevel (array, len = 3) {
+function changeArrayLevel (array) {
   let buffer = []
-  let maxLeft = null
-  for (let i = 0, len = array.length; i < len; i++) {
-    let lot = ((i + 1) % 3)
+  var maxLeft = null
+  for (var i = 0; i < array.length; i++) {
+    var lot = ((i + 1) % 3)
     if (i && !lot) {
-      let items = array.slice(i - 2, i)
+      var items = array.slice(i - 2, i)
       if (maxLeft < items[0]) {
         maxLeft = items[0]
       }

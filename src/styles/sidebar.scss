@@ -1,3 +1,4 @@
+@import "variables.scss";
 #app {
   // 主体区域
   .main-container {
@@ -5,7 +6,7 @@
     height: 100%;
     transition: all .28s;
     padding: 90px 20px 20px 240px;
-    background: #0F0E11;
+    background: #040404;
     overflow-y: auto;
     box-sizing: border-box;
     &.no-bar{
@@ -25,7 +26,7 @@
     font-size: 0;
     z-index: 1001;
     overflow: hidden;
-    background-color: #232027;
+    background-color: $theme-bg;
     background-image: url("/static/img/main_bg_icon.png");
     //reset element-ui css
     .horizontal-collapse-transition {
