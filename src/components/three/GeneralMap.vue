@@ -295,7 +295,7 @@ export default {
                 Incoming_Yesterday: data.data.oldIn,
                 Member_Today: data.data.newMember,
                 Member_Yesterday: data.data.oldMember,
-                Current: data.data.newIn - data.data.newOut,
+                Current: data.data.newIn - data.data.newOut < 0 ? 0 : data.data.newIn - data.data.newOut,
                 Incoming_percent: parseInt(
                   ((data.data.newIn - data.data.oldIn) / data.data.oldIn) * 100
                 ),
@@ -403,6 +403,7 @@ export default {
       }
       GetMarketList({ parentId: this.currentManage.id }).then(res => {
         let floorInfo = this.sortRouterList(res.data[0].subGroupSon);
+        floorInfo = floorInfo.reverse()
         let allInfo = res.data;
         let floorHeight = 140;
         delete allInfo[0].subGroupSon;
