@@ -118,6 +118,9 @@
 <script>
 import axios from 'axios'
 import {validateRule} from '@/utils/validate'
+import {MemberTypeList, MemberTypeOperate, MemberCreate, MemberUpdate, MemberDetails, MemberImgDetect, MemberLibraryFind} from '../../api/member'
+import {OssSignature} from '../../api/common'
+
 export default {
   name: 'person',
   data () {
@@ -196,10 +199,8 @@ export default {
       let data = {
         memberLibraryGuid: this.$route.query.guid
       }
-      this.$http('/memberType/list', data).then(res => {
-        if (res.result) {
-          this.issuesList = res.data
-        }
+      MemberTypeList(data).then(res => {
+        this.issuesList = res.data
       })
     },
     // 打开问题列表
@@ -305,10 +306,8 @@ export default {
         memberLibraryGuid: this.$route.query.guid,
         memberTypeList: this.issuesList
       }
-      this.$http('/memberType/operate', data).then(res => {
-        if (res.result) {
-          this.recoverState()
-        }
+      MemberTypeOperate(data).then(res => {
+        this.recoverState()
       })
     },
     // 取消二级弹出框
@@ -325,7 +324,7 @@ export default {
         superKey: catalog
       }
       // 获取阿里云oss signature
-      this.$http('/auth/oss/image/signature', data).then(res => {
+      OssSignature(data).then(res => {
         if (res.data) {
           let formData = new FormData()
           let customName = 'photo_' + name + '.' + (file.file.type.split('/')[1] === 'png' ? 'png' : 'jpg')
@@ -341,13 +340,11 @@ export default {
               let data = {
                 imgUrl: res.data.host + '/member/' + uid + '/' + customName
               }
-              this.$http('/member/img/detect', data).then(res => {
-                if (res.result) {
-                  if (res.data) {
-                    this.personMessge.faceImgUrl = data.imgUrl
-                  } else {
-                    this.$tip('照片中没有检测到人脸')
-                  }
+              MemberImgDetect(data).then(res => {
+                if (res.data) {
+                  this.personMessge.faceImgUrl = data.imgUrl
+                } else {
+                  this.$tip('照片中没有检测到人脸')
                 }
               })
             } else {
@@ -387,13 +384,13 @@ export default {
         level: this.personMessge.level
       }
       if (this.$route.query.personId) {
-        this.$http('/member/update', data).then(res => {
+        MemberUpdate(data).then(res => {
           if (res.result) {
             this.$router.go(-1)
           }
         })
       } else {
-        this.$http('/member/create', data).then(res => {
+        MemberCreate(data).then(res => {
           if (res.result) {
             this.$router.go(-1)
           }
@@ -417,17 +414,15 @@ export default {
     let data = {
       guid: this.$route.query.guid
     }
-    this.$http('/memberLibrary/find', data).then(res => {
-      if (res.result) {
-        this.titleName = res.data.name
-      }
+    MemberLibraryFind(data).then(res => {
+      this.titleName = res.data.name
     })
     this.getList()
     if (this.$route.query.personId) {
       let data = {
         guid: this.$route.query.personId
       }
-      this.$http('/member/details', data).then(res => {
+      MemberDetails(data).then(res => {
         if (res.result) {
           this.personMessge = res.data
         }

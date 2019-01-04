@@ -14,20 +14,22 @@
       </el-input>
     </div>
     <div class="data-list-wrap">
-      <device-table
-        data-type="aio"
-        @refresh="getMineEquipment"
-        v-model="equipmentList"
-      >
-      </device-table>
-      <el-pagination
-        v-if="pagination.total && pagination.total > pagination.length"
-        @current-change="getMineEquipment"
-        :current-page="pagination.index"
-        :page-size="pagination.length"
-        layout="total,prev, pager, next, jumper"
-        :total="pagination.total">
-      </el-pagination>
+      <el-scrollbar>
+        <device-table
+          data-type="aio"
+          @refresh="getMineEquipment"
+          v-model="equipmentList"
+        >
+        </device-table>
+        <el-pagination
+          v-if="pagination.total && pagination.total > pagination.length"
+          @current-change="getMineEquipment"
+          :current-page="pagination.index"
+          :page-size="pagination.length"
+          layout="total,prev, pager, next, jumper"
+          :total="pagination.total">
+        </el-pagination>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -232,7 +234,7 @@ export default {
 
 <style lang="scss" scoped>
   .equipment__data--list{
-    height: calc(100% - 116px);
+    height: calc(100% - 106px);
   }
   .device__dialog--wrap{
     .ad--item{

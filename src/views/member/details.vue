@@ -110,6 +110,7 @@
 </template>
 
 <script>
+import {MemberLibraryFind, MemberSearch, MemberDelete, MemberTemplate} from '../../api/member'
 const importIp = process.env.UPLOAD_API
 export default {
   name: 'index',
@@ -149,10 +150,8 @@ export default {
       guid: this.$route.query.guid
     }
     this.getList()
-    this.$http('/memberLibrary/find', data).then(res => {
-      if (res.result) {
-        this.menu2[0].title = `人员管理&nbsp;&nbsp;&nbsp/&nbsp;&nbsp;&nbsp;${res.data.name}`
-      }
+    MemberLibraryFind(data).then(res => {
+      this.menu2[0].title = `人员管理&nbsp;&nbsp;&nbsp/&nbsp;&nbsp;&nbsp;${res.data.name}`
     })
   },
   mounted () {
@@ -174,7 +173,7 @@ export default {
         name: this.pageData.name,
         phone: this.pageData.phone
       }
-      this.$http('/member/search', data).then(res => {
+      MemberSearch(data).then(res => {
         if (res.result) {
           this.tableData = res.data.content
           this.pageData.index = res.data.pagination.index
@@ -198,7 +197,7 @@ export default {
         text: '确定删除该人员信息？'
       }, (action, instance, done) => {
         if (action === 'confirm') {
-          this.$http('/member/del', data).then(res => {
+          MemberDelete(data).then(res => {
             if (res.result) {
               this.getList()
               done()
@@ -217,14 +216,12 @@ export default {
         let data = {
           key: 'member'
         }
-        this.$http('/member/template', data).then(res => {
-          if (res.result) {
-            var a = document.createElement('a')
-            a.href = res.data
-            document.body.appendChild(a)
-            a.click()
-            a.remove()
-          }
+        MemberTemplate(data).then(res => {
+          var a = document.createElement('a')
+          a.href = res.data
+          document.body.appendChild(a)
+          a.click()
+          a.remove()
         })
       }
     },

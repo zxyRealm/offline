@@ -265,9 +265,8 @@
   }
 
   // 加载渲染svg地图
-  function loadSvg (data) {
+  function loadSvg (data, floor) {
     communityData = data
-    console.log('community info-----------------', data)
     var svgLoad = new THREE.SVGLoader()
     var shapes = !data.shapePathParam || data.shapePathParam instanceof Object ? data.shapePathParam : JSON.parse(data.shapePathParam)
     var img1 = document.getElementById('image1')
@@ -298,7 +297,7 @@
       initGateway()
     } else {
       var url = parseUrlParams('map_url') || ''
-      if (data.type !== 3) {
+      if (data.type !== 4) {
         img1.children[1].innerText = '主出入口'
         img2.style.display = 'block'
       } else {
@@ -315,7 +314,6 @@
           var color = new THREE.Color('#403E42')
           var materialLine = new THREE.LineBasicMaterial({
             color: color,
-            // emissive: color
             side: THREE.DoubleSide,
             depthWrite: false
           })
@@ -323,6 +321,14 @@
           for (var j = 0; j < shapes.length; j++) {
             var shape = shapes[j]
             var geometry = new THREE.ShapeBufferGeometry(shape)
+            if (communityData.type !== 4 && floor && Array.isArray(floor)) {
+              var bindBlock = floor.filter(function (item) {
+                return JSON.parse(item.coordinates || '[]').toString() === geometry.attributes.position.array.toString()
+              })
+              if (bindBlock.length) {
+                materialLine.color = new THREE.Color('#1A3D6A')
+              }
+            }
             var mesh = new THREE.Mesh(geometry, materialLine)
             var edges = new THREE.EdgesGeometry(geometry)
             var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
@@ -578,7 +584,7 @@
 
   // 创建图片贴图
   function createPictureSprite (obj) {
-    var img = communityData.shapePathParam || communityData.type === 3 ? 'qizi2' : obj.type === 1 ? 'qizi2' : 'qizi1'
+    var img = communityData.shapePathParam || communityData.type === 4 ? 'qizi2' : obj.type === 1 ? 'qizi2' : 'qizi1'
     var texture = new THREE.TextureLoader().load('/static/floor/' + img + '.png')
     var spriteMaterial = new THREE.SpriteMaterial({
       map: texture,

@@ -26,8 +26,8 @@
         :only-checked="onlyChecked"
         :check-strictly="checkStrictly"
         :show-checkbox="showChecked"
-        :class="theme"
-        class="filter-tree group__tree"
+        :class="theme + (isFloor ? ' group__tree': '')"
+        class="filter-tree"
         :node-key="nodeKey"
         :data="TreeList"
         :props="defaultProps"
@@ -53,17 +53,9 @@
             {{ data[defaultProps.label] }}
           </span>
           <!--role01 商场 role02 连锁总店 role03 单个门店-->
-          <uu-icon class="role__icon--img" v-if="node.level === 1" :type="'role0' + currentManage.type"></uu-icon>
+          <uu-icon class="role__icon--img" v-if="node.level === 1 && isFloor" :type="'role0' + currentManage.type"></uu-icon>
           <!---->
-          <uu-icon v-if="node.level === 3 && !data.self"  class="role__icon--img" type="foreign"></uu-icon>
-          <!--<el-tooltip v-if="rights && data.type === 2" content="数据查看权限" placement="top" effect="light">-->
-            <!--<uu-icon class="role__icon&#45;&#45;img" size="small" type="data"></uu-icon>-->
-          <!--</el-tooltip>-->
-          <!--<el-tooltip v-if="rights && data.rule.length > 2" content="设备操作权限" placement="top" effect="light">-->
-             <!--<uu-icon size="mini" class="role__icon&#45;&#45;img" type="handle"></uu-icon>-->
-          <!--</el-tooltip>-->
-          <!--<i v-if="type==='community' && node.level > 2 && isEdit" class="el-icon-remove-outline danger fr"-->
-             <!--@click="leaveCommunity(data, node)"></i>-->
+          <uu-icon v-if="(node.level === 3 && !data.self) || data.type === 4"  class="role__icon--img" type="foreign"></uu-icon>
         </span>
       </el-tree>
     </el-scrollbar>
@@ -161,6 +153,10 @@ export default {
     inputError: {
       type: String,
       default: ''
+    },
+    isFloor: {
+      type: Boolean,
+      default: false
     }
   },
   name: 'ob-group-nav',

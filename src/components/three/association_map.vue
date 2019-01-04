@@ -182,18 +182,19 @@ export default {
   methods: {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
-      if (!this.data.floor) {
+      if (!this.data.floor || this.data.type === 4) {
         this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor || 1))[0] || this.floorList[0] || ''
       } else {
         this.currentFloor = this.data || ''
       }
+      // console.log('floor ------------------', this.currentFloor, this.data, this.floorList)
       if (this.currentFloor) {
         this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
         this.getPortalCameraCount()
       }
     },
     loadIframeSvg () { // 加载iframe svg 地图
-      this.iframeObj.loadSvg(this.data)
+      this.iframeObj.loadSvg(this.data, this.currentFloor.subGroupSon)
     },
     // 处理iframe传递出来的事件
     handleEvent (event) {
@@ -347,7 +348,7 @@ export default {
           subData.floor = this.currentFloor.floor
           if (this.handleDialogType === 1) { // 添加出入口
             // 如果是成员社群绑定出入口则为副出入口
-            if (this.data.shapePathParam || this.data.type === 3) subData.type = 2
+            if (this.data.shapePathParam || this.data.type === 4) subData.type = 2
             CreatePortal(subData).then(res => {
               this.$tip('添加成功')
               this.handlePortalVisible = false

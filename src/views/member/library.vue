@@ -55,8 +55,11 @@
 </template>
 
 <script>
-import {simplifyGroups} from '@/utils'
 import {validateRule} from '@/utils/validate'
+import {mapState} from 'vuex'
+import {MemberNoFloor} from '../../api/community'
+import {MemberLibraryUpdate, MemberLibraryCreate, MemberLibraryFind, MemberLibraryNameExist} from '../../api/member'
+
 export default {
   name: 'library',
   data () {
@@ -71,7 +74,7 @@ export default {
         let data = {
           name: value
         }
-        this.$http('/memberLibrary/name/exist', data, false).then(res => {
+        MemberLibraryNameExist(data).then(res => {
           if (res.data) {
             callback(new Error('应用库名称重复'))
           } else {
@@ -116,16 +119,12 @@ export default {
         groupGuid: this.formData.groupGuid
       }
       if (this.$route.query.guid) {
-        this.$http('/memberLibrary/update', data).then(res => {
-          if (res.result) {
-            this.$router.go(-1)
-          }
+        MemberLibraryUpdate(data).then(res => {
+          this.$router.go(-1)
         })
       } else {
-        this.$http('/memberLibrary/create', data).then(res => {
-          if (res.result) {
-            this.$router.go(-1)
-          }
+        MemberLibraryCreate(data).then(res => {
+          this.$router.go(-1)
         })
       }
     },
@@ -135,15 +134,23 @@ export default {
     },
     // 获取自有社群列表，绑定社群时只能绑定自有社群
     getGroupList () {
-      this.$http('/group/list/self').then(res => {
-        this.groupList = simplifyGroups(res.data)
+      if (!this.currentManage.id) return
+      MemberNoFloor({groupId: this.currentManage.id}).then(res => {
+        if (res.data[0]) {
+          res.data[0].subGroupSon = res.data.slice(1)
+          this.groupList = [res.data[0]]
+        }
         this.dialogFormVisible = true
       })
     },
     // 确认关联
     bindCommunity (data) {
+      if (!data.length) {
+        this.$tip('请选择关联社群', 'error')
+        return
+      }
       this.formData.groupName = data[0].name
-      this.formData.groupGuid = data[0].groupGuid
+      this.formData.groupGuid = data[0].guid
       this.dialogFormVisible = false
     }
 
@@ -153,13 +160,14 @@ export default {
       let data = {
         guid: this.$route.query.guid
       }
-      this.$http('/memberLibrary/find', data).then(res => {
-        if (res.result) {
-          this.formData = res.data
-          this.checkName = res.data.name
-        }
+      MemberLibraryFind(data).then(res => {
+        this.formData = res.data
+        this.checkName = res.data.name
       })
     }
+  },
+  computed: {
+    ...mapState(['currentManage'])
   }
 }
 </script>
