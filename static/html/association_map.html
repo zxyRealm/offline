@@ -251,10 +251,10 @@
   }
 
   function initGateway () {
-    spriteList.map(item => {
+    spriteList.map(function (item) {
       scene.remove(item)
     })
-    textList.map(item => {
+    textList.map(function (item) {
       scene.remove(item)
     })
     var wrap = document.getElementById('device__popper--wrap')
@@ -304,7 +304,7 @@
         img1.children[1].innerText = '门店出入口'
         img2.style.display = 'none'
       }
-      svgLoad.load(url, (paths) => {
+      svgLoad.load(url, function (paths) {
         group.position.x = -290
         group.position.y = 214
         group.scale.set(1, -1, 1)
@@ -509,8 +509,8 @@
         document.getElementsByClassName('pull-left')[0].style.marginRight = '0px'
         line.innerHTML = ''
       }
-      let wy = screenAlex.y - 172
-      let wx = screenAlex.x - 100
+      var wy = screenAlex.y - 172
+      var wx = screenAlex.x - 100
       if (wx < 0 ) {
         wx = 0
       }
@@ -536,7 +536,7 @@
     var title = `<div class="pull-left">${data.title}</div>`
     document.getElementById('device--title').innerHTML = data.title
     var cameraList = '';
-    for(let i = 0, len = data.list.length; i < len; i++){
+    for(var i = 0, len = data.list.length; i < len; i++){
       cameraList += `<li>
         <img src="/static/floor/camera1.png" width="11">
         <span class="ellipsis">${data.list[i].name}</span>
@@ -569,7 +569,7 @@
     }
     scene.add(textObj)
     // 创建图片
-    let sprite = createPictureSprite(obj)
+    var sprite = createPictureSprite(obj)
     sprite.scale.set(0.026 * cz , 0.036 * cz , 10)
     sprite.position.set(obj.position.x, obj.position.y, 1)
     scene.add(sprite)
@@ -601,24 +601,24 @@
   * @params [key]  文本对象的键值
   * */
   function createTextSprite (obj, key) {
-    let canvas = document.createElement('canvas')
+    var canvas = document.createElement('canvas')
     if (obj[key].length > 2) {
       canvas.width = obj[key].length * 160
       canvas.height = canvas.width / 4
     }
 
-    let ctx = canvas.getContext('2d')
+    var ctx = canvas.getContext('2d')
     ctx.fillStyle = '#ffffff'
     ctx.font = '600 100px Arial'
     ctx.textAlign = 'left'
     ctx.fillText(obj[key], 0, 104)
 
-    let texture = new THREE.Texture(canvas)
+    var texture = new THREE.Texture(canvas)
     texture.needsUpdate = true
 
     // 使用Sprite显示文字
-    let material = new THREE.SpriteMaterial({map: texture, transparent: true})
-    let textObj = new THREE.Sprite(material)
+    var material = new THREE.SpriteMaterial({map: texture, transparent: true})
+    var textObj = new THREE.Sprite(material)
     return textObj
   }
 

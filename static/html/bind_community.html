@@ -103,7 +103,7 @@
     currentFloor = floor
     var svgLoader = new THREE.SVGLoader()
     var url = parseUrlParams('map_url') || ''
-    svgLoader.load(url, (paths) => {
+    svgLoader.load(url, function (paths) {
       group.position.x = -290
       group.position.y = 214
       group.scale.set(1, -1, 1)
@@ -119,7 +119,7 @@
         for (var j = 0; j < shapes.length; j++) {
           var shape = shapes[j]
           var geometry = new THREE.ShapeBufferGeometry(shape)
-          if (currentFloor && currentFloor.subGroupSon && currentFloor.subGroupSon.filter(item => JSON.parse(item.coordinates || '[]').toString() === geometry.attributes.position.array.toString()).length) {
+          if (currentFloor && currentFloor.subGroupSon && currentFloor.subGroupSon.filter(function (item){return JSON.parse(item.coordinates || '[]').toString() === geometry.attributes.position.array.toString()}).length) {
             materialLine.color = new THREE.Color('#1A3D6A')
             materialLine.userData.select = true
           }

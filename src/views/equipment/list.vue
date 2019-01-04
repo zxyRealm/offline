@@ -43,7 +43,7 @@
       </div>
       <template v-else>
         <div class="ad--item">
-          <img width="80" src="@/assets/device/camera_device_icon@2x.png" alt="">
+          <img width="80" src="@/assets/device/aio_device_icon@2x.png" alt="">
           <p>一体机</p>
           <p class="handle">
             <a href="javascript:void(0)" @click="() => {addDialogType = 1;addDeviceVisible = false;addServerVisible = true}">手动添加</a>
@@ -52,7 +52,7 @@
           </p>
         </div>
         <div class="ad--item">
-          <img width="80" src="@/assets/device/aio_device_icon@2x.png" alt="">
+          <img width="80" src="@/assets/device/server_device_icon@2x.png" alt="">
           <p>服务器</p>
           <p class="handle">
             <a href="javascript:void(0)" @click="() => {addDialogType = 2;addServerVisible = true;addDeviceVisible = false}">手动添加</a>
