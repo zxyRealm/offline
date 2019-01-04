@@ -34,16 +34,26 @@
                   <count-to
                     ref="Incoming_Today"
                     :autoplay="false"
-                    :startVal="statisticInfo.Incoming_Today" 
-                    :endVal="statisticEndInfo.Incoming_Today" 
-                    :duration='1000'>
-                  </count-to>
-                  <span v-if="statisticInfo.Incoming_Yesterday !== 0" 
-                    style="position:relative;right:-10px;top:25%; font-size:12px; color: #ff6660">
-                    <img v-if="statisticEndInfo.Incoming_percent >= 0" 
-                        src="/static/img/grow_up@2x.png" alt="" width="5">
-                    <img v-if="statisticEndInfo.Incoming_percent < 0" 
-                        src="/static/img/grow_down.png" alt="" width="5">
+                    :startVal="statisticInfo.Incoming_Today"
+                    :endVal="statisticEndInfo.Incoming_Today"
+                    :duration="1000"
+                  ></count-to>
+                  <span
+                    v-if="statisticInfo.Incoming_Yesterday !== 0"
+                    style="position:relative;right:-10px;top:25%; font-size:12px; color: #ff6660"
+                  >
+                    <img
+                      v-if="statisticEndInfo.Incoming_percent >= 0"
+                      src="/static/img/grow_up@2x.png"
+                      alt
+                      width="5"
+                    >
+                    <img
+                      v-if="statisticEndInfo.Incoming_percent < 0"
+                      src="/static/img/grow_down.png"
+                      alt
+                      width="5"
+                    >
                     <span>{{Math.abs(statisticEndInfo.Incoming_percent)}}%</span>
                   </span>
                 </div>
@@ -54,11 +64,10 @@
                   <count-to
                     ref="Incoming_Yesterday"
                     :autoplay="false"
-                    :startVal="statisticInfo.Incoming_Yesterday" 
-                    :endVal="statisticEndInfo.Incoming_Yesterday" 
-                    :duration='1000'>
-                  </count-to>
-                  
+                    :startVal="statisticInfo.Incoming_Yesterday"
+                    :endVal="statisticEndInfo.Incoming_Yesterday"
+                    :duration="1000"
+                  ></count-to>
                 </div>
                 <div class="key">昨日数据</div>
               </div>
@@ -77,16 +86,26 @@
                   <count-to
                     ref="Member_Today"
                     :autoplay="false"
-                    :startVal="statisticInfo.Member_Today" 
-                    :endVal="statisticEndInfo.Member_Today" 
-                    :duration='1000'>
-                  </count-to>
-                  <span v-if="statisticInfo.Member_Yesterday !== 0" 
-                    style="position:relative;right:-10px;top:25%; font-size:12px; color: #ff6660">
-                    <img v-if="statisticEndInfo.Member_percent >= 0" 
-                        src="/static/img/grow_up@2x.png" alt="" width="5">
-                    <img v-if="statisticEndInfo.Member_percent < 0" 
-                        src="/static/img/grow_down.png" alt="" width="5">
+                    :startVal="statisticInfo.Member_Today"
+                    :endVal="statisticEndInfo.Member_Today"
+                    :duration="1000"
+                  ></count-to>
+                  <span
+                    v-if="statisticInfo.Member_Yesterday !== 0"
+                    style="position:relative;right:-10px;top:25%; font-size:12px; color: #ff6660"
+                  >
+                    <img
+                      v-if="statisticEndInfo.Member_percent >= 0"
+                      src="/static/img/grow_up@2x.png"
+                      alt
+                      width="5"
+                    >
+                    <img
+                      v-if="statisticEndInfo.Member_percent < 0"
+                      src="/static/img/grow_down.png"
+                      alt
+                      width="5"
+                    >
                     <span>{{Math.abs(statisticEndInfo.Member_percent)}}%</span>
                   </span>
                 </div>
@@ -97,10 +116,10 @@
                   <count-to
                     ref="Member_Yesterday"
                     :autoplay="false"
-                    :startVal="statisticInfo.Member_Yesterday" 
-                    :endVal="statisticEndInfo.Member_Yesterday" 
-                    :duration='1000'>
-                  </count-to>
+                    :startVal="statisticInfo.Member_Yesterday"
+                    :endVal="statisticEndInfo.Member_Yesterday"
+                    :duration="1000"
+                  ></count-to>
                 </div>
                 <div class="key">昨日数据</div>
               </div>
@@ -115,10 +134,10 @@
                 <count-to
                   ref="Current"
                   :autoplay="false"
-                  :startVal="statisticInfo.Current" 
-                  :endVal="statisticEndInfo.Current" 
-                  :duration='1000'>
-                </count-to>
+                  :startVal="statisticInfo.Current"
+                  :endVal="statisticEndInfo.Current"
+                  :duration="1000"
+                ></count-to>
               </div>
             </div>
           </div>
@@ -163,7 +182,7 @@ import { GetSocketIP } from "@/api/common";
 import { mapState } from "vuex";
 import { GetMarketList, GetGroupPortalInfo } from "@/api/community";
 import { GetFlowRank } from "@/api/index";
-import CountTo from 'vue-count-to'
+import CountTo from "vue-count-to";
 export default {
   name: "GeneralMap",
   components: {
@@ -240,8 +259,22 @@ export default {
         if (value.floor === item.floor) {
           this.community.index = i;
           this.$emit("updateCommunity", this.community.infoArr[i]);
-          this.websocket.close()
-          this.getWebsocket(item.groupSonGuid, item.groupParentGuid)
+          this.personList = [
+            { imgUrl: "/static/avatar2.png", key: "1" },
+            { imgUrl: "/static/avatar2.png", key: "2" },
+            { imgUrl: "/static/avatar2.png", key: "4" },
+            { imgUrl: "/static/avatar2.png", key: "5" },
+            { imgUrl: "/static/avatar2.png", key: "6" },
+            { imgUrl: "/static/avatar2.png", key: "7" },
+            { imgUrl: "/static/avatar2.png", key: "8" },
+            { imgUrl: "/static/avatar2.png", key: "9" },
+            { imgUrl: "/static/avatar2.png", key: "10" },
+            { imgUrl: "/static/avatar2.png", key: "11" },
+            { imgUrl: "/static/avatar2.png", key: "12" },
+            { imgUrl: "/static/avatar2.png", key: "13" }
+          ];
+          this.websocket.close();
+          this.getWebsocket(item.groupSonGuid, item.groupParentGuid);
         }
       });
     },
@@ -270,21 +303,27 @@ export default {
             if (data.data.coordinates && data.type === "SHINING") {
               this.iframe.createShine(data.data.coordinates, data.data.floor);
             } else if (data.data && data.type === "REAL_TIME_COUNTER") {
-              this.statisticInfo = this.statisticEndInfo
+              this.statisticInfo = this.statisticEndInfo;
               this.statisticEndInfo = {
                 Incoming_Today: data.data.newIn,
                 Incoming_Yesterday: data.data.oldIn,
                 Member_Today: data.data.newMember,
                 Member_Yesterday: data.data.oldMember,
                 Current: data.data.newIn - data.data.newOut,
-                Incoming_percent: parseInt(((data.data.newIn - data.data.oldIn) / data.data.oldIn) *100),
-                Member_percent: parseInt(((data.data.newMember - data.data.oldMember) / data.data.oldMember) *100)
+                Incoming_percent: parseInt(
+                  ((data.data.newIn - data.data.oldIn) / data.data.oldIn) * 100
+                ),
+                Member_percent: parseInt(
+                  ((data.data.newMember - data.data.oldMember) /
+                    data.data.oldMember) *
+                    100
+                )
               };
-              this.changeStatisticInfo('Incoming_Today')
-              this.changeStatisticInfo('Incoming_Yesterday')
-              this.changeStatisticInfo('Member_Today')
-              this.changeStatisticInfo('Member_Yesterday')
-              this.changeStatisticInfo('Current')
+              this.changeStatisticInfo("Incoming_Today");
+              this.changeStatisticInfo("Incoming_Yesterday");
+              this.changeStatisticInfo("Member_Today");
+              this.changeStatisticInfo("Member_Yesterday");
+              this.changeStatisticInfo("Current");
             } else if (data.data.memberInfo && data.type === "FACE") {
               this.imgCut(data.data);
             }
@@ -299,10 +338,13 @@ export default {
       });
     },
     changeStatisticInfo(ref) {
-      if (parseInt(this.statisticInfo[ref]) !== parseInt(this.statisticEndInfo[ref])) {
-        this.$refs[ref].start()
-      } else{
-        this.$refs[ref].pause()
+      if (
+        parseInt(this.statisticInfo[ref]) !==
+        parseInt(this.statisticEndInfo[ref])
+      ) {
+        this.$refs[ref].start();
+      } else {
+        this.$refs[ref].pause();
       }
     },
     formatDate(now) {
@@ -311,8 +353,14 @@ export default {
         var year = now.getFullYear();
         var month = now.getMonth() + 1;
         var date = now.getDate();
-        var hour = now.getHours().toString().length === 1 ? '0' + now.getHours().toString() : now.getHours();
-        var minute = now.getMinutes().toString().length === 1 ? '0' + now.getMinutes().toString() : now.getMinutes();
+        var hour =
+          now.getHours().toString().length === 1
+            ? "0" + now.getHours().toString()
+            : now.getHours();
+        var minute =
+          now.getMinutes().toString().length === 1
+            ? "0" + now.getMinutes().toString()
+            : now.getMinutes();
         var second = now.getSeconds();
         return hour + ":" + minute;
       } else {
@@ -327,16 +375,21 @@ export default {
       canvas.height = 60;
       var context = canvas.getContext("2d");
       var dataURL;
+      
       img.crossOrigin = "*";
       img.src = data.memberInfo.imgUrl;
       img.onload = () => {
-        console.log(img.width)
+        console.log(img.width, img.height);
+        var upperX = data.rect.upperX - 0 > 60 ? data.rect.upperX-60 : 0
+        var upperY = data.rect.upperY - 0 > 60 ? data.rect.upperY-60 : 0;
+        var lowerX = img.width - data.rect.lowerX > 60 ? data.rect.lowerX+60 : img.width;
+        var lowerY = img.height - data.rect.lowerY > 60 ? data.rect.lowerY+60 : img.height;
         context.drawImage(
           img,
-          data.rect.upperX,
-          data.rect.upperY,
-          data.rect.lowerX - data.rect.upperX,
-          data.rect.lowerX - data.rect.upperX,
+          upperX,
+          upperY,
+          lowerX - upperX,
+          lowerY - upperY,
           0,
           0,
           60,
@@ -355,7 +408,7 @@ export default {
           imgUrl: dataURL,
           key: key
         };
-        this.personList.pop()
+        this.personList.pop();
         this.personList.unshift(obj);
       };
     },
@@ -366,11 +419,11 @@ export default {
       GetMarketList({ parentId: this.currentManage.id }).then(res => {
         let floorInfo = this.sortRouterList(res.data[0].subGroupSon);
         let allInfo = res.data;
-        let floorHeight = 140
+        let floorHeight = 140;
         delete allInfo[0].subGroupSon;
         this.community.infoArr = allInfo.concat(floorInfo);
-        this.routerList[0].groupParentGuid = allInfo[0].groupParentGuid
-        this.routerList[0].groupSonGuid = allInfo[0].groupSonGuid
+        this.routerList[0].groupParentGuid = allInfo[0].groupParentGuid;
+        this.routerList[0].groupSonGuid = allInfo[0].groupSonGuid;
         this.caculateMinus(this.community.infoArr);
         let minIndex = this.caculateMinusIndex(floorInfo);
         for (let i in floorInfo) {
@@ -506,7 +559,6 @@ export default {
         case "change-floor":
           let currentFloor = "";
           this.floorArr.forEach((val, index) => {
-            console.log(val)
             if (val.coordinate_y === data.params.data) {
               let path = "/static/html/plane.html?floor=" + val.img_url;
               let id = val.img_url;
@@ -539,7 +591,7 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener("message", this.handleMessage);
-    this.websocket.close()
+    this.websocket.close();
   },
   mounted() {
     this.iframe = this.$refs.iframe.contentWindow;
@@ -560,23 +612,37 @@ export default {
     currentManage: {
       handler(val) {
         if (val) {
-          console.log(val)
+          console.log(val);
           if (this.websocket) {
-            this.websocket.close()
+            this.websocket.close();
             this.statisticInfo = {
               Incoming_Today: 0,
               Incoming_Yesterday: 0,
               Member_Today: 0,
               Member_Yesterday: 0,
               Current: 0
-            }
+            };
             this.statisticEndInfo = {
               Incoming_Today: 0,
               Incoming_Yesterday: 0,
               Member_Today: 0,
               Member_Yesterday: 0,
               Current: 0
-            }
+            };
+            this.personList = [
+              { imgUrl: "/static/avatar2.png", key: "1" },
+              { imgUrl: "/static/avatar2.png", key: "2" },
+              { imgUrl: "/static/avatar2.png", key: "4" },
+              { imgUrl: "/static/avatar2.png", key: "5" },
+              { imgUrl: "/static/avatar2.png", key: "6" },
+              { imgUrl: "/static/avatar2.png", key: "7" },
+              { imgUrl: "/static/avatar2.png", key: "8" },
+              { imgUrl: "/static/avatar2.png", key: "9" },
+              { imgUrl: "/static/avatar2.png", key: "10" },
+              { imgUrl: "/static/avatar2.png", key: "11" },
+              { imgUrl: "/static/avatar2.png", key: "12" },
+              { imgUrl: "/static/avatar2.png", key: "13" }
+            ];
           }
           this.routerList = [
             { name: "总", path: "/static/html/new_home.html", id: "threeFrame" }
@@ -758,11 +824,11 @@ export default {
           width: 57px;
           box-sizing: border-box;
           overflow: hidden;
-          text-overflow:ellipsis;
+          text-overflow: ellipsis;
           white-space: nowrap;
           .name {
             letter-spacing: 1.5px;
-            margin-bottom: 3px
+            margin-bottom: 3px;
           }
           .info {
             color: rgba(255, 255, 255, 0.5);
