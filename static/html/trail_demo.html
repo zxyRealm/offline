@@ -136,9 +136,10 @@
             var points = shape.getPoints()
             shape.autoClose = true
 
-            var store = new Store(shape)
             var storeMerge = new THREE.Geometry();
-            storeMerge
+            var store = new Store(shape, storeMerge)
+            store.mesh.updateMatrix();
+            
             floorGroup.add(store.mesh)
             store.mesh.position.set(0, 8, 0)
 
@@ -193,7 +194,7 @@
     }
 
     // 单层楼色块
-    function Store(shape) {
+    function Store(shape, merge) {
       var geometryBuffer = new THREE.ExtrudeBufferGeometry(shape, {
         depth: 8,
         bevelEnabled: false

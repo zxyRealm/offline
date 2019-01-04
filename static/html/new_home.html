@@ -162,7 +162,7 @@
       var upFloorCount = 0
       var position = 0
       // console.log(floorArr)
-      floorArr.forEach((item, index) => {
+      floorArr.forEach(function (item, index){
         if (item.floor < 0) {
           downFloorCount += 1
         } else {
@@ -201,14 +201,14 @@
     function upFloor() {
       upHeight += positionSpeed
       group.position.y += positionSpeed
-      group.children[count - 1].children.forEach(item => {
+      group.children[count - 1].children.forEach(function(item){
         if (item.name === 'plane') {
           item.material.opacity += opacitySpeed
         } else {
           item.material.opacity += opacitySpeed2
         }
       })
-      group.children[count + 3].children.forEach(item => {
+      group.children[count + 3].children.forEach(function(item) {
         if (item.name === 'plane') {
           item.material.opacity -= opacitySpeed
         } else {
@@ -225,14 +225,14 @@
     function downFloor() {
       downHeight -= positionSpeed
       group.position.y -= positionSpeed
-      group.children[count].children.forEach(item => {
+      group.children[count].children.forEach(function(item) {
         if (item.name === 'plane') {
           item.material.opacity -= opacitySpeed
         } else {
           item.material.opacity -= opacitySpeed2
         }
       })
-      group.children[count + 4].children.forEach(item => {
+      group.children[count + 4].children.forEach(function(item) {
         if (item.name === 'plane') {
           item.material.opacity += opacitySpeed
         } else {
@@ -391,7 +391,7 @@
     }
 
     function moveChange(objectList, meshColor, lineColor) {
-      objectList.children.forEach(item => {
+      objectList.children.forEach(function(item)  {
         if (item.type === 'Mesh') {
           item.material.color = new THREE.Color(meshColor)
         } else {
@@ -449,7 +449,7 @@
           floorArr = floor.reverse()
       }
       if (floor.length <= 4) {
-        let slideBox = document.getElementById('slide')
+        var slideBox = document.getElementById('slide')
         slideBox.style.display = 'none'
       }
       setSlideInfo()
@@ -499,8 +499,8 @@
 
     var minFloor;
     function caculateMinusIndex(arr) {
-      let minFloor = 1000
-      for (let i = 0; i < arr.length; i++) {
+      var minFloor = 1000
+      for (var i = 0; i < arr.length; i++) {
         if (arr[i].floor < minFloor && arr[i].floor > 0) {
           minFloor = arr[i].floor;
         }
@@ -519,7 +519,7 @@
         console.error('map url is not exist')
         return
       }
-      loader.load(info.img_url, paths => {
+      loader.load(info.img_url, function(paths)  {
         for (var i = 0; i < paths.length; i++) {
           var path = paths[i]
           var depth = 7
@@ -556,7 +556,7 @@
                 // depthWrite: false
               })
               var line = new THREE.Mesh(geometry2, materialLine)
-              line.geometry.faces.forEach(face => {
+              line.geometry.faces.forEach(function(face){
                 if (face.normal.y !== 0) {
                   face.color = new THREE.Color('#0E1239')
                 }
@@ -590,7 +590,7 @@
 
     function addShape(info, group) {
       var loader = new THREE.SVGLoader()
-      loader.load('/static/origin-floor/bottom.svg', paths => {
+      loader.load('/static/origin-floor/bottom.svg', function(paths)  {
         for (var i = 0; i < paths.length; i++) {
           var path = paths[i]
           var shapes = path.toShapes(true);
