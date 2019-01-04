@@ -650,6 +650,7 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+  @import "@/styles/variables.scss";
   .text--wrap{
     .el-icon-check{
       font-size: 14px;
@@ -720,7 +721,7 @@ export default {
     width: 100%;
     height: 70px;
     z-index: 1010;
-    background-color: #232027;
+    background-color: $theme-bg;
     box-shadow: 3px 3px 5px 0 rgba(1, 7, 17, 0.60);
     border-radius: 0 !important;
     border: none !important;
@@ -733,7 +734,7 @@ export default {
       box-shadow: 3px 3px 5px 0 rgba(1, 7, 17, 0.60);
       color: #fff;
       z-index: 999;
-      background: #232027;
+      /*background: #232027;*/
       > img {
         height: 30px;
       }

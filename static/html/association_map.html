@@ -232,9 +232,9 @@
   function init () {
     renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
     renderer.setSize(window.innerWidth, window.innerHeight)
-    renderer.setClearColor('#ffffff', 1.0)
+    // renderer.setClearColor('#ffffff', 0.0)
     scene = new THREE.Scene()
-    scene.background = new THREE.Color('#232027')
+    // scene.background = new THREE.Color('#232027')
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000)
     camera.position.set(0, 0, 480)
     scene.add(camera)
@@ -283,8 +283,10 @@
         side: THREE.DoubleSide,
         depthWrite: false
       })
-      var ps = changeArrayLevel(geometry.attributes.position.array.toString().split(',').map(Number))
+      var ps = changeArrayLevel([].slice.call(geometry.attributes.position.array))
+
       var center = new Contour(ps.buffer).centroid()
+      // console.info(ps.buffer, center)
       var zDistance = calculateDistance(geometry)
       group.position.x = -Math.ceil(center.x)
       group.position.y = Math.ceil(center.y)
@@ -323,7 +325,7 @@
             var geometry = new THREE.ShapeBufferGeometry(shape)
             if (communityData.type !== 4 && floor && Array.isArray(floor)) {
               var bindBlock = floor.filter(function (item) {
-                return JSON.parse(item.coordinates || '[]').toString() === geometry.attributes.position.array.toString()
+                return JSON.parse(item.coordinates || '[]').toString() === [].slice.call(geometry.attributes.position.array).toString()
               })
               if (bindBlock.length) {
                 materialLine.color = new THREE.Color('#1A3D6A')
@@ -345,7 +347,7 @@
   * geometry 对象
   * */
   function calculateDistance (geometry) {
-    var ps = changeArrayLevel(geometry.attributes.position.array.toString().split(',').map(Number))
+    var ps = changeArrayLevel([].slice.call(geometry.attributes.position.array))
     var boundary = new Contour(ps.buffer).boundary() // 计算上下左右边界坐标点
     var maxWidth = boundary.right[0] - boundary.left[0]
     var maxHeight = boundary.top[1] - boundary.bottom[1]
@@ -533,17 +535,17 @@
   }
   // 生成设备列表数据
   function createDeviceList (data) {
-    var title = `<div class="pull-left">${data.title}</div>`
+    // var title = '<div class="pull-left">' + data.title + '</div>'
     document.getElementById('device--title').innerHTML = data.title
     var cameraList = '';
     for(var i = 0, len = data.list.length; i < len; i++){
-      cameraList += `<li>
-        <img src="/static/floor/camera1.png" width="11">
-        <span class="ellipsis">${data.list[i].name}</span>
-        <img class="delete--icon" style="display:${communityData.self ? 'block': 'none'}" src="/static/img/close_icon.png" data-type="delete" data-index="${i}" alt="">
-      </li>`;
+      cameraList += '<li>' +
+        '<img src="/static/floor/camera1.png" width="11">' +
+        '<span class="ellipsis">' + data.list[i].name + '</span>' +
+        '<img class="delete--icon" style="display:'+ (communityData.self ? 'block': 'none') + '}" src="/static/img/close_icon.png" data-type="delete" data-index="'+ i + '}" alt="">' +
+        '</li>'
     }
-    if (!data.list.length) cameraList = `<li class="text-center">暂无设备</li>`
+    if (!data.list.length) cameraList = '<li class="text-center">暂无设备</li>'
     document.getElementById('device--list').innerHTML = cameraList
   }
 

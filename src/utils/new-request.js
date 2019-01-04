@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Message, Loading, MessageBox } from 'element-ui'
 import router from '@/router'
-import store from '@/store'
+import Store from '@/store'
 
 // 加载层
 export function load (text, target) {
@@ -68,10 +68,12 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(config => {
   // Do something before request is sent
+  Store.state.loading = true
   if (config.tip === undefined || config.tip) load('数据加载中...')
   return config
 }, error => {
   // Do something with request error
+  Store.state.loading = false
   if (error.response.config.tip === undefined || error.response.config.tip) load('数据加载中...').close()
   if (error.status === '504') {
     message('网关超时，请重试！', 'error', 3000)
@@ -87,6 +89,7 @@ service.interceptors.response.use(
   response => {
     // tryHideFullScreenLoading()
     // 格式化返回参数格式
+    Store.state.loading = false
     if (response.config.tip === undefined || response.config.tip) load('数据加载中...').close()
     if (response.status === 200) {
       if (response.data.code === 'ERR-110') {
@@ -99,6 +102,7 @@ service.interceptors.response.use(
         return Promise.reject(response.data)
       }
     } else {
+      Store.state.loading = false
       if (response.data.code) {
         message(response.data.msg, 'error', 3000)
       } else {

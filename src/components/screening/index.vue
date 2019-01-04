@@ -131,7 +131,7 @@ export default {
     },
     // vuex状态管理数据
     changeParams () {
-      console.log('set vuex ', this.filterParams)
+      // console.log('set vuex ', this.filterParams)
       this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
       // 这这里触发兄弟组件更新条件
       try {

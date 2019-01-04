@@ -37,7 +37,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
   }, error => {
     // 对请求错误做些什么
     if (isTip) {
-      Store.state.loading = true
+      Store.state.loading = false
       load(isTip)
     }
     return Promise.reject(error)
@@ -84,6 +84,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
         reject(res)
       }
     }).catch(error => {
+      Store.state.loading = false
       if (isTip) {
         load(isTip).close()
       }

@@ -198,7 +198,7 @@ export default {
     },
     // 处理iframe传递出来的事件
     handleEvent (event) {
-      try {
+      // try {
         let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
         switch (data.type) {
           case 'LOAD_SVG_PATH': // 渲染地图
@@ -230,9 +230,9 @@ export default {
             this.deletePortalDevice(data.data)
             break
         }
-      } catch (err) {
-        console.error('error info -------', err)
-      }
+      // } catch (err) {
+      //   console.error('error info -------', err)
+      // }
     },
     // 获取出入口信息，并在地图上展示标注
     setPortalList () {
@@ -433,12 +433,12 @@ export default {
     .floor__list--item{
       height: 40px;
       line-height: 40px;
-      background: rgba(15,14,17,0.7);
+      background: rgba(37,36,39,0.5);
       margin-bottom: 2px;
       font-size: 14px;
       cursor: pointer;
       &.active,&:hover{
-        background-image: linear-gradient(-135deg, #4417AD 4%, #1169D3 100%);
+        background: rgb(37,36, 39);
       }
       &:last-child{
         margin-bottom: 0;

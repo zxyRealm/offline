@@ -62,7 +62,7 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import "src/styles/mixin.scss";
-
+  @import "@/styles/variables.scss";
   .app-wrapper {
     @include clearfix;
     position: relative;
@@ -73,7 +73,7 @@ export default {
       height: 100%;
       /*overflow: hidden;*/
       box-sizing: border-box;
-      background-color: #232027;
+      background-color: $theme-bg;
       color: #fff;
       &.transparent{
         background: transparent;
