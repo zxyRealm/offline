@@ -35,7 +35,7 @@
               回头客比例
             </div>
             <div class="return__ratio--wrap">
-              <custom-pie :percent="ratioData.appearance.many ? ratioData.appearance.many.percent : 0"></custom-pie>
+              <custom-pie :total="ratioData.appearance.many ? ratioData.appearance.many.total : 0" :percent="ratioData.appearance.many ? ratioData.appearance.many.percent : 0"></custom-pie>
             </div>
             <div class="return__data--wrap">
               <div class="multi__box vam">
@@ -60,10 +60,10 @@
             <div class="clearfix">
               <div class="industry__rank--wrap">
                 <div class="rank-items">
-                  <span>{{rankData.industry[0] ? rankData.industry[0].industryName : ''}} <br> {{rankData.industry[0] ? rankData.industry[0].percent: ''}}</span>
+                  <span>{{rankData.industry[1] ? rankData.industry[1].industryName : ''}} <br> {{rankData.industry[1] ? rankData.industry[1].percent: ''}}</span>
                 </div>
                 <div class="rank-items">
-                  <span>{{rankData.industry[1] ? rankData.industry[1].industryName : ''}} <br> {{rankData.industry[1] ? rankData.industry[1].percent: ''}}</span>
+                  <span>{{rankData.industry[0] ? rankData.industry[0].industryName : ''}} <br> {{rankData.industry[0] ? rankData.industry[0].percent: ''}}</span>
                 </div>
                 <div class="rank-items">
                   <span>{{rankData.industry[2] ? rankData.industry[2].industryName : ''}} <br> {{rankData.industry[2] ? rankData.industry[2].percent : ''}}</span>
@@ -233,7 +233,7 @@ export default {
           })
           data[val] = data[val].map(item => {
             item.total = total
-            item.percent = total ? ((item.count / total) * 100).toFixed(1) : '0%'
+            item.percent = total ? ((item.count / total) * 100).toFixed(1) + '%' : '0%'
             return item
           })
         }
@@ -251,13 +251,12 @@ export default {
       if (!info) return
       GetFlowRank({groupFloor: info.floor, groupGuid: info.groupParentGuid}).then(res => {
         res.data = JSON.parse(res.data)
-        // console.log('rank ------------', res.data)
         let industryTotal = 0
         let groupTotal = 0
         res.data.industry.map(item => {
           industryTotal += item.count
         })
-        res.data.industry.map(item => {
+        res.data.group.map(item => {
           groupTotal += item.count
         })
         res.data.industry.map(item => {
@@ -271,7 +270,7 @@ export default {
         this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })
       // 获取实时比率
-      GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupSonGuid}).then(res => {
+      GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupParentGuid}).then(res => {
         let resData = JSON.parse(res.data)
         resData = this.ComunicationPer(resData)
         resData.gender = {
@@ -504,7 +503,6 @@ export default {
       }
       .right__sidebar{
         float: right;
-        width: 70px;
         margin-top: 15px;
         font-size: 12px;
         .sidebar--item{

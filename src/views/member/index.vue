@@ -268,11 +268,15 @@ export default {
         this.$tip('请选择要绑定的社群', 'error')
         return false
       }
+      let gid = data[0].guid
+      if (data[0].guid === this.groupList[0].guid) {
+        gid = this.currentManage.id
+      }
       console.log('row data', this.sendData, data)
       let send = {
         guid: this.sendData.guid,
         name: this.sendData.name,
-        groupGuid: data[0].guid
+        groupGuid: gid
       }
       MemberLibraryUpdate(send).then(res => {
         this.getList()
