@@ -62,11 +62,9 @@
 
     init()
 
-    // 第一幕 目标下降: 找到目标楼层, 并执行下降动画
+    // 1 目标下降: 找到目标楼层, 并执行下降动画
     function ChapterOne() {
-      console.log(group.children)
       group.children.forEach(item => {
-        console.log(item.position.y)
         if (item.name === 'F1') {
           var positionStart = {
             x: item.position.x,
@@ -139,7 +137,7 @@
             var storeMerge = new THREE.Geometry();
             var store = new Store(shape, storeMerge)
             store.mesh.updateMatrix();
-            
+
             floorGroup.add(store.mesh)
             store.mesh.position.set(0, 8, 0)
 

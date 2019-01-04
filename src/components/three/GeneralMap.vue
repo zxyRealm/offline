@@ -259,20 +259,6 @@ export default {
         if (value.floor === item.floor) {
           this.community.index = i;
           this.$emit("updateCommunity", this.community.infoArr[i]);
-          this.personList = [
-            { imgUrl: "/static/avatar2.png", key: "1" },
-            { imgUrl: "/static/avatar2.png", key: "2" },
-            { imgUrl: "/static/avatar2.png", key: "4" },
-            { imgUrl: "/static/avatar2.png", key: "5" },
-            { imgUrl: "/static/avatar2.png", key: "6" },
-            { imgUrl: "/static/avatar2.png", key: "7" },
-            { imgUrl: "/static/avatar2.png", key: "8" },
-            { imgUrl: "/static/avatar2.png", key: "9" },
-            { imgUrl: "/static/avatar2.png", key: "10" },
-            { imgUrl: "/static/avatar2.png", key: "11" },
-            { imgUrl: "/static/avatar2.png", key: "12" },
-            { imgUrl: "/static/avatar2.png", key: "13" }
-          ];
           this.websocket.close();
           this.getWebsocket(item.groupSonGuid, item.groupParentGuid);
         }
@@ -379,7 +365,6 @@ export default {
       img.crossOrigin = "*";
       img.src = data.memberInfo.imgUrl;
       img.onload = () => {
-        console.log(img.width, img.height);
         var upperX = data.rect.upperX - 0 > 60 ? data.rect.upperX-60 : 0
         var upperY = data.rect.upperY - 0 > 60 ? data.rect.upperY-60 : 0;
         var lowerX = img.width - data.rect.lowerX > 60 ? data.rect.lowerX+60 : img.width;
@@ -629,20 +614,6 @@ export default {
               Member_Yesterday: 0,
               Current: 0
             };
-            this.personList = [
-              { imgUrl: "/static/avatar2.png", key: "1" },
-              { imgUrl: "/static/avatar2.png", key: "2" },
-              { imgUrl: "/static/avatar2.png", key: "4" },
-              { imgUrl: "/static/avatar2.png", key: "5" },
-              { imgUrl: "/static/avatar2.png", key: "6" },
-              { imgUrl: "/static/avatar2.png", key: "7" },
-              { imgUrl: "/static/avatar2.png", key: "8" },
-              { imgUrl: "/static/avatar2.png", key: "9" },
-              { imgUrl: "/static/avatar2.png", key: "10" },
-              { imgUrl: "/static/avatar2.png", key: "11" },
-              { imgUrl: "/static/avatar2.png", key: "12" },
-              { imgUrl: "/static/avatar2.png", key: "13" }
-            ];
           }
           this.routerList = [
             { name: "总", path: "/static/html/new_home.html", id: "threeFrame" }
@@ -678,7 +649,7 @@ export default {
       top: 10px;
       text-align: center;
       height: 55px;
-      background: #17151a;
+      // background: #17151a;
       padding: 10px;
       box-sizing: border-box;
       a {
@@ -713,12 +684,13 @@ export default {
       display: flex;
       .iframe {
         width: 100%;
+        height: 100%;
       }
     }
     #statisticInfo {
       height: 100px;
       overflow: hidden;
-      background: #17151a;
+      // background: #17151a;
       padding-bottom: 5px;
       // box-sizing: border-box;
       .statistic-box:last-child {
@@ -789,7 +761,7 @@ export default {
     flex: 0 0 160px;
     #sideInfo {
       color: #ffffff;
-      background: rgb(22, 20, 25);
+      background: #101116;
       padding: 15px;
       height: 100%;
       box-sizing: border-box;
@@ -805,7 +777,6 @@ export default {
         background: linear-gradient(
           to bottom,
           rgba(22, 20, 25, 0),
-          rgb(22, 20, 25) 80%,
           rgb(22, 20, 25) 100%
         );
       }

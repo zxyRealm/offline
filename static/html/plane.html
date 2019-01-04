@@ -155,10 +155,10 @@
   <div class="under-line" id="underLine" style="width: 30px;"></div>
 </div>
 <script type="text/javascript">
-  let renderer, scene, camera, group;
-  let scale = 0.4
-  let spriteList = [];
-  let gateway = [
+  var renderer, scene, camera, group;
+  var scale = 0.4
+  var spriteList = [];
+  var gateway = [
     // {text: '东', position: {x: -4, y: -36}, logo: 'sprite0.png'},
     // {text: '北门', position: {x: -8, y: 36}},
     // {text: '南门', position: {x: 81, y: 31}, logo: 'sprite0.png'},
@@ -168,48 +168,48 @@
     // {text: '我超过五个字', position: {x: -63, y: -11, logo: 'sprite0.png'}},
     // {text: '我应该有七个字', position: {x: 63, y: -11}, logo: 'sprite0.png'},
   ];
-  let shapesArr = []; // 保存shape几何体路径
-  let shapesMaterialArr = []; // 保存shape材质
-  let shapesGeometryArr = []; // 保存shape几何体
-  let shapesMeshArr = []; // 保存shape网格
-  let shapesEdgesArr = []; // 保存shape边缘
-  let shapesEdgesLineArr = []; // 保存绘制成线的shape边缘
-  let pathArr = [];
-  let currentIntersect = null; // 将当前intersect保存为中间值
-  let edges = null;
-  let line = null;
-  let levitaten = document.getElementById('levitaten');
-  let underLine = document.getElementById('underLine');
-  let boxAlexArr = []; // 用来保存坐标数据的数组
-  let hasColorBoxArr = [] // 用来保存有颜色的块的数组
+  var shapesArr = []; // 保存shape几何体路径
+  var shapesMaterialArr = []; // 保存shape材质
+  var shapesGeometryArr = []; // 保存shape几何体
+  var shapesMeshArr = []; // 保存shape网格
+  var shapesEdgesArr = []; // 保存shape边缘
+  var shapesEdgesLineArr = []; // 保存绘制成线的shape边缘
+  var pathArr = [];
+  var currentIntersect = null; // 将当前intersect保存为中间值
+  var edges = null;
+  var line = null;
+  var levitaten = document.getElementById('levitaten');
+  var underLine = document.getElementById('underLine');
+  var boxAlexArr = []; // 用来保存坐标数据的数组
+  var hasColorBoxArr = [] // 用来保存有颜色的块的数组
 
   function init() {
-    let innerWidth = window.innerWidth // 减去右侧aside的宽度
-    let innerHeight = window.innerHeight // 减去底部div的宽度
+    var innerWidth = window.innerWidth // 减去右侧aside的宽度
+    var innerHeight = window.innerHeight // 减去底部div的宽度
     renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
     renderer.setSize(innerWidth, innerHeight);
-    renderer.setClearColor('#ffffff', 1.0);
+    // renderer.setClearColor('#ffffff', 1.0);
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color( '#17151a' );
+    // scene.background = new THREE.Color( '#17151a' );
 
     camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 1, 1000 );
     camera.position.set(0, 0, 520);
     scene.add(camera);
 
-    let light = new THREE.PointLight( 0xffffff, 0.8 );
+    var light = new THREE.PointLight( 0xffffff, 0.8 );
     camera.add(light);
 
     // 计算label位置
-    let label = document.getElementById('label');
+    var label = document.getElementById('label');
 
     // 获取当前src并截取楼层号码
-    let floor = window.location.search.split('=')[1]
+    var floor = window.location.search.split('=')[1]
     
     loadSvg(floor)
 
     // 放置控制器
-    let controls = new THREE.OrbitControls(camera);
+    var controls = new THREE.OrbitControls(camera);
     controls.dampingFactor = 0.25;
     controls.enableZoom = true;
     controls.enableRotate = false;
@@ -236,9 +236,9 @@
 
   // 接收组件中传入的社群信息
   function getCommunityInfo(data) {
-    data.forEach(item => {
-      let positionArr = item.coordinates.replace('[', '').replace(']', '').split(',')
-      let obj = {
+    data.forEach(function(item) {
+      var positionArr = item.coordinates.replace('[', '').replace(']', '').split(',')
+      var obj = {
         position: {x: parseInt(positionArr[0]), y: parseInt(positionArr[1])},
         text: item.name,
         logo: 'qizi2.png'
@@ -253,8 +253,8 @@
 
   // 加载图片
   function loadSvg(floor) {
-    let svgLoad = new THREE.SVGLoader()
-    svgLoad.load(floor, (paths) => {
+    var svgLoad = new THREE.SVGLoader()
+    svgLoad.load(floor, function (paths) {
 
       // 创建分组容器
       group = new THREE.Group()
@@ -263,24 +263,24 @@
       group.scale.set(1, -1, 1)
       scene.add(group)
 
-      for (let i = 0; i < paths.length; i++) {
+      for (var i = 0; i < paths.length; i++) {
         if (i === 0) continue
-        let path = paths[i]
-        let materialLine = new THREE.LineBasicMaterial({
+        var path = paths[i]
+        var materialLine = new THREE.LineBasicMaterial({
           color: new THREE.Color('#403E42'),
           side: THREE.DoubleSide,
           depthWrite: false
         })
-        let shapes = path.toShapes(true)
-        for (let j = 0; j < shapes.length; j++) {
+        var shapes = path.toShapes(true)
+        for (var j = 0; j < shapes.length; j++) {
           // 绘制线和面
-          let geometry = new THREE.ShapeBufferGeometry(shapes[j])
-          let mesh = new THREE.Mesh(geometry, materialLine)
+          var geometry = new THREE.ShapeBufferGeometry(shapes[j])
+          var mesh = new THREE.Mesh(geometry, materialLine)
           group.add(mesh)
           var edges = new THREE.EdgesHelper(mesh, '#979797')
           group.add(edges)
-          // let edges = new THREE.EdgesGeometry(geometry)
-          // let line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
+          // var edges = new THREE.EdgesGeometry(geometry)
+          // var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
           // mesh.add(line)
 
           // 收集变量，便于销毁
@@ -303,7 +303,7 @@
     
     // 创建图片
     if(obj.logo){
-      let sprite = createPictureSprite(obj.logo)
+      var sprite = createPictureSprite(obj.logo)
       sprite.scale.set(15, 15, 15)
       sprite.position.set(obj.position.x, obj.position.y, 1)
       scene.add(sprite)
@@ -316,12 +316,12 @@
 
   // 创建图片贴图
   function createPictureSprite (logo) {
-    let spriteMaterial = new THREE.SpriteMaterial({
+    var spriteMaterial = new THREE.SpriteMaterial({
       map: new THREE.TextureLoader().load('/static/floor/' + logo),
       depthTest: false,
       blending: THREE.AdditiveBlending,
     })
-    let sprite = new THREE.Sprite(spriteMaterial)
+    var sprite = new THREE.Sprite(spriteMaterial)
     return sprite
   }
 
@@ -351,24 +351,24 @@
 
   // 创建文字贴图
   function createTextSprite (obj) {
-    let canvas = document.createElement('canvas')
+    var canvas = document.createElement('canvas')
     if (obj.text.length > 2) {
       canvas.width = obj.text.length * 160
       canvas.height = canvas.width / 4
     }
 
-    let ctx = canvas.getContext('2d')
+    var ctx = canvas.getContext('2d')
     ctx.fillStyle = '#ffffff'
     ctx.font = '600 100px Arial'
     ctx.textAlign = 'left'
     ctx.fillText(obj.text, 4, 104)
 
-    let texture = new THREE.Texture(canvas)
+    var texture = new THREE.Texture(canvas)
     texture.needsUpdate = true
 
     // 使用Sprite显示文字
-    let material = new THREE.SpriteMaterial({map: texture, transparent: true})
-    let textObj = new THREE.Sprite(material)
+    var material = new THREE.SpriteMaterial({map: texture, transparent: true})
+    var textObj = new THREE.Sprite(material)
     return textObj
   }
 
@@ -377,10 +377,10 @@
     if (display === 'none') {
       levitaten.style.display = 'none'
     } else {
-      let point = getCenterExtraPoint(currentIntersect.geometry.attributes.position.array)
+      var point = getCenterExtraPoint(currentIntersect.geometry.attributes.position.array)
       // 将两个坐标转换为屏幕坐标
-      let maxLeftPoint = worldToScreen({x: point.rx, y: point.cy})
-      let centerPoint = worldToScreen({x: point.cx, y: point.cy})
+      var maxLeftPoint = worldToScreen({x: point.rx, y: point.cy})
+      var centerPoint = worldToScreen({x: point.cx, y: point.cy})
       receiveStoreInfo()
       // 悬浮框的位置和上浮线的宽度
       levitaten.style.left = maxLeftPoint.x + 'px'
@@ -394,22 +394,22 @@
   ///////////        接收值     //////////////
   ///////////////////////////////////////////
 
-  let colorCount = {
+  var colorCount = {
 
   }
 
   // 添加色块和贴图
   function addColor (boxArr) {
     // 遍历所有块
-    for(let i in shapesMeshArr){
-      let meshAlex = getString(shapesMeshArr[i]) // 所有色块的顶点值转换为字符串
+    for(var i in shapesMeshArr){
+      var meshAlex = getString(shapesMeshArr[i]) // 所有色块的顶点值转换为字符串
       // 遍历从服务端获取到的坐标数据
-      for(let j in boxArr){
+      for(var j in boxArr){
         if(boxArr[j].position){
-          let shapeAlex = boxArr[j].position // 目标色块的顶点值转换为字符串
+          var shapeAlex = boxArr[j].position // 目标色块的顶点值字符串
           if (shapeAlex === meshAlex) {
-            let point = getCenterExtraPoint(shapesMeshArr[i].geometry.attributes.position.array)
-            let ipc = {
+            var point = getCenterExtraPoint(shapesMeshArr[i].geometry.attributes.position.array)
+            var ipc = {
               text: boxArr[j].name,
               position: {x: point.cx, y: point.cy},
               logo: boxArr[j].logo
@@ -440,14 +440,14 @@
   // 接收单店信息
   function receiveStoreInfo (data) {
     if (data) {
-      let title = `<div class="pull-left">${data.gateway}</div>`
-      let list = '';
-      for(let i = 0, len = data.camera.length; i < len; i++){
-        list += `<li><img src="/static/floor/camera1.png" width="11"><span>${data.camera[i]}</span></li>`;
+      var title = '<div class="pull-left">'+data.gateway+'</div>'
+      var list = '';
+      for(var i = 0, len = data.camera.length; i < len; i++){
+        list += '<li><img src="/static/floor/camera1.png" width="11"><span>'+data.camera[i]+'</span></li>';
       }
-      list = `<ul>${list}</ul>`
-      let levitatenTitle = document.getElementById('levitaten-title');
-      let levitatenList = document.getElementById('levitaten-list');
+      list = '<ul>'+list+'</ul>'
+      var levitatenTitle = document.getElementById('levitaten-title');
+      var levitatenList = document.getElementById('levitaten-list');
       levitatenTitle.innerHTML = title
       levitatenList.innerHTML = list
     }
@@ -475,10 +475,10 @@
 
   // 监听鼠标移动事件
   function onDocumentMouseMove (event) {
-    let vector = new THREE.Vector3((event.clientX / (window.innerWidth-160)) * 2 - 1, -( event.clientY / (window.innerHeight-100) ) * 2 + 1, 0.5);
+    var vector = new THREE.Vector3((event.clientX / (window.innerWidth-160)) * 2 - 1, -( event.clientY / (window.innerHeight-100) ) * 2 + 1, 0.5);
     vector = vector.unproject(camera);
-    let raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize()); // raycaster里只保存有颜色的块
-    let intersects = raycaster.intersectObjects(hasColorBoxArr);
+    var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize()); // raycaster里只保存有颜色的块
+    var intersects = raycaster.intersectObjects(hasColorBoxArr);
     if (intersects.length > 0) {
       currentIntersect = intersects[0].object
       // 避免在currentIntersect.children中多次添加line
@@ -501,8 +501,8 @@
 
   // 监听屏幕尺寸变化
   function onWindowResize () {
-    let innerWidth = window.innerWidth
-    let innerHeight = window.innerHeight
+    var innerWidth = window.innerWidth
+    var innerHeight = window.innerHeight
     camera.aspect = innerWidth / innerHeight
     camera.updateProjectionMatrix()
     renderer.setSize(innerWidth, innerHeight)
@@ -510,10 +510,10 @@
 
   // 监听点击事件
   function onDocumentMouseClick(event) {
-    let vector = new THREE.Vector3((event.clientX / (window.innerWidth-160)) * 2 - 1, -( event.clientY / (window.innerHeight-100) ) * 2 + 1, 0.5);
+    var vector = new THREE.Vector3((event.clientX / (window.innerWidth-160)) * 2 - 1, -( event.clientY / (window.innerHeight-100) ) * 2 + 1, 0.5);
     vector = vector.unproject(camera);
-    let raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
-    let intersects = raycaster.intersectObjects(hasColorBoxArr);
+    var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+    var intersects = raycaster.intersectObjects(hasColorBoxArr);
     if (intersects.length > 0) {
       alert('进入单店')
     }
@@ -524,41 +524,41 @@
   ///////////////////////////////////////////
 
   // 屏幕坐标转世界坐标
-  let screenToWorld = function (screenPoint) {
+  var screenToWorld = function (screenPoint) {
     // 获取屏幕坐标投影在相机上的x和y轴的值
-    let pX = (screenPoint.x / window.innerWidth) * 2 - 1;
-    let pY = -(screenPoint.y / window.innerHeight) * 2 + 1;
+    var pX = (screenPoint.x / window.innerWidth) * 2 - 1;
+    var pY = -(screenPoint.y / window.innerHeight) * 2 + 1;
     // 获取z轴深度 即视距
-    let zd = camera.position.z;
+    var zd = camera.position.z;
     // 获取相机角度 (180-45)/2
-    let za = 67.5 * Math.PI/180;
+    var za = 67.5 * Math.PI/180;
     // 获取世界坐标中的x轴边界
-    let bx = (zd/Math.tan(za))*(window.innerWidth/window.innerHeight);
+    var bx = (zd/Math.tan(za))*(window.innerWidth/window.innerHeight);
     // 获取世界坐标中的y轴边界
-    let by = zd/Math.tan(za);
+    var by = zd/Math.tan(za);
     // 获取世界坐标中x轴的实际坐标点
-    let sx = pX * bx;
+    var sx = pX * bx;
     // 获取世界坐标中y轴的实际坐标点
-    let sy = pY * by;
+    var sy = pY * by;
     return {x: sx, y: sy};
   }
 
   // 世界坐标转屏幕坐标
-  let worldToScreen = function (worldPoint) {
-    let zd = camera.position.z;
-    let za = 67.5 * Math.PI/180;
-    let bx = (zd/Math.tan(za))*((window.innerWidth-160)/(window.innerHeight-100));
-    let by = zd/Math.tan(za);
-    let pX = worldPoint.x/bx
-    let pY = worldPoint.y/by
+  var worldToScreen = function (worldPoint) {
+    var zd = camera.position.z;
+    var za = 67.5 * Math.PI/180;
+    var bx = (zd/Math.tan(za))*((window.innerWidth-160)/(window.innerHeight-100));
+    var by = zd/Math.tan(za);
+    var pX = worldPoint.x/bx
+    var pY = worldPoint.y/by
 
-    let sX = ( (pX+1) * (window.innerWidth-160) ) / 2
-    let sY = ( -(pY-1) * (window.innerHeight-100) ) / 2
+    var sX = ( (pX+1) * (window.innerWidth-160) ) / 2
+    var sY = ( -(pY-1) * (window.innerHeight-100) ) / 2
     return {x: sX, y: sY};
   }
 
   // 销毁内存
-  let dispose = function(o) {
+  var dispose = function(o) {
     try {
       if (o && typeof o === 'object') {
         if (Array.isArray(o)) {
@@ -597,14 +597,14 @@
   };
 
   // 转换字符串
-  let getString = function(mesh) {
-    return mesh.geometry.attributes.position.array.toString()
+  var getString = function(mesh) {
+    return Array.prototype.slice.call(mesh.geometry.attributes.position.array.toString())
   }
 
   // 获取中心点和右侧点
-  let getCenterExtraPoint = function(array) {
-    let a = changeArrayLevel(array)
-    let ps = new Contour(a.buffer).centroid()
+  var getCenterExtraPoint = function(array) {
+    var a = changeArrayLevel(array)
+    var ps = new Contour(a.buffer).centroid()
     return {
       rx: (a.maxLeft-290),
       cx: (ps.x-290),
