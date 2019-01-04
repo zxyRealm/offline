@@ -15,15 +15,18 @@
 
   </style>
   <script src="../three/three.min.js"></script>
+  <script src="../three/SVGLoader.js"></script>
+  <script src="../three/OrbitControls.js"></script>
+  <script src="../three/tween.js"></script>
   <script src="../three/trail_data.js"></script>
 </head>
 
 <body>
   <div id="WebGL-output"></div>
   <script>
-    var data = TRAIL_JSON;
+    var data = TRAIL_JSON.data;
     var renderer, scene, camera, group;
-    var floorHeight = 140;
+    var space = 240;
     var planeList = [];
     var geometryArr = [];
     var materialArr = [];
@@ -37,8 +40,21 @@
       createGeneralGroup() // 创建整体分组
       createListener() // 创建监听函数
 
+      // 布置调度
+      createAlexHelper()
+      createControl()
+
       // 创建楼层
-      createFloor(1)
+      createFloor(1, 'F1')
+      createFloor(2, 'F2')
+      createFloor(3, 'F3')
+      createFloor(4, 'F4')
+
+      // 正片开始
+      ChapterOne()
+
+      // 创建轨迹
+      createPath()
 
       // 开始
       render()
@@ -46,12 +62,69 @@
 
     init()
 
+    // 第一幕 目标下降: 找到目标楼层, 并执行下降动画
+    function ChapterOne() {
+      console.log(group.children)
+      group.children.forEach(item => {
+        console.log(item.position.y)
+        if (item.name === 'F1') {
+          var positionStart = {
+            x: item.position.x,
+            y: item.position.y
+          }
+          var positionEnd = {
+            x: 0,
+            y: 0
+          }
+          var rotationStart = {
+            x: item.rotation.x,
+            y: item.rotation.y,
+            z: item.rotation.z
+          }
+          var rotationEnd = {
+            x: 0.2 * Math.PI,
+            y: 0.15 * Math.PI,
+            z: -0.1 * Math.PI
+          }
+          var opacityStart = {
+            visible: false
+          }
+          var opacityEnd = {
+            visible: true
+          }
 
-    function createFloor(url, group, i) {
+          var action1 = new TWEEN.Tween(positionStart)
+            .to(positionEnd, 2000)
+            .onUpdate(function () {
+              item.position.x = positionStart.x;
+              item.position.y = positionStart.y;
+            })
+          var action2 = new TWEEN.Tween(rotationStart)
+            .to(rotationEnd, 1000)
+            .onUpdate(function () {
+              item.rotation.x = rotationStart.x
+              item.rotation.y = rotationStart.y
+              item.rotation.z = rotationStart.z
+            })
+
+          action1.chain(action2)
+          action1.start()
+        }
+      })
+    }
+
+    function createGeneralGroup() {
+      group = new THREE.Group();
+      group.position.set(-290, 0, -241)
+      group.name = 'all_scene'
+      scene.add(group)
+    }
+
+    function createFloor(url, groupName) {
       var floorGroup = new THREE.Group();
       var loader = new THREE.SVGLoader();
 
-      loader.load('../origin-floor/' + url + '.svg', paths => {
+      loader.load('/origin-floor/' + url + '.svg', paths => {
         for (var i = 0; i < paths.length; i++) {
           var shapes = paths[i].toShapes(true)
 
@@ -63,18 +136,66 @@
             var points = shape.getPoints()
             shape.autoClose = true
 
-            createStore(shape, i * 80, floorGroup)
-            createEdge(points, i * 80, floorGroup)
+            var store = new Store(shape)
+            var storeMerge = new THREE.Geometry();
+            storeMerge
+            floorGroup.add(store.mesh)
+            store.mesh.position.set(0, 8, 0)
+
+            var edge = new Edge(points)
+            floorGroup.add(edge.mesh)
+            edge.mesh.position.set(0, 8, 0)
           }
         }
       })
+
+      loader.load('../origin-floor/bottom.svg', paths => {
+        for (var i = 0; i < paths.length; i++) {
+          var shapes = paths[i].toShapes(true)
+
+          for (var j = 0; j < shapes.length; j++) {
+
+            var shape = shapes[j];
+            var plane = new Plane(shape)
+            floorGroup.add(plane.mesh);
+          }
+        }
+      })
+
+      floorGroup.name = groupName
+      floorGroup.position.set(0, space, 0)
       group.add(floorGroup)
     }
 
-    function createStore(shape, y_alex, group) {
+    function createPath() {
+      for (var i = 0; i < data.length - 6; i += 10) {
+        var pathGroup = {
+          start: data[i].pointInPath || data[i].point,
+          end: data[i + 6].pointInPath || data[i + 6].point
+        }
+        var path = new Path(pathGroup)
+        path.line.position.y = 8
+        path.line.rotation.x = 0.5 * Math.PI
+        scene.add(path.line)
+      }
+    }
 
+    // 路径
+    function Path(group) {
+      var path = new THREE.Path([new THREE.Vector2(group.start.x - 290, group.start.y - 241)]);
+      path.lineTo(group.end.x - 290, group.end.y - 241)
+      var points = path.getPoints();
+      var geometry = new THREE.BufferGeometry().setFromPoints(points);
+      var material = new THREE.LineBasicMaterial({
+        color: 0xffffff
+      });
+      this.line = new THREE.Line(geometry, material);
+    }
+
+    // 单层楼色块
+    function Store(shape) {
       var geometryBuffer = new THREE.ExtrudeBufferGeometry(shape, {
-        depth: depth,
+        depth: 8,
         bevelEnabled: false
       })
 
@@ -83,39 +204,47 @@
 
       var material = new THREE.MeshBasicMaterial({
         color: new THREE.Color('#5F719E'),
-        emissive: new THREE.Color('#5F719E'),
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.1,
         side: THREE.DoubleSide,
         vertexColors: THREE.FaceColors
       })
 
-      var mesh = new THREE.Mesh(geometry, material)
-      mesh.position.set(0, y_alex, 0)
-      mesh.rotation.set(0.5 * Math.PI, 0, 0)
-      mesh.name = 'store'
-
-      mesh.geometry.faces.forEach(face => {
+      this.mesh = new THREE.Mesh(geometry, material)
+      this.mesh.rotation.set(0.5 * Math.PI, 0, 0)
+      this.mesh.name = 'store'
+      this.mesh.geometry.faces.forEach(face => {
         if (face.normal.y !== 0) {
           face.color = new THREE.Color('#0E1239')
         }
       })
-
-      group.add(mesh)
     }
 
-    function createEdge(points, y_alex, group) {
+    // 单层楼色块描边
+    function Edge(points) {
       var geometry = new THREE.BufferGeometry().setFromPoints(points)
       var material = new THREE.LineBasicMaterial({
         color: '#2A4586',
         transparent: true,
-        opacity: opacity
+        opacity: 0.1
       })
-      var mesh = new THREE.Line(geometry, material)
-      mesh.position.set(0, y_alex, 0)
-      mesh.rotation.set(0.5 * Math.PI, 0, 0)
-      
-      group.add(mesh)
+      this.mesh = new THREE.Line(geometry, material)
+      this.mesh.rotation.set(0.5 * Math.PI, 0, 0)
+      this.mesh.name = 'edge'
+    }
+
+    // 单层楼底座
+    function Plane(shape) {
+      var geometry = new THREE.ShapeBufferGeometry(shape);
+      var material = new THREE.MeshBasicMaterial({
+        color: '#2A4586',
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.1
+      })
+      this.mesh = new THREE.Mesh(geometry, material);
+      this.mesh.rotation.set(0.5 * Math.PI, 0, 0);
+      this.mesh.name = 'plane'
     }
 
     function createRenderer() {
@@ -132,6 +261,7 @@
       window.addEventListener('resize', onWindowResize, false)
     }
 
+    // 布景
     function createScene() {
       scene = new THREE.Scene();
       scene.background = new THREE.Color('#17151a')
@@ -145,7 +275,7 @@
         window.innerHeight / -2,
         0.1, 10000
       )
-      camera.position.set(330, 180, 450);
+      camera.position.set(330, 180, 450)
       camera.lookAt(0, 0, 0);
       scene.add(camera)
     }
@@ -155,14 +285,26 @@
       camera.add(light)
     }
 
-    function createGeneralGroup() {
-      group = new THREE.Group();
-      group.position.set(-290, 0, -241)
+    // 控制函数
+    function createControl() {
+      controls = new THREE.OrbitControls(camera);
+      // controls.maxPolarAngle = 1.28;//上下两极的可视区域的最大角度
+      // controls.minPolarAngle = 1.28;//上下两极的可视区域最小角度
+      // controls.dampingFactor = 0.25;
+      controls.enableZoom = true;
+      controls.enableRotate = true;
+      controls.screenSpacePanning = true;
+    }
+
+    function createAlexHelper() {
+      var axesHelper = new THREE.AxesHelper(100)
+      scene.add(axesHelper)
     }
 
     // 渲染函数
     function render() {
       requestAnimationFrame(render)
+      TWEEN.update()
       renderer.render(scene, camera)
     }
 

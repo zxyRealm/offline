@@ -44,7 +44,7 @@
                         src="/static/img/grow_up@2x.png" alt="" width="5">
                     <img v-if="statisticEndInfo.Incoming_percent < 0" 
                         src="/static/img/grow_down.png" alt="" width="5">
-                    <span>{{statisticEndInfo.Incoming_percent}}%</span>
+                    <span>{{Math.abs(statisticEndInfo.Incoming_percent)}}%</span>
                   </span>
                 </div>
                 <div class="key">今日数据</div>
@@ -87,7 +87,7 @@
                         src="/static/img/grow_up@2x.png" alt="" width="5">
                     <img v-if="statisticEndInfo.Member_percent < 0" 
                         src="/static/img/grow_down.png" alt="" width="5">
-                    <span>{{statisticEndInfo.Member_percent}}%</span>
+                    <span>{{Math.abs(statisticEndInfo.Member_percent)}}%</span>
                   </span>
                 </div>
                 <div class="key">今日数据</div>
@@ -277,8 +277,8 @@ export default {
                 Member_Today: data.data.newMember,
                 Member_Yesterday: data.data.oldMember,
                 Current: data.data.newIn - data.data.newOut,
-                Incoming_percent: Math.abs(parseInt(((data.data.newIn - data.data.oldIn) / data.data.oldIn) *100)),
-                Member_percent: Math.abs(parseInt(((data.data.newMember - data.data.oldMember) / data.data.oldMember) *100))
+                Incoming_percent: parseInt(((data.data.newIn - data.data.oldIn) / data.data.oldIn) *100),
+                Member_percent: parseInt(((data.data.newMember - data.data.oldMember) / data.data.oldMember) *100)
               };
               this.changeStatisticInfo('Incoming_Today')
               this.changeStatisticInfo('Incoming_Yesterday')
@@ -330,6 +330,7 @@ export default {
       img.crossOrigin = "*";
       img.src = data.memberInfo.imgUrl;
       img.onload = () => {
+        console.log(img.width)
         context.drawImage(
           img,
           data.rect.upperX,
@@ -754,6 +755,11 @@ export default {
         .box-left {
           float: left;
           padding: 12px 8px;
+          width: 57px;
+          box-sizing: border-box;
+          overflow: hidden;
+          text-overflow:ellipsis;
+          white-space: nowrap;
           .name {
             letter-spacing: 1.5px;
             margin-bottom: 3px
