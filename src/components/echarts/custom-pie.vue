@@ -30,8 +30,8 @@ export default {
   computed: {
     girlInt: {
       get () {
-        let num = typeof this.percent === 'string' && this.percent.indexOf('%') > 0 ? this.percent.replace('%', '') * 100 : this.percent
-        let int = this.total ? Math.floor((num / 100) * 18) : 11
+        let num = typeof this.percent === 'string' && this.percent.indexOf('%') > 0 ? this.percent.replace('%', '') : this.percent
+        let int = this.total ? Math.floor((num / 100) * 22) : 11
         return int
       },
       set () {}

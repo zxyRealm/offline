@@ -106,6 +106,14 @@ export function DeleteCameraBatch (data) {
   })
 }
 
+// 设备最新版本信息
+export function GetDeviceVersion (data) {
+  return request({
+    url: '/device/deviceType/firmware',
+    data
+  })
+}
+
 // 商户删除设备
 export function DeleteDevice (data) {
   return request({

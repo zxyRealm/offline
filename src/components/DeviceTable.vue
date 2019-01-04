@@ -96,24 +96,6 @@
                 {{btnState(scope.row,item).text}}
               </span>
             </template>
-            <!--<template v-else>-->
-              <!--<el-upload-->
-                <!--:data="{serverKey: scope.row.deviceKey}"-->
-                <!--name="excelFile"-->
-                <!--class="import&#45;&#45;excel"-->
-                <!--:action="baseApi + '/manage/device/deviceCamera/info/addBatch'"-->
-                <!--:on-progress="handleProgress"-->
-                <!--:before-upload="beforeUpload"-->
-                <!--:on-success="handleSuccess"-->
-                <!--:on-error="handleError"-->
-                <!--:multiple="false"-->
-                <!--:limit="1"-->
-                <!--:show-file-list="false"-->
-                <!--:file-list="fileList">-->
-                <!--<a href="javascript:void (0)" class="table_btn g-mr18">导入设备</a>-->
-              <!--</el-upload>-->
-              <!--<a href="javascript:void (0)" class="table_btn g-mr18" @click="addCamera(scope.row)">手动添加</a>-->
-            <!--</template>-->
             <span class="error-color delete_btn" :class="{fr: dataType !== 'camera'}" @click="deleteEquipment(scope.row)">删除</span>
         </template>
       </el-table-column>
@@ -138,26 +120,8 @@
         <div class="version__list--wrap text-center">
           <div class="c-grey fs12 g-pl20 mt16">{{dataType ==='server'? '服务器': '设备'}}当前版本：{{currentVersion}}</div>
           <p class="radio-box last-version fs12" >
-            最新版本 {{'2.2'}}
+            最新版本 {{lastVersion}}
           </p>
-          <el-radio-group v-model="selectVersion">
-            <!--<p class="radio-box last-version fs12" >-->
-              <!--<el-radio :label="-1">最新版本 {{'2.2'}}</el-radio>-->
-              <!--<a href="javascript:void(0)" @click="() => {showHistory ? showHistory = false: showHistory = true}">查看历史版本-->
-                <!--<i class="el-icon-d-arrow-right" :class="{'arrow-up': showHistory}"></i>-->
-              <!--</a>-->
-            <!--</p>-->
-            <!--<el-scrollbar v-show="showHistory">-->
-              <!--<p-->
-                <!--v-for="(item, $index) in 5"-->
-                <!--:key="$index"-->
-                <!--class="radio-box">-->
-                <!--<el-radio-->
-                  <!--:value="item"-->
-                  <!--:label="$index">备选项</el-radio>-->
-              <!--</p>-->
-            <!--</el-scrollbar>-->
-          </el-radio-group>
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -171,7 +135,7 @@
 <script>
 import {validateRule} from '@/utils/validate'
 import {simplifyGroups} from '../utils'
-import {ChangeDeviceAlias, DeviceAliasExist, UpdateCameraName, CheckCameraName, DeleteCameraBatch, DeleteDevice, GetDeviceState, DeviceHandleUrl, DeviceUpgrade} from '../api/device'
+import {ChangeDeviceAlias, DeviceAliasExist, UpdateCameraName, CheckCameraName, DeleteCameraBatch, DeleteDevice, GetDeviceState, DeviceHandleUrl, DeviceUpgrade, GetDeviceVersion} from '../api/device'
 
 const UPLOAD_API = process.env.UPLOAD_API
 export default {
@@ -240,6 +204,7 @@ export default {
       showHistory: false, // 显示历史版本列表
       selectVersion: '', // 选中的版本
       currentVersion: '', // 当前的版本
+      lastVersion: '', // 设备最新版本信息
       deviceUpdateVisible: false, // 设备升级弹框显示与否
       versionList: [] // 历史版本信息列表
     }
@@ -570,6 +535,9 @@ export default {
         this.currentDevice = value
         this.deviceUpdateVisible = true
         this.currentVersion = value.deviceVersion
+        GetDeviceVersion({deviceType: value.type}).then(res => {
+          this.lastVersion = res.data.deviceVersion
+        })
         // 获取设备历史版本信息
       } else {
         this.$affirm({title: `${des}设备`, text: tip, confirm: des},
@@ -683,12 +651,6 @@ export default {
         this.$set(this.currentDevice, 'deviceStatus', 4)
         this.deviceUpdateVisible = false
       })
-      // if (this.selectVersion) {
-      //   console.log(this.selectVersion, this.currentDevice)
-      //
-      // } else {
-      //   this.$tip('请选择要升级的版本', 'error')
-      // }
     }
   },
   watch: {

@@ -856,7 +856,6 @@ export default {
     // 获取社群详细信息
     getCommunityInfo (val, node) {
       if (!this.currentManage.id) return
-      console.log('info------------------', val, val.groupSonGuid)
       if (val.type === 4) {
         GetStoreList({groupSonGuid: val.groupSonGuid}).then(res => {
           this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
@@ -1134,7 +1133,7 @@ export default {
           int = this.communityInfo.level === 2 ? 5 : 7
           break
         default:
-          int = this.communityInfo.type === 4 ? 4 : this.communityInfo.self ? this.communityInfo.level === 2 ? 4 : 6 : 8
+          int = this.communityInfo.self ? this.communityInfo.level === 2 ? 4 : 6 : 8
           break
       }
       return int

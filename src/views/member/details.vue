@@ -314,7 +314,7 @@ export default {
   }
   .table{
     margin: 13px 0 10px 0;
-    height: calc(100% - 59px - 60px);
+    height: calc(100% - 59px - 78px);
   }
   .libraryName{
     float: left;
