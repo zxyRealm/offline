@@ -62,53 +62,52 @@
 
     init()
 
-    // 第一幕 目标下降: 找到目标楼层, 并执行下降动画
+    // 1 目标下降: 找到目标楼层, 并执行下降动画
     function ChapterOne() {
-      console.log(group.children)
-      group.children.forEach(item => {
-        console.log(item.position.y)
+      group.children.forEach(function(item) {
         if (item.name === 'F1') {
-          var positionStart = {
-            x: item.position.x,
-            y: item.position.y
-          }
-          var positionEnd = {
-            x: 0,
-            y: 0
-          }
-          var rotationStart = {
-            x: item.rotation.x,
-            y: item.rotation.y,
-            z: item.rotation.z
-          }
-          var rotationEnd = {
-            x: 0.2 * Math.PI,
-            y: 0.15 * Math.PI,
-            z: -0.1 * Math.PI
-          }
-          var opacityStart = {
-            visible: false
-          }
-          var opacityEnd = {
-            visible: true
-          }
 
-          var action1 = new TWEEN.Tween(positionStart)
-            .to(positionEnd, 2000)
-            .onUpdate(function () {
-              item.position.x = positionStart.x;
-              item.position.y = positionStart.y;
-            })
-          var action2 = new TWEEN.Tween(rotationStart)
-            .to(rotationEnd, 1000)
-            .onUpdate(function () {
-              item.rotation.x = rotationStart.x
-              item.rotation.y = rotationStart.y
-              item.rotation.z = rotationStart.z
-            })
+          // var positionStart = {
+          //   x: item.position.x,
+          //   y: item.position.y
+          // }
+          // var positionEnd = {
+          //   x: 0,
+          //   y: 0
+          // }
+          // var rotationStart = {
+          //   x: item.rotation.x,
+          //   y: item.rotation.y,
+          //   z: item.rotation.z
+          // }
+          // var rotationEnd = {
+          //   x: 0.2 * Math.PI,
+          //   y: 0.15 * Math.PI,
+          //   z: -0.1 * Math.PI
+          // }
+          // var opacityStart = {
+          //   visible: false
+          // }
+          // var opacityEnd = {
+          //   visible: true
+          // }
 
-          action1.chain(action2)
-          action1.start()
+          // var action1 = new TWEEN.Tween(positionStart)
+          //   .to(positionEnd, 2000)
+          //   .onUpdate(function () {
+          //     item.position.x = positionStart.x;
+          //     item.position.y = positionStart.y;
+          //   })
+          // var action2 = new TWEEN.Tween(rotationStart)
+          //   .to(rotationEnd, 1000)
+          //   .onUpdate(function () {
+          //     item.rotation.x = rotationStart.x
+          //     item.rotation.y = rotationStart.y
+          //     item.rotation.z = rotationStart.z
+          //   })
+
+          // action1.chain(action2)
+          // action1.start()
         }
       })
     }
@@ -124,7 +123,7 @@
       var floorGroup = new THREE.Group();
       var loader = new THREE.SVGLoader();
 
-      loader.load('/origin-floor/' + url + '.svg', paths => {
+      loader.load('/origin-floor/' + url + '.svg', function(paths) {
         for (var i = 0; i < paths.length; i++) {
           var shapes = paths[i].toShapes(true)
 
@@ -139,7 +138,7 @@
             var storeMerge = new THREE.Geometry();
             var store = new Store(shape, storeMerge)
             store.mesh.updateMatrix();
-            
+
             floorGroup.add(store.mesh)
             store.mesh.position.set(0, 8, 0)
 
