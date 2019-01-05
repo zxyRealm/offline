@@ -62,11 +62,12 @@
 
     init()
 
-    // 1 目标下降: 找到目标楼层, 并执行下降动画
+    // 1 设置起始楼层的位置
     function ChapterOne() {
       group.children.forEach(function(item) {
         if (item.name === 'F1') {
-
+          item.position.set(0, 0, 0)
+          item.rotation.set(0, 0, 0)
           // var positionStart = {
           //   x: item.position.x,
           //   y: item.position.y
@@ -140,21 +141,19 @@
             store.mesh.updateMatrix();
 
             floorGroup.add(store.mesh)
-            store.mesh.position.set(0, 8, 0)
+            // store.mesh.position.set(0, 8, 0)
 
             var edge = new Edge(points)
             floorGroup.add(edge.mesh)
-            edge.mesh.position.set(0, 8, 0)
+            // edge.mesh.position.set(0, 8, 0)
           }
         }
       })
 
-      loader.load('../origin-floor/bottom.svg', paths => {
+      loader.load('../origin-floor/bottom.svg', function(paths) {
         for (var i = 0; i < paths.length; i++) {
           var shapes = paths[i].toShapes(true)
-
           for (var j = 0; j < shapes.length; j++) {
-
             var shape = shapes[j];
             var plane = new Plane(shape)
             floorGroup.add(plane.mesh);
@@ -163,7 +162,7 @@
       })
 
       floorGroup.name = groupName
-      floorGroup.position.set(0, space, 0)
+      floorGroup.position.set(0, 0, 0)
       group.add(floorGroup)
     }
 
@@ -175,7 +174,7 @@
         }
         var path = new Path(pathGroup)
         path.line.position.y = 8
-        path.line.rotation.x = 0.5 * Math.PI
+        // path.line.rotation.x = 0.5 * Math.PI
         scene.add(path.line)
       }
     }
@@ -211,9 +210,9 @@
       })
 
       this.mesh = new THREE.Mesh(geometry, material)
-      this.mesh.rotation.set(0.5 * Math.PI, 0, 0)
+      // this.mesh.rotation.set(0, 0, 0)
       this.mesh.name = 'store'
-      this.mesh.geometry.faces.forEach(face => {
+      this.mesh.geometry.faces.forEach(function(face) {
         if (face.normal.y !== 0) {
           face.color = new THREE.Color('#0E1239')
         }
@@ -229,7 +228,7 @@
         opacity: 0.1
       })
       this.mesh = new THREE.Line(geometry, material)
-      this.mesh.rotation.set(0.5 * Math.PI, 0, 0)
+      // this.mesh.rotation.set(0, 0, 0)
       this.mesh.name = 'edge'
     }
 
@@ -243,7 +242,7 @@
         opacity: 0.1
       })
       this.mesh = new THREE.Mesh(geometry, material);
-      this.mesh.rotation.set(0.5 * Math.PI, 0, 0);
+      // this.mesh.rotation.set(0, 0, 0);
       this.mesh.name = 'plane'
     }
 
@@ -275,7 +274,7 @@
         window.innerHeight / -2,
         0.1, 10000
       )
-      camera.position.set(330, 180, 450)
+      camera.position.set(0, 0, 450)
       camera.lookAt(0, 0, 0);
       scene.add(camera)
     }

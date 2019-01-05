@@ -41,3 +41,11 @@ export function GetFlowCount (data) {
     data
   })
 }
+
+// 获取缓存人脸数据
+export function GetLatestFace (data) {
+  return request({
+    url: '/chart/getLatestFace',
+    data
+  })
+}
