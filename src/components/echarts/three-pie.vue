@@ -99,7 +99,7 @@ export default {
       let seriesData = this.formatData()
       if (this.type === 'age') {
       // #979797
-        let color = this.total ? ['#0F9EE9', '#005BC9', '#213A65', '#2C0189', '#8663FF', '#A9B7CE'] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
+        let color = this.total ? ['#FFD500', '#38DF19', '#FF6660', '#0F9EE9', '#005BC9', '#8663FF'] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
         this.options = {
           color: color, // ['#2187DF','#6D2EBB']
           title: {
@@ -195,7 +195,7 @@ export default {
           ]
         }
       } else {
-        let color = this.total ? ['#0F9EE9', '#4D6FB5'] : ['#403E42', '#403E42']
+        let color = this.total ? ['#005BC9', '#0F9EE9'] : ['#403E42', '#403E42']
         this.options = {
           color: color, // ['#2187DF','#6D2EBB']
           title: {
@@ -217,7 +217,8 @@ export default {
             //   return obj
             // },
             textStyle: {
-              fontSize: 12
+              fontSize: 12,
+              color: '#fff'
             }
           },
           legend: {
@@ -345,7 +346,6 @@ export default {
     right: 2%;
     display: inline-block;
     font-size: 12px;
-    color: #0F9EE9;
   }
   .percent-wrap p{
     line-height: 19px;

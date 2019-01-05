@@ -17,14 +17,14 @@
               </div>
               <div class="sex__data--wrap vam">
                 <div>
-                  <span class="gc--color">{{ratioData.gender.woman ? ratioData.gender.woman.percent: '0%'}}</span>
+                  <span>{{ratioData.gender.woman ? ratioData.gender.woman.percent: '0%'}}</span>
                   <p><img width="15" src="@/assets/three/girl_icon@2x.png" alt="">女</p>
                 </div>
                 <div class="sex__ratio--icon"></div>
                 <!--<img width="48" class="sex__ratio&#45;&#45;icon" src="@/assets/three/sex_ratio_icon.png" alt="">-->
                 <div>
                   <p><img width="15" src="@/assets/three/boy_icon@2x.png" alt="">男</p>
-                  <span class="bc--color">{{ratioData.gender.man ? ratioData.gender.man.percent: '0%'}}</span>
+                  <span>{{ratioData.gender.man ? ratioData.gender.man.percent: '0%'}}</span>
                 </div>
               </div>
             </div>
@@ -40,11 +40,11 @@
             <div class="return__data--wrap">
               <div class="multi__box vam">
                 <img width="15" src="@/assets/three/return_multi_icon@2x.png" alt=""><span>多次</span>
-                <span class="gc--color">{{ratioData.appearance.many ? ratioData.appearance.many.percent : '0%'}}</span>
+                <span>{{ratioData.appearance.many ? ratioData.appearance.many.percent : '0%'}}</span>
               </div>
               <div class="single__box vam">
                 <img width="15" src="@/assets/three/return_single_icon@2x.png" alt=""><span>单次</span>
-                <span class="bc--color">{{ratioData.appearance.first ? ratioData.appearance.first.percent : '0%'}}</span>
+                <span>{{ratioData.appearance.first ? ratioData.appearance.first.percent : '0%'}}</span>
               </div>
             </div>
           </div>
@@ -73,7 +73,7 @@
                 <li
                   v-for="(item, $index) in rankData.industry"
                   :key="$index"
-                  v-if="$index > 2"
+                  v-if="$index > 2 && $index < 10"
                   class="sidebar--item"><span>{{$index + 1}}.{{item.industryName}}</span><span>{{item.percent}}</span> </li>
               </ul>
             </div>
@@ -87,7 +87,7 @@
             <div class="process__list--wrap">
               <div class="pl-items vam" v-for="(val, $index) in 6" :key="val" :class="{'empty--data': !rankData.group[$index]}">
                 <span class="ellipsis">{{val}}.{{rankData.group[$index] ? rankData.group[$index].groupName : `门店${$index + 1}`}}</span>
-                <el-progress :percentage="rankData.group[$index] ? rankData.group[$index].percent : 0" color="##0F9EE9"></el-progress>
+                <el-progress :color="rankData.group[$index] ? industryColor[$index] : '#005BC9'" :percentage="rankData.group[$index] ? rankData.group[$index].percent : 0" ></el-progress>
                 <el-icon class="el-icon-d-arrow-right" :class="{'c-grey': !rankData.group[$index]}"></el-icon>
               </div>
             </div>
@@ -118,31 +118,20 @@ export default {
   name: 'index',
   data () {
     return {
-      svgObj: '',
-      newSvgChild: '',
-      styleList: [],
-      imgList: [
-        {
-          href: '/static/img/logo@2x.png'
-        }
-      ],
-      floorList: [
-        'F4',
-        'F3',
-        'F2',
-        'F1',
-        'B1',
-        'B2',
-        'B3'
-      ],
-      iframeSrc: '/three',
-      websocket: '', // websocket连接
       ratioData: { // 比例（会员、男女、回头客、年龄）
         age: [],
         member: [],
         appearance: [],
         gender: []
       },
+      industryColor: [
+        '#FB0004',
+        '#FD951B',
+        '#FFEF03',
+        '#0F9EE9',
+        '#005BC9',
+        '#0F4585'
+      ],
       rankData: { // 排行榜 （业态、门店）
         group: [],
         industry: []
@@ -444,7 +433,7 @@ export default {
       }
       .right__sidebar{
         float: right;
-        margin-top: 15px;
+        margin-top: -2px;
         font-size: 12px;
         .sidebar--item{
           span + span{

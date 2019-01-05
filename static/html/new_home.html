@@ -288,7 +288,7 @@
         )
         // pointArr[i].sortParticles = true;
         pointArr[i].position.set(alex[0], floor, alex[1])
-        pointArr[i].scale.set(0, 0, 0)
+        pointArr[i].scale.set(0.01, 0.01, 0.01)
         pointArr[i].rotation.x = 0.5 * Math.PI
         scene.add(pointArr[i])
       } else {
@@ -308,16 +308,16 @@
     // var mixer;
     function createAnimate(knot, index) {
       var scaleStart = {
-        x: 0,
-        y: 0
+        x: 0.01,
+        y: 0.01
       }
       var scaleEnd = {
         x: 1,
         y: 1
       }
       var scaleThird = {
-        x: 0,
-        y: 0
+        x: 0.01,
+        y: 0.01
       }
       var action1 = new TWEEN.Tween(scaleStart)
         .to(scaleEnd, 500)
