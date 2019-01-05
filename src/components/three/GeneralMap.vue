@@ -24,8 +24,7 @@
       <div id="statisticInfo">
         <div class="statistic-box" id="incoming">
           <div
-            class="item"
-            :class="{'no-background': !statisticEndInfo.Incoming_Today && !statisticEndInfo.Incoming_Yesterday}"
+            class="item today-item"
           >
             <div class="title">进客流</div>
             <div class="data">
@@ -76,9 +75,9 @@
         </div>
         <div class="statistic-box" id="member">
           <div
-            class="item"
-            :class="{'no-background': !statisticEndInfo.Member_Today && !statisticEndInfo.Member_Yesterday}"
+            class="item member-item"
           >
+            <!-- :class="{'no-background': !statisticEndInfo.Member_Today && !statisticEndInfo.Member_Yesterday}" -->
             <div class="title">到访会员</div>
             <div class="data">
               <div class="date today">
@@ -127,7 +126,7 @@
           </div>
         </div>
         <div class="statistic-box" id="current">
-          <div class="item" :class="{'no-background': !statisticEndInfo.Current}">
+          <div class="item current-item">
             <div class="title">商场当前人数</div>
             <div class="data">
               <div class="amount">
@@ -150,21 +149,27 @@
           <div id="sideMask" v-if="!maskToggle"></div>
         </transition>
         <transition-group name="list-customer" class="transition-wrap right" tag="ul">
-          <li class="side-box" v-for="(item, index) in personList" v-bind:key="item.key">
+          <li class="side-box" v-for="(item) in personList" v-bind:key="item.key">
             <div class="box-left">
               <div class="name">{{item.name}}</div>
               <div class="info">
                 <span class="gender">{{item.gender}}</span>
+              </div>
+              <div class="info">
                 <span class="age">{{item.age}}</span>
               </div>
               <div class="time">{{item.appearanceDate}}</div>
             </div>
-            <div class="box-right">
+            <div class="box-right" style="position: relative">
               <img
-                :class="{'glow-border': index === 0 && personList.length > 10}"
+                :class="{'glow-border': item.imgUrl !== '/static/img/avatar2.png', 
+                  'un-member-border': item.name === '---'&&item.imgUrl !== '/static/img/avatar2.png',
+                  'member-border': item.name !== '---'&&item.imgUrl !== '/static/img/avatar2.png'}"
                 :src="item.imgUrl"
                 alt
               >
+              <div v-if="item.name && item.name === '---'" class="member-mask"><span style="color: #FF6660;margin-right: 3px">●</span> 非会员</div>
+              <div v-if="item.name && item.name !== '---'" class="member-mask"><span style="color: #38DF19;margin-right: 3px">●</span> 会员</div>
             </div>
           </li>
         </transition-group>
@@ -182,6 +187,7 @@ import { GetSocketIP } from "@/api/common";
 import { mapState } from "vuex";
 import { GetMarketList, GetGroupPortalInfo } from "@/api/community";
 import { GetFlowRank } from "@/api/index";
+import { GetLatestFace } from "@/api/visual";
 import CountTo from "vue-count-to";
 export default {
   name: "GeneralMap",
@@ -200,18 +206,18 @@ export default {
         }
       ],
       personList: [
-        { imgUrl: "/static/avatar2.png", key: "1" },
-        { imgUrl: "/static/avatar2.png", key: "2" },
-        { imgUrl: "/static/avatar2.png", key: "4" },
-        { imgUrl: "/static/avatar2.png", key: "5" },
-        { imgUrl: "/static/avatar2.png", key: "6" },
-        { imgUrl: "/static/avatar2.png", key: "7" },
-        { imgUrl: "/static/avatar2.png", key: "8" },
-        { imgUrl: "/static/avatar2.png", key: "9" },
-        { imgUrl: "/static/avatar2.png", key: "10" },
-        { imgUrl: "/static/avatar2.png", key: "11" },
-        { imgUrl: "/static/avatar2.png", key: "12" },
-        { imgUrl: "/static/avatar2.png", key: "13" }
+        { imgUrl: "/static/img/avatar2.png", key: "1" },
+        { imgUrl: "/static/img/avatar2.png", key: "2" },
+        { imgUrl: "/static/img/avatar2.png", key: "4" },
+        { imgUrl: "/static/img/avatar2.png", key: "5" },
+        { imgUrl: "/static/img/avatar2.png", key: "6" },
+        { imgUrl: "/static/img/avatar2.png", key: "7" },
+        { imgUrl: "/static/img/avatar2.png", key: "8" },
+        { imgUrl: "/static/img/avatar2.png", key: "9" },
+        { imgUrl: "/static/img/avatar2.png", key: "10" },
+        { imgUrl: "/static/img/avatar2.png", key: "11" },
+        { imgUrl: "/static/img/avatar2.png", key: "12" },
+        { imgUrl: "/static/img/avatar2.png", key: "13" }
       ],
       personCount: 0,
       floorArr: [],
@@ -252,6 +258,7 @@ export default {
     }
   },
   methods: {
+    // 切换iframe
     updateFrameArea(item, index) {
       this.$set(this.frame, "path", item.path);
       this.$set(this.frame, "id", item.id);
@@ -260,15 +267,10 @@ export default {
           this.community.index = i;
           this.$emit("updateCommunity", this.community.infoArr[i]);
           this.websocket.close();
+          // this.getLatestFace(item.groupParentGuid, item.groupSonGuid)
           this.getWebsocket(item.groupSonGuid, item.groupParentGuid);
         }
       });
-    },
-    timestampToTime(timestamp) {
-      let date = new Date(timestamp);
-      let h = date.getHours() + ":";
-      let m = date.getMinutes();
-      return h + m;
     },
     // 获取socket服务地址并建立websocket链接
     getWebsocket(groupSonGuid, groupParentGuid) {
@@ -284,34 +286,17 @@ export default {
         };
         this.websocket.onmessage = evt => {
           try {
-            // console.log("push message", JSON.parse(evt.data));
             data = JSON.parse(evt.data);
-            if (data.data.coordinates && data.type === "SHINING") {
-              this.iframe.createShine(data.data.coordinates, data.data.floor);
-            } else if (data.data && data.type === "REAL_TIME_COUNTER") {
-              this.statisticInfo = this.statisticEndInfo;
-              this.statisticEndInfo = {
-                Incoming_Today: data.data.newIn,
-                Incoming_Yesterday: data.data.oldIn,
-                Member_Today: data.data.newMember,
-                Member_Yesterday: data.data.oldMember,
-                Current: data.data.newIn - data.data.newOut < 0 ? 0 : data.data.newIn - data.data.newOut,
-                Incoming_percent: parseInt(
-                  ((data.data.newIn - data.data.oldIn) / data.data.oldIn) * 100
-                ),
-                Member_percent: parseInt(
-                  ((data.data.newMember - data.data.oldMember) /
-                    data.data.oldMember) *
-                    100
-                )
-              };
-              this.changeStatisticInfo("Incoming_Today");
-              this.changeStatisticInfo("Incoming_Yesterday");
-              this.changeStatisticInfo("Member_Today");
-              this.changeStatisticInfo("Member_Yesterday");
-              this.changeStatisticInfo("Current");
-            } else if (data.data.memberInfo && data.type === "FACE") {
-              this.imgCut(data.data);
+            switch (data.type) {
+              case "SHINING": 
+                this.handleSocketShining(data.data)
+                break
+              case "REAL_TIME_COUNTER":
+                this.handleSocketRealCount(data.data)
+                break
+              case 'FACE':
+                this.handleSocketFace(data.data)
+                break
             }
           } catch (err) {}
         };
@@ -323,70 +308,58 @@ export default {
         };
       });
     },
-    changeStatisticInfo(ref) {
-      if (
-        parseInt(this.statisticInfo[ref]) !==
-        parseInt(this.statisticEndInfo[ref])
-      ) {
-        this.$refs[ref].start();
-      } else {
-        this.$refs[ref].pause();
+    // 处理推送闪点
+    handleSocketShining (data) {
+      if (data.coordinates) {
+        this.iframe.createShine(data.coordinates, data.floor, data.status);
       }
     },
-    formatDate(now) {
-      if (now) {
-        now = new Date(now);
-        var year = now.getFullYear();
-        var month = now.getMonth() + 1;
-        var date = now.getDate();
-        var hour =
-          now.getHours().toString().length === 1
-            ? "0" + now.getHours().toString()
-            : now.getHours();
-        var minute =
-          now.getMinutes().toString().length === 1
-            ? "0" + now.getMinutes().toString()
-            : now.getMinutes();
-        var second = now.getSeconds();
-        return hour + ":" + minute;
-      } else {
-        return "00:00";
+    // 处理推送实时数据
+    handleSocketRealCount (data) {
+      this.statisticInfo = this.statisticEndInfo;
+      this.statisticEndInfo = {
+        Incoming_Today: data.newIn,
+        Incoming_Yesterday: data.oldIn,
+        Member_Today: data.newMember,
+        Member_Yesterday: data.oldMember,
+        Current: data.newIn - data.newOut < 0 ? 0 : data.newIn - data.newOut,
+        Incoming_percent: parseInt(((data.newIn - data.oldIn) / data.oldIn) * 100),
+        Member_percent: parseInt(((data.newMember - data.oldMember) / data.oldMember) * 100)
+      };
+      this.changeStatisticInfo("Incoming_Today");
+      this.changeStatisticInfo("Incoming_Yesterday");
+      this.changeStatisticInfo("Member_Today");
+      this.changeStatisticInfo("Member_Yesterday");
+      this.changeStatisticInfo("Current");
+    },
+    // 处理推送人脸
+    handleSocketFace (data) {
+      if (data.memberInfo) {
+        this.imgCut(data)
       }
     },
     imgCut(data) {
       var img = new Image();
       let key = data.memberInfo.imgUrl;
       var canvas = document.createElement("canvas");
-      canvas.width = 60;
-      canvas.height = 60;
       var context = canvas.getContext("2d");
       var dataURL;
-      
+      canvas.width = 60;
+      canvas.height = 60;
       img.crossOrigin = "*";
       img.src = data.memberInfo.imgUrl;
-      img.onload = () => {
-        var upperX = data.rect.upperX - 0 > 60 ? data.rect.upperX-60 : 0
-        var upperY = data.rect.upperY - 0 > 60 ? data.rect.upperY-60 : 0;
-        var lowerX = img.width - data.rect.lowerX > 60 ? data.rect.lowerX+60 : img.width;
-        var lowerY = img.height - data.rect.lowerY > 60 ? data.rect.lowerY+60 : img.height;
-        context.drawImage(
-          img,
-          upperX,
-          upperY,
-          lowerX - upperX,
-          lowerY - upperY,
-          0,
-          0,
-          60,
-          60
-        );
 
+      img.onload = () => {
+        // 在给定的坐标的基础上扩大一倍范围
+        var upperX = data.rect.upperX - 0 > 60 ? data.rect.upperX - 60 : 0
+        var upperY = data.rect.upperY - 0 > 60 ? data.rect.upperY - 60 : 0
+        var lowerX = img.width - data.rect.lowerX > 60 ? data.rect.lowerX + 60 : img.width
+        var lowerY = img.height - data.rect.lowerY > 60 ? data.rect.lowerY + 60 : img.height
+        context.drawImage( img, upperX, upperY, lowerX - upperX, lowerY - upperY, 0, 0, 60, 60 )
         dataURL = canvas.toDataURL("image/png");
+        // 整理数据推入数组中
         let obj = {
-          name:
-            data.memberInfo.type === "MEMBER"
-              ? data.memberInfo.memberLabelList[0].name
-              : "非会员",
+          name: data.memberInfo.type === "MEMBER" ? data.memberInfo.memberLabelList[0].name : "---",
           age: data.memberInfo.age,
           gender: data.memberInfo.gender === 1 ? "男" : "女",
           appearanceDate: this.formatDate(data.memberInfo.appearanceDate),
@@ -397,29 +370,49 @@ export default {
         this.personList.unshift(obj);
       };
     },
+    getLatestFace(groupParentGuid, groupSonGuid) {
+      GetLatestFace({
+        groupGuid: groupParentGuid,
+        groupSonGuid: groupSonGuid
+      }).then(res => {
+        res.data.forEach(item => {
+          let face = JSON.parse(item);
+          if ( new Date(face.pushDate).toDateString() === new Date().toDateString() ) {
+            this.imgCut(face.data)
+          }
+        });
+      });
+    },
     getCommunityInfo() {
-      if (!this.currentManage.id) {
-        return;
-      }
+      if (!this.currentManage.id) { return; }
       GetMarketList({ parentId: this.currentManage.id }).then(res => {
+        // 整理数据结构, 所有楼层数组
         let floorInfo = this.sortRouterList(res.data[0].subGroupSon);
-        floorInfo = floorInfo.reverse()
+        floorInfo = floorInfo.reverse();
         let allInfo = res.data;
         let floorHeight = 140;
         delete allInfo[0].subGroupSon;
         this.community.infoArr = allInfo.concat(floorInfo);
+        
+        // 总楼层添加id信息
         this.routerList[0].groupParentGuid = allInfo[0].groupParentGuid;
         this.routerList[0].groupSonGuid = allInfo[0].groupSonGuid;
+        
+        // 计算地下楼层数量
         this.caculateMinus(this.community.infoArr);
-        let minIndex = this.caculateMinusIndex(floorInfo);
+        // 当最低楼层大于1层时, 需计算最低楼层和0层之间的差值
+        let minIndex = this.caculateMinusIndex(floorInfo); 
+
         for (let i in floorInfo) {
-          let coordinate_y =
-            floorInfo[i].floor >= 0
-              ? (floorInfo[i].floor - 2) * floorHeight -
-                (floorInfo[minIndex].floor - 1) * floorHeight
-              : (floorInfo[i].floor - 1) * floorHeight;
+          // 计算地上楼层和地下楼层的Y坐标
+          let upFloorCoordinateY = (floorInfo[i].floor - floorInfo[minIndex].floor - 1) * floorHeight
+          let downFloorCoordinateY = (floorInfo[i].floor - 1) * floorHeight
+          let coordinate_y = floorInfo[i].floor >= 0 ? upFloorCoordinateY: downFloorCoordinateY
+
           let img_url = floorInfo[i].mapUrl;
           let floor = floorInfo[i].floor;
+          
+          // 分别设置routerList和传入iframe的数组
           this.floorArr.push({
             coordinate_y: coordinate_y,
             img_url: img_url,
@@ -427,21 +420,19 @@ export default {
             groupSonGuid: floorInfo[i].groupSonGuid,
             groupParentGuid: floorInfo[i].groupParentGuid
           });
-          let obj = {
+
+          this.routerList.push({
             name: floorInfo[i].name,
             id: img_url,
             floor: floor,
+            path: "/static/html/plane.html?floor=" + img_url,
             groupSonGuid: floorInfo[i].groupSonGuid,
             groupParentGuid: floorInfo[i].groupParentGuid
-          };
-          obj.path = "/static/html/plane.html?floor=" + img_url;
-          this.routerList.push(obj);
+          });
         }
         this.$emit("updateCommunity", allInfo[0]);
-        this.getWebsocket(
-          res.data[0].groupSonGuid,
-          res.data[0].groupParentGuid
-        );
+        // this.getLatestFace(this.routerList[0].groupParentGuid, this.routerList[0].groupSonGuid)
+        this.getWebsocket(res.data[0].groupSonGuid, res.data[0].groupParentGuid);
       });
     },
     getSingleCommunityInfo() {
@@ -450,48 +441,6 @@ export default {
         this.iframe.getCommunityInfo(res.data);
       });
     },
-    // 排序
-    sortRouterList(arr) {
-      if (arr.length <= 1) {
-        return arr;
-      }
-      let pivotIndex = Math.floor(arr.length / 2);
-      let pivot = arr.splice(pivotIndex, 1)[0];
-      let left = [];
-      let right = [];
-      for (let i = 0; i < arr.length; i++) {
-        if (arr[i].floor < pivot.floor) {
-          right.push(arr[i]);
-        } else {
-          left.push(arr[i]);
-        }
-      }
-      return this.sortRouterList(left).concat(
-        [pivot],
-        this.sortRouterList(right)
-      );
-    },
-    caculateMinus(arr) {
-      for (let i = 0; i < arr.length; i++) {
-        if (arr[i].floor < 0) {
-          this.community.minus++;
-        }
-      }
-    },
-    caculateMinusIndex(arr) {
-      let minFloor = 1000;
-      let index = 0;
-      for (let i = 0; i < arr.length; i++) {
-        if (arr[i].floor < minFloor && arr[i].floor > 0) {
-          minFloor = arr[i].floor;
-          index = i;
-        }
-      }
-      return index;
-    },
-    /****************************************************
-     *********************  发送值  **********************
-     ****************************************************/
     // plane：传递色块
     sendColor() {
       let storeInfoArr = [];
@@ -513,12 +462,6 @@ export default {
         this.iframe.addColor(storeInfoArr);
       });
     },
-    transFloat(arr) {
-      for (let i = 0; i < arr.length; i++) {
-        arr[i] = parseFloat(arr[i]);
-      }
-      return arr;
-    },
     // home：粒子闪烁
     sendAlex() {
       let count = 0;
@@ -536,9 +479,6 @@ export default {
         this.iframe.receiveStoreInfo(obj);
       }
     },
-    /*************************************************************
-     *********************  监听所有message  **********************
-     *************************************************************/
     handleMessage(event) {
       const data = event.data;
       switch (data.cmd) {
@@ -572,6 +512,85 @@ export default {
           this.getSingleCommunityInfo();
           this.sendColor();
           break;
+      }
+    },
+    /**** 方法 ****/
+    // 计算地下楼层数量
+    caculateMinus(arr) {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].floor < 0) {
+          this.community.minus++;
+        }
+      }
+    },
+    // 计算最低楼层大于一时的偏差值
+    caculateMinusIndex(arr) {
+      let minFloor = 1000;
+      let index = 0;
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].floor < minFloor && arr[i].floor > 0) {
+          minFloor = arr[i].floor;
+          index = i;
+        }
+      }
+      return index;
+    },
+    // 数组排序
+    sortRouterList(arr) {
+      if (arr.length <= 1) {
+        return arr;
+      }
+      let pivotIndex = Math.floor(arr.length / 2);
+      let pivot = arr.splice(pivotIndex, 1)[0];
+      let left = [];
+      let right = [];
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].floor < pivot.floor) {
+          right.push(arr[i]);
+        } else {
+          left.push(arr[i]);
+        }
+      }
+      return this.sortRouterList(left).concat(
+        [pivot],
+        this.sortRouterList(right)
+      );
+    },
+    // 时间戳转换
+    formatDate(now) {
+      if (now) {
+        now = new Date(now);
+        var year = now.getFullYear();
+        var month = now.getMonth() + 1;
+        var date = now.getDate();
+        var hour =
+          now.getHours().toString().length === 1
+            ? "0" + now.getHours().toString()
+            : now.getHours();
+        var minute =
+          now.getMinutes().toString().length === 1
+            ? "0" + now.getMinutes().toString()
+            : now.getMinutes();
+        var second = now.getSeconds();
+        return hour + ":" + minute;
+      } else {
+        return "00:00";
+      }
+    },
+    transFloat(arr) {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = parseFloat(arr[i]);
+      }
+      return arr;
+    },
+    // 设置countTo插件的开始和暂停
+    changeStatisticInfo(ref) {
+      let oldCount = parseInt(this.statisticInfo[ref])
+      let newCount = parseInt(this.statisticEndInfo[ref])
+      if (oldCount !== newCount) {
+        this.$refs[ref].start();
+      } else {
+        this.$refs[ref].pause();
       }
     }
   },
@@ -743,6 +762,27 @@ export default {
             }
           }
         }
+        .today-item{
+          background: linear-gradient(
+            135deg,
+            #005BC9,
+            #4E99F2
+          );
+        }
+        .current-item{
+          background: linear-gradient(
+            135deg,
+            #4219AF,
+            #8563FF
+          );
+        }
+        .member-item{
+          background: linear-gradient(
+            135deg,
+            #109EE9,
+            #6BC5F4
+          );
+        }
         .no-background {
           background: rgba(216, 216, 216, 0.05);
         }
@@ -757,13 +797,13 @@ export default {
     }
   }
   .map-right {
-    width: 160px;
+    width: 166px;
     height: 100%;
-    flex: 0 0 160px;
+    flex: 0 0 166px;
     #sideInfo {
       color: #ffffff;
       background: #101116;
-      padding: 15px;
+      padding: 5px;
       height: 100%;
       box-sizing: border-box;
       overflow: hidden;
@@ -804,7 +844,7 @@ export default {
           }
           .info {
             color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 3px;
+            margin-bottom: 5px;
             letter-spacing: 2px;
           }
           .time {
@@ -816,15 +856,27 @@ export default {
         .box-right {
           float: right;
           border-radius: 25px;
-          padding: 10px 5px;
+          margin: 10px 5px;
           img {
-            width: 60px;
-            height: 60px;
-            border-radius: 5px;
+            width: 80px;
+            height: 80px;
+            border-radius: 2px;
+          }
+          .member-border{
+            border: 2px solid;
+            border-image: linear-gradient(#719CF5, #2160E0) 30 30;
+          }
+          .un-member-border{
+            border: 2px solid;
+            border-color: #9DBDCE;
+          }
+          .member-mask{
+            width: 80px;height: 20px;position:absolute;bottom:4px;display:flex; align-items: center;justify-content: center;background-color: rgba(23, 21, 26, 0.5);
+            margin-left: 2px;
           }
         }
         .glow-border {
-          box-shadow: 0 0 8px 3px #32afcb;
+          box-shadow: 0 0 6px 1px #719CF5;
         }
       }
     }

@@ -55,58 +55,6 @@
     var downHeight = floorHeight // 下降起始高度
 
     var floorArr; // 接收楼层信息
-    // 模拟数据
-    var floorArrMock = [{
-        coordinate_y: -3 * floorHeight - floorHeight,
-        img_url: 1,
-        floor: '-3'
-      },
-      {
-        coordinate_y: -2 * floorHeight - floorHeight,
-        img_url: 2,
-        floor: '-2'
-      },
-      {
-        coordinate_y: -1 * floorHeight - floorHeight,
-        img_url: 3,
-        floor: '-1'
-      },
-      {
-        coordinate_y: 1 * floorHeight - floorHeight * 2,
-        img_url: 4,
-        floor: '1'
-      },
-      {
-        coordinate_y: 2 * floorHeight - floorHeight * 2,
-        img_url: 5,
-        floor: '2'
-      },
-      {
-        coordinate_y: 3 * floorHeight - floorHeight * 2,
-        img_url: 6,
-        floor: '3'
-      },
-      {
-        coordinate_y: 4 * floorHeight - floorHeight * 2,
-        img_url: 7,
-        floor: '4'
-      },
-      {
-        coordinate_y: 5 * floorHeight - floorHeight * 2,
-        img_url: 8,
-        floor: '5'
-      },
-      {
-        coordinate_y: 6 * floorHeight - floorHeight * 2,
-        img_url: 9,
-        floor: '6'
-      },
-      {
-        coordinate_y: 7 * floorHeight - floorHeight * 2,
-        img_url: 10,
-        floor: '7'
-      }
-    ]
 
     function init() {
       renderer = new THREE.WebGLRenderer({
@@ -248,7 +196,7 @@
     }
 
     // 闪光粒子map
-    function ShineCanvas() {
+    function ShineCanvas(status) {
       var canvas = document.createElement('canvas');
       canvas.width = 32;
       canvas.height = 32;
@@ -263,7 +211,11 @@
       );
       gradient.addColorStop(0, 'rgba(255, 255, 255, 1');
       gradient.addColorStop(0.2, 'rgba(255,255,255,1)');
-      gradient.addColorStop(0.4, 'rgba(157,159,13,1)');
+      if (status === 0) {
+        gradient.addColorStop(0.4, 'rgba(255, 213, 0, 1)');
+      } else {
+        gradient.addColorStop(0.4, 'rgba(56, 223, 25, 1)');
+      }
       gradient.addColorStop(0.7, 'rgba(0,0,0,1)');
       context.fillStyle = gradient;
       context.fillRect(0, 0, canvas.width, canvas.height);
@@ -272,7 +224,7 @@
     }
 
     // 闪光粒子mesh
-    function Shine(i, alex, floor) {
+    function Shine(i, alex, floor, status) {
       if (i < 100) {
         geometryArr[i] = new THREE.CircleGeometry(12, 50, 32)
         materialArr[i] = new THREE.MeshBasicMaterial({
@@ -280,7 +232,7 @@
           transparent: true,
           side: THREE.DoubleSide,
           blending: THREE.AdditiveBlending,
-          map: new ShineCanvas().texture
+          map: new ShineCanvas(status).texture
         })
         pointArr[i] = new THREE.Mesh(
           geometryArr[i],
@@ -288,7 +240,7 @@
         )
         // pointArr[i].sortParticles = true;
         pointArr[i].position.set(alex[0], floor, alex[1])
-        pointArr[i].scale.set(0, 0, 0)
+        pointArr[i].scale.set(0.01, 0.01, 0.01)
         pointArr[i].rotation.x = 0.5 * Math.PI
         scene.add(pointArr[i])
       } else {
@@ -308,16 +260,16 @@
     // var mixer;
     function createAnimate(knot, index) {
       var scaleStart = {
-        x: 0,
-        y: 0
+        x: 0.01,
+        y: 0.01
       }
       var scaleEnd = {
         x: 1,
         y: 1
       }
       var scaleThird = {
-        x: 0,
-        y: 0
+        x: 0.01,
+        y: 0.01
       }
       var action1 = new TWEEN.Tween(scaleStart)
         .to(scaleEnd, 500)
@@ -340,7 +292,7 @@
     var shine;
 
     // 创建闪点
-    function createShine(alx, floor) {
+    function createShine(alx, floor, status) {
       alx = alx.replace('[', '')
       alx = alx.replace(']', '')
       alx = alx.split(',')
@@ -355,7 +307,7 @@
       }
       floor = 6 + floor * floorHeight - (count - standardCount) * floorHeight - (10 - 1) * 140 - alpha * floorHeight -
         80
-      shine = Shine(index, alx, floor)
+      shine = Shine(index, alx, floor, status)
       createAnimate(shine, index)
     }
 
@@ -628,12 +580,6 @@
       //   createShine(alex, floor * floorHeight - (count - standardCount) * floorHeight)
       // }
       TWEEN.update()
-      // var delta = clock.getDelta()
-      // for (var i = 0; i < mixArr.length; i++) {
-      //   // if (mixArr.length){
-      //     mixArr[i].update(delta)
-      //   // }
-      // }
 
       if (upClick === true) upFloor()
       if (downClick === true) downFloor()
