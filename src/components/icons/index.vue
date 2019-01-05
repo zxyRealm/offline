@@ -141,6 +141,15 @@ export default {
       width: 12px;
       height: 10px;
     }
+    /*全屏、退出全屏*/
+    &.screen{
+      background-image: url('../../assets/public/icons/screen_icon_full@2x.png');
+      width: 20px;
+      height: 20px;
+      &.exit {
+        background-image: url('../../assets/public/icons/screen_icon_exit@2x.png');
+      }
+    }
     /*社群绑定*/
     &.binding {
       background-image: url(/static/img/binding.png);

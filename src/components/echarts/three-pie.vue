@@ -27,7 +27,7 @@ export default {
           {key: 'old', name: '50岁以上'}
         ],
         member: [
-          {key: 'not_member', name: '普通顾客'},
+          {key: 'not_member', name: '非会员'},
           {key: 'member', name: '会员'}
         ]
       },
@@ -38,20 +38,7 @@ export default {
         {value: 0, name: '30-40岁'},
         {value: 0, name: '50岁以上'}
       ],
-      options: {},
-      ratio: {
-        // 会员比例
-        memberRatio: {
-          leaguer: { // 会员
-            num: 60,
-            percent: '60%'
-          },
-          normal: { // 顾客
-            num: 40,
-            percent: '40%'
-          }
-        }
-      }
+      options: {}
     }
   },
   props: {

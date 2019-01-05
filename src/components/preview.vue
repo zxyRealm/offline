@@ -38,6 +38,7 @@ export default {
   height: 100vh;
   text-align: center;
   overflow: hidden;
+  z-index: 9999;
   background: rgba(0,0,0,0.6);
   > img{
     max-width: 80%;

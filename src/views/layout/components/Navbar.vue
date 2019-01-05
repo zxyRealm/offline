@@ -16,6 +16,7 @@
             :toggleClick="toggleSideBar"
             :isActive="sidebar.opened"></hamburger>
         </div>
+        <uu-icon type="screen" @click.native="changeScreen" :class="{exit: isFullScreen}"></uu-icon>
         <el-select
           ref="manageSelect"
           value-key="id"
@@ -221,6 +222,7 @@ import axios from 'axios'
 import {load} from '../../../utils/new-request'
 import AreaSelect from '@/components/area-select/area-select'
 import FloorSelect from '@/components/FloorSelect'
+
 export default {
   components: {
     Hamburger,
@@ -274,6 +276,7 @@ export default {
       }
     }
     return {
+      clientHeight: '',
       addCommunitySuccess: false,
       communityCode: '',
       handleCommunityType: 1,
@@ -372,6 +375,9 @@ export default {
           break
       }
       return title
+    },
+    isFullScreen () { // 当前是否全屏状态 (17 为浏览器默认滚动条宽度)
+      return Math.abs(window.screen.height - this.clientHeight) <= 17
     }
   },
   watch: {
@@ -504,7 +510,6 @@ export default {
           url = '/group/store'
           break
       }
-      console.log(subData)
       AddNewCommunity(url, subData).then(res => {
         this.$tip('添加成功')
         this.addCommunityVisible = false
@@ -616,7 +621,50 @@ export default {
       this.fileList = files
     },
     // 文件上传成功回调
-    handleSuccess () {}
+    handleSuccess () {
+    },
+    // 切换全屏状态
+    changeScreen () {
+      if (!this.isFullScreen) {
+        this.fullScreen()
+      } else {
+        this.exitScreen()
+      }
+    },
+    // 打开浏览器全屏模式
+    fullScreen () {
+      let el = document.documentElement
+      let rfs = el.requestFullScreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen
+      if (rfs) { // typeof rfs != "undefined" && rfs
+        rfs.call(el)
+      } else if (typeof window.ActiveXObject !== 'undefined') {
+        // for IE，这里其实就是模拟了按下键盘的F11，使浏览器全屏
+        let wscript = new ActiveXObject('WScript.Shell')
+        if (wscript != null) {
+          wscript.SendKeys('{F11}')
+        }
+      }
+    },
+    // 退出全屏
+    exitScreen () {
+      let el = document
+      let cfs = el.cancelFullScreen || el.webkitCancelFullScreen ||
+        el.mozCancelFullScreen || el.ExitFullscreen || el.msExitFullscreen
+      console.log('exist Screen', cfs)
+      if (cfs) { // typeof cfs != "undefined" && cfs
+        cfs.call(el)
+      } else if (typeof window.ActiveXObject !== 'undefined') {
+        // for IE，这里和fullScreen相同，模拟按下F11键退出全屏
+        let wscript = new ActiveXObject('WScript.Shell')
+        console.log('exist Screen wscript', wscript)
+        if (wscript != null) {
+          wscript.SendKeys('{F11}')
+        }
+      }
+    },
+    windowResize () {
+      this.clientHeight = window.document.documentElement.clientHeight
+    }
   },
   created () {
     // 是否有新的消息
@@ -632,32 +680,33 @@ export default {
     })
   },
   mounted () {
-    // eventObject().$on('change', msg => { // eventObject接收事件
-    //   // this.dialogFormVisible = true
-    // })
+    this.clientHeight = window.document.documentElement.clientHeight
+    window.addEventListener('resize', this.windowResize)
     eventObject().$on('ManageListRefresh', this.getManageList)
     eventObject().$on('CREATE_COMMUNITY-INDEX', () => {
       this.addFormVisible = true
       this.showClose = false
     })
   },
-  beforeRouteLeave (to, from, next) {
-    // 路由跳转后，不需要保存控制台群的信息
+  beforeDestroy () {
     this.$store.commit('SET_GROUP_SELECT_ID')
-    next()
+    if (this.windowResize) {
+      window.removeEventListener('resize', this.windowResize)
+    }
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import "@/styles/variables.scss";
-  .text--wrap{
-    .el-icon-check{
+
+  .text--wrap {
+    .el-icon-check {
       font-size: 14px;
       color: #0F9EE9;
       font-weight: bold;
     }
-    .text--content{
+    .text--content {
       float: right;
       width: calc(100% - 22px);
       white-space: nowrap;
@@ -666,9 +715,10 @@ export default {
     line-height: 1;
     color: #333;
   }
+
   /*创建商场成功确认弹框*/
-  .affirm__content--warp{
-    > span{
+  .affirm__content--warp {
+    > span {
       font-size: 50px;
     }
     width: 288px;
@@ -676,12 +726,13 @@ export default {
     font-size: 12px;
     text-align: center;
   }
+
   /*选取地图文件框样式*/
-  .import__map--wrap{
-    > .el-scrollbar{
+  .import__map--wrap {
+    > .el-scrollbar {
       height: 72px;
-      margin-bottom: 5px!important;
-      .file__items{
+      margin-bottom: 5px !important;
+      .file__items {
         float: left;
         width: 33%;
         line-height: 24px;
@@ -689,16 +740,18 @@ export default {
         text-transform: uppercase;
       }
     }
-    height:130px;
+    height: 130px;
     padding: 10px;
     box-sizing: border-box;
     background: url(/static/img/textarea_border_bg.png) no-repeat center;
     background-size: 100% 101.7%;
   }
+
   /*操作引导弹框 图标闪烁效果*/
   .flicker-animation {
     animation: flicker 1.5s infinite ease-in-out;
   }
+
   @keyframes flicker {
     0% {
       opacity: 1;
@@ -706,7 +759,7 @@ export default {
     }
     50% {
       opacity: .3;
-      filter:alpha(opacity=30);
+      filter: alpha(opacity=30);
       transform: scale(0.98);
     }
     100% {
@@ -714,6 +767,7 @@ export default {
       transform: scale(1);
     }
   }
+
   .navbar {
     position: fixed;
     top: 0;
@@ -786,7 +840,7 @@ export default {
         display: inline-block;
         margin: 0 8px;
         a {
-          color: rgba(255,255,255,0.50);
+          color: rgba(255, 255, 255, 0.50);
           font-size: 12px;
         }
         > * {
@@ -825,7 +879,7 @@ export default {
               width: 100%;
               border-radius: 50%;
               overflow: hidden;
-              >img{
+              > img {
                 max-width: 100%;
                 height: 100%;
               }
@@ -900,22 +954,23 @@ export default {
       }
     }
   }
-  .dialog__item--wrap{
+
+  .dialog__item--wrap {
     display: inline-block;
     float: left;
     width: 500px;
     height: 538px;
     background: #fff;
     border-radius: 5px;
-    .dialog__item--title{
+    .dialog__item--title {
       position: relative;
       overflow: hidden;
       padding: 30px 0 12px;
       text-align: center;
-      > h3{
+      > h3 {
         font-size: 16px;
       }
-      .el-icon-close{
+      .el-icon-close {
         position: absolute;
         top: 10px;
         right: 10px;
@@ -923,85 +978,91 @@ export default {
         cursor: pointer;
       }
     }
-    .dialog__item--content{
+    .dialog__item--content {
       width: 400px;
       height: 404px;
       padding: 15px 0;
       margin: 0 auto;
-      background:  #F8F8F8;
+      background: #F8F8F8;
       border-radius: 4px;
       overflow: hidden;
       box-sizing: border-box;
-      .ob-group-nav{
+      .ob-group-nav {
         padding: 0;
         padding-left: 20px;
       }
-      >div{
+      > div {
         width: 50%;
         height: 100%;
         box-sizing: border-box;
-        &:first-child{
+        &:first-child {
           border-right: 1px dashed #ddd;
         }
-        &:last-child{
+        &:last-child {
           text-align: center;
         }
       }
-      .el-scrollbar{
+      .el-scrollbar {
         height: 100%;
       }
-      .el-radio{
+      .el-radio {
         display: block;
         overflow: hidden;
         height: 16px;
         margin-bottom: 20px;
-        &:last-child{
+        &:last-child {
           margin-bottom: 0;
         }
-        +.el-radio{
+        + .el-radio {
           margin-left: 0;
         }
       }
     }
-    .dialog__item--footer{
+    .dialog__item--footer {
       margin-top: 15px;
       text-align: center;
     }
-    &:nth-child(2){
+    &:nth-child(2) {
       margin-left: 20px
     }
   }
-  .dialog__item--footer{
-    .is-disabled{
+
+  .dialog__item--footer {
+    .is-disabled {
       background: #CBCBCB;
       box-shadow: none;
-      &:hover{
+      &:hover {
         background: #CBCBCB;
       }
     }
   }
+
   /*操作提示框消失动画*/
   .slide-fade-enter-active {
     transition: all 1s ease;
   }
+
   .slide-fade-leave-active {
     transition: all 5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
   }
+
   .slide-fade-enter, .slide-fade-leave-to
-    /* .slide-fade-leave-active for below version 2.1.8 */ {
+    /* .slide-fade-leave-active for below version 2.1.8 */
+  {
     transform: translateX(100px);
     opacity: 0;
   }
+
   /*创建社群弹框样式*/
-  .create__community--content{
+  .create__community--content {
     overflow: hidden;
     margin-top: 42px;
     margin-bottom: 50px;
     text-align: center;
-    .cc__item{
+    .cc__item {
       display: inline-block;
       width: 32%;
-      .icon--wrap{
+      .icon--wrap {
         cursor: pointer;
         img {
           width: 86px;
@@ -1010,7 +1071,7 @@ export default {
         color: #0F9EE9;
       }
     }
-    .cc-sub-title{
+    .cc-sub-title {
       height: 30px;
       line-height: 30px;
       text-align: center;
@@ -1019,7 +1080,7 @@ export default {
       border-top-right-radius: 4px;
       background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
     }
-    .cc__content{
+    .cc__content {
       width: 220px;
       height: 184px;
       padding: 2px;
@@ -1029,17 +1090,17 @@ export default {
       border-radius: 2px;
       background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
       box-sizing: border-box;
-      &.fl{
+      &.fl {
         width: 390px;
         margin-right: 10px;
       }
-      .content__text--wrap{
+      .content__text--wrap {
         position: relative;
         height: calc(100% - 30px);
         background: #fff;
         z-index: 9;
       }
-      .g-custom__button{
+      .g-custom__button {
         width: 160px;
         height: 24px;
         line-height: 24px;
@@ -1048,83 +1109,84 @@ export default {
         color: #0F9EE9;
         cursor: pointer;
       }
-      .content--text{
+      .content--text {
         display: inline-block;
         width: 160px;
         margin: 20px 10px 0;
         text-align: left;
         font-size: 12px;
         vertical-align: top;
-        color: rgba(0,0,0,0.30);
+        color: rgba(0, 0, 0, 0.30);
       }
     }
   }
 </style>
 <style lang="scss">
-.dialog__item--content{
-  .el-scrollbar__wrap{
-    overflow-x: hidden;
-  }
-  .ob-group-nav[type=custom]{
-    .el-tree{
-      padding-right: 0;
+  .dialog__item--content {
+    .el-scrollbar__wrap {
+      overflow-x: hidden;
     }
-  }
-  >div{
-    &:last-child{
-      .el-scrollbar__view{
-        min-height: 100%;
-        &:after{
-          display: inline-block;
-          content: '';
-          min-height: 374px;
-          width: 0;
-          vertical-align: middle;
-        }
-        .el-radio-group{
-          max-width: 80%;
-          text-align: left;
+    .ob-group-nav[type=custom] {
+      .el-tree {
+        padding-right: 0;
+      }
+    }
+    > div {
+      &:last-child {
+        .el-scrollbar__view {
+          min-height: 100%;
+          &:after {
+            display: inline-block;
+            content: '';
+            min-height: 374px;
+            width: 0;
+            vertical-align: middle;
+          }
+          .el-radio-group {
+            max-width: 80%;
+            text-align: left;
+          }
         }
       }
     }
   }
-}
-.help__dialog--wrap{
-  border-radius: 2px;
-  overflow: hidden;
-  .el-dialog__header{
-    padding: 12px;
-    text-align: center;
-    font-size: 16px;
-    background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
+
+  .help__dialog--wrap {
     border-radius: 2px;
-    .el-dialog__title{
-      color: #fff;
-    }
-  }
-  .el-dialog__body{
-    padding-top: 14px;
-  }
-  .dialog__content{
-    color: #191919;
-    > p {
-      font-size: 14px;
+    overflow: hidden;
+    .el-dialog__header {
+      padding: 12px;
       text-align: center;
-    }
-    .item--supply{
-      font-size: 12px;
-      color: #B4B4B7;
-    }
-    .step__item{
-      margin: 18px 0;
-      padding-left: 156px;
-      h3{
-        font-size: 16px;
+      font-size: 16px;
+      background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
+      border-radius: 2px;
+      .el-dialog__title {
+        color: #fff;
       }
-      .item--supply{
-        padding-left: 50px;
+    }
+    .el-dialog__body {
+      padding-top: 14px;
+    }
+    .dialog__content {
+      color: #191919;
+      > p {
+        font-size: 14px;
+        text-align: center;
+      }
+      .item--supply {
+        font-size: 12px;
+        color: #B4B4B7;
+      }
+      .step__item {
+        margin: 18px 0;
+        padding-left: 156px;
+        h3 {
+          font-size: 16px;
+        }
+        .item--supply {
+          padding-left: 50px;
+        }
       }
     }
   }
-}
 </style>

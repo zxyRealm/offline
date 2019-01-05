@@ -52,7 +52,7 @@
           </div>
         </div>
       </el-select>
-      <a href="javascript:void (0)" class="fr">刷新</a>
+      <a href="javascript:void (0)" @click="getBehaviorList()" class="fr">刷新</a>
     </div>
     <el-scrollbar class="table__scrollbar">
       <el-table
@@ -65,7 +65,7 @@
           align="center"
           label="抓拍图">
           <template slot-scope="scope">
-            <image-box width="40px" height="40px" :src="scope.row.imageUrl"></image-box>
+            <image-box width="40px" height="40px" @click.native="showImage(scope.row)" :src="scope.row.imageUrl"></image-box>
           </template>
         </el-table-column>
 
@@ -97,6 +97,7 @@
         </el-table-column>
         <el-table-column
           align="center"
+          width="160"
           label="操作">
           <template slot-scope="scope">
             <router-link :to="'/behavior/trail/' + scope.row.personId">查看移动轨迹</router-link>
@@ -113,6 +114,7 @@
       layout="total,sizes,prev, pager, next, jumper"
       :total="pagination.total">
     </el-pagination>
+    <image-preview :src="preview.src" :visible.sync="preview.visible"></image-preview>
   </div>
 </template>
 
@@ -120,11 +122,19 @@
 import {MemberNoFloor} from '../../api/community'
 import {GetAllAioList, GetAllCameraList} from '../../api/device'
 import {GetBehaviorList} from '../../api/behavior'
+import ImagePreview from '@/components/preview'
 import {mapState} from 'vuex'
 export default {
   name: 'analyse',
+  components: {
+    ImagePreview
+  },
   data () {
     return {
+      preview: {
+        visible: false,
+        src: ''
+      },
       selectType: '',
       search: {
         group: '',
@@ -218,7 +228,6 @@ export default {
       }).then(res => {
         this.pagination = res.data.pagination
         this.behaviorList = res.data.content
-        console.log('behavior list', res.data)
       })
     },
     // 通过名称搜索社群或者设备
@@ -237,6 +246,12 @@ export default {
     showAllList () {
       this.groupList = this.groupOriginList
       this.deviceList = this.deviceOriginList
+    },
+    // 查看抓拍大图
+    showImage (row) {
+      console.log('click')
+      this.preview.src = row.imageUrl
+      this.preview.visible = true
     }
   },
   watch: {
@@ -261,6 +276,9 @@ export default {
 <style lang="scss" scoped>
   .table__scrollbar{
     height: calc(100% - 100px);
+  }
+  .common__image--box{
+    cursor: pointer;
   }
 .select__container{
   padding: 16px 0 12px;

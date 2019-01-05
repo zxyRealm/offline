@@ -775,3 +775,17 @@
     }
   }
 }
+
+// 首页门店客流排行榜
+.store-flow-rank{
+  .pl-items{
+    .el-progress__text{
+      color: #fff;
+    }
+    &.empty--data{
+      .el-progress__text{
+        color: #79787B ;
+      }
+    }
+  }
+}

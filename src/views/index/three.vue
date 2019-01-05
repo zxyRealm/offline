@@ -85,7 +85,7 @@
               门店客流排行榜
             </div>
             <div class="process__list--wrap">
-              <div class="pl-items vam" v-for="(val, $index) in 6" :key="val">
+              <div class="pl-items vam" v-for="(val, $index) in 6" :key="val" :class="{'empty--data': !rankData.group[$index]}">
                 <span class="ellipsis">{{val}}.{{rankData.group[$index] ? rankData.group[$index].groupName : `门店${$index + 1}`}}</span>
                 <el-progress :percentage="rankData.group[$index] ? rankData.group[$index].percent : 0" color="##0F9EE9"></el-progress>
                 <el-icon class="el-icon-d-arrow-right" :class="{'c-grey': !rankData.group[$index]}"></el-icon>
@@ -363,7 +363,6 @@ export default {
     }
     .return__data--wrap{
       margin-top: 10px;
-      color: #79787B ;
       font-size: 12px;
       overflow: hidden;
       >div{
@@ -463,6 +462,9 @@ export default {
         height: 30px;
         line-height: 30px;
         text-align: left;
+        .el-progress__text{
+          color: #fff;
+        }
         > span{
           width: 90px;
           font-size: 12px;
