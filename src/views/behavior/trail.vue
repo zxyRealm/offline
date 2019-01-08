@@ -50,7 +50,9 @@
           </div>
         </el-scrollbar>
       </div>
-      <div class="td--right dashed--border"></div>
+      <div class="td--right dashed--border">
+        <trail-map></trail-map>
+      </div>
     </div>
   </div>
 </template>
@@ -58,9 +60,13 @@
 <script>
 import {parseTime} from '../../utils'
 import {GetPersonTrail} from '../../api/behavior'
+import TrailMap from '../../components/three/trail_map'
 
 export default {
   name: 'trail',
+  components: {
+    TrailMap
+  },
   data () {
     return {
       spoorDate: '',

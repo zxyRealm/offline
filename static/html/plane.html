@@ -400,6 +400,7 @@
 
   // 添加色块和贴图
   function addColor (boxArr) {
+    console.log(boxArr)
     // 遍历所有块
     for(var i in shapesMeshArr){
       var meshAlex = getString(shapesMeshArr[i]) // 所有色块的顶点值转换为字符串
@@ -598,7 +599,7 @@
 
   // 转换字符串
   var getString = function(mesh) {
-    return Array.prototype.slice.call(mesh.geometry.attributes.position.array.toString())
+    return Array.prototype.slice.call(mesh.geometry.attributes.position.array).toString()
   }
 
   // 获取中心点和右侧点
