@@ -40,24 +40,21 @@
 
     // 路径点
     arrows = [];
-    arrowsLength = 40; // 路径点数量
+    arrowsLength = 50; // 路径点数量
     for(let i = 0 ; i < arrowsLength; i++){
       arrows[i] = new THREE.Mesh(
-        new THREE.CubeGeometry(3, 1, 1), // 定义路径点的长宽高
+        new THREE.CubeGeometry(1, 1, 3), // 定义路径点的长宽高
         new THREE.MeshBasicMaterial({color: '#E13640'}) // 定义颜色
       );
-      arrows[i].rotation.set(0.5*Math.PI, 0, 0);
+      arrows[i].rotation.set( 0.5*Math.PI, 0, 0);
       parent.add(arrows[i]);  // 加入到路径集合里
     }
 
     // 生成路径并填充路径
     let rectPath = new THREE.Path();
     function roundedPath(ctx){
-      ctx.moveTo( 0, 40 );
-      ctx.bezierCurveTo( 25, 25, 20, 0, 10, 0 );
-      ctx.bezierCurveTo( 30, 0, 30, 35, 30, 35 );
-      ctx.bezierCurveTo( 30, 55, 10, 77, 15, 95 );
-      ctx.lineTo(-40, 120)
+      ctx.moveTo( 0, 40 )
+      ctx.lineTo( 0, 240 )
     }
     path = rectPath;
     roundedPath(rectPath);
@@ -69,11 +66,8 @@
 
   let points = [
     new THREE.Vector3(0, 40, 3),
-    new THREE.Vector3(10, 0, 3),
-    new THREE.Vector3(30, 35, 3),
-    new THREE.Vector3(15, 95, 3),
-    new THREE.Vector3(-40, 120, 3)
-  ];
+    new THREE.Vector3(0, 240, 3),
+  ]
 
   function createCircle (vector) {
     let geom = new THREE.CircleGeometry(2, 50)
@@ -98,7 +92,7 @@
   }
 
   function animate() {
-    requestAnimationFrame( animate );
+    requestAnimationFrame(animate);
     render();
   }
 
@@ -107,7 +101,7 @@
     for(let i = 0 ; i < arrowsLength; i++){ // 遍历所有box
       let ti = ((i / arrowsLength) + t) % 1.0; // 计算遍历路径，包括路径上每个框自身的偏移量
       let p = path.getPoint(ti); // 点在t上
-      let pn = path.getPoint((ti+s)%1.0); // 点在下一个t的迭代点
+      let pn = path.getPoint((ti+s) % 1.0); // 点在下一个t的迭代点
       if(p != null && pn != null){
         // 移动到当前位置
         arrows[i].position.x = p.x;
@@ -118,7 +112,6 @@
     }
     parent.rotation.y += ( targetRotation - parent.rotation.y ) * 0.05;
     renderer.render( scene, camera );
-
   }
 </script>
 

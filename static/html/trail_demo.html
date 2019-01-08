@@ -23,6 +23,12 @@
 
 <body>
   <div id="WebGL-output"></div>
+  <div style="position: absolute; top: 10px; left: 10px">
+    <a href="javascript:;" onclick="upfloor()">上楼</a>
+    <a href="javascript:;" onclick="downfloor()">下楼</a>
+    <a href="javascript:;" onclick="createPath('F11')">轨迹</a>
+    <a href="javascript:;" onclick="ChapterElevator()">电梯</a>
+  </div>
   <script>
     var data = TRAIL_JSON.data;
     var renderer, scene, camera, group;
@@ -30,6 +36,56 @@
     var planeList = [];
     var geometryArr = [];
     var materialArr = [];
+    var offset_x = -290; // x中心点偏移量
+    var offset_z = -241; // z中心点偏移量
+    var downFloorPosition = -120; // 低楼层位置
+    var upFloorPosition = 120; // 高楼层位置
+    var duration = 1000; // 动画片段持续时间
+    var mockFloorData = [{
+        imgURL: 1,
+        floorName: 'F10'
+      },
+      {
+        imgURL: 2,
+        floorName: 'F11'
+      },
+      {
+        imgURL: 3,
+        floorName: 'F12'
+      },
+      {
+        imgURL: 4,
+        floorName: 'F13'
+      }
+    ]
+
+    var targetRotation = 0;
+    var arrows = []; // 路径点集合
+    var arrowsLength = 50; // 路径点数量
+    var t = 0.0; // 路径遍历点
+    var s = 0.005; // 移动速度
+    var path; // 目标路径导线
+    var parent = new THREE.Object3D();
+    var isElevator = false;
+
+    // 动画trigger
+    function upfloor() {
+      // setTimeout(function () {
+        ChapterTwo('up')
+      // }, 1000)
+      // setTimeout(function () {
+      // ChapterThree('up')
+      // }, 6000)
+    }
+
+    function downfloor() {
+      setTimeout(function () {
+        ChapterTwo('down')
+      }, 1000)
+      setTimeout(function () {
+        ChapterThree('down')
+      }, 6000)
+    }
 
     function init() {
       // 布置场景
@@ -45,16 +101,13 @@
       createControl()
 
       // 创建楼层
-      createFloor(1, 'F1')
-      createFloor(2, 'F2')
-      createFloor(3, 'F3')
-      createFloor(4, 'F4')
+      mockFloorData.forEach(function (item) {
+        createFloor(item.imgURL, item.floorName)
+      })
 
-      // 正片开始
+      // 动画就绪
+      ChapterZero()
       ChapterOne()
-
-      // 创建轨迹
-      createPath()
 
       // 开始
       render()
@@ -62,60 +115,260 @@
 
     init()
 
-    // 1 设置起始楼层的位置
+    String.prototype.toNumber = function (str) {
+      return str
+    }
+
+    var BEGIN_FLOOR;
+    // 确定轨迹开始的楼层
+    function ChapterZero() {
+      BEGIN_FLOOR = data[0].floorName
+      console.log(BEGIN_FLOOR)
+      // console.log(BEGIN_FLOOR.toNumber())
+    }
+
+    // step1: 放置所有起始楼层的最初位置
     function ChapterOne() {
-      group.children.forEach(function(item) {
-        if (item.name === 'F1') {
+      group.children.forEach(function (item) {
+        if (item.name === BEGIN_FLOOR) {
           item.position.set(0, 0, 0)
-          item.rotation.set(0, 0, 0)
-          // var positionStart = {
-          //   x: item.position.x,
-          //   y: item.position.y
-          // }
-          // var positionEnd = {
-          //   x: 0,
-          //   y: 0
-          // }
-          // var rotationStart = {
-          //   x: item.rotation.x,
-          //   y: item.rotation.y,
-          //   z: item.rotation.z
-          // }
-          // var rotationEnd = {
-          //   x: 0.2 * Math.PI,
-          //   y: 0.15 * Math.PI,
-          //   z: -0.1 * Math.PI
-          // }
-          // var opacityStart = {
-          //   visible: false
-          // }
-          // var opacityEnd = {
-          //   visible: true
-          // }
-
-          // var action1 = new TWEEN.Tween(positionStart)
-          //   .to(positionEnd, 2000)
-          //   .onUpdate(function () {
-          //     item.position.x = positionStart.x;
-          //     item.position.y = positionStart.y;
-          //   })
-          // var action2 = new TWEEN.Tween(rotationStart)
-          //   .to(rotationEnd, 1000)
-          //   .onUpdate(function () {
-          //     item.rotation.x = rotationStart.x
-          //     item.rotation.y = rotationStart.y
-          //     item.rotation.z = rotationStart.z
-          //   })
-
-          // action1.chain(action2)
-          // action1.start()
+        } else {
+          item.position.y = 500
+          item.rotation.x = -0.2 * Math.PI
         }
       })
     }
 
+    // step2: 电梯动画
+    function ChapterTwo(type) {
+      group.children.forEach(function (item) {
+        animateLowerElevator(item, 'F11', type)
+        animateHigerElevator(item, 'F12', type)
+      })
+    }
+
+    // step3: 切换楼层动画
+    function ChapterThree(type) {
+      group.children.forEach(function (item) {
+        animateLowerFloor(item, 'F11', type)
+        animateHigerFloor(item, 'F12', type)
+      })
+    }
+
+    // step 4: 轨迹动画
+    function ChapterFour() {
+
+    }
+
+    // 电梯动画片段: 电梯路径
+    function ChapterElevator() {
+      var timer = setInterval(function(){
+        pathRender()
+      }, 50)
+    }
+
+    // 电梯动画片段: 低层变化过程
+    function animateLowerElevator(item, floorName, type) {
+      if (item.name === floorName) {
+        var lowPositionStart = {
+          x: item.position.x,
+          y: item.position.y
+        }
+        var lowPositionEnd = {
+          x: item.position.x,
+          y: -250
+        }
+        var lowRotationStart = {
+          x: item.rotation.x,
+          y: item.rotation.y
+        }
+        var lowRotationEnd = {
+          x: -0.2 * Math.PI,
+          y: -0.1 * Math.PI
+        }
+        var lowOpacityStart = {
+          opacity: type === 'up' ? 1 : 0
+        }
+        var lowOpacityEnd = {
+          opacity: 1
+        }
+        var lowAction1 = new TWEEN.Tween(lowPositionStart)
+          .to(lowPositionEnd, duration)
+          .onUpdate(function () {
+            item.position.x = lowPositionStart.x;
+            item.position.y = lowPositionStart.y;
+          })
+        var lowAction2 = new TWEEN.Tween(lowRotationStart)
+          .to(lowRotationEnd, duration)
+          .onUpdate(function () {
+            item.rotation.x = lowRotationStart.x
+            item.rotation.y = lowRotationStart.y
+            lowAction3.start()
+          })
+        var lowAction3 = new TWEEN.Tween(lowOpacityStart)
+          .to(lowOpacityEnd, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              val.material.opacity = lowOpacityStart.opacity
+            })
+          })
+        lowAction2.chain(lowAction1)
+        lowAction2.start()
+      }
+    }
+
+    // 电梯动画片段: 高层变化过程
+    function animateHigerElevator(item, floorName, type) {
+      if (item.name === floorName) {
+        var highPositionStart = {
+          x: item.position.x,
+          y: item.position.y
+        }
+        var highPositionEnd = {
+          x: item.position.x,
+          y: 250
+        }
+        var highRotationStart = {
+          x: item.rotation.x,
+          y: item.rotation.y
+        }
+        var highRotationEnd = {
+          x: -0.2 * Math.PI,
+          y: -0.1 * Math.PI
+        }
+        var highOpacityStart = {
+          opacity: type === 'up' ? 0 : 1
+        }
+        var highOpacityEnd = {
+          opacity: type === 'up' ? 1 : 1
+        }
+        var highAction1 = new TWEEN.Tween(highPositionStart)
+          .to(highPositionEnd, duration)
+          .onUpdate(function () {
+            item.position.x = highPositionStart.x;
+            item.position.y = highPositionStart.y;
+          })
+        var highAction2 = new TWEEN.Tween(highRotationStart)
+          .to(highRotationEnd, duration)
+          .onUpdate(function () {
+            item.rotation.x = highRotationStart.x
+            item.rotation.y = highRotationStart.y
+            highAction3.start()
+          })
+        var highAction3 = new TWEEN.Tween(highOpacityStart)
+          .to(highOpacityEnd, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              val.material.opacity = highOpacityStart.opacity
+            })
+          })
+        highAction2.chain(highAction1)
+        highAction2.start()
+      }
+    }
+
+    // 楼层动画片段: 低层变化过程
+    function animateLowerFloor(item, floorName, type) {
+      if (item.name === floorName) {
+        var lowPositionStart = {
+          x: item.position.x,
+          y: item.position.y
+        }
+        var lowPositionEnd = {
+          x: item.position.x,
+          y: type === 'up' ? -500 : 0
+        }
+        var lowRotationStart = {
+          x: item.rotation.x,
+          y: item.rotation.y
+        }
+        var lowRotationEnd = {
+          x: type === 'up' ? -0.2 * Math.PI : 0,
+          y: 0
+        }
+        var lowOpacityStart = {
+          opacity: type === 'up' ? 1 : 1
+        }
+        var lowOpacityEnd = {
+          opacity: type === 'up' ? 0 : 1
+        }
+        var lowAction1 = new TWEEN.Tween(lowPositionStart)
+          .to(lowPositionEnd, duration)
+          .onUpdate(function () {
+            item.position.x = lowPositionStart.x;
+            item.position.y = lowPositionStart.y;
+          })
+        var lowAction2 = new TWEEN.Tween(lowRotationStart)
+          .to(lowRotationEnd, duration)
+          .onUpdate(function () {
+            item.rotation.x = lowRotationStart.x
+            item.rotation.y = lowRotationStart.y
+            lowAction3.start()
+          })
+        var lowAction3 = new TWEEN.Tween(lowOpacityStart)
+          .to(lowOpacityEnd, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              val.material.opacity = lowOpacityStart.opacity
+            })
+          })
+        lowAction2.chain(lowAction1)
+        lowAction2.start()
+      }
+    }
+
+    // 楼层动画片段: 高层变化过程
+    function animateHigerFloor(item, floorName, type) {
+      if (item.name === floorName) {
+        var highPositionStart = {
+          x: item.position.x,
+          y: item.position.y
+        }
+        var highPositionEnd = {
+          x: item.position.x,
+          y: type === 'up' ? 0 : 500
+        }
+        var highRotationStart = {
+          x: item.rotation.x,
+          y: item.rotation.y
+        }
+        var highRotationEnd = {
+          x: type === 'up' ? 0 : -0.2 * Math.PI,
+          y: 0
+        }
+        var highOpacityStart = {
+          opacity: 1
+        }
+        var highOpacityEnd = {
+          opacity: type === 'up' ? 1 : 0
+        }
+        var highAction1 = new TWEEN.Tween(highPositionStart)
+          .to(highPositionEnd, duration)
+          .onUpdate(function () {
+            item.position.x = highPositionStart.x;
+            item.position.y = highPositionStart.y;
+          })
+        var highAction2 = new TWEEN.Tween(highRotationStart)
+          .to(highRotationEnd, duration)
+          .onUpdate(function () {
+            item.rotation.x = highRotationStart.x
+            item.rotation.y = highRotationStart.y
+            highAction3.start()
+          })
+        var highAction3 = new TWEEN.Tween(highOpacityStart)
+          .to(highOpacityEnd, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              val.material.opacity = highOpacityStart.opacity
+            })
+          })
+        highAction2.chain(highAction1)
+        highAction2.start()
+      }
+    }
+
     function createGeneralGroup() {
       group = new THREE.Group();
-      group.position.set(-290, 0, -241)
       group.name = 'all_scene'
       scene.add(group)
     }
@@ -124,75 +377,150 @@
       var floorGroup = new THREE.Group();
       var loader = new THREE.SVGLoader();
 
-      loader.load('/origin-floor/' + url + '.svg', function(paths) {
+      loader.load('/origin-floor/' + url + '.svg', function (paths) {
         for (var i = 0; i < paths.length; i++) {
           var shapes = paths[i].toShapes(true)
 
           for (var j = 0; j < shapes.length; j++) {
 
-            if (i === 0) continue
+            // if (i === 0) continue
 
             var shape = shapes[j]
             var points = shape.getPoints()
             shape.autoClose = true
 
-            var storeMerge = new THREE.Geometry();
-            var store = new Store(shape, storeMerge)
+            var store = new Store(shape, groupName)
             store.mesh.updateMatrix();
-
             floorGroup.add(store.mesh)
-            // store.mesh.position.set(0, 8, 0)
 
-            var edge = new Edge(points)
+            var edge = new Edge(points, groupName)
+            edge.mesh.updateMatrix()
             floorGroup.add(edge.mesh)
-            // edge.mesh.position.set(0, 8, 0)
           }
         }
       })
 
-      loader.load('../origin-floor/bottom.svg', function(paths) {
+      loader.load('../origin-floor/bottom.svg', function (paths) {
         for (var i = 0; i < paths.length; i++) {
           var shapes = paths[i].toShapes(true)
           for (var j = 0; j < shapes.length; j++) {
             var shape = shapes[j];
-            var plane = new Plane(shape)
+
+            var plane = new Plane(shape, groupName)
+            plane.mesh.updateMatrix()
             floorGroup.add(plane.mesh);
           }
         }
       })
-
       floorGroup.name = groupName
-      floorGroup.position.set(0, 0, 0)
       group.add(floorGroup)
     }
 
-    function createPath() {
-      for (var i = 0; i < data.length - 6; i += 10) {
+    var currentElevator = []
+    function createPath(floorName) {
+      var count = 0
+      var floorGroup;
+      group.children.forEach(function (item) {
+        if (item.name === floorName) {
+          floorGroup = item
+        }
+      })
+      var timer1 = setInterval(function () {
         var pathGroup = {
-          start: data[i].pointInPath || data[i].point,
-          end: data[i + 6].pointInPath || data[i + 6].point
+          start: data[count].pointInPath || data[count].point,
+          end: data[count + 1].pointInPath || data[count + 1].point
         }
         var path = new Path(pathGroup)
-        path.line.position.y = 8
-        // path.line.rotation.x = 0.5 * Math.PI
-        scene.add(path.line)
-      }
+        path.line.position.y = 9
+        path.line.rotation.x = 0.5 * Math.PI
+        floorGroup.add(path.line)
+        count += 1
+        if (count === data.length - 3 || data[count].elevator === true) {
+          clearInterval(timer1)
+          currentElevator[0] = data[count]
+          currentElevator[1] = data[count+1]
+          upfloor()
+          TrailPath(currentElevator)
+        }
+      }, 50)
     }
 
     // 路径
     function Path(group) {
-      var path = new THREE.Path([new THREE.Vector2(group.start.x - 290, group.start.y - 241)]);
-      path.lineTo(group.end.x - 290, group.end.y - 241)
+      var path = new THREE.Path([new THREE.Vector2(group.start.x - 580 / 2, group.start.y - 475 / 2)]);
+      path.lineTo(group.end.x - 580 / 2, group.end.y - 475 / 2)
       var points = path.getPoints();
-      var geometry = new THREE.BufferGeometry().setFromPoints(points);
+      var geometry = new THREE.BufferGeometry().setFromPoints(points)
       var material = new THREE.LineBasicMaterial({
+        transparent: true,
         color: 0xffffff
-      });
+      })
       this.line = new THREE.Line(geometry, material);
+      this.line.name = 'path'
     }
 
+    function createCircle(vector) {
+      let geom = new THREE.CircleGeometry(2, 50)
+      let material = new THREE.MeshBasicMaterial({
+        color: '#FFFFFF'
+      })
+      let cloud = new THREE.Mesh(geom, material);
+      cloud.position.set(vector.x, vector.y, vector.z)
+      scene.add(cloud)
+    }
+    
+    // 电梯轨迹
+    function TrailPath(currentElevator) {
+      var rectPath = new THREE.Path();
+      var position_x = currentElevator[0].point.x;
+      var position_y = currentElevator[0].point.y;
+      var position_x1 = currentElevator[1].point.x;
+      var position_y1 = currentElevator[1].point.y + 500
+      var points = [
+        new THREE.Vector3(position_x, position_y, 0),
+        new THREE.Vector3(position_x1, position_y1 + 500, 0),
+      ]
+      for (var i = 0; i<=arrowsLength; i++){
+        arrows[i] = new THREE.Mesh(
+          new THREE.CubeGeometry(1, 1, 3),
+          new THREE.MeshBasicMaterial({ color: '#FFFFFF' })
+        );
+        arrows[i].rotation.set(0.5 * Math.PI, 0, 0);
+        parent.add(arrows[i]);
+      }
+      for (var j = 0; j < points.length; j++) {
+        createCircle(points[j])
+      }
+      path = rectPath;
+      rectPath.moveTo(position_x, position_y)
+      rectPath.lineTo(position_x1, position_y1)
+      scene.add(parent);
+
+      var timer2 = setInterval(function(){
+        pathRender()
+      }, 20)
+    }
+
+    function pathRender() {
+      t = (t + s) % 0.5; // 增量t同时保持再0.0和1.0之间
+      for (let i = 0; i < arrowsLength; i++) {
+        var ti = ((i / arrowsLength) + t) % 1.0;
+        var p = path.getPoint(ti);
+        var pn = path.getPoint((ti + s) % 1.0);
+        if (p != null && pn != null) {
+          // 移动到当前位置
+          arrows[i].position.x = p.x;
+          arrows[i].position.y = p.y;
+          // 基于下一个位置获得定位
+          arrows[i].rotation.z = Math.atan2(pn.y - p.y, pn.x - p.x);
+        }
+      }
+      parent.rotation.y += (targetRotation - parent.rotation.y) * 0.005;
+    }
+
+    var opacity = 0
     // 单层楼色块
-    function Store(shape, merge) {
+    function Store(shape, groupName) {
       var geometryBuffer = new THREE.ExtrudeBufferGeometry(shape, {
         depth: 8,
         bevelEnabled: false
@@ -204,45 +532,48 @@
       var material = new THREE.MeshBasicMaterial({
         color: new THREE.Color('#5F719E'),
         transparent: true,
-        opacity: 0.1,
+        opacity: groupName === 'F11' ? 1 : opacity,
         side: THREE.DoubleSide,
-        vertexColors: THREE.FaceColors
+        // vertexColors: THREE.FaceColors
       })
 
       this.mesh = new THREE.Mesh(geometry, material)
-      // this.mesh.rotation.set(0, 0, 0)
+      this.mesh.rotation.set(0.5 * Math.PI, 0, 0)
+      this.mesh.position.set(offset_x, 8, offset_z)
       this.mesh.name = 'store'
-      this.mesh.geometry.faces.forEach(function(face) {
+      this.mesh.geometry.faces.forEach(function (face) {
         if (face.normal.y !== 0) {
-          face.color = new THREE.Color('#0E1239')
+          // face.color = new THREE.Color('#0E1239')
         }
       })
     }
 
     // 单层楼色块描边
-    function Edge(points) {
+    function Edge(points, groupName) {
       var geometry = new THREE.BufferGeometry().setFromPoints(points)
       var material = new THREE.LineBasicMaterial({
         color: '#2A4586',
         transparent: true,
-        opacity: 0.1
+        opacity: groupName === 'F11' ? 1 : opacity
       })
       this.mesh = new THREE.Line(geometry, material)
-      // this.mesh.rotation.set(0, 0, 0)
+      this.mesh.rotation.set(0.5 * Math.PI, 0, 0)
+      this.mesh.position.set(offset_x, 8, offset_z)
       this.mesh.name = 'edge'
     }
 
     // 单层楼底座
-    function Plane(shape) {
+    function Plane(shape, groupName) {
       var geometry = new THREE.ShapeBufferGeometry(shape);
       var material = new THREE.MeshBasicMaterial({
         color: '#2A4586',
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.1
+        opacity: groupName === 'F11' ? 1 : opacity
       })
       this.mesh = new THREE.Mesh(geometry, material);
-      // this.mesh.rotation.set(0, 0, 0);
+      this.mesh.rotation.set(0.5 * Math.PI, 0, 0)
+      this.mesh.position.set(offset_x, 0, offset_z)
       this.mesh.name = 'plane'
     }
 
@@ -274,7 +605,7 @@
         window.innerHeight / -2,
         0.1, 10000
       )
-      camera.position.set(0, 0, 450)
+      camera.position.set(0, 450, 300)
       camera.lookAt(0, 0, 0);
       scene.add(camera)
     }
@@ -304,6 +635,7 @@
     function render() {
       requestAnimationFrame(render)
       TWEEN.update()
+      
       renderer.render(scene, camera)
     }
 
