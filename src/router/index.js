@@ -6,20 +6,14 @@ const Test = () => import('@/views/test.vue')
 const Layout = () => import('@/views/layout/Layout.vue')
 // 社群管理
 const Community = () => import('@/views/community/mine.vue')
-const customCommunity = () => import('@/views/community/custom.vue')
-const editCustom = () => import('@/views/community/edit-custom.vue')
-const addCommunity = () => import('@/views/community/add-community.vue')
-const joinCommunity = () => import('@/views/community/join-community.vue')
 // 设备管理
 const Equipment = () => import('@/views/equipment/mine.vue')
 const EquipmentList = () => import('@/views/equipment/list.vue')
 const EquipmentAio = () => import('@/views/equipment/aio.vue')
-const EquipmentOther = () => import('@/views/equipment/other.vue')
+// const EquipmentOther = () => import('@/views/equipment/other.vue')
 const EquipmentServer = () => import('@/views/equipment/server.vue')
 const EquipmentPortal = () => import('@/views/equipment/portal.vue')
-const EquipmentMore = () => import('@/views/equipment/more.vue')
-const EquipmentChildren = () => import('@/views/equipment/children.vue')
-const EquipmentService = () => import('@/views/equipment/service.vue')
+const EquipmentCamera = () => import('@/views/equipment/more.vue')
 // 人员管理
 const Member = () => import('@/views/member/index.vue')
 const Library = () => import('@/views/member/library.vue')
@@ -141,95 +135,6 @@ export const constantRouterMap = [
           title: '我的社群-社群管理-线下浏览器服务平台'
         },
         component: Community
-      },
-      {
-        path: 'custom',
-        name: 'customCommunity',
-        meta: {
-          title: '自定义分组-社群管理-线下浏览器服务平台'
-        },
-        component: customCommunity
-      },
-      {
-        path: 'custom/create',
-        name: 'createCustom',
-        meta: {
-          title: '创建分组-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: editCustom
-      },
-      {
-        path: 'custom/edit/:id([0-9A-Z]{32})',
-        name: 'editCustom',
-        meta: {
-          title: '编辑分组信息-社群管理-线下浏览器服务平台',
-          keepAlive: true
-        },
-        component: editCustom
-      },
-      {
-        path: 'single',
-        name: 'singleCommunity',
-        meta: {
-          title: '新建单店社群-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: addCommunity
-      },
-      {
-        path: 'single/:gid([0-9A-Z]{32})',
-        name: 'editSingleCommunity',
-        meta: {
-          title: '编辑单店社群-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: addCommunity
-      },
-      {
-        path: 'apply',
-        name: 'applyCommunity',
-        meta: {
-          title: '新建子社群-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: addCommunity
-      },
-      {
-        path: 'apply/:gid([0-9A-Z]{32})',
-        name: 'editApplyCommunity',
-        meta: {
-          title: '编辑子社群-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: addCommunity
-      },
-      {
-        path: 'create',
-        name: 'createCommunity',
-        meta: {
-          title: '新建管理员社群-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: addCommunity
-      },
-      {
-        path: 'edit/:gid([0-9A-Z]{32})',
-        name: 'editCommunity',
-        meta: {
-          title: '编辑社群信息-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: addCommunity
-      },
-      {
-        path: 'join',
-        name: 'joinCommunity',
-        meta: {
-          title: '编辑社群信息-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: joinCommunity
       }
     ]
   },
@@ -267,7 +172,7 @@ export const constantRouterMap = [
               title: '摄像头管理-设备管理-线下浏览器服务平台',
               keepAlive: true
             },
-            component: EquipmentMore
+            component: EquipmentCamera
           },
           {
             path: 'server',
@@ -289,52 +194,6 @@ export const constantRouterMap = [
             component: EquipmentPortal
           }
         ]
-      },
-      {
-        path: 'children',
-        name: 'equipmentChildren',
-        meta: {
-          title: '子社群设备-设备管理-线下浏览器服务平台',
-          auth: true,
-          keepAlive: false
-        },
-        component: EquipmentChildren
-      },
-      {
-        path: 'mine/service/:key', // ([0-9A-Z-_]{16})
-        name: 'equipmentMineService',
-        meta: {
-          title: '自有设备服务-设备管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: EquipmentService
-      },
-      {
-        path: 'service/:key', // ([0-9A-Z-_]{16})
-        name: 'equipmentService',
-        meta: {
-          title: '非自有设备服务-设备管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: EquipmentService
-      },
-      {
-        path: 'more/:key', // ([0-9A-Z-_]{16})
-        name: 'equipmentMore',
-        meta: {
-          title: '分析终端用途-设备管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: EquipmentMore
-      },
-      {
-        path: 'children/search/:name',
-        name: 'searchChildren',
-        meta: {
-          title: '子社群设备搜索-设备管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: EquipmentChildren
       },
       {
         path: 'mine/search/:name',

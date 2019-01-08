@@ -52,6 +52,18 @@
           </div>
         </div>
       </el-select>
+      <el-date-picker
+        class="date--picker"
+        v-model="filter.date"
+        :clearable="true"
+        type="daterange"
+        range-separator="-"
+        popper-class="date__popper--wrap theme__popper--wrap"
+        value-format="yyyy-MM-dd"
+        format="yyyy/MM/dd"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期">
+      </el-date-picker>
       <a href="javascript:void (0)" @click="getBehaviorList()" class="fr">刷新</a>
     </div>
     <el-scrollbar class="table__scrollbar">
@@ -60,16 +72,6 @@
       :data="behaviorList"
       >
         <el-table-column
-          prop="imageUrl"
-          width="120"
-          align="center"
-          label="抓拍图">
-          <template slot-scope="scope">
-            <image-box width="40px" height="40px" @click.native="showImage(scope.row)" :src="scope.row.imageUrl"></image-box>
-          </template>
-        </el-table-column>
-
-        <el-table-column
           prop="name"
           width="120"
           align="center"
@@ -77,7 +79,7 @@
         </el-table-column>
         <el-table-column
           prop="gender"
-          width="120"
+          width="80"
           align="center"
           label="性别">
           <template slot-scope="scope">
@@ -86,7 +88,7 @@
         </el-table-column>
         <el-table-column
           prop="age"
-          width="120"
+          width="80"
           align="center"
           label="年龄">
         </el-table-column>
@@ -97,7 +99,37 @@
         </el-table-column>
         <el-table-column
           align="center"
-          width="160"
+          label="到访时间">
+          <template slot-scope="scope">
+            <span v-if="scope.row.memberInfo">
+              {{scope.row.memberInfo.appearanceDate | parseTime('{y}/{m}/{d} {h}:{i}')}}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column
+        prop="imageUrl"
+        width="100"
+        align="center"
+        label="照片">
+          <template slot-scope="scope">
+            <image-box width="54px" height="54px" @click.native="showImage(scope.row)" :src="scope.row.imageUrl"></image-box>
+          </template>
+        </el-table-column>
+        <el-table-column
+          width="240"
+          align="center"
+          label="比对照片/识别分数">
+          <template slot-scope="scope">
+            <div class="img-wrap" v-for="(item, $index) in scope.row.top3InfoList" :key="$index">
+              <image-box  width="54px" height="54px" @click.native="showImage(item)" :src="item.imageUrl"></image-box>
+              <p>{{item.score}}</p>
+            </div>
+
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          width="150"
           label="操作">
           <template slot-scope="scope">
             <router-link :to="'/behavior/trail/' + scope.row.personId">查看移动轨迹</router-link>
@@ -141,6 +173,7 @@ export default {
         device: ''
       },
       filter: {
+        date: '',
         group: 0,
         device: 0
       },
@@ -182,7 +215,7 @@ export default {
           this.selectType = 1
           this.search.device = ''
           GetAllAioList().then(res => {
-            console.log('device list aio-------', res.data)
+            // console.log('device list aio-------', res.data)
             this.deviceOriginList = res.data
             this.deviceList = res.data
           })
@@ -192,7 +225,7 @@ export default {
           this.selectType = 2
           this.search.device = ''
           GetAllCameraList().then(res => {
-            console.log('device list Camera-------', res.data)
+            // console.log('device list Camera-------', res.data)
             this.deviceOriginList = res.data
             this.deviceList = res.data
           })
@@ -212,14 +245,20 @@ export default {
       }, 100)
     },
     sizeChange (val) {
-      console.log(this.pagination)
       this.pagination.length = val
       this.getBehaviorList()
     },
     // 获取行为分析信息列表
     getBehaviorList (page, size) {
       if (!this.currentManage.id) return
+      let [startT, endT] = ['', '']
+      if (this.filter.date) { // clearable方法 会使date为null
+        startT = this.filter.date[0] + ' 00:00:00'
+        endT = this.filter.date[1] + ' 23:59:59'
+      }
       GetBehaviorList({
+        startTime: startT,
+        endTime: endT,
         groupSonGuid: this.filter.group || '',
         deviceKey: this.filter.device || '',
         groupGuid: this.currentManage.id,
@@ -232,7 +271,7 @@ export default {
     },
     // 通过名称搜索社群或者设备
     filterName (type) {
-      console.log('filter type', type, this.search.group, '----0---')
+      // console.log('filter type', type, this.search.group, '----0---')
       switch (type) {
         case 'group':
           this.groupList = this.groupOriginList.filter(item => item.name.indexOf(this.search.group) > -1 || item.nickName.indexOf(this.search.group) > -1)
@@ -249,7 +288,6 @@ export default {
     },
     // 查看抓拍大图
     showImage (row) {
-      console.log('click')
       this.preview.src = row.imageUrl
       this.preview.visible = true
     }
@@ -264,7 +302,6 @@ export default {
     },
     filter: {
       handler (val) {
-        console.log('filter', val)
         this.getBehaviorList(1)
       },
       deep: true
@@ -280,13 +317,18 @@ export default {
   .common__image--box{
     cursor: pointer;
   }
+  .img-wrap{
+    display: inline-block;
+    margin: 0 5px;
+  }
 .select__container{
   padding: 16px 0 12px;
   .behavior__select{
     width: 154px;
-    &+ .behavior__select{
-      margin-left: 20px;
-    }
+    margin-right: 20px;
+  }
+  .date--picker{
+    width: 220px;
   }
 }
 </style>

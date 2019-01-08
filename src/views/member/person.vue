@@ -40,17 +40,17 @@
         </el-form-item>
 
         <el-form-item label="姓名：" prop="name">
-          <el-input type="text" placeholder="32位字符以内" maxlength="32" v-model.trim="personMessge.name" clearable></el-input>
+          <el-input type="text" placeholder="请输入姓名" v-model.trim="personMessge.name" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="手机号：" prop="phone">
-          <el-input type="text" placeholder="11位手机号码" maxlength="11" v-model.trim="personMessge.phone" clearable></el-input>
+          <el-input type="text" placeholder="请输入手机号" maxlength="11" v-model.trim="personMessge.phone" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="性别：">
           <el-radio-group v-model="personMessge.gender">
             <el-radio :label="1">男</el-radio>
-            <el-radio :label="2">女</el-radio>
+            <el-radio :label="0">女</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -87,7 +87,6 @@
             class="editProblem__cont"
             v-for="(item,index) in issuesList"
             :key="index">
-
             <div v-show="show !== index" @mouseover="operationShow(index)" @mouseout="operationHide(index)">
               <span class="cont__title">{{item.typeValue}}</span>
               <span class="fr del" v-show="hover === index" @click="delList(index)">删除</span>
@@ -95,7 +94,7 @@
             </div>
 
             <div class="edit__border" v-show="show === index">
-              <el-input class="f-font-size12" v-model="changeCont" placeholder="请输入问题类型名称" maxlength="12"></el-input>
+              <el-input class="f-font-size12" v-model.trim="changeCont" placeholder="请输入问题类型名称" maxlength="12"></el-input>
               <span class="save" @click="save(index)">保存</span>
               <span class="cancel" @click="cancel">取消</span>
             </div>
@@ -103,7 +102,7 @@
         </div>
 
         <div class="input__border white">
-          <el-input class="add__question f-font-size12" v-model="input" @keyup.enter.native="addList" @blur="emptyInput" placeholder="输入文字，按回车生成人员类型" maxlength="12" v-show="show === ''"></el-input>
+          <el-input class="add__question f-font-size12" v-model.trim="input" @keyup.enter.native="addList" @blur="emptyInput" placeholder="输入文字，按回车生成人员类型" maxlength="12" v-show="show === ''"></el-input>
         </div>
         <div class="error__message">{{errorMessage}}</div>
         <div class="editProblem__button">
@@ -117,7 +116,7 @@
 
 <script>
 import axios from 'axios'
-import {validateRule} from '@/utils/validate'
+import {validateRule, validPhone} from '../../utils/validate'
 import {MemberTypeList, MemberTypeOperate, MemberCreate, MemberUpdate, MemberDetails, MemberImgDetect, MemberLibraryFind} from '../../api/member'
 import {OssSignature} from '../../api/common'
 
@@ -129,29 +128,22 @@ export default {
       if (!value) {
         callback(new Error('请输入姓名'))
       } else {
-        if (validateRule(value, 1)) {
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
+        } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('姓名格式不正确'))
-        }
-      }
-    }
-    // 姓名校验规则
-    const validatePhone = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请输入手机号'))
-      } else {
-        if (validateRule(value, 6)) {
-          callback()
-        } else {
-          callback(new Error('手机号格式不正确'))
+          callback(new Error('仅限汉字/字母/数字/空格'))
         }
       }
     }
     return {
       rules: {
         name: [{required: true, validator: validateName, trigger: 'blur'}],
-        phone: [{required: true, validator: validatePhone, trigger: 'blur'}]
+        phone: [
+          {required: true, message: '请输入手机号', trigger: 'blur'},
+          {validator: validPhone, trigger: 'blur'}
+        ]
       },
       // 面包屑名称
       titleName: '',

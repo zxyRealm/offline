@@ -101,7 +101,7 @@ export default {
       if (!value) {
         callback(new Error('请输入库名称'))
       } else if (!validateRule(value, 2)) {
-        callback(new Error('请输入正确的库名称'))
+        callback(new Error('仅限汉字/字母/数字/下划线/空格'))
       } else if (this.checkName === value) {
         callback()
       } else {
@@ -272,7 +272,6 @@ export default {
       if (data[0].guid === this.groupList[0].guid) {
         gid = this.currentManage.id
       }
-      console.log('row data', this.sendData, data)
       let send = {
         guid: this.sendData.guid,
         name: this.sendData.name,

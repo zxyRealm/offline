@@ -70,12 +70,12 @@ export default {
     // 验证公司名称
     const validCompany = (rule, value, callback) => {
       if (value) {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('请输入正确的公司名称'))
+          callback(new Error('仅限汉字/字母/数字/空格'))
         }
       } else {
         callback()
@@ -101,7 +101,7 @@ export default {
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('请输入正确的联系人'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       } else {
         callback()

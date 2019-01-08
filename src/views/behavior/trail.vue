@@ -3,18 +3,18 @@
     <div class="trail__info--wrap dashed--border">
       <div class="fl clearfix">
         <div class="ti-item">
-          <p>姓名：</p>
-          <p>到访次数：</p>
+          <p>姓名：{{trailDetailInfo.name}}</p>
+          <p>到访次数：{{trailDetailInfo.countNum}}</p>
         </div>
         <div class="ti-item">
-          <p><span>性别：</span><span>年龄：</span></p>
-          <p>最近一次：{{new Date() | parseTime('{y}/{m}/{d} {h}:{i}')}}</p>
+          <p><span>性别：{{trailDetailInfo.gender ? '男' : '女'}}</span><span>年龄：{{trailDetailInfo.age || '--'}}</span></p>
+          <p>最近一次：{{trailList[0] && trailList[0].captureFaceInfo[0] ? trailList[0].captureFaceInfo[0]['createTime'] : '' | parseTime('{y}/{m}/{d} {h}:{i}')}}</p>
         </div>
       </div>
       <div class="ti-item ti-right">
-        <p>Person ID：</p>
-        <p>
-            <span :key="val" v-for="val in label">
+        <p>Person ID：{{trailDetailInfo.personId}}</p>
+        <p v-if="trailDetailInfo.lableList">
+            <span :key="val" v-for="val in trailDetailInfo.lableList">
               {{val}}
             </span>
         </p>
@@ -24,7 +24,7 @@
       <div class="td--left dashed--border">
         <div class="td__date--wrap">
           <i class="el-icon-arrow-left"></i>
-          {{spoorDate}}
+          <span>{{spoorDate}}</span>
           <i class="el-icon-arrow-right"></i>
           <i class="el-icon-date fr"></i>
           <el-date-picker
@@ -34,17 +34,21 @@
             type="date"
             value="yyyy/MM/dd"
             value-format="yyyy/MM/dd"
+            :picker-options="pickerOptions"
             placeholder="选择日期">
           </el-date-picker>
         </div>
         <el-scrollbar>
-          <div v-for="val in 12" class="spoor-item" :key="val">
+          <div v-for="(item, $index) in currentTrailList" class="spoor-item" :key="$index">
             <div class="img-box">
-              <img width="36" src="/static/img/logo.png" alt="">
+              <image-box width="36px" height="54px" :src="item.imageUrl"></image-box>
+              <!--<img width="36" :src="item.imageUrl" alt="">-->
             </div>
             <div class="item--info">
-              <p class="name" :class="{start: val === 1, end: val === 12}">{{trailList[0].name}}</p>
-              <p class="date">{{new Date() | parseTime('{h}:{i}')}}</p>
+              <p class="name" :class="{start: !$index, end: currentTrailList.length - 1 === $index && $index}">
+                <span class="ellipsis">{{item.portalName || item.groupName}}</span>
+              </p>
+              <p class="date">{{item.createTime | parseTime('{h}:{i}')}}</p>
               <img width="12" src="@/assets/behavior/signpost_icon@2x.png" alt="">
             </div>
           </div>
@@ -73,9 +77,9 @@ export default {
         '魔音教主2',
         '魔音教主3'
       ],
-      trailList: [
-        {name: '气味书店'}
-      ]
+      trailDetailInfo: {},
+      trailList: [],
+      dateSet: ''
     }
   },
   created () {
@@ -85,11 +89,39 @@ export default {
   mounted () {
     // this.getPersonTrail()
   },
-  computed: {},
+  computed: {
+    currentTrailList: {
+      get () {
+        let arr = this.trailList.filter(item => {
+          return (item.visitTime.replace(/-/g, '/') === this.spoorDate)
+        })[0]
+        return arr ? arr.captureFaceInfo : []
+      },
+      set () {
+      }
+    },
+    pickerOptions: {
+      get () {
+        let _this = this
+        return {
+          disabledDate (time) {
+            return !_this.dateSet.has(parseTime(time.getTime(), '{y}-{m}-{d}'))
+          }
+        }
+      },
+      set () {}
+    }
+  },
   methods: {
     getPersonTrail () {
       GetPersonTrail({personId: this.$route.params.personId}).then(res => {
         console.log(res.data)
+        this.trailDetailInfo = res.data || {}
+        this.trailList = this.trailDetailInfo.dailyCapturePersonList || []
+        this.spoorDate = parseTime(this.trailList[0].visitTime, '{y}/{m}/{d}')
+        this.dateSet = new Set(this.trailList.map(item => item.visitTime))
+        // this.dateSet = new Set(['2019-01-11', '2018-11-11', '2018-10-11'])
+        console.log(this.dateSet)
       })
     }
   },
@@ -161,6 +193,10 @@ export default {
       margin: 16px 0;
       line-height: 24px;
       cursor: pointer;
+      > span{
+        display: inline-block;
+        width: 80px;
+      }
       .el-icon-date{
         color: #0F9EE9;
         margin-top: 4px;

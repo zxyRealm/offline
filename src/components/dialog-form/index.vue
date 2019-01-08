@@ -183,7 +183,6 @@ export default {
         }
         this.$emit('remote-submit', backArray)
       } else {
-        console.log(this.dialogForm)
         this.$refs[formName].validate(valid => {
           if (valid) {
             this.$emit('remote-submit', JSON.parse(JSON.stringify(this.dialogForm)))

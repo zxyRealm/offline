@@ -9,7 +9,7 @@ Vue.use(Vuex)
 const state = {
   userInfo: {},
   filterParams: { // 可视化社群条件
-    groupSonGuid: '',
+    group: '',
     type: 'flow', // 类型
     timeIntervalUnit: 'hour', // 维度
     startTime: parseTime(new Date(), '{y}-{m}-{d}'), // 开始时间

@@ -56,7 +56,7 @@ import {validateRule} from '@/utils/validate'
 import {mapState} from 'vuex'
 import DeviceTable from '@/components/DeviceTable'
 import {eventObject} from '../../utils/event'
-import {DeviceIsExisted, DeviceIsAdded, SearchCamera, GetCameraList} from '../../api/device'
+import {DeviceIsExisted, DeviceIsAdded, SearchCamera, GetCameraList, CheckCameraName} from '../../api/device'
 import {byKeyDeviceType} from '../../utils'
 export default {
   name: 'index',
@@ -66,21 +66,21 @@ export default {
   data () {
     const validateName = (rule, value, callback) => {
       if (value) {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           // 一体机、服务器名称验重
           let subData = {
             name: value,
             serverKey: this.$route.query.server_key
           }
-          CameraAliasExist(subData).then(res => {
+          CheckCameraName(subData).then(res => {
             res.data ? callback(new Error('该名称已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
           })
         } else {
-          callback(new Error('请输入正确的设备别名'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       } else {
         callback(new Error('请输入设备名称'))
@@ -97,17 +97,13 @@ export default {
           // 设备序列号是否存在
           let dType = byKeyDeviceType(value)
           if (dType.type) {
-            if (this.addAioVisible && !new Set([2, 3]).has(dType.type)) {
-              callback(new Error('非一体机序列号'))
-            } else if (this.addCameraVisible && !new Set([4, 5]).has(dType.type)) {
-              callback(new Error('非摄像头序列号'))
-            } else {
+            if (this.addCameraVisible && new Set([4, 5]).has(dType.type)) {
               DeviceIsExisted({deviceKey: value}).then(res => {
                 if (res.data) {
                   // 校验设备是否被绑定过
                   DeviceIsAdded({deviceKey: value}).then(res2 => {
                     if (res2.data) {
-                      callback(new Error('该设备已添加'))
+                      callback(new Error('该摄像头已添加'))
                     } else {
                       callback()
                     }
@@ -127,6 +123,8 @@ export default {
               }).catch(err => {
                 callback(new Error(err.msg || '服务器异常'))
               })
+            } else {
+              callback(new Error('非摄像头序列号'))
             }
           } else {
             callback(new Error('序列号不存在'))
@@ -134,7 +132,7 @@ export default {
         } else {
           this.deviceInfo.type = ''
           this.deviceInfo.exist = ''
-          callback(new Error('请输入序列号'))
+          callback(new Error('请输入16位序列号'))
         }
       }
     }

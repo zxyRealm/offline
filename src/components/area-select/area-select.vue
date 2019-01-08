@@ -223,7 +223,6 @@ export default {
       line-height: 30px;
       color: #fff;
       border: none;
-      background-color: #232027;
       background-image: url(/static/img/input_border_bg@2x.png);
       background-repeat: no-repeat;
       background-size: 100% 100%;

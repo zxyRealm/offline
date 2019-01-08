@@ -14,34 +14,62 @@ export default {
     return {
       timer: null, // 定时器
       data: [],
-      // 性别比例图例字体样式
-      genderLegend: [
-        {
-          name: '女',
-          textStyle: {
-            color: 'rgba(109,46,187,1)'
+      // 比例图基本数据结构配置
+      legendMap: {
+        flow: [
+          {
+            name: '进客流',
+            value: '客流入',
+            textStyle: {
+              color: 'rgba(109,46,187,1)'
+            }
+          },
+          {
+            name: '出客流',
+            value: '客流出',
+            textStyle: {
+              color: 'rgba(15,158,233,1)'
+            }
           }
-        },
-        {
-          name: '男',
-          textStyle: {
-            color: 'rgba(15,158,233,1)'
+        ],
+        sex: [
+          {
+            name: '女',
+            textStyle: {
+              color: 'rgba(109,46,187,1)'
+            }
+          },
+          {
+            name: '男',
+            textStyle: {
+              color: 'rgba(15,158,233,1)'
+            }
           }
-        }],
+        ],
+        age: [
+          {name: '0-10岁', textStyle: {color: '#FFD500'}},
+          {name: '11-20岁', textStyle: {color: '#7ED321'}},
+          {name: '21-30岁', textStyle: {color: '#FF6660'}},
+          {name: '31-40岁', textStyle: {color: '#0F9EE9'}},
+          {name: '41-50岁', textStyle: {color: '#005BC9'}},
+          {name: '50岁以上', textStyle: {color: '#8663FF'}}
+        ],
+        repeat: [
+          {
+            name: '多次',
+            textStyle: {
+              color: 'rgba(109,46,187,1)'
+            }
+          },
+          {
+            name: '单次',
+            textStyle: {
+              color: 'rgba(15,158,233,1)'
+            }
+          }
+        ]
+      },
       // 到店频次图例字体样式
-      shopLegend: [
-        {
-          name: '多次',
-          textStyle: {
-            color: 'rgba(109,46,187,1)'
-          }
-        },
-        {
-          name: '单次',
-          textStyle: {
-            color: 'rgba(15,158,233,1)'
-          }
-        }],
       option: {
         color: ['#F1BB13', '#7FC16A', '#EE6C4B', '#6D2EBB', '#2187DF', '#DDDDDD'],
         textStyle: { // 总体字体样式
@@ -88,13 +116,13 @@ export default {
           icon: 'line',
           data: [
             {
-              name: '客流入',
+              name: '进客流',
               textStyle: {
                 color: 'rgba(109,46,187,1)'
               }
             },
             {
-              name: '客流出',
+              name: '出客流',
               textStyle: {
                 color: 'rgba(15,158,233,1)'
               }
@@ -167,71 +195,6 @@ export default {
         this.myChart.resize()
       }
     },
-    // 定义颜色
-    changeColor () {
-      this.option.color = this.filterParams.type === 'age' ? [
-        new echarts.graphic.LinearGradient(
-          0, 1, 0, 0,
-          [
-            {offset: 0, color: 'rgba(241,187,19,0)'},
-            {offset: 1, color: 'rgba(189,146,13,1)'}
-          ]
-        ),
-        new echarts.graphic.LinearGradient(
-          0, 1, 0, 0,
-          [
-            {offset: 0, color: 'rgba(127,193,106,0)'},
-            {offset: 1, color: 'rgba(90,178,63,1)'}
-          ]
-        ),
-        new echarts.graphic.LinearGradient(
-          0, 1, 0, 0,
-          [
-            {offset: 0, color: 'rgba(238,108,75,0)'},
-            {offset: 1, color: 'rgba(204,83,52,1)'}
-          ]
-        ),
-        new echarts.graphic.LinearGradient(
-          0, 1, 0, 0,
-          [
-            {offset: 0, color: 'rgba(166,91,223,0)'},
-            {offset: 1, color: 'rgba(109,46,187,1)'}
-          ]
-        ),
-        new echarts.graphic.LinearGradient(
-          0, 1, 0, 0,
-          [
-            {offset: 0, color: 'rgba(34,205,246,0)'},
-            {offset: 1, color: 'rgba(15,158,233,1)'}
-          ]
-        ),
-        new echarts.graphic.LinearGradient(
-          0, 1, 0, 0,
-          [
-            {offset: 0, color: 'rgba(255,255,255,0)'},
-            {offset: 1, color: 'rgba(216,216,216,1)'}
-          ]
-        )
-      ] : [
-        new echarts.graphic.LinearGradient(
-          0, 1, 0, 0,
-          [
-            {offset: 0, color: 'rgba(166,91,223,0)'},
-            {offset: 1, color: 'rgba(109,46,187,1)'}
-          ]
-        ),
-        new echarts.graphic.LinearGradient(
-          0, 1, 0, 0,
-          [
-            {offset: 0, color: 'rgba(34,205,246,0)'},
-            {offset: 1, color: 'rgba(15,158,233,1)'}
-          ]
-        ),
-        '#F1BB13',
-        '#7FC16A',
-        '#EE6C4B',
-        '#DDDDDD']
-    },
     // 改变标题
     changeTitle () {
       this.option.title = this.$apply(this.option.title, this.lineParams.title)
@@ -275,7 +238,7 @@ export default {
           {offset: 1, color: 'rgba(15,158,233,1)'}
         ]
       ), '#F1BB13', '#7FC16A', '#EE6C4B', '#DDDDDD']
-      if (this.$store.state.groupSelectId == '' || !this.$store.state.groupSelectId) {
+      if (!this.$store.state.groupSelectId) {
         this.drawLine()
         return
       }
@@ -297,25 +260,19 @@ export default {
       let params = JSON.parse(JSON.stringify(this.filterParams))
       params.endTime = params.endTime + ' 23:59:59'
       params.startTime = params.startTime + ' 00:00:00'
+      params.groupSonGuid = params.group.guid
+      params.groupName = params.group.name
+      delete params.group
       this.option.title = this.$apply(this.option.title, this.lineParams.title)
-      // console.log('chart line ===============', params)
       GetChartLine(params).then(res => {
         let data = res.data
         this.option.xAxis[0] = this.$apply(this.option.xAxis[0], data.xAxisGroup[0])
         this.option.yAxis[0] = this.$apply(this.option.yAxis[0], data.yAxis) // 这个yAxis是对象形式
-        switch (this.filterParams.type) {
-          case 'age':
-            this.option.legend['data'] = this.addColor(['0-10岁', '11-20岁', '21-30岁', '31-40岁', '41-50岁', '50岁以上'])
-            break
-          case 'sex':
-            this.option.legend['data'] = this.genderLegend
-            break
-          case 'repeat':
-            this.option.legend['data'] = this.shopLegend
-            break
-        }
-        this.option.series = this.option.legend['data'].map(item => {
-          return data.seriesGroup.filter(item2 => item2.name === item.name)[0]
+        this.option.legend['data'] = this.legendMap[this.filterParams.type] // 根据type类型设置配置信息
+        this.option.series = this.legendMap[this.filterParams.type].map(item => {
+          let val = data.seriesGroup.filter(item2 => item2.name === (item.value || item.name))[0]
+          val.name = item.name
+          return val
         })
         this.changeSeries()
         this.drawLine()
@@ -328,7 +285,7 @@ export default {
       let emptyArray = []
       for (let i = 0; i < data.length; i++) {
         let params = {
-          name: data[i],
+          name: data[i].name,
           type: 'line',
           smooth: true,
           itemStyle: {normal: {areaStyle: {type: 'default'}}},
@@ -338,46 +295,19 @@ export default {
       }
       return emptyArray
     },
-    // 给legend字体颜色
-    addColor (data) {
-      let legendColor = ['#F1BB13', '#7FC16A', '#EE6C4B', '#6D2EBB', '#2187DF', '#DDDDDD']
-      let a = []
-      for (let i = 0, l = data.length; i < l; i++) {
-        let obj = {
-          name: data[i],
-          textStyle: {
-            color: legendColor[i]
-          }
-        }
-        a.push(obj)
-      }
-      return a
-    },
     // 默认数据展示 = 可视化
     defaultShow () {
-      // let type = this.$store.state.filterParams.type
-      switch (this.filterParams.type) {
-        case 'sex':
-          this.option.legend['data'] = this.genderLegend
-          this.option.series = this.simulateSeries(['女', '男'])
-          break
-        case 'age':
-          this.option.legend['data'] = this.addColor(['0-10', '11-20', '21-30', '31-40', '41-50', '50以上'])
-          this.option.series = this.simulateSeries(['0-10', '11-20', '21-30', '31-40', '41-50', '50以上'])
-          break
-        case 'repeat':
-          this.option.legend['data'] = this.shopLegend
-          this.option.series = this.simulateSeries(['多次', '单次'])
-          break
-      }
+      this.option.legend['data'] = this.legendMap[this.filterParams.type]
+      this.option.series = this.simulateSeries(this.legendMap[this.filterParams.type])
     }
   },
   mounted () {
     if (this.lineParams.title.text == '客流量统计') {
       this.timing() // 定时刷新数据，一个小时一次
     } else {
-      this.changeColor()
-      if (!this.filterParams.groupSonGuid) {
+      // 根据数据类型设置不同颜色配置参数
+      this.option.color = this.legendMap[this.filterParams.type].map(item => item.textStyle.color)
+      if (!this.filterParams.group || !this.filterParams.group.group) {
         this.changeTitle()
         this.defaultShow()
         this.drawLine()
@@ -398,10 +328,6 @@ export default {
   },
   beforeDestroy () {
     this.cleanTimer()
-  },
-  beforeRouteLeave (to, from, next) {
-    this.cleanTimer()
-    next()
   }
 }
 </script>

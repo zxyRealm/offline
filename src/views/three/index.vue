@@ -240,7 +240,6 @@ export default {
       let intersects = this.raycaster.intersectObjects(this.meshList)
       if (intersects.length > 0) {
         this.INTERSECTED = intersects[ 0 ].object
-        console.log('click', intersects[ 0 ].object.uuid)
         this.$emit('handle-block-click', intersects[ 0 ].object)
       }
     },

@@ -19,11 +19,16 @@
         :subText="'保存'">
 
         <el-form-item label="库名称：" prop="name">
-          <el-input type="text"  placeholder="添加库名称" maxlength="20" v-model.trim="formData.name" clearable></el-input>
+          <el-input type="text"  placeholder="添加库名称" v-model.trim="formData.name" clearable></el-input>
         </el-form-item>
 
-        <el-form-item label="备注：" prop="remark">
-          <el-input type="text" placeholder="添加备注" maxlength="20" v-model.trim="formData.remark" clearable></el-input>
+        <el-form-item
+          label="备注："
+          :rules="[
+            {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
+          ]"
+          prop="remark">
+          <el-input type="text" placeholder="添加备注" v-model.trim="formData.remark" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="类型：" prop="type">
@@ -66,8 +71,10 @@ export default {
     const name = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请输入库名称'))
+      } else if (value.length > 32) {
+        callback(new Error('请输入1-32位字符'))
       } else if (!validateRule(value, 2)) {
-        callback(new Error('请输入正确的库名称'))
+        callback(new Error('仅限汉字/字母/数字/下划线/空格'))
       } else if (this.checkName === value) {
         callback()
       } else {
@@ -85,19 +92,11 @@ export default {
         })
       }
     }
-    const remark = (rule, value, callback) => {
-      if (!validateRule(value, 2)) {
-        callback(new Error('请输入正确的备注'))
-      } else {
-        callback()
-      }
-    }
     return {
       groupList: [],
       dialogFormVisible: false,
       rules: {
         name: [{required: true, validator: name, trigger: 'blur'}],
-        remark: [{validator: remark, trigger: 'blur'}],
         type: [{required: true, message: '请选择库类型', trigger: 'blur'}]
       },
       formData: {

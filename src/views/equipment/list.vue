@@ -193,22 +193,30 @@ export default {
         callback(new Error('请输入序列号'))
       } else {
         if (value.length === 16) {
+          if (!/^[\dA-Za-z]+$/.test(value)) {
+            callback(new Error('仅限数字/字母'))
+            return
+          }
           // 设备序列号是否存在
           let dType = byKeyDeviceType(value)
           if (dType.type) {
+            let currentType = ''
             if (this.$route.name !== 'equipmentCamera' && this.addDialogType === 1 && !new Set([2, 3]).has(dType.type)) {
               callback(new Error('非一体机序列号'))
+              currentType = 'aio'
             } else if (this.$route.name !== 'equipmentCamera' && this.addDialogType === 2 && !new Set([1]).has(dType.type)) {
               callback(new Error('非服务器序列号'))
+              currentType = 'server'
             } else if (this.$route.name === 'equipmentCamera' && !new Set([4, 5]).has(dType.type)) {
               callback(new Error('非摄像头序列号'))
+              currentType = 'camera'
             } else {
               DeviceIsExisted({deviceKey: value}).then(res => {
                 if (res.data) {
                   // 校验设备是否被绑定过
                   DeviceIsAdded({deviceKey: value}).then(res2 => {
                     if (res2.data) {
-                      callback(new Error('该设备已添加'))
+                      callback(new Error(`该${currentType === 'server' ? '服务器' : '设备'}已添加`))
                     } else {
                       callback()
                     }
@@ -233,14 +241,14 @@ export default {
             callback(new Error('序列号不存在'))
           }
         } else {
-          callback(new Error('请输入序列号'))
+          callback(new Error('请输入16位序列号'))
         }
       }
     }
     const validateName = (rule, value, callback) => {
       if (value) {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           // 一体机、服务器名称验重
           let subData = {name: value}
@@ -262,7 +270,7 @@ export default {
             })
           }
         } else {
-          callback(new Error('请输入正确的设备别名'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       } else {
         callback(new Error('请输入设备名称'))
