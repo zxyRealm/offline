@@ -101,11 +101,13 @@
                     >
                     <img
                       v-if="statisticEndInfo.Member_percent < 0"
-                      src="/static/img/grow_down.png"
+                      src="/static/img/grow-down.png"
                       alt
                       width="5"
                     >
-                    <span>{{Math.abs(statisticEndInfo.Member_percent)}}%</span>
+                    <span :class="{'red-text': statisticEndInfo.Member_percent >= 0, 'green-text': statisticEndInfo.Member_percent < 0}">
+                      {{Math.abs(statisticEndInfo.Member_percent)}}%
+                    </span>
                   </span>
                 </div>
                 <div class="key">今日数据</div>
@@ -665,7 +667,7 @@ export default {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-image: url('/static/img/map_background@2x.png');
+    background-image: url('/static/img/map_background.png');
     background-size: cover;
     #floor2 {
       top: 10px;
@@ -681,24 +683,18 @@ export default {
         cursor: pointer;
         line-height: 40px;
         text-align: center;
-        background: #0f0e11;
+        background: rgba(255, 255, 255, 0.08);
         font-size: 14px;
         margin-right: 1px;
-        color: #ffffff;
+        color: rgba(255, 255, 255, 0.5);
         &:hover {
-          background: linear-gradient(
-            135deg,
-            rgba(68, 23, 173, 0.6),
-            rgba(17, 105, 211, 0.4)
-          );
+          background: rgba(255, 255, 255, 0.16);
+          color: #ffffff
         }
       }
       .active {
-        background: linear-gradient(
-          135deg,
-          rgba(68, 23, 173, 0.6),
-          rgba(17, 105, 211, 0.4)
-        );
+        background: #0068FC;
+        color: #ffffff
       }
     }
     #iframeWrap {
@@ -766,25 +762,13 @@ export default {
           }
         }
         .today-item{
-          background: linear-gradient(
-            135deg,
-            #005BC9,
-            #4E99F2
-          );
+          background: #005BC9
         }
         .current-item{
-          background: linear-gradient(
-            135deg,
-            #4219AF,
-            #8563FF
-          );
+          background: #8563FF
         }
         .member-item{
-          background: linear-gradient(
-            135deg,
-            #109EE9,
-            #6BC5F4
-          );
+          background: #109EE9
         }
         .no-background {
           background: rgba(216, 216, 216, 0.05);
@@ -883,6 +867,13 @@ export default {
         }
       }
     }
+  }
+
+  .red-text{
+    color: #ff6660
+  }
+  .green-text{
+    color: #7ED321
   }
 
   .fade-enter-active,

@@ -24,10 +24,9 @@
 <body>
   <div id="WebGL-output"></div>
   <div style="position: absolute; top: 10px; left: 10px">
-    <a href="javascript:;" onclick="upfloor()">上楼</a>
-    <a href="javascript:;" onclick="downfloor()">下楼</a>
-    <a href="javascript:;" onclick="createPath('F11')">轨迹</a>
-    <a href="javascript:;" onclick="ChapterElevator()">电梯</a>
+    <!-- <a href="javascript:;" onclick="upfloor()">上楼</a> -->
+    <!-- <a href="javascript:;" onclick="downfloor()">下楼</a> -->
+    <a href="javascript:;" onclick="createPath('F11', 0)">轨迹</a>
   </div>
   <script>
     var data = TRAIL_JSON.data;
@@ -38,9 +37,9 @@
     var materialArr = [];
     var offset_x = -290; // x中心点偏移量
     var offset_z = -241; // z中心点偏移量
-    var downFloorPosition = -120; // 低楼层位置
-    var upFloorPosition = 120; // 高楼层位置
     var duration = 1000; // 动画片段持续时间
+    var pic_width = 580; // 图片宽度
+    var pic_height = 475; // 图片高度
     var mockFloorData = [{
         imgURL: 1,
         floorName: 'F10'
@@ -65,17 +64,28 @@
     var t = 0.0; // 路径遍历点
     var s = 0.005; // 移动速度
     var path; // 目标路径导线
-    var parent = new THREE.Object3D();
+    var elevatorGroup = new THREE.Object3D();
+    elevatorGroup.name = 'elevator'
     var isElevator = false;
+    var currentElevator = [];
+    var currentPathPointIndex = 0;
 
     // 动画trigger
-    function upfloor() {
-      // setTimeout(function () {
+    function upfloor(currentElevator, index) {
+      setTimeout(function () {
         ChapterTwo('up')
-      // }, 1000)
-      // setTimeout(function () {
-      // ChapterThree('up')
-      // }, 6000)
+      }, 1000)
+      setTimeout(function () {
+        TrailPath(currentElevator)
+      }, 3000)
+      setTimeout(function () {
+        ChapterThree('up')
+      }, 6000)
+      if (index) {
+        setTimeout(function () {
+          createPath('F13', index)
+        }, 9000)
+      }
     }
 
     function downfloor() {
@@ -132,18 +142,19 @@
       group.children.forEach(function (item) {
         if (item.name === BEGIN_FLOOR) {
           item.position.set(0, 0, 0)
+          item.rotation.x = 0.3 * Math.PI
         } else {
           item.position.y = 500
-          item.rotation.x = -0.2 * Math.PI
+          item.rotation.x = 0
         }
       })
     }
 
-    // step2: 电梯动画
+    // step2: 电梯楼层动画
     function ChapterTwo(type) {
       group.children.forEach(function (item) {
         animateLowerElevator(item, 'F11', type)
-        animateHigerElevator(item, 'F12', type)
+        animateHigerElevator(item, 'F13', type)
       })
     }
 
@@ -151,20 +162,25 @@
     function ChapterThree(type) {
       group.children.forEach(function (item) {
         animateLowerFloor(item, 'F11', type)
-        animateHigerFloor(item, 'F12', type)
+        animateHigerFloor(item, 'F13', type)
       })
     }
 
-    // step 4: 轨迹动画
-    function ChapterFour() {
-
-    }
-
-    // 电梯动画片段: 电梯路径
-    function ChapterElevator() {
-      var timer = setInterval(function(){
-        pathRender()
-      }, 50)
+    // 动画参数板
+    var transferBoard = {
+      ROTATE_X: 0.15 * Math.PI, // 过渡偏转角
+      ROTATE_Y: -0.1 * Math.PI, // 过渡偏转角
+      UNROTATE_X: 0, // 电梯偏转角
+      UNROTATE_Y: 0, // 电梯偏转角
+      ORIROTATE_X: 0.3 * Math.PI, // 原始偏转角
+      ORIROTATE_Y: 0, // 原始偏转角
+      HIGH_POS: 400, // 最高点
+      PASS_HIGH_POS: 200, // 过度点
+      MIDDLE_POS: 0, // 显示区
+      PASS_LOW_POS: -200, // 过渡点
+      LOW_POS: -400, // 最低点
+      OPACITY_BLOCK: 1, // 完全显示
+      OPACITY_NONE: 0 // 完全隐藏
     }
 
     // 电梯动画片段: 低层变化过程
@@ -176,21 +192,21 @@
         }
         var lowPositionEnd = {
           x: item.position.x,
-          y: -250
+          y: transferBoard.PASS_LOW_POS
         }
         var lowRotationStart = {
           x: item.rotation.x,
           y: item.rotation.y
         }
         var lowRotationEnd = {
-          x: -0.2 * Math.PI,
-          y: -0.1 * Math.PI
+          x: transferBoard.ROTATE_X,
+          y: transferBoard.ROTATE_Y
         }
         var lowOpacityStart = {
-          opacity: type === 'up' ? 1 : 0
+          opacity: type === 'up' ? transferBoard.OPACITY_BLOCK : transferBoard.OPACITY_NONE
         }
         var lowOpacityEnd = {
-          opacity: 1
+          opacity: transferBoard.OPACITY_BLOCK
         }
         var lowAction1 = new TWEEN.Tween(lowPositionStart)
           .to(lowPositionEnd, duration)
@@ -209,7 +225,9 @@
           .to(lowOpacityEnd, duration)
           .onUpdate(function () {
             item.children.forEach(function (val) {
-              val.material.opacity = lowOpacityStart.opacity
+              if(val.name !== 'elevator') {
+                val.material.opacity = lowOpacityStart.opacity
+              }
             })
           })
         lowAction2.chain(lowAction1)
@@ -226,21 +244,21 @@
         }
         var highPositionEnd = {
           x: item.position.x,
-          y: 250
+          y: transferBoard.PASS_HIGH_POS
         }
         var highRotationStart = {
           x: item.rotation.x,
           y: item.rotation.y
         }
         var highRotationEnd = {
-          x: -0.2 * Math.PI,
-          y: -0.1 * Math.PI
+          x: transferBoard.ROTATE_X,
+          y: transferBoard.ROTATE_Y
         }
         var highOpacityStart = {
-          opacity: type === 'up' ? 0 : 1
+          opacity: type === 'up' ? transferBoard.OPACITY_NONE : transferBoard.OPACITY_BLOCK
         }
         var highOpacityEnd = {
-          opacity: type === 'up' ? 1 : 1
+          opacity: transferBoard.OPACITY_BLOCK
         }
         var highAction1 = new TWEEN.Tween(highPositionStart)
           .to(highPositionEnd, duration)
@@ -259,7 +277,10 @@
           .to(highOpacityEnd, duration)
           .onUpdate(function () {
             item.children.forEach(function (val) {
-              val.material.opacity = highOpacityStart.opacity
+              if(val.name !== 'elevator') {
+                val.material.opacity = highOpacityStart.opacity
+              }
+              
             })
           })
         highAction2.chain(highAction1)
@@ -276,21 +297,21 @@
         }
         var lowPositionEnd = {
           x: item.position.x,
-          y: type === 'up' ? -500 : 0
+          y: type === 'up' ? transferBoard.LOW_POS : transferBoard.MIDDLE_POS
         }
         var lowRotationStart = {
           x: item.rotation.x,
           y: item.rotation.y
         }
         var lowRotationEnd = {
-          x: type === 'up' ? -0.2 * Math.PI : 0,
-          y: 0
+          x: type === 'up' ? transferBoard.UNROTATE_X : transferBoard.ORIROTATE_X,
+          y: transferBoard.UNROTATE_Y
         }
         var lowOpacityStart = {
-          opacity: type === 'up' ? 1 : 1
+          opacity: transferBoard.OPACITY_BLOCK
         }
         var lowOpacityEnd = {
-          opacity: type === 'up' ? 0 : 1
+          opacity: type === 'up' ? transferBoard.OPACITY_NONE : transferBoard.OPACITY_BLOCK
         }
         var lowAction1 = new TWEEN.Tween(lowPositionStart)
           .to(lowPositionEnd, duration)
@@ -309,7 +330,9 @@
           .to(lowOpacityEnd, duration)
           .onUpdate(function () {
             item.children.forEach(function (val) {
-              val.material.opacity = lowOpacityStart.opacity
+              if(val.name !== 'elevator') {
+                val.material.opacity = lowOpacityStart.opacity
+              }
             })
           })
         lowAction2.chain(lowAction1)
@@ -326,21 +349,21 @@
         }
         var highPositionEnd = {
           x: item.position.x,
-          y: type === 'up' ? 0 : 500
+          y: type === 'up' ? transferBoard.MIDDLE_POS : transferBoard.HIGH_POS
         }
         var highRotationStart = {
           x: item.rotation.x,
           y: item.rotation.y
         }
         var highRotationEnd = {
-          x: type === 'up' ? 0 : -0.2 * Math.PI,
-          y: 0
+          x: type === 'up' ? transferBoard.ORIROTATE_X : transferBoard.ORIROTATE_Y,
+          y: transferBoard.ORIROTATE_Y
         }
         var highOpacityStart = {
-          opacity: 1
+          opacity: transferBoard.OPACITY_BLOCK
         }
         var highOpacityEnd = {
-          opacity: type === 'up' ? 1 : 0
+          opacity: type === 'up' ? transferBoard.OPACITY_BLOCK : transferBoard.OPACITY_NONE
         }
         var highAction1 = new TWEEN.Tween(highPositionStart)
           .to(highPositionEnd, duration)
@@ -359,7 +382,9 @@
           .to(highOpacityEnd, duration)
           .onUpdate(function () {
             item.children.forEach(function (val) {
-              val.material.opacity = highOpacityStart.opacity
+              if(val.name !== 'elevator') {
+                val.material.opacity = highOpacityStart.opacity
+              }
             })
           })
         highAction2.chain(highAction1)
@@ -377,7 +402,7 @@
       var floorGroup = new THREE.Group();
       var loader = new THREE.SVGLoader();
 
-      loader.load('/origin-floor/' + url + '.svg', function (paths) {
+      loader.load('/static/origin-floor/' + url + '.svg', function (paths) {
         for (var i = 0; i < paths.length; i++) {
           var shapes = paths[i].toShapes(true)
 
@@ -400,7 +425,7 @@
         }
       })
 
-      loader.load('../origin-floor/bottom.svg', function (paths) {
+      loader.load('/static/origin-floor/bottom.svg', function (paths) {
         for (var i = 0; i < paths.length; i++) {
           var shapes = paths[i].toShapes(true)
           for (var j = 0; j < shapes.length; j++) {
@@ -416,9 +441,8 @@
       group.add(floorGroup)
     }
 
-    var currentElevator = []
-    function createPath(floorName) {
-      var count = 0
+    function createPath(floorName, currentPathPointIndex) {
+      var count = currentPathPointIndex
       var floorGroup;
       group.children.forEach(function (item) {
         if (item.name === floorName) {
@@ -426,23 +450,42 @@
         }
       })
       var timer1 = setInterval(function () {
-        var pathGroup = {
-          start: data[count].pointInPath || data[count].point,
-          end: data[count + 1].pointInPath || data[count + 1].point
+        if(count%2===0){
+          var pathGroup = {
+            start: !data[count].elevator ? data[count].pointInPath : data[count].point,
+            end: !data[count + 1].elevator ? data[count + 1].pointInPath : data[count + 1].point
+          }
+          var path = new Path(pathGroup)
+          path.line.position.y = 1
+          path.line.rotation.x = 0.5 * Math.PI
+          floorGroup.add(path.line)
         }
-        var path = new Path(pathGroup)
-        path.line.position.y = 9
-        path.line.rotation.x = 0.5 * Math.PI
-        floorGroup.add(path.line)
+        
+        if (data[count].capturePoint || data[count].elevator) {
+          let obj = new THREE.Vector3(
+            data[count].point.x - 580 / 2,
+            1,
+            data[count].point.y - 475 / 2
+          )
+          let circle = new Circle(obj)
+          circle.mesh.rotation.x = -0.5 * Math.PI
+          console.log(circle.mesh)
+          floorGroup.add(circle.mesh)
+        }
+        
         count += 1
-        if (count === data.length - 3 || data[count].elevator === true) {
-          clearInterval(timer1)
+
+        if (count > currentPathPointIndex + 2 && data[count-2].elevator === true) {
           currentElevator[0] = data[count]
           currentElevator[1] = data[count+1]
-          upfloor()
-          TrailPath(currentElevator)
+          currentPathPointIndex = count
+          upfloor(currentElevator, count)
+          clearInterval(timer1)
         }
-      }, 50)
+        if (count === data.length - 3){
+          clearInterval(timer1)
+        }
+      }, 100)
     }
 
     // 路径
@@ -453,56 +496,72 @@
       var geometry = new THREE.BufferGeometry().setFromPoints(points)
       var material = new THREE.LineBasicMaterial({
         transparent: true,
-        color: 0xffffff
+        color: 0xFFE000
       })
       this.line = new THREE.Line(geometry, material);
       this.line.name = 'path'
     }
-
-    function createCircle(vector) {
-      let geom = new THREE.CircleGeometry(2, 50)
-      let material = new THREE.MeshBasicMaterial({
-        color: '#FFFFFF'
-      })
-      let cloud = new THREE.Mesh(geom, material);
-      cloud.position.set(vector.x, vector.y, vector.z)
-      scene.add(cloud)
-    }
     
+    function Circle(vector) {
+      var geom = new THREE.CircleGeometry(5, 50)
+      var material = new THREE.MeshBasicMaterial({ color: '#FFE000' })
+      this.mesh = new THREE.Mesh(geom, material);
+      this.mesh.position.set(vector.x, vector.y, vector.z)
+    }
+
     // 电梯轨迹
     function TrailPath(currentElevator) {
       var rectPath = new THREE.Path();
-      var position_x = currentElevator[0].point.x;
-      var position_y = currentElevator[0].point.y;
-      var position_x1 = currentElevator[1].point.x;
-      var position_y1 = currentElevator[1].point.y + 500
+      var position = {
+        x: currentElevator[0].point.x - pic_width / 2,
+        y: currentElevator[0].point.y - pic_height / 2,
+        x1: currentElevator[1].point.x - pic_width / 2,
+        y1: currentElevator[1].point.y - pic_height / 2
+      }
       var points = [
-        new THREE.Vector3(position_x, position_y, 0),
-        new THREE.Vector3(position_x1, position_y1 + 500, 0),
+        new THREE.Vector3(position.x, transferBoard.PASS_LOW_POS + 15, position.y),
+        new THREE.Vector3(position.x1, transferBoard.PASS_HIGH_POS + 15, position.y1),
       ]
+      // 画线段
       for (var i = 0; i<=arrowsLength; i++){
         arrows[i] = new THREE.Mesh(
           new THREE.CubeGeometry(1, 1, 3),
-          new THREE.MeshBasicMaterial({ color: '#FFFFFF' })
+          new THREE.MeshBasicMaterial({ color: '#FFE000' })
         );
         arrows[i].rotation.set(0.5 * Math.PI, 0, 0);
-        parent.add(arrows[i]);
+        elevatorGroup.add(arrows[i]);
       }
-      for (var j = 0; j < points.length; j++) {
-        createCircle(points[j])
-      }
-      path = rectPath;
-      rectPath.moveTo(position_x, position_y)
-      rectPath.lineTo(position_x1, position_y1)
-      scene.add(parent);
 
+      // 画点
+      var circle = [];
+      for (var j = 0; j < points.length; j++) {
+        circle[j] = new Circle(points[j])
+        circle[j].mesh.rotation.x = -0.3 * Math.PI
+        scene.add(circle[j].mesh)
+      }
+      scene.add(elevatorGroup);
+      
+      var animateEnd = 65
+      var intervalCount = 0
+      rectPath.moveTo(position.x, transferBoard.PASS_LOW_POS + 15, position.y)
+      rectPath.lineTo(position.x1, transferBoard.PASS_HIGH_POS + 15, position.y1)
+      path = rectPath;
+      
       var timer2 = setInterval(function(){
         pathRender()
-      }, 20)
+        if (intervalCount >= animateEnd) {
+          clearInterval(timer2)
+          scene.remove(elevatorGroup)
+          scene.remove(circle[0].mesh)
+          scene.remove(circle[1].mesh)
+        } else {
+          intervalCount++
+        }
+      }, 50)
     }
 
     function pathRender() {
-      t = (t + s) % 0.5; // 增量t同时保持再0.0和1.0之间
+      t = (t + s) % 1; // 增量t同时保持再0.0和1.0之间
       for (let i = 0; i < arrowsLength; i++) {
         var ti = ((i / arrowsLength) + t) % 1.0;
         var p = path.getPoint(ti);
@@ -515,7 +574,7 @@
           arrows[i].rotation.z = Math.atan2(pn.y - p.y, pn.x - p.x);
         }
       }
-      parent.rotation.y += (targetRotation - parent.rotation.y) * 0.005;
+      elevatorGroup.rotation.y += (targetRotation - elevatorGroup.rotation.y) * 0.001;
     }
 
     var opacity = 0
@@ -605,7 +664,7 @@
         window.innerHeight / -2,
         0.1, 10000
       )
-      camera.position.set(0, 450, 300)
+      camera.position.set(0, 0, 300)
       camera.lookAt(0, 0, 0);
       scene.add(camera)
     }

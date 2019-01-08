@@ -480,7 +480,7 @@
           var path = paths[i]
           var depth = 5
           var shapes = path.toShapes(true);
-          var opacity = info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.9
+          var opacity = info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 1
           for (var j = 0; j < shapes.length; j++) {
             var shape = shapes[j];
             if (i !== 0) {
