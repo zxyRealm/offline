@@ -104,9 +104,9 @@
         background-image: url('/static/img/input_border_bg@2x.png');
         background-repeat: no-repeat;
         background-size: 100% 100%;
-        background-color: #232027;
+        background-color: $default;
         .el-input__inner {
-          background-color: transparent;
+          background-color: $default;
           border: none;
           color: #fff;
           width: calc(100%);
@@ -122,7 +122,7 @@
         background-image: url('/static/img/textarea_border_bg.png');
         background-repeat: no-repeat;
         background-size: 100% 100%;
-        background-color: #232027;
+        background-color: $default;
         .el-textarea__inner{
           height: 100%;
           width: 100%;
@@ -130,7 +130,7 @@
           resize: none;
           color: #fff;
           font-size:12px;
-          background-color: transparent;
+          background-color: $default;
         }
         &.el-input--medium{
           height: 300px;

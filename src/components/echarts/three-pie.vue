@@ -27,7 +27,7 @@ export default {
           {key: 'old', name: '50岁以上'}
         ],
         member: [
-          {key: 'not_member', name: '普通顾客'},
+          {key: 'not_member', name: '非会员'},
           {key: 'member', name: '会员'}
         ]
       },
@@ -38,20 +38,7 @@ export default {
         {value: 0, name: '30-40岁'},
         {value: 0, name: '50岁以上'}
       ],
-      options: {},
-      ratio: {
-        // 会员比例
-        memberRatio: {
-          leaguer: { // 会员
-            num: 60,
-            percent: '60%'
-          },
-          normal: { // 顾客
-            num: 40,
-            percent: '40%'
-          }
-        }
-      }
+      options: {}
     }
   },
   props: {
@@ -112,7 +99,7 @@ export default {
       let seriesData = this.formatData()
       if (this.type === 'age') {
       // #979797
-        let color = this.total ? ['#0F9EE9', '#005BC9', '#213A65', '#2C0189', '#8663FF', '#A9B7CE'] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
+        let color = this.total ? ['#FFD500', '#38DF19', '#FF6660', '#0F9EE9', '#005BC9', '#8663FF'] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
         this.options = {
           color: color, // ['#2187DF','#6D2EBB']
           title: {
@@ -208,7 +195,7 @@ export default {
           ]
         }
       } else {
-        let color = this.total ? ['#0F9EE9', '#4D6FB5'] : ['#403E42', '#403E42']
+        let color = this.total ? ['#005BC9', '#0F9EE9'] : ['#403E42', '#403E42']
         this.options = {
           color: color, // ['#2187DF','#6D2EBB']
           title: {
@@ -230,7 +217,8 @@ export default {
             //   return obj
             // },
             textStyle: {
-              fontSize: 12
+              fontSize: 12,
+              color: '#fff'
             }
           },
           legend: {
@@ -358,7 +346,6 @@ export default {
     right: 2%;
     display: inline-block;
     font-size: 12px;
-    color: #0F9EE9;
   }
   .percent-wrap p{
     line-height: 19px;

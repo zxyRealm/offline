@@ -526,9 +526,7 @@ export default {
       // console.log('btn state', !this.btnState(type, value).state)
       // if (!this.btnState(type, value).state) return
       if (value.deviceStatus !== 0 && value.deviceStatus !== 1 && value.deviceStatus !== 5) {
-        this.$tip(`设备【<span class="maxw110 ellipsis">
-              ${value.deviceName}
-            </span>】正在${des}中，请稍后重新获取设备状态`, 'waiting')
+        this.$tip(`设备正在${des}中，请稍后重新获取设备状态`, 'waiting')
         return false
       }
       if (type === 'upgrade') {
