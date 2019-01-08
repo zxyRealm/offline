@@ -69,6 +69,7 @@
     <el-scrollbar class="table__scrollbar">
       <el-table
       border
+      :empty-text="emptyText"
       :data="behaviorList"
       >
         <el-table-column
@@ -101,9 +102,7 @@
           align="center"
           label="到访时间">
           <template slot-scope="scope">
-            <span v-if="scope.row.memberInfo">
-              {{scope.row.memberInfo.appearanceDate | parseTime('{y}/{m}/{d} {h}:{i}')}}
-            </span>
+            {{scope.row.createTime | parseTime('{y}/{m}/{d} {h}:{i}')}}
           </template>
         </el-table-column>
         <el-table-column
@@ -138,6 +137,7 @@
       </el-table>
     </el-scrollbar>
     <el-pagination
+      v-if="pagination.total && pagination.total > pagination.length"
       @current-change="getBehaviorList"
       @size-change="sizeChange"
       :page-sizes="[10, 20, 30]"
@@ -163,6 +163,7 @@ export default {
   },
   data () {
     return {
+      emptyText: '数据加载中...', // table 数据未加载是提示信息
       preview: {
         visible: false,
         src: ''
@@ -265,6 +266,7 @@ export default {
         length: size || this.pagination.length || 10,
         index: page || this.pagination.index || 1
       }).then(res => {
+        this.emptyText = '暂无数据'
         this.pagination = res.data.pagination
         this.behaviorList = res.data.content
       })

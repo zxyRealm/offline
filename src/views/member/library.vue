@@ -39,10 +39,10 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="关联社群：">
-          <div class="form__button" @click="getGroupList" v-show="!formData.groupName">关联</div>
-          <div v-show="formData.groupName" class="edit__name">{{formData.groupName}}</div><i class="el-icon-edit edit" @click="getGroupList" v-show="formData.groupName"></i>
-        </el-form-item>
+        <!--<el-form-item label="关联社群：">-->
+          <!--<div class="form__button" @click="getGroupList" v-show="!formData.groupName">关联</div>-->
+          <!--<div v-show="formData.groupName" class="edit__name">{{formData.groupName}}</div><i class="el-icon-edit edit" @click="getGroupList" v-show="formData.groupName"></i>-->
+        <!--</el-form-item>-->
       </uu-form>
     </div>
 
@@ -115,7 +115,7 @@ export default {
         remark: e.remark,
         type: e.type,
         guid: this.$route.query.guid,
-        groupGuid: this.formData.groupGuid
+        groupGuid: this.currentManage.id
       }
       if (this.$route.query.guid) {
         MemberLibraryUpdate(data).then(res => {

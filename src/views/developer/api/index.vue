@@ -18,7 +18,7 @@
             <el-menu
               :default-active="$route.path"
               class="custom__menu--api"
-              background-color="#232027"
+              background-color="rgba(0,0,0,0)"
               text-color="#8A898B"
               :router="true"
               active-text-color="#0F9EE9">

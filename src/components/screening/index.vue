@@ -142,7 +142,6 @@ export default {
     },
     // 查询
     submitForm () {
-      console.log(this.filterParams)
       if (!this.filterParams.group || !this.filterParams.group.guid) {
         this.$tip('请选择社群', 'error')
         return

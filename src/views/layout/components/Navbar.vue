@@ -593,7 +593,6 @@ export default {
         }
       }).catch((error) => {
         this.loadModule.close()
-        console.log('error', error)
         this.$tip('网络异常，请稍后重新尝试', 'error')
       })
     },
@@ -640,13 +639,11 @@ export default {
       let el = document
       let cfs = el.cancelFullScreen || el.webkitCancelFullScreen ||
         el.mozCancelFullScreen || el.ExitFullscreen || el.msExitFullscreen
-      console.log('exist Screen', cfs)
       if (cfs) { // typeof cfs != "undefined" && cfs
         cfs.call(el)
       } else if (typeof window.ActiveXObject !== 'undefined') {
         // for IE，这里和fullScreen相同，模拟按下F11键退出全屏
         let wscript = new ActiveXObject('WScript.Shell')
-        console.log('exist Screen wscript', wscript)
         if (wscript != null) {
           wscript.SendKeys('{F11}')
         }

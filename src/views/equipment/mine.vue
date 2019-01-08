@@ -274,15 +274,6 @@ export default {
     }
   },
   methods: {
-    // 自有设备搜索
-    search (val) {
-      if (val) {
-        this.$router.push(`/equipment/mine/search/${val}`)
-      } else {
-        this.$router.push('/equipment/mine')
-        this.getGroupList()
-      }
-    },
     // 弹窗表单提交
     submitForm (data) {
       if (this.dialogOptions.type === 'device') {

@@ -316,12 +316,6 @@ export default {
       }
       return cname
     },
-    // 获取自有社群列表，绑定社群时只能绑定自有社群
-    getGroupList () {
-      this.$http('/group/list/self').then(res => {
-        this.groupList = simplifyGroups(res.data)
-      })
-    },
     // 显示绑定社群弹框
     showDialogForm (data, index) {
       if (!data.groupName) {
@@ -655,12 +649,6 @@ export default {
     }
   },
   watch: {
-    // 绑定弹框出现时，重新获取社群列表数据
-    dialogFormVisible (val) {
-      if (val) {
-        this.getGroupList()
-      }
-    }
   },
   filters: {
     handleMsg (val) {

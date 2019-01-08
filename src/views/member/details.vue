@@ -20,7 +20,7 @@
           :on-success="uploadSuccess"
           :on-progress="uploading"
           slot="file">
-          <el-button class="affirm">导入</el-button>
+          <el-button class="affirm">批量导入</el-button>
         </el-upload>
       </uu-sub-tab>
       <el-scrollbar class="table">
@@ -131,7 +131,6 @@ export default {
     // 按钮信息
     btnArray: [
       {text: '手动添加'},
-      {text: '下载模板'},
       {type: 'file'}
     ],
     // 菜单名称
@@ -224,17 +223,6 @@ export default {
     button (e) {
       if (!e) {
         this.addPerson()
-      } else {
-        let data = {
-          key: 'member'
-        }
-        MemberTemplate(data).then(res => {
-          var a = document.createElement('a')
-          a.href = res.data
-          document.body.appendChild(a)
-          a.click()
-          a.remove()
-        })
       }
     },
     // 搜索事件

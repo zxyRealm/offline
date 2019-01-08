@@ -48,25 +48,22 @@
             </template>
           </el-table-column>
           <el-table-column
+            label="类型">
+            <template slot-scope="scope">
+              {{scope.row.type | libraryType}}
+            </template>
+          </el-table-column>
+          <el-table-column
           width="90"
             prop="memberCount"
             label="人员数">
           </el-table-column>
           <el-table-column
-            label="关联社群"
-            :show-overflow-tooltip="true">
-            <template slot-scope="scope">
-              <div v-if="!scope.row.groupName" class="relevance__cont grey">暂无</div>
-              <div v-else class="relevance__cont">{{scope.row.groupName}}</div>
-              <div v-if="!scope.row.groupName" class="relevance" @click="getGroupList(scope.row)"></div>
-              <div v-else class="relevance el-icon-edit noImage" @click="getGroupList(scope.row)"></div>
-            </template>
-          </el-table-column>
-          <el-table-column
             min-width="100"
             label="操作">
             <template slot-scope="scope">
-              <div class="fl hand edit" @click="editNew(scope.row.guid)">编辑</div>
+              <router-link class="fl" :to="{name: 'Library', query: {guid: scope.row.guid}}">编辑</router-link>
+              <!--<div class="fl hand edit" @click="editNew(scope.row.guid)">编辑</div>-->
               <div class="fl hand manage" @click="goDetails(scope.row.guid)">人员管理</div>
               <div class="fl hand del" @click="del(scope.row.guid)">删除</div>
             </template>
@@ -188,7 +185,7 @@ export default {
     },
     // 编辑库
     editNew (e) {
-      this.$router.push({path: '/member/library', query: {guid: e}})
+      // this.$router.push({path: '/member/library', query: {guid: e}})
     },
     // 删除库
     del (e) {
@@ -290,6 +287,23 @@ export default {
     }
   },
   watch: {
+  },
+  filters: {
+    libraryType (type) {
+      let typeName = ''
+      switch (type) {
+        case 1:
+          typeName = '员工'
+          break
+        case 2:
+          typeName = '会员'
+          break
+        case 3:
+          typeName = '黑名单'
+          break
+      }
+      return typeName
+    }
   }
 }
 </script>

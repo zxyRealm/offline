@@ -131,7 +131,6 @@ export default {
     // @remote-search 点击图标或回车是触发
     searchMethod () {
       if (this.searchValue) {
-        console.log(this.searchValue)
         if (this.searchValue.length > 32) {
           this.searchValue = this.searchValue.substr(0, 20)
           this.$tip('请输入1-32位字符', 'error')

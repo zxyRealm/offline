@@ -959,34 +959,26 @@ export default {
     },
     // 处理管理层社群信息（商场、连锁、单店）
     handleCommunity (formName) {
-      try {
-        console.log(formName, this.communityForm)
-        this.$refs[formName].validate(valid => {
-          console.log(formName, this.communityForm)
-          if (valid) {
-            let subData = JSON.parse(JSON.stringify(this.communityForm))
-            let address = subData.pca.split(',').map(Number)
-            subData.provinceAreaId = address[0] || 0
-            subData.cityAreaId = address[1] || 0
-            subData.districtAreaId = address[2] || 0
-            if (subData.type === 4) subData.guid = this.currentManage.id
-            GetCommunityUpdate(subData).then(res => {
-              this.$tip('保存成功')
-              this.addCommunityVisible = false
-              this.getGroupList()
-            })
-          } else {
-          }
-        })
-      } catch (e) {
-        console.log(formName, e)
-      }
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          let subData = JSON.parse(JSON.stringify(this.communityForm))
+          let address = subData.pca.split(',').map(Number)
+          subData.provinceAreaId = address[0] || 0
+          subData.cityAreaId = address[1] || 0
+          subData.districtAreaId = address[2] || 0
+          if (subData.type === 4) subData.guid = this.currentManage.id
+          GetCommunityUpdate(subData).then(res => {
+            this.$tip('保存成功')
+            this.addCommunityVisible = false
+            this.getGroupList()
+          })
+        } else {
+        }
+      })
     },
     // 处理成员信息
     handleMember (formName) {
-      // console.log('member ---------', this.handleMemberForm)
       this.$refs[formName].validate(valid => {
-        console.log('member ---------', this.handleMemberForm)
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.handleMemberForm))
           let address = subData.pca.split(',').map(Number)
@@ -995,7 +987,6 @@ export default {
           subData.districtAreaId = address[2] || 0
           subData.industryTypeName = this.industryList.filter(item => item.code === subData.industryType)[0].value
           if (!subData.parentGuid) subData.parentGuid = this.currentManage.id
-          console.log('member ---------', subData)
           if (!subData.coordinates || !subData.coordinates.length) {
             this.$tip('请选取绑定区域', 'error')
             return

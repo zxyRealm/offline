@@ -205,7 +205,7 @@
 
     // 获取当前src并截取楼层号码
     var floor = window.location.search.split('=')[1]
-    
+
     loadSvg(floor)
 
     // 放置控制器
@@ -245,7 +245,7 @@
       }
       createSprite(obj)
     })
-    
+
   }
 
   init();
@@ -300,7 +300,7 @@
   function createSprite(obj) {
     // 创建文字
     initText(obj)
-    
+
     // 创建图片
     if(obj.logo){
       var sprite = createPictureSprite(obj.logo)
@@ -598,7 +598,7 @@
 
   // 转换字符串
   var getString = function(mesh) {
-    return Array.prototype.slice.call(mesh.geometry.attributes.position.array.toString())
+    return Array.prototype.slice.call(mesh.geometry.attributes.position.array).toString()
   }
 
   // 获取中心点和右侧点

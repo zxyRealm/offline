@@ -27,8 +27,11 @@
           v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
             <p class="readonly__text" v-if="!!userInfo.phone">{{userInfoForm.phone}}</p>
-            <el-input type="text" v-show="!userInfo.phone" placeholder="添加手机号"
-                      v-model.trim="userInfoForm.phone"></el-input>
+            <el-input
+              type="text"
+              v-show="!userInfo.phone"
+              placeholder="添加手机号"
+              v-model.trim="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称：" prop="company">
             <p class="readonly__text" v-if="!editable">{{userInfoForm.company}}</p>
@@ -114,6 +117,7 @@ export default {
           {validator: validCompany, trigger: 'blur'}
         ],
         phone: [
+          {required: true, message: '请添加手机号', trigger: 'blur'},
           {validator: validPhone, trigger: 'blur'}
         ],
         pca: [
@@ -234,6 +238,10 @@ export default {
   },
   watch: {
     '$route': function (val) {
+      if (!this.userInfo.company || !this.userInfo.phone) {
+        this.$router.push('/person/edit')
+        this.editable = false
+      }
       if (val.name === 'personEdit') {
         this.subLink.title = ''
         this.editable = true

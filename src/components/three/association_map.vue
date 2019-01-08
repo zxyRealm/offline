@@ -111,7 +111,7 @@ export default {
           if (this.handleDialogType === 2 && this.handlePortalForm.originName === value) {
             callback(new Error('该名称已存在'))
           } else {
-            console.log('currentFloor', this.currentFloor)
+            // console.log('currentFloor', this.currentFloor)
             CheckPortalNameExist({name: value, groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
               !res.data ? callback() : callback(new Error('该名称已存在'))
             }).catch(err => {
