@@ -49,7 +49,7 @@
                     >
                     <img
                       v-if="statisticEndInfo.Incoming_percent < 0"
-                      src="/static/img/grow_down.png"
+                      src="/static/img/grow-down.png"
                       alt
                       width="5"
                     >
@@ -665,6 +665,8 @@ export default {
     display: flex;
     flex-direction: column;
     height: 100%;
+    background-image: url('/static/img/map_background@2x.png');
+    background-size: cover;
     #floor2 {
       top: 10px;
       text-align: center;
@@ -702,6 +704,7 @@ export default {
     #iframeWrap {
       flex: 1;
       display: flex;
+      
       .iframe {
         width: 100%;
         height: 100%;
@@ -864,7 +867,7 @@ export default {
           }
           .member-border{
             border: 2px solid;
-            border-image: linear-gradient(#719CF5, #2160E0) 30 30;
+            border-image: linear-gradient(#B4EC51, #429321) 30 30;
           }
           .un-member-border{
             border: 2px solid;

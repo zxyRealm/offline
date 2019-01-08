@@ -46,7 +46,7 @@
     var count // 动态参考值
     var standardCount // 固定参考值
     var positionSpeed = 2 // 位移运动速度
-    var opacitySpeed = 0.5 * positionSpeed / floorHeight // 透明度运动速度
+    var opacitySpeed = 0.2 * positionSpeed / floorHeight // 透明度运动速度
     var opacitySpeed2 = 1 * positionSpeed / floorHeight // 商店透明度运动参数
     var opacitySpeed3 = 0.6 * positionSpeed / floorHeight // 边缘透明度运动参数
     var upClick = false // 上升trigger变量
@@ -94,7 +94,7 @@
 
       document.getElementById("WebGL-output").appendChild(renderer.domElement)
       window.addEventListener('resize', onWindowResize, false)
-      // window.addEventListener('mousemove', onDocumentMouseMove, false)
+      window.addEventListener('mousemove', onDocumentMouseMove, false)
       window.addEventListener('mousedown', onDocumentMouseClick, false)
 
       addControl()
@@ -209,11 +209,13 @@
         canvas.height / 2,
         canvas.width / 2
       );
-      gradient.addColorStop(0, 'rgba(255, 255, 255, 1');
-      gradient.addColorStop(0.2, 'rgba(255,255,255,1)');
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      
       if (status === 0) {
         gradient.addColorStop(0.4, 'rgba(255, 213, 0, 1)');
+        gradient.addColorStop(0.2, 'rgba(255, 213, 0, 1)');
       } else {
+        gradient.addColorStop(0.2, 'rgba(56, 223, 25, 1)');
         gradient.addColorStop(0.4, 'rgba(56, 223, 25, 1)');
       }
       gradient.addColorStop(0.7, 'rgba(0,0,0,1)');
@@ -226,26 +228,26 @@
     // 闪光粒子mesh
     function Shine(i, alex, floor, status) {
       if (i < 100) {
-        geometryArr[i] = new THREE.CircleGeometry(12, 50, 32)
+        geometryArr[i] = new THREE.CircleGeometry(7, 50, 32)
         materialArr[i] = new THREE.MeshBasicMaterial({
-          color: new THREE.Color('#fcff15'),
+          color: status === 1 ? new THREE.Color('rgba(56, 223, 25, 1)') : new THREE.Color('rgba(255, 213, 0, 1)'),
           transparent: true,
           side: THREE.DoubleSide,
           blending: THREE.AdditiveBlending,
-          map: new ShineCanvas(status).texture
+          // map: new ShineCanvas(status).texture
         })
         pointArr[i] = new THREE.Mesh(
           geometryArr[i],
           materialArr[i]
         )
         // pointArr[i].sortParticles = true;
-        pointArr[i].position.set(alex[0], floor, alex[1])
+        pointArr[i].position.set(alex[0], floor+1, alex[1])
         pointArr[i].scale.set(0.01, 0.01, 0.01)
         pointArr[i].rotation.x = 0.5 * Math.PI
         scene.add(pointArr[i])
       } else {
         i = i % 100;
-        pointArr[i].position.set(alex[0], floor, alex[1])
+        pointArr[i].position.set(alex[0], floor+1, alex[1])
         pointArr[i].rotation.x = 0.5 * Math.PI
       }
       if (floor < -floorHeight || floor > 2 * floorHeight + 5) {
@@ -272,7 +274,7 @@
         y: 0.01
       }
       var action1 = new TWEEN.Tween(scaleStart)
-        .to(scaleEnd, 500)
+        .to(scaleEnd, 1000)
         .onUpdate(function () {
           knot.scale.x = scaleStart.x;
           knot.scale.y = scaleStart.y;
@@ -339,14 +341,14 @@
         if (intersects.length > 0) {
           for (var i = 0; i < rayPlaneList.length; i++) {
             if (intersects[0].object === rayPlaneList[i]) {
-              moveChange(subRayList[i], 0x2a4586, 0xA1BCD4, 0x2A4586)
+              moveChange(subRayList[i], 0x0068FC, 0x293864, 0x2A4586)
             } else {
-              moveChange(subRayList[i], 0x5F719E, 0x2A4586, 0x2A4586)
+              moveChange(subRayList[i], 0x4E98F2, 0x0F1252, 0x005BC9)
             }
           }
         } else {
           for (var i = 0; i < rayPlaneList.length; i++) {
-            moveChange(subRayList[i], 0x5F719E, 0x2A4586, 0x2A4586)
+            moveChange(subRayList[i], 0x4E98F2, 0x0F1252, 0x005BC9)
           }
         }
       }
@@ -505,7 +507,7 @@
               geometry2.fromBufferGeometry(geometry)
 
               var materialLine = new THREE.MeshBasicMaterial({
-                color: new THREE.Color('#5F719E'),
+                color: new THREE.Color('#4E98F2'),
                 transparent: true,
                 opacity: opacity,
                 side: THREE.DoubleSide,
@@ -515,13 +517,13 @@
               var line = new THREE.Mesh(geometry2, materialLine)
               line.geometry.faces.forEach(function (face) {
                 if (face.normal.y !== 0 && face.normal.z !== 0) {
-                  face.color = new THREE.Color('#0E1239')
+                  face.color = new THREE.Color('#4E98F2')
                 }
               })
 
               var edgeGeometry = new THREE.BufferGeometry().setFromPoints(points)
               var edgeMaterial = new THREE.LineBasicMaterial({
-                color: '#2A4586',
+                color: '#005BC9',
                 transparent: true,
                 opacity: opacity
               })
@@ -530,10 +532,10 @@
               // var edges = new THREE.EdgesGeometry(geometry)
               // var edgeLine = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#000000'}))
 
-              line.position.set(0, info.coordinate_y + depth, 0)
+              line.position.set(0, info.coordinate_y + depth + 1, 0)
               line.rotation.set(0.5 * Math.PI, 0, 0)
               line.name = 'store'
-              edges.position.set(0, info.coordinate_y + depth, 0)
+              edges.position.set(0, info.coordinate_y + depth + 1, 0)
               edges.rotation.set(0.5 * Math.PI, 0, 0)
               edges.name = 'edges'
               group.add(edges)
@@ -554,10 +556,10 @@
             var shape = shapes[j];
             var geometry = new THREE.ShapeBufferGeometry(shape);
             var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-              color: '#2A4586',
+              color: '#0F1252',
               side: THREE.DoubleSide,
               transparent: true,
-              opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.5
+              opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.2
             }));
 
             mesh.position.set(0, info.coordinate_y, 0);
