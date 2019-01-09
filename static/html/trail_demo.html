@@ -14,22 +14,23 @@
     }
 
   </style>
-  <script src="../three/three.min.js"></script>
-  <script src="../three/SVGLoader.js"></script>
-  <script src="../three/OrbitControls.js"></script>
-  <script src="../three/tween.js"></script>
-  <script src="../three/trail_data.js"></script>
+  <script src="/static/three/three.min.js"></script>
+  <script src="/static/three/SVGLoader.js"></script>
+  <script src="/static/three/OrbitControls.js"></script>
+  <script src="/static/three/tween.js"></script>
+  <script src="/static/three/trail_data.js"></script>
+  <script src="/static/three/trail_data_loop.js"></script>
 </head>
 
 <body>
   <div id="WebGL-output"></div>
   <div style="position: absolute; top: 10px; left: 10px">
-    <!-- <a href="javascript:;" onclick="upfloor()">上楼</a> -->
-    <!-- <a href="javascript:;" onclick="downfloor()">下楼</a> -->
-    <a href="javascript:;" onclick="createPath('F11', 0)">轨迹</a>
+    <!-- <a href="javascript:;" onclick="upfloor()">上楼</a>
+    <a href="javascript:;" onclick="downfloor()">下楼</a> -->
+    <a href="javascript:;" onclick="createPath('',0)" style="color: #ffffff">轨迹动画</a>
   </div>
   <script>
-    var data = TRAIL_JSON.data;
+    var data = TRAIL_JSON_LOOP.data;
     var renderer, scene, camera, group;
     var space = 240;
     var planeList = [];
@@ -71,30 +72,48 @@
     var currentPathPointIndex = 0;
 
     // 动画trigger
-    function upfloor(currentElevator, index) {
+    function upfloor(currentElevator, index, targetFloorName) {
       setTimeout(function () {
         ChapterTwo('up')
       }, 1000)
       setTimeout(function () {
-        TrailPath(currentElevator)
-      }, 3000)
-      setTimeout(function () {
         ChapterThree('up')
       }, 6000)
+      if (targetFloorName){
+        ChapterOne()
+      }
+      if (currentElevator) {
+        setTimeout(function () {
+          TrailPath(currentElevator, 'up')
+        }, 3000)
+      }
       if (index) {
         setTimeout(function () {
-          createPath('F13', index)
+          createPath(targetFloorName, index)
         }, 9000)
       }
     }
 
-    function downfloor() {
+    function downfloor(currentElevator, index, targetFloorName) {
       setTimeout(function () {
         ChapterTwo('down')
       }, 1000)
       setTimeout(function () {
         ChapterThree('down')
       }, 6000)
+      if (targetFloorName){
+        ChapterOne()
+      }
+      if (currentElevator) {
+        setTimeout(function () {
+          TrailPath(currentElevator, 'down')
+        }, 3000)
+      }
+      if (index) {
+        setTimeout(function () {
+          createPath(targetFloorName, index)
+        }, 9000)
+      }
     }
 
     function init() {
@@ -125,16 +144,23 @@
 
     init()
 
-    String.prototype.toNumber = function (str) {
-      return str
+    // 0: 下楼 1: 上楼
+    function structFloorInfo(startFloor, endFloor) {
+      var s_floorAnti = startFloor.slice(0, 1)
+      var s_floorNum = parseInt(startFloor.slice(1, startFloor.length))
+      var e_floorAnti = endFloor.slice(0, 1)
+      var e_floorNum = parseInt(endFloor.slice(1, endFloor.length))
+      if (s_floorAnti === 'F' && e_floorAnti === 'B') return 0
+      if (e_floorAnti === 'F' && s_floorAnti === 'B') return 1
+      if (s_floorNum < e_floorNum) return 1
+      if (s_floorNum > e_floorNum) return 0
     }
 
     var BEGIN_FLOOR;
+    var END_FLOOR;
     // 确定轨迹开始的楼层
     function ChapterZero() {
       BEGIN_FLOOR = data[0].floorName
-      console.log(BEGIN_FLOOR)
-      // console.log(BEGIN_FLOOR.toNumber())
     }
 
     // step1: 放置所有起始楼层的最初位置
@@ -143,8 +169,11 @@
         if (item.name === BEGIN_FLOOR) {
           item.position.set(0, 0, 0)
           item.rotation.x = 0.3 * Math.PI
-        } else {
-          item.position.y = 500
+        } else if(structFloorInfo(BEGIN_FLOOR, item.name)) {
+          item.position.y = 260
+          item.rotation.x = 0
+        }else if(!structFloorInfo(BEGIN_FLOOR, item.name)) {
+          item.position.y = -260
           item.rotation.x = 0
         }
       })
@@ -153,16 +182,16 @@
     // step2: 电梯楼层动画
     function ChapterTwo(type) {
       group.children.forEach(function (item) {
-        animateLowerElevator(item, 'F11', type)
-        animateHigerElevator(item, 'F13', type)
+        animateLowerElevator(item, type === 'up' ? BEGIN_FLOOR : END_FLOOR, type)
+        animateHigerElevator(item, type === 'up' ? END_FLOOR : BEGIN_FLOOR, type)
       })
     }
 
     // step3: 切换楼层动画
     function ChapterThree(type) {
       group.children.forEach(function (item) {
-        animateLowerFloor(item, 'F11', type)
-        animateHigerFloor(item, 'F13', type)
+        animateLowerFloor(item, type === 'up' ? BEGIN_FLOOR : END_FLOOR, type)
+        animateHigerFloor(item, type === 'up' ? END_FLOOR : BEGIN_FLOOR, type)
       })
     }
 
@@ -174,11 +203,11 @@
       UNROTATE_Y: 0, // 电梯偏转角
       ORIROTATE_X: 0.3 * Math.PI, // 原始偏转角
       ORIROTATE_Y: 0, // 原始偏转角
-      HIGH_POS: 400, // 最高点
-      PASS_HIGH_POS: 200, // 过度点
+      HIGH_POS: 260, // 最高点
+      PASS_HIGH_POS: 130, // 过度点
       MIDDLE_POS: 0, // 显示区
-      PASS_LOW_POS: -200, // 过渡点
-      LOW_POS: -400, // 最低点
+      PASS_LOW_POS: -130, // 过渡点
+      LOW_POS: -260, // 最低点
       OPACITY_BLOCK: 1, // 完全显示
       OPACITY_NONE: 0 // 完全隐藏
     }
@@ -408,7 +437,7 @@
 
           for (var j = 0; j < shapes.length; j++) {
 
-            // if (i === 0) continue
+            if (i === 0) continue
 
             var shape = shapes[j]
             var points = shape.getPoints()
@@ -442,15 +471,22 @@
     }
 
     function createPath(floorName, currentPathPointIndex) {
+      if (!floorName) {
+        floorName = BEGIN_FLOOR
+      }
+      
       var count = currentPathPointIndex
       var floorGroup;
+      
       group.children.forEach(function (item) {
         if (item.name === floorName) {
           floorGroup = item
         }
       })
+
       var timer1 = setInterval(function () {
-        if(count%2===0){
+        
+        if (count % 2 === 0 && count <= data.length - 2) {
           var pathGroup = {
             start: !data[count].elevator ? data[count].pointInPath : data[count].point,
             end: !data[count + 1].elevator ? data[count + 1].pointInPath : data[count + 1].point
@@ -463,28 +499,34 @@
         
         if (data[count].capturePoint || data[count].elevator) {
           let obj = new THREE.Vector3(
-            data[count].point.x - 580 / 2,
+            data[count].point.x - pic_width / 2,
             1,
-            data[count].point.y - 475 / 2
+            data[count].point.y - pic_height / 2
           )
           let circle = new Circle(obj)
           circle.mesh.rotation.x = -0.5 * Math.PI
-          console.log(circle.mesh)
           floorGroup.add(circle.mesh)
         }
         
         count += 1
 
-        if (count > currentPathPointIndex + 2 && data[count-2].elevator === true) {
-          currentElevator[0] = data[count]
-          currentElevator[1] = data[count+1]
-          currentPathPointIndex = count
-          upfloor(currentElevator, count)
+        if (count === data.length){
           clearInterval(timer1)
         }
-        if (count === data.length - 3){
+
+        if (count > currentPathPointIndex + 2 && data[count-1].elevator === true) {
+          currentElevator[0] = data[count-1]
+          currentElevator[1] = data[count]
+          BEGIN_FLOOR = data[count-3].floorName
+          END_FLOOR = data[count+1].floorName
+          if (structFloorInfo(BEGIN_FLOOR, END_FLOOR)){
+            upfloor(currentElevator, count, END_FLOOR)
+          } else {
+            downfloor(currentElevator, count, END_FLOOR)
+          }
           clearInterval(timer1)
         }
+
       }, 100)
     }
 
@@ -510,7 +552,7 @@
     }
 
     // 电梯轨迹
-    function TrailPath(currentElevator) {
+    function TrailPath(currentElevator, type) {
       var rectPath = new THREE.Path();
       var position = {
         x: currentElevator[0].point.x - pic_width / 2,
@@ -543,8 +585,8 @@
       
       var animateEnd = 65
       var intervalCount = 0
-      rectPath.moveTo(position.x, transferBoard.PASS_LOW_POS + 15, position.y)
-      rectPath.lineTo(position.x1, transferBoard.PASS_HIGH_POS + 15, position.y1)
+      rectPath.moveTo(position.x, type === 'up' ? transferBoard.PASS_LOW_POS + 15 : transferBoard.PASS_HIGH_POS + 15, position.y)
+      rectPath.lineTo(position.x1, type === 'up' ? transferBoard.PASS_HIGH_POS + 15 : transferBoard.PASS_LOW_POS + 15, position.y1)
       path = rectPath;
       
       var timer2 = setInterval(function(){
@@ -591,7 +633,7 @@
       var material = new THREE.MeshBasicMaterial({
         color: new THREE.Color('#5F719E'),
         transparent: true,
-        opacity: groupName === 'F11' ? 1 : opacity,
+        opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
         side: THREE.DoubleSide,
         // vertexColors: THREE.FaceColors
       })
@@ -613,7 +655,7 @@
       var material = new THREE.LineBasicMaterial({
         color: '#2A4586',
         transparent: true,
-        opacity: groupName === 'F11' ? 1 : opacity
+        opacity: groupName === BEGIN_FLOOR ? 1 : opacity
       })
       this.mesh = new THREE.Line(geometry, material)
       this.mesh.rotation.set(0.5 * Math.PI, 0, 0)
@@ -628,7 +670,7 @@
         color: '#2A4586',
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: groupName === 'F11' ? 1 : opacity
+        opacity: groupName === BEGIN_FLOOR ? 1 : opacity
       })
       this.mesh = new THREE.Mesh(geometry, material);
       this.mesh.rotation.set(0.5 * Math.PI, 0, 0)
@@ -658,13 +700,13 @@
 
     function createCamera() {
       camera = new THREE.OrthographicCamera(
-        window.innerWidth / -2,
-        window.innerWidth / 2,
-        window.innerHeight / 2,
-        window.innerHeight / -2,
+        window.innerWidth / -2.5,
+        window.innerWidth / 2.5,
+        window.innerHeight / 2.5,
+        window.innerHeight / -2.5,
         0.1, 10000
       )
-      camera.position.set(0, 0, 300)
+      camera.position.set(0, 0, 400)
       camera.lookAt(0, 0, 0);
       scene.add(camera)
     }
@@ -686,7 +728,7 @@
     }
 
     function createAlexHelper() {
-      var axesHelper = new THREE.AxesHelper(100)
+      var axesHelper = new THREE.AxesHelper(10)
       scene.add(axesHelper)
     }
 

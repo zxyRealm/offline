@@ -81,8 +81,8 @@
       camera.lookAt(0, 0, 0)
       scene.add(camera)
 
-      // var light = new THREE.PointLight('#ffffff', 0.8)
-      // camera.add(light)
+      var light = new THREE.HemisphereLight(0xffffbb, 0xffffbb, 1)
+      scene.add(light)
 
       // var axesHelper = new THREE.AxesHelper(100)
       // scene.add(axesHelper)
