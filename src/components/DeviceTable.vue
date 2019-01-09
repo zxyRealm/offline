@@ -76,9 +76,8 @@
                 placement="top"
                 trigger="hover">
                 <ul class="order-list">
-                  <li v-show="scope.row.deviceStatus===undefined">尚未【获取】设备状态，无法操作</li>
-                  <li v-if="scope.row.isHandle===false">{{!showDelete ? '尚无该设备的操作权限，无法操作' : '设备操作权限已上送，无法操作'}}</li>
-                  <li v-else-if="scope.row.deviceStatus">{{scope.row.deviceStatus | handleMsg}}</li>
+                  <li v-show="scope.row.deviceStatus===undefined">未获取状态，无法操作</li>
+                  <li v-if="scope.row.deviceStatus">{{scope.row.deviceStatus | handleMsg}}</li>
                 </ul>
                 <uu-icon
                   :style="{visibility: scope.row.deviceStatus === 0 ? 'hidden' : 'visible'}"
@@ -118,10 +117,11 @@
       :visible.sync="deviceUpdateVisible">
       <div slot="form" class="vam">
         <div class="version__list--wrap text-center">
-          <div class="c-grey fs12 g-pl20 mt16">{{dataType ==='server'? '服务器': '设备'}}当前版本：{{currentVersion}}</div>
-          <p class="radio-box last-version fs12" >
-            最新版本 {{lastVersion}}
-          </p>
+          是否确定升级为 {{lastVersion}} 版本 ?
+          <!--<div class="c-grey fs12 g-pl20 mt16">{{dataType ==='server'? '服务器': '设备'}}当前版本：{{currentVersion}}</div>-->
+          <!--<p class="radio-box last-version fs12" >-->
+            <!--最新版本 {{lastVersion}}-->
+          <!--</p>-->
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -167,24 +167,24 @@ export default {
       if (!value) {
         callback(new Error('请输入设备别名'))
       } else {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           if (this.$route.name === 'equipmentCamera') {
             CheckCameraName({serverKey: this.$route.query.server_key, name: value}).then(res => {
-              res.data ? callback(new Error('设备别名已存在')) : callback()
+              res.data ? callback(new Error('该名称已存在')) : callback()
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
             })
           } else {
             DeviceAliasExist({name: value}).then(res => {
-              res.data ? callback(new Error('设备别名已存在')) : callback()
+              res.data ? callback(new Error('该名称已存在')) : callback()
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
             })
           }
         } else {
-          callback(new Error('请输入正确的设备别名'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       }
     }
@@ -315,12 +315,6 @@ export default {
           cname = 'success-color'
       }
       return cname
-    },
-    // 获取自有社群列表，绑定社群时只能绑定自有社群
-    getGroupList () {
-      this.$http('/group/list/self').then(res => {
-        this.groupList = simplifyGroups(res.data)
-      })
     },
     // 显示绑定社群弹框
     showDialogForm (data, index) {
@@ -531,10 +525,13 @@ export default {
       }
       if (type === 'upgrade') {
         this.currentDevice = value
-        this.deviceUpdateVisible = true
-        this.currentVersion = value.deviceVersion
         GetDeviceVersion({deviceType: value.type}).then(res => {
           this.lastVersion = res.data.deviceVersion
+          if (this.lastVersion === value.deviceVersion) {
+            this.$tip('已是最新版本', 'error')
+          } else {
+            this.deviceUpdateVisible = true
+          }
         })
         // 获取设备历史版本信息
       } else {
@@ -652,37 +649,31 @@ export default {
     }
   },
   watch: {
-    // 绑定弹框出现时，重新获取社群列表数据
-    dialogFormVisible (val) {
-      if (val) {
-        this.getGroupList()
-      }
-    }
   },
   filters: {
     handleMsg (val) {
       let msg = ''
       switch (val) {
         case 1:
-          msg = '设备状态异常，无法操作'
+          msg = '设备离线，无法操作'
           break
         case 2:
-          msg = '设备重启中，无法进行其他操作'
+          msg = '设备重启中，无法操作'
           break
         case 3:
-          msg = '设备重置中，无法进行其他操作'
+          msg = '设备重置中，无法操作'
           break
         case 4:
-          msg = '设备升级中，无法进行其他操作'
+          msg = '设备升级中，无法操作'
           break
         case 5:
           msg = '设备未启用，无法操作'
           break
         case 6:
-          msg = '设备启用中，无法进行其他操作'
+          msg = '设备启用中，无法操作'
           break
         case 7:
-          msg = '设备禁用中，无法进行其他操作'
+          msg = '设备禁用中，无法操作'
           break
         default:
           msg = ''
@@ -740,6 +731,8 @@ export default {
 }
 /*设备升级弹框 版本列表*/
 .version__list--wrap {
+  height: 80px;
+  line-height: 70px;
   .radio-box{
     display: block;
     padding-left: 20px;

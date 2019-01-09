@@ -31,13 +31,6 @@ export default {
           {key: 'member', name: '会员'}
         ]
       },
-      dataList: [
-        {value: 0, name: '0-10岁'},
-        {value: 0, name: '10-20岁'},
-        {value: 0, name: '20-30岁'},
-        {value: 0, name: '30-40岁'},
-        {value: 0, name: '50岁以上'}
-      ],
       options: {}
     }
   },
@@ -99,7 +92,14 @@ export default {
       let seriesData = this.formatData()
       if (this.type === 'age') {
       // #979797
-        let color = this.total ? ['#FFD500', '#38DF19', '#FF6660', '#0F9EE9', '#005BC9', '#8663FF'] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
+        let color = this.total ? [
+          '#FFD500',
+          '#7ED321',
+          '#FF6660',
+          '#0F9EE9',
+          '#005BC9',
+          '#8663FF'
+        ] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
         this.options = {
           color: color, // ['#2187DF','#6D2EBB']
           title: {
@@ -113,7 +113,7 @@ export default {
           tooltip: { // 鼠标悬浮提示消息
             show: true,
             trigger: 'item',
-            formatter: '{a} <br/>{b}: {c} ({d}%)',
+            formatter: '{b}: {c}',
             textStyle: {
               fontSize: 12
             }
@@ -133,38 +133,26 @@ export default {
             },
             icon: 'square',
             data: [
-              {
-                name: '0-10岁'
-              },
-              {
-                name: '10-20岁'
-              },
-              {
-                name: '20-30岁'
-              },
-              {
-                name: '30-40岁'
-              },
-              {
-                name: '40-50岁'
-              },
-              {
-                name: '50岁以上'
-              }
+              {name: '0-10岁'},
+              {name: '10-20岁'},
+              {name: '20-30岁'},
+              {name: '30-40岁'},
+              {name: '40-50岁'},
+              {name: '50岁以上'}
             ]
           },
           series: [
             {
-              name: '访问来源',
+              name: '',
               type: 'pie',
               center: ['28%', '56%'],
-              radius: ['35%', '80%'],
+              radius: ['36%', '60%'],
               avoidLabelOverlap: false,
               roseType: 'radius',
               label: {
                 normal: {
                   show: false,
-                  fontSize: 13,
+                  fontSize: 12,
                   formatter: function (v) {
                     return ''
                   }, // '{per|{d}%}',//'{d}%',  //显示百分比
@@ -210,12 +198,6 @@ export default {
             show: false,
             trigger: 'item',
             formatter: '{a} <br/>{b}: {c} ({d}%)',
-            // position: function (pos, params, dom, rect, size) {
-            //   // 鼠标在左侧时 tooltip 显示到右侧，鼠标在右侧时 tooltip 显示到左侧。
-            //   var obj = {top: '10%'}
-            //   obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 5
-            //   return obj
-            // },
             textStyle: {
               fontSize: 12,
               color: '#fff'

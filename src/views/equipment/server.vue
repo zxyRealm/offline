@@ -86,12 +86,6 @@ export default {
         this.bindCommunity(data)
       }
     },
-    // 获取社群树形结构数据
-    getGroupList () {
-      this.$http('/group/list/self').then(res => {
-        this.groupList = simplifyGroups(res.data)
-      })
-    },
     // 获取服务器列表
     getServerEquipment (page) {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)

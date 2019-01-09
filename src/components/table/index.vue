@@ -74,10 +74,6 @@ export default {
       this.pageParams.currentPage = val
       this.getData()
     },
-    // 条件请求数据
-    doSearch () {
-      // this.gettableData();
-    },
     // 请求数据
     getData () {
       let params = JSON.parse(JSON.stringify(this.$store.state.filterParams))
@@ -85,6 +81,9 @@ export default {
       params.index = this.pageParams.currentPage
       params.startTime = params.startTime + ' 00:00:00'
       params.endTime = params.endTime + ' 23:59:59'
+      params.groupSonGuid = params.group.guid
+      params.groupName = params.group.name
+      delete params.group
       if (!params.groupSonGuid) {
         this.$tip('请您先选择社群', 'error')
         return
@@ -93,12 +92,6 @@ export default {
         this.tableData = res.data.content || []
         this.$set(this.pageParams, 'total', res.data.pagination.total || 0)
       })
-      // this.$http('/chart/flowCount', params).then(res => {
-      //   this.tableData = res.data.content || []
-      //   this.$set(this.pageParams, 'total', res.data.pagination.total || 0)
-      // }).catch(error => {
-      //   console.info(error)
-      // })
     },
     initSize () {
       // table高度改变
@@ -140,8 +133,6 @@ export default {
   watch: {
     filterParams: {
       handler: function (val, oldVal) {
-        // console.info(val,11111111);
-        // this.pageParams.currentPage = 1;
       },
       deep: true
     },

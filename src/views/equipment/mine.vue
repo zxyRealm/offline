@@ -170,8 +170,8 @@ export default {
     }
     const validateName = (rule, value, callback) => {
       if (value) {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           // 一体机、服务器名称验重
           let url = '/merchant/device/alias/exist'
@@ -187,12 +187,12 @@ export default {
               break
           }
           this.$http(url, subData, false).then(res => {
-            res.data ? callback(new Error('设备别名已存在')) : callback()
+            res.data ? callback(new Error('该名称已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
           })
         } else {
-          callback(new Error('请输入正确的设备别名'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       } else {
         callback(new Error('请输入设备名称'))
@@ -274,15 +274,6 @@ export default {
     }
   },
   methods: {
-    // 自有设备搜索
-    search (val) {
-      if (val) {
-        this.$router.push(`/equipment/mine/search/${val}`)
-      } else {
-        this.$router.push('/equipment/mine')
-        this.getGroupList()
-      }
-    },
     // 弹窗表单提交
     submitForm (data) {
       if (this.dialogOptions.type === 'device') {

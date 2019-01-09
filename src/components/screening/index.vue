@@ -6,12 +6,13 @@
         <el-select
           class="group-name-input"
           @change="groupChange"
+          value-key="guid"
           placeholder="请选择社群"
-          v-model="filterParams.groupSonGuid">
+          v-model="filterParams.group">
           <el-option
             v-for="(item, $index) in groupList"
             :key="$index"
-            :value="item.guid"
+            :value="item"
             :label="item.name"></el-option>
         </el-select>
       </el-form-item>
@@ -90,13 +91,12 @@ export default {
         {name: '月', type: 'month'}
       ], // 维度
       filterParams: {
-        groupSonGuid: '', // 选择社群 6867A6C096844AD4982F19323B6C9574
+        group: '', // 选择社群 6867A6C096844AD4982F19323B6C9574
         type: 'flow', // 类型
         timeIntervalUnit: 'hour', // 维度
         startTime: '', // 开始时间
         endTime: '', // 结束时间
-        timeArray: [],
-        groupName: ''
+        timeArray: []
       },
       groupList: [] // 社群列表信息
 
@@ -112,7 +112,7 @@ export default {
     },
     // 更换选取社群
     groupChange () {
-      this.filterParams.groupName = this.groupList.filter(item => item.guid === this.filterParams.groupSonGuid)[0].name
+      // this.filterParams.groupName = this.groupList.filter(item => item.guid === this.filterParams.groupSonGuid)[0].name
     },
     // 点击维度
     handleButton (value) {
@@ -131,7 +131,6 @@ export default {
     },
     // vuex状态管理数据
     changeParams () {
-      // console.log('set vuex ', this.filterParams)
       this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
       // 这这里触发兄弟组件更新条件
       try {
@@ -143,8 +142,7 @@ export default {
     },
     // 查询
     submitForm () {
-      console.log(this.filterParams)
-      if (this.filterParams.groupSonGuid === '') {
+      if (!this.filterParams.group || !this.filterParams.group.guid) {
         this.$tip('请选择社群', 'error')
         return
       }
@@ -174,7 +172,7 @@ export default {
     this.filterParams = this.$store.state.filterParams
     this.filterParams.type = this.type
     this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
-    if (this.filterParams.groupSonGuid) {
+    if (this.filterParams.group && this.filterParams.group.guid) {
       this.$parent.$children[1].getData()
       this.$parent.$children[2].getData()
     }

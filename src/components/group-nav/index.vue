@@ -175,7 +175,6 @@ export default {
       this.$emit('remote-search', this.filterText)
     },
     loadNodeList (node, resolve) {
-      console.log(node)
       if (node.level > 1) {
       } else {
         resolve([])

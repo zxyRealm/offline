@@ -131,13 +131,12 @@ export default {
     // @remote-search 点击图标或回车是触发
     searchMethod () {
       if (this.searchValue) {
-        console.log(this.searchValue)
-        if (this.searchValue.length > 20) {
+        if (this.searchValue.length > 32) {
           this.searchValue = this.searchValue.substr(0, 20)
-          this.$tip('请输入1-20位字符', 'error')
+          this.$tip('请输入1-32位字符', 'error')
           return
         } else if (!validateRule(this.searchValue, 2)) {
-          this.$tip(`请输入正确的${this.$route.name === 'community' ? '社群' : '设备'}名称`, 'error')
+          this.$tip(`仅限汉字/字母/数字/下划线/空格`, 'error')
           return
         }
       }

@@ -125,12 +125,12 @@ export default {
         gender: []
       },
       industryColor: [
-        '#FB0004',
+        '#FF6660',
         '#FD951B',
         '#FFEF03',
-        '#0F9EE9',
+        '#7ED321',
         '#005BC9',
-        '#0F4585'
+        '#4A21B8'
       ],
       rankData: { // 排行榜 （业态、门店）
         group: [],
@@ -416,7 +416,7 @@ export default {
           }
           &:nth-child(2){
             width: 70px;
-            margin: 0 6px;
+            margin: 0 14px;
             background-image: url(../../assets/three/industry_rank_one.png);
             span{
               margin-top: 84px;

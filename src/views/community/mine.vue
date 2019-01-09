@@ -299,16 +299,23 @@
           <el-form-item label="地区：" prop="pca">
             <area-select placeholder="请选择地区" v-model="communityForm.pca"></area-select>
           </el-form-item>
-          <el-form-item prop="address">
-            <el-input type="text" placeholder="请输入详细地址"
-                      v-model.trim="communityForm.address"></el-input>
+          <el-form-item
+            :rules="[
+              {required: handleCommunityType === 2, message: '请输入详细地址', trigger: 'blur'},
+              {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
+            ]"
+            prop="address">
+            <el-input
+              type="text"
+              placeholder="请输入详细地址"
+              v-model.trim="communityForm.address"></el-input>
           </el-form-item>
           <el-form-item label="联系人：" prop="contact">
             <el-input type="text" placeholder="请输入联系人"
                       v-model.trim="communityForm.contact"></el-input>
           </el-form-item>
           <el-form-item label="联系电话：" prop="phone">
-            <el-input type="text" placeholder="11位手机号"
+            <el-input type="text" placeholder="请输入联系电话"
                       v-model.trim="communityForm.phone"></el-input>
           </el-form-item>
         </el-form>
@@ -348,9 +355,8 @@
 </template>
 
 <script>
-import {makeCustomName} from '@/utils'
 import Mixins from '@/utils/mixins'
-import {validateRule} from '@/utils/validate'
+import {validateRule, validPhone} from '../../utils/validate'
 import {mapState} from 'vuex'
 import Clipboard from '@/utils/clipboard'
 import area from '@/components/area-select/area-select'
@@ -416,7 +422,7 @@ export default {
             this.joinManageForm.floor = ''
             this.joinManageForm.industryType = ''
             this.ManageInfo = {}
-            callback(new Error('请输入正确的社群邀请码'))
+            callback(new Error('仅限数字/字母'))
           }
         } else {
           this.joinManageForm.floor = ''
@@ -430,8 +436,8 @@ export default {
       if (!value) {
         callback(new Error('请输入社群名称'))
       } else {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           if ((this.handleCommunityType === 4 && this.communityForm.originName === value) || (this.handleCommunityType === 8 && this.editNicknameForm.originName === value)) {
             callback()
@@ -450,7 +456,7 @@ export default {
             })
           }
         } else {
-          callback(new Error('请输入正确的社群名称'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       }
     }
@@ -458,8 +464,8 @@ export default {
       if (!value) {
         callback(new Error('请输入社群名称'))
       } else {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           if (this.handleCommunityType === 6 && this.handleMemberForm.originName === value) {
             callback()
@@ -471,7 +477,7 @@ export default {
             })
           }
         } else {
-          callback(new Error('请输入正确的社群名称'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       }
     }
@@ -482,20 +488,7 @@ export default {
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('请输入正确的联系人'))
-        }
-      } else {
-        callback()
-      }
-    }
-    const validatePhone = (rule, value, callback) => {
-      if (value) {
-        if (validateRule(value, 6)) {
-          callback()
-        } else if (value.length !== 11) {
-          callback(new Error('请输入11位手机号'))
-        } else {
-          callback(new Error('手机号格式错误'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       } else {
         callback()
@@ -617,7 +610,7 @@ export default {
           {validator: validateContact, trigger: 'blur'}
         ],
         phone: [
-          {validator: validatePhone, trigger: 'blur'}
+          {validator: validPhone, trigger: 'blur'}
         ]
       },
       handleMemberForm: { // 添加/编辑成员社群
@@ -652,7 +645,7 @@ export default {
           {validator: validateContact, trigger: 'blur'}
         ],
         phone: [
-          {validator: validatePhone, trigger: 'blur'}
+          {validator: validPhone, trigger: 'blur'}
         ]
       },
       editNicknameForm: {
@@ -668,17 +661,18 @@ export default {
     }
   },
   created () {
-    this.$http('/firstCheck', {name: 'insight_group_list_first'}).then(res => {
-      if (res.data) {
-        this.btnArray.map(item => {
-          item.showPopover = true
-          return item
-        })
-        window.addEventListener('click', this.firstCreate)
-      }
-    })
+    // this.$http('/firstCheck', {name: 'insight_group_list_first'}).then(res => {
+    //   if (res.data) {
+    //     this.btnArray.map(item => {
+    //       item.showPopover = true
+    //       return item
+    //     })
+    //     window.addEventListener('click', this.firstCreate)
+    //   }
+    // })
   },
   mounted () {
+    // this.$store.state.loading = true
     this.getGroupList()
   },
   computed: {
@@ -1025,6 +1019,7 @@ export default {
             }
           }
         } else {
+          console.log('validate failed')
         }
       })
     },

@@ -72,7 +72,6 @@ export default {
   },
   mounted () {
     this.initScene()
-    console.log(this.$data)
   },
   computed: {},
   methods: {
@@ -97,7 +96,6 @@ export default {
       //
       this.group = new THREE.Group()
       this.scene.add(this.group)
-      console.log(this.group)
       //
       // let directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
       // directionalLight.position.set(0, 0, 10).normalize()
@@ -240,7 +238,6 @@ export default {
       let intersects = this.raycaster.intersectObjects(this.meshList)
       if (intersects.length > 0) {
         this.INTERSECTED = intersects[ 0 ].object
-        console.log('click', intersects[ 0 ].object.uuid)
         this.$emit('handle-block-click', intersects[ 0 ].object)
       }
     },

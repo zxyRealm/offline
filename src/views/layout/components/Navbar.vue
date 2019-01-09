@@ -152,9 +152,16 @@
         <el-form-item label="地区：" prop="pca">
           <area-select placeholder="请选择地区" v-model="communityForm.pca"></area-select>
         </el-form-item>
-        <el-form-item prop="address">
-          <el-input type="text" placeholder="请输入详细地址"
-                    v-model.trim="communityForm.address"></el-input>
+        <el-form-item
+          :rules="[
+            {required: handleCommunityType === 2, message: '请输入详细地址', trigger: 'blur'},
+            {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
+          ]"
+          prop="address">
+          <el-input
+            type="text"
+            placeholder="请输入详细地址"
+            v-model.trim="communityForm.address"></el-input>
         </el-form-item>
         <el-form-item label="楼层：" prop="floorList">
           <floor-select v-model.trim="communityForm.floorList"></floor-select>
@@ -182,7 +189,7 @@
                     v-model.trim="communityForm.contact"></el-input>
         </el-form-item>
         <el-form-item label="联系电话：" prop="phone">
-          <el-input type="text" placeholder="11位手机号"
+          <el-input type="text" placeholder="请输入联系电话"
                     v-model.trim="communityForm.phone"></el-input>
         </el-form-item>
       </el-form>
@@ -216,7 +223,7 @@ import {eventObject} from '@/utils/event.js'
 import ConsoleDialog from '@/components/console'
 import {GetManageList, OssSignature} from '../../../api/common'
 import {CheckNameExist, AddNewCommunity} from '../../../api/community'
-import {validateRule} from '../../../utils/validate'
+import {validateRule, validPhone} from '../../../utils/validate'
 import {parseTime} from '../../../utils'
 import axios from 'axios'
 import {load} from '../../../utils/new-request'
@@ -236,8 +243,8 @@ export default {
       if (!value) {
         callback(new Error('请输入社群名称'))
       } else {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           CheckNameExist({name: value}).then(res => {
             !res.data ? callback() : callback(new Error('社群名称已存在'))
@@ -245,7 +252,7 @@ export default {
             callback(new Error(err.msg || '验证失败'))
           })
         } else {
-          callback(new Error('请输入正确的社群名称'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       }
     }
@@ -256,20 +263,7 @@ export default {
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('请输入正确的联系人'))
-        }
-      } else {
-        callback()
-      }
-    }
-    const validatePhone = (rule, value, callback) => {
-      if (value) {
-        if (validateRule(value, 6)) {
-          callback()
-        } else if (value.length !== 11) {
-          callback(new Error('请输入11位手机号'))
-        } else {
-          callback(new Error('手机号格式错误'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       } else {
         callback()
@@ -302,10 +296,6 @@ export default {
         pca: [
           {required: true, message: '请选择地区', trigger: ['change', 'blur']}
         ],
-        address: [
-          {required: true, message: '请输入详细地址', trigger: 'blur'},
-          {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
-        ],
         floorList: [
           {required: true, type: 'array', message: '请选取楼层', trigger: 'blur'}
         ],
@@ -316,7 +306,7 @@ export default {
           {required: true, type: 'array', message: '请选择索权范围', trigger: 'blur'}
         ],
         phone: [
-          {validator: validatePhone, trigger: 'blur'}
+          {validator: validPhone, trigger: 'blur'}
         ]
       },
       fileList: [], // 上传的文件列表
@@ -603,7 +593,6 @@ export default {
         }
       }).catch((error) => {
         this.loadModule.close()
-        console.log('error', error)
         this.$tip('网络异常，请稍后重新尝试', 'error')
       })
     },
@@ -650,13 +639,11 @@ export default {
       let el = document
       let cfs = el.cancelFullScreen || el.webkitCancelFullScreen ||
         el.mozCancelFullScreen || el.ExitFullscreen || el.msExitFullscreen
-      console.log('exist Screen', cfs)
       if (cfs) { // typeof cfs != "undefined" && cfs
         cfs.call(el)
       } else if (typeof window.ActiveXObject !== 'undefined') {
         // for IE，这里和fullScreen相同，模拟按下F11键退出全屏
         let wscript = new ActiveXObject('WScript.Shell')
-        console.log('exist Screen wscript', wscript)
         if (wscript != null) {
           wscript.SendKeys('{F11}')
         }

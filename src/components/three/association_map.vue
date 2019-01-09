@@ -105,13 +105,13 @@ export default {
       if (!value) {
         callback(new Error('请输入出入口名称'))
       } else {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           if (this.handleDialogType === 2 && this.handlePortalForm.originName === value) {
             callback(new Error('该名称已存在'))
           } else {
-            console.log('currentFloor', this.currentFloor)
+            // console.log('currentFloor', this.currentFloor)
             CheckPortalNameExist({name: value, groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
               !res.data ? callback() : callback(new Error('该名称已存在'))
             }).catch(err => {
@@ -119,7 +119,7 @@ export default {
             })
           }
         } else {
-          callback(new Error('请输入正确的出入口名称'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       }
     }
@@ -159,7 +159,6 @@ export default {
     window.addEventListener('message', this.handleEvent)
     this.iframeObj = this.$refs.bindGroupIframe.contentWindow
     this.initFloor()
-    this.hideTip()
   },
   computed: {
     ...mapState(['currentManage', 'userInfo']),
@@ -198,41 +197,40 @@ export default {
     },
     // 处理iframe传递出来的事件
     handleEvent (event) {
-      // try {
-        let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
-        switch (data.type) {
-          case 'LOAD_SVG_PATH': // 渲染地图
-            this.loadIframeSvg()
-            break
-          case 'CREATE_PORTAL_CLICK': // 创建出入口
-            this.createGateway(data.data)
-            break
-          case 'GET_PORTAL_LIST': // 设置出入口信息
-            this.setPortalList()
-            break
-          case 'GET_CAMERA_LIST': // 展示出入口设备列表
-            this.getDeviceList(data.data)
-            break
-          case 'DELETE_PORTAL_CLICK': // 删除出入口
-            this.deletePortal(data.data)
-            break
-          case 'EDIT_PORTAL_CLICK': // 编辑出入口信息
-            this.handleDialogType = 2
-            this.handlePortalVisible = true
-            let copy = JSON.parse(JSON.stringify(data.data))
-            copy.originName = JSON.parse(JSON.stringify(copy.name || ''))
-            this.handlePortalForm = copy
-            break
-          case 'PORTAL_ADD_DEVICE': // 出入口新增设备
-            this.showAddDialog(data.data)
-            break
-          case 'DELETE_PORTAL_DEVICE': // 删除出入口设备
-            this.deletePortalDevice(data.data)
-            break
-        }
-      // } catch (err) {
-      //   console.error('error info -------', err)
-      // }
+      let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
+      switch (data.type) {
+        case 'LOAD_SVG_PATH': // 渲染地图
+          this.loadIframeSvg()
+          break
+        case 'CREATE_PORTAL_CLICK': // 创建出入口
+          this.createGateway(data.data)
+          break
+        case 'GET_PORTAL_LIST': // 设置出入口信息
+          this.setPortalList()
+          break
+        case 'GET_CAMERA_LIST': // 展示出入口设备列表
+          this.getDeviceList(data.data)
+          break
+        case 'DELETE_PORTAL_CLICK': // 删除出入口
+          this.deletePortal(data.data)
+          break
+        case 'EDIT_PORTAL_CLICK': // 编辑出入口信息
+          this.handleDialogType = 2
+          this.handlePortalVisible = true
+          let copy = JSON.parse(JSON.stringify(data.data))
+          copy.originName = JSON.parse(JSON.stringify(copy.name || ''))
+          this.handlePortalForm = copy
+          break
+        case 'PORTAL_ADD_DEVICE': // 出入口新增设备
+          this.showAddDialog(data.data)
+          break
+        case 'DELETE_PORTAL_DEVICE': // 删除出入口设备
+          this.deletePortalDevice(data.data)
+          break
+        case 'SHOW_TIP_BLOCK': // 显示添加出入口操作流程
+          this.hideTip()
+          break
+      }
     },
     // 获取出入口信息，并在地图上展示标注
     setPortalList () {
@@ -433,12 +431,13 @@ export default {
     .floor__list--item{
       height: 40px;
       line-height: 40px;
-      background: rgba(37,36,39,0.5);
+      background: rgba(37,36,39,0.4);
       margin-bottom: 2px;
       font-size: 14px;
       cursor: pointer;
       &.active,&:hover{
-        background: rgb(37,36, 39);
+        /*background: rgb(37,36, 39);*/
+        background: linear-gradient(135deg, rgba(68, 23, 173, 0.6), rgba(17, 105, 211, 0.4));
       }
       &:last-child{
         margin-bottom: 0;

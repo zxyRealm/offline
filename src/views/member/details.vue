@@ -20,7 +20,7 @@
           :on-success="uploadSuccess"
           :on-progress="uploading"
           slot="file">
-          <el-button class="affirm">导入</el-button>
+          <el-button class="affirm">批量导入</el-button>
         </el-upload>
       </uu-sub-tab>
       <el-scrollbar class="table">
@@ -28,12 +28,6 @@
           :data="tableData"
           border
           style="width: 100%">
-          <el-table-column label="照片">
-            <template slot-scope="scope">
-              <img v-show="scope.row.faceImgUrl" :src="scope.row.faceImgUrl" class="tableImg">
-              <div v-show="!scope.row.faceImgUrl" class="tableImg">—</div>
-            </template>
-          </el-table-column>
 
           <el-table-column label="姓名" :show-overflow-tooltip="true">
             <template slot-scope="scope">
@@ -47,7 +41,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="性别">
+          <el-table-column width="90" label="性别">
             <template slot-scope="scope">
               <span v-if="scope.row.gender === 1">男</span>
               <span v-else>女</span>
@@ -63,6 +57,14 @@
           <el-table-column label="人员类型">
             <template slot-scope="scope">
               <span>{{scope.row.memberTypeName || '—'}}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column width="100" label="照片">
+            <template slot-scope="scope">
+              <image-box v-if="scope.row.faceImgUrl" width="54px" height="54px" @click.native="showImage(scope.row)" :src="scope.row.faceImgUrl"></image-box>
+              <!--<img v-show="scope.row.faceImgUrl" :src="scope.row.faceImgUrl" class="tableImg">-->
+              <div v-else class="tableImg">—</div>
             </template>
           </el-table-column>
 
@@ -106,20 +108,29 @@
         <div class="word__two">部分信息未成功导入，请在反馈中查看原因</div>
         <el-button class="affirm widthAuto"><a :href="downloadURL">下载<导入结果反馈></a></el-button>
       </el-dialog>
+
+      <image-preview :src="preview.src" :visible.sync="preview.visible"></image-preview>
     </div>
 </template>
 
 <script>
 import {MemberLibraryFind, MemberSearch, MemberDelete, MemberTemplate} from '../../api/member'
+import ImagePreview from '@/components/preview'
 const importIp = process.env.UPLOAD_API
 export default {
   name: 'index',
+  components: {
+    ImagePreview
+  },
   data: () => ({
+    preview: {
+      src: '',
+      visible: false
+    },
     ip: `${importIp}/manage/member/import`,
     // 按钮信息
     btnArray: [
       {text: '手动添加'},
-      {text: '下载模板'},
       {type: 'file'}
     ],
     // 菜单名称
@@ -212,17 +223,6 @@ export default {
     button (e) {
       if (!e) {
         this.addPerson()
-      } else {
-        let data = {
-          key: 'member'
-        }
-        MemberTemplate(data).then(res => {
-          var a = document.createElement('a')
-          a.href = res.data
-          document.body.appendChild(a)
-          a.click()
-          a.remove()
-        })
       }
     },
     // 搜索事件
@@ -263,6 +263,11 @@ export default {
         }
         this.getList()
       }
+    },
+    // 显示大图
+    showImage (row) {
+      this.preview.src = row.faceImgUrl
+      this.preview.visible = true
     }
   },
   watch: {
@@ -302,6 +307,9 @@ export default {
     width: 48px;
     height: 48px;
     line-height: 48px;
+  }
+  .common__image--box{
+    cursor: pointer;
   }
   .edit{
     color: #0F9EE9;

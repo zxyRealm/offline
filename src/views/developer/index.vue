@@ -27,8 +27,11 @@
           v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
             <p class="readonly__text" v-if="!!userInfo.phone">{{userInfoForm.phone}}</p>
-            <el-input type="text" v-show="!userInfo.phone" placeholder="添加手机号"
-                      v-model.trim="userInfoForm.phone"></el-input>
+            <el-input
+              type="text"
+              v-show="!userInfo.phone"
+              placeholder="添加手机号"
+              v-model.trim="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称：" prop="company">
             <p class="readonly__text" v-if="!editable">{{userInfoForm.company}}</p>
@@ -70,12 +73,12 @@ export default {
     // 验证公司名称
     const validCompany = (rule, value, callback) => {
       if (value) {
-        if (value.length > 20) {
-          callback(new Error('请输入1-20位字符'))
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('请输入正确的公司名称'))
+          callback(new Error('仅限汉字/字母/数字/空格'))
         }
       } else {
         callback()
@@ -101,7 +104,7 @@ export default {
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('请输入正确的联系人'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       } else {
         callback()
@@ -114,6 +117,7 @@ export default {
           {validator: validCompany, trigger: 'blur'}
         ],
         phone: [
+          {required: true, message: '请添加手机号', trigger: 'blur'},
           {validator: validPhone, trigger: 'blur'}
         ],
         pca: [
@@ -234,6 +238,10 @@ export default {
   },
   watch: {
     '$route': function (val) {
+      if (!this.userInfo.company || !this.userInfo.phone) {
+        this.$router.push('/person/edit')
+        this.editable = false
+      }
       if (val.name === 'personEdit') {
         this.subLink.title = ''
         this.editable = true
