@@ -41,7 +41,7 @@
         <el-scrollbar>
           <div v-for="(item, $index) in currentTrailList" class="spoor-item" :key="$index">
             <div class="img-box">
-              <image-box width="36px" height="54px" :src="item.imageUrl"></image-box>
+              <image-box width="36px" @click.native="showImage(item)" height="54px" :src="item.imageUrl"></image-box>
               <!--<img width="36" :src="item.imageUrl" alt="">-->
             </div>
             <div class="item--info">
@@ -58,6 +58,7 @@
         <trail-map></trail-map>
       </div>
     </div>
+    <image-preview :src="preview.src" :visible.sync="preview.visible"></image-preview>
   </div>
 </template>
 
@@ -73,6 +74,10 @@ export default {
   },
   data () {
     return {
+      preview: {
+        visible: false,
+        src: ''
+      },
       spoorDate: '',
       label: [
         '美妆爱好者',
@@ -101,7 +106,7 @@ export default {
         let arr = this.trailList.filter(item => {
           return (item.visitTime.replace(/-/g, '/') === this.spoorDate)
         })[0]
-        return arr ? arr.captureFaceInfo : []
+        return arr ? arr.captureFaceInfo.reverse() : []
       },
       set () {
       }
@@ -119,15 +124,18 @@ export default {
     }
   },
   methods: {
+    // 查看抓拍大图
+    showImage (row) {
+      this.preview.src = row.imageUrl
+      this.preview.visible = true
+    },
     getPersonTrail () {
       GetPersonTrail({personId: this.$route.params.personId}).then(res => {
-        console.log(res.data)
         this.trailDetailInfo = res.data || {}
         this.trailList = this.trailDetailInfo.dailyCapturePersonList || []
         this.spoorDate = parseTime(this.trailList[0].visitTime, '{y}/{m}/{d}')
         this.dateSet = new Set(this.trailList.map(item => item.visitTime))
         // this.dateSet = new Set(['2019-01-11', '2018-11-11', '2018-10-11'])
-        console.log(this.dateSet)
       })
     }
   },

@@ -76,7 +76,7 @@ export default {
         padding: 12px 0 0;
         .table-data {
           min-height: calc(100% - 330px);
-          background: $block-bg;
+          background-color: $content-bg;
         }
       }
     }
@@ -95,8 +95,8 @@ export default {
     height: 100%;
     background: #040404;
     .corner-bg{
-      > div {
-        background: $block-bg;
+      > div:not(.table-wrap) {
+        background-color: $content-bg;
       }
     }
     .data-type {
@@ -107,7 +107,7 @@ export default {
       height: 40px;
       padding: 0 12px;
       box-sizing: border-box;
-      background: $block-bg;
+      background-color: $content-bg;
       box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
       .router-link-active {
         color: #0F9EE9;

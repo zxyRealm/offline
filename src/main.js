@@ -20,6 +20,7 @@ import ImageBox from '@/components/ImageBox' // 图片展示组件
 import obDialogForm from '@/components/dialog-form'
 import obGroupNav from '@/components/group-nav'
 import obListEmpty from '@/components/list-empty'
+import ImagePreview from '@/components/preview'
 import * as filters from './filters'
 import echarts from 'echarts'
 promise.polyfill() // 使Axios兼容ie9
@@ -40,6 +41,7 @@ Vue.component(obGroupNav.name, obGroupNav)
 Vue.component(obDialogForm.name, obDialogForm)
 Vue.component(obListEmpty.name, obListEmpty)
 Vue.component(ImageBox.name, ImageBox)
+Vue.component(ImagePreview.name, ImagePreview)
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])

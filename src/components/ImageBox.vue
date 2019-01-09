@@ -1,5 +1,6 @@
 <template>
-  <div class="common__image--box" :style="{backgroundImage: `url(${src})`, height: height, width: width}">
+  <div class="common__image--box" @click="showImage" :style="{backgroundImage: `url(${src})`, height: height, width: width}">
+    <!--<image-preview :src="src" :visible.sync="visible"></image-preview>-->
   </div>
 </template>
 
@@ -18,16 +19,26 @@ export default {
     width: { // 图片容器宽度
       type: String,
       default: '100px'
+    },
+    clickEvent: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
     return {
+      visible: false
     }
   },
   created () {},
   mounted () {},
   computed: {},
   methods: {
+    showImage () {
+      if (this.clickEvent) {
+        this.visible = true
+      }
+    }
   },
   watch: {}
 }
@@ -40,5 +51,6 @@ export default {
   background-repeat: no-repeat;
   background-size: contain;
   vertical-align: top;
+  cursor: pointer;
 }
 </style>

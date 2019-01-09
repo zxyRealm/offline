@@ -164,7 +164,7 @@
             </div>
             <div class="box-right" style="position: relative">
               <img
-                :class="{'glow-border': item.imgUrl !== '/static/img/avatar2.png', 
+                :class="{'glow-border': item.imgUrl !== '/static/img/avatar2.png',
                   'un-member-border': item.name === '---'&&item.imgUrl !== '/static/img/avatar2.png',
                   'member-border': item.name !== '---'&&item.imgUrl !== '/static/img/avatar2.png'}"
                 :src="item.imgUrl"
@@ -279,7 +279,7 @@ export default {
       GetSocketIP().then(res => {
         let _this = this;
         let data = {};
-        let wsServer = `ws://192.168.1.153:8010/websocket/${groupSonGuid}_${groupParentGuid}`; // 服务器地址
+        let wsServer = `ws://${res.data}/websocket/${groupSonGuid}_${groupParentGuid}`; // 服务器地址
         this.websocket = new WebSocket(wsServer);
         this.websocket.onopen = function(evt) {
           // 已经建立连接
@@ -290,7 +290,7 @@ export default {
           try {
             data = JSON.parse(evt.data);
             switch (data.type) {
-              case "SHINING": 
+              case "SHINING":
                 this.handleSocketShining(data.data)
                 break
               case "REAL_TIME_COUNTER":
@@ -395,15 +395,15 @@ export default {
         let floorHeight = 140;
         delete allInfo[0].subGroupSon;
         this.community.infoArr = allInfo.concat(floorInfo);
-        
+
         // 总楼层添加id信息
         this.routerList[0].groupParentGuid = allInfo[0].groupParentGuid;
         this.routerList[0].groupSonGuid = allInfo[0].groupSonGuid;
-        
+
         // 计算地下楼层数量
         this.caculateMinus(this.community.infoArr);
         // 当最低楼层大于1层时, 需计算最低楼层和0层之间的差值
-        let minIndex = this.caculateMinusIndex(floorInfo); 
+        let minIndex = this.caculateMinusIndex(floorInfo);
 
         for (let i in floorInfo) {
           // 计算地上楼层和地下楼层的Y坐标
@@ -413,7 +413,7 @@ export default {
 
           let img_url = floorInfo[i].mapUrl;
           let floor = floorInfo[i].floor;
-          
+
           // 分别设置routerList和传入iframe的数组
           this.floorArr.push({
             coordinate_y: coordinate_y,
@@ -700,7 +700,7 @@ export default {
     #iframeWrap {
       flex: 1;
       display: flex;
-      
+
       .iframe {
         width: 100%;
         height: 100%;

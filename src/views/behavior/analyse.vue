@@ -154,13 +154,10 @@
 import {MemberNoFloor} from '../../api/community'
 import {GetAllAioList, GetAllCameraList} from '../../api/device'
 import {GetBehaviorList} from '../../api/behavior'
-import ImagePreview from '@/components/preview'
+
 import {mapState} from 'vuex'
 export default {
   name: 'analyse',
-  components: {
-    ImagePreview
-  },
   data () {
     return {
       emptyText: '数据加载中...', // table 数据未加载是提示信息
@@ -200,6 +197,7 @@ export default {
     ...mapState(['currentManage'])
   },
   methods: {
+    // 获取当前管理社群下所有子社群
     getGroupList () {
       if (!this.currentManage.id) return
       MemberNoFloor({groupId: this.currentManage.id}).then(res => {

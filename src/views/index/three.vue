@@ -137,6 +137,7 @@ export default {
         industry: []
       },
       currentFloor: {}, // 当前查看的楼层信息
+      num: 0, // 左侧数据轮询时接口连续出错的次数 （连续3次都异常，则停止数据轮询）
       timer: null // 数据获取定时器
     }
   },
@@ -178,12 +179,15 @@ export default {
     initBaseData () {
       let info = this.currentFloor
       clearTimeout(this.timer)
-      this.timer = setTimeout(() => {
-        this.initBaseData()
-      }, 5000)
+      if (this.num < 4) {
+        this.timer = setTimeout(() => {
+          this.initBaseData()
+        }, 5000)
+      }
       // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
       if (!info) return
       GetFlowRank({groupFloor: info.floor, groupGuid: info.groupParentGuid}).then(res => {
+        this.num = 0
         res.data = JSON.parse(res.data)
         let industryTotal = 0
         let groupTotal = 0
@@ -201,10 +205,12 @@ export default {
         })
         this.rankData = res.data
       }).catch(err => {
+        this.num++
         this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })
       // 获取实时比率
       GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupParentGuid}).then(res => {
+        this.num = 0
         let resData = JSON.parse(res.data)
         resData = this.ComunicationPer(resData)
         resData.gender = {
@@ -218,6 +224,7 @@ export default {
         this.ratioData = resData
         // console.log('ratio ----------', this.ratioData)
       }).catch(err => {
+        this.num++
         this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })
     },
@@ -242,6 +249,7 @@ export default {
 </script>
 
 <style lang="scss" type="text/scss" scoped>
+  @import "@/styles/variables.scss";
   .app-wrapper .app-main-content .three__floor--wrap{
     padding: 10px;
     box-sizing: border-box;

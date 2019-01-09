@@ -11,8 +11,7 @@
     <ob-list-empty
       top="106px"
       v-if="!equipmentList.length"
-      :supply="!isSearch ? '少量添加点击【添加一体机】按钮，大批量添加点击【添加服务器】按钮。' : ''"
-      :text="isSearch?'查询不到该设备':'暂无设备'">
+      :text="'暂无设备'">
     </ob-list-empty>
     <div class="data-list-wrap" v-if="equipmentList.length">
       <el-scrollbar>
