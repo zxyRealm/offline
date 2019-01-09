@@ -254,11 +254,6 @@ export default {
   computed: {
     ...mapState(["currentManage"])
   },
-  beforeDestroy() {
-    if (this.websocket) {
-      this.websocket.close();
-    }
-  },
   methods: {
     // 切换iframe
     updateFrameArea(item, index) {
@@ -598,7 +593,9 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener("message", this.handleMessage);
-    this.websocket.close();
+    if (this.websocket) {
+      this.websocket.close();
+    }
   },
   mounted() {
     this.iframe = this.$refs.iframe.contentWindow;
