@@ -9,6 +9,21 @@
   width: 100%;
   height: 100%;
 }
+.el-tooltip__popper{
+  &.association__tip{
+    width: 140px;
+    background: rgba(255,255, 255, 0.8);
+    line-height: 1.5;
+    .popper__arrow{
+      border-top-color: rgba(255,255, 255, 0.8);
+      &:after{
+        //border-bottom-color: rgba(255,255, 255, 0.8);
+      }
+      //border-color: rgba(255,255, 255, 0.8);
+      //background: rgba(255,255, 255, 0.8);
+    }
+  }
+}
 
 //element-ui分页组件样式
 .el-pagination {
@@ -46,6 +61,7 @@
 
 .white .el-input .el-input__inner {
   color: #333;
+  background: #fff;
 }
 .el-form-item__label{
   position: relative;
@@ -842,6 +858,27 @@
     &.empty--data{
       .el-progress__text{
         color: #79787B ;
+      }
+    }
+  }
+}
+
+/*上传弹框样式*/
+.upload__dialog--inner{
+  margin-top: -10px;
+  .el-upload{
+    width: 100%;
+    .el-upload-dragger{
+      width: 100%;
+      height: auto;
+      text-align: center;
+      background: #F8F8F8;
+      border-radius: 2px;
+      border: none;
+      overflow: hidden;
+      .c-grey{
+        padding: 0 100px;
+        margin: 16px 0;
       }
     }
   }

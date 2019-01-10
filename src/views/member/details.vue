@@ -11,17 +11,17 @@
         @handle-btn="button"
         :btn-array="btnArray"
         :menu-array="menu2">
-        <el-upload
-          class="avatar-uploader"
-          :action="ip"
-          :show-file-list="false"
-          :data="{memberLibraryGuid: $route.query.guid}"
-          :before-upload="beforeAvatarUpload"
-          :on-success="uploadSuccess"
-          :on-progress="uploading"
-          slot="file">
-          <el-button class="affirm">批量导入</el-button>
-        </el-upload>
+        <!--<el-upload-->
+          <!--class="avatar-uploader"-->
+          <!--:action="ip"-->
+          <!--:show-file-list="false"-->
+          <!--:data="{memberLibraryGuid: $route.query.guid}"-->
+          <!--:before-upload="beforeAvatarUpload"-->
+          <!--:on-success="uploadSuccess"-->
+          <!--:on-progress="uploading"-->
+          <!--slot="file">-->
+          <!--<el-button class="affirm">批量导入</el-button>-->
+        <!--</el-upload>-->
       </uu-sub-tab>
       <el-scrollbar class="table">
         <el-table
@@ -106,56 +106,91 @@
         width="500px">
         <div class="word__center">导入完成！</div>
         <div class="word__two">部分信息未成功导入，请在反馈中查看原因</div>
-        <el-button class="affirm widthAuto"><a :href="downloadURL">下载<导入结果反馈></a></el-button>
+        <el-button class="affirm widthAuto"><a :href="downloadURL">下载&lt;导入结果反馈&gt;</a></el-button>
       </el-dialog>
-
+      <ob-dialog-form
+        title="批量导入"
+        :showButton="false"
+        :visible.sync="uploadDialogVisible"
+      >
+        <div slot="content" class="upload__dialog--inner">
+          <el-upload
+            class="library__upload"
+            :action="ip"
+            drag
+            :show-file-list="false"
+            :data="{memberLibraryGuid: $route.query.guid}"
+            :before-upload="beforeAvatarUpload"
+            :on-success="uploadSuccess"
+            :on-error="uploadError"
+            :on-progress="uploading"
+            :multiple="false"
+            slot="file">
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">
+              将文件拖到此处，或<em>点击上传</em>
+              <p class="c-grey fs12">压缩包上传后，导入需要一定时间，请耐心等待您可前往操作记录中查看具有的进度</p>
+            </div>
+          </el-upload>
+          <p class="fs12 c-grey">
+            操作须知：<br>
+            批量导入仅支持zip压缩包的形式上传人脸照片，压缩包限制大小为1G。<br>
+            每张照片格式仅限jpg/png/jpeg/tiff，大小不超过2Mb。<br>
+            <span class="danger">请直接压缩照片,不要压缩照片文件夹</span>
+          </p>
+          <p class="fs12 c-grey">
+            请以"姓名-性别-手机号-出生年月日"来命名图片，其中"出生年月日"可为空。<br>
+            <span class="danger">示例：张木木-女-13101234567-19920414</span><br>
+            <span class="danger">张木木-女-13101234567</span>
+          </p>
+        </div>
+      </ob-dialog-form>
       <image-preview :src="preview.src" :visible.sync="preview.visible"></image-preview>
     </div>
 </template>
 
 <script>
 import {MemberLibraryFind, MemberSearch, MemberDelete, MemberTemplate} from '../../api/member'
-import ImagePreview from '@/components/preview'
 const importIp = process.env.UPLOAD_API
 export default {
   name: 'index',
-  components: {
-    ImagePreview
+  data () {
+    return {
+      uploadDialogVisible: false,
+      preview: {
+        src: '',
+        visible: false
+      },
+      ip: `${importIp}/manage/member/import`,
+      // 按钮信息
+      btnArray: [
+        {text: '手动添加'},
+        {text: '批量导入'}
+      ],
+      // 菜单名称
+      menu2: [
+        {title: ''}
+      ],
+      // 列表内容
+      tableData: [],
+      // 分页数据
+      pageData: {
+        index: 1,
+        length: 10,
+        total: 10,
+        name: '',
+        phone: ''
+      },
+      // 百分比弹框
+      dialogVisible: false,
+      // 下载内容弹框
+      downloadVisible: false,
+      // 下载url
+      downloadURL: '',
+      // 导入百分比
+      percent: ''
+    }
   },
-  data: () => ({
-    preview: {
-      src: '',
-      visible: false
-    },
-    ip: `${importIp}/manage/member/import`,
-    // 按钮信息
-    btnArray: [
-      {text: '手动添加'},
-      {type: 'file'}
-    ],
-    // 菜单名称
-    menu2: [
-      {title: ''}
-    ],
-    // 列表内容
-    tableData: [],
-    // 分页数据
-    pageData: {
-      index: 1,
-      length: 10,
-      total: 10,
-      name: '',
-      phone: ''
-    },
-    // 百分比弹框
-    dialogVisible: false,
-    // 下载内容弹框
-    downloadVisible: false,
-    // 下载url
-    downloadURL: '',
-    // 导入百分比
-    percent: ''
-  }),
   created () {
     let data = {
       guid: this.$route.query.guid
@@ -223,6 +258,8 @@ export default {
     button (e) {
       if (!e) {
         this.addPerson()
+      } else {
+        this.uploadDialogVisible = true
       }
     },
     // 搜索事件
@@ -248,10 +285,17 @@ export default {
     },
     // 上传前格式检测
     beforeAvatarUpload (file) {
-
+      if (file.type !== 'application/zip') {
+        this.$tip('文件仅限zip格式', 'error', 5000)
+        return false
+      } else if (file.size > 1000 * 1024 * 1024) {
+        this.$tip('文件不可超过1G', 'error', 5000)
+        return false
+      }
     },
     // 文件上传中
     uploading (event) {
+      this.uploadDialogVisible = false
       this.percent = event.percent
     },
     // 文件上传成功回调
@@ -262,7 +306,12 @@ export default {
           this.downloadVisible = true
         }
         this.getList()
+      } else {
+        this.$tip(response.msg || '上传失败', 'error')
       }
+    },
+    uploadError () {
+      this.$tip('上传失败，请检查网络是否异常', 'error')
     },
     // 显示大图
     showImage (row) {
@@ -286,7 +335,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .menber{
     padding: 0 20px;
   }
@@ -368,6 +417,20 @@ export default {
     text-align: center;
     font-size: 12px;
     color: #B4B4B7;
+  }
+  /*上传弹框样式*/
+  .upload__dialog--inner{
+    padding-bottom: 34px;
+    > p.c-grey{
+      line-height: 1.4;
+      padding: 0 15px;
+      &:last-child{
+        margin-top: 15px;
+      }
+    }
+    .library__upload{
+      margin-bottom: 10px;
+    }
   }
 </style>
 

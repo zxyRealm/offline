@@ -2,7 +2,7 @@
   <div>
     <el-table
       border
-      empty-text="暂无设备"
+      :empty-text="emptyText"
       :data="data"
     >
       <el-table-column
@@ -189,6 +189,7 @@ export default {
       }
     }
     return {
+      emptyText: '数据加载中...',
       fileList: [], // 上传文件列表
       groupList: [], // 自有社群列表
       dialogFormVisible: false, // 绑定社群dialog 显示状态
@@ -216,6 +217,7 @@ export default {
   computed: {
     data: {
       get () {
+        this.emptyText = '暂无设备'
         return this.value
       },
       set (val) {

@@ -77,6 +77,11 @@
         <el-button class="affirm" type="primary" @click="portalAddDevice()">添加</el-button>
       </div>
     </ob-dialog-form>
+
+    <div class="association_icon" v-show="currentFloor.type !== 4 && currentFloor.self && currentFloor.mapUrl">
+      <i class="el-icon-question"></i>
+      <div class="custom__tooltip">主出入口用于统计进入商城的人流量</div>
+    </div>
   </div>
 </template>
 
@@ -400,6 +405,48 @@ export default {
   .portal__container--wrap{
     position: relative;
   }
+  .association_icon{
+    position: absolute;
+    top: 32px;
+    right: 14px;
+    padding: 0 5px;
+    .custom__tooltip{
+      position: absolute;
+      display: none;
+      opacity: 0;
+      width: 140px;
+      box-sizing: border-box;
+      padding: 10px;
+      bottom: 1.8em;
+      right: -26px;
+      font-size: 12px;
+      color: #333;
+      background: rgba(255,255,255, 0.8);
+      border-radius: 2px;
+      transition: all 2s ease;
+      &:after{
+        content: '';
+        position: absolute;
+        display: block;
+        width: 0;
+        height: 0;
+        right: 32px;
+        bottom: -12px;
+        border: 6px solid transparent;
+        border-top-color: rgba(255, 255, 255, 0.8);
+      }
+    }
+    .el-icon-question{
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 12px;
+    }
+    &:hover{
+      .custom__tooltip{
+        display: block;
+        opacity: 1;
+      }
+    }
+  }
   .handle__tip{
     position: absolute;
     top: 5px;
@@ -431,13 +478,13 @@ export default {
     .floor__list--item{
       height: 40px;
       line-height: 40px;
-      background: rgba(37,36,39,0.4);
+      background: #111013;
       margin-bottom: 2px;
       font-size: 14px;
       cursor: pointer;
       &.active,&:hover{
         /*background: rgb(37,36, 39);*/
-        background: linear-gradient(135deg, rgba(68, 23, 173, 0.6), rgba(17, 105, 211, 0.4));
+        background: #005BC9;
       }
       &:last-child{
         margin-bottom: 0;

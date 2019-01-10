@@ -22,6 +22,7 @@ export default {
     AppMain
   },
   created () {
+    console.log(this.$route.name)
   },
   computed: {
     sidebar () {
@@ -38,10 +39,14 @@ export default {
       }
     },
     cornerBg () {
+      // let nameSet = new Set(['console-lwh'])
+      let routeName = this.$route.name
       if (/^(\/data)/.test(this.$route.path)) {
         return 'no-padding transparent'
-      } else if (this.$route.name === 'console-lwh' || this.$route.name === 'community') {
+      } else if (routeName === 'console-lwh') {
         return 'no-padding'
+      } else if (routeName === 'index-lwh') {
+        return 'corner-bg home--wrap'
       }
       return 'corner-bg'
     },
@@ -73,8 +78,11 @@ export default {
       height: 100%;
       /*overflow: hidden;*/
       box-sizing: border-box;
-      background-color: $theme-bg;
+      background-color: $content-bg;
       color: #fff;
+      &.home--wrap{
+        background: $theme-bg;
+      }
       &.transparent{
         background: transparent;
       }

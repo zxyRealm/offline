@@ -253,7 +253,7 @@ export default {
       padding: 25px 20px 10px;
       text-align: center;
       .el-dialog__title {
-        font-size: 16px;
+        font-size: 17px;
       }
       .el-dialog__headerbtn {
         top: 10px;

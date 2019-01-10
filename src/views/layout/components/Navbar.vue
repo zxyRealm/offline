@@ -318,7 +318,6 @@ export default {
       showAnimation: false, // 是否展示闪烁动画
       timer: null, // 闪烁动画展示时间定时器
       selectName: '请选择您的社群',
-      dialogFormVisible: false, // 选择社群弹框显示状态
       helpDialogVisible: false, // 操作指导提示框 显示状态
       dialogOptions: {
         title: '选择社群',
@@ -383,21 +382,6 @@ export default {
       if (!this.manageList.length) {
         this.addFormVisible = true
         this.showClose = false
-      }
-    },
-    // 当消失的时候不记录上次选择
-    dialogFormVisible (val) {
-      if (!val) {
-        if (this.$refs.consoleGroup) {
-          this.$nextTick(() => {
-            this.$refs.consoleGroup.setCurrentKey()
-            // 清空已选择状态
-            this.$refs.consoleGroup.setCheckedKeys([])
-          })
-        }
-        this.deviceList = []
-      } else {
-        this.getGroupList()
       }
     },
     // 操作引导弹框隐藏后图标闪烁提示
@@ -541,16 +525,6 @@ export default {
       }).catch(error => {
         console.info(error)
       })
-    },
-    // 获取设备详细信息 （商户综合信息、设备推送信息）
-    getDeviceDetail () {
-      if (!this.deviceInfo) {
-        this.$tip('请选择您的设备', 'error')
-        return
-      }
-      this.dialogFormVisible = false
-      this.selectName = this.deviceInfo.deviceName
-      this.$store.commit('SET_GROUP_CONSOLE_ID', this.deviceInfo.deviceKey)
     },
     // 自定义文件上传
     httpRequest () {

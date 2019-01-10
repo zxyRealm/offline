@@ -7,7 +7,7 @@
           :class="{active:item.select}"
           :key="$index">{{item.name}}</li>
     </ul>
-    <el-input ref="floorInput" @focus="dropShow = true" @blur="dropShow = false"  readonly v-model.trim="showText"></el-input>
+    <el-input ref="floorInput" :placeholder="placeholder" @focus="dropShow = true" @blur="dropShow = false"  readonly v-model.trim="showText"></el-input>
   </div>
 </template>
 
@@ -23,6 +23,10 @@ export default {
     single: { // 是否使用单层选取效果
       type: Boolean,
       default: false
+    },
+    placeholder: {
+      type: String,
+      default: '请选取楼层'
     }
   },
   data () {

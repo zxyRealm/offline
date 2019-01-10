@@ -18,8 +18,7 @@
   <script src="/static/three/SVGLoader.js"></script>
   <script src="/static/three/OrbitControls.js"></script>
   <script src="/static/three/tween.js"></script>
-  <script src="/static/three/trail_data.js"></script>
-  <script src="/static/three/trail_data_loop.js"></script>
+  <script src="/static/three/trail_data_up.js"></script>
 </head>
 
 <body>
@@ -107,8 +106,8 @@
     }
 
     function getTrailData(trailData) {
-      // data = trailData
-      data = TRAIL_JSON_LOOP.data;
+      data = trailData
+      // data = TRAIL_JSON_UP.data;
       init()
     }
 
@@ -205,6 +204,12 @@
       if (s_floorNum > e_floorNum) return 0
     }
 
+    function calcFloor(startFloor, endFloor) {
+      var s_floorNum = parseInt(startFloor.slice(1, startFloor.length))
+      var e_floorNum = parseInt(endFloor.slice(1, endFloor.length))
+      return Math.abs(s_floorNum - e_floorNum)
+    }
+
     // 确定轨迹开始的楼层
     function ChapterZero() {
       BEGIN_FLOOR = data[0].floorName
@@ -235,6 +240,7 @@
         animateLowerElevator(item, type === 'up' ? BEGIN_FLOOR : END_FLOOR, type)
         animateHigerElevator(item, type === 'up' ? END_FLOOR : BEGIN_FLOOR, type)
       })
+      // animateMiddleFloor()
     }
 
     // step3: 切换楼层动画
@@ -453,6 +459,13 @@
       }
     }
 
+    // 动画片段：中间楼层的显示和隐藏
+    function animateMiddleFloor(){
+      if (calcFloor(BEGIN_FLOOR, END_FLOOR) === 1) {
+
+      }
+    }
+
     function createGeneralGroup() {
       group = new THREE.Group();
       group.name = 'all_scene'
@@ -495,12 +508,12 @@
             var plane = new Plane(shape, groupName)
             plane.mesh.updateMatrix()
             floorGroup.add(plane.mesh);
+
+            var text = new TextSprite(groupName)
+            floorGroup.add(text.textObj)
           }
         }
       })
-
-      var text = new Text(groupName)
-      floorGroup.add(text.mesh)
 
       floorGroup.name = groupName
       group.add(floorGroup)
@@ -526,12 +539,16 @@
         if (count % 2 === 0 && count <= data.length - 2) {
           var pathGroup = {
             start: {
-              x: data[count].elevator||data[count].capturePoint ? data[count].point.x : data[count].pointInPath.x,
-              y: data[count].elevator||data[count].capturePoint ? -data[count].point.y : -data[count].pointInPath.y
+              x: data[count].elevator || data[count].capturePoint ? data[count].point.x : data[count].pointInPath
+                .x,
+              y: data[count].elevator || data[count].capturePoint ? -data[count].point.y : -data[count].pointInPath
+                .y
             },
             end: {
-              x: data[count + 1].elevator||data[count + 1].capturePoint ? data[count + 1].point.x : data[count + 1].pointInPath.x,
-              y: data[count + 1].elevator||data[count + 1].capturePoint ? -data[count + 1].point.y : -data[count + 1].pointInPath.y
+              x: data[count + 1].elevator || data[count + 1].capturePoint ? data[count + 1].point.x : data[count +
+                1].pointInPath.x,
+              y: data[count + 1].elevator || data[count + 1].capturePoint ? -data[count + 1].point.y : -data[
+                count + 1].pointInPath.y
             }
           }
 
@@ -703,7 +720,7 @@
         color: PALLETTE.PLANE,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: groupName === BEGIN_FLOOR ? 1 : opacity
+        opacity: groupName === BEGIN_FLOOR ? 0.2 : opacity
       })
       this.mesh = new THREE.Mesh(geometry, material);
       this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0)
@@ -711,10 +728,23 @@
       this.mesh.name = 'plane'
     }
 
+    function MiddlePlane(){
+      var geom = new THREE.PlaneGeometry(580, 428, 32)
+      var material = new THREE.MeshBasicMaterial({
+        transparent: true,
+        side: THREE.DoubleSide,
+        color: PALLETTE.PLANE,
+        opacity: 0.2
+      })
+      this.mesh = new THREE.Mesh(geom, material)
+      this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0)
+      this.mesh.name = 'middlePlane'
+    }
+
     // 路径
     function Path(group) {
-      var path = new THREE.Path([new THREE.Vector2(group.start.x - pic_width / 2, group.start.y - pic_height / 2)]);
-      path.lineTo(group.end.x - pic_width / 2, group.end.y - pic_height / 2)
+      var path = new THREE.Path([new THREE.Vector2(group.start.x - pic_width / 2, group.start.y - pic_height / 2 - 25)]);
+      path.lineTo(group.end.x - pic_width / 2, group.end.y - pic_height / 2 - 25)
       var points = path.getPoints();
       var geometry = new THREE.BufferGeometry().setFromPoints(points)
       var material = new THREE.LineBasicMaterial({
@@ -733,31 +763,33 @@
         color: PALLETTE.CIRCLE
       })
       this.mesh = new THREE.Mesh(geom, material);
-      this.mesh.position.set(vector.x, vector.y, vector.z)
+      this.mesh.position.set(vector.x, vector.y, vector.z - 25)
       this.mesh.name = 'circle'
     }
 
-    function Text(text) {
-      var loader = new THREE.FontLoader();
-      loader.load('/static/three/gentilis_regular.typeface.json', function (res) {
-        var font = res;
-        var textGeometry = new THREE.TextGeometry(text, {
-          font: font,
-          size: 7,
-          height: 1
-        })
-        this.mesh = new THREE.Mesh(textGeometry, new THREE.MultiMaterial([
-          new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            shading: THREE.FlatShading
-          })
-        ]))
-        textGeometry.computeBoundingBox();
-        var textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
-        var textHeight = textGeometry.boundingBox.max.y - textGeometry.boundingBox.min.y
-        this.mesh.position.set(280, 0, 0)
-        this.mesh.name = 'text'
+    function TextSprite(text) {
+      var canvas = document.createElement('canvas')
+      var ctx = canvas.getContext('2d')
+      var cz = camera.position.z // 摄像头z轴视距
+      canvas.width = text.length * 170
+      canvas.height = canvas.width / 4
+      ctx.fillStyle = '#ffffff'
+      ctx.font = '600 104px Microsoft YaHei Arial'
+      ctx.textAlign = 'left'
+      ctx.fillText(text, 0, 104)
+      var texture = new THREE.Texture(canvas)
+      texture.needsUpdate = true
+      // 使用Sprite显示文字
+      var material = new THREE.SpriteMaterial({
+        map: texture,
+        color: 0xffffff,
+        transparent: true,
+        opacity: text === BEGIN_FLOOR ? 1 : opacity
       })
+      this.textObj = new THREE.Sprite(material)
+      this.textObj.name = 'text'
+      this.textObj.scale.set(cz * 0.027 * text.length, cz * 0.008 * text.length, 250)
+      this.textObj.position.set(290, 0, 0)
     }
 
     /****************************
