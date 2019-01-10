@@ -99,7 +99,7 @@
       LIGHT: '#FFFFFF', // 灯光
       STORE: '#4E98F2', // 商店
       EDGE: '#005BC9', // 描边
-      PLANE: '#0F1252', // 底座
+      PLANE: '#030622', // 底座
       PATH: '#FFE000', // 路径
       CIRCLE: '#FFE000', // 抓拍点
       ELEVATOR: '#FFE000' // 电梯点
@@ -174,6 +174,8 @@
       createAlexHelper()
       createControl()
 
+      // animateMiddleFloor()
+
       ChapterZero()
       ChapterOne()
 
@@ -240,7 +242,6 @@
         animateLowerElevator(item, type === 'up' ? BEGIN_FLOOR : END_FLOOR, type)
         animateHigerElevator(item, type === 'up' ? END_FLOOR : BEGIN_FLOOR, type)
       })
-      // animateMiddleFloor()
     }
 
     // step3: 切换楼层动画
@@ -461,8 +462,14 @@
 
     // 动画片段：中间楼层的显示和隐藏
     function animateMiddleFloor(){
-      if (calcFloor(BEGIN_FLOOR, END_FLOOR) === 1) {
-
+      var calcRes = calcFloor('F11', 'F12')
+      var middlePosition = (TRANSFER_BOARD.PASS_HIGH_POS + TRANSFER_BOARD.PASS_LOW_POS) / 2
+      if (calcRes === 1) {
+        for (var i=0; i<calcRes; i++) {
+          var middlePlane = new MiddlePlane();
+          middlePlane.mesh.position.y = middlePlane
+          scene.add(middlePlane.mesh)
+        }
       }
     }
 
@@ -729,7 +736,7 @@
     }
 
     function MiddlePlane(){
-      var geom = new THREE.PlaneGeometry(580, 428, 32)
+      var geom = new THREE.PlaneGeometry(480, 380, 32)
       var material = new THREE.MeshBasicMaterial({
         transparent: true,
         side: THREE.DoubleSide,
@@ -737,7 +744,7 @@
         opacity: 0.2
       })
       this.mesh = new THREE.Mesh(geom, material)
-      this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0)
+      this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE + TRANSFER_BOARD.ROTATE_X, 0, -TRANSFER_BOARD.ROTATE_Y)
       this.mesh.name = 'middlePlane'
     }
 
