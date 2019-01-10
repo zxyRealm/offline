@@ -22,7 +22,6 @@ export default {
     AppMain
   },
   created () {
-    console.log(this.$route.name)
   },
   computed: {
     sidebar () {

@@ -16,6 +16,9 @@ exports.install = function (Vue, options) {
   Vue.prototype.$restoreArray = function (arr, child) {
     return restoreArray(arr, child)
   }
+  Vue.prototype.$cookie = function () {
+    return Cookies
+  }
   // 退出登录
   Vue.prototype.$exit = function () {
     this.$affirm({text: '确认退出吗？'}, (action, instance, done) => {
@@ -107,23 +110,6 @@ exports.install = function (Vue, options) {
     return scope
   }
 
-  // 获取当前日期 - 格式yyyy-mm-dd
-  Vue.prototype.$getNowFormatDate = function () {
-    let date = new Date()
-    let seperator1 = '-'
-    let year = date.getFullYear()
-    let month = date.getMonth() + 1
-    let strDate = date.getDate()
-    if (month >= 1 && month <= 9) {
-      month = '0' + month
-    }
-    if (strDate >= 0 && strDate <= 9) {
-      strDate = '0' + strDate
-    }
-    let currentdate = year + seperator1 + month + seperator1 + strDate
-    return currentdate
-  }
-
   // 显示图列 - echarts
   Vue.prototype.$legendArray = function (array) {
     let arr = []
@@ -135,21 +121,5 @@ exports.install = function (Vue, options) {
       }
     })
     return arr
-  }
-
-  // new Date 变成 2015-03-19 12:00：00
-  Vue.prototype.$formatDateTime = function (date) {
-    let y = date.getFullYear()
-    let m = date.getMonth() + 1
-    m = m < 10 ? ('0' + m) : m
-    let d = date.getDate()
-    d = d < 10 ? ('0' + d) : d
-    let h = date.getHours()
-    h = h < 10 ? ('0' + h) : h
-    let minute = date.getMinutes()
-    minute = minute < 10 ? ('0' + minute) : minute
-    let second = date.getSeconds()
-    second = second < 10 ? ('0' + second) : second
-    return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second
   }
 }

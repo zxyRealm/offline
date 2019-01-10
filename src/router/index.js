@@ -537,7 +537,8 @@ router.beforeEach((to, from, next) => {
     'equipmentMore': 'equipmentChildren,equipment',
     'equipmentService': 'equipmentChildren,equipment',
     'paramExplain': 'sysNotify',
-    'editNotifyCallback': 'sysNotify'
+    'editNotifyCallback': 'sysNotify',
+    'BehaviorTrail': 'BehaviorAnalyse'
   }
 
   fetch('/loginCheck', false).then(() => {

@@ -194,7 +194,7 @@ export default {
   },
   mounted () {},
   computed: {
-    ...mapState(['currentManage'])
+    ...mapState(['currentManage', 'aliveState'])
   },
   methods: {
     // 获取当前管理社群下所有子社群
@@ -214,7 +214,6 @@ export default {
           this.selectType = 1
           this.search.device = ''
           GetAllAioList().then(res => {
-            // console.log('device list aio-------', res.data)
             this.deviceOriginList = res.data
             this.deviceList = res.data
           })
@@ -224,7 +223,6 @@ export default {
           this.selectType = 2
           this.search.device = ''
           GetAllCameraList().then(res => {
-            // console.log('device list Camera-------', res.data)
             this.deviceOriginList = res.data
             this.deviceList = res.data
           })
@@ -255,6 +253,7 @@ export default {
         startT = this.filter.date[0] + ' 00:00:00'
         endT = this.filter.date[1] + ' 23:59:59'
       }
+      page = this.$route.meta.keepAlive ? this.aliveState.index : page || this.pagination.index || 1
       GetBehaviorList({
         startTime: startT,
         endTime: endT,
@@ -262,7 +261,7 @@ export default {
         deviceKey: this.filter.device || '',
         groupGuid: this.currentManage.id,
         length: size || this.pagination.length || 10,
-        index: page || this.pagination.index || 1
+        index: page
       }).then(res => {
         this.emptyText = '暂无数据'
         this.pagination = res.data.pagination
@@ -306,6 +305,9 @@ export default {
       },
       deep: true
     }
+  },
+  beforeDestroy () {
+    this.$store.commit('SET_ALIVE_STATE', this.pagination)
   }
 }
 </script>

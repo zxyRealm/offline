@@ -93,11 +93,14 @@ service.interceptors.response.use(
     if (response.config.tip === undefined || response.config.tip) load('数据加载中...').close()
     if (response.status === 200) {
       if (response.data.code === 'ERR-110') {
+        Store.state.expired = true
         exitMessage(response.data.data)
         return Promise.reject(response.data)
       } else if (response.data.result) {
+        Store.state.expired = false
         return Promise.resolve(response.data instanceof String ? JSON.parse(response.data) : response.data)
       } else {
+        Store.state.expired = false
         if (response.config.tip === undefined || response.config.tip) message(response.data.msg, 'error', 3000)
         return Promise.reject(response.data)
       }
