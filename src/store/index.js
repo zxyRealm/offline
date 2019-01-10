@@ -19,6 +19,7 @@ const state = {
   groupConsoleId: '', // 控制台社群设备id
   groupSelectId: '', // 選擇群id
   loading: true,
+  serverIp: '', // 服务websocket ip 地址(包括端口信息）
   showBar: true, // 是否显示侧边栏
   aliveState: {}, // 保存上一页状态值
   expired: false, // 登录是否过期

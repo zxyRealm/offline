@@ -134,10 +134,9 @@
 
 <script>
 import {validateRule} from '@/utils/validate'
-import {simplifyGroups} from '../utils'
 import {ChangeDeviceAlias, DeviceAliasExist, UpdateCameraName, CheckCameraName, DeleteCameraBatch, DeleteDevice, GetDeviceState, DeviceHandleUrl, DeviceUpgrade, GetDeviceVersion} from '../api/device'
+import {mapState} from 'vuex'
 
-const UPLOAD_API = process.env.UPLOAD_API
 export default {
   name: 'device-table',
   props: {
@@ -215,6 +214,7 @@ export default {
   mounted () {
   },
   computed: {
+    ...mapState(['serverIp']),
     data: {
       get () {
         this.emptyText = '暂无设备'
@@ -225,7 +225,7 @@ export default {
       }
     },
     'baseApi' () {
-      return UPLOAD_API
+      return `//${this.serverIp.substring(0, this.serverIp.indexOf(':'))}`
     }
   },
   methods: {

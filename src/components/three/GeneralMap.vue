@@ -149,7 +149,7 @@
     <div class="map-right">
       <div id="sideInfo" @mouseenter="maskToggle=true" @mouseleave="maskToggle=false">
         <transition name="fade">
-          <div id="sideMask" v-if="!maskToggle"></div>
+          <!--<div id="sideMask" v-if="!maskToggle"></div>-->
         </transition>
         <transition-group name="list-customer" class="transition-wrap right" tag="ul">
           <li class="side-box" v-for="(item) in personList" v-bind:key="item.key">
@@ -164,13 +164,16 @@
               <div class="time">{{item.appearanceDate}}</div>
             </div>
             <div class="box-right" style="position: relative">
-              <img
-                :class="{'glow-border': item.imgUrl !== '/static/img/avatar2.png',
-                  'un-member-border': item.name === '---'&&item.imgUrl !== '/static/img/avatar2.png',
-                  'member-border': item.name !== '---'&&item.imgUrl !== '/static/img/avatar2.png'}"
-                :src="item.imgUrl"
-                alt
-              >
+              <div class="img-wrap">
+                <img
+                  :class="{'glow-border': item.imgUrl !== '/static/img/avatar2.png',
+                    'un-member-border': item.name === '---'&&item.imgUrl !== '/static/img/avatar2.png',
+                    'member-border': item.name !== '---'&&item.imgUrl !== '/static/img/avatar2.png'}"
+                  :src="item.imgUrl"
+                  alt
+                >
+                <span class="corner-icon"></span>
+              </div>
               <div v-if="item.name && item.name === '---'" class="member-mask"><span
                 style="color: #FF6660;margin-right: 3px">●</span> 非会员
               </div>
@@ -808,8 +811,9 @@ export default {
           transform: translateY(-100%);
         }
         .side-box {
+          float: left;
           font-size: 12px;
-          overflow: hidden;
+          /*clear: both;*/
           margin-bottom: 20px;
           transition: all 1s;
           .box-left {
@@ -842,8 +846,51 @@ export default {
             img {
               width: 86px;
               height: 86px;
-              border-radius: 2px;
+              border-radius: 3px;
               border: none;
+            }
+            .img-wrap{
+              position: relative;
+              @mixin base-block {
+                content: '';
+                position: absolute;
+                display: block;
+                width: 12px;
+                height: 12px;
+                border: 2px solid rgba(255, 255, 255, 0.5);
+                z-index: 99;
+              }
+              &:after{
+                @include base-block;
+                top: 0;
+                left: 0;
+                border-bottom: none;
+                border-right: none;
+              }
+              &:before{
+                @include base-block;
+                top: 0;
+                right: 0;
+                border-bottom: none;
+                border-left: none;
+              }
+              .corner-icon{
+                &:after{
+                  @include base-block;
+                  bottom: 2px;
+                  left: 0;
+                  border-top: none;
+                  border-right: none;
+                }
+                &:before{
+                  @include base-block;
+                  bottom: 2px;
+                  right: 0;
+                  left: auto;
+                  border-top: none;
+                  border-left: none;
+                }
+              }
             }
             .member-border {
               box-shadow: 0 0 10px 3px #429321;
@@ -853,7 +900,6 @@ export default {
             }
             .member-mask {
               width: 100%;
-              /*width: 80px;*/
               height: 20px;
               position: absolute;
               bottom: 2px;
@@ -861,11 +907,10 @@ export default {
               align-items: center;
               justify-content: center;
               background-color: rgba(23, 21, 26, 0.5);
-              /*margin-left: 2px;*/
             }
           }
           .glow-border {
-            /*box-shadow: 0 0 6px 1px #719CF5;*/
+            /*box-shadow: 0 0 10px 3px #719CF5;*/
           }
         }
       }

@@ -19,8 +19,6 @@
       &:after{
         //border-bottom-color: rgba(255,255, 255, 0.8);
       }
-      //border-color: rgba(255,255, 255, 0.8);
-      //background: rgba(255,255, 255, 0.8);
     }
   }
 }
@@ -61,7 +59,7 @@
 
 .white .el-input .el-input__inner {
   color: #333;
-  background: #fff;
+  //background: ;
 }
 .el-form-item__label{
   position: relative;
@@ -225,6 +223,22 @@
         }
       }
     }
+    > .el-tree-node{
+      > .el-tree-node__children{
+        > .el-tree-node{
+          > .el-tree-node__content{
+            color: #979797;
+            &:hover{
+              color: #979797;
+              &:after{
+                display: none;
+              }
+            }
+          }
+        }
+      }
+    }
+
     .el-tree-node__content {
       position: relative;
       &:hover {

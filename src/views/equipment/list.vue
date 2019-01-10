@@ -183,7 +183,6 @@ import {byKeyDeviceType} from '../../utils'
 import {validateRule} from '../../utils/validate'
 import {mapState} from 'vuex'
 import {eventObject} from '../../utils/event'
-const UPLOAD_API = process.env.UPLOAD_API
 export default {
   name: 'index',
   data () {
@@ -426,15 +425,13 @@ export default {
   created () {
   },
   computed: {
-    ...mapState(['userInfo']),
+    ...mapState(['userInfo', 'serverIp']),
     excelUrl () {
+      let UPLOAD_API = `//${this.serverIp.substring(0, this.serverIp.indexOf(':'))}`
       let url = `${UPLOAD_API}/manage/device/deviceCamera/info/addBatch` // excel批量导入摄像头信息
       if (this.$route.name === 'equipmentAio') url = `${UPLOAD_API}/manage/merchant/device/import` // excel批量导入一体机
       return url
     }
-    // downloadSrc () {
-    //   return `${UPLOAD_API}/manage/merchant/import/template?name=${this.$route.name === 'equipmentCamera' ? '7A45-8A45.xlsx' : '7045-8045.xlsx'}`
-    // }
   },
   watch: {
     ExcelAddVisible (val) {
