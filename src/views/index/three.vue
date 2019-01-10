@@ -205,7 +205,11 @@ export default {
         })
         this.rankData = res.data
       }).catch(err => {
-        this.num++
+        if (err.code === 'ERR-110') {
+          this.num = 4
+        } else {
+          this.num++
+        }
         this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })
       // 获取实时比率
@@ -224,7 +228,11 @@ export default {
         this.ratioData = resData
         // console.log('ratio ----------', this.ratioData)
       }).catch(err => {
-        this.num++
+        if (err.code === 'ERR-110') {
+          this.num = 4
+        } else {
+          this.num++
+        }
         this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })
     },
