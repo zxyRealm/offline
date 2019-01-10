@@ -149,7 +149,6 @@ export default {
         if (val[0]) {
           this.trailMapInfo = {
             groupGuid: val[0].groupGuid,
-            groupSonGuid: val[0].groupSonGuid,
             personGuid: this.trailDetailInfo.personId,
             start: val[0].createTime.split(" ")[0] + " 00:00:00",
             end: val[0].createTime.split(" ")[0] + " 23:59:59",
