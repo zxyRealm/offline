@@ -15,3 +15,10 @@ export function GetPersonTrail (data) {
     data
   })
 }
+
+export function GetTrace (data) {
+  return request({
+    url: '/behavior/getTrace',
+    data
+  })
+}

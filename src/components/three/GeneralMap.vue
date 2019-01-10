@@ -785,7 +785,7 @@ export default {
       #sideInfo {
         color: #ffffff;
         background: #101116;
-        padding: 5px 0 5px;
+        padding: 5px;
         height: 100%;
         box-sizing: border-box;
         overflow: hidden;
