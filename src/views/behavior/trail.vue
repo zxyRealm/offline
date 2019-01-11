@@ -53,7 +53,7 @@
                 <span class="ellipsis">{{item.portalName || item.groupName}}</span>
               </p>
               <p class="date">{{item.createTime | parseTime('{h}:{i}')}}</p>
-              <img width="12" src="@/assets/behavior/signpost_icon@2x.png" alt>
+              <img width="12" v-show="currentTrailList.length - 1 !== $index" src="@/assets/behavior/signpost_icon@2x.png" alt>
             </div>
           </div>
         </el-scrollbar>

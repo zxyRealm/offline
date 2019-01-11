@@ -151,7 +151,7 @@
 
 <script>
 import {MemberLibraryFind, MemberSearch, MemberDelete, MemberTemplate} from '../../api/member'
-const importIp = process.env.UPLOAD_API
+import {mapState} from 'vuex'
 export default {
   name: 'index',
   data () {
@@ -161,7 +161,6 @@ export default {
         src: '',
         visible: false
       },
-      ip: `${importIp}/manage/member/import`,
       // 按钮信息
       btnArray: [
         {text: '手动添加'},
@@ -204,6 +203,10 @@ export default {
 
   },
   computed: {
+    ...mapState(['serverIp']),
+    ip () {
+      return `//${this.serverIp.substring(0, this.serverIp.indexOf(':'))}/manage/member/import`
+    }
   },
   methods: {
     // 添加人员

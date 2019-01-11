@@ -77,6 +77,7 @@
           width="120"
           align="center"
           label="姓名">
+          <template slot-scope="scope">{{scope.row.name || '---'}}</template>
         </el-table-column>
         <el-table-column
           prop="gender"
@@ -94,9 +95,11 @@
           label="年龄">
         </el-table-column>
         <el-table-column
-          prop="memberLibaryName"
           align="center"
           label="所属会员库">
+          <template slot-scope="scope">
+            {{scope.row.memberLibaryName && scope.row.memberLibaryName.length ? scope.row.memberLibaryName[0] : '---'}}
+          </template>
         </el-table-column>
         <el-table-column
           align="center"
@@ -263,9 +266,12 @@ export default {
         length: size || this.pagination.length || 10,
         index: page
       }).then(res => {
+        this.$route.meta.keepAlive = false
         this.emptyText = '暂无数据'
         this.pagination = res.data.pagination
         this.behaviorList = res.data.content
+      }).catch(() => {
+        this.$route.meta.keepAlive = false
       })
     },
     // 通过名称搜索社群或者设备

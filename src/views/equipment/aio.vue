@@ -38,8 +38,6 @@ import {mapState} from 'vuex'
 import DeviceTable from '@/components/DeviceTable'
 import {eventObject} from '../../utils/event'
 import {GetOwnDeviceList} from '../../api/device'
-
-const UPLOAD_API = process.env.UPLOAD_API
 export default {
   name: 'index',
   components: {
@@ -174,7 +172,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loading', 'aliveState', 'userInfo']),
+    ...mapState(['loading', 'aliveState', 'userInfo', 'serverIp']),
     textState: {
       get () {
         let [cName, text] = ['', '']
@@ -214,11 +212,6 @@ export default {
       set (val) {
         this.textValue = val
       }
-    },
-    excelUrl () {
-      let url = `${UPLOAD_API}/manage/device/deviceCamera/info/addBatch` // excel批量导入摄像头信息
-      if (this.importType === 1) url = `${UPLOAD_API}/manage/merchant/device/import` // excel批量导入一体机
-      return url
     }
   },
   watch: {

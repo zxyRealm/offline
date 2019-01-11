@@ -82,7 +82,7 @@
                     <span class="ellipsis">{{item.name}}</span>
                     <uu-icon
                       size="small" type="quit"
-                      v-show="!item.self && communityInfo.type !== 4"
+                      v-show="!item.self"
                       @click.native="leaveCommunity('quit',communityInfo, item)"></uu-icon>
                   </div>
                 </div>
@@ -301,7 +301,7 @@
           </el-form-item>
           <el-form-item
             :rules="[
-              {required: handleCommunityType === 2, message: '请输入详细地址', trigger: 'blur'},
+              {required: true, message: '请输入详细地址', trigger: 'blur'},
               {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
             ]"
             prop="address">
@@ -661,18 +661,8 @@ export default {
     }
   },
   created () {
-    // this.$http('/firstCheck', {name: 'insight_group_list_first'}).then(res => {
-    //   if (res.data) {
-    //     this.btnArray.map(item => {
-    //       item.showPopover = true
-    //       return item
-    //     })
-    //     window.addEventListener('click', this.firstCreate)
-    //   }
-    // })
   },
   mounted () {
-    // this.$store.state.loading = true
     this.getGroupList()
   },
   computed: {
@@ -851,15 +841,17 @@ export default {
     getCommunityInfo (val, node) {
       if (!this.currentManage.id) return
       if (val.type === 4) {
-        GetStoreList({groupSonGuid: val.groupSonGuid}).then(res => {
-          this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
+        this.getGroupList()
+        // GetStoreList({groupSonGuid: val.groupSonGuid}).then(res => {
+        //   this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
+        // })
+      } else {
+        GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: val.groupParentGuid}).then(res => {
+          res.data.level = val.type === 1 || val.type === 4 ? 1 : val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
+          res.data.self = val.type === 4 ? false : res.data.merchantGuid === this.userInfo.developerId // slef 属性控制自有与非自有社群操作限制
+          this.communityInfo = res.data || {}
         })
       }
-      GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: val.groupParentGuid}).then(res => {
-        res.data.level = val.type === 1 || val.type === 4 ? 1 : val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
-        res.data.self = val.type === 4 ? false : res.data.merchantGuid === this.userInfo.developerId // slef 属性控制自有与非自有社群操作限制
-        this.communityInfo = res.data || {}
-      })
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
@@ -1054,6 +1046,7 @@ export default {
     },
     // 显示添加社群弹窗（商场、连锁店、单个门店）
     showAddForm (type) {
+      console.log('type---------------', type)
       this.handleCommunityType = type
       if (type === 5 || type === 7 || type === 6) {
         GetIndustry().then(res => {
@@ -1128,7 +1121,7 @@ export default {
           int = this.communityInfo.level === 2 ? 5 : 7
           break
         default:
-          int = this.communityInfo.self ? this.communityInfo.level === 2 ? 4 : 6 : 8
+          int = this.communityInfo.self ? (this.communityInfo.level === 2 || this.communityInfo.type === 4) ? 4 : 6 : 8
           break
       }
       return int

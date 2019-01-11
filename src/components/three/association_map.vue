@@ -78,7 +78,7 @@
       </div>
     </ob-dialog-form>
 
-    <div class="association_icon" v-show="currentFloor.type !== 4 && currentFloor.self && currentFloor.mapUrl">
+    <div class="association_icon" v-show="currentFloor.type !== 4 && currentFloor.self && data.level === 2">
       <i class="el-icon-question"></i>
       <div class="custom__tooltip">主出入口用于统计进入商城的人流量</div>
     </div>
@@ -117,7 +117,7 @@ export default {
             callback(new Error('该名称已存在'))
           } else {
             // console.log('currentFloor', this.currentFloor)
-            CheckPortalNameExist({name: value, groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
+            CheckPortalNameExist({name: value, groupGuid: this.currentManage.id, groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
               !res.data ? callback() : callback(new Error('该名称已存在'))
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
@@ -189,9 +189,12 @@ export default {
       if (!this.data.floor || this.data.type === 4) {
         this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor || 1))[0] || this.floorList[0] || ''
       } else {
-        this.currentFloor = this.data || ''
+        let Info = JSON.parse(JSON.stringify(this.data || ''))
+        Info.mapUrl = this.floorList.filter(item => item.floor === this.data.floor)[0].mapUrl
+        this.currentFloor = Info
+        // console.log('floor ------------------', Info, this.currentFloor)
       }
-      // console.log('floor ------------------', this.currentFloor, this.data, this.floorList)
+
       if (this.currentFloor) {
         this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
         this.getPortalCameraCount()
@@ -347,11 +350,12 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.handlePortalForm))
+          subData.groupGuid = this.currentManage.id
           subData.groupSonId = this.currentFloor.guid || this.currentFloor.groupSonGuid
           subData.floor = this.currentFloor.floor
           if (this.handleDialogType === 1) { // 添加出入口
             // 如果是成员社群绑定出入口则为副出入口
-            if (this.data.shapePathParam || this.data.type === 4) subData.type = 2
+            if (this.data.coordinates || this.data.type === 4) subData.type = 2
             CreatePortal(subData).then(res => {
               this.$tip('添加成功')
               this.handlePortalVisible = false

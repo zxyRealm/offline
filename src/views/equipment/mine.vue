@@ -100,14 +100,14 @@
       </div>
     </ob-dialog-form>
     <!--设备绑定社群-->
-    <ob-dialog-form
-      filter
-      @remote-submit="submitForm"
-      :group="groupList"
-      title="添加社群"
-      type="group"
-      :visible.sync="dialogFormVisible">
-    </ob-dialog-form>
+    <!--<ob-dialog-form-->
+      <!--filter-->
+      <!--@remote-submit="submitForm"-->
+      <!--:group="groupList"-->
+      <!--title="添加社群"-->
+      <!--type="group"-->
+      <!--:visible.sync="dialogFormVisible">-->
+    <!--</ob-dialog-form>-->
   </div>
 </template>
 <script>
@@ -273,24 +273,6 @@ export default {
     }
   },
   methods: {
-    // 弹窗表单提交
-    submitForm (data) {
-      if (this.dialogOptions.type === 'device') {
-        // 添加商户设备
-        this.$http('/merchant/device/create', data).then(res => {
-          this.dialogFormVisible = false
-          this.$tip('创建成功')
-          this.getMineEquipment()
-        }).catch(() => {
-          this.dialogFormVisible = false
-        })
-      } else {
-        // 绑定社群
-        data.groupNickName = this.groupList[data.groupGuid].groupNickName
-        data.groupGuid = this.groupList[data.groupGuid].groupGuid
-        this.bindCommunity(data)
-      }
-    },
     // 获取社群树形结构数据
     getGroupList () {
       this.$http('/group/list/self').then(res => {
@@ -338,43 +320,6 @@ export default {
         if (!this.groupList.length) {
           this.getGroupList()
         }
-      })
-    },
-    // 解绑社群
-    unBindCommunity (value, index) {
-      this.$affirm({
-        confirm: '确定',
-        cancel: '返回',
-        text: '将设备从社群解绑，您将无法查看该设备数据/无法操作设备。<br>确定要将【<span class="maxw110 ellipsis">' + value.deviceName + '</span>】设备从【<span class="maxw110 ellipsis">' + value.groupName + '</span>】社群解绑？'
-      }, (action, instance, done) => {
-        if (action === 'confirm') {
-          done()
-          this.$http('/device/unbinding', {
-            deviceKey: value.deviceKey,
-            groupGuid: value.groupGuid
-          }).then(res => {
-            this.$tip('解绑成功')
-            this.$set(value, 'groupGuid', null)
-            this.$refs.deviceItem[index].getDeviceState(value, value.deviceStatus === undefined ? null : undefined)
-          })
-        } else {
-          // 隐藏hover 提示信息
-          setTimeout(() => { value.tipShow = false }, 5)
-          done()
-        }
-      })
-    },
-    // 绑定社群
-    bindCommunity (data) {
-      this.dialogFormVisible = false
-      this.$load('设备绑定中...')
-      data.name = data.deviceName
-      this.$http('/device/binding', data).then(res => {
-        this.$load().close()
-        this.$tip('绑定成功')
-        this.getMineEquipment(this.pagination.index)
-      }).catch(() => {
-        this.$load().close()
       })
     },
     // 添加服务器
@@ -429,7 +374,6 @@ export default {
       })
     },
     addCameraDevice (formName) {
-      // console.log(this.addCameraForm)
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.addCameraForm.type = this.deviceInfo.type

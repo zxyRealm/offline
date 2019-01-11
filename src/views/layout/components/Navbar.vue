@@ -154,7 +154,7 @@
         </el-form-item>
         <el-form-item
           :rules="[
-            {required: handleCommunityType === 2, message: '请输入详细地址', trigger: 'blur'},
+            {required: true, message: '请输入详细地址', trigger: 'blur'},
             {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
           ]"
           prop="address">
@@ -402,6 +402,7 @@ export default {
     },
     addCommunityVisible (val) {
       if (!val) {
+        this.fileList = []
         this.$refs.addCommunityForm.resetFields()
       }
     }

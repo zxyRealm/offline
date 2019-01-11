@@ -244,8 +244,10 @@ export default {
     .group-name-input {
       width: 210px;
       .el-input{
+        height: 30px;
         background: #fff;
         border-radius: 3px;
+        vertical-align: top;
         .el-input__suffix-inner{
           .el-input__icon{
             display: block;
