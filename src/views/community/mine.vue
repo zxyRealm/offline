@@ -841,17 +841,15 @@ export default {
     getCommunityInfo (val, node) {
       if (!this.currentManage.id) return
       if (val.type === 4) {
-        this.getGroupList()
-        // GetStoreList({groupSonGuid: val.groupSonGuid}).then(res => {
-        //   this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
-        // })
-      } else {
-        GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: val.groupParentGuid}).then(res => {
-          res.data.level = val.type === 1 || val.type === 4 ? 1 : val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
-          res.data.self = val.type === 4 ? false : res.data.merchantGuid === this.userInfo.developerId // slef 属性控制自有与非自有社群操作限制
-          this.communityInfo = res.data || {}
+        GetStoreList({groupSonGuid: val.groupSonGuid}).then(res => {
+          this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
         })
       }
+      GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: val.groupParentGuid}).then(res => {
+        res.data.level = val.type === 1 || val.type === 4 ? 1 : val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
+        res.data.self = val.type === 4 ? false : res.data.merchantGuid === this.userInfo.developerId // slef 属性控制自有与非自有社群操作限制
+        this.communityInfo = res.data || {}
+      })
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
@@ -928,7 +926,11 @@ export default {
         if (action === 'confirm') {
           ExitManage(params).then(res => {
             this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
-            this.getCommunityInfo(this.communityInfo)
+            if (this.currentManage.type === 3) {
+              this.getGroupList()
+            } else {
+              this.getCommunityInfo(this.communityInfo)
+            }
           })
         }
         done()
@@ -941,6 +943,11 @@ export default {
           let subData = JSON.parse(JSON.stringify(this.joinManageForm))
           subData.pid = this.ManageInfo.id
           subData.groupId = this.communityInfo.guid || this.groupList[0].groupSonGuid
+          console.log('joinManageForm------', subData)
+          if (!subData.coordinates || !subData.coordinates.length) {
+            this.$tip('请选取绑定区域', 'error')
+            return
+          }
           JoinOtherManage(subData).then(res => {
             this.$tip('加入成功')
             this.joinFormVisible = false
@@ -1186,7 +1193,7 @@ export default {
     handleMemberVisible (val) {
       // 弹框消失时清除表单默认数据（地图选中状态）
       if (!val && this.$refs.handleMemberForm) {
-        this.handleMemberForm.coordinates = []
+        this.handleMemberForm.coordinates = ''
         this.$refs.handleMemberForm.resetFields()
         if (this.$refs.bindGroupMap) this.$refs.bindGroupMap.initFloor()
       }

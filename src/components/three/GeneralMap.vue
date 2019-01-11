@@ -273,9 +273,7 @@ export default {
         if (value.floor === item.floor) {
           this.community.index = i
           this.$emit('updateCommunity', this.community.infoArr[i])
-          this.websocket.close()
           this.getLatestFace(item.groupParentGuid, item.groupSonGuid)
-          this.getWebsocket(item.groupSonGuid, item.groupParentGuid)
         }
       })
     },
@@ -398,6 +396,7 @@ export default {
             this.imgCut(face.data)
           }
         })
+        this.getWebsocket(groupSonGuid, groupParentGuid)
       })
     },
     getCommunityInfo () {
@@ -451,7 +450,6 @@ export default {
         }
         this.$emit('updateCommunity', allInfo[0])
         this.getLatestFace(this.routerList[0].groupParentGuid, this.routerList[0].groupSonGuid)
-        this.getWebsocket(res.data[0].groupSonGuid, res.data[0].groupParentGuid)
       })
     },
     getSingleCommunityInfo () {
