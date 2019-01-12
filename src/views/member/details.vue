@@ -299,7 +299,7 @@ export default {
     // 文件上传中
     uploading (event) {
       this.uploadDialogVisible = false
-      this.percent = event.percent
+      this.percent = Math.floor(event.percent)
     },
     // 文件上传成功回调
     uploadSuccess (response) {

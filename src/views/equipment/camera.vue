@@ -1,5 +1,5 @@
 <template>
-  <div class="equipment-more-wrap">
+  <div class="equipment-camera-wrap">
     <!--设备搜索-->
     <div class="device__search--wrap">
       <el-input
@@ -14,18 +14,22 @@
       </el-input>
     </div>
     <div class="data-list-wrap">
-      <device-table
-        data-type="camera"
-        @refresh="getCameraList"
-        v-model="cameraList"
-      >
-      </device-table>
+      <el-scrollbar id="camera__scrollbar">
+        <device-table
+          data-type="camera"
+          @refresh="getCameraList"
+          v-model="cameraList"
+        >
+        </device-table>
+      </el-scrollbar>
       <el-pagination
         v-if="pagination.total && pagination.total > pagination.length"
         @current-change="getCameraList"
+        @size-change="sizeChange"
+        :page-sizes="[10, 20, 30, 50]"
         :current-page="pagination.index"
         :page-size="pagination.length"
-        layout="total,prev, pager, next, jumper"
+        layout="total, sizes, prev, pager, next, jumper"
         :total="pagination.total">
       </el-pagination>
     </div>
@@ -153,6 +157,7 @@ export default {
       }
     }
     return {
+      emptyText: '数据加载中...',
       addCameraVisible: false,
       addDeviceVisible: false,
       ExcelAddVisible: false,
@@ -204,17 +209,29 @@ export default {
   methods: {
     search () {
       if (this.searchValue) {
-        SearchCamera({serverKey: this.$route.query.server_key, name: this.searchValue}).then(res => {
+        SearchCamera({
+          serverKey: this.$route.query.server_key,
+          name: this.searchValue,
+          index: 1,
+          length: this.pagination.length || 10
+        }).then(res => {
+          this.emptyText = '暂无设备'
           this.cameraList = res.data.content
           this.pagination = res.data.pagination
+          if (document.getElementById('camera__scrollbar')) document.getElementById('camera__scrollbar').children[0].scrollTop = 0
         })
       }
     },
-    // 获取IPC 设备列表信息
-    getCameraList () {
-      GetCameraList({serverKey: this.$route.query.server_key}).then(res => {
+    sizeChange (size) {
+    },
+    // 获取摄像头 设备列表信息
+    getCameraList (page) {
+      page = page || this.pagination.length || 1
+      GetCameraList({serverKey: this.$route.query.server_key, index: page, length: this.pagination.length || 10}).then(res => {
+        this.emptyText = '暂无设备'
         this.cameraList = res.data.content
         this.pagination = res.data.pagination
+        if (document.getElementById('camera__scrollbar')) document.getElementById('camera__scrollbar').children[0].scrollTop = 0
       })
     },
     showPopover (index) {
@@ -222,14 +239,6 @@ export default {
     },
     hidePopover (index) {
       this.$refs.nickNameForm.clearValidate()
-    },
-    // 返回上一页 back为字符串时返回指定路径
-    backPrev () {
-      if (window.history.length) {
-        this.$router.go(-1)
-      } else {
-        this.$router.push('/')
-      }
     }
   },
   created () {
@@ -245,8 +254,11 @@ export default {
 }
 </script>
 
-<style scoped>
-.device__sub--nav{
+<style lang="scss" scoped>
+.equipment-camera-wrap{
+  height: calc(100% - 96px);
+}
+  .device__sub--nav{
   color: #fff;
 }
 .device__sub--nav .el-icon-arrow-left{

@@ -210,7 +210,8 @@ export default {
         } else {
           this.num++
         }
-        this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
+        console.error(err.msg || '网络异常，请稍后重新尝试')
+        // this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })
       // 获取实时比率
       GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupParentGuid}).then(res => {
@@ -233,7 +234,7 @@ export default {
         } else {
           this.num++
         }
-        this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
+        // this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })
     },
     createCommunity () {

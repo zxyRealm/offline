@@ -6,14 +6,14 @@ const Test = () => import('@/views/test.vue')
 const Layout = () => import('@/views/layout/Layout.vue')
 // 社群管理
 const Community = () => import('@/views/community/mine.vue')
+
 // 设备管理
-const Equipment = () => import('@/views/equipment/mine.vue')
+
 const EquipmentList = () => import('@/views/equipment/list.vue')
 const EquipmentAio = () => import('@/views/equipment/aio.vue')
-// const EquipmentOther = () => import('@/views/equipment/other.vue')
 const EquipmentServer = () => import('@/views/equipment/server.vue')
 const EquipmentPortal = () => import('@/views/equipment/portal.vue')
-const EquipmentCamera = () => import('@/views/equipment/more.vue')
+const EquipmentCamera = () => import('@/views/equipment/camera.vue')
 // 人员管理
 const Member = () => import('@/views/member/index.vue')
 const Library = () => import('@/views/member/library.vue')
@@ -194,15 +194,6 @@ export const constantRouterMap = [
             component: EquipmentPortal
           }
         ]
-      },
-      {
-        path: 'mine/search/:name',
-        name: 'searchMine',
-        meta: {
-          title: '自有社群设备搜索-设备管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: Equipment
       }
     ]
   },

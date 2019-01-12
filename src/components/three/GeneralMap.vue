@@ -154,7 +154,7 @@
           <!--<div id="sideMask" v-if="!maskToggle"></div>-->
         </transition>
         <transition-group name="list-customer" class="transition-wrap right" tag="ul">
-          <li class="side-box" v-for="(item) in personList" v-bind:key="item.key">
+          <li class="side-box" v-for="(item) in personList" :key="item.key">
             <div class="box-left">
               <div class="name">{{item.name}}</div>
               <div class="info">
@@ -275,9 +275,7 @@ export default {
         if (value.floor === item.floor) {
           this.community.index = i
           this.$emit('updateCommunity', this.community.infoArr[i])
-          this.websocket.close()
           this.getLatestFace(item.groupParentGuid, item.groupSonGuid)
-          this.getWebsocket(item.groupSonGuid, item.groupParentGuid)
         }
       })
     },
@@ -359,7 +357,6 @@ export default {
     },
     imgCut (data) {
       var img = new Image()
-      let key = data.memberInfo.imgUrl
       var canvas = document.createElement('canvas')
       var context = canvas.getContext('2d')
       var dataURL
@@ -383,7 +380,7 @@ export default {
           gender: data.memberInfo.gender === 1 ? '男' : '女',
           appearanceDate: parseTime(data.memberInfo.appearanceDate, '{h}:{i}'),
           imgUrl: dataURL,
-          key: key
+          key: Math.random()
         }
         this.personList.pop()
         this.personList.unshift(obj)
@@ -400,6 +397,7 @@ export default {
             this.imgCut(face.data)
           }
         })
+        this.getWebsocket(groupSonGuid, groupParentGuid)
       })
     },
     getCommunityInfo () {
@@ -453,7 +451,6 @@ export default {
         }
         this.$emit('updateCommunity', allInfo[0])
         this.getLatestFace(this.routerList[0].groupParentGuid, this.routerList[0].groupSonGuid)
-        this.getWebsocket(res.data[0].groupSonGuid, res.data[0].groupParentGuid)
       })
     },
     getSingleCommunityInfo () {

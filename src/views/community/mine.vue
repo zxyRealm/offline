@@ -49,11 +49,14 @@
                 </p>
               </h2>
               <div class="cm-info-wrap">
-                <div >
-                  <span class="info__label">社群名称：</span><span class="ellipsis-64">{{communityInfo.name}}</span></div>
-                <div >
+                <div>
+                  <span class="info__label">社群名称：</span>
+                  <span class="ellipsis-64">{{communityInfo.name}}</span>
+                </div>
+                <div>
                   <span class="info__label">联系人：</span>
-                  {{communityInfo.contact}}</div>
+                  <span class="ellipsis-64">{{communityInfo.contact}}</span>
+                </div>
                 <div>
                   <span class="info__label">联系电话：</span>
                   {{communityInfo.phone}}</div>
@@ -145,6 +148,7 @@
           >
             <el-form-item label="邀请码：" prop="code">
               <el-input placeholder="请输入10位数字、字母" v-model="joinManageForm.code"></el-input>
+              <!--{{isManage}}&#45;&#45;&#45;&#45;&#45;&#45;-->
             </el-form-item>
             <template v-if="ManageInfo.id">
               <el-form-item label-width="0">
@@ -158,44 +162,46 @@
                   </div>
                 </div>
               </el-form-item>
-              <template v-if="ManageInfo.type !== 1">
-                <el-form-item label="地区：" prop="pca">
-                  <area-select placeholder="请选择地区" v-model="joinManageForm.pca"></area-select>
-                </el-form-item>
-                <el-form-item prop="address">
-                  <el-input type="text" placeholder="请输入详细地址"
-                            v-model.trim="joinManageForm.address"></el-input>
-                </el-form-item>
-              </template>
-              <template v-else>
-                <el-form-item label="业态：" prop="industryType">
-                  <el-select placeholder="请选择门店所属业态类型" v-model="joinManageForm.industryType">
-                    <el-option
-                      v-for="(item,$index) in industryList"
-                      :label="item.value"
-                      :key="$index"
-                      :value="item.code"></el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="楼层：" prop="floor">
-                  <el-select
-                    @change="FloorChange($event, 'joinManageForm')"
-                    placeholder="请选择门店所在楼层" v-model="joinManageForm.floor">
-                    <el-option
-                      v-for="(item, $index) in floorList"
-                      :key="$index"
-                      :label="IntToFloor(item)"
-                      :value="item"></el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item v-show="joinManageForm.floor" label-width="0">
-                  <div class="three__map--dialog">
-                    <bind-community
-                      ref="joinManageFormMap"
-                      @handle-block-click="handleBlockClick($event, 'joinManageForm')"
-                      :floor-list="joinCommunityList[0] ? joinCommunityList[0].subGroupSon : []"></bind-community>
-                  </div>
-                </el-form-item>
+              <template v-if="!isManage">
+                <template v-if="ManageInfo.type !== 1">
+                  <el-form-item label="地区：" prop="pca">
+                    <area-select placeholder="请选择地区" v-model="joinManageForm.pca"></area-select>
+                  </el-form-item>
+                  <el-form-item prop="address">
+                    <el-input type="text" placeholder="请输入详细地址"
+                              v-model.trim="joinManageForm.address"></el-input>
+                  </el-form-item>
+                </template>
+                <template v-else>
+                  <el-form-item label="业态：" prop="industryType">
+                    <el-select placeholder="请选择门店所属业态类型" v-model="joinManageForm.industryType">
+                      <el-option
+                        v-for="(item,$index) in industryList"
+                        :label="item.value"
+                        :key="$index"
+                        :value="item.code"></el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="楼层：" prop="floor">
+                    <el-select
+                      @change="FloorChange($event, 'joinManageForm')"
+                      placeholder="请选择门店所在楼层" v-model="joinManageForm.floor">
+                      <el-option
+                        v-for="(item, $index) in floorList"
+                        :key="$index"
+                        :label="IntToFloor(item)"
+                        :value="item"></el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item v-show="joinManageForm.floor" label-width="0">
+                    <div class="three__map--dialog">
+                      <bind-community
+                        ref="joinManageFormMap"
+                        @handle-block-click="handleBlockClick($event, 'joinManageForm')"
+                        :floor-list="joinCommunityList[0] ? joinCommunityList[0].subGroupSon : []"></bind-community>
+                    </div>
+                  </el-form-item>
+                </template>
               </template>
             </template>
           </el-form>
@@ -384,9 +390,9 @@ export default {
             GetCommunityInfoByCode({code: value}).then(res => {
               if (res.data && res.data.id) {
                 this.ManageInfo = res.data
-                let isManage
+                this.isManage = false
                 if (this.communityInfo.parentInfoList) {
-                  isManage = this.communityInfo.parentInfoList.filter(item => item.type === this.ManageInfo.type)[0]
+                  this.isManage = this.communityInfo.parentInfoList.filter(item => item.type === this.ManageInfo.type)[0]
                 }
                 if (this.originCode !== value) {
                   if (this.originCode) {
@@ -401,7 +407,7 @@ export default {
                   })
                   this.originCode = JSON.parse(JSON.stringify(value))
                 }
-                if (isManage) {
+                if (this.isManage) {
                   callback(new Error(`已加入其他${this.ManageInfo.type === 1 ? '商场' : '连锁'}社群`))
                 } else {
                   callback()
@@ -495,6 +501,7 @@ export default {
       }
     }
     return {
+      isManage: false,
       originCode: '', // 邀请码
       parentGroups: [
         {name: '西溪'},
@@ -799,7 +806,21 @@ export default {
       switch (this.currentManage.type) {
         case 1:
           GetMarketList({parentId: pid}).then(res => {
-            this.groupList = res.data || []
+            let arr = res.data || []
+            if (arr[0] && arr[0].subGroupSon.length) {
+              arr[0].subGroupSon.map(item => {
+                if (item.subGroupSon) {
+                  item.subGroupSon.map(item2 => {
+                    if (item2.self) {
+                      item2.nickName = item2.name
+                    }
+                    return item2
+                  })
+                }
+                return item
+              })
+            }
+            this.groupList = arr
             let currentNode = Object.keys(this.currentCommunity).length ? this.currentCommunity : this.groupList[0]
             this.$nextTick(() => {
               if (this.$refs.groupNav) {
@@ -841,17 +862,16 @@ export default {
     getCommunityInfo (val, node) {
       if (!this.currentManage.id) return
       if (val.type === 4) {
-        this.getGroupList()
-        // GetStoreList({groupSonGuid: val.groupSonGuid}).then(res => {
-        //   this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
-        // })
-      } else {
-        GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: val.groupParentGuid}).then(res => {
-          res.data.level = val.type === 1 || val.type === 4 ? 1 : val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
-          res.data.self = val.type === 4 ? false : res.data.merchantGuid === this.userInfo.developerId // slef 属性控制自有与非自有社群操作限制
-          this.communityInfo = res.data || {}
+        GetStoreList({groupSonGuid: val.groupSonGuid}).then(res => {
+          this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
         })
       }
+      GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: val.groupParentGuid}).then(res => {
+        res.data.level = val.type === 1 || val.type === 4 ? 1 : val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
+        res.data.self = val.type === 4 ? false : res.data.merchantGuid === this.userInfo.developerId // slef 属性控制自有与非自有社群操作限制
+        if (val.self) res.data.nickName = res.data.name
+        this.communityInfo = res.data || {}
+      })
     },
     // 切换 / 新建自定义分组
     currentChange (data, node) {
@@ -928,7 +948,11 @@ export default {
         if (action === 'confirm') {
           ExitManage(params).then(res => {
             this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
-            this.getCommunityInfo(this.communityInfo)
+            if (this.currentManage.type === 3) {
+              this.getGroupList()
+            } else {
+              this.getCommunityInfo(this.communityInfo)
+            }
           })
         }
         done()
@@ -941,6 +965,11 @@ export default {
           let subData = JSON.parse(JSON.stringify(this.joinManageForm))
           subData.pid = this.ManageInfo.id
           subData.groupId = this.communityInfo.guid || this.groupList[0].groupSonGuid
+          console.log('joinManageForm------', subData)
+          if (!subData.coordinates || !subData.coordinates.length) {
+            this.$tip('请选取绑定区域', 'error')
+            return
+          }
           JoinOtherManage(subData).then(res => {
             this.$tip('加入成功')
             this.joinFormVisible = false
@@ -1186,7 +1215,7 @@ export default {
     handleMemberVisible (val) {
       // 弹框消失时清除表单默认数据（地图选中状态）
       if (!val && this.$refs.handleMemberForm) {
-        this.handleMemberForm.coordinates = []
+        this.handleMemberForm.coordinates = ''
         this.$refs.handleMemberForm.resetFields()
         if (this.$refs.bindGroupMap) this.$refs.bindGroupMap.initFloor()
       }
