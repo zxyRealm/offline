@@ -152,7 +152,7 @@
           <!--<div id="sideMask" v-if="!maskToggle"></div>-->
         </transition>
         <transition-group name="list-customer" class="transition-wrap right" tag="ul">
-          <li class="side-box" v-for="(item) in personList" v-bind:key="item.key">
+          <li class="side-box" v-for="(item) in personList" :key="item.key">
             <div class="box-left">
               <div class="name">{{item.name}}</div>
               <div class="info">
@@ -355,7 +355,6 @@ export default {
     },
     imgCut (data) {
       var img = new Image()
-      let key = data.memberInfo.imgUrl
       var canvas = document.createElement('canvas')
       var context = canvas.getContext('2d')
       var dataURL
@@ -379,7 +378,7 @@ export default {
           gender: data.memberInfo.gender === 1 ? '男' : '女',
           appearanceDate: parseTime(data.memberInfo.appearanceDate, '{h}:{i}'),
           imgUrl: dataURL,
-          key: key
+          key: Math.random()
         }
         this.personList.pop()
         this.personList.unshift(obj)

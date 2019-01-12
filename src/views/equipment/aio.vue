@@ -14,7 +14,7 @@
       </el-input>
     </div>
     <div class="data-list-wrap">
-      <el-scrollbar>
+      <el-scrollbar id="aio__scrollbar">
         <device-table
           data-type="aio"
           @refresh="getMineEquipment"
@@ -24,9 +24,11 @@
         <el-pagination
           v-if="pagination.total && pagination.total > pagination.length"
           @current-change="getMineEquipment"
+          @size-change="sizeChange"
+          :page-sizes="[10, 20, 30]"
           :current-page="pagination.index"
           :page-size="pagination.length"
-          layout="total,prev, pager, next, jumper"
+          layout="total, sizes, prev, pager, next, jumper"
           :total="pagination.total">
         </el-pagination>
       </el-scrollbar>
@@ -45,6 +47,7 @@ export default {
   },
   data () {
     return {
+      emptyText: '数据加载中...',
       searchValue: '',
       currentRouter: '/equipment/mine',
       dialogOptions: { // dialog 弹窗配置 类型 标题文本
@@ -67,7 +70,9 @@ export default {
       serverList: [], // 服务器列表
       groupList: [], // 自有社群列表
       equipmentList: [], // 设备列表
-      pagination: {}, // 分页信息
+      pagination: {
+        length: 10
+      }, // 分页信息
       dialogFormVisible: false,
       isSearch: false,
       progress: null
@@ -76,6 +81,10 @@ export default {
   methods: {
     // 自有设备搜索
     search (val) {
+      this.getMineEquipment()
+    },
+    sizeChange (size) {
+      this.pagination.length = size
       this.getMineEquipment()
     },
     // 弹窗表单提交
@@ -131,9 +140,11 @@ export default {
     // 获取自有设备
     getMineEquipment (page) {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
-      GetOwnDeviceList({index: page, searchText: this.searchValue || '', length: 10}).then(res => {
+      GetOwnDeviceList({index: page, searchText: this.searchValue || '', length: this.pagination.length || 10}).then(res => {
+        this.emptyText = '暂无设备'
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination || {}
+        if (document.getElementById('aio__scrollbar')) document.getElementById('aio__scrollbar').children[0].scrollTop = 0
       })
     },
     // 第一次进入设备列表，给出操作提示，点击页面后提示消失

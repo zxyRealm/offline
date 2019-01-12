@@ -2,6 +2,7 @@
   <div class="portal__content--wrap">
     <div class="group__select--wrap">
       <el-select value-key="guid" @change="groupChange" v-model="currentGroup">
+        <el-option :value="0" label="全部社群"></el-option>
         <el-option
           v-for="(item, $index) in groupList"
           :key="$index"
@@ -71,7 +72,7 @@
     >
       <div slot="content" class="device__dialog--list">
         <div class="c-grey fs12 g-mb12">设备名称</div>
-        <el-scrollbar>
+        <el-scrollbar id="portal__scrollbar">
           <el-checkbox-group
             v-model="checkedItems">
             <el-checkbox
@@ -99,11 +100,12 @@ export default {
   name: 'portal',
   data () {
     return {
+      emptyText: '数据加载中...',
       checkedItems: [],
       ownDeviceList: [], // 自有设备列表
       AddDeviceVisible: false,
       currentPortal: '', // 当前出入口信息
-      currentGroup: '', // 当前选中社群
+      currentGroup: 0, // 当前选中社群
       groupList: [
       ], // 自有社群列表
       portalList: [
@@ -133,13 +135,17 @@ export default {
       if (!this.currentManage.id) return
       if (this.currentGroup && this.currentGroup.guid) {
         PortalMemberDevice({groupSonId: this.currentGroup.guid, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
-          this.portalList = res.data.content
+          this.emptyText = '暂无数据'
+          this.portalList = res.data.content || []
           this.pagination = res.data.pagination
+          if (document.getElementById('portal__scrollbar')) document.getElementById('portal__scrollbar').children[0].scrollTop = 0
         })
       } else {
         PortalDeviceList({groupId: this.currentManage.id, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
-          this.portalList = res.data.content
+          this.emptyText = '暂无数据'
+          this.portalList = res.data.content || []
           this.pagination = res.data.pagination
+          if (document.getElementById('portal__scrollbar')) document.getElementById('portal__scrollbar').children[0].scrollTop = 0
         })
       }
     },

@@ -66,7 +66,7 @@
       </el-date-picker>
       <a href="javascript:void (0)" @click="getBehaviorList()" class="fr">刷新</a>
     </div>
-    <el-scrollbar class="table__scrollbar">
+    <el-scrollbar id="analyse__scrollbar" class="table__scrollbar">
       <el-table
       border
       :empty-text="emptyText"
@@ -270,6 +270,7 @@ export default {
         this.emptyText = '暂无数据'
         this.pagination = res.data.pagination
         this.behaviorList = res.data.content
+        if (document.getElementById('analyse__scrollbar')) document.getElementById('analyse__scrollbar').children[0].scrollTop = 0
       }).catch(() => {
         this.$route.meta.keepAlive = false
       })

@@ -1,7 +1,7 @@
 <template>
   <div class="equipment__data--list">
     <!--<div class="data-list-wrap">-->
-      <el-scrollbar>
+      <el-scrollbar id="server__scrollbar">
         <device-table
           data-type="server"
           @refresh="getServerEquipment"
@@ -33,6 +33,7 @@ export default {
   },
   data () {
     return {
+      emptyText: '数据加载中...',
       searchValue: '',
       currentRouter: '/equipment/mine',
       dialogOptions: { // dialog 弹窗配置 类型 标题文本
@@ -90,8 +91,10 @@ export default {
     getServerEquipment (page) {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
       GetServerDeviceList({index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
+        this.emptyText = '暂无设备'
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination || {}
+        if (document.getElementById('server__scrollbar')) document.getElementById('server__scrollbar').children[0].scrollTop = 0
       })
     },
     // 重置添加服务器表单
