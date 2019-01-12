@@ -15,6 +15,7 @@
       margin: 0;
       padding: 0;
       color: rgb(86, 191, 248);
+      /* b: #2f89f8 */
     }
   </style>
 </head>
@@ -483,7 +484,7 @@
           var opacity = info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 1
           for (var j = 0; j < shapes.length; j++) {
             var shape = shapes[j];
-            if (i !== 0) {
+            // if (i !== 0) {
               shape.autoClose = true
               var points = shape.getPoints()
               // var geometryPoints = new THREE.BufferGeometry().setFromPoints(points)
@@ -540,7 +541,7 @@
               edges.name = 'edges'
               group.add(edges)
               group.add(line)
-            }
+            // }
           }
         }
       })

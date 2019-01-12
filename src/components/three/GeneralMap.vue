@@ -53,7 +53,9 @@
                       alt
                       width="5"
                     >
-                    <span>{{Math.abs(statisticEndInfo.Incoming_percent)}}%</span>
+                    <span :class="{'red-text': statisticEndInfo.Incoming_percent >= 0, 'green-text': statisticEndInfo.Incoming_percent < 0}">
+                      {{Math.abs(statisticEndInfo.Incoming_percent)}}%
+                    </span>
                   </span>
                 </div>
                 <div class="key">今日数据</div>
@@ -337,7 +339,7 @@ export default {
         Incoming_Yesterday: data.oldIn,
         Member_Today: data.newMember,
         Member_Yesterday: data.oldMember,
-        Current: data.newIn - data.newOut < 0 ? 0 : data.newIn - data.newOut,
+        Current: data.newIn - data.newOut < 0 ? 0 : Math.abs(data.newIn - data.newOut),
         Incoming_percent: parseInt(((data.newIn - data.oldIn) / data.oldIn) * 100),
         Member_percent: parseInt(((data.newMember - data.oldMember) / data.oldMember) * 100)
       }
@@ -614,7 +616,6 @@ export default {
     currentManage: {
       handler (val) {
         if (val) {
-          console.log(val)
           if (this.websocket) {
             this.websocket.close()
             this.statisticInfo = {

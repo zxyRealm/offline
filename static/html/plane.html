@@ -403,8 +403,10 @@
     console.log(boxArr)
     // 遍历所有块
     for(var i in shapesMeshArr){
+      console.log(shapesMeshArr[i])
       var meshAlex = getString(shapesMeshArr[i]) // 所有色块的顶点值转换为字符串
       // 遍历从服务端获取到的坐标数据
+      console.log(meshAlex)
       for(var j in boxArr){
         if(boxArr[j].position){
           var shapeAlex = boxArr[j].position // 目标色块的顶点值字符串

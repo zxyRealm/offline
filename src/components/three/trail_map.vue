@@ -15,6 +15,8 @@
 </template>
 <script>
 import { GetTrace } from "@/api/behavior";
+import { GetMarketList } from '@/api/community'
+import { mapState } from 'vuex'
 export default {
   name: "TrailMap",
   props: {
@@ -30,39 +32,81 @@ export default {
         id: "threeFrame"
       },
       iframe: null,
-      trailData: []
+      trailData: [],
+      communityInfo: []
     };
   },
   methods: {
+    // 获取所有可用数据
+    async init (data, parentId) {
+      await this.getCommunityInfo(parentId)
+      await this.getTrailMapInfo(data)
+    },
     getTrailMapInfo(data) {
       if (data.end) {
         GetTrace(data).then(res => {
           this.trailData = res.data;
           this.$nextTick(() => {
-            this.iframe = this.$refs.iframe.contentWindow;
+            this.iframe = this.$refs.iframe.contentWindow
           });
         });
       }
+    },
+    getCommunityInfo(parentId) {
+      if (!this.currentManage.id) { return }
+      GetMarketList({parentId: this.currentManage.id}).then(res => {
+        let floorInfo = this.sortFloorArr(res.data[0].subGroupSon)
+        floorInfo = floorInfo.reverse()
+        this.communityInfo = floorInfo
+      })
     },
     handleMessage(event) {
       const data = event.data;
       switch (data.cmd) {
         case "trail-load_signal":
           this.iframe.getTrailData(this.trailData);
+          this.iframe.receiveCommunityInfo(this.communityInfo)
       }
-    }
+    },
+    // 数组排序
+    sortFloorArr (arr) {
+      if (arr.length <= 1) {
+        return arr
+      }
+      let pivotIndex = Math.floor(arr.length / 2)
+      let pivot = arr.splice(pivotIndex, 1)[0]
+      let left = []
+      let right = []
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].floor < pivot.floor) {
+          right.push(arr[i])
+        } else {
+          left.push(arr[i])
+        }
+      }
+      return this.sortFloorArr(left).concat([pivot], this.sortFloorArr(right))
+    },
   },
   beforeDestroy() {
     window.removeEventListener("message", this.handleMessage);
   },
   mounted() {
     window.addEventListener("message", this.handleMessage);
-    this.getTrailMapInfo(this.data);
+    this.init(this.data, this.currentManage.id)
+  },
+  computed: {
+    ...mapState(['currentManage'])
   },
   watch: {
     data: {
       handler(val) {
-        this.getTrailMapInfo(val);
+        if (val) this.getTrailMapInfo(val);
+      },
+      deep: true
+    },
+    currentManage: {
+      handler (val) {
+        if (val) this.getCommunityInfo(val.id)
       },
       deep: true
     }
