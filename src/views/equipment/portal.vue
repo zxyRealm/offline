@@ -11,7 +11,7 @@
       </el-select>
     </div>
     <div class="data-list-wrap">
-      <el-scrollbar>
+      <el-scrollbar v-scroll-top="pagination.index">
         <el-table
           border
           :data="portalList"
@@ -71,8 +71,11 @@
       :showButton="false"
     >
       <div slot="content" class="device__dialog--list">
-        <div class="c-grey fs12 g-mb12">设备名称</div>
-        <el-scrollbar id="portal__scrollbar">
+        <div v-show="ownDeviceList.length" class="c-grey fs12 g-mb12">设备名称</div>
+        <div v-show="!ownDeviceList.length" class="tac">
+          暂无设备
+        </div>
+        <el-scrollbar>
           <el-checkbox-group
             v-model="checkedItems">
             <el-checkbox
@@ -138,14 +141,12 @@ export default {
           this.emptyText = '暂无数据'
           this.portalList = res.data.content || []
           this.pagination = res.data.pagination
-          if (document.getElementById('portal__scrollbar')) document.getElementById('portal__scrollbar').children[0].scrollTop = 0
         })
       } else {
         PortalDeviceList({groupId: this.currentManage.id, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
           this.emptyText = '暂无数据'
           this.portalList = res.data.content || []
           this.pagination = res.data.pagination
-          if (document.getElementById('portal__scrollbar')) document.getElementById('portal__scrollbar').children[0].scrollTop = 0
         })
       }
     },
@@ -153,7 +154,10 @@ export default {
     portalAddDevice () {
       let checkSet = new Set(this.checkedItems)
       let checked = this.ownDeviceList.filter(item => !item.disabled).filter(item => checkSet.has(item.deviceKey))
-      if (!checked.length) {
+      if (!this.ownDeviceList.length) {
+        this.$tip('请先添加设备', 'error')
+        return false
+      } else if (!checked.length) {
         this.$tip('请选择要添加的设备', 'error')
         return false
       }

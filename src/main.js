@@ -22,6 +22,7 @@ import obGroupNav from '@/components/group-nav'
 import obListEmpty from '@/components/list-empty'
 import ImagePreview from '@/components/preview'
 import * as filters from './filters'
+import directives from './directives/index'
 import echarts from 'echarts'
 promise.polyfill() // 使Axios兼容ie9
 Vue.prototype.$echarts = echarts
@@ -45,6 +46,9 @@ Vue.component(ImagePreview.name, ImagePreview)
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
+})
+Object.keys(directives).forEach(key => {
+  Vue.directive(key, directives[key])
 })
 Vue.config.productionTip = false
 /* eslint-disable no-new */

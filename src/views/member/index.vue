@@ -6,7 +6,7 @@
         </el-breadcrumb>
         <el-button class="affirm medium fr add__button" @click="addNew">添加库<div @click.stop="add__hint" class="first__enter" v-show="firstEnter">人员库添加点这里</div></el-button>
       </div>
-      <el-scrollbar class="table">
+      <el-scrollbar v-scroll-top class="table">
         <el-table
           :data="tableData"
           border

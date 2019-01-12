@@ -83,15 +83,6 @@ export default {
         src: ''
       },
       spoorDate: '',
-      label: [
-        "美妆爱好者",
-        "运动达人",
-        "抓娃娃狂魔",
-        "女装大佬",
-        "魔音教主",
-        "魔音教主2",
-        "魔音教主3"
-      ],
       trailDetailInfo: {},
       trailList: [],
       trailMapInfo: {},
@@ -146,6 +137,7 @@ export default {
   watch: {
     currentTrailList: {
       handler(val) {
+        console.log(this.$refs.trailMap)
         if (val[0]) {
           this.trailMapInfo = {
             groupGuid: val[0].groupGuid,

@@ -23,7 +23,7 @@
           <!--<el-button class="affirm">批量导入</el-button>-->
         <!--</el-upload>-->
       </uu-sub-tab>
-      <el-scrollbar class="table">
+      <el-scrollbar v-scroll-top="pageData.index" class="table">
         <el-table
           :data="tableData"
           border
@@ -62,9 +62,10 @@
 
           <el-table-column width="100" label="照片">
             <template slot-scope="scope">
-              <image-box v-if="scope.row.faceImgUrl" width="54px" height="54px" @click.native="showImage(scope.row)" :src="scope.row.faceImgUrl"></image-box>
+              <img :src="scope.row.faceImgUrl" width="54px" height="54px" @click.prevent="showImage(scope.row)" alt="">
+              <!--<image-box  width="54px" height="54px" @click.native="showImage(scope.row)" :src="scope.row.faceImgUrl"></image-box>-->
               <!--<img v-show="scope.row.faceImgUrl" :src="scope.row.faceImgUrl" class="tableImg">-->
-              <div v-else class="tableImg">—</div>
+              <!--<div v-show="!scope.row.faceImgUrl" class="tableImg">—</div>-->
             </template>
           </el-table-column>
 
@@ -314,7 +315,8 @@ export default {
       }
     },
     uploadError () {
-      this.$tip('上传失败，请检查网络是否异常', 'error')
+      this.dialogVisible = false
+      this.$tip('上传失败，请检查网络是否异常', 'error', 3000)
     },
     // 显示大图
     showImage (row) {

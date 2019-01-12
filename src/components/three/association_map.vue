@@ -60,7 +60,10 @@
       :showButton="false"
     >
       <div slot="content" class="device__dialog--list">
-        <div class="c-grey fs12 g-mb12">设备名称</div>
+        <div v-show="ownDeviceList.length" class="c-grey fs12 g-mb12">设备名称</div>
+        <div v-show="!ownDeviceList.length" class="tac">
+          暂无设备
+        </div>
         <el-scrollbar>
           <el-checkbox-group
             v-model="checkedItems">
@@ -263,7 +266,10 @@ export default {
     portalAddDevice () {
       let checkSet = new Set(this.checkedItems)
       let checked = this.ownDeviceList.filter(item => !item.disabled).filter(item => checkSet.has(item.deviceKey))
-      if (!checked.length) {
+      if (!this.ownDeviceList.length) {
+        this.$tip('请先添加设备', 'error')
+        return false
+      } else if (!checked.length) {
         this.$tip('请选择要添加的设备', 'error')
         return false
       }
@@ -355,7 +361,9 @@ export default {
           subData.floor = this.currentFloor.floor
           if (this.handleDialogType === 1) { // 添加出入口
             // 如果是成员社群绑定出入口则为副出入口
-            if (this.data.coordinates || this.data.type === 4) subData.type = 2
+            /* 商场楼层 主出入口 1 其他出入口 2 成员、门店出入口 3
+            * */
+            if (this.data.coordinates || this.data.type === 4) subData.type = 3
             CreatePortal(subData).then(res => {
               this.$tip('添加成功')
               this.handlePortalVisible = false
