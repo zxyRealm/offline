@@ -19,6 +19,7 @@
   <script src="/static/three/OrbitControls.js"></script>
   <script src="/static/three/tween.js"></script>
   <script src="/static/three/trail_data_up.js"></script>
+  <script src="/static/three/util.js"></script>
 </head>
 
 <body>
@@ -119,6 +120,12 @@
     function getTrailData(trailData) {
       data = trailData
       // data = TRAIL_JSON_UP.data;
+    }
+
+    var communityInfo = []
+
+    function receiveCommunityInfo(data) {
+      communityInfo = data
       init()
     }
 
@@ -184,7 +191,7 @@
       }
     }
 
-    function setPlayStatus () {
+    function setPlayStatus() {
       if (play) {
         document.getElementById('play').removeAttribute('onclick')
       } else {
@@ -202,8 +209,9 @@
       createListener() // 创建监听函数
 
       // 创建楼层
-      mockFloorData.forEach(function (item) {
-        createFloor(item.imgURL, item.floorName)
+      console.log(communityInfo)
+      communityInfo.forEach(function (item) {
+        createFloor(item)
       })
 
       // 布置调度
@@ -353,10 +361,10 @@
         }
         item.children.forEach(function (val) {
           // if (val.name !== 'elevator') {
-            val.material.opacity = 1
+          val.material.opacity = 1
           // }
         })
-        
+
         var action1 = new TWEEN.Tween(position_start)
           .to(position_end, duration)
           .onUpdate(function () {
@@ -680,11 +688,12 @@
       scene.add(maskGroup)
     }
 
-    function createFloor(url, groupName) {
+    function createFloor(item) {
       var floorGroup = new THREE.Group();
       var loader = new THREE.SVGLoader();
+      var textLoader = new THREE.FontLoader();
 
-      loader.load('/static/origin-floor/' + url + '.svg', function (paths) {
+      loader.load(item.mapUrl, function (paths) {
         for (var i = 0; i < paths.length; i++) {
           var shapes = paths[i].toShapes(true)
 
@@ -696,11 +705,11 @@
             var points = shape.getPoints()
             shape.autoClose = true
 
-            var store = new Store(shape, groupName)
+            var store = new Store(shape, item.name)
             store.mesh.updateMatrix();
             floorGroup.add(store.mesh)
 
-            var edge = new Edge(points, groupName)
+            var edge = new Edge(points, item.name)
             edge.mesh.updateMatrix()
             floorGroup.add(edge.mesh)
           }
@@ -713,18 +722,39 @@
           for (var j = 0; j < shapes.length; j++) {
             var shape = shapes[j];
 
-            var plane = new Plane(shape, groupName)
+            var plane = new Plane(shape, item.name)
             plane.mesh.updateMatrix()
             floorGroup.add(plane.mesh);
 
-            var text = new TextSprite(groupName)
+            var text = new TextSprite(item.name)
             floorGroup.add(text.textObj)
           }
         }
       })
 
-      floorGroup.name = groupName
+      textLoader.load('/static/three/FZLanTingHei_Regular.json', function (res) {
+        var font = res;
+        floorGroup.children.forEach(function(floor) {
+          if (floor.name === 'store') {
+            var meshAlex = getString(floor.userData.coordinates)
+            for (var j in item.subGroupSon){
+              if(meshAlex === item.subGroupSon[j].coordinates){
+                var point = getCenterExtraPoint(floor.userData.coordinates)
+                var ipc = {
+                  text: item.subGroupSon[j].name,
+                  position: {x: point.cx, y: point.cy}
+                }
+                var textStore = new Text(ipc, font, item.name)
+                floorGroup.add(textStore.text)
+              }
+            } 
+          }
+        })
+      })
+
+      floorGroup.name = item.name
       group.add(floorGroup)
+      console.log(floorGroup)
     }
 
     function refresh() {
@@ -735,6 +765,7 @@
     }
 
     var capturePoint_count = 0
+
     function createPath(floorName, currentPathPointIndex) {
       // if(play_current){
       //   return
@@ -791,7 +822,7 @@
             .onUpdate(function () {
               people.position.x = pathGroup.start.x;
               people.position.y = positionY
-              people.position.z = pathGroup.start.y - 25; 
+              people.position.z = pathGroup.start.y - 25;
             })
           // var action2 = new TWEEN.Tween(pathGroup.end)
           //   .to(pathGroup.next, 60)
@@ -808,9 +839,9 @@
         if (data[count].capturePoint) {
           if (capturePoint_count === 0) {
             capturePoint_color = PALLETTE.CIRCLE_START
-          }else if (capturePoint_count > 0 && !data[count+1]){
+          } else if (capturePoint_count > 0 && !data[count + 1]) {
             capturePoint_color = PALLETTE.CIRCLE_END
-          }else {
+          } else {
             capturePoint_color = PALLETTE.CIRCLE
           }
           let obj = new THREE.Vector3(
@@ -832,7 +863,7 @@
           // floorGroup.add(arrow.mesh)
           // }
         }
-        
+
         count += 1
 
         if (count === data.length) {
@@ -840,7 +871,7 @@
           play = false;
           play_count++;
           setPlayStatus()
-          setTimeout(function(){
+          setTimeout(function () {
             ChapterFour()
           }, 1000)
         }
@@ -850,11 +881,11 @@
           currentElevator[1] = data[count]
           BEGIN_FLOOR = data[count - 3].floorName
           END_FLOOR = data[count + 1].floorName
-          var delay = setTimeout(function(){
+          var delay = setTimeout(function () {
             floorGroup.remove(people)
             clearTimeout(delay)
           }, 3000)
-          
+
           if (structFloorInfo(BEGIN_FLOOR, END_FLOOR)) {
             upfloor(currentElevator, count, END_FLOOR)
           } else {
@@ -864,6 +895,18 @@
         }
 
       }, 30)
+    }
+
+    function arrayTransfer(arr) {
+      var res = []
+      for(var i in arr){
+        if(arr[i].z===0){
+          res.push(arr[i].x)
+          res.push(arr[i].y)
+          res.push(arr[i].z)
+        }
+      }
+      return res;
     }
 
     // 电梯轨迹
@@ -880,11 +923,11 @@
         new THREE.Vector3(position.x1, TRANSFER_BOARD.PASS_HIGH_POS, position.y1),
       ]
       var elevatorPoints = [{
-        x: position.x, 
+        x: position.x,
         y: type === 'up' ? TRANSFER_BOARD.PASS_LOW_POS : TRANSFER_BOARD.PASS_HIGH_POS,
         z: position.y - 10
       }, {
-        x: position.x1, 
+        x: position.x1,
         y: type === 'up' ? TRANSFER_BOARD.PASS_HIGH_POS : TRANSFER_BOARD.PASS_LOW_POS,
         z: position.y1 - 10
       }]
@@ -905,11 +948,12 @@
       //   circle[j] = new Circle(points[j], PALLETTE.CIRCLE, -0.2)
       //   elevatorGroup.add(circle[j].mesh)
       // }
-      
+
       // 画人
       var people = PeopleElevatorSprite();
+      people.position.set(elevatorPoints[0].x, elevatorPoints[0].y, elevatorPoints[0].z)
       elevatorGroup.add(people)
-      var action1 = new TWEEN.Tween(elevatorPoints[0]).to(elevatorPoints[1], duration * 3).onUpdate(function(){
+      var action1 = new TWEEN.Tween(elevatorPoints[0]).to(elevatorPoints[1], duration * 3).onUpdate(function () {
         people.position.x = elevatorPoints[0].x
         people.position.y = elevatorPoints[0].y + 10
         people.position.z = elevatorPoints[0].z
@@ -930,6 +974,10 @@
         if (intervalCount >= animateEnd) {
           clearInterval(timer2)
           scene.remove(elevatorGroup)
+          elevatorGroup.remove(people)
+          arrows.forEach(function (item) {
+            elevatorGroup.remove(item)
+          })
         } else {
           intervalCount++
         }
@@ -954,10 +1002,11 @@
     }
 
     // 计算箭头角度
-    function calcArrowAngle(x, y){
-      var tan = y/x;
+    function calcArrowAngle(x, y) {
+      var tan = y / x;
       return Math.atan(tan)
     }
+
     /*****************************
      * ***************************
      * ********** 物体类 **********
@@ -966,11 +1015,11 @@
 
     // 单层楼色块
     function Store(shape, groupName) {
+      var geometry2 = new THREE.ShapeBufferGeometry(shape)
       var geometryBuffer = new THREE.ExtrudeBufferGeometry(shape, {
         depth: 4,
         bevelEnabled: false
       })
-
       var geometry = new THREE.Geometry()
       geometry.fromBufferGeometry(geometryBuffer)
 
@@ -987,9 +1036,11 @@
       this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0)
       this.mesh.position.set(offset_x, 8, offset_z)
       this.mesh.name = 'store'
+      this.mesh.userData.coordinates = geometry2.attributes.position.array
       this.mesh.geometry.faces.forEach(function (face) {
-        if (face.normal.y !== 0) {
-          // face.color = new THREE.Color('#0E1239')
+        // normal.y: 上下两面 normal.x: 左右两面 normal.z：前后两面
+        if (face.normal.y !== 0 || face.normal.x !== 0) {
+          // face.color = new THREE.Color('#2f89f8')
         }
       })
     }
@@ -1082,13 +1133,13 @@
       })
       this.mesh = new THREE.Mesh(geom, material);
       this.mesh.position.set(vector.x, vector.y, vector.z - 25)
-      if(rotate) {
+      if (rotate) {
         this.mesh.rotation.x = rotate * Math.PI
       }
       this.mesh.name = 'circle'
     }
 
-    function TextSprite(text) {
+    function TextSprite(text, position) {
       var canvas = document.createElement('canvas')
       var ctx = canvas.getContext('2d')
       var cz = camera.position.z // 摄像头z轴视距
@@ -1114,6 +1165,28 @@
       this.textObj.position.set(290, 0, 0)
     }
 
+    function Text(obj, font, groupName) {
+      var textGeometry = new THREE.TextGeometry(obj.text, {
+        font: font,
+        size: 7,
+        height: 1
+      })
+      textGeometry.computeBoundingBox();
+      var textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+      var textHeight = textGeometry.boundingBox.max.y - textGeometry.boundingBox.min.y
+      this.text = new THREE.Mesh(textGeometry, new THREE.MeshBasicMaterial({
+          transparent: true,
+          color: 0xffffff,
+          opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
+          flatShading: true,
+          depthWrite: false,
+          depthTest: false
+        }))
+      this.text.name = 'store_text'
+      this.text.rotation.x = -0.5 * Math.PI
+      this.text.position.set(obj.position.x, 9, -obj.position.y)
+    }
+
     function PeopleSprite() {
       var texture = new THREE.TextureLoader().load('/static/img/people_sprite.png')
       texture.needsUpdate = true
@@ -1126,7 +1199,7 @@
       sprite.scale.set(25, 25, 25)
       return sprite
     }
-    
+
     function PeopleElevatorSprite() {
       var texture = new THREE.TextureLoader().load('/static/img/people_sprite_elevator.png')
       texture.needsUpdate = true
@@ -1139,7 +1212,7 @@
       sprite.scale.set(25, 25, 25)
       return sprite
     }
-    
+
     /****************************
      * **************************
      * ********** 布景 **********
@@ -1217,8 +1290,21 @@
       var innerHeight = window.innerHeight
       camera.aspect = innerWidth / innerHeight
       camera.updateProjectionMatrix()
-      
+
       renderer.setSize(window.innerWidth, window.innerHeight)
+    }
+
+    var getString = function (arr) {
+      return '['+Array.prototype.slice.call(arr).toString()+']'
+    }
+    // 获取中心点和右侧点
+    var getCenterExtraPoint = function (array) {
+      var a = changeArrayLevel(array)
+      var ps = new Contour(a.buffer).centroid()
+      return {
+        cx: (ps.x - 290),
+        cy: (214 - ps.y)
+      }
     }
 
   </script>
