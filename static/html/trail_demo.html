@@ -751,7 +751,6 @@
         refresh()
         return
       }
-
       var count = currentPathPointIndex
       var count_child = 0
       var capturePoint_color = PALLETTE.CIRCLE
@@ -776,7 +775,6 @@
             start: { x: data[count].point.x, y: -data[count].point.y },
             end: { x: data[count + 1].point.x, y: -data[count + 1].point.y }
           }
-
           var path = new Path(pathGroup)
           path.line.position.y = positionY
           path.line.rotation.x = 0.5 * Math.PI
@@ -817,6 +815,7 @@
         if (count === data.length) {
           clearInterval(timer1)
           play = false;
+          play_count += 1
           status++;
           setPlayStatus()
           if(elevatorGroup.children.length) {
@@ -840,7 +839,6 @@
             floorGroup.remove(trailBall.mesh)
             clearTimeout(delay)
           }, 3000)
-
           if (structFloorInfo(BEGIN_FLOOR, END_FLOOR)) {
             changefloor(currentElevator, count, END_FLOOR, 'up')
           } else {
@@ -848,7 +846,6 @@
           }
           clearInterval(timer1)
         }
-
       }, 10)
     }
 
@@ -1056,8 +1053,8 @@
     function Text(obj, font, groupName) {
       var textGeometry = new THREE.TextGeometry(obj.text, {
         font: font,
-        size: 7,
-        height: 1
+        size: 8,
+        height: 0
       })
       textGeometry.computeBoundingBox();
       var textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
@@ -1073,7 +1070,7 @@
         }))
       this.text.name = 'store_text'
       this.text.rotation.x = -0.5 * Math.PI
-      this.text.position.set(obj.position.x, 10, -obj.position.y)
+      this.text.position.set(obj.position.x - textWidth/2, 10, -obj.position.y + textHeight/2)
     }
 
     // 贴图
@@ -1196,7 +1193,7 @@
     var refresh = function () {
       var url = parent.document.getElementById("threeFrame").contentWindow.location.href
       var host = url.split('?')[0]
-      var params = '?playcount=' + (play_count+1) + '&status=1'
+      var params = '?playcount=' + (play_count) + '&status=1'
       window.location.href = host + params
     }
 
@@ -1206,7 +1203,7 @@
       var ps = new Contour(a.buffer).centroid()
       return {
         cx: (ps.x - 290),
-        cy: (214 - ps.y)
+        cy: (241 - ps.y)
       }
     }
 
