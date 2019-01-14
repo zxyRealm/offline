@@ -137,7 +137,7 @@ export default {
   watch: {
     currentTrailList: {
       handler(val) {
-        console.log(this.$refs.trailMap)
+        console.log('--------', this.$refs.trailMap)
         if (val[0]) {
           this.trailMapInfo = {
             groupGuid: val[0].groupGuid,

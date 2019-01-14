@@ -897,3 +897,19 @@
     }
   }
 }
+
+//上传进度弹框样式
+.upload__progress--wrap{
+  width: 500px;
+  //margin-top: 0;
+  top: 50%;
+  margin-top: -120px!important;
+  overflow: hidden;
+  .el-dialog__body{
+    padding-top: 0;
+    text-align: center;
+    > img{
+       margin: 0 auto;
+    }
+  }
+}
