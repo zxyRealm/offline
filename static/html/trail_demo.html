@@ -430,7 +430,7 @@
 
     // 电梯动画片段: 低层变化过程
     function animateLowerElevator(item, floorName, type) {
-      if (item.name === floorName) {
+      if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
         var lowPositionStart = {
           x: item.position.x,
           y: item.position.y
@@ -477,7 +477,7 @@
           })
         lowAction2.chain(lowAction1)
         lowAction2.start()
-      } else if(item.name !== floorName && item.name !== BEGIN_FLOOR){
+      } else if(item.name !== floorName && item.name !== BEGIN_FLOOR && END_FLOOR !== LAST_FLOOR){
         var lowOpacityStartO = {
           opacity: item.children[0].material.opacity
         }
@@ -499,7 +499,7 @@
 
     // 电梯动画片段: 高层变化过程
     function animateHigerElevator(item, floorName, type) {
-      if (item.name === floorName) {
+      if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
         var highPositionStart = {
           x: item.position.x,
           y: item.position.y
@@ -546,7 +546,7 @@
           })
         highAction2.chain(highAction1)
         highAction2.start()
-      } else if(item.name !== floorName && item.name !== BEGIN_FLOOR) {
+      } else if(item.name !== floorName && item.name !== BEGIN_FLOOR && END_FLOOR !== LAST_FLOOR) {
         var highOpacityStartO = {
           opacity: item.children[0].material.opacity
         }
@@ -1234,7 +1234,7 @@
 
     function TrailBall(){
       var geometry = new THREE.SphereGeometry(5,32,32)
-      var material = new THREE.MeshLambertMaterial({
+      var material = new THREE.MeshBasicMaterial({
         color: '#FFFF00',
         // depthTest: false,
         side: THREE.DoubleSide
