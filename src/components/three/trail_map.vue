@@ -28,7 +28,7 @@ export default {
   data() {
     return {
       frame: {
-        path: "/static/html/trail_demo.html?timestamp = " + Number(new Date()),
+        path: "/static/html/trail_demo.html?playcount=" + 0 + "&status=0",
         id: "threeFrame"
       },
       iframe: null,
