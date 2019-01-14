@@ -153,6 +153,8 @@
 <script>
 import {MemberLibraryFind, MemberSearch, MemberDelete, MemberTemplate} from '../../api/member'
 import {mapState} from 'vuex'
+import {fileTypeAllow} from '../../utils'
+
 export default {
   name: 'index',
   data () {
@@ -289,7 +291,7 @@ export default {
     },
     // 上传前格式检测
     beforeAvatarUpload (file) {
-      if (file.type !== 'application/zip') {
+      if (!fileTypeAllow(file.name, 'zip')) {
         this.$tip('文件仅限zip格式', 'error', 5000)
         return false
       } else if (file.size > 1000 * 1024 * 1024) {
@@ -391,7 +393,7 @@ export default {
     width: 80px;
   }
   .affirm{
-    width: 80px !important;
+    width: 80px;
   }
   .widthAuto{
     margin: 26px 0 0 130px;

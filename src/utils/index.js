@@ -432,3 +432,29 @@ export function IntToFloor (int) {
     return `B${-int}`
   }
 }
+
+/* 文件类型判断
+* {String} name 要上传的文件名
+*  {String} types 允许上传的文件类型,类型名为小写（多个累心用逗号隔开，例如：jpeg,png,jpg）
+* */
+export function fileTypeAllow (name, types) {
+  return new Set(types.toLowerCase().split(',')).has(name.substring(name.lastIndexOf('.') + 1).toLowerCase())
+}
+
+/* 解析url 后键值对参数
+* {String} key 要获取的参数的键值
+* {[String]} href 需要解析的href, 默认为window.location.href
+* */
+
+export function parseUrlParams (key, href = '') {
+  var params = (href || window.location.href).split('?')[1]
+  var obj = {}
+  if (params) {
+    var arr = params.split('&')
+    for (var i = 0, len = arr.length; i < len; i++) {
+      var kv = arr[i].split('=')
+      obj[kv[0]] = kv[1]
+    }
+  }
+  return obj[key]
+}

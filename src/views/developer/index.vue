@@ -63,6 +63,7 @@ import {mapState, mapGetters} from 'vuex'
 import {validPhone, validateRule} from '@/utils/validate'
 import {OssSignature} from '../../api/common'
 import {UserCenterUpdate, SetUserImage} from '../../api/developer'
+import {fileTypeAllow} from '../../utils'
 import axios from 'axios'
 export default {
   components: {
@@ -183,7 +184,7 @@ export default {
       OssSignature({superKey: 'merchant'}).then(res => {
         if (res.data) {
           let formData = new FormData()
-          let customName = 'avatar_' + uid + '.' + (data.file.type.split('/')[1] === 'png' ? 'png' : 'jpg')
+          let customName = 'avatar_' + uid + '.' + (fileTypeAllow(data.file.name, 'png') ? 'png' : 'jpg')
           formData.append('key', `merchant/${uid}/${customName}`)
           formData.append('policy', res.data['policy'])
           formData.append('OSSAccessKeyId', res.data['accessid'])
@@ -212,13 +213,11 @@ export default {
     },
     // 上传前图片格式校验
     beforeAvatarUpload (file) {
-      const isJPG = (file.type === 'image/jpeg' || file.type === 'image/png')
-      const isLt2M = file.size / 1024 / 1024 < 2
-      if (!isJPG) {
+      if (!fileTypeAllow(file.name, 'jpeg,jpg,png')) {
         this.$tip('上传头像图片只能是 JPG/PNG 格式!', 'error')
         return false
       }
-      if (!isLt2M) {
+      if (file.size / 1024 / 1024 > 2) {
         this.$tip('上传头像图片大小不能超过 2MB!', 'error')
         return false
       }

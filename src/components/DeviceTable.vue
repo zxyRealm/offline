@@ -99,16 +99,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <!--设备绑定社群-->
-    <ob-dialog-form
-      filter
-      @remote-submit="bindCommunity"
-      :group="groupList"
-      title="绑定社群"
-      type="group"
-      :visible.sync="dialogFormVisible"
-    >
-    </ob-dialog-form>
+    <!--&lt;!&ndash;设备绑定社群&ndash;&gt;-->
     <!--设备升级-->
     <ob-dialog-form
       class="dialog__content--vm"
@@ -136,6 +127,7 @@
 import {validateRule} from '@/utils/validate'
 import {ChangeDeviceAlias, DeviceAliasExist, UpdateCameraName, CheckCameraName, DeleteCameraBatch, DeleteDevice, GetDeviceState, DeviceHandleUrl, DeviceUpgrade, GetDeviceVersion} from '../api/device'
 import {mapState} from 'vuex'
+import {fileTypeAllow} from '../utils'
 
 export default {
   name: 'device-table',
@@ -616,36 +608,6 @@ export default {
     // 手动添加摄像头方法回调
     addCamera (row) {
       this.$emit('handle-add', row)
-    },
-    handleProgress (event) {
-      let progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
-      if (event.percent === 100) {
-        progress.close()
-      }
-    },
-    // 文件上传前拦截处理
-    beforeUpload (file) {
-      if (file && file.type) {
-        if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-          this.$tip('只允许上传Excel文件', 'error')
-          return false
-        }
-      } else {
-        this.$tip('请选取需要上传的文件', 'error')
-        return false
-      }
-    },
-    // 上传成功时回调
-    handleSuccess (res) {
-      if (res.result) {
-        this.$emit('refresh')
-      } else {
-        this.$tip(res.msg, 'error', 3000)
-      }
-    },
-    // 上传失败时回调
-    handleError (res) {
-      this.$tip(res.msg || '上传失败', 'error', 3000)
     },
     deviceUpdate () {
       DeviceUpgrade({deviceKey: this.currentDevice.deviceKey}).then(res => {

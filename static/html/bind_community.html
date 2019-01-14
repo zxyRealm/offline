@@ -60,6 +60,7 @@
       <!--&lt;!&ndash;:key="$index">{{IntToFloor(item.floor)}}</li>&ndash;&gt;-->
   <!--</ul>-->
 <!--</div>-->
+<script src="/static/three/WebGL.js"></script>
 <script src="/static/three/three.min.js"></script>
 <script src="/static/three/OrbitControls.js"></script>
 <script src="/static/three/SVGLoader.js"></script>
@@ -73,6 +74,11 @@
      * @params floor 渲染的楼层
      * */
   function initScene () {
+    if (!WEBGL.isWebGLAvailable()) {
+      var warning = WEBGL.getWebGLErrorMessage();
+      document.body.appendChild(warning);
+      return false
+    }
     ratio = window.innerWidth / window.innerHeight
     renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
     renderer.setPixelRatio(window.devicePixelRatio)
@@ -97,6 +103,7 @@
     document.body.appendChild(renderer.domElement)
     window.addEventListener('click', this.onDocumentMouseClick, false)
     window.addEventListener('resize', this.onWindowResize, false)
+    animate()
   }
   // 渲染svg地图模型
   function loadSvg (floor) {
@@ -200,7 +207,6 @@
   }
   window.onload = function () {
     initScene()
-    animate()
   }
 
 </script>
