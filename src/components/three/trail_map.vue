@@ -14,7 +14,7 @@
   </div>
 </template>
 <script>
-import { GetTrace } from "@/api/behavior";
+import { GetTrace, GetElevatorListByGroupGuid } from "@/api/behavior";
 import { GetMarketList } from '@/api/community'
 import { mapState } from 'vuex'
 export default {
@@ -33,13 +33,15 @@ export default {
       },
       iframe: null,
       trailData: [],
-      communityInfo: []
+      communityInfo: [],
+      elevatorList: []
     };
   },
   methods: {
     // 获取所有可用数据
     async init (data, parentId) {
       await this.getCommunityInfo(parentId)
+      await this.getElevatorList(parentId)
       await this.getTrailMapInfo(data)
     },
     getTrailMapInfo(data) {
@@ -53,11 +55,16 @@ export default {
       }
     },
     getCommunityInfo(parentId) {
-      if (!this.currentManage.id) { return }
-      GetMarketList({parentId: this.currentManage.id}).then(res => {
+      if (!parentId) { return }
+      GetMarketList({parentId: parentId}).then(res => {
         let floorInfo = this.sortFloorArr(res.data[0].subGroupSon)
         floorInfo = floorInfo.reverse()
         this.communityInfo = floorInfo
+      })
+    },
+    getElevatorList(parentId) {
+      GetElevatorListByGroupGuid({groupGuid: parentId}).then(res => {
+        this.elevatorList = res.data
       })
     },
     handleMessage(event) {
@@ -65,6 +72,7 @@ export default {
       switch (data.cmd) {
         case "trail-load_signal":
           this.iframe.getTrailData(this.trailData);
+          this.iframe.getElevatorPosition(this.elevatorList)
           this.iframe.receiveCommunityInfo(this.communityInfo)
       }
     },
@@ -106,7 +114,10 @@ export default {
     },
     currentManage: {
       handler (val) {
-        if (val) this.getCommunityInfo(val.id)
+        if (val) {
+          this.getCommunityInfo(val.id)
+          this.getElevatorList(val.id)
+        }
       },
       deep: true
     }
