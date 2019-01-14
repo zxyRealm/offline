@@ -210,7 +210,7 @@
     function loadSignal() {
       window.parent.postMessage({
         cmd: 'trail-load_signal',
-        params: {}
+        params: { play_count: getQueryString() }
       }, '*');
     }
 
@@ -1233,6 +1233,8 @@
         cy: (241 - ps.y)
       }
     }
+
+    console.log(getQueryString())
 
     // 获取playCount的值
     var getQueryString = function () {
