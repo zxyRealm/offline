@@ -393,6 +393,7 @@ export default {
     // 文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用
     handleChange (file) {
       // 上传完成后会清空文件列表，触发此方法（若包含response说明文件上传已经结束）
+      console.log('file---------------', file)
       if (!file.response) {
         this.fileList = [file]
         this.excelImportForm.filename = this.fileList[0].name
@@ -420,6 +421,8 @@ export default {
       })
     },
     resetForm (formName) {
+      this.fileList = []
+      this.excelImportForm.filename = ''
       if (this.$refs[formName]) {
         this.$refs[formName].resetFields()
       }
