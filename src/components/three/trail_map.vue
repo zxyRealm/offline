@@ -34,7 +34,8 @@ export default {
       iframe: null,
       trailData: [],
       communityInfo: [],
-      elevatorList: []
+      elevatorList: [],
+      playCount: ''
     };
   },
   methods: {
@@ -48,9 +49,11 @@ export default {
       if (data.end) {
         GetTrace(data).then(res => {
           this.trailData = res.data;
-          this.$nextTick(() => {
-            this.iframe = this.$refs.iframe.contentWindow
-          });
+          if(this.trailData.length){
+            this.$nextTick(() => {
+              this.iframe = this.$refs.iframe.contentWindow
+            });
+          }
         });
       }
     },
@@ -63,6 +66,7 @@ export default {
       })
     },
     getElevatorList(parentId) {
+      if (!parentId) { return }
       GetElevatorListByGroupGuid({groupGuid: parentId}).then(res => {
         this.elevatorList = res.data
       })
@@ -71,6 +75,7 @@ export default {
       const data = event.data;
       switch (data.cmd) {
         case "trail-load_signal":
+          this.playCount = data.params.play_count
           this.iframe.getTrailData(this.trailData);
           this.iframe.getElevatorPosition(this.elevatorList)
           this.iframe.receiveCommunityInfo(this.communityInfo)
