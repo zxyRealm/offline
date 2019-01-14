@@ -22,3 +22,10 @@ export function GetTrace (data) {
     data
   })
 }
+
+export function GetElevatorListByGroupGuid (data) {
+  return request({
+    url: '/behavior/getElevatorListByGroupGuid',
+    data
+  })
+}

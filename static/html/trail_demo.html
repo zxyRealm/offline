@@ -33,6 +33,7 @@
     // var data = TRAIL_JSON_LOOP.data;
     var data;
     var renderer, scene, camera, group;
+    var clock = new THREE.Clock();
     var maskGroup;
     var elevatorGroup;
     var space = 240;
@@ -121,8 +122,13 @@
       // data = TRAIL_JSON_UP.data;
     }
 
-    var communityInfo = []
+    var elevatorList = []
+    function getElevatorPosition(data) {
+      elevatorList = data;
+    }
 
+    var communityInfo = []
+    
     function receiveCommunityInfo(data) {
       communityInfo = data
       init()
@@ -153,8 +159,6 @@
         }, 6000)
       }
     }
-
-    
 
     function setPlayStatus() {
       if (play) {
@@ -672,10 +676,13 @@
       scene.add(maskGroup)
     }
 
+    var mixArr = []
     function createFloor(item) {
       var floorGroup = new THREE.Group();
       var loader = new THREE.SVGLoader();
       var textLoader = new THREE.FontLoader();
+
+      
 
       loader.load(item.mapUrl, function (paths) {
         for (var i = 0; i < paths.length; i++) {
@@ -712,6 +719,20 @@
 
             var text = new TextSprite(item.name)
             floorGroup.add(text.textObj)
+
+            elevatorList.forEach(function(elevator){
+        if(elevator.floorName === item.name) {
+          var elevatorSprite = PeopleSprite(item.name);
+          elevatorSprite.position.set(elevator.point.x, 9, elevator.point.y - 25)
+          floorGroup.add(elevatorSprite)
+          var scaleKF = new THREE.VectorKeyframeTrack( '.scale', [ 0, 0.5, 1 ], [ 25, 25, 25, 30, 30, 30, 25, 25, 25] );
+          var clip = new THREE.AnimationClip( 'Action', 1, [ scaleKF ] );
+          var mixer = new THREE.AnimationMixer( elevatorSprite );
+          mixArr.push(mixer)
+          var clipAction = mixer.clipAction( clip );
+          clipAction.play();
+        }
+      })
           }
         }
       })
@@ -741,7 +762,6 @@
     }
 
     var capturePoint_count = 0
-
     function createPath(floorName, currentPathPointIndex) {
       if (!floorName) {
         floorName = BEGIN_FLOOR
@@ -849,7 +869,6 @@
       }, 10)
     }
 
-    
     // 电梯轨迹
     function TrailPath(currentElevator, type) {
 
@@ -1074,13 +1093,16 @@
     }
 
     // 贴图
-    function PeopleSprite() {
-      var texture = new THREE.TextureLoader().load('/static/img/people_sprite.png')
+    function PeopleSprite(groupName) {
+      console.log(groupName, BEGIN_FLOOR)
+      var texture = new THREE.TextureLoader().load('/static/img/elevator.png')
       texture.needsUpdate = true
       var spriteMaterial = new THREE.SpriteMaterial({
+        transparent: true,
+        opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
         map: texture,
         depthTest: false,
-        blending: THREE.AdditiveBlending,
+        // blending: THREE.AdditiveBlending,
       })
       var sprite = new THREE.Sprite(spriteMaterial)
       sprite.scale.set(25, 25, 25)
@@ -1167,7 +1189,12 @@
     function render() {
       requestAnimationFrame(render)
       TWEEN.update()
-
+      let delta = clock.getDelta();
+      if (mixArr.length) {
+        for (let i = 0; i < mixArr.length; i++) {
+          mixArr[i].update( delta );
+        }
+      }
       renderer.render(scene, camera)
     }
 
