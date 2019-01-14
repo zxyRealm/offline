@@ -25,8 +25,6 @@
 <body>
   <div id="WebGL-output"></div>
   <div style="position: absolute; top: 10px; left: 10px">
-    <!-- <a href="javascript:;" onclick="upfloor()">上楼</a>
-    <a href="javascript:;" onclick="downfloor()">下楼</a> -->
     <a href="javascript:;" onclick="createPath('',0)" style="color: #ffffff" id="play">
       <img src="/static/img/play_animate.png" width="26" alt="..">
     </a>
@@ -36,6 +34,7 @@
     var data;
     var renderer, scene, camera, group;
     var maskGroup;
+    var elevatorGroup;
     var space = 240;
     var planeList = [];
     var geometryArr = [];
@@ -71,8 +70,7 @@
     var t = 0.0; // 路径遍历点
     var s = 0.005; // 移动速度
     var path; // 目标路径导线
-    var elevatorGroup = new THREE.Object3D();
-    elevatorGroup.name = 'elevator'
+    
     var isElevator = false;
     var currentElevator = [];
     var currentPathPointIndex = 0;
@@ -86,8 +84,8 @@
       ORIGIN_Y: 0 * Math.PI, // 隐藏楼层和显示楼层的共同初始Y偏转角
       ROTATE_X: 0 * Math.PI, // 过渡偏转角
       ROTATE_Y: -0.1 * Math.PI, // 过渡偏转角
-      HIGH_POS: 210, // 最高点
-      PASS_HIGH_POS: 140, // 过渡点
+      HIGH_POS: 190, // 最高点
+      PASS_HIGH_POS: 120, // 过渡点
       MIDDLE_POS: 0, // 显示区
       PASS_LOW_POS: -60, // 过渡点
       LOW_POS: -210, // 最低点
@@ -95,6 +93,7 @@
       OPACITY_NONE: 0 // 完全隐藏
     }
 
+    var LAST_FLOOR;
     var BEGIN_FLOOR;
     var END_FLOOR;
     // 获取当前url
@@ -114,7 +113,7 @@
     }
 
     var play = false;
-    var play_count = 0;
+    var play_count = parseInt(parent.document.getElementById("threeFrame").contentWindow.location.search.split('&')[0].split('=')[1])
     var play_current = 0;
 
     function getTrailData(trailData) {
@@ -130,66 +129,32 @@
     }
 
     // 动画trigger
-    function upfloor(currentElevator, index, targetFloorName) {
+    function changefloor(currentElevator, index, targetFloorName, type) {
       setTimeout(function () {
-        ChapterTwo('up') // duration: 2s
+        ChapterTwo(type) // duration: 2s
       }, 1000)
-      setTimeout(function () {
-        animateMiddleFloor(BEGIN_FLOOR, END_FLOOR) // duration: 4s
-      }, 2000)
-      setTimeout(function () {
-        ChapterThree('up') // duration: 2s
-      }, 6000)
+      // setTimeout(function () {
+        // animateMiddleFloor(BEGIN_FLOOR, END_FLOOR) // duration: 4s
+      // }, 2000)
+      // setTimeout(function () {
+        // ChapterThree('up') // duration: 2s
+      // }, 6000)
       if (targetFloorName) {
-        ChapterOne()
+        ChapterOneOffCoast()
       }
       if (currentElevator) {
         setTimeout(function () {
-          TrailPath(currentElevator, 'up')
+          TrailPath(currentElevator, type)
         }, 3000)
       }
       if (index) {
         setTimeout(function () {
           createPath(targetFloorName, index)
-        }, 9000)
+        }, 6000)
       }
     }
 
-    function downfloor(currentElevator, index, targetFloorName) {
-      setTimeout(function () {
-        ChapterTwo('down')
-      }, 1000)
-      setTimeout(function () {
-        animateMiddleFloor(BEGIN_FLOOR, END_FLOOR) // duration: 4s
-      }, 3000)
-      setTimeout(function () {
-        ChapterThree('down')
-      }, 6000)
-      if (targetFloorName) {
-        ChapterOne()
-      }
-      if (currentElevator) {
-        setTimeout(function () {
-          TrailPath(currentElevator, 'down')
-        }, 3000)
-      }
-      if (index) {
-        setTimeout(function () {
-          createPath(targetFloorName, index)
-        }, 9000)
-      }
-    }
-
-    function getQueryString() {
-      var r = url.split('?')[1]
-      var s = r.split('&')[1]
-      if (s) {
-        var res = s.split('=')[1]
-        return res
-      } else {
-        return null
-      }
-    }
+    
 
     function setPlayStatus() {
       if (play) {
@@ -209,7 +174,7 @@
       createListener() // 创建监听函数
 
       // 创建楼层
-      console.log(communityInfo)
+      // console.log(communityInfo)
       communityInfo.forEach(function (item) {
         createFloor(item)
       })
@@ -230,9 +195,7 @@
       render()
     }
 
-    // setTimeout(function(){
     loadSignal()
-    // }, 1000)
 
     function replay() {
       setTimeout(function () {
@@ -245,36 +208,6 @@
         cmd: 'trail-load_signal',
         params: {}
       }, '*');
-    }
-
-    // 0: 下楼 1: 上楼
-    function structFloorInfo(startFloor, endFloor) {
-      var s_floorAnti = startFloor.slice(0, 1)
-      var s_floorNum = parseInt(startFloor.slice(1, startFloor.length))
-      var e_floorAnti = endFloor.slice(0, 1)
-      var e_floorNum = parseInt(endFloor.slice(1, endFloor.length))
-      if (s_floorAnti === 'F' && e_floorAnti === 'B') return 0
-      if (e_floorAnti === 'F' && s_floorAnti === 'B') return 1
-      if (s_floorNum < e_floorNum) return 1
-      if (s_floorNum > e_floorNum) return 0
-    }
-
-    // 计算楼层
-    function calcFloor(startFloor, endFloor) {
-      var s_floorNum = parseInt(startFloor.slice(1, startFloor.length))
-      var e_floorNum = parseInt(endFloor.slice(1, endFloor.length))
-      return Math.abs(s_floorNum - e_floorNum)
-    }
-
-    // 计算楼层数组
-    function calcFloorArray(startFloor, endFloor) {
-      var s_floorNum = parseInt(startFloor.slice(1, startFloor.length))
-      var e_floorNum = parseInt(endFloor.slice(1, endFloor.length))
-      var targetArr = []
-      for (var i = 0; i < Math.abs(s_floorNum - e_floorNum); i++) {
-        targetArr.push('F' + (parseInt(s_floorNum > e_floorNum ? e_floorNum : s_floorNum) + parseInt(i)))
-      }
-      return targetArr;
     }
 
     // 确定轨迹开始的楼层
@@ -301,8 +234,30 @@
       })
     }
 
+    function ChapterOneOffCoast() {
+      group.children.forEach(function (item) {
+        if(item.name !== BEGIN_FLOOR && item.name !== LAST_FLOOR){
+          if (structFloorInfo(BEGIN_FLOOR, item.name)) {
+            item.position.y = TRANSFER_BOARD.HIGH_POS
+            item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X
+            item.rotation.y = TRANSFER_BOARD.ORIGIN_Y
+          } else if (!structFloorInfo(BEGIN_FLOOR, item.name)) {
+            item.position.y = TRANSFER_BOARD.LOW_POS
+            item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X
+            item.rotation.y = TRANSFER_BOARD.ORIGIN_Y
+          }
+        }
+      })
+    }
+
     // step2: 电梯楼层动画
     function ChapterTwo(type) {
+      if(elevatorGroup.children.length) {
+        elevatorGroup.children.forEach(function(item){
+          elevatorGroup.remove(item)
+        })
+        elevatorGroup.children = []
+      }
       group.children.forEach(function (item) {
         animateLowerElevator(item, type === 'up' ? BEGIN_FLOOR : END_FLOOR, type)
         animateHigerElevator(item, type === 'up' ? END_FLOOR : BEGIN_FLOOR, type)
@@ -407,7 +362,7 @@
 
     // 电梯动画片段: 低层变化过程
     function animateLowerElevator(item, floorName, type) {
-      if (item.name === floorName) {
+      if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
         var lowPositionStart = {
           x: item.position.x,
           y: item.position.y
@@ -454,12 +409,29 @@
           })
         lowAction2.chain(lowAction1)
         lowAction2.start()
+      } else if(item.name !== floorName && item.name !== BEGIN_FLOOR && END_FLOOR !== LAST_FLOOR){
+        var lowOpacityStartO = {
+          opacity: item.children[0].material.opacity
+        }
+        var lowOpacityEndO = {
+          opacity: TRANSFER_BOARD.OPACITY_NONE
+        }
+        var lowAction4 = new TWEEN.Tween(lowOpacityStartO)
+          .to(lowOpacityEndO, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              if (val.name !== 'elevator') {
+                val.material.opacity = lowOpacityStartO.opacity
+              }
+            })
+          })
+        lowAction4.start()
       }
     }
 
     // 电梯动画片段: 高层变化过程
     function animateHigerElevator(item, floorName, type) {
-      if (item.name === floorName) {
+      if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
         var highPositionStart = {
           x: item.position.x,
           y: item.position.y
@@ -477,7 +449,7 @@
           y: TRANSFER_BOARD.ROTATE_Y
         }
         var highOpacityStart = {
-          opacity: type === 'up' ? TRANSFER_BOARD.OPACITY_NONE : TRANSFER_BOARD.OPACITY_BLOCK
+          opacity: type === 'up' ? item.children[0].material.opacity : TRANSFER_BOARD.OPACITY_BLOCK
         }
         var highOpacityEnd = {
           opacity: TRANSFER_BOARD.OPACITY_BLOCK
@@ -506,6 +478,23 @@
           })
         highAction2.chain(highAction1)
         highAction2.start()
+      } else if(item.name !== floorName && item.name !== BEGIN_FLOOR && END_FLOOR !== LAST_FLOOR) {
+        var highOpacityStartO = {
+          opacity: item.children[0].material.opacity
+        }
+        var highOpacityEndO = {
+          opacity: TRANSFER_BOARD.OPACITY_NONE
+        }
+        var highAction4 = new TWEEN.Tween(highOpacityStartO)
+          .to(highOpacityEndO, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              if (val.name !== 'elevator') {
+                val.material.opacity = highOpacityStartO.opacity
+              }
+            })
+          })
+        highAction4.start()
       }
     }
 
@@ -532,7 +521,7 @@
           opacity: TRANSFER_BOARD.OPACITY_BLOCK
         }
         var lowOpacityEnd = {
-          opacity: type === 'up' ? TRANSFER_BOARD.OPACITY_NONE : TRANSFER_BOARD.OPACITY_BLOCK
+          opacity: type === 'up' ? item.children[0].material.opacity : TRANSFER_BOARD.OPACITY_BLOCK
         }
         var lowAction1 = new TWEEN.Tween(lowPositionStart)
           .to(lowPositionEnd, duration)
@@ -670,13 +659,6 @@
 
       action1.chain(action2)
       action1.start()
-
-    }
-
-    function animatePeople(group, x, y) {
-      var people = PeopleSprite()
-      people.position.x = x;
-      people.position.z = y
     }
 
     function createGeneralGroup() {
@@ -684,6 +666,8 @@
       group.name = 'all_scene'
       maskGroup = new THREE.Group()
       group.name = 'mask_scene'
+      elevatorGroup = new THREE.Object3D();
+      elevatorGroup.name = 'elevator'
       scene.add(group)
       scene.add(maskGroup)
     }
@@ -754,28 +738,16 @@
 
       floorGroup.name = item.name
       group.add(floorGroup)
-      console.log(floorGroup)
-    }
-
-    function refresh() {
-      var url = parent.document.getElementById("threeFrame").contentWindow.location.href
-      var host = url.split('?')[0]
-      var params = '?timestamp=' + Number(new Date()) + '&play_count=1'
-      window.location.href = host + params
     }
 
     var capturePoint_count = 0
 
     function createPath(floorName, currentPathPointIndex) {
-      // if(play_current){
-      //   return
-      // }
-
       if (!floorName) {
         floorName = BEGIN_FLOOR
       }
 
-      if (play_count > 0) {
+      if (status > 0) {
         refresh()
         return
       }
@@ -784,7 +756,7 @@
       var count_child = 0
       var capturePoint_color = PALLETTE.CIRCLE
       var floorGroup;
-      var people = PeopleSprite()
+      var trailBall = new TrailBall()
       var positionY = 9
       play = true;
       setPlayStatus()
@@ -792,7 +764,7 @@
       group.children.forEach(function (item) {
         if (item.name === floorName) {
           floorGroup = item
-          floorGroup.add(people)
+          floorGroup.add(trailBall.mesh)
         }
       })
 
@@ -801,37 +773,22 @@
         // 绘制路径
         if (count <= data.length - 2) {
           var pathGroup = {
-            start: {
-              x: data[count].point.x,
-              y: -data[count].point.y
-            },
-            end: {
-              x: data[count + 1].point.x,
-              y: -data[count + 1].point.y
-            }
+            start: { x: data[count].point.x, y: -data[count].point.y },
+            end: { x: data[count + 1].point.x, y: -data[count + 1].point.y }
           }
 
           var path = new Path(pathGroup)
           path.line.position.y = positionY
           path.line.rotation.x = 0.5 * Math.PI
           floorGroup.add(path.line)
-
-          // 绘制小人
+          // 绘制轨迹球
           var action1 = new TWEEN.Tween(pathGroup.start)
             .to(pathGroup.end, 30)
             .onUpdate(function () {
-              people.position.x = pathGroup.start.x;
-              people.position.y = positionY
-              people.position.z = pathGroup.start.y - 25;
+              trailBall.mesh.position.x = pathGroup.start.x;
+              trailBall.mesh.position.y = positionY
+              trailBall.mesh.position.z = pathGroup.start.y - 25;
             })
-          // var action2 = new TWEEN.Tween(pathGroup.end)
-          //   .to(pathGroup.next, 60)
-          //   .onUpdate(function () {
-          //     people.position.x = pathGroup.end.x;
-          //     people.position.y = 0
-          //     people.position.z = pathGroup.end.y; 
-          //   })
-          // action1.chain(action2)
           action1.start()
         }
 
@@ -853,15 +810,6 @@
           circle.mesh.rotation.x = -0.5 * Math.PI
           floorGroup.add(circle.mesh)
           capturePoint_count++
-
-          // if(count>0){
-          //   var arrow = new Arrow(PALLETTE.CIRCLE)
-          // arrow.mesh.position.set(data[count].point.x - pic_width / 2 - 10,
-          //   positionY,
-          //   -data[count].point.y - pic_height / 2 - 10)
-          // arrow.mesh.rotation.z = calcArrowAngle(-data[count].point.y + data[count-1].point.y, data[count].point.x - data[count-1].point.x) - 1/2 * Math.PI
-          // floorGroup.add(arrow.mesh)
-          // }
         }
 
         count += 1
@@ -869,8 +817,14 @@
         if (count === data.length) {
           clearInterval(timer1)
           play = false;
-          play_count++;
+          status++;
           setPlayStatus()
+          if(elevatorGroup.children.length) {
+            elevatorGroup.children.forEach(function(item){
+              elevatorGroup.remove(item)
+            })
+            elevatorGroup.children = []
+          }
           setTimeout(function () {
             ChapterFour()
           }, 1000)
@@ -879,132 +833,80 @@
         if (count > currentPathPointIndex + 2 && data[count - 1].elevator === true) {
           currentElevator[0] = data[count - 1]
           currentElevator[1] = data[count]
+          LAST_FLOOR = BEGIN_FLOOR
           BEGIN_FLOOR = data[count - 3].floorName
           END_FLOOR = data[count + 1].floorName
           var delay = setTimeout(function () {
-            floorGroup.remove(people)
+            floorGroup.remove(trailBall.mesh)
             clearTimeout(delay)
           }, 3000)
 
           if (structFloorInfo(BEGIN_FLOOR, END_FLOOR)) {
-            upfloor(currentElevator, count, END_FLOOR)
+            changefloor(currentElevator, count, END_FLOOR, 'up')
           } else {
-            downfloor(currentElevator, count, END_FLOOR)
+            changefloor(currentElevator, count, END_FLOOR, 'down')
           }
           clearInterval(timer1)
         }
 
-      }, 30)
+      }, 10)
     }
 
-    function arrayTransfer(arr) {
-      var res = []
-      for(var i in arr){
-        if(arr[i].z===0){
-          res.push(arr[i].x)
-          res.push(arr[i].y)
-          res.push(arr[i].z)
-        }
-      }
-      return res;
-    }
-
+    
     // 电梯轨迹
     function TrailPath(currentElevator, type) {
-      var rectPath = new THREE.Path();
+
       var position = {
-        x: currentElevator[0].point.x - pic_width / 2,
-        y: -currentElevator[0].point.y - pic_height / 2,
-        x1: currentElevator[1].point.x - pic_width / 2,
-        y1: -currentElevator[1].point.y - pic_height / 2
+        x: currentElevator[0].point.x - pic_width / 2 + 15,
+        y: -currentElevator[0].point.y - pic_height / 2 - 25,
+        x1: currentElevator[1].point.x - pic_width / 2 + 15,
+        y1: -currentElevator[1].point.y - pic_height / 2 - 25
       }
-      var points = [
-        new THREE.Vector3(position.x, TRANSFER_BOARD.PASS_LOW_POS, position.y),
-        new THREE.Vector3(position.x1, TRANSFER_BOARD.PASS_HIGH_POS, position.y1),
-      ]
-      var elevatorPoints = [{
-        x: position.x,
-        y: type === 'up' ? TRANSFER_BOARD.PASS_LOW_POS : TRANSFER_BOARD.PASS_HIGH_POS,
-        z: position.y - 10
-      }, {
-        x: position.x1,
-        y: type === 'up' ? TRANSFER_BOARD.PASS_HIGH_POS : TRANSFER_BOARD.PASS_LOW_POS,
-        z: position.y1 - 10
-      }]
-      // 画线段
-      for (var i = 0; i <= arrowsLength; i++) {
-        arrows[i] = new THREE.Mesh(
-          new THREE.CubeGeometry(1, 1, 3),
-          new THREE.MeshBasicMaterial({
-            color: PALLETTE.ELEVATOR
-          })
-        );
-        arrows[i].rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0);
-        elevatorGroup.add(arrows[i]);
+
+      var pathGroup = {
+        start: {
+          x: position.x,
+          y: type === 'up' ? TRANSFER_BOARD.PASS_LOW_POS : TRANSFER_BOARD.PASS_HIGH_POS,
+          z: position.y
+        },
+        end: {
+          x: position.x1,
+          y: type === 'up' ? TRANSFER_BOARD.PASS_HIGH_POS : TRANSFER_BOARD.PASS_LOW_POS,
+          z: position.y1
+        }
       }
-      // 画点
-      // var circle = [];
-      // for (var j = 0; j < points.length; j++) {
-      //   circle[j] = new Circle(points[j], PALLETTE.CIRCLE, -0.2)
-      //   elevatorGroup.add(circle[j].mesh)
-      // }
+
+      var timeDuration = pathGroup.end.y - pathGroup.start.y + 9
+      var timeUnit = 0
 
       // 画人
-      var people = PeopleElevatorSprite();
-      people.position.set(elevatorPoints[0].x, elevatorPoints[0].y, elevatorPoints[0].z)
-      elevatorGroup.add(people)
-      var action1 = new TWEEN.Tween(elevatorPoints[0]).to(elevatorPoints[1], duration * 3).onUpdate(function () {
-        people.position.x = elevatorPoints[0].x
-        people.position.y = elevatorPoints[0].y + 10
-        people.position.z = elevatorPoints[0].z
-      })
-      action1.start()
+      var people = new TrailBall();
+      people.mesh.position.set(pathGroup.start.x, pathGroup.start.y, pathGroup.start.z)
+      elevatorGroup.add(people.mesh)
 
       scene.add(elevatorGroup);
-      var animateEnd = 65
-      var intervalCount = 0
-      rectPath.moveTo(position.x, type === 'up' ? TRANSFER_BOARD.PASS_LOW_POS : TRANSFER_BOARD.PASS_HIGH_POS,
-        position.y)
-      rectPath.lineTo(position.x1, type === 'up' ? TRANSFER_BOARD.PASS_HIGH_POS : TRANSFER_BOARD.PASS_LOW_POS,
-        position.y1)
-      path = rectPath;
 
       var timer2 = setInterval(function () {
-        pathRender()
-        if (intervalCount >= animateEnd) {
+        var cubeGeometry = new THREE.BoxGeometry(1,1,1)
+        var cubeMaterial = new THREE.MeshBasicMaterial({
+          color: PALLETTE.PATH,
+          side: THREE.DoubleSide
+        })
+        var cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial)
+        cubeMesh.position.set(pathGroup.start.x, pathGroup.start.y + timeUnit, pathGroup.start.z)
+        people.mesh.position.y = pathGroup.start.y + timeUnit
+        elevatorGroup.add(cubeMesh)
+        if (timeUnit === timeDuration) {
           clearInterval(timer2)
-          scene.remove(elevatorGroup)
-          elevatorGroup.remove(people)
-          arrows.forEach(function (item) {
-            elevatorGroup.remove(item)
-          })
+          elevatorGroup.remove(people.mesh)
+        }
+
+        if (timeDuration > 0) {
+          timeUnit ++
         } else {
-          intervalCount++
+          timeUnit --
         }
-      }, 50)
-    }
-
-    function pathRender() {
-      t = (t + s) % 1; // 增量t同时保持再0.0和1.0之间
-      for (let i = 0; i < arrowsLength; i++) {
-        var ti = ((i / arrowsLength) + t) % 1.0;
-        var p = path.getPoint(ti);
-        var pn = path.getPoint((ti + s) % 1.0);
-        if (p != null && pn != null) {
-          // 移动到当前位置
-          arrows[i].position.x = p.x;
-          arrows[i].position.y = p.y;
-          // 基于下一个位置获得定位
-          arrows[i].rotation.z = Math.atan2(pn.y - p.y, pn.x - p.x);
-        }
-      }
-      elevatorGroup.rotation.y += (targetRotation - elevatorGroup.rotation.y) * 0.001;
-    }
-
-    // 计算箭头角度
-    function calcArrowAngle(x, y) {
-      var tan = y / x;
-      return Math.atan(tan)
+      }, 15)
     }
 
     /*****************************
@@ -1066,7 +968,7 @@
       var material = new THREE.MeshBasicMaterial({
         color: PALLETTE.PLANE,
         side: THREE.DoubleSide,
-        depthWrite: false,
+        depthWrite: true,
         transparent: true,
         opacity: groupName === BEGIN_FLOOR ? 1 : opacity
       })
@@ -1106,23 +1008,6 @@
       this.line.name = 'path'
     }
 
-    function Arrow(color) {
-      var arrowShape = new THREE.Shape();
-      arrowShape.moveTo(0, 0)
-      arrowShape.lineTo(10, 5)
-      arrowShape.lineTo(0, 10)
-      arrowShape.lineTo(2.5, 5)
-      arrowShape.lineTo(0, 0)
-      var geometry = new THREE.ShapeGeometry(arrowShape);
-      var material = new THREE.MeshBasicMaterial({
-        color: color,
-        side: THREE.DoubleSide
-      })
-      this.mesh = new THREE.Mesh(geometry, material)
-      this.mesh.rotation.x = 0.5 * Math.PI
-      this.mesh.name = 'arrow'
-    }
-
     // 摄像头点
     function Circle(vector, color, rotate) {
       var geom = new THREE.CircleGeometry(5, 50)
@@ -1139,16 +1024,17 @@
       this.mesh.name = 'circle'
     }
 
+    // 楼层文字
     function TextSprite(text, position) {
       var canvas = document.createElement('canvas')
       var ctx = canvas.getContext('2d')
       var cz = camera.position.z // 摄像头z轴视距
-      canvas.width = text.length * 170
+      canvas.width = text.length * 200
       canvas.height = canvas.width / 4
       ctx.fillStyle = '#ffffff'
       ctx.font = '600 104px Microsoft YaHei Arial'
       ctx.textAlign = 'left'
-      ctx.fillText(text, 0, 104)
+      ctx.fillText(text, 0, 120)
       var texture = new THREE.Texture(canvas)
       texture.needsUpdate = true
       // 使用Sprite显示文字
@@ -1161,10 +1047,12 @@
       })
       this.textObj = new THREE.Sprite(material)
       this.textObj.name = 'text'
-      this.textObj.scale.set(cz * 0.027 * text.length, cz * 0.008 * text.length, 250)
+      this.textObj.scale.set(cz * 0.047 * text.length, cz * 0.012 * text.length, 200)
       this.textObj.position.set(290, 0, 0)
+
     }
 
+    // 商店文字
     function Text(obj, font, groupName) {
       var textGeometry = new THREE.TextGeometry(obj.text, {
         font: font,
@@ -1178,15 +1066,17 @@
           transparent: true,
           color: 0xffffff,
           opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
-          flatShading: true,
-          depthWrite: false,
-          depthTest: false
+          // flatShading: true,
+          // depthWrite: false,
+          // depthTest: false
+          side: THREE.FrontSide
         }))
       this.text.name = 'store_text'
       this.text.rotation.x = -0.5 * Math.PI
-      this.text.position.set(obj.position.x, 9, -obj.position.y)
+      this.text.position.set(obj.position.x, 10, -obj.position.y)
     }
 
+    // 贴图
     function PeopleSprite() {
       var texture = new THREE.TextureLoader().load('/static/img/people_sprite.png')
       texture.needsUpdate = true
@@ -1200,17 +1090,16 @@
       return sprite
     }
 
-    function PeopleElevatorSprite() {
-      var texture = new THREE.TextureLoader().load('/static/img/people_sprite_elevator.png')
-      texture.needsUpdate = true
-      var spriteMaterial = new THREE.SpriteMaterial({
-        map: texture,
-        depthTest: false,
-        blending: THREE.AdditiveBlending,
+    // 轨迹球
+    function TrailBall(){
+      var geometry = new THREE.SphereGeometry(4,32,32)
+      var material = new THREE.MeshBasicMaterial({
+        color: PALLETTE.PATH,
+        // depthTest: false,
+        side: THREE.DoubleSide
       })
-      var sprite = new THREE.Sprite(spriteMaterial)
-      sprite.scale.set(25, 25, 25)
-      return sprite
+      this.mesh = new THREE.Mesh(geometry, material)
+      this.mesh.name = 'trail_ball'
     }
 
     /****************************
@@ -1294,9 +1183,23 @@
       renderer.setSize(window.innerWidth, window.innerHeight)
     }
 
+    /* **********************
+     * ****** 其他方法 *******
+     * **********************/
+
+    // 数组转字符串
     var getString = function (arr) {
       return '['+Array.prototype.slice.call(arr).toString()+']'
     }
+
+    // 刷新页面
+    var refresh = function () {
+      var url = parent.document.getElementById("threeFrame").contentWindow.location.href
+      var host = url.split('?')[0]
+      var params = '?playcount=' + (play_count+1) + '&status=1'
+      window.location.href = host + params
+    }
+
     // 获取中心点和右侧点
     var getCenterExtraPoint = function (array) {
       var a = changeArrayLevel(array)
@@ -1305,6 +1208,48 @@
         cx: (ps.x - 290),
         cy: (214 - ps.y)
       }
+    }
+
+    // 获取playCount的值
+    var getQueryString = function () {
+      var r = url.split('?')[1]
+      var s = r.split('&')[0]
+      if (s) {
+        var res = parseInt(s.split('=')[1])
+        return res
+      } else {
+        return null
+      }
+    }
+
+    // 0: 下楼 1: 上楼
+    function structFloorInfo(startFloor, endFloor) {
+      var s_floorAnti = startFloor.slice(0, 1)
+      var s_floorNum = parseInt(startFloor.slice(1, startFloor.length))
+      var e_floorAnti = endFloor.slice(0, 1)
+      var e_floorNum = parseInt(endFloor.slice(1, endFloor.length))
+      if (s_floorAnti === 'F' && e_floorAnti === 'B') return 0
+      if (e_floorAnti === 'F' && s_floorAnti === 'B') return 1
+      if (s_floorNum < e_floorNum) return 1
+      if (s_floorNum > e_floorNum) return 0
+    }
+
+    // 计算楼层
+    function calcFloor(startFloor, endFloor) {
+      var s_floorNum = parseInt(startFloor.slice(1, startFloor.length))
+      var e_floorNum = parseInt(endFloor.slice(1, endFloor.length))
+      return Math.abs(s_floorNum - e_floorNum)
+    }
+
+    // 计算楼层数组
+    function calcFloorArray(startFloor, endFloor) {
+      var s_floorNum = parseInt(startFloor.slice(1, startFloor.length))
+      var e_floorNum = parseInt(endFloor.slice(1, endFloor.length))
+      var targetArr = []
+      for (var i = 0; i < Math.abs(s_floorNum - e_floorNum); i++) {
+        targetArr.push('F' + (parseInt(s_floorNum > e_floorNum ? e_floorNum : s_floorNum) + parseInt(i)))
+      }
+      return targetArr;
     }
 
   </script>
