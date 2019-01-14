@@ -45,6 +45,7 @@
 <script>
 import CustomPopover from '@/components/CustomPopover'
 import {validateRule} from '../../utils/validate'
+import {eventObject} from '../../utils/event'
 
 export default {
   name: 'uu-sub-tab',
@@ -110,10 +111,14 @@ export default {
   data () {
     return {
       searchValue: this.$route.params.name || '',
-      length: 0
+      length: 0,
+      iframeCount: 0
     }
   },
   mounted () {
+    eventObject().$on('IFRAME_FRESH_COUNT', (count) => {
+      this.iframeCount = count
+    })
   },
   methods: {
     // @handle-btn subBtn未提供index参数是触发
@@ -126,7 +131,7 @@ export default {
     // 返回上一页 back为字符串时返回指定路径
     backPrev () {
       if (window.history.length) {
-        this.$router.go(-1)
+        this.$router.go(-1 - this.iframeCount)
       } else {
         this.$router.push('/')
       }
@@ -157,6 +162,17 @@ export default {
       set () {
       }
     }
+  },
+  watch: {
+    $route: {
+      handler (val) {
+        this.iframeCount = 0
+      },
+      deep: true
+    }
+  },
+  beforeDestroy () {
+    eventObject().$off('IFRAME_FRESH_COUNT')
   }
 }
 </script>
