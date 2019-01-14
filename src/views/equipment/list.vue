@@ -179,7 +179,7 @@
 </template>
 <script>
 import {AddCamera, DeviceIsExisted, DeviceIsAdded, CheckCameraName, DeviceAliasExist, AddDevice, DownloadSrc} from '../../api/device'
-import {byKeyDeviceType} from '../../utils'
+import {byKeyDeviceType, fileTypeAllow} from '../../utils'
 import {validateRule} from '../../utils/validate'
 import {mapState} from 'vuex'
 import {eventObject} from '../../utils/event'
@@ -281,8 +281,8 @@ export default {
         callback(new Error('请选取文件'))
       } else {
         let name = file.name.substring(0, file.name.lastIndexOf('.'))
-        if (file.raw.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-          callback(new Error('只允许上传Excel文件'))
+        if (!fileTypeAllow(file.name, 'xlsx,xls')) {
+          callback(new Error('只允许上传xlsx、xls文件'))
         } else if ((this.$route.name !== 'equipmentCamera' && name !== '7045-8045') || (this.$route.name === 'equipmentCamera' && name !== '7A45-8A45')) {
           callback(new Error('导入文件名与模版不同'))
         } else {
@@ -342,10 +342,6 @@ export default {
     }
   },
   methods: {
-    // 切换路由
-    changeRoute (path) {
-      this.$router.push(this.currentRoute)
-    },
     // 返回上一页 back为字符串时返回指定路径
     backPrev () {
       if (window.history.length) {
@@ -392,6 +388,7 @@ export default {
       } else { // 上传成功或者失败时清空文件列表
         this.progress.close()
         this.fileList = []
+        console.log('file---------------', file)
         this.excelImportForm.filename = ''
         if (file.response.result) {
           this.$tip('导入成功')
@@ -428,8 +425,9 @@ export default {
     ...mapState(['userInfo', 'serverIp']),
     excelUrl () {
       let UPLOAD_API = `//${this.serverIp.substring(0, this.serverIp.indexOf(':'))}`
+      console.log(this.$route.name)
       let url = `${UPLOAD_API}/manage/device/deviceCamera/info/addBatch` // excel批量导入摄像头信息
-      if (this.$route.name === 'equipmentAio') url = `${UPLOAD_API}/manage/merchant/device/import` // excel批量导入一体机
+      if (this.$route.name !== 'equipmentCamera') url = `${UPLOAD_API}/manage/merchant/device/import` // excel批量导入一体机
       return url
     }
   },

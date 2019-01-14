@@ -257,6 +257,7 @@ export default {
         endT = this.filter.date[1] + ' 23:59:59'
       }
       page = this.$route.meta.keepAlive ? this.aliveState.index : page || this.pagination.index || 1
+      this.emptyText = '数据加载中...'
       GetBehaviorList({
         startTime: startT,
         endTime: endT,

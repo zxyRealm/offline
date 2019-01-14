@@ -119,6 +119,7 @@ import axios from 'axios'
 import {validateRule, validPhone} from '../../utils/validate'
 import {MemberTypeList, MemberTypeOperate, MemberCreate, MemberUpdate, MemberDetails, MemberImgDetect, MemberLibraryFind} from '../../api/member'
 import {OssSignature} from '../../api/common'
+import {fileTypeAllow} from '../../utils'
 
 export default {
   name: 'person',
@@ -319,7 +320,7 @@ export default {
       OssSignature(data).then(res => {
         if (res.data) {
           let formData = new FormData()
-          let customName = 'photo_' + name + '.' + (file.file.type.split('/')[1] === 'png' ? 'png' : 'jpg')
+          let customName = 'photo_' + name + '.' + (fileTypeAllow(file.file.name, 'png') ? 'png' : 'jpg')
           formData.append('key', `${catalog}/${customName}`)
           formData.append('policy', res.data['policy'])
           formData.append('OSSAccessKeyId', res.data['accessid'])
@@ -352,13 +353,11 @@ export default {
     },
     // 上传前图片格式校验
     beforeAvatarUpload (file) {
-      const isJPG = (file.type === 'image/jpeg' || file.type === 'image/png')
-      const isLt2M = file.size / 1024 / 1024 < 2
-      if (!isJPG) {
+      if (!fileTypeAllow(file.name, 'jpeg,jpg,png')) {
         this.$tip('上传头像图片只能是 JPG/PNG 格式!', 'error')
         return false
       }
-      if (!isLt2M) {
+      if (file.size / 1024 / 1024 > 2) {
         this.$tip('上传头像图片大小不能超过 2MB!', 'error')
         return false
       }

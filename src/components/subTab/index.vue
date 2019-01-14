@@ -109,8 +109,11 @@ export default {
   },
   data () {
     return {
-      searchValue: this.$route.params.name || ''
+      searchValue: this.$route.params.name || '',
+      length: 0
     }
+  },
+  mounted () {
   },
   methods: {
     // @handle-btn subBtn未提供index参数是触发
