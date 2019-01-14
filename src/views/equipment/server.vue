@@ -1,7 +1,7 @@
 <template>
   <div class="equipment__data--list">
     <!--<div class="data-list-wrap">-->
-      <el-scrollbar id="server__scrollbar">
+      <el-scrollbar v-scroll-top="pagination.index">
         <device-table
           data-type="server"
           @refresh="getServerEquipment"
@@ -94,7 +94,6 @@ export default {
         this.emptyText = '暂无设备'
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination || {}
-        if (document.getElementById('server__scrollbar')) document.getElementById('server__scrollbar').children[0].scrollTop = 0
       })
     },
     // 重置添加服务器表单

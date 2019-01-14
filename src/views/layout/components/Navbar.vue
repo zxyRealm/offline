@@ -111,7 +111,7 @@
           <p class="c-grey fs12">可包含单店，如：银泰商城</p>
         </div>
 
-        <div class="cc__item">
+        <div class="cc__item disabled">
           <div class="icon--wrap" @click="showAddForm(2)">
             <img src="@/assets/community/chain_icon@2x.png" alt="">
             <p>连锁总店</p>
@@ -425,6 +425,10 @@ export default {
       this.$refs.manageSelect.blur()
     },
     showAddForm (type) {
+      if (type === 2) {
+        this.$tip('此服务暂未开通', 'error')
+        return
+      }
       this.handleCommunityType = type
       this.addFormVisible = false
       this.addCommunityVisible = true
@@ -1031,6 +1035,12 @@ export default {
           height: 86px;
         }
         color: #0F9EE9;
+      }
+      &.disabled{
+        .icon--wrap{
+          cursor: default;
+        }
+
       }
     }
     .cc-sub-title {

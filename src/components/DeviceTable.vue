@@ -218,7 +218,11 @@ export default {
     data: {
       get () {
         this.emptyText = '暂无设备'
-        return this.value
+        let arr = JSON.parse(JSON.stringify(this.value)).map(item => {
+          item.deviceStatus = undefined
+          return item
+        })
+        return arr
       },
       set (val) {
         this.$emit('input', val)

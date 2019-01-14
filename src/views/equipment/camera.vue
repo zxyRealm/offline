@@ -14,7 +14,7 @@
       </el-input>
     </div>
     <div class="data-list-wrap">
-      <el-scrollbar id="camera__scrollbar">
+      <el-scrollbar v-scroll-top="pagination.index">
         <device-table
           data-type="camera"
           @refresh="getCameraList"
@@ -218,7 +218,6 @@ export default {
           this.emptyText = '暂无设备'
           this.cameraList = res.data.content
           this.pagination = res.data.pagination
-          if (document.getElementById('camera__scrollbar')) document.getElementById('camera__scrollbar').children[0].scrollTop = 0
         })
       }
     },
@@ -231,7 +230,6 @@ export default {
         this.emptyText = '暂无设备'
         this.cameraList = res.data.content
         this.pagination = res.data.pagination
-        if (document.getElementById('camera__scrollbar')) document.getElementById('camera__scrollbar').children[0].scrollTop = 0
       })
     },
     showPopover (index) {

@@ -14,7 +14,7 @@
       </el-input>
     </div>
     <div class="data-list-wrap">
-      <el-scrollbar id="aio__scrollbar">
+      <el-scrollbar v-scroll-top="pagination.index">
         <device-table
           data-type="aio"
           @refresh="getMineEquipment"
@@ -144,7 +144,6 @@ export default {
         this.emptyText = '暂无设备'
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination || {}
-        if (document.getElementById('aio__scrollbar')) document.getElementById('aio__scrollbar').children[0].scrollTop = 0
       })
     },
     // 第一次进入设备列表，给出操作提示，点击页面后提示消失
