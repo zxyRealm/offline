@@ -1217,7 +1217,7 @@
     }
 
     // 刷新页面
-    var refresh = function () {
+    function refresh() {
       var url = parent.document.getElementById("threeFrame").contentWindow.location.href
       var host = url.split('?')[0]
       var params = '?playcount=' + (play_count) + '&status=1'
@@ -1234,10 +1234,8 @@
       }
     }
 
-    console.log(getQueryString())
-
     // 获取playCount的值
-    var getQueryString = function () {
+    function getQueryString() {
       var r = url.split('?')[1]
       var s = r.split('&')[0]
       if (s) {
