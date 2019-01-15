@@ -76,6 +76,7 @@ export default {
       switch (data.cmd) {
         case "trail-load_signal":
           this.playCount = data.params.play_count
+          console.log(this.playCount)
           this.iframe.getTrailData(this.trailData);
           this.iframe.getElevatorPosition(this.elevatorList)
           this.iframe.receiveCommunityInfo(this.communityInfo)
