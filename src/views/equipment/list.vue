@@ -175,6 +175,9 @@
         <el-button class="affirm" type="primary" @click="ExcelImportDevice('excelImportForm')">添加</el-button>
       </div>
     </ob-dialog-form>
+    <upload-progress :visible.sync="progressVisible">
+     正在导入，请耐心等待…<br>{{percent}}/100
+    </upload-progress>
   </div>
 </template>
 <script>
@@ -183,8 +186,12 @@ import {byKeyDeviceType, fileTypeAllow} from '../../utils'
 import {validateRule} from '../../utils/validate'
 import {mapState} from 'vuex'
 import {eventObject} from '../../utils/event'
+import UploadProgress from '../../components/UploadProgressDialog'
 export default {
   name: 'index',
+  components: {
+    UploadProgress
+  },
   data () {
     // 校验设备序列号
     const validateKey = (rule, value, callback) => {
@@ -291,6 +298,8 @@ export default {
       }
     }
     return {
+      percent: 0,
+      progressVisible: false,
       addDeviceVisible: false,
       addCameraVisible: false,
       ExcelAddVisible: false,
@@ -377,18 +386,22 @@ export default {
     },
     // 显示上传进度
     handleProgress (event) {
-      this.progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
+      this.percent = Math.floor(event.percent)
+      this.progressVisible = true
+      // this.progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
     },
     // 文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用
     handleChange (file) {
       // 上传完成后会清空文件列表，触发此方法（若包含response说明文件上传已经结束）
+      console.log('file---------------', file)
       if (!file.response) {
         this.fileList = [file]
         this.excelImportForm.filename = this.fileList[0].name
       } else { // 上传成功或者失败时清空文件列表
-        this.progress.close()
+        this.progressVisible = false
+        // this.progress.close()
         this.fileList = []
-        console.log('file---------------', file)
+        // console.log('file---------------', this.progress, file)
         this.excelImportForm.filename = ''
         if (file.response.result) {
           this.$tip('导入成功')
@@ -408,6 +421,8 @@ export default {
       })
     },
     resetForm (formName) {
+      this.fileList = []
+      this.excelImportForm.filename = ''
       if (this.$refs[formName]) {
         this.$refs[formName].resetFields()
       }
@@ -425,7 +440,6 @@ export default {
     ...mapState(['userInfo', 'serverIp']),
     excelUrl () {
       let UPLOAD_API = `//${this.serverIp.substring(0, this.serverIp.indexOf(':'))}`
-      console.log(this.$route.name)
       let url = `${UPLOAD_API}/manage/device/deviceCamera/info/addBatch` // excel批量导入摄像头信息
       if (this.$route.name !== 'equipmentCamera') url = `${UPLOAD_API}/manage/merchant/device/import` // excel批量导入一体机
       return url

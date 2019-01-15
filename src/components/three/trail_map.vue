@@ -17,6 +17,8 @@
 import { GetTrace, GetElevatorListByGroupGuid } from "@/api/behavior";
 import { GetMarketList } from '@/api/community'
 import { mapState } from 'vuex'
+import {eventObject} from '../../utils/event'
+
 export default {
   name: "TrailMap",
   props: {
@@ -75,6 +77,7 @@ export default {
       const data = event.data;
       switch (data.cmd) {
         case "trail-load_signal":
+          eventObject().$emit('IFRAME_FRESH_COUNT', data.params.play_count)
           this.playCount = data.params.play_count
           console.log(this.playCount)
           this.iframe.getTrailData(this.trailData);
@@ -145,4 +148,3 @@ export default {
 }
 </style>
 
- 

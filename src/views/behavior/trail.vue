@@ -70,6 +70,7 @@
 import { parseTime } from "../../utils";
 import { GetPersonTrail } from "../../api/behavior";
 import TrailMap from "../../components/three/trail_map";
+import {eventObject} from '../../utils/event'
 
 export default {
   name: "trail",
@@ -137,7 +138,6 @@ export default {
   watch: {
     currentTrailList: {
       handler(val) {
-        console.log(this.$refs.trailMap)
         if (val[0]) {
           this.trailMapInfo = {
             groupGuid: val[0].groupGuid,

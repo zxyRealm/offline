@@ -103,7 +103,7 @@ export default {
       // 通过svg文件构画出分布图
       let svgLoader = new THREE.SVGLoader()
       let psJson = JSON.parse(localStorage.getItem('group_local'))
-      console.log(psJson, new Float32Array(psJson.position))
+      // console.log(psJson, new Float32Array(psJson.position))
       // let imgUrl = 'http://offline-browser-images-test.oss-cn-hangzhou.aliyuncs.com/floor_map/A684E231460F4EA080BF64C9A87EF64D/floorF1.svg'
       svgLoader.load('/static/origin-floor/B1.svg', (paths) => {
         this.group.position.x = -290
