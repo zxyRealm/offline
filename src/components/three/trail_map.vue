@@ -17,7 +17,7 @@
 import { GetTrace, GetElevatorListByGroupGuid } from "@/api/behavior";
 import { GetMarketList } from '@/api/community'
 import { mapState } from 'vuex'
-import {eventObject} from '../../utils/event'
+import { eventObject } from '../../utils/event'
 
 export default {
   name: "TrailMap",
@@ -50,13 +50,13 @@ export default {
     getTrailMapInfo(data) {
       if (data.end) {
         GetTrace(data).then(res => {
-          this.trailData = res.data;
+          this.trailData = res.data
           if(this.trailData.length){
             this.$nextTick(() => {
               this.iframe = this.$refs.iframe.contentWindow
-            });
+            })
           }
-        });
+        })
       }
     },
     getCommunityInfo(parentId) {
@@ -79,17 +79,13 @@ export default {
         case "trail-load_signal":
           eventObject().$emit('IFRAME_FRESH_COUNT', data.params.play_count)
           this.playCount = data.params.play_count
-          console.log(this.playCount)
-          this.iframe.getTrailData(this.trailData);
+          this.iframe.getTrailData(this.trailData)
           this.iframe.getElevatorPosition(this.elevatorList)
           this.iframe.receiveCommunityInfo(this.communityInfo)
       }
     },
-    // 数组排序
     sortFloorArr (arr) {
-      if (arr.length <= 1) {
-        return arr
-      }
+      if (arr.length <= 1) { return arr }
       let pivotIndex = Math.floor(arr.length / 2)
       let pivot = arr.splice(pivotIndex, 1)[0]
       let left = []
@@ -105,10 +101,10 @@ export default {
     },
   },
   beforeDestroy() {
-    window.removeEventListener("message", this.handleMessage);
+    window.removeEventListener("message", this.handleMessage)
   },
   mounted() {
-    window.addEventListener("message", this.handleMessage);
+    window.addEventListener("message", this.handleMessage)
     this.init(this.data, this.currentManage.id)
   },
   computed: {
@@ -117,7 +113,7 @@ export default {
   watch: {
     data: {
       handler(val) {
-        if (val) this.getTrailMapInfo(val);
+        if (val) this.getTrailMapInfo(val)
       },
       deep: true
     },

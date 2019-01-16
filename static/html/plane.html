@@ -243,7 +243,7 @@
         text: item.name,
         logo: 'qizi2.png'
       }
-      createSprite(obj)
+      createSprite(obj, 'name')
     })
 
   }
@@ -297,9 +297,9 @@
   }
 
   // 添加贴图
-  function createSprite(obj) {
+  function createSprite(obj, type) {
     // 创建文字
-    initText(obj)
+    createTextSprite(obj, type)
 
     // 创建图片
     if(obj.logo){
@@ -350,25 +350,26 @@
   }
 
   // 创建文字贴图
-  function createTextSprite (obj) {
-    var canvas = document.createElement('canvas')
-    if (obj.text.length > 2) {
-      canvas.width = obj.text.length * 160
-      canvas.height = canvas.width / 4
-    }
-
+  function createTextSprite (obj, type) {
+    console.log(obj)
+    var cz = camera.position.z
+    var canvas = document.createElement('canvas');
+    canvas.width = 1000;
+    canvas.height = 1000;
     var ctx = canvas.getContext('2d')
     ctx.fillStyle = '#ffffff'
-    ctx.font = '600 100px Arial'
-    ctx.textAlign = 'left'
-    ctx.fillText(obj.text, 4, 104)
-
+    ctx.font = "40px '微软雅黑'";
+    ctx.textAlign = 'center';
+    ctx.fillText(obj.text, 500, type === 'nickName' ? 500 : 500+65);
     var texture = new THREE.Texture(canvas)
     texture.needsUpdate = true
 
     // 使用Sprite显示文字
     var material = new THREE.SpriteMaterial({map: texture, transparent: true})
     var textObj = new THREE.Sprite(material)
+    textObj.scale.set(cz/2, cz/2, cz/2)
+    textObj.position.set(obj.position.x, obj.position.y, 1);
+    scene.add(textObj)
     return textObj
   }
 
@@ -400,13 +401,10 @@
 
   // 添加色块和贴图
   function addColor (boxArr) {
-    console.log(boxArr)
     // 遍历所有块
     for(var i in shapesMeshArr){
-      console.log(shapesMeshArr[i])
       var meshAlex = getString(shapesMeshArr[i]) // 所有色块的顶点值转换为字符串
       // 遍历从服务端获取到的坐标数据
-      console.log(meshAlex)
       for(var j in boxArr){
         if(boxArr[j].position){
           var shapeAlex = boxArr[j].position // 目标色块的顶点值字符串
@@ -429,7 +427,7 @@
               shapesMeshArr[i].material.color = new THREE.Color('#481284')
             }
 
-            createSprite(ipc, shapesMeshArr[i])
+            createSprite(ipc, 'nickName')
 
             shapesMeshArr[i].remove(shapesMeshArr[i].children[0])
             hasColorBoxArr.push(shapesMeshArr[i])
