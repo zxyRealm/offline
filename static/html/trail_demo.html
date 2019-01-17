@@ -96,24 +96,22 @@
     SIDE: '#498EE2'
   };
 
-  //
   var play = false;
   var play_count = parseInt(parent.document.getElementById("threeFrame").contentWindow.location.search.split('&')[0].split('=')[1]);
+
+  var communityInfo = []; // 接收社群信息
+  var elevatorList = []; // 接收电梯列表
+
+  var mixArr = []; // 动画mixer集合
 
   // 接收轨迹点位
   function getTrailData(trailData) {
     data = trailData
   }
 
-  // 接收电梯列表
-  var elevatorList = [];
-
   function getElevatorPosition(data) {
     elevatorList = data;
   }
-
-  // 接收社群信息
-  var communityInfo = [];
 
   function receiveCommunityInfo(data) {
     communityInfo = data;
@@ -229,8 +227,11 @@
 
   // step2: 电梯楼层动画
   function ChapterTwo(type) {
+    // 清空上一次电梯轨迹数据
     if (elevatorGroup.children.length) {
       elevatorGroup.children.forEach(function (item) {
+        item.geometry.dispose();
+        item.material.dispose();
         elevatorGroup.remove(item)
       });
       elevatorGroup.children = [];
@@ -243,18 +244,9 @@
 
   // step3: 回到所有楼层
   function ChapterFour() {
-    camera = new THREE.OrthographicCamera(
-      window.innerWidth / -2,
-      window.innerWidth / 2,
-      window.innerHeight / 2,
-      window.innerHeight / -2,
-      0.1, 10000
-    );
-    camera.position.set(330, 180, 450);
-    camera.lookAt(0, 0, 0);
-    camera.updateProjectionMatrix(); // 更新矩阵
+    craeteOrCamera();
     createControl(); // 更新旋转控制器
-    windowType = 'OrthographicCamera'
+    windowType = 'OrthographicCamera';
     group.children.forEach(function (item, index) {
       var position_start = {
         y: item.position.y
@@ -500,8 +492,6 @@
     scene.add(elevatorGroup);
   }
 
-  var mixArr = [];
-
   function createFloor(item) {
     var floorGroup = new THREE.Group();
     var loader = new THREE.SVGLoader();
@@ -673,6 +663,7 @@
         // 删除电梯轨迹
         if (elevatorGroup.children.length) {
           elevatorGroup.children.forEach(function (item) {
+            // item.geometry.dispose()
             elevatorGroup.remove(item)
           });
           elevatorGroup.children = []
@@ -749,7 +740,7 @@
     }, 15)
   }
 
-  emitter.on('pathBegin', createPath);
+  emitter.on('pathBegin', createPath)
 
   /* ***************************
    * ***************************
@@ -825,6 +816,7 @@
       color: PALLETTE.PLANE,
       side: THREE.DoubleSide,
       depthWrite: true,
+      depthTest: true,
       transparent: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
@@ -866,14 +858,14 @@
 
   // 摄像头点
   function Circle(vector, color, rotate) {
-    var geom = new THREE.CircleGeometry(5, 50)
+    var geom = new THREE.CircleGeometry(5, 50);
     var material = new THREE.MeshBasicMaterial({
       transparent: true,
       depthWrite: false,
       color: color
-    })
+    });
     this.mesh = new THREE.Mesh(geom, material);
-    this.mesh.position.set(vector.x, vector.y, vector.z - 25)
+    this.mesh.position.set(vector.x, vector.y, vector.z - 25);
     if (rotate) {
       this.mesh.rotation.x = rotate * Math.PI
     }
@@ -882,17 +874,17 @@
 
   // 楼层文字
   function TextSprite(text, position) {
-    var canvas = document.createElement('canvas')
-    var ctx = canvas.getContext('2d')
-    var cz = camera.position.z // 摄像头z轴视距
-    canvas.width = 512
-    canvas.height = 512
-    ctx.fillStyle = '#ffffff'
-    ctx.font = "100px '微软雅黑'"
-    ctx.textAlign = 'center'
-    ctx.fillText(text, 256, 256)
-    var texture = new THREE.Texture(canvas)
-    texture.needsUpdate = true
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    var cz = camera.position.z; // 摄像头z轴视距
+    canvas.width = 512;
+    canvas.height = 512;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = "100px '微软雅黑'";
+    ctx.textAlign = 'center';
+    ctx.fillText(text, 256, 256);
+    var texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
     // 使用Sprite显示文字
     var material = new THREE.SpriteMaterial({
       map: texture,
@@ -900,55 +892,55 @@
       depthWrite: false,
       transparent: true,
       opacity: text === BEGIN_FLOOR ? 1 : opacity
-    })
-    this.textObj = new THREE.Sprite(material)
-    this.textObj.name = 'text'
-    this.textObj.scale.set(70, 70, 70)
+    });
+    this.textObj = new THREE.Sprite(material);
+    this.textObj.name = 'text';
+    this.textObj.scale.set(70, 70, 70);
     this.textObj.position.set(290, 0, 0)
   }
 
   // 商店文字
   function Text(obj, groupName) {
-    var canvas = document.createElement('canvas')
-    var ctx = canvas.getContext('2d')
-    var cz = camera.position.z // 摄像头z轴视距
-    canvas.width = 512
-    canvas.height = 512
-    ctx.fillStyle = '#ffffff'
-    ctx.font = "70px '微软雅黑'"
-    ctx.textAlign = 'center'
-    ctx.fillText(obj.text, 256, 256)
-    var texture = new THREE.Texture(canvas)
-    texture.needsUpdate = true
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    var cz = camera.position.z; // 摄像头z轴视距
+    canvas.width = 512;
+    canvas.height = 512;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = "70px '微软雅黑'";
+    ctx.textAlign = 'center';
+    ctx.fillText(obj.text, 256, 256);
+    var texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
     // 使用Sprite显示文字
     var material = new THREE.SpriteMaterial({
       map: texture,
       color: 0xffffff,
       depthWrite: true,
       dithering: true,
-      depthTest: false,
+      depthTest: true,
       transparent: true,
       // blending: THREE.AdditiveBlending,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
-    })
-    this.text = new THREE.Sprite(material)
-    this.text.scale.set(100, 100, 100)
-    this.text.name = 'store_text'
+    });
+    this.text = new THREE.Sprite(material);
+    this.text.scale.set(100, 100, 100);
+    this.text.name = 'store_text';
     // this.text.rotation.x = -0.5 * Math.PI
     this.text.position.set(obj.position.x, 10, -obj.position.y)
   }
 
   // 贴图
   function PeopleSprite(groupName) {
-    var texture = new THREE.TextureLoader().load('/static/img/elevator.png')
-    texture.needsUpdate = true
+    var texture = new THREE.TextureLoader().load('/static/img/elevator.png');
+    texture.needsUpdate = true;
     var spriteMaterial = new THREE.SpriteMaterial({
       transparent: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
       map: texture,
-      depthTest: false,
+      depthTest: true,
       // blending: THREE.AdditiveBlending,
-    })
+    });
     var sprite = new THREE.Sprite(spriteMaterial);
     sprite.scale.set(25, 25, 25);
     return sprite
@@ -956,13 +948,13 @@
 
   // 轨迹球
   function TrailBall() {
-    var geometry = new THREE.SphereGeometry(4, 32, 32)
+    var geometry = new THREE.SphereGeometry(4, 32, 32);
     var material = new THREE.MeshToonMaterial({
       color: PALLETTE.PATH,
       // depthTest: false,
       side: THREE.DoubleSide
     });
-    this.mesh = new THREE.Mesh(geometry, material)
+    this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.name = 'trail_ball'
   }
 
@@ -979,41 +971,47 @@
 
   // 相机
   function createCamera() {
-    // camera = new THREE.OrthographicCamera(
-    //   window.innerWidth / -sceneCube,
-    //   window.innerWidth / sceneCube,
-    //   window.innerHeight / sceneCube,
-    //   window.innerHeight / -sceneCube,
-    //   0.1, 10000
-    // )
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
     // camera.position.set(762, 399, 1170)
-    camera.position.set(0, 250, 500)
+    camera.position.set(0, 250, 500);
     camera.lookAt(0, 0, 0);
     scene.add(camera)
   }
 
+  function craeteOrCamera() {
+    camera = new THREE.OrthographicCamera(
+      window.innerWidth / -2,
+      window.innerWidth / 2,
+      window.innerHeight / 2,
+      window.innerHeight / -2,
+      0.1, 10000
+    );
+    camera.position.set(330, 180, 450);
+    camera.lookAt(0, 0, 0);
+    camera.updateProjectionMatrix(); // 更新矩阵
+  }
+
   // 灯光
   function createLight() {
-    var light = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.8)
-    light.position.set(0, 800, 0)
-    scene.add(light)
+    var light = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.8);
+    light.position.set(0, 800, 0);
+    scene.add(light);
 
-    var light2 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.5)
-    light2.position.set(0, 300, -800)
-    scene.add(light2)
+    var light2 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.5);
+    light2.position.set(0, 300, -800);
+    scene.add(light2);
 
-    var light3 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.5)
-    light3.position.set(0, 200, 800)
-    scene.add(light3)
+    var light3 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.5);
+    light3.position.set(0, 200, 800);
+    scene.add(light3);
 
-    var light4 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.3)
-    light4.position.set(800, 0, 0)
-    scene.add(light4)
+    var light4 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.3);
+    light4.position.set(800, 0, 0);
+    scene.add(light4);
 
-    var light5 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.3)
-    light5.position.set(-800, 0, 0)
-    scene.add(light5)
+    var light5 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.3);
+    light5.position.set(-800, 0, 0);
+    scene.add(light5);
   }
 
   // 渲染器
@@ -1021,8 +1019,8 @@
     renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true
-    })
-    renderer.setSize(window.innerWidth, window.innerHeight)
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById("WebGL-output").appendChild(renderer.domElement)
   }
 
@@ -1043,14 +1041,14 @@
   }
 
   function createAlexHelper() {
-    var axesHelper = new THREE.AxesHelper(100)
+    var axesHelper = new THREE.AxesHelper(100);
     scene.add(axesHelper)
   }
 
   // 渲染函数
   function render() {
-    requestAnimationFrame(render)
-    TWEEN.update()
+    requestAnimationFrame(render);
+    TWEEN.update();
     let delta = clock.getDelta();
     if (mixArr.length) {
       for (let i = 0; i < mixArr.length; i++) {
@@ -1066,22 +1064,22 @@
       camera.right = window.innerWidth / 2;
       camera.top = window.innerHeight / 2;
       camera.bottom = window.innerHeight / -2;
-      camera.updateProjectionMatrix()
-      renderer.setSize(window.innerWidth, window.innerHeight)
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      return;
     }
-    var innerWidth = window.innerWidth
-    var innerHeight = window.innerHeight
-    camera.aspect = innerWidth / innerHeight
-    camera.updateProjectionMatrix()
+    var innerWidth = window.innerWidth;
+    var innerHeight = window.innerHeight;
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight)
   }
-
 
   /* **********************
    * ****** 其他方法 *******
    * **********************/
 
-  //发布订阅模式
+  //发布订阅
   function EventEmitter() {
     //缓存列表，存放订阅者列表
     var list = [];
@@ -1143,13 +1141,13 @@
   // 数组转字符串
   var getString = function (arr) {
     return '[' + Array.prototype.slice.call(arr).toString() + ']'
-  }
+  };
 
   // 刷新页面
   function refresh() {
-    var url = parent.document.getElementById("threeFrame").contentWindow.location.href
-    var host = url.split('?')[0]
-    var params = '?playcount=' + (play_count) + '&status=1'
+    var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
+    var host = url.split('?')[0];
+    var params = '?playcount=' + (play_count) + '&status=1';
     window.location.href = host + params
   }
 
@@ -1168,8 +1166,7 @@
     var r = url.split('?')[1];
     var s = r.split('&')[0];
     if (s) {
-      var res = parseInt(s.split('=')[1]);
-      return res
+      return parseInt(s.split('=')[1]);
     } else {
       return null
     }
@@ -1189,16 +1186,16 @@
 
   // 计算楼层
   function calcFloor(startFloor, endFloor) {
-    var s_floorNum = parseInt(startFloor.slice(1, startFloor.length))
-    var e_floorNum = parseInt(endFloor.slice(1, endFloor.length))
+    var s_floorNum = parseInt(startFloor.slice(1, startFloor.length));
+    var e_floorNum = parseInt(endFloor.slice(1, endFloor.length));
     return Math.abs(s_floorNum - e_floorNum)
   }
 
   // 计算楼层数组
   function calcFloorArray(startFloor, endFloor) {
-    var s_floorNum = parseInt(startFloor.slice(1, startFloor.length))
-    var e_floorNum = parseInt(endFloor.slice(1, endFloor.length))
-    var targetArr = []
+    var s_floorNum = parseInt(startFloor.slice(1, startFloor.length));
+    var e_floorNum = parseInt(endFloor.slice(1, endFloor.length));
+    var targetArr = [];
     for (var i = 0; i < Math.abs(s_floorNum - e_floorNum); i++) {
       targetArr.push('F' + (parseInt(s_floorNum > e_floorNum ? e_floorNum : s_floorNum) + parseInt(i)))
     }
