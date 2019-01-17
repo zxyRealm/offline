@@ -772,7 +772,7 @@
     var geometry = new THREE.Geometry();
     geometry.fromBufferGeometry(geometryBuffer);
 
-    var material = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshPhongMaterial({
       // color: new THREE.Color(PALLETTE.STORE),
       transparent: true,
       depthWrite: false,
@@ -781,11 +781,13 @@
       vertexColors: THREE.FaceColors
     });
 
-    this.mesh = new THREE.Mesh(geometry, material)
-    this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0)
-    this.mesh.position.set(offset_x, 8, offset_z)
-    this.mesh.name = 'store'
-    this.mesh.userData.coordinates = geometry2.attributes.position.array
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0);
+    this.mesh.position.set(offset_x, 8, offset_z);
+    this.mesh.castShadow = true;
+    this.mesh.receiveShadow = true;
+    this.mesh.name = 'store';
+    this.mesh.userData.coordinates = geometry2.attributes.position.array;
     this.mesh.geometry.faces.forEach(function (face) {
       // normal.y: 上下两面 normal.x: 左右两面 normal.z：前后两面
       if (face.normal.y !== 0 || face.normal.x !== 0) {
@@ -814,7 +816,7 @@
   // 单层楼底座
   function Plane(shape, groupName) {
     var geometry = new THREE.ShapeBufferGeometry(shape);
-    var material = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshPhongMaterial({
       color: PALLETTE.PLANE,
       side: THREE.DoubleSide,
       depthWrite: true,
@@ -908,7 +910,7 @@
     canvas.width = 512
     canvas.height = 512
     ctx.fillStyle = '#ffffff'
-    ctx.font = "80px '微软雅黑'"
+    ctx.font = "70px '微软雅黑'"
     ctx.textAlign = 'center'
     ctx.fillText(obj.text, 256, 256)
     var texture = new THREE.Texture(canvas)
@@ -918,7 +920,8 @@
       map: texture,
       color: 0xffffff,
       depthWrite: true,
-      depthTest: true,
+      dithering: true,
+      depthTest: false,
       transparent: true,
       // blending: THREE.AdditiveBlending,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
@@ -932,7 +935,6 @@
 
   // 贴图
   function PeopleSprite(groupName) {
-    console.log(groupName, BEGIN_FLOOR)
     var texture = new THREE.TextureLoader().load('/static/img/elevator.png')
     texture.needsUpdate = true
     var spriteMaterial = new THREE.SpriteMaterial({
@@ -950,7 +952,7 @@
   // 轨迹球
   function TrailBall() {
     var geometry = new THREE.SphereGeometry(4, 32, 32)
-    var material = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshToonMaterial({
       color: PALLETTE.PATH,
       // depthTest: false,
       side: THREE.DoubleSide
@@ -988,8 +990,25 @@
 
   // 灯光
   function createLight() {
-    var light = new THREE.PointLight(PALLETTE.LIGHT, 0.8)
-    camera.add(light)
+    var light = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.8)
+    light.position.set(0, 800, 0)
+    scene.add(light)
+
+    var light2 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.5)
+    light2.position.set(0, 300, -800)
+    scene.add(light2)
+
+    var light3 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.5)
+    light3.position.set(0, 200, 800)
+    scene.add(light3)
+
+    var light4 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.3)
+    light4.position.set(800, 0, 0)
+    scene.add(light4)
+
+    var light5 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.3)
+    light5.position.set(-800, 0, 0)
+    scene.add(light5)
   }
 
   // 渲染器
