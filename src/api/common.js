@@ -1,6 +1,13 @@
 import request from '@/utils/new-request'
 
 // 获取商户下管理员社群列表
+export function GetAreaList () {
+  return request({
+    url: '/area/list'
+  })
+}
+
+// 获取商户下管理员社群列表
 export function GetManageList () {
   return request({
     url: '/group/all'

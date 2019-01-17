@@ -1,7 +1,8 @@
 import Cookies from 'js-cookie'
 import QRCode from 'qrcodejs2'
-import {fetch, message} from '@/utils/request'
+import {fetch} from '@/utils/request'
 import {restoreArray} from '@/utils'
+import {message} from './new-request'
 
 exports.install = function (Vue, options) {
   // 公用提示框

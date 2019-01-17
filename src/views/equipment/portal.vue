@@ -137,6 +137,7 @@ export default {
     getPortalEquipment (page, size) {
       if (!this.currentManage.id) return
       if (this.currentGroup && this.currentGroup.guid) {
+        this.emptyText = '数据加载中...'
         PortalMemberDevice({groupSonId: this.currentGroup.guid, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
           this.emptyText = '暂无数据'
           this.portalList = res.data.content || []

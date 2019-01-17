@@ -506,7 +506,7 @@ button, input {
 .tip_message {
   min-width: auto;
   width: 280px;
-  height: 110px;
+  min-height: 110px;
   top: 50% !important;
   margin-top: -55px;
   text-align: center;
@@ -805,6 +805,11 @@ button, input {
   &.scroll-x{
     .el-scrollbar__wrap {
       overflow-x: scroll;
+    }
+  }
+  &.scroll-auto{
+    .el-scrollbar__wrap {
+      overflow: scroll;
     }
   }
   .el-scrollbar__wrap {

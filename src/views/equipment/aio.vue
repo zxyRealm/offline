@@ -49,33 +49,12 @@ export default {
     return {
       emptyText: '数据加载中...',
       searchValue: '',
-      currentRouter: '/equipment/mine',
-      dialogOptions: { // dialog 弹窗配置 类型 标题文本
-        type: 'device',
-        title: '添加设备'
-      },
-      importType: 1, // 批量导入类型 1 一体机批量导入 2 摄像头批量导入
-      equipmentEmpty: false,
-      dialogType: 1, // 1 ：服务器 2：一体机 3：摄像头
-      deviceInfo: { // 一体机设备信息
-        type: '',
-        exist: ''
-      },
-      dialogForm: { // dialog 表单
-        deviceKey: '',
-        deviceName: '',
-        type: ''
-      },
-      fileList: [], // 上传的文件列表
       serverList: [], // 服务器列表
       groupList: [], // 自有社群列表
       equipmentList: [], // 设备列表
       pagination: {
         length: 10
-      }, // 分页信息
-      dialogFormVisible: false,
-      isSearch: false,
-      progress: null
+      } // 分页信息
     }
   },
   methods: {
@@ -87,59 +66,10 @@ export default {
       this.pagination.length = size
       this.getMineEquipment()
     },
-    // 弹窗表单提交
-    submitForm (data) {
-      if (this.dialogOptions.type === 'device') {
-        // 添加商户设备
-        this.$http('/merchant/device/create', data).then(res => {
-          this.dialogFormVisible = false
-          this.$tip('创建成功')
-          this.getMineEquipment()
-        }).catch(() => {
-          this.dialogFormVisible = false
-        })
-      } else {
-        // 绑定社群
-        data.groupNickName = this.groupList[data.groupGuid].groupNickName
-        data.groupGuid = this.groupList[data.groupGuid].groupGuid
-        this.bindCommunity(data)
-      }
-    },
-    showDialog (type, data) {
-      this.dialogFormVisible = false
-      this.dialogOptions.type = type || 'device'
-      this.dialogOptions.title = type === 'device' ? '添加设备' : '绑定社群'
-      if (this.dialogOptions.type === 'device') {
-        this.dialogForm = {
-          deviceKey: '',
-          deviceName: '',
-          type: ''
-        }
-      } else {
-        this.dialogForm = {
-          deviceKey: data.deviceKey,
-          deviceName: data.deviceName,
-          groupGuid: '',
-          deviceScene: ''
-        }
-      }
-      if (type === 'community' && !this.groupList.length) {
-        this.$affirm({
-          text: '没有可绑定的社群，前往<a href="/community/create">创建社群</a>。'
-        }, (action, instance, done) => {
-          if (action === 'confirm') {
-            done()
-          } else {
-            done()
-          }
-        }, 'caution')
-      } else {
-        this.dialogFormVisible = true
-      }
-    },
     // 获取自有设备
     getMineEquipment (page) {
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
+      this.emptyText = '数据加载中...'
       GetOwnDeviceList({index: page, searchText: this.searchValue || '', length: this.pagination.length || 10}).then(res => {
         this.emptyText = '暂无设备'
         this.equipmentList = res.data.content || []
@@ -165,7 +95,6 @@ export default {
         window.addEventListener('click', this.firstCreate)
       }
     })
-    this.isSearch = this.$route.name === 'searchMine'
     this.getMineEquipment()
     eventObject().$on('REFRESH_DEVICE_LIST', this.getMineEquipment)
   },
@@ -182,55 +111,12 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loading', 'aliveState', 'userInfo', 'serverIp']),
-    textState: {
-      get () {
-        let [cName, text] = ['', '']
-        switch (this.deviceInfo.type) {
-          case 1:
-            text = '服务器'
-            break
-          case 2:
-            text = `客行分析一体机`
-            break
-          case 3:
-            text = `人脸抓拍一体机`
-            break
-          case 4:
-            text = `客行分析摄像头`
-            break
-          case 5:
-            text = `人脸抓拍摄像头`
-            break
-        }
-        switch (this.deviceInfo.exist) {
-          case '':
-            cName = ''
-            text = ''
-            break
-          case false:
-            cName = 'safe'
-            text = `可添加的${text}`
-            break
-          case true:
-            cName = 'danger'
-            text = `已添加的${text}`
-            break
-        }
-        return {text: text, name: cName}
-      },
-      set (val) {
-        this.textValue = val
-      }
-    }
+    ...mapState(['loading', 'aliveState', 'userInfo', 'serverIp'])
   },
   watch: {
   },
   beforeDestroy () {
     eventObject().$off('REFRESH_DEVICE_LIST', this.getMineEquipment)
-    this.$store.commit('SET_ALIVE_STATE', {
-      // pagination: this.pagination
-    })
   }
 }
 </script>
