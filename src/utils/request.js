@@ -101,7 +101,7 @@ export function message (txt, type, delay = 1500) {
   let options = {
     message: `<div class="tip_message_content ${type}">
         <img class="tip_img_icon" src="/static/img/${icon}_tip_icon.png" alt="">
-        <p style="padding:0px" class="text">${txt}</p>
+        <p style="padding:0px" class="text">${txt === 'Filter threw Exception' ? '服务访问失败' : txt}</p>
       </div>`,
     center: true,
     customClass: `tip_message ${cs}`,

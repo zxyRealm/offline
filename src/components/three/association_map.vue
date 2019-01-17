@@ -17,7 +17,7 @@
       </div>
     </div>
     <!--楼层列表-->
-    <ul v-if="!data.shapePathParam" class="floor__list--wrap">
+    <ul v-if="!data.coordinates" class="floor__list--wrap">
       <li
         class="floor__list--item"
         v-for="(item, $index) in floorList"
@@ -132,6 +132,7 @@ export default {
       }
     }
     return {
+      count: 1,
       showTip: false,
       handleDialogType: 1, // 弹窗类型
       AddDeviceVisible: false, // 出入口添加设备
@@ -162,7 +163,9 @@ export default {
       } // 设备信息
     }
   },
-  created () {},
+  created () {
+    this.count = 1
+  },
   mounted () {
     window.addEventListener('message', this.handleEvent)
     this.iframeObj = this.$refs.bindGroupIframe.contentWindow
@@ -200,6 +203,8 @@ export default {
 
       if (this.currentFloor) {
         this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
+        this.count++
+        // console.log(this.count)
         this.getPortalCameraCount()
       }
     },
@@ -246,7 +251,7 @@ export default {
     // 获取出入口信息，并在地图上展示标注
     setPortalList () {
       if (this.data.guid || this.data.id) {
-        GetGroupPortalInfo({groupSonId: this.data.shapePathParam ? this.data.guid : this.currentFloor.groupSonGuid || this.data.id}).then(res => {
+        GetGroupPortalInfo({groupSonId: this.data.coordinates ? this.data.guid : this.currentFloor.groupSonGuid || this.data.id}).then(res => {
           res.data.map(item => {
             this.iframeObj.createSprite(item)
           })
@@ -307,8 +312,9 @@ export default {
     },
     // 获取出入口、设备数量
     getPortalCameraCount () {
-      if ((!this.data.shapePathParam && this.currentFloor.groupSonGuid) || (this.data.shapePathParam && this.data.guid)) {
-        GetGroupPortalCount({groupSonId: this.data.shapePathParam ? this.data.guid : this.currentFloor.groupSonGuid}).then(res => {
+      // console.log('portal count-------', this.data.coordinates, this.data.guid, this.currentFloor.groupSonGuid)
+      if ((!this.data.coordinates && this.currentFloor.groupSonGuid) || (this.data.coordinates && this.data.guid)) {
+        GetGroupPortalCount({groupSonId: this.data.coordinates ? this.data.guid : this.currentFloor.groupSonGuid}).then(res => {
           this.totalCounts = res.data
         })
       }

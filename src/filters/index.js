@@ -1,5 +1,5 @@
 // set function parseTime,formatTime to filter
-export {parseTime, formatTime, customType} from '@/utils'
+export {parseTime, formatTime, customType, IntToFloor} from '@/utils'
 
 function pluralize (time, label) {
   if (time === 1) {

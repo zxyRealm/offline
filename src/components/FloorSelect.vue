@@ -76,7 +76,7 @@ export default {
     // 点击下拉框是不触发input 的失焦事件
     cancelBlur (e) {
       if (e && e.preventDefault()) {
-        e.prpreventDefault()
+        e.preventDefault()
       } else {
         window.event.returnValue = false
       }

@@ -55,7 +55,9 @@
           <!--role01 商场 role02 连锁总店 role03 单个门店-->
           <uu-icon class="role__icon--img" v-if="node.level === 1 && isFloor" :type="'role0' + currentManage.type"></uu-icon>
           <!---->
-          <uu-icon v-if="(node.level === 3 && !data.self) || data.type === 4"  class="role__icon--img" type="foreign"></uu-icon>
+          <el-tooltip content="非自有社群" placement="right">
+            <uu-icon v-if="(node.level === 3 && !data.self) || data.type === 4"  class="role__icon--img" type="foreign"></uu-icon>
+          </el-tooltip>
         </span>
       </el-tree>
     </el-scrollbar>

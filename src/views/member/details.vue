@@ -89,16 +89,19 @@
         </el-pagination>
       </div>
       <!-- 导入弹框 -->
-      <el-dialog
-        :visible.sync="dialogVisible"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        :show-close="false"
-        width="500px">
-        <img class="tip_img_icon" src="/static/img/waiting_tip_icon.png" alt="">
-        <div class="icon__hint">正在导入，请耐心等待…</div>
-        <div class="icon__hint--no">{{percent}}/100</div>
-      </el-dialog>
+      <upload-progress :visible.sync="dialogVisible">
+        正在导入，请耐心等待…<br>{{percent}}
+      </upload-progress>
+      <!--<el-dialog-->
+        <!--:visible.sync="dialogVisible"-->
+        <!--:close-on-click-modal="false"-->
+        <!--:close-on-press-escape="false"-->
+        <!--:show-close="false"-->
+        <!--width="500px">-->
+        <!--<img class="tip_img_icon" src="/static/img/waiting_tip_icon.png" alt="">-->
+        <!--<div class="icon__hint">正在导入，请耐心等待…</div>-->
+        <!--<div class="icon__hint&#45;&#45;no">{{percent}}</div>-->
+      <!--</el-dialog>-->
       <!-- 下载弹框 -->
       <el-dialog
         :visible.sync="downloadVisible"
@@ -120,7 +123,7 @@
             :action="ip"
             drag
             :show-file-list="false"
-            :data="{memberLibraryGuid: $route.query.guid}"
+            :data="{merchantGuid: userInfo.developerId, memberLibraryGuid: $route.query.guid}"
             :before-upload="beforeAvatarUpload"
             :on-success="uploadSuccess"
             :on-error="uploadError"
@@ -154,9 +157,12 @@
 import {MemberLibraryFind, MemberSearch, MemberDelete, MemberTemplate} from '../../api/member'
 import {mapState} from 'vuex'
 import {fileTypeAllow} from '../../utils'
-
+import UploadProgress from '../../components/UploadProgressDialog'
 export default {
   name: 'index',
+  components: {
+    UploadProgress
+  },
   data () {
     return {
       uploadDialogVisible: false,
@@ -206,9 +212,9 @@ export default {
 
   },
   computed: {
-    ...mapState(['serverIp']),
+    ...mapState(['serverIp', 'userInfo']),
     ip () {
-      return `//${this.serverIp.substring(0, this.serverIp.indexOf(':'))}/manage/member/import`
+      return `//${this.serverIp.substring(0, this.serverIp.indexOf(':'))}/zuul/manage/member/import`
     }
   },
   methods: {
@@ -301,17 +307,32 @@ export default {
     },
     // 文件上传中
     uploading (event) {
+      this.dialogVisible = true
       this.uploadDialogVisible = false
-      this.percent = Math.floor(event.percent)
+      this.percent = Math.floor(event.percent) + '%'
     },
     // 文件上传成功回调
     uploadSuccess (response) {
+      this.dialogVisible = false
       if (response.data) {
-        this.downloadURL = response.data
-        if (response.data !== true) {
-          this.downloadVisible = true
-        }
-        this.getList()
+        this.$confirm(`照片正在处理中，刷新后可查看状态<br>请留意右上角站内信通知`, '', {
+          confirmButtonText: '确定',
+          showCancelButton: false,
+          closeOnClickModal: false,
+          closeOnPressEscape: false,
+          center: true,
+          showClose: false,
+          dangerouslyUseHTMLString: true
+        }).then(() => {
+          this.getList()
+        }).catch(() => {
+          this.getList()
+        })
+        // this.downloadURL = response.data
+        // if (response.data !== true) {
+        //   this.downloadVisible = true
+        // }
+        // this.getList()
       } else {
         this.$tip(response.msg || '上传失败', 'error')
       }

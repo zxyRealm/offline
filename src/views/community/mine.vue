@@ -36,7 +36,9 @@
             <div class="cmm-top" ref="ciContentTop">
               <h2 class="cmm-sub-title">
                   <span>{{communityInfo.name}}{{showNickName?`（${communityInfo.nickName}）`:''}}
-                    <uu-icon v-if="showNickName"  class="role__icon--img" type="foreign"></uu-icon>
+                    <el-tooltip content="非自有社群" placement="top">
+                      <uu-icon v-show="showNickName"  class="role__icon--img" type="foreign"></uu-icon>
+                    </el-tooltip>
                   </span>
                 <p class="handle fr fs12">
                   <i
@@ -92,7 +94,7 @@
               </div>
             </div>
             <div class="three__map--wrap">
-              <ob-list-empty v-if="communityInfo.type === 4 ? false : (communityInfo.level === 1 && !communityInfo.shapePathParam)" top="0px" :supply="supply" text="暂无地图，敬请期待！"></ob-list-empty>
+              <ob-list-empty v-if="communityInfo.type === 4 ? false : (communityInfo.level === 1 && !communityInfo.coordinates)" top="0px" :supply="supply" text="暂无地图，敬请期待！"></ob-list-empty>
               <three-association-map
                 v-else
                 :data="communityInfo"
@@ -626,7 +628,7 @@ export default {
         address: '',
         industryType: '',
         floor: '',
-        shapePathParam: '',
+        // shapePathParam: '',
         coordinates: [],
         contact: '',
         phone: ''
@@ -725,16 +727,6 @@ export default {
     }
   },
   methods: {
-    // 第一次进入设备列表，给出操作提示，点击页面后提示消失
-    firstCreate () {
-      this.btnArray.map(item => {
-        item.showPopover = false
-        return item
-      })
-      this.createSelfVisible = false
-      this.joinManageVisible = false
-      window.removeEventListener('click', this.firstCreate)
-    },
     // 搜索社群
     remoteSearch (val) {
       this.currentCommunity = {}
@@ -882,33 +874,6 @@ export default {
         this.$refs.groupNav.setCurrentKey(this.currentCommunity.groupSonGuid)
       }
     },
-    // 解散社群
-    disbandGroup () {
-      let msg = `确认删除【<span class="maxw200 ellipsis">${this.communityInfo.name}</span>】社群？`
-      let url = `/group/disbandGroup` // 删除社群
-      let subData = {guid: this.communityInfo.guid}
-      if (this.communityInfo.role === 0) {
-        msg += `<br/><span class="fs12" style="color: #FF6660">该管理员社群下创建的成员社群也将被删除。</span>`
-      }
-      // 删除分组
-      if (this.communityInfo.groupPid && this.communityInfo.guid) {
-        url = `/groupCustom/delete` // 解散分组
-        subData = {
-          groupCustomGuid: this.communityInfo.guid
-        }
-      }
-      this.$affirm({text: msg}, (action, instance, done) => {
-        if (action === 'confirm') {
-          this.$http(url, subData).then(res => {
-            this.$tip(this.communityInfo.groupPid ? '解散成功' : '删除成功')
-            this.getGroupList('refresh')
-          })
-          done()
-        } else {
-          done()
-        }
-      })
-    },
     // 创建自定分组、编辑自定义分组名称
     setGroupsName (formName) {
       this.$refs[formName].validate(valid => {
@@ -965,7 +930,7 @@ export default {
           let subData = JSON.parse(JSON.stringify(this.joinManageForm))
           subData.pid = this.ManageInfo.id
           subData.groupId = this.communityInfo.guid || this.groupList[0].groupSonGuid
-          console.log('joinManageForm------', subData)
+          // console.log('joinManageForm------', subData)
           if (!subData.coordinates || !subData.coordinates.length) {
             this.$tip('请选取绑定区域', 'error')
             return
@@ -1075,7 +1040,7 @@ export default {
     },
     // 显示添加社群弹窗（商场、连锁店、单个门店）
     showAddForm (type) {
-      console.log('type---------------', type)
+      // console.log('type---------------', type)
       this.handleCommunityType = type
       if (type === 5 || type === 7 || type === 6) {
         GetIndustry().then(res => {
@@ -1202,7 +1167,7 @@ export default {
     // 地图区块点击事件
     handleBlockClick (data, form) {
       this[form].coordinates = data.position
-      this[form].shapePathParam = JSON.stringify(data.path)
+      // this[form].shapePathParam = JSON.stringify(data.path)
     }
   },
   watch: {
@@ -1233,8 +1198,6 @@ export default {
     }
   },
   beforeDestroy () {
-    // 实例销毁前保存当前页面的数据选中状态，存入vuex
-    this.$store.commit('SET_ALIVE_STATE', {currentCommunity: this.currentCommunity || this.groupList[0]})
   }
 }
 </script>

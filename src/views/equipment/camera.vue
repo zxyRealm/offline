@@ -21,17 +21,17 @@
           v-model="cameraList"
         >
         </device-table>
+        <el-pagination
+          v-if="pagination.total && pagination.total > pagination.length"
+          @current-change="getCameraList"
+          @size-change="sizeChange"
+          :page-sizes="[10, 20, 30, 50]"
+          :current-page="pagination.index"
+          :page-size="pagination.length"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="pagination.total">
+        </el-pagination>
       </el-scrollbar>
-      <el-pagination
-        v-if="pagination.total && pagination.total > pagination.length"
-        @current-change="getCameraList"
-        @size-change="sizeChange"
-        :page-sizes="[10, 20, 30, 50]"
-        :current-page="pagination.index"
-        :page-size="pagination.length"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pagination.total">
-      </el-pagination>
     </div>
 
     <!--添加设备弹框-->
@@ -140,22 +140,6 @@ export default {
         }
       }
     }
-    // 校验文件格式
-    const validateFile = (rule, value, callback) => {
-      let file = this.fileList[0]
-      if (!value || !file) {
-        callback(new Error('请选取文件'))
-      } else {
-        let name = file.name.substring(0, file.name.lastIndexOf('.'))
-        if (file.raw.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-          callback(new Error('只允许上传Excel文件'))
-        } else if (name !== '7A45/8A45') {
-          callback(new Error('导入文件名与模版不同'))
-        } else {
-          callback()
-        }
-      }
-    }
     return {
       emptyText: '数据加载中...',
       addCameraVisible: false,
@@ -178,16 +162,6 @@ export default {
           {required: true, message: '请选择服务器', trigger: 'blur'}
         ]
       },
-      excelImportForm: {
-        filename: '',
-        serverKey: ''
-      }, // 批量导入一体机、摄像头 表单对象
-      excelImportRules: {
-        filename: [
-          { required: true, validator: validateFile, trigger: 'blur' }
-        ]
-      },
-      fileList: [],
       searchValue: '',
       cameraList: [],
       pagination: {},
@@ -202,35 +176,36 @@ export default {
         name: [
           {validator: validateName, trigger: 'blur'}
         ]
-      },
-      progress: null // 上传进度弹框提示
+      }
     }
   },
   methods: {
     search () {
-      if (this.searchValue) {
-        SearchCamera({
-          serverKey: this.$route.query.server_key,
-          name: this.searchValue,
-          index: 1,
-          length: this.pagination.length || 10
-        }).then(res => {
-          this.emptyText = '暂无设备'
-          this.cameraList = res.data.content
-          this.pagination = res.data.pagination
-        })
-      }
+      this.getCameraList(1)
     },
     sizeChange (size) {
+      this.pagination.length = size
+      this.getCameraList()
     },
     // 获取摄像头 设备列表信息
     getCameraList (page) {
       page = page || this.pagination.length || 1
-      GetCameraList({serverKey: this.$route.query.server_key, index: page, length: this.pagination.length || 10}).then(res => {
+      this.emptyText = '数据加载中...'
+      SearchCamera({
+        serverKey: this.$route.query.server_key,
+        name: this.searchValue,
+        index: page,
+        length: this.pagination.length || 10
+      }).then(res => {
         this.emptyText = '暂无设备'
         this.cameraList = res.data.content
         this.pagination = res.data.pagination
       })
+      // GetCameraList({serverKey: this.$route.query.server_key, index: page, length: this.pagination.length || 10}).then(res => {
+      //   this.emptyText = '暂无设备'
+      //   this.cameraList = res.data.content
+      //   this.pagination = res.data.pagination
+      // })
     },
     showPopover (index) {
       this.ipcListForm = JSON.parse(JSON.stringify(this.deviceList[index]))

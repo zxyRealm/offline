@@ -1,5 +1,5 @@
 <template>
-  <div class="area-select">
+  <!--<div class="area-select">-->
     <el-popover
       placement="bottom-start"
       width="400"
@@ -46,19 +46,23 @@
           readonly
           ref="areaInput"
           :placeholder="placeholder"
+          @blur="inputBlur"
           v-model="addressText">
         </el-input>
       </div>
     </el-popover>
-  </div>
+  <!--</div>-->
 </template>
 
 <script>
 import {makePy} from '@/utils/initial'
+import {GetAreaList} from '../../api/common'
+import Emitter from '../../components/utils/emitter'
 let OK_CODE = 1
 
 export default {
   name: 'area-select',
+  mixins: [Emitter],
   props: {
     readonly: {
       type: Boolean,
@@ -82,13 +86,14 @@ export default {
       currentType: 0, // 分为三个类型 0:province、1:city、2:area
       currentAddress: '',
       addressOption: [],
-      originAddress: []
+      originAddress: [],
+      idStr: ''
     }
   },
   methods: {
     // 获取省市区数据列表，并设置首字母缩写
     getAddressList () {
-      this.$http('/area/list', {level: 1}, false).then((res) => {
+      GetAreaList().then((res) => {
         if (res.result === OK_CODE) {
           this.$set(this.originAddress, 0, res.data[1].map(item => {
             this.$set(item, 'initial', makePy(item.name))
@@ -131,15 +136,20 @@ export default {
       } else if (!this.value) {
         this.address = ''
       }
+    },
+    inputBlur () {
+      this.dispatch('ElFormItem', 'el.form.blur', [this.idStr])
     }
   },
   mounted () {
     this.getAddressList()
   },
   watch: {
-    value () {
-      this.showDefaultValue()
-      // this.getAddressList()
+    value: {
+      handler () {
+        this.showDefaultValue()
+      },
+      deep: true
     },
     currentType: function (val) {
       this.addressOption = this.filterAddress(val)
@@ -157,19 +167,19 @@ export default {
         this.currentType++
       } else if (val !== old) {
         this.visible = false
+        this.inputBlur()
       }
     },
     // v-model 数据绑定 拼接地址并显示
     currentValue: {
       handler: function (val) {
-        let [textStr, idStr] = ['', '']
+        let [textStr] = ['']
+        this.idStr = ''
         for (let i = 0, len = val.length; i < len; i++) {
-          idStr += idStr ? (',' + val[i].id) : val[i].id
-          if (!i || (val[i - 1] && val[i].name !== val[i - 1].name)) {
-            textStr += (textStr ? ('-' + val[i].name) : val[i].name) || ''
-          }
+          this.idStr += this.idStr ? (',' + val[i].id) : val[i].id
+          textStr += (textStr ? ('-' + val[i].name) : val[i].name) || ''
         }
-        this.$emit('input', idStr)
+        this.$emit('input', this.idStr)
         this.address = textStr
       },
       deep: true
@@ -191,21 +201,24 @@ export default {
         })
       }
     },
-    visible: function (val) {
+    visible (val) {
       if (!val) {
         if (!this.currentValue[2]) {
           this.address = ''
           this.search = ''
           this.$emit('input', '')
         }
-        this.$refs.areaInput.blur()
       }
     }
   },
   computed: {
     // 格式化地址
     addressText () {
-      return this.address.replace(/-/g, '')
+      let text = ''
+      Array.from(new Set(this.address.split('-'))).map((item) => {
+        text += item
+      })
+      return text
     }
   }
 }

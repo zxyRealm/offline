@@ -176,7 +176,7 @@
       </div>
     </ob-dialog-form>
     <upload-progress :visible.sync="progressVisible">
-     正在导入，请耐心等待…<br>{{percent}}/100
+     正在导入，请耐心等待…<br>{{percent}}
     </upload-progress>
   </div>
 </template>
@@ -386,28 +386,40 @@ export default {
     },
     // 显示上传进度
     handleProgress (event) {
-      this.percent = Math.floor(event.percent)
-      this.progressVisible = true
-      // this.progress = this.$tip(`正在导入，请耐心等待…<br>${Math.floor(event.percent)}/100`, 'waiting', () => {})
+      this.percent = Math.floor(event.percent) + '%'
+      if (this.percent === '100%') {
+        this.progressVisible = false
+      }
     },
     // 文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用
     handleChange (file) {
       // 上传完成后会清空文件列表，触发此方法（若包含response说明文件上传已经结束）
-      console.log('file---------------', file)
       if (!file.response) {
         this.fileList = [file]
         this.excelImportForm.filename = this.fileList[0].name
       } else { // 上传成功或者失败时清空文件列表
         this.progressVisible = false
-        // this.progress.close()
         this.fileList = []
-        // console.log('file---------------', this.progress, file)
         this.excelImportForm.filename = ''
         if (file.response.result) {
           this.$tip('导入成功')
           eventObject().$emit('REFRESH_DEVICE_LIST')
         } else {
-          this.$tip(file.response.msg || '上传失败', 'error', 3000)
+          if (file.response.msg.indexOf('序列号:') > -1) {
+            this.$confirm(file.response.msg.replace('。', '<br>'), '', {
+              confirmButtonText: '确定',
+              showCancelButton: false,
+              closeOnClickModal: false,
+              closeOnPressEscape: false,
+              center: true,
+              showClose: false,
+              dangerouslyUseHTMLString: true
+            }).then(() => {
+            }).catch(() => {
+            })
+          } else {
+            this.$tip(file.response.msg.replace('。', '<br>') || '上传失败', 'error', 5000)
+          }
         }
       }
     },
@@ -416,13 +428,12 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.ExcelAddVisible = false
+          this.progressVisible = true
           this.$refs.excelUpload.submit()
         }
       })
     },
     resetForm (formName) {
-      this.fileList = []
-      this.excelImportForm.filename = ''
       if (this.$refs[formName]) {
         this.$refs[formName].resetFields()
       }

@@ -17,27 +17,44 @@
             :isActive="sidebar.opened"></hamburger>
         </div>
         <uu-icon type="screen" @click.native="changeScreen" :class="{exit: isFullScreen}"></uu-icon>
-        <el-select
-          ref="manageSelect"
+        <!--<el-select-->
+          <!--ref="manageSelect"-->
+          <!--value-key="id"-->
+          <!--placeholder="添加社群"-->
+          <!--popper-class="select__dropdown&#45;&#45;manage"-->
+          <!--class="nav__select&#45;&#45;manage" v-model="manageGroup">-->
+          <!--<el-option-->
+            <!--v-for="(item) in manageList"-->
+            <!--:key="item.id"-->
+            <!--:label="item.name"-->
+            <!--:value="item">-->
+            <!--<span class="ellipsis" style="float: left">{{ item.name }}</span>-->
+            <!--<uu-icon v-if="item.type === 1" type="role01"></uu-icon>-->
+            <!--<uu-icon v-if="item.type === 2" type="role02"></uu-icon>-->
+            <!--<uu-icon v-if="item.type === 3" type="role03"></uu-icon>-->
+          <!--</el-option>-->
+          <!--<el-option v-if="!manageList.length" value="" style="height: 30px;">-->
+            <!--<el-button class="affirm" @click="addNewGroup">添加新社群</el-button>-->
+          <!--</el-option>-->
+          <!--<el-button v-else class="affirm" @click="addNewGroup">添加新社群</el-button>-->
+        <!--</el-select>-->
+        <button-select
+          ref="buttonSelect"
           value-key="id"
-          placeholder="添加社群"
-          popper-class="select__dropdown--manage"
-          class="nav__select--manage" v-model="manageGroup">
-          <el-option
-            v-for="(item) in manageList"
-            :key="item.id"
+          v-model="manageGroup">
+          <button-select-item
+            v-for="(item,$index) in manageList"
+            :value="item"
+            :key="$index"
             :label="item.name"
-            :value="item">
-            <span class="ellipsis" style="float: left">{{ item.name }}</span>
+          >
+            <span class="ellipsis-28" style="float: left">{{ item.name }}</span>
             <uu-icon v-if="item.type === 1" type="role01"></uu-icon>
             <uu-icon v-if="item.type === 2" type="role02"></uu-icon>
             <uu-icon v-if="item.type === 3" type="role03"></uu-icon>
-          </el-option>
-          <el-option v-if="!manageList.length" value="" style="height: 30px;">
-            <el-button class="affirm" @click="addNewGroup">添加新社群</el-button>
-          </el-option>
-          <el-button v-else class="affirm" @click="addNewGroup">添加新社群</el-button>
-        </el-select>
+          </button-select-item>
+          <el-button slot="footer" @click="addNewGroup" class="affirm">添加社群</el-button>
+        </button-select>
         <div class="right-menu-item vam">
           <a href="javascript:void(0);"
              :class="{'flicker-animation': showAnimation}"
@@ -167,22 +184,36 @@
           <floor-select v-model.trim="communityForm.floorList"></floor-select>
         </el-form-item>
         <el-form-item prop="map">
-          <div v-if="fileList.length" class="import__map--wrap">
-            <el-scrollbar>
-              <div class="file__items vam" v-for="(item,$index) in fileList" :key="$index">
-                <img src="@/assets/public/file_icon.png" width="12" alt="">
-                {{item.name}}
+          <div class="label__list--wrap" v-if="communityForm.floorList.length">
+            <el-scrollbar class="scroll-auto">
+              <div class="label__item-wrap" v-for="(item, $index) in labelList" :key="$index">
+                <i class="el-icon-close" @click.stop="deleteLabel($index)"></i>
+                <label :for="'map__input--file' + $index" @input="onChange($event, $index)" class="label--item" >
+                  <input type="file" hidden class="input__file" :id="'map__input--file' + $index">
+                  <i v-if="!item.file" class="el-icon-plus"></i>
+                  <span v-else class="ellipsis">{{item.file ? item.file.name : ''}}</span>
+                </label>
+                <p>{{item.floor | IntToFloor}}</p>
               </div>
             </el-scrollbar>
-            <label for="map__input--file" @change="onChange" class="g__input--btn">
-              <a>重新导入</a>
-              <input type="file" id="map__input--file" multiple="multiple">
-            </label>
+            <!--<input type="file" hidden class="input__file" id="map__input&#45;&#45;file">-->
           </div>
-          <label for="map__input--file" @change="onChange" class="g__input--btn" v-else>
-            <a>导入地图</a>
-            <input type="file" id="map__input--file" multiple="multiple">
-          </label>
+          <!--<div v-if="fileList.length" class="import__map&#45;&#45;wrap">-->
+            <!--<el-scrollbar>-->
+              <!--<div class="file__items vam" v-for="(item,$index) in fileList" :key="$index">-->
+                <!--<img src="@/assets/public/file_icon.png" width="12" alt="">-->
+                <!--{{item.name}}-->
+              <!--</div>-->
+            <!--</el-scrollbar>-->
+            <!--<label for="map__input&#45;&#45;file" @change="onChange" class="g__input&#45;&#45;btn">-->
+              <!--<a>重新导入</a>-->
+              <!--<input type="file" id="map__input&#45;&#45;file" multiple="multiple">-->
+            <!--</label>-->
+          <!--</div>-->
+          <!--<label for="map__input&#45;&#45;file" @change="onChange" class="g__input&#45;&#45;btn" v-else>-->
+            <!--<a>导入地图</a>-->
+            <!--<input type="file" id="map__input&#45;&#45;file" multiple="multiple">-->
+          <!--</label>-->
         </el-form-item>
         <el-form-item label="联系人：" prop="contact">
           <el-input type="text" placeholder="请输入联系人"
@@ -224,19 +255,22 @@ import ConsoleDialog from '@/components/console'
 import {GetManageList, OssSignature} from '../../../api/common'
 import {CheckNameExist, AddNewCommunity} from '../../../api/community'
 import {validateRule, validPhone} from '../../../utils/validate'
-import {parseTime} from '../../../utils'
+import {parseTime, fileTypeAllow, IntToFloor} from '../../../utils'
 import axios from 'axios'
 import {load} from '../../../utils/new-request'
 import AreaSelect from '@/components/area-select/area-select'
 import FloorSelect from '@/components/FloorSelect'
-
+import ButtonSelect from '@/components/button-select'
+import ButtonSelectItem from '@/components/button-select/button-select-item'
 export default {
   components: {
     Hamburger,
     Group,
     ConsoleDialog,
     AreaSelect,
-    FloorSelect
+    FloorSelect,
+    ButtonSelect,
+    ButtonSelectItem
   },
   data () {
     const validateName = (rule, value, callback) => {
@@ -294,7 +328,7 @@ export default {
           {required: true, message: '请获取社群邀请码', trigger: 'blur'}
         ],
         pca: [
-          {required: true, message: '请选择地区', trigger: ['change', 'blur']}
+          {required: true, message: '请选择地区', trigger: ['blur']}
         ],
         floorList: [
           {required: true, type: 'array', message: '请选取楼层', trigger: 'blur'}
@@ -327,7 +361,8 @@ export default {
       },
       manageList: [],
       showClose: true, // 是否显示关闭按钮
-      loadModule: null // 加载中遮罩层
+      loadModule: null, // 加载中遮罩层
+      labelList: [] // 选取楼层后对应的要上传的文件列表
     }
   },
   computed: {
@@ -368,11 +403,26 @@ export default {
     isFullScreen () { // 当前是否全屏状态 (17 为浏览器默认滚动条宽度)
       return Math.abs(window.screen.height - this.clientHeight) <= 17
     }
+    // labelList: { // 选取楼层后对应的要上传的文件列表
+    //   get (val) {
+    //     let labelArray = this.communityForm.floorList.map(item => {
+    //       return {
+    //         file: '',
+    //         floor: item
+    //       }
+    //     })
+    //     return labelArray
+    //   },
+    //   set (val) {
+    //   }
+    // }
   },
   watch: {
     manageGroup: {
       handler (val) {
-        this.$store.commit('SET_CURRENT_MANAGE', val)
+        if (val) {
+          this.$store.commit('SET_CURRENT_MANAGE', val)
+        }
       },
       deep: true
     },
@@ -405,6 +455,20 @@ export default {
         this.fileList = []
         this.$refs.addCommunityForm.resetFields()
       }
+    },
+    'communityForm.floorList': {
+      handler (val) {
+        this.labelList = val.map((item, index) => {
+          this.$nextTick(() => {
+            document.getElementById(`map__input--file${index}`).value = ''
+          })
+          return {
+            file: '',
+            floor: item
+          }
+        })
+      },
+      deep: true
     }
   },
   methods: {
@@ -422,7 +486,7 @@ export default {
     },
     addNewGroup () {
       this.addFormVisible = true
-      this.$refs.manageSelect.blur()
+      this.$refs.buttonSelect.blur()
     },
     showAddForm (type) {
       if (type === 2) {
@@ -441,26 +505,34 @@ export default {
     addNewCommunity (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          if (!this.fileList.length) {
+          this.fileList = this.labelList.map(item => item.file)
+          let len = this.fileList.filter(item => item).length
+          if (!len) {
             this.$tip('请上传地图文件', 'error')
             return
           }
-          if (this.communityForm.floorList.length !== this.fileList.length) {
+          if (this.communityForm.floorList.length !== len) {
             this.$tip('文件和所选楼层数不符,请重新选择', 'error')
             return
           }
           // 校验选取文件与所选楼层数据是否能够一一对应
-          let nameList = []
           for (let k = 0, len = this.fileList.length; k < len; k++) {
-            nameList.push(this.fileList[k].name.substring(0, this.fileList[k].name.lastIndexOf('.')))
-          }
-          let nameSet = new Set(nameList.map(Number))
-          for (let k = 0, len = this.communityForm.floorList.length; k < len; k++) {
-            if (!nameSet.has(k + 1)) {
-              this.$tip(`缺少${this.communityForm.floorList[k]}楼层地图`, 'error', 5000)
+            if (!this.fileList[k]) {
+              this.$tip(`缺少${IntToFloor(this.communityForm.floorList[k])}楼层地图`, 'error', 5000)
               return
             }
           }
+          // let nameList = []
+          // for (let k = 0, len = this.fileList.length; k < len; k++) {
+          //   nameList.push(this.fileList[k].name.substring(0, this.fileList[k].name.lastIndexOf('.')))
+          // }
+          // let nameSet = new Set(nameList.map(Number))
+          // for (let k = 0, len = this.communityForm.floorList.length; k < len; k++) {
+          //   if (!nameSet.has(k + 1)) {
+          //     this.$tip(`缺少${this.communityForm.floorList[k]}楼层地图`, 'error', 5000)
+          //     return
+          //   }
+          // }
           this.httpRequest()
         } else {
         }
@@ -475,7 +547,7 @@ export default {
       subData.rule = subData.rule.toString()
       subData.imgUrlList = []
       for (let k = 0; k < this.fileList.length; k++) {
-        subData.imgUrlList.push(`${imgUrl}${this.fileList[k].name}`)
+        subData.imgUrlList.push(`${imgUrl}${IntToFloor(this.communityForm.floorList[k])}.svg`)
       }
       let url
       switch (this.handleCommunityType) {
@@ -548,13 +620,14 @@ export default {
       let file = this.fileList[index]
       if (!file) return
       let formData = new FormData()
+      let fileName = `${IntToFloor(this.communityForm.floorList[index])}.svg`
       let uid = this.userInfo.developerId
-      formData.append('key', `floor_map/${uid}/${time}/${file.name}`)
+      formData.append('key', `floor_map/${uid}/${time}/${fileName}`)
       formData.append('policy', signature['policy'])
       formData.append('OSSAccessKeyId', signature['accessid'])
       formData.append('success_action_status', '200')
       formData.append('signature', signature['signature'])
-      formData.append('file', file, file.name)
+      formData.append('file', file, fileName)
       // 构建formData 对象，将图片上传至阿里云oss服务
       axios.post(signature.host, formData).then(back => {
         if (!back.data) {
@@ -570,23 +643,29 @@ export default {
           this.loadModule.close()
           this.$tip('上传失败，请稍后重试', 'error')
         }
-      }).catch((error) => {
+      }).catch(() => {
         this.loadModule.close()
         this.$tip('网络异常，请稍后重新尝试', 'error')
       })
     },
     // 文件改变事件监听
-    onChange (e) {
+    onChange (e, index) {
       let files = e.target.files
-      for (let i = 0, len = files.length; i < len; i++) {
-        if (files[i].type !== 'image/svg+xml') {
-          this.fileList = []
-          document.getElementById('map__input--file').value = ''
-          this.$tip('文件格式只支持svg', 'error')
-          break
-        }
+      // console.log('file change', files, index)
+      if (files[0] && !fileTypeAllow(files[0].name, 'svg')) {
+        this.$tip('文件格式只支持svg', 'error')
+        return
       }
-      this.fileList = files
+      this.$set(this.labelList[index], 'file', files[0])
+      // for (let i = 0, len = files.length; i < len; i++) {
+      //   if (files[i].type !== 'image/svg+xml') {
+      //     this.fileList = []
+      //     document.getElementById('map__input--file').value = ''
+      //     this.$tip('文件格式只支持svg', 'error')
+      //     break
+      //   }
+      // }
+      // this.fileList = files
     },
     // 文件上传成功回调
     handleSuccess () {
@@ -630,6 +709,10 @@ export default {
     },
     windowResize () {
       this.clientHeight = window.document.documentElement.clientHeight
+    },
+    deleteLabel (index) {
+      this.$set(this.labelList[index], 'file', '')
+      document.getElementById(`map__input--file${index}`).value = ''
     }
   },
   created () {
@@ -1089,6 +1172,58 @@ export default {
         font-size: 12px;
         vertical-align: top;
         color: rgba(0, 0, 0, 0.30);
+      }
+    }
+  }
+  /*地图上传*/
+  .label__list--wrap{
+    position: relative;
+    height: 142px;
+    padding: 10px;
+    box-sizing: border-box;
+    background: url(/static/img/textarea_border_bg.png) no-repeat center;
+    background-size: 100% 101.7%;
+    overflow: hidden;
+    .input__file{
+      position: absolute;
+      left: 99999px;
+      z-index: -1;
+    }
+    .label__item-wrap{
+      position: relative;
+      float: left;
+      width: 40px;
+      margin: 0 8px;
+      text-align: center;
+      > p{
+        line-height: 1.5;
+        margin-bottom: 5px;
+      }
+      .el-icon-close{
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: #f85650;
+        color: #fff;
+        z-index: 9;
+        cursor: pointer;
+      }
+    }
+    .label--item{
+      position: relative;
+      display: block;
+      height: 40px;
+      line-height: 40px;
+      background:  rgba(216, 216, 216, 0.5);
+      cursor: pointer;
+      font-weight: normal;
+      overflow: hidden;
+      input[type=file]{
+        margin-left: -999999px;
+      }
+      .el-icon-plus{
+        font-size: 18px;
+        color: #CBCBCB;
       }
     }
   }

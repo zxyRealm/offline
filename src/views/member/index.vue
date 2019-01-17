@@ -293,10 +293,10 @@ export default {
       let typeName = ''
       switch (type) {
         case 1:
-          typeName = '员工'
+          typeName = '会员'
           break
         case 2:
-          typeName = '会员'
+          typeName = '员工'
           break
         case 3:
           typeName = '黑名单'
