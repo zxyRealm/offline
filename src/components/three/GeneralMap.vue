@@ -188,9 +188,6 @@
       </div>
     </div>
 
-    <!-- <div id="option" style="position: absolute;top: 10px; left: 10px">
-      <a href="javascript:;" @click="sendColor">传递坐标</a>
-    </div>-->
   </div>
 </template>
 
@@ -311,7 +308,7 @@ export default {
                 this.handleSocketRealCount(data.data)
                 break
               case 'FACE':
-                this.handleSocketFace(data.data)
+                this.handleSocketFace(data.data, data.pushDate)
                 break
             }
           } catch (err) {
@@ -350,12 +347,12 @@ export default {
       this.changeStatisticInfo('Current')
     },
     // 处理推送人脸
-    handleSocketFace (data) {
+    handleSocketFace (data, time) {
       if (data.memberInfo) {
-        this.imgCut(data)
+        this.imgCut(data, time)
       }
     },
-    imgCut (data) {
+    imgCut (data, time) {
       var img = new Image()
       var canvas = document.createElement('canvas')
       var context = canvas.getContext('2d')
@@ -378,7 +375,7 @@ export default {
           name: data.memberInfo.type === 'MEMBER' ? data.memberInfo.memberLabelList[0].name : '---',
           age: data.memberInfo.age,
           gender: data.memberInfo.gender === 1 ? '男' : '女',
-          appearanceDate: parseTime(data.memberInfo.appearanceDate, '{h}:{i}'),
+          appearanceDate: parseTime(time, '{h}:{i}'),
           imgUrl: dataURL,
           key: Math.random()
         }

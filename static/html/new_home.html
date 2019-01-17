@@ -22,7 +22,7 @@
 
 <body>
   <div id="WebGL-output"></div>
-  <div id="slide" style="position: absolute;top: 0;">
+  <div id="slide" style="position: absolute;top: 0;display: none">
     <a href="javascript:;" onclick="upTrigger()">上升</a>
     <a href="javascript:;" onclick="downTrigger()">下降</a>
   </div>
@@ -77,49 +77,58 @@
         window.innerHeight / 2,
         window.innerHeight / -2,
         0.1, 10000
-      )
-      camera.position.set(330, 180, 450)
-      camera.lookAt(0, 0, 0)
-      scene.add(camera)
+      );
+      camera.position.set(330, 160, 450);
+      camera.lookAt(0, 0, 0);
+      scene.add(camera);
 
-      var light = new THREE.HemisphereLight(0xffffbb, 0xffffbb, 1)
-      scene.add(light)
+      var light = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+      light.position.set(0, 1500, 0)
+      console.log(light)
+      scene.add(light);
+
+      var light2 = new THREE.DirectionalLight(0x4E98F2, 0.5)
+      light2.position.set(0, 300, -1500)
+      scene.add(light2)
+
+      var light3 = new THREE.DirectionalLight(0x4E98F2, 0.5)
+      light3.position.set(0, 200, 1500)
+      scene.add(light3)
 
       // var axesHelper = new THREE.AxesHelper(100)
       // scene.add(axesHelper)
 
-      group = new THREE.Group()
-      group.position.set(-290 * scale, -80, -241 * scale)
-      // group.rotation.set(-0.05*Math.PI, 0, 0)
-      scene.add(group)
+      group = new THREE.Group();
+      group.position.set(-290 * scale, -80, -241 * scale);
+      scene.add(group);
 
-      document.getElementById("WebGL-output").appendChild(renderer.domElement)
-      window.addEventListener('resize', onWindowResize, false)
-      window.addEventListener('mousemove', onDocumentMouseMove, false)
-      window.addEventListener('mousedown', onDocumentMouseClick, false)
+      document.getElementById("WebGL-output").appendChild(renderer.domElement);
+      window.addEventListener('resize', onWindowResize, false);
+      window.addEventListener('mousemove', onDocumentMouseMove, false);
+      window.addEventListener('mousedown', onDocumentMouseClick, false);
 
-      addControl()
-      loadSignal()
+      addControl();
+      loadSignal();
 
     }
 
-    init()
-    render()
+    init();
+    render();
 
     // 计算上升和下降的变化
     function getUpDownFloorCount() {
-      var downFloorCount = 0
-      var upFloorCount = 0
-      var position = 0
+      var downFloorCount = 0;
+      var upFloorCount = 0;
+      var position = 0;
       // console.log(floorArr)
       floorArr.forEach(function (item, index) {
         if (item.floor < 0) {
           downFloorCount += 1
         } else {
-          if (item.floor === 1) position = index
+          if (item.floor === 1) position = index;
           upFloorCount += 1
         }
-      })
+      });
       return {
         position: position,
         down: downFloorCount,
@@ -416,9 +425,9 @@
         else
           floorArr = floor.reverse()
       }
-      if (floor.length <= 4) {
+      if (floor.length > 4) {
         var slideBox = document.getElementById('slide')
-        slideBox.style.display = 'none'
+        slideBox.style.display = 'block'
       }
       setSlideInfo()
       // 创建楼层图片
@@ -487,18 +496,6 @@
             // if (i !== 0) {
               shape.autoClose = true
               var points = shape.getPoints()
-              // var geometryPoints = new THREE.BufferGeometry().setFromPoints(points)
-              // var materialPoints = new THREE.LineBasicMaterial({
-              //   color: '#A1BCD4',
-              //   transparent: true,
-              //   opacity: opacity
-              // })
-              // var line = new THREE.Line(geometryPoints, materialPoints)
-              // line.position.set(0, info.coordinate_y, 0)
-              // line.rotation.set(0.5 * Math.PI, 0, 0)
-              // line.add(edgeLine)
-              // group.add(line)
-
               var geometry = new THREE.ExtrudeBufferGeometry(shape, {
                 depth: depth,
                 bevelEnabled: false
@@ -507,7 +504,7 @@
               var geometry2 = new THREE.Geometry();
               geometry2.fromBufferGeometry(geometry)
 
-              var materialLine = new THREE.MeshBasicMaterial({
+              var materialLine = new THREE.MeshPhongMaterial({
                 color: new THREE.Color('#4E98F2'),
                 transparent: true,
                 opacity: opacity,
