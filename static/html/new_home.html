@@ -91,6 +91,8 @@
       camera.lookAt(0, 0, 0);
       scene.add(camera);
 
+      createLight();
+
       group = new THREE.Group();
       group.position.set(-290 * scale, -80, -241 * scale);
       scene.add(group);
