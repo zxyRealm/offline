@@ -1,4 +1,3 @@
-<script src="../../utils/new-request.js"></script>
 <template>
   <div class="behavior__trail--wrap g-prl20">
     <div class="trail__info--wrap dashed--border">
@@ -45,7 +44,7 @@
           <div v-for="(item, $index) in currentTrailList" class="spoor-item" :key="$index">
             <div class="img-box">
               <!--<img width="36" @click="showImage(item)" :src="item.cropImg" alt="">-->
-              <image-box width="36px" @click.native="showImage(item)" height="54px" :src="item.cropImg"></image-box>
+              <image-box width="36px" @click.native="showImage(item)" height="54px" :src="item.cropImg || item.imageUrl"></image-box>
               <!--<img width="36" :src="item.imageUrl" alt="">-->
             </div>
             <div class="item--info">
@@ -76,7 +75,6 @@ import {GetPersonTrail} from '../../api/behavior'
 import TrailMap from '../../components/three/trail_map'
 import {eventObject} from '../../utils/event'
 import {mapState} from 'vuex'
-
 export default {
   name: 'trail',
   components: {
@@ -101,8 +99,6 @@ export default {
     this.getPersonTrail()
   },
   mounted () {
-    // this.getPersonTrail()
-    this.backTrailList()
   },
   computed: {
     ...mapState(['currentManage']),
@@ -131,6 +127,7 @@ export default {
         this.trailList = this.trailDetailInfo.dailyCapturePersonList || []
         this.spoorDate = parseTime(this.trailList[0].visitTime, '{y}/{m}/{d}')
         this.dateSet = new Set(this.trailList.map(item => item.visitTime))
+        this.backTrailList()
         // this.dateSet = new Set(['2019-01-11', '2018-11-11', '2018-10-11'])
       })
     },
@@ -177,9 +174,13 @@ export default {
         return (item.visitTime.replace(/-/g, '/') === this.spoorDate)
       })[0]
       let iterator = arr ? arr.captureFaceInfo.reverse() : []
-      this.backAsyncData(iterator).then(list => {
-        this.currentTrailList = list
-      })
+      if (iterator[0] && iterator[0].rect) {
+        this.backAsyncData(iterator).then(list => {
+          this.currentTrailList = list
+        })
+      } else {
+        this.currentTrailList = iterator
+      }
     }
   },
   watch: {
@@ -321,8 +322,8 @@ export default {
             height: 54px;
             /*margin-right: 22px;*/
             /*img {*/
-              /*width: 100%;*/
-              /*height: 100%;*/
+            /*width: 100%;*/
+            /*height: 100%;*/
             /*}*/
           }
           .item--info {

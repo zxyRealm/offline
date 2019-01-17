@@ -99,7 +99,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <!--&lt;!&ndash;设备绑定社群&ndash;&gt;-->
     <!--设备升级-->
     <ob-dialog-form
       class="dialog__content--vm"
@@ -281,16 +280,7 @@ export default {
         // res.data = Math.floor(Math.random() * 7)
         console.log('state', res.data)
         if (res.data !== 1) {
-          if (value.groupGuid) {
-            // 获取设备操作权限，已授权其他社群后自己不可操作
-            let url = '/merchant/device/operationPermission'
-            if (this.isChild) url = '/merchant/device/permission/search'
-            this.$http(url, {guid: value.groupGuid}).then(res2 => {
-              this.$set(this.data, 'isHandle', res2.data)
-            })
-          } else {
-            this.$set(value, 'isHandle', true)
-          }
+          this.$set(value, 'isHandle', true)
         } else {
           this.$set(value, 'isHandle', true)
         }
@@ -315,62 +305,6 @@ export default {
           cname = 'success-color'
       }
       return cname
-    },
-    // 显示绑定社群弹框
-    showDialogForm (data, index) {
-      if (!data.groupName) {
-        this.dialogFormVisible = true
-        this.currentDevice = data
-      } else {
-        this.unBindCommunity(data, index)
-      }
-    },
-    // 解绑社群
-    unBindCommunity (value, index) {
-      this.$affirm({
-        confirm: '确定',
-        cancel: '返回',
-        text: '确定将设备从社群解绑？'
-      }, (action, instance, done) => {
-        if (action === 'confirm') {
-          done()
-          this.$http('/device/unbinding', {
-            deviceKey: value.deviceKey,
-            groupGuid: value.groupGuid
-          }).then(res => {
-            this.$tip('解绑成功')
-            this.getDeviceState(value)
-            this.$set(value, 'groupName', null)
-          })
-        } else {
-          // 隐藏hover 提示信息
-          setTimeout(() => { value.tipShow = false }, 5)
-          done()
-        }
-      })
-    },
-    // 绑定社群
-    bindCommunity (data) {
-      this.dialogFormVisible = false
-      let subData
-      if (!data[0]) {
-        this.$tip('请选取社群', 'error')
-        return
-      }
-      subData = {
-        deviceKey: this.currentDevice.deviceKey,
-        groupGuid: data[0].groupGuid,
-        name: data[0].name
-      }
-      this.$load('设备绑定中...')
-      this.$http('/device/binding', subData).then(res => {
-        this.$load().close()
-        this.$tip('绑定成功')
-        this.$emit('refresh')
-        // this.getMineEquipment(this.pagination.index)
-      }).catch(() => {
-        this.$load().close()
-      })
     },
     // 操作按钮状态控制
     btnState (val, type) {
@@ -606,10 +540,6 @@ export default {
           }
         }
       )
-    },
-    // 手动添加摄像头方法回调
-    addCamera (row) {
-      this.$emit('handle-add', row)
     },
     deviceUpdate () {
       DeviceUpgrade({deviceKey: this.currentDevice.deviceKey}).then(res => {
