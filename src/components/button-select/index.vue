@@ -174,7 +174,6 @@ export default {
      }
    }
    > .el-button{
-     width: 100%;
      margin-top: 5px;
    }
  }

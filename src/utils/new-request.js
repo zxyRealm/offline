@@ -15,6 +15,27 @@ export function load (text, target) {
   })
 }
 
+function showFullScreenLoading (isLoading = true) { // isLoading 请求是否需要添加loading动画
+  if (Store.state.needLoadingRequestCount === 0 && (isLoading || isLoading === undefined)) {
+    load('数据加载中...')
+  }
+  Store.state.loading = true
+  if (isLoading === undefined || isLoading) {
+    Store.state.needLoadingRequestCount++
+  }
+}
+
+function tryHideFullScreenLoading () {
+  if (Store.state.needLoadingRequestCount <= 0) {
+    return false
+  }
+  Store.state.needLoadingRequestCount--
+  if (Store.state.needLoadingRequestCount === 0) {
+    Store.state.loading = false
+    load().close()
+  }
+}
+
 // 重新登录确认框
 
 export function exitMessage (href) {
@@ -68,13 +89,11 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(config => {
   // Do something before request is sent
-  Store.state.loading = true
-  if (config.tip === undefined || config.tip) load('数据加载中...')
+  showFullScreenLoading(config.tip)
   return config
 }, error => {
   // Do something with request error
-  Store.state.loading = false
-  if (error.response.config.tip === undefined || error.response.config.tip) load('数据加载中...').close()
+  tryHideFullScreenLoading()
   if (error.status === '504') {
     message('网关超时，请重试！', 'error', 3000)
   } else {
@@ -87,10 +106,8 @@ service.interceptors.request.use(config => {
 // respone interceptor
 service.interceptors.response.use(
   response => {
-    // tryHideFullScreenLoading()
     // 格式化返回参数格式
-    Store.state.loading = false
-    if (response.config.tip === undefined || response.config.tip) load('数据加载中...').close()
+    tryHideFullScreenLoading()
     if (response.status === 200) {
       if (response.data.code === 'ERR-110') {
         Store.state.expired = true
@@ -105,7 +122,6 @@ service.interceptors.response.use(
         return Promise.reject(response.data)
       }
     } else {
-      Store.state.loading = false
       if (response.data.code) {
         message(response.data.msg, 'error', 3000)
       } else {
@@ -115,8 +131,7 @@ service.interceptors.response.use(
   },
   error => {
     // 此处错误已由node项目中finalResult方法包装处理
-    // tryHideFullScreenLoading()
-    if (error.response.config.tip === undefined || error.response.config.tip) load('数据加载中...').close()
+    tryHideFullScreenLoading()
     if (error.response && /^5/.test(error.response.status)) {
       message('网络异常，请稍后重试', 'error', 3000)
     } else {

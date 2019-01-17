@@ -53,7 +53,7 @@
             <uu-icon v-if="item.type === 2" type="role02"></uu-icon>
             <uu-icon v-if="item.type === 3" type="role03"></uu-icon>
           </button-select-item>
-          <el-button slot="footer" @click="addNewGroup" class="affirm">添加社群</el-button>
+          <el-button slot="footer" @click="addNewGroup" class="affirm _full">添加社群</el-button>
         </button-select>
         <div class="right-menu-item vam">
           <a href="javascript:void(0);"
@@ -403,19 +403,6 @@ export default {
     isFullScreen () { // 当前是否全屏状态 (17 为浏览器默认滚动条宽度)
       return Math.abs(window.screen.height - this.clientHeight) <= 17
     }
-    // labelList: { // 选取楼层后对应的要上传的文件列表
-    //   get (val) {
-    //     let labelArray = this.communityForm.floorList.map(item => {
-    //       return {
-    //         file: '',
-    //         floor: item
-    //       }
-    //     })
-    //     return labelArray
-    //   },
-    //   set (val) {
-    //   }
-    // }
   },
   watch: {
     manageGroup: {
@@ -651,21 +638,11 @@ export default {
     // 文件改变事件监听
     onChange (e, index) {
       let files = e.target.files
-      // console.log('file change', files, index)
       if (files[0] && !fileTypeAllow(files[0].name, 'svg')) {
         this.$tip('文件格式只支持svg', 'error')
         return
       }
       this.$set(this.labelList[index], 'file', files[0])
-      // for (let i = 0, len = files.length; i < len; i++) {
-      //   if (files[i].type !== 'image/svg+xml') {
-      //     this.fileList = []
-      //     document.getElementById('map__input--file').value = ''
-      //     this.$tip('文件格式只支持svg', 'error')
-      //     break
-      //   }
-      // }
-      // this.fileList = files
     },
     // 文件上传成功回调
     handleSuccess () {

@@ -151,6 +151,10 @@ export default {
     dataType: { // 数据类型 mine 自有设备 other 非自有设备列表 server 服务器列表
       type: String,
       default: 'mine'
+    },
+    emptyText: {
+      type: String,
+      default: '暂无设备'
     }
   },
   data () {
@@ -180,7 +184,6 @@ export default {
       }
     }
     return {
-      emptyText: '数据加载中...',
       fileList: [], // 上传文件列表
       groupList: [], // 自有社群列表
       dialogFormVisible: false, // 绑定社群dialog 显示状态
@@ -209,7 +212,6 @@ export default {
     ...mapState(['serverIp']),
     data: {
       get () {
-        this.emptyText = '暂无设备'
         let arr = JSON.parse(JSON.stringify(this.value)).map(item => {
           item.deviceStatus = undefined
           return item

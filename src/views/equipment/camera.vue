@@ -16,6 +16,7 @@
     <div class="data-list-wrap">
       <el-scrollbar v-scroll-top="pagination.index">
         <device-table
+          :empty-text="emptyText"
           data-type="camera"
           @refresh="getCameraList"
           v-model="cameraList"
@@ -200,6 +201,8 @@ export default {
         this.emptyText = '暂无设备'
         this.cameraList = res.data.content
         this.pagination = res.data.pagination
+      }).catch(() => {
+        this.emptyText = '数据请求失败'
       })
       // GetCameraList({serverKey: this.$route.query.server_key, index: page, length: this.pagination.length || 10}).then(res => {
       //   this.emptyText = '暂无设备'

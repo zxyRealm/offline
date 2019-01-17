@@ -11,20 +11,10 @@
         @handle-btn="button"
         :btn-array="btnArray"
         :menu-array="menu2">
-        <!--<el-upload-->
-          <!--class="avatar-uploader"-->
-          <!--:action="ip"-->
-          <!--:show-file-list="false"-->
-          <!--:data="{memberLibraryGuid: $route.query.guid}"-->
-          <!--:before-upload="beforeAvatarUpload"-->
-          <!--:on-success="uploadSuccess"-->
-          <!--:on-progress="uploading"-->
-          <!--slot="file">-->
-          <!--<el-button class="affirm">批量导入</el-button>-->
-        <!--</el-upload>-->
       </uu-sub-tab>
       <el-scrollbar v-scroll-top="pageData.index" class="table">
         <el-table
+          :empty-text="emptyText"
           :data="tableData"
           border
           style="width: 100%">
@@ -92,17 +82,6 @@
       <upload-progress :visible.sync="dialogVisible">
         正在导入，请耐心等待…<br>{{percent}}
       </upload-progress>
-      <!--<el-dialog-->
-        <!--:visible.sync="dialogVisible"-->
-        <!--:close-on-click-modal="false"-->
-        <!--:close-on-press-escape="false"-->
-        <!--:show-close="false"-->
-        <!--width="500px">-->
-        <!--<img class="tip_img_icon" src="/static/img/waiting_tip_icon.png" alt="">-->
-        <!--<div class="icon__hint">正在导入，请耐心等待…</div>-->
-        <!--<div class="icon__hint&#45;&#45;no">{{percent}}</div>-->
-      <!--</el-dialog>-->
-      <!-- 下载弹框 -->
       <el-dialog
         :visible.sync="downloadVisible"
         :close-on-click-modal="false"
@@ -231,6 +210,7 @@ export default {
         name: this.pageData.name,
         phone: this.pageData.phone
       }
+      this.emptyText = '数据加载中...'
       MemberSearch(data).then(res => {
         if (res.result) {
           this.tableData = res.data.content
@@ -238,6 +218,9 @@ export default {
           this.pageData.length = res.data.pagination.length
           this.pageData.total = res.data.pagination.total
         }
+        this.emptyText = '暂无数据'
+      }).catch(() => {
+        this.emptyText = '数据获取失败'
       })
     },
     // 编辑人员

@@ -13,6 +13,7 @@
     <div class="data-list-wrap">
       <el-scrollbar v-scroll-top="pagination.index">
         <el-table
+          :empty-text="emptyText"
           border
           :data="portalList"
         >
@@ -142,12 +143,16 @@ export default {
           this.emptyText = '暂无数据'
           this.portalList = res.data.content || []
           this.pagination = res.data.pagination
+        }).catch(() => {
+          this.emptyText = '数据请求失败'
         })
       } else {
         PortalDeviceList({groupId: this.currentManage.id, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
           this.emptyText = '暂无数据'
           this.portalList = res.data.content || []
           this.pagination = res.data.pagination
+        }).catch(() => {
+          this.emptyText = '数据请求失败'
         })
       }
     },

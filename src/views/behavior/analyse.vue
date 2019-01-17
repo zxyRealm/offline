@@ -146,7 +146,7 @@
       :page-sizes="[10, 20, 30]"
       :current-page="pagination.index"
       :page-size="pagination.length"
-      layout="total,sizes,prev, pager, next, jumper"
+      layout="total, sizes, prev, pager, next, jumper"
       :total="pagination.total">
     </el-pagination>
     <image-preview :src="preview.src" :visible.sync="preview.visible"></image-preview>
@@ -273,6 +273,7 @@ export default {
         this.behaviorList = res.data.content
         if (document.getElementById('analyse__scrollbar')) document.getElementById('analyse__scrollbar').children[0].scrollTop = 0
       }).catch(() => {
+        this.emptyText = '数据请求失败'
         this.$route.meta.keepAlive = false
       })
     },

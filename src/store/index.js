@@ -8,6 +8,7 @@ import {parseTime} from '@/utils/index'
 Vue.use(Vuex)
 const state = {
   userInfo: {},
+  needLoadingRequestCount: 0,
   filterParams: { // 可视化社群条件
     group: '',
     type: 'flow', // 类型
