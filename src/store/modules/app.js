@@ -10,7 +10,7 @@ const app = {
   },
   mutations: {
     SET_SIDEBAR: (state, data) => {
-      state.sidebar.opened = data || !state.sidebar.opened
+      state.sidebar.opened = data === undefined ? !state.sidebar.opened : data
     },
     TOGGLE_DEVICE: (state, device) => {
       state.device = device
@@ -18,7 +18,6 @@ const app = {
   },
   actions: {
     DISPATCH_SIDEBAR ({commit, state}, data) {
-      data = data || !state.sidebar.opened
       if (!data) {
         Cookies.set('sidebarStatus', 1)
       } else {

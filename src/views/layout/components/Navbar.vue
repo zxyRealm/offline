@@ -14,7 +14,7 @@
             class="hamburger-container vam"
             v-show="showBar"
             :toggleClick="toggleSideBar"
-            :isActive="sidebar.opened"></hamburger>
+            :isActive="!sidebar.opened"></hamburger>
         </div>
         <uu-icon type="screen" @click.native="changeScreen" :class="{exit: isFullScreen}"></uu-icon>
         <!--<el-select-->

@@ -352,7 +352,7 @@ export default {
         this.imgCut(data, time)
       }
     },
-    imgCut (data, time) {
+    imgCut (data, time, arr, index) {
       var img = new Image()
       var canvas = document.createElement('canvas')
       var context = canvas.getContext('2d')
@@ -361,7 +361,6 @@ export default {
       canvas.height = 60
       img.crossOrigin = '*'
       img.src = data.memberInfo.imgUrl
-
       img.onload = () => {
         // 在给定的坐标的基础上扩大一倍范围
         var upperX = data.rect.upperX - 0 > 60 ? data.rect.upperX - 60 : 0
@@ -381,6 +380,10 @@ export default {
         }
         this.personList.pop()
         this.personList.unshift(obj)
+        if (arr && Array.isArray(arr) && arr[index + 1]) {
+          let val = arr[index + 1] instanceof Object ? arr[index + 1] : JSON.parse(arr[index + 1])
+          this.imgCut(val.data, val.pushDate, arr, index + 1)
+        }
       }
     },
     getLatestFace (groupParentGuid, groupSonGuid) {
@@ -388,12 +391,13 @@ export default {
         groupGuid: groupParentGuid,
         groupSonGuid: groupSonGuid
       }).then(res => {
-        res.data.forEach(item => {
-          let face = JSON.parse(item)
-          if (new Date(face.pushDate).toDateString() === new Date().toDateString() && face.data.memberInfo) {
-            this.imgCut(face.data)
-          }
-        })
+        res.data = res.data.filter(item => {
+          return new Date(JSON.parse(item).pushDate).toDateString() === new Date().toDateString()
+        }).reverse()
+        if (res.data.length) {
+          let item0 = JSON.parse(res.data[0])
+          this.imgCut(item0.data, item0.pushDate, res.data, 0)
+        }
         this.getWebsocket(groupSonGuid, groupParentGuid)
       })
     },

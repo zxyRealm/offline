@@ -174,13 +174,14 @@ export default {
         return (item.visitTime.replace(/-/g, '/') === this.spoorDate)
       })[0]
       let iterator = arr ? arr.captureFaceInfo.reverse() : []
-      if (iterator[0] && iterator[0].rect) {
-        this.backAsyncData(iterator).then(list => {
-          this.currentTrailList = list
-        })
-      } else {
-        this.currentTrailList = iterator
-      }
+      this.currentTrailList = iterator
+      // if (iterator[0] && iterator[0].rect) {
+      //   this.backAsyncData(iterator).then(list => {
+      //     this.currentTrailList = list
+      //   })
+      // } else {
+      //   this.currentTrailList = iterator
+      // }
     }
   },
   watch: {

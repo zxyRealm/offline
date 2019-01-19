@@ -277,11 +277,11 @@
           var geometry = new THREE.ShapeBufferGeometry(shapes[j])
           var mesh = new THREE.Mesh(geometry, materialLine)
           group.add(mesh)
-          var edges = new THREE.EdgesHelper(mesh, '#979797')
-          group.add(edges)
-          // var edges = new THREE.EdgesGeometry(geometry)
-          // var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
-          // mesh.add(line)
+          // var edges = new THREE.EdgesHelper(mesh, '#979797')
+          // group.add(edges)
+          var edges = new THREE.EdgesGeometry(geometry)
+          var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
+          group.add(line)
 
           // 收集变量，便于销毁
           pathArr.push(path)
@@ -351,7 +351,7 @@
 
   // 创建文字贴图
   function createTextSprite (obj, type) {
-    console.log(obj)
+    // console.log(obj)
     var cz = camera.position.z
     var canvas = document.createElement('canvas');
     canvas.width = 1000;
