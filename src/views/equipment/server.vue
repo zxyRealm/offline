@@ -3,6 +3,7 @@
     <!--<div class="data-list-wrap">-->
       <el-scrollbar v-scroll-top="pagination.index">
         <device-table
+          :empty-text="emptyText"
           data-type="server"
           @refresh="getServerEquipment"
           v-model="equipmentList"
@@ -48,6 +49,8 @@ export default {
         this.emptyText = '暂无设备'
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination || {}
+      }).catch(() => {
+        this.emptyText = '数据请求失败'
       })
     },
     // 第一次进入设备列表，给出操作提示，点击页面后提示消失

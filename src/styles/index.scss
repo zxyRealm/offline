@@ -405,6 +405,9 @@ button, input {
     padding-right: 0;
     background-position: center center;
     background-repeat: no-repeat;
+    &._full{
+      width: 100%;
+    }
     > span {
       color: #fff;
     }

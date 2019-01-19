@@ -8,6 +8,7 @@
       </div>
       <el-scrollbar v-scroll-top class="table">
         <el-table
+          :empty-text="emptyText"
           :data="tableData"
           border
           style="width: 100%">
@@ -117,6 +118,7 @@ export default {
       }
     }
     return {
+      emptyText: '数据加载中...',
       rules: {
         name: [{required: true, validator: name, trigger: 'change'}]
       },
@@ -155,11 +157,15 @@ export default {
         index: 1,
         length: -1
       }
+      this.emptyText = '数据加载中...'
       MemberLibrarySearch(data).then(res => {
         for (let i = 0; i < res.data.content.length; i++) {
           res.data.content[i].showPopver = false
         }
         this.tableData = res.data.content
+        this.emptyText = '暂无数据'
+      }).catch(() => {
+        this.emptyText = '数据获取失败'
       })
     },
     // 添加库
