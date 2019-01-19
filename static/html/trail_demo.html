@@ -705,12 +705,12 @@
     // 设置电梯上下位置
     var pathGroup = {
       start: {
-        x: currentElevator[0].point.x - pic_width / 2 + 15,
+        x: currentElevator[0].point.x - pic_width / 2,
         y: type === 'up' ? TRANSFER_BOARD.PASS_LOW_POS: TRANSFER_BOARD.PASS_HIGH_POS,
         z: -currentElevator[0].point.y - pic_height / 2 - 25,
       },
       end: {
-        x: currentElevator[1].point.x - pic_width / 2 + 15,
+        x: currentElevator[1].point.x - pic_width / 2,
         y: type === 'up' ? TRANSFER_BOARD.PASS_HIGH_POS: TRANSFER_BOARD.PASS_LOW_POS,
         z: -currentElevator[1].point.y - pic_height / 2 - 25
       }
@@ -982,7 +982,7 @@
     var tiltAngle = 75.0 * Math.PI / 180.0;
     camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 0.1, 10000)
     // camera.position.set(762, 399, 1170)
-    camera.position.set(camDir[1] * camLen, Math.sin(tiltAngle) * camLen, camDir[0] * camLen * 2.2);
+    camera.position.set(camDir[1] * camLen, Math.sin(tiltAngle) * camLen * 0.9, camDir[0] * camLen * 2.2);
     camera.lookAt(scene.position);
     scene.add(camera)
   }
