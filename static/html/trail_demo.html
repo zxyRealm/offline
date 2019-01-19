@@ -771,7 +771,8 @@
     var material = new THREE.MeshPhongMaterial({
       // color: new THREE.Color(PALLETTE.STORE),
       transparent: true,
-      depthWrite: false,
+      depthWrite: true,
+      depthTest: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
       side: THREE.FrontSide,
       vertexColors: THREE.FaceColors
@@ -800,6 +801,7 @@
     var material = new THREE.LineBasicMaterial({
       color: PALLETTE.EDGE,
       transparent: true,
+      depthTest: true,
       depthWrite: false,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
@@ -815,8 +817,8 @@
     var material = new THREE.MeshPhongMaterial({
       color: PALLETTE.PLANE,
       side: THREE.DoubleSide,
-      depthWrite: true,
       depthTest: true,
+      depthWrite: true,
       transparent: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
@@ -849,7 +851,7 @@
     var geometry = new THREE.BufferGeometry().setFromPoints(points);
     var material = new THREE.LineBasicMaterial({
       transparent: true,
-      depthWrite: false,
+      depthWrite: true,
       color: PALLETTE.PATH
     });
     this.line = new THREE.Line(geometry, material);
@@ -861,7 +863,7 @@
     var geom = new THREE.CircleGeometry(5, 50);
     var material = new THREE.MeshBasicMaterial({
       transparent: true,
-      depthWrite: false,
+      depthWrite: true,
       color: color
     });
     this.mesh = new THREE.Mesh(geom, material);
@@ -890,6 +892,7 @@
       map: texture,
       color: 0xffffff,
       depthWrite: false,
+      depthTest: true,
       transparent: true,
       opacity: text === BEGIN_FLOOR ? 1 : opacity
     });
@@ -907,7 +910,8 @@
     canvas.width = 512;
     canvas.height = 512;
     ctx.fillStyle = '#ffffff';
-    ctx.font = "70px '微软雅黑'";
+    ctx.font = "normal normal Lighter 70px 'Arial'";
+    ctx.lineWidth = 4
     ctx.textAlign = 'center';
     ctx.fillText(obj.text, 256, 256);
     var texture = new THREE.Texture(canvas);
@@ -916,18 +920,17 @@
     var material = new THREE.SpriteMaterial({
       map: texture,
       color: 0xffffff,
-      depthWrite: true,
-      dithering: true,
+      blending: THREE.AdditiveBlending,
       depthTest: true,
+      depthWrite: false,
       transparent: true,
-      // blending: THREE.AdditiveBlending,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
     this.text = new THREE.Sprite(material);
     this.text.scale.set(100, 100, 100);
     this.text.name = 'store_text';
     // this.text.rotation.x = -0.5 * Math.PI
-    this.text.position.set(obj.position.x, 10, -obj.position.y)
+    this.text.position.set(obj.position.x, 20, -obj.position.y)
   }
 
   // 贴图
@@ -1033,9 +1036,10 @@
   // 控制函数
   function createControl() {
     controls = new THREE.OrbitControls(camera);
-    // controls.maxPolarAngle = 1.28;//上下两极的可视区域的最大角度
-    // controls.minPolarAngle = 1.28;//上下两极的可视区域最小角度
-    // controls.dampingFactor = 0.25;
+    // console.log(0.35*Math.PI)
+    // controls.maxPolarAngle = 0.35 * Math.PI;//上下两极的可视区域的最大角度
+    // controls.minPolarAngle = 0.35 * Math.PI;//上下两极的可视区域最小角度
+    controls.dampingFactor = 0.25;
     controls.enableZoom = true;
     controls.enableRotate = true;
     controls.screenSpacePanning = true;
