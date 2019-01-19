@@ -63,12 +63,12 @@
     ORIGIN_NONE_X: 0, // 隐藏楼层的初始偏转角
     ORIGIN_PLAY_X: 0.08 * Math.PI, // 显示楼层的初始偏转角
     ORIGIN_Y: 0, // 隐藏楼层和显示楼层的共同初始Y偏转角
-    ROTATE_X: 0, // 过渡偏转角
-    ROTATE_Y: -0.1 * Math.PI, // 过渡偏转角
-    HIGH_POS: 190, // 最高点
-    PASS_HIGH_POS: 120, // 过渡点
+    ROTATE_X: -0.03 * Math.PI, // 过渡偏转角
+    ROTATE_Y: -0.04 * Math.PI, // 过渡偏转角
+    HIGH_POS: 250, // 最高点
+    PASS_HIGH_POS: 110, // 过渡点
     MIDDLE_POS: 0, // 显示区
-    PASS_LOW_POS: -60, // 过渡点
+    PASS_LOW_POS: -70, // 过渡点
     LOW_POS: -210, // 最低点
     OPACITY_BLOCK: 1, // 完全显示
     OPACITY_NONE: 0 // 完全隐藏
@@ -594,7 +594,7 @@
     var capturePoint_color = PALLETTE.CIRCLE; // 设置抓拍点起始颜色（起点，过程点，终点）
     var floorGroup; // 设置楼层分组
     var trailBall = new TrailBall(); // 初始化轨迹球
-    var positionY = 9; // 设置轨迹偏移高度
+    var positionY = 10; // 设置轨迹偏移高度
     play = true; // 设置播放按钮状态（禁用/可点击）
     setPlayStatus(); // 设置播放按钮状态
 
@@ -697,7 +697,7 @@
         // 清楚定时器
         clearInterval(timer1)
       }
-    }, 10)
+    }, 30)
   }
 
   // 电梯轨迹
@@ -705,13 +705,13 @@
     // 设置电梯上下位置
     var pathGroup = {
       start: {
-        x: currentElevator[0].point.x - pic_width / 2 + 15,
-        y: type === 'up' ? TRANSFER_BOARD.PASS_LOW_POS - 4 : TRANSFER_BOARD.PASS_HIGH_POS - 4,
+        x: currentElevator[0].point.x - pic_width / 2,
+        y: type === 'up' ? TRANSFER_BOARD.PASS_LOW_POS: TRANSFER_BOARD.PASS_HIGH_POS,
         z: -currentElevator[0].point.y - pic_height / 2 - 25,
       },
       end: {
-        x: currentElevator[1].point.x - pic_width / 2 + 15,
-        y: type === 'up' ? TRANSFER_BOARD.PASS_HIGH_POS - 4: TRANSFER_BOARD.PASS_LOW_POS - 4,
+        x: currentElevator[1].point.x - pic_width / 2,
+        y: type === 'up' ? TRANSFER_BOARD.PASS_HIGH_POS: TRANSFER_BOARD.PASS_LOW_POS,
         z: -currentElevator[1].point.y - pic_height / 2 - 25
       }
     };
@@ -736,8 +736,8 @@
         elevatorGroup.remove(people.mesh)
         emitter.emit('pathBegin', targetFloor, index)
       }
-      timeDuration > 0 ? timeUnit++ : timeUnit--
-    }, 15)
+      timeDuration > 0 ? timeUnit += 3 : timeUnit -= 3
+    }, 30)
   }
 
   emitter.on('pathBegin', createPath)
@@ -762,7 +762,7 @@
   function Store(shape, groupName) {
     var geometry2 = new THREE.ShapeBufferGeometry(shape);
     var geometryBuffer = new THREE.ExtrudeBufferGeometry(shape, {
-      depth: 4,
+      depth: 8,
       bevelEnabled: false
     });
     var geometry = new THREE.Geometry();
@@ -771,7 +771,8 @@
     var material = new THREE.MeshPhongMaterial({
       // color: new THREE.Color(PALLETTE.STORE),
       transparent: true,
-      depthWrite: false,
+      depthWrite: true,
+      depthTest: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
       side: THREE.FrontSide,
       vertexColors: THREE.FaceColors
@@ -779,7 +780,7 @@
 
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0);
-    this.mesh.position.set(offset_x, 8, offset_z);
+    this.mesh.position.set(offset_x, 9, offset_z);
     this.mesh.castShadow = true;
     this.mesh.receiveShadow = true;
     this.mesh.name = 'store';
@@ -800,12 +801,13 @@
     var material = new THREE.LineBasicMaterial({
       color: PALLETTE.EDGE,
       transparent: true,
-      depthWrite: false,
+      depthTest: true,
+      depthWrite: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
     this.mesh = new THREE.Line(geometry, material);
     this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0);
-    this.mesh.position.set(offset_x, 8, offset_z);
+    this.mesh.position.set(offset_x, 9, offset_z);
     this.mesh.name = 'edge'
   }
 
@@ -815,8 +817,8 @@
     var material = new THREE.MeshPhongMaterial({
       color: PALLETTE.PLANE,
       side: THREE.DoubleSide,
-      depthWrite: true,
       depthTest: true,
+      depthWrite: true,
       transparent: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
@@ -861,7 +863,7 @@
     var geom = new THREE.CircleGeometry(5, 50);
     var material = new THREE.MeshBasicMaterial({
       transparent: true,
-      depthWrite: false,
+      depthWrite: true,
       color: color
     });
     this.mesh = new THREE.Mesh(geom, material);
@@ -890,6 +892,7 @@
       map: texture,
       color: 0xffffff,
       depthWrite: false,
+      depthTest: true,
       transparent: true,
       opacity: text === BEGIN_FLOOR ? 1 : opacity
     });
@@ -907,7 +910,8 @@
     canvas.width = 512;
     canvas.height = 512;
     ctx.fillStyle = '#ffffff';
-    ctx.font = "70px '微软雅黑'";
+    ctx.font = "normal normal Lighter 70px 'Arial'";
+    ctx.lineWidth = 4
     ctx.textAlign = 'center';
     ctx.fillText(obj.text, 256, 256);
     var texture = new THREE.Texture(canvas);
@@ -916,18 +920,17 @@
     var material = new THREE.SpriteMaterial({
       map: texture,
       color: 0xffffff,
-      depthWrite: true,
-      dithering: true,
+      blending: THREE.AdditiveBlending,
       depthTest: true,
+      depthWrite: false,
       transparent: true,
-      // blending: THREE.AdditiveBlending,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
     this.text = new THREE.Sprite(material);
     this.text.scale.set(100, 100, 100);
     this.text.name = 'store_text';
     // this.text.rotation.x = -0.5 * Math.PI
-    this.text.position.set(obj.position.x, 10, -obj.position.y)
+    this.text.position.set(obj.position.x, 20, -obj.position.y)
   }
 
   // 贴图
@@ -938,7 +941,8 @@
       transparent: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
       map: texture,
-      depthTest: true,
+      depthTest: false,
+      depthWrite: false,
       // side: THREE.DoubleSide
       // blending: THREE.AdditiveBlending,
     });
@@ -972,10 +976,14 @@
 
   // 相机
   function createCamera() {
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
+    var camAngle = -0.890338608975752 + Math.PI / 2;
+    var camDir = [Math.cos(camAngle), Math.sin(camAngle)];
+    var camLen = 550;
+    var tiltAngle = 75.0 * Math.PI / 180.0;
+    camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 0.1, 10000)
     // camera.position.set(762, 399, 1170)
-    camera.position.set(0, 250, 500);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(camDir[1] * camLen, Math.sin(tiltAngle) * camLen * 0.9, camDir[0] * camLen * 2.2);
+    camera.lookAt(scene.position);
     scene.add(camera)
   }
 
@@ -994,6 +1002,7 @@
 
   // 灯光
   function createLight() {
+    let lightHeight = 500
     var light = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.8);
     light.position.set(0, 800, 0);
     scene.add(light);
@@ -1013,6 +1022,14 @@
     var light5 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.3);
     light5.position.set(-800, 0, 0);
     scene.add(light5);
+
+    // var light6 = new THREE.DirectionalLight(0xffffff, 0.2);
+    // light6.position.set(-lightHeight * 2, lightHeight * 2, -lightHeight * 2);
+    // scene.add(light6);
+    //
+    // var light7 = new THREE.DirectionalLight(0xffffff, 0.2);
+    // light7.position.set(lightHeight * 2, lightHeight * 2, lightHeight * 2);
+    // scene.add(light7);
   }
 
   // 渲染器
@@ -1033,9 +1050,10 @@
   // 控制函数
   function createControl() {
     controls = new THREE.OrbitControls(camera);
-    // controls.maxPolarAngle = 1.28;//上下两极的可视区域的最大角度
-    // controls.minPolarAngle = 1.28;//上下两极的可视区域最小角度
-    // controls.dampingFactor = 0.25;
+    // console.log(0.35*Math.PI)
+    // controls.maxPolarAngle = 0.35 * Math.PI;//上下两极的可视区域的最大角度
+    // controls.minPolarAngle = 0.35 * Math.PI;//上下两极的可视区域最小角度
+    controls.dampingFactor = 0.25;
     controls.enableZoom = true;
     controls.enableRotate = true;
     controls.screenSpacePanning = true;
