@@ -1,13 +1,13 @@
 <template>
   <div ref="personWrap" class="person__pie--wrap">
-    <span
-      v-for="item in iconCount"
-      :key="item"
-      :class="{boy: item > girlInt}"
-      class="return__ratio--icon">
-      <img v-if="item <= girlInt" src="@/assets/three/return_girl_icon.png" alt="">
-      <img  src="@/assets/three/return_boy_icon.png" v-else alt="">
-    </span>
+    <!--<span-->
+      <!--class="return__ratio&#45;&#45;icon">-->
+      <span
+        :key="item"
+        v-for="item in iconCount"
+        class="iconfont return__ratio--icon"
+        :class="item > girlInt ? 'icon-nan':'icon-nv'"></span>
+    <!--</span>-->
   </div>
 </template>
 
@@ -59,7 +59,7 @@ export default {
       let mr = parseInt(this.getStyle(child, 'marginRight'), 10)
       let count = Math.floor((this.$refs.personWrap.clientWidth + mr) / (child.clientWidth + mr))
       this.iconCount = count % 2 ? count - 1 : count
-      console.log(child.clientWidth, mr)
+      // console.log(child.clientWidth, this.iconCount, mr)
     },
     /* 获取元素样式
     * {Object} ele 要获取的元素dom对象
@@ -88,10 +88,7 @@ export default {
 <style lang="scss" scoped>
   .empty--data{
     .return__ratio--icon{
-      /*background-image: url(../../assets/three/return_girl_icon.png);*/
-      &.boy{
-        /*background-image: url(../../assets/three/return_boy_icon.png);*/
-      }
+      color: #79787B;
     }
   }
   .person__pie--wrap{
@@ -99,18 +96,16 @@ export default {
     overflow: hidden;
   }
   .return__ratio--icon{
-    float: left;
-    display: block;
+    display: inline-block;
     width: 10px;
+    color: #005BC9;
+    font-size: 30px;
+    letter-spacing: -20px;
     height: 24px;
     margin-right: 7px;
-    /*background-image: url(../../assets/three/return_girl_icon@2x.png);*/
-    background-size: 100% auto;
-    img {
-      width: 100%;
-    }
-    &.boy{
-      /*background-image: url(../../assets/three/return_boy_icon@2x.png);*/
+    text-indent: -10px;
+    &.icon-nv{
+      color: #8663FF;
     }
     &:last-child{
       margin-right: 0;

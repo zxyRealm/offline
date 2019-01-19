@@ -90,6 +90,30 @@ export default {
     // 根据type定义配置信息
     setOptions () {
       let seriesData = this.formatData()
+      let windowWidth = window.innerWidth
+      let size = () => {
+        if (windowWidth < 1280) {
+          return {
+            tSize: 14,
+            itemHeight: 10,
+            itemGap: 6
+          }
+        } else if (windowWidth >= 1280 && windowWidth < 1600) {
+          return {
+            tSize: 15,
+            itemHeight: 12,
+            itemGap: 11
+          }
+        } else {
+          return {
+            tSize: 16,
+            itemHeight: 14,
+            itemGap: 16
+          }
+        }
+      }
+      // let ageLegend = () => {
+      // }
       if (this.type === 'age') {
       // #979797
         let color = this.total ? [
@@ -106,7 +130,7 @@ export default {
             text: this.title,
             textStyle: {
               color: '#ffffff',
-              fontSize: '14',
+              fontSize: size().tSize,
               fontWeight: 'normal'
             }
           },
@@ -120,15 +144,15 @@ export default {
           },
           legend: {
             orient: 'vertical',
-            top: 20,
+            top: '20%',
             right: '20%',
             align: 'left',
             itemWidth: 16,
-            itemHeight: 10,
-            itemGap: 7,
+            itemHeight: size().itemHeight,
+            itemGap: size().itemGap,
             textStyle: {
               color: '#ffffff',
-              fontSize: '12',
+              fontSize: '13',
               fontWeight: 'normal'
             },
             icon: 'square',
@@ -190,7 +214,7 @@ export default {
             text: this.title,
             textStyle: {
               color: '#ffffff',
-              fontSize: '14',
+              fontSize: size().tSize,
               fontWeight: 'normal'
             }
           },
@@ -315,7 +339,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .echarts--wrap{
     position: relative;
   }
@@ -324,12 +348,31 @@ export default {
   }
   .percent-wrap{
     position: absolute;
-    top: 22px;
+    top: calc(20%);
     right: 2%;
     display: inline-block;
     font-size: 12px;
-  }
-  .percent-wrap p{
-    line-height: 19px;
+    p{
+      line-height: 19px;
+    }
+    @media only screen and (max-width: 1280px){
+      font-size: 12px;
+      p{
+        line-height: 19px;
+      }
+    }
+    @media only screen and (min-width: 1280px){
+      font-size: 14px;
+      p{
+        line-height: 24px;
+      }
+    }
+    @media only screen and (min-width: 1600px){
+      font-size: 15px;
+      top: calc(20% - 6px);
+      p{
+        line-height: 30px;
+      }
+    }
   }
 </style>
