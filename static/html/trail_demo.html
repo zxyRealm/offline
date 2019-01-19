@@ -37,6 +37,7 @@
   <a href="javascript:;" onclick="createPath('',0)" id="play">
     <img src="/static/img/play_animate.png" width="26" alt="..">
   </a>
+  <!--<a href="javascript:;" onclick="changeDate()">换时间</a>-->
 </div>
 <script>
   var data;
@@ -1074,6 +1075,7 @@
         mixArr[i].update(delta);
       }
     }
+    renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.render(scene, camera)
   }
 
@@ -1167,6 +1169,13 @@
     var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
     var host = url.split('?')[0];
     var params = '?playcount=' + (play_count) + '&status=1';
+    window.location.href = host + params
+  }
+
+  function changeDate() {
+    var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
+    var host = url.split('?')[0];
+    var params = '?playcount=' + (play_count) + '&status=0';
     window.location.href = host + params
   }
 
