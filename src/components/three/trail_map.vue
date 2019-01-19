@@ -59,6 +59,9 @@ export default {
         })
       }
     },
+    changeDate () {
+      this.iframe.changeDate()
+    },
     getCommunityInfo (parentId) {
       if (!parentId) { return }
       GetMarketList({parentId: parentId}).then(res => {

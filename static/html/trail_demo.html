@@ -37,6 +37,7 @@
   <a href="javascript:;" onclick="createPath('',0)" id="play">
     <img src="/static/img/play_animate.png" width="26" alt="..">
   </a>
+  <!--<a href="javascript:;" onclick="changeDate()">换时间</a>-->
 </div>
 <script>
   var data;
@@ -244,9 +245,10 @@
 
   // step3: 回到所有楼层
   function ChapterFour() {
-    craeteOrCamera();
-    createControl(); // 更新旋转控制器
+    // craeteOrCamera();
+    // createControl(); // 更新旋转控制器
     windowType = 'OrthographicCamera';
+    new TWEEN.Tween( group.scale ).to( { x:0.6, y: 0.6, z: 0.6 }, 2000 ).start();
     group.children.forEach(function (item, index) {
       var position_start = {
         y: item.position.y
@@ -260,7 +262,7 @@
         z: item.rotation.z
       };
       var rotate_end = {
-        x: 0, y: 0, z: 0
+        x: -0.04 * Math.PI, y: -0.08* Math.PI, z: 0
       };
       item.children.forEach(function (val) {
         val.material.opacity = 1
@@ -1074,19 +1076,20 @@
         mixArr[i].update(delta);
       }
     }
+    renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.render(scene, camera)
   }
 
   function onWindowResize() {
-    if (windowType === 'OrthographicCamera') {
-      camera.left = window.innerWidth / -2;
-      camera.right = window.innerWidth / 2;
-      camera.top = window.innerHeight / 2;
-      camera.bottom = window.innerHeight / -2;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      return;
-    }
+    // if (windowType === 'OrthographicCamera') {
+    //   camera.left = window.innerWidth / -2;
+    //   camera.right = window.innerWidth / 2;
+    //   camera.top = window.innerHeight / 2;
+    //   camera.bottom = window.innerHeight / -2;
+    //   camera.updateProjectionMatrix();
+    //   renderer.setSize(window.innerWidth, window.innerHeight);
+    //   return;
+    // }
     var innerWidth = window.innerWidth;
     var innerHeight = window.innerHeight;
     camera.aspect = innerWidth / innerHeight;
@@ -1167,6 +1170,13 @@
     var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
     var host = url.split('?')[0];
     var params = '?playcount=' + (play_count) + '&status=1';
+    window.location.href = host + params
+  }
+
+  function changeDate() {
+    var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
+    var host = url.split('?')[0];
+    var params = '?playcount=' + (play_count) + '&status=0';
     window.location.href = host + params
   }
 
