@@ -14,31 +14,31 @@
   </div>
 </template>
 <script>
-import { GetTrace, GetElevatorListByGroupGuid } from "@/api/behavior";
+import { GetTrace, GetElevatorListByGroupGuid } from '@/api/behavior'
 import { GetMarketList } from '@/api/community'
 import { mapState } from 'vuex'
 import { eventObject } from '../../utils/event'
 
 export default {
-  name: "TrailMap",
+  name: 'TrailMap',
   props: {
     data: {
       type: Object,
       default: () => ({})
     }
   },
-  data() {
+  data () {
     return {
       frame: {
-        path: "/static/html/trail_demo.html?playcount=0&status=0",
-        id: "threeFrame"
+        path: '/static/html/trail_demo.html?playcount=0&status=0',
+        id: 'threeFrame'
       },
       iframe: null,
       trailData: [],
       communityInfo: [],
       elevatorList: [],
       playCount: ''
-    };
+    }
   },
   methods: {
     // 获取所有可用数据
@@ -47,11 +47,11 @@ export default {
       await this.getElevatorList(parentId)
       await this.getTrailMapInfo(data)
     },
-    getTrailMapInfo(data) {
+    getTrailMapInfo (data) {
       if (data.end) {
         GetTrace(data).then(res => {
           this.trailData = res.data
-          if(this.trailData.length){
+          if (this.trailData.length) {
             this.$nextTick(() => {
               this.iframe = this.$refs.iframe.contentWindow
             })
@@ -59,7 +59,7 @@ export default {
         })
       }
     },
-    getCommunityInfo(parentId) {
+    getCommunityInfo (parentId) {
       if (!parentId) { return }
       GetMarketList({parentId: parentId}).then(res => {
         let floorInfo = this.sortFloorArr(res.data[0].subGroupSon)
@@ -67,16 +67,16 @@ export default {
         this.communityInfo = floorInfo
       })
     },
-    getElevatorList(parentId) {
+    getElevatorList (parentId) {
       if (!parentId) { return }
       GetElevatorListByGroupGuid({groupGuid: parentId}).then(res => {
         this.elevatorList = res.data
       })
     },
-    handleMessage(event) {
-      const data = event.data;
+    handleMessage (event) {
+      const data = event.data
       switch (data.cmd) {
-        case "trail-load_signal":
+        case 'trail-load_signal':
           eventObject().$emit('IFRAME_FRESH_COUNT', data.params.play_count)
           this.playCount = data.params.play_count
           this.iframe.getTrailData(this.trailData)
@@ -98,13 +98,13 @@ export default {
         }
       }
       return this.sortFloorArr(left).concat([pivot], this.sortFloorArr(right))
-    },
+    }
   },
-  beforeDestroy() {
-    window.removeEventListener("message", this.handleMessage)
+  beforeDestroy () {
+    window.removeEventListener('message', this.handleMessage)
   },
-  mounted() {
-    window.addEventListener("message", this.handleMessage)
+  mounted () {
+    window.addEventListener('message', this.handleMessage)
     this.init(this.data, this.currentManage.id)
   },
   computed: {
@@ -112,7 +112,7 @@ export default {
   },
   watch: {
     data: {
-      handler(val) {
+      handler (val) {
         if (val) this.getTrailMapInfo(val)
       },
       deep: true
@@ -127,7 +127,7 @@ export default {
       deep: true
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

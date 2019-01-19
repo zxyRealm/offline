@@ -137,15 +137,15 @@ export default {
   },
   watch: {
     currentTrailList: {
-      handler(val) {
+      handler (val) {
         if (val[0]) {
           this.trailMapInfo = {
             groupGuid: val[0].groupGuid,
             personGuid: this.trailDetailInfo.personId,
-            start: val[0].createTime.split(" ")[0] + " 00:00:00",
-            end: val[0].createTime.split(" ")[0] + " 23:59:59",
-            reduceFactor: 1
-          };
+            start: val[0].createTime.split(' ')[0] + ' 00:00:00',
+            end: val[0].createTime.split(' ')[0] + ' 23:59:59',
+            reduceFactor: 4
+          }
         }
       },
       deep: true
