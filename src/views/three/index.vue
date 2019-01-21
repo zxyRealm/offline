@@ -105,49 +105,55 @@ export default {
       let psJson = JSON.parse(localStorage.getItem('group_local'))
       // console.log(psJson, new Float32Array(psJson.position))
       // let imgUrl = 'http://offline-browser-images-test.oss-cn-hangzhou.aliyuncs.com/floor_map/A684E231460F4EA080BF64C9A87EF64D/floorF1.svg'
-      svgLoader.load('/static/origin-floor/B1.svg', (paths) => {
-        this.group.position.x = -290
-        this.group.position.y = 214
-        this.group.scale.y *= -1
-        let geometries = []
-        let totalGeom = new THREE.Geometry()
-        let cubeMat
-        for (let i = 0; i < paths.length; i++) {
-          let path = paths[i]
-          let materialLine = new THREE.LineBasicMaterial({
-            color: path.color,
-            side: THREE.DoubleSide,
-            depthWrite: false
-          })
-          let shapes = path.toShapes(true)
-          // materials.push(materialLine)
-          for (let j = 0; j < shapes.length; j++) {
-            let shape = shapes[j]
-            let geometry = new THREE.ShapeBufferGeometry(shape)
-            let mesh = new THREE.Mesh(geometry, materialLine)
-            // new THREE.Geometry().merge(totalGeom, mesh)
-            mesh.name = i
-            geometries.push(geometry)
-            if (i !== 0) this.meshList.push(mesh)
-            let ps
-            // ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
-            // mesh.add(this.createSpriteText(i, ps.x, ps.y))
-            if (psJson.position.toString() === mesh.geometry.attributes.position.array.toString()) {
-              ps = new Contour(changeArrayLevel(new Float32Array(psJson.position))).centroid()
-              this.createSpriteText(psJson.name, ps.x, ps.y, (obj) => {
-                mesh.add(obj)
-              }, '/static/favicon.svg')
-            } else {
-              ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
-              this.createSpriteText(i, ps.x, ps.y, (obj) => {
-                mesh.add(obj)
-              })
-            }
-            this.group.add(mesh)
-          }
-        }
-        this.addFlashPoint()
+      let texture = THREE.ImageUtils.loadTexture('static/timg.jpg', null, function (t) {
       })
+      var geometry = new THREE.PlaneGeometry(580, 428, 1, 1)
+      var material = new THREE.MeshBasicMaterial({map: texture})
+      var mesh = new THREE.Mesh(geometry, material)
+      this.scene.add(mesh)
+      // svgLoader.load('/static/origin-floor/B1.svg', (paths) => {
+      //   this.group.position.x = -290
+      //   this.group.position.y = 214
+      //   this.group.scale.y *= -1
+      //   let geometries = []
+      //   let totalGeom = new THREE.Geometry()
+      //   let cubeMat
+      //   for (let i = 0; i < paths.length; i++) {
+      //     let path = paths[i]
+      //     let materialLine = new THREE.LineBasicMaterial({
+      //       color: path.color,
+      //       side: THREE.DoubleSide,
+      //       depthWrite: false
+      //     })
+      //     let shapes = path.toShapes(true)
+      //     // materials.push(materialLine)
+      //     for (let j = 0; j < shapes.length; j++) {
+      //       let shape = shapes[j]
+      //       let geometry = new THREE.ShapeBufferGeometry(shape)
+      //       let mesh = new THREE.Mesh(geometry, materialLine)
+      //       // new THREE.Geometry().merge(totalGeom, mesh)
+      //       mesh.name = i
+      //       geometries.push(geometry)
+      //       if (i !== 0) this.meshList.push(mesh)
+      //       let ps
+      //       // ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
+      //       // mesh.add(this.createSpriteText(i, ps.x, ps.y))
+      //       if (psJson.position.toString() === mesh.geometry.attributes.position.array.toString()) {
+      //         ps = new Contour(changeArrayLevel(new Float32Array(psJson.position))).centroid()
+      //         this.createSpriteText(psJson.name, ps.x, ps.y, (obj) => {
+      //           mesh.add(obj)
+      //         }, '/static/favicon.svg')
+      //       } else {
+      //         ps = new Contour(changeArrayLevel(mesh.geometry.attributes.position.array)).centroid()
+      //         this.createSpriteText(i, ps.x, ps.y, (obj) => {
+      //           mesh.add(obj)
+      //         })
+      //       }
+      //       this.group.add(mesh)
+      //     }
+      //   }
+      //   this.addFlashPoint()
+      // })
       this.raycaster = new THREE.Raycaster()
       this.renderer = new THREE.WebGLRenderer({antialias: true})
       this.renderer.setPixelRatio(window.devicePixelRatio)

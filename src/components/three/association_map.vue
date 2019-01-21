@@ -92,7 +92,7 @@
 import {mapState} from 'vuex'
 import Mixins from '../../utils/mixins'
 import {GetGroupPortalInfo, GetPortalDeviceList, PortalUnbindDevice, PortalBatchBindDevice, CheckPortalNameExist, CreatePortal, EditPortal, DeletePortal, GetGroupPortalCount} from '../../api/community'
-import {GetAllDevice} from '../../api/device'
+import {GetAllDevice, GetGroupAioList} from '../../api/device'
 import {validateRule} from '../../utils/validate'
 
 export default {
@@ -198,13 +198,11 @@ export default {
         let Info = JSON.parse(JSON.stringify(this.data || ''))
         Info.mapUrl = this.floorList.filter(item => item.floor === this.data.floor)[0].mapUrl
         this.currentFloor = Info
-        // console.log('floor ------------------', Info, this.currentFloor)
       }
 
       if (this.currentFloor) {
         this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
         this.count++
-        // console.log(this.count)
         this.getPortalCameraCount()
       }
     },
@@ -312,7 +310,6 @@ export default {
     },
     // 获取出入口、设备数量
     getPortalCameraCount () {
-      // console.log('portal count-------', this.data.coordinates, this.data.guid, this.currentFloor.groupSonGuid)
       if ((!this.data.coordinates && this.currentFloor.groupSonGuid) || (this.data.coordinates && this.data.guid)) {
         GetGroupPortalCount({groupSonId: this.data.coordinates ? this.data.guid : this.currentFloor.groupSonGuid}).then(res => {
           this.totalCounts = res.data
@@ -325,7 +322,7 @@ export default {
       this.AddDeviceVisible = true
       this.currentPortal = data
       this.checkedItems = this.deviceInfo.list.map(item => item.deviceKey)
-      GetAllDevice().then(res => {
+      GetGroupAioList({groupGuid: this.currentManage.id}).then(res => {
         // this.currentPortal = row
         let deviceKeySet = new Set(this.deviceInfo.list.map(item => item.deviceKey))
         res.data = res.data.map(item => {

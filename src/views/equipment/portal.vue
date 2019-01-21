@@ -97,7 +97,7 @@
 
 <script>
 import {mapState} from 'vuex'
-import {GetOwnDeviceList, PortalDeviceList, PortalMemberDevice, GetAllDevice } from '../../api/device'
+import { PortalDeviceList, PortalMemberDevice, GetAllDevice, GetGroupAioList } from '../../api/device'
 import {MemberNoFloor, PortalBatchBindDevice, PortalUnbindDevice} from '../../api/community'
 
 export default {
@@ -184,7 +184,7 @@ export default {
     // 显示添加设备弹框
     showAddDialog (row) {
       this.checkedItems = row.portalDeviceList.map(item => item.deviceKey)
-      GetAllDevice().then(res => {
+      GetGroupAioList({groupGuid: this.currentManage.id}).then(res => {
         this.currentPortal = row
         let deviceKeySet = new Set(this.currentPortal.portalDeviceList.map(item => item.deviceKey))
         res.data = res.data.map(item => {

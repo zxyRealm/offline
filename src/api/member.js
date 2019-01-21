@@ -8,6 +8,15 @@ export function MemberLibraryUpdate (data) {
   })
 }
 
+// 会员是否已存在
+export function MemberExistPhone (data) {
+  return request({
+    tip: false,
+    url: '/member/exist/phone',
+    data
+  })
+}
+
 // 会员库创建
 export function MemberLibraryCreate (data) {
   return request({
@@ -20,6 +29,14 @@ export function MemberLibraryCreate (data) {
 export function MemberLibraryDelete (data) {
   return request({
     url: '/memberLibrary/delete',
+    data
+  })
+}
+
+// 管理社群下会员库列表
+export function MemberLibraryList (data) {
+  return request({
+    url: '/memberLibrary/list',
     data
   })
 }

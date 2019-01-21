@@ -336,6 +336,7 @@ export default {
         ]
       },
       addServerForm: { // 添加服务器表单对象
+        groupGuid: '',
         deviceKey: '',
         deviceName: '',
         type: ''
@@ -363,8 +364,15 @@ export default {
     addCameraDevice (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.addCameraForm.serverKey = this.$route.query.server_key
-          AddCamera(this.addCameraForm).then(res => {
+          if (!this.currentManage.id) {
+            this.$tip('管理社群不存在', 'error')
+            return
+          }
+          // this.addCameraForm.serverKey = this.$route.query.server_key
+          let subData = JSON.parse(JSON.stringify(this.addCameraForm))
+          subData.serverKey = this.$route.query.server_key
+          subData.groupGuid = this.currentManage.id
+          AddCamera(subData).then(res => {
             this.$tip('添加成功')
             this.addCameraVisible = false
             eventObject().$emit('REFRESH_DEVICE_LIST')
@@ -376,7 +384,13 @@ export default {
     addServerDevice (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          AddDevice(this.addServerForm).then(res => {
+          if (!this.currentManage.id) {
+            this.$tip('管理社群不存在', 'error')
+            return
+          }
+          let subData = JSON.parse(JSON.stringify(this.addServerForm))
+          subData.groupGuid = this.currentManage.id
+          AddDevice(subData).then(res => {
             this.$tip('添加成功')
             this.addServerVisible = false
             eventObject().$emit('REFRESH_DEVICE_LIST')
@@ -448,7 +462,7 @@ export default {
   created () {
   },
   computed: {
-    ...mapState(['userInfo', 'serverIp']),
+    ...mapState(['userInfo', 'serverIp', 'currentManage']),
     excelUrl () {
       let UPLOAD_API = `//${this.serverIp.substring(0, this.serverIp.indexOf(':'))}`
       let url = `${UPLOAD_API}/manage/device/deviceCamera/info/addBatch` // excel批量导入摄像头信息

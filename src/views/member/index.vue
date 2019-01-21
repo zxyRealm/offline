@@ -70,6 +70,14 @@
             </template>
           </el-table-column>
         </el-table>
+        <el-pagination
+          v-if="pagination.total && pagination.total > pagination.length"
+          @current-change="getList"
+          :current-page="pagination.index"
+          :page-size="pagination.length"
+          layout="total, prev, pager, next, jumper"
+          :total="pagination.total">
+        </el-pagination>
       </el-scrollbar>
 
       <!--设备绑定社群-->
@@ -90,7 +98,7 @@
 import {validateRule} from '@/utils/validate'
 import {MemberNoFloor} from '../../api/community'
 import {IsManageGroup} from '../../api/common'
-import {MemberLibraryUpdate, MemberLibrarySearch, MemberLibraryDelete} from '../../api/member'
+import {MemberLibraryUpdate, MemberLibrarySearch, MemberLibraryDelete, MemberLibraryList} from '../../api/member'
 import {mapState} from 'vuex'
 export default {
   name: 'index',
@@ -124,6 +132,9 @@ export default {
       },
       // 列表内容
       tableData: [],
+      pagination: {
+        length: 10
+      },
       // 要改变的库名称
       changeName: {
         name: ''
@@ -152,17 +163,20 @@ export default {
   },
   methods: {
     // 获取人员库列表
-    getList () {
+    getList (page) {
+      if (!this.currentManage.id) return
       let data = {
-        index: 1,
-        length: -1
+        index: page || this.pagination.index || 1,
+        length: this.pagination.length || 10,
+        groupGuid: this.currentManage.id
       }
       this.emptyText = '数据加载中...'
-      MemberLibrarySearch(data).then(res => {
+      MemberLibraryList(data).then(res => {
         for (let i = 0; i < res.data.content.length; i++) {
           res.data.content[i].showPopver = false
         }
         this.tableData = res.data.content
+        this.pagination = res.data.pagination
         this.emptyText = '暂无数据'
       }).catch(() => {
         this.emptyText = '数据获取失败'
@@ -293,6 +307,12 @@ export default {
     }
   },
   watch: {
+    currentManage: {
+      handler (val) {
+        this.getList()
+      },
+      deep: true
+    }
   },
   filters: {
     libraryType (type) {

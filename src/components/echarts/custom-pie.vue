@@ -89,6 +89,9 @@ export default {
   .empty--data{
     .return__ratio--icon{
       color: #79787B;
+      &.icon-nv, &.icon-nan{
+        color: #79787B;
+      }
     }
   }
   .person__pie--wrap{

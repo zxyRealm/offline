@@ -1,9 +1,25 @@
 import request from '@/utils/new-request'
 
+// 获取管理社群下一体机设备列表
+export function GetGroupDeviceList (data) {
+  return request({
+    url: '/device/aio',
+    data
+  })
+}
+
 // 获取商户一体机设备列表
 export function GetOwnDeviceList (data) {
   return request({
     url: '/merchant/device/list',
+    data
+  })
+}
+
+// 获取管理社群下服务器列表
+export function GetGroupServerList (data) {
+  return request({
+    url: '/device/group/server',
     data
   })
 }
@@ -24,10 +40,26 @@ export function AddDevice (data) {
   })
 }
 
+// 查询管理社群下所有设备（一体机、摄像头）
+export function GetGroupDevice (data) {
+  return request({
+    url: '/device/group/all',
+    data
+  })
+}
+
 // 查询用户所有设备（一体机、摄像头）
 export function GetAllDevice (data) {
   return request({
     url: '/device/all',
+    data
+  })
+}
+
+// 查询管理社群下已经绑定了出入口的一体机
+export function GetGroupAioList (data) {
+  return request({
+    url: '/device/group/aio',
     data
   })
 }
@@ -54,6 +86,14 @@ export function AddCamera (data) {
 export function GetCameraList (data) {
   return request({
     url: '/device/camera',
+    data
+  })
+}
+
+// 查询管理社群下已经绑定了出入口的摄像头
+export function GetGroupCameraList (data) {
+  return request({
+    url: '/device/group/camera',
     data
   })
 }

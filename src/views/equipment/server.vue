@@ -26,7 +26,7 @@ import {mapState} from 'vuex'
 import {simplifyGroups} from '@/utils'
 import DeviceTable from '@/components/DeviceTable'
 import {eventObject} from '../../utils/event'
-import {GetServerDeviceList} from '../../api/device'
+import {GetServerDeviceList, GetGroupServerList} from '../../api/device'
 export default {
   name: 'server',
   components: {
@@ -43,9 +43,10 @@ export default {
   methods: {
     // 获取服务器列表
     getServerEquipment (page) {
+      if (!this.currentManage.id) return
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
       this.emptyText = '数据加载中...'
-      GetServerDeviceList({index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
+      GetGroupServerList({groupGuid: this.currentManage.id, index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
         this.emptyText = '暂无设备'
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination || {}
@@ -67,9 +68,15 @@ export default {
     eventObject().$on('REFRESH_DEVICE_LIST', this.getServerEquipment)
   },
   computed: {
-    ...mapState(['loading', 'aliveState'])
+    ...mapState(['loading', 'aliveState', 'currentManage'])
   },
   watch: {
+    currentManage: {
+      handler (val) {
+        this.getServerEquipment()
+      },
+      deep: true
+    }
   },
   beforeDestroy () {
     eventObject().$off('REFRESH_DEVICE_LIST', this.getServerEquipment)
