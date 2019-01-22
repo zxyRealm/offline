@@ -208,6 +208,10 @@
     })
   }
 
+  function calcMiddleFloor(beginFloor, endFloor, itemName) {
+    console.log(beginFloor, endFloor, itemName)
+  }
+
   // 动画trigger
   function changefloor(currentElevator, index, targetFloorName, type) {
     setTimeout(function () {
@@ -518,9 +522,6 @@
           var edge = new Edge(points, item.name);
           edge.mesh.updateMatrix();
           floorGroup.add(edge.mesh);
-
-
-
         }
       }
 
@@ -554,14 +555,14 @@
               var clipAction = mixer.clipAction(clip);
               clipAction.play();
             }
-          })
+          });
 
           emitter.emit('done', floorGroup, item)
         }
       }
     });
 
-    floorGroup.name = item.name
+    floorGroup.name = item.name;
     group.add(floorGroup)
   }
 
@@ -900,7 +901,7 @@
   // 楼层文字
   function TextSprite(text, position) {
     var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d')
+    var ctx = canvas.getContext('2d');
     var cz = camera.position.z; // 摄像头z轴视距
     canvas.width = 512;
     canvas.height = 512;
@@ -929,14 +930,14 @@
   function Text(obj, groupName) {
     var ratio = PIXEL_RATIO;
     var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d')
+    var ctx = canvas.getContext('2d');
     var cz = camera.position.z; // 摄像头z轴视距
     canvas.width = 512 * ratio;
     canvas.height = 512 * ratio;
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.fillStyle = 'rgba(255, 255,255,1)';
     ctx.font = "bold 70px 'Arial'";
-    ctx.lineWidth = 4
+    ctx.lineWidth = 4;
     ctx.textAlign = 'center';
     ctx.fillText(obj.text, 256, 256);
     var texture = new THREE.Texture(canvas);
