@@ -92,7 +92,7 @@
 import {mapState} from 'vuex'
 import Mixins from '../../utils/mixins'
 import {GetGroupPortalInfo, GetPortalDeviceList, PortalUnbindDevice, PortalBatchBindDevice, CheckPortalNameExist, CreatePortal, EditPortal, DeletePortal, GetGroupPortalCount} from '../../api/community'
-import {GetAllDevice, GetGroupAioList} from '../../api/device'
+import {GetAllDevice, GetGroupDevice} from '../../api/device'
 import {validateRule} from '../../utils/validate'
 
 export default {
@@ -322,7 +322,7 @@ export default {
       this.AddDeviceVisible = true
       this.currentPortal = data
       this.checkedItems = this.deviceInfo.list.map(item => item.deviceKey)
-      GetGroupAioList({groupGuid: this.currentManage.id}).then(res => {
+      GetGroupDevice({groupGuid: this.currentManage.id}).then(res => {
         // this.currentPortal = row
         let deviceKeySet = new Set(this.deviceInfo.list.map(item => item.deviceKey))
         res.data = res.data.map(item => {
