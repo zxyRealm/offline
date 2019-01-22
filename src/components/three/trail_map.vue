@@ -43,9 +43,11 @@ export default {
   methods: {
     // 获取所有可用数据
     async init (data, parentId) {
+      console.time('data')
       await this.getCommunityInfo(parentId)
       await this.getElevatorList(parentId)
       await this.getTrailMapInfo(data)
+      console.timeEnd('data')
     },
     getTrailMapInfo (data) {
       if (data.end) {

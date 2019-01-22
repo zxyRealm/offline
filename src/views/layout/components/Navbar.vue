@@ -685,8 +685,8 @@ export default {
     },
     windowKeyDown (e) {
       e = e || window.event
-      e.preventDefault()
       if (e.keyCode === 122 && !this.isFullScreen) {
+        e.preventDefault()
         this.fullScreen()
       }
     },
@@ -725,6 +725,9 @@ export default {
     this.$store.commit('SET_GROUP_SELECT_ID')
     if (this.windowResize) {
       window.removeEventListener('resize', this.windowResize)
+    }
+    if (this.windowKeyDown) {
+      window.removeEventListener('keydown', this.windowKeyDown)
     }
   }
 }
