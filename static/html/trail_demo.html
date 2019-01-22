@@ -209,7 +209,10 @@
   }
 
   function calcMiddleFloor(beginFloor, endFloor, itemName) {
-    console.log(beginFloor, endFloor, itemName)
+    var s_floorAnti = beginFloor.slice(0, 1);
+    var s_floorNum = parseInt(beginFloor.slice(1, beginFloor.length));
+    var e_floorAnti = endFloor.slice(0, 1);
+    var e_floorNum = parseInt(endFloor.slice(1, endFloor.length));
   }
 
   // 动画trigger
@@ -523,41 +526,42 @@
           edge.mesh.updateMatrix();
           floorGroup.add(edge.mesh);
         }
-      }
 
-    });
+        if (i === paths.length - 1) {
+          loader.load('/static/origin-floor/bottom.svg', function (paths) {
+            for (var i = 0; i < paths.length; i++) {
+              var shapes = paths[i].toShapes(true);
+              for (var j = 0; j < shapes.length; j++) {
+                var shape = shapes[j];
 
-    loader.load('/static/origin-floor/bottom.svg', function (paths) {
-      for (var i = 0; i < paths.length; i++) {
-        var shapes = paths[i].toShapes(true);
-        for (var j = 0; j < shapes.length; j++) {
-          var shape = shapes[j];
+                // 放置地板
+                var plane = new Plane(shape, item.name);
+                plane.mesh.updateMatrix();
+                floorGroup.add(plane.mesh);
 
-          // 放置地板
-          var plane = new Plane(shape, item.name);
-          plane.mesh.updateMatrix();
-          floorGroup.add(plane.mesh);
+                // 放置文字贴图
+                var text = new TextSprite(item.name);
+                floorGroup.add(text.textObj);
 
-          // 放置文字贴图
-          var text = new TextSprite(item.name);
-          floorGroup.add(text.textObj);
+                // 放置电梯图标并添加动画
+                elevatorList.forEach(function (elevator) {
+                  if (elevator.floorName === item.name) {
+                    var elevatorSprite = PeopleSprite(item.name);
+                    elevatorSprite.position.set(elevator.point.x, 9, elevator.point.y - 25);
+                    floorGroup.add(elevatorSprite);
+                    var scaleKF = new THREE.VectorKeyframeTrack('.scale', [0, 0.5, 1], [25, 25, 25, 30, 30, 30, 25, 25, 25]);
+                    var clip = new THREE.AnimationClip('Action', 1, [scaleKF]);
+                    var mixer = new THREE.AnimationMixer(elevatorSprite);
+                    mixArr.push(mixer);
+                    var clipAction = mixer.clipAction(clip);
+                    clipAction.play();
+                  }
+                });
 
-          // 放置电梯图标并添加动画
-          elevatorList.forEach(function (elevator) {
-            if (elevator.floorName === item.name) {
-              var elevatorSprite = PeopleSprite(item.name);
-              elevatorSprite.position.set(elevator.point.x, 9, elevator.point.y - 25);
-              floorGroup.add(elevatorSprite);
-              var scaleKF = new THREE.VectorKeyframeTrack('.scale', [0, 0.5, 1], [25, 25, 25, 30, 30, 30, 25, 25, 25]);
-              var clip = new THREE.AnimationClip('Action', 1, [scaleKF]);
-              var mixer = new THREE.AnimationMixer(elevatorSprite);
-              mixArr.push(mixer);
-              var clipAction = mixer.clipAction(clip);
-              clipAction.play();
+                emitter.emit('done', floorGroup, item)
+              }
             }
           });
-
-          emitter.emit('done', floorGroup, item)
         }
       }
     });
