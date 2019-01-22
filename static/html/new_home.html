@@ -55,6 +55,10 @@
     var downClick = false // 下降trigger变量
     var downHeight = floorHeight // 下降起始高度
 
+    var aspectRatio = window.innerWidth / window.innerHeight;
+    var originalAspect = window.innerWidth / window.innerHeight;
+    var viewSize = window.innerHeight;
+
     var floorArr; // 接收楼层信息
 
     function createLight() {
@@ -81,10 +85,10 @@
       scene = new THREE.Scene();
 
       camera = new THREE.OrthographicCamera(
-        window.innerWidth / -2,
-        window.innerWidth / 2,
-        window.innerHeight / 2,
-        window.innerHeight / -2,
+        viewSize * aspectRatio / -2,
+        viewSize * aspectRatio / 2,
+        viewSize / 2,
+        viewSize / -2,
         0.1, 10000
       );
       camera.position.set(330, 160, 450);
@@ -582,11 +586,14 @@
     }
 
     function onWindowResize() {
-      camera.left = window.innerWidth / -2;
-      camera.right = window.innerWidth / 2;
-      camera.top = window.innerHeight / 2;
-      camera.bottom = window.innerHeight / -2;
-      camera.updateProjectionMatrix()
+      var aspect = window.innerWidth / window.innerHeight;
+      var change = originalAspect / aspect;
+      var newSize = viewSize * change;
+      camera.left = -aspect * newSize / 2;
+      camera.right = aspect * newSize  / 2;
+      camera.top = newSize / 2;
+      camera.bottom = -newSize / 2;
+      camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight)
     }
 

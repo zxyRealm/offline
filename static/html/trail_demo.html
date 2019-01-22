@@ -75,7 +75,7 @@
     OPACITY_NONE: 0 // 完全隐藏
   };
 
-  // 需要记住三个楼层值：每轮动画的开始楼层和结束楼层，以及上一轮动画的开始楼层（last_floor），
+  // 记录三个楼层值：每轮动画的开始楼层和结束楼层，以及上一轮动画的开始楼层（last_floor），
   // 如果新的结束楼层等于上一次的开始楼层，则不进行新的动画
   var LAST_FLOOR;
   var BEGIN_FLOOR;
@@ -138,8 +138,10 @@
     createControl();
 
     // 开始动画
+    console.time("animate")
     ChapterZero();
     ChapterOne();
+    console.timeEnd("animate")
 
     if (getQueryString()) {
       replay()
@@ -262,7 +264,7 @@
         z: item.rotation.z
       };
       var rotate_end = {
-        x: -0.04 * Math.PI, y: -0.08* Math.PI, z: 0
+        x: 0 * Math.PI, y: -0.08* Math.PI, z: 0
       };
       item.children.forEach(function (val) {
         val.material.opacity = 1
@@ -497,7 +499,6 @@
   function createFloor(item) {
     var floorGroup = new THREE.Group();
     var loader = new THREE.SVGLoader();
-
     loader.load(item.mapUrl, function (paths) {
       for (var i = 0; i < paths.length; i++) {
         var shapes = paths[i].toShapes(true);
@@ -518,25 +519,11 @@
           edge.mesh.updateMatrix();
           floorGroup.add(edge.mesh);
 
-          // 对比数据/ 获取中点/ 添加色块名称
-          floorGroup.children.forEach(function (floor) {
-            if (floor.name === 'store') {
-              var meshAlex = getString(floor.userData.coordinates);
-              for (var j in item.subGroupSon) {
-                if (meshAlex === item.subGroupSon[j].coordinates) {
-                  var point = getCenterExtraPoint(floor.userData.coordinates);
-                  var ipc = {
-                    text: item.subGroupSon[j].name,
-                    position: {x: point.cx, y: point.cy}
-                  };
-                  var textStore = new Text(ipc, item.name);
-                  floorGroup.add(textStore.text)
-                }
-              }
-            }
-          })
+
+
         }
       }
+
     });
 
     loader.load('/static/origin-floor/bottom.svg', function (paths) {
@@ -568,13 +555,34 @@
               clipAction.play();
             }
           })
+
+          emitter.emit('done', floorGroup, item)
         }
       }
     });
 
-
     floorGroup.name = item.name
     group.add(floorGroup)
+  }
+
+  function createStoreText(floorGroup, item) {
+    // 对比数据/ 获取中点/ 添加色块名称
+    floorGroup.children.forEach(function (floor) {
+      if (floor.name === 'store') {
+        var meshAlex = getString(floor.userData.coordinates);
+        for (var j in item.subGroupSon) {
+          if (meshAlex === item.subGroupSon[j].coordinates) {
+            var point = getCenterExtraPoint(floor.userData.coordinates);
+            var ipc = {
+              text: item.subGroupSon[j].name,
+              position: {x: point.cx, y: point.cy}
+            };
+            var textStore = new Text(ipc, item.name);
+            floorGroup.add(textStore.text)
+          }
+        }
+      }
+    })
   }
 
   // 设置动画播放按钮的状态
@@ -743,6 +751,7 @@
   }
 
   emitter.on('pathBegin', createPath)
+  emitter.on('done', createStoreText)
 
   /* ***************************
    * ***************************
@@ -876,10 +885,22 @@
     this.mesh.name = 'circle'
   }
 
+  var PIXEL_RATIO = (function () {
+    var ctx = document.createElement("canvas").getContext("2d"),
+      dpr = window.devicePixelRatio || 1,
+      bsr = ctx.webkitBackingStorePixelRatio ||
+        ctx.mozBackingStorePixelRatio ||
+        ctx.msBackingStorePixelRatio ||
+        ctx.oBackingStorePixelRatio ||
+        ctx.backingStorePixelRatio || 1;
+
+    return dpr / bsr;
+  })();
+
   // 楼层文字
   function TextSprite(text, position) {
     var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
+    var ctx = canvas.getContext('2d')
     var cz = camera.position.z; // 摄像头z轴视距
     canvas.width = 512;
     canvas.height = 512;
@@ -900,39 +921,44 @@
     });
     this.textObj = new THREE.Sprite(material);
     this.textObj.name = 'text';
-    this.textObj.scale.set(70, 70, 70);
+    this.textObj.scale.set(64, 64, 64);
     this.textObj.position.set(290, 0, 0)
   }
 
   // 商店文字
   function Text(obj, groupName) {
+    var ratio = PIXEL_RATIO;
     var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
+    var ctx = canvas.getContext('2d')
     var cz = camera.position.z; // 摄像头z轴视距
-    canvas.width = 512;
-    canvas.height = 512;
-    ctx.fillStyle = '#ffffff';
-    ctx.font = "normal normal Lighter 70px 'Arial'";
+    canvas.width = 512 * ratio;
+    canvas.height = 512 * ratio;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.fillStyle = 'rgba(255, 255,255,1)';
+    ctx.font = "bold 70px 'Arial'";
     ctx.lineWidth = 4
     ctx.textAlign = 'center';
     ctx.fillText(obj.text, 256, 256);
     var texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
+    texture.magFilter = THREE.NearestFilter;
+    texture.minFilter = THREE.LinearMipMapLinearFilter;
+    // texture.generateMipmaps = false
     // 使用Sprite显示文字
     var material = new THREE.SpriteMaterial({
       map: texture,
       color: 0xffffff,
-      blending: THREE.AdditiveBlending,
+      // blending: THREE.AdditiveBlending,
       depthTest: true,
       depthWrite: false,
       transparent: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
     this.text = new THREE.Sprite(material);
-    this.text.scale.set(100, 100, 100);
+    this.text.scale.set(80, 80, 80);
     this.text.name = 'store_text';
     // this.text.rotation.x = -0.5 * Math.PI
-    this.text.position.set(obj.position.x, 20, -obj.position.y)
+    this.text.position.set(obj.position.x, 13, -obj.position.y)
   }
 
   // 贴图
@@ -1081,15 +1107,6 @@
   }
 
   function onWindowResize() {
-    // if (windowType === 'OrthographicCamera') {
-    //   camera.left = window.innerWidth / -2;
-    //   camera.right = window.innerWidth / 2;
-    //   camera.top = window.innerHeight / 2;
-    //   camera.bottom = window.innerHeight / -2;
-    //   camera.updateProjectionMatrix();
-    //   renderer.setSize(window.innerWidth, window.innerHeight);
-    //   return;
-    // }
     var innerWidth = window.innerWidth;
     var innerHeight = window.innerHeight;
     camera.aspect = innerWidth / innerHeight;
