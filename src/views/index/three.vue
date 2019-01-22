@@ -58,16 +58,13 @@
             <div class="clearfix">
               <div class="industry__rank--wrap">
                 <div class="rank-items">
-                  <p>{{rankData.industry[1] ? rankData.industry[1].industryName : ''}}</p>
-                  <p>{{rankData.industry[1] ? rankData.industry[1].percent: ''}}</p>
+                  <p>{{rankData.industry[1] ? rankData.industry[1].industryName : ''}}<br>{{rankData.industry[1] ? rankData.industry[1].percent: ''}}</p>
                 </div>
                 <div class="rank-items">
-                  <p>{{rankData.industry[0] ? rankData.industry[0].industryName : ''}}</p>
-                  <p>{{rankData.industry[0] ? rankData.industry[0].percent: ''}}</p>
+                  <p>{{rankData.industry[0] ? rankData.industry[0].industryName : ''}}<br>{{rankData.industry[0] ? rankData.industry[0].percent: ''}}</p>
                 </div>
                 <div class="rank-items">
-                  <p>{{rankData.industry[2] ? rankData.industry[2].industryName : ''}}</p>
-                  <p>{{rankData.industry[2] ? rankData.industry[2].percent : ''}}</p>
+                  <p>{{rankData.industry[2] ? rankData.industry[2].industryName : ''}}<br>{{rankData.industry[2] ? rankData.industry[2].percent : ''}}</p>
                 </div>
               </div>
               <ul class="right__sidebar">
@@ -296,11 +293,8 @@ export default {
   }
   /*标题样式*/
   .floor__sub--title{
-    font-size: 16px;
+    font-size: 14px;
     color: #fff;
-    @media screen and (max-width: 1280px){
-      font-size: 14px;
-    }
     &.vertical{
       display: inline-block;
       width: 1em;
@@ -318,25 +312,23 @@ export default {
   .floor__data--wrap{
     float:left;
     width: 28%;
+    max-width: 400px;
     /*width: 500px;*/
-    min-width: 360px;
+    min-width: 340px;
     height: 100%;
     margin-right: 5px;
-    @media screen and (max-width: 1280px){
-      /*width: 360px;*/
-    }
     .el-scrollbar{
       height: 100%;
       overflow: hidden;
     }
     .el-scrollbar__view{
       .items{
-        padding: 20px 15px;
+        padding: 10px 15px;
         box-sizing: border-box;
         background: #101116;
-        @media screen and (max-width: 1280px){
-          padding: 10px 15px;
-        }
+        /*@media screen and (max-width: 1280px){*/
+          /*padding: 10px 15px;*/
+        /*}*/
       }
       > div {
         margin-bottom: 10px;
@@ -347,10 +339,7 @@ export default {
     }
     /*会员比例、男女比例*/
     .float-block{
-      height: 300px;
-      @media screen and (max-width: 1280px){
-        height: 198px;
-      }
+      height: 198px;
       .items{
         float: left;
         height: 100%;
@@ -360,7 +349,7 @@ export default {
         }
       }
       .sex__data--wrap{
-        margin-top: 26px;
+        height: calc(100% - 20px);
         font-size: 12px;
         p {
           img{
@@ -370,37 +359,53 @@ export default {
         }
       }
       .sex__ratio--icon{
-        width: 48px;
-        height: 106px;
+        width: 42px;
+        height: 100%;
         margin: 0  8px;
         background-position: left center;
         background-repeat: no-repeat;
         background-image: url(../../assets/three/sex_ratio_icon.png);
-        background-size: contain;
+        background-size: 100% auto;
       }
+      /*@media screen and (max-width: 1280px){*/
+        /*height: 198px;*/
+        /*.sex__ratio--icon{*/
+          /*width: 42px;*/
+        /*}*/
+      /*}*/
+      /*@media screen and (min-width: 1280px){*/
+        /*height: 236px;*/
+      /*}*/
+      /*@media only screen and (min-width: 1600px) {*/
+        /*height: 300px;*/
+        /*.sex__ratio--icon{*/
+          /*max-width: 72px;*/
+        /*}*/
+      /*}*/
     }
     /*回头客比例*/
     .return-ratio{
-      height: 170px;
+      height: 116px;
       .person__pie--wrap{
-        margin-top: 32px;
-        height: 40px;
+        margin-top: 15px;
+        height: 28px;
       }
-      @media screen and (max-width: 1280px){
-        height: 116px;
-        .person__pie--wrap{
-          margin-top: 15px;
-        }
-      }
+      /*@media screen and (max-width: 1280px){*/
+        /*height: 116px;*/
+        /*.person__pie--wrap{*/
+          /*margin-top: 15px;*/
+          /*height: 28px;*/
+        /*}*/
+      /*}*/
     }
     .return__data--wrap{
-      margin-top: 16px;
-      font-size: 14px;
+      margin-top: 10px;
+      font-size: 12px;
       overflow: hidden;
       > div{
         img {
-          width: 20px;
           margin-right: 4px;
+          width: 15px;
         }
         &:first-child{
           float: left;
@@ -409,16 +414,16 @@ export default {
           float: right;
         }
       }
-      @media screen and (max-width: 1280px){
-        margin-top: 10px;
-        font-size: 12px;
-        > div{
-          img {
-            margin-right: 4px;
-            width: 15px;
-          }
-        }
-      }
+      /*@media screen and (max-width: 1280px){*/
+        /*margin-top: 10px;*/
+        /*font-size: 12px;*/
+        /*> div{*/
+          /*img {*/
+            /*margin-right: 4px;*/
+            /*width: 15px;*/
+          /*}*/
+        /*}*/
+      /*}*/
     }
     .return__ratio--wrap{
       display: inline-block;
@@ -443,51 +448,63 @@ export default {
     }
     /*年龄比例*/
     .age-ratio{
-      height: 280px;
-      @media screen and (max-width: 1280px){
-        height: 160px;
-      }
+      height: 170px;
+      /*@media screen and (max-width: 1280px){*/
+        /*height: 170px;*/
+      /*}*/
+      /*@media only screen and (min-width: 1280px){*/
+        /*height: 220px;*/
+      /*}*/
+      /*@media screen and (min-width: 1600px){*/
+        /*height: 280px;*/
+      /*}*/
     }
     /*业态客流排行榜*/
     .format-flow-rank{
-      height: 320px;
-      @media screen and (max-width: 1280px){
-        height: 200px;
+      height: 200px;
+      >.clearfix{
+        position: relative;
+        height: calc(100% - 20px);
       }
       .industry__rank--wrap{
         float: left;
-        height: 160px;
+        width: calc(100% - 82px);
+        height: 100%;
         .rank-items{
+          position: relative;
           float: left;
-          width: 66px;
+          width: 64px;
           height: 100%;
           text-align: center;
           background-repeat: no-repeat;
           background-position: left bottom;
           background-image: url(../../assets/three/industry_rank_two.png);
           background-size: 100% auto;
-          p:first-child{
-            margin-top: 94px;
+          p{
+            position: absolute;
+            width: 100%;
+            bottom: 12%;
+            font-size: 13px;
           }
           &:nth-child(2){
-            width: 70px;
-            margin: 0 14px;
+            margin: 0 15px;
             background-image: url(../../assets/three/industry_rank_one.png);
-            p:first-child{
-              margin-top: 84px;
+            p{
+              bottom: 15%;
             }
           }
           &:nth-child(3) {
-            width: 62px;
             background-image: url(../../assets/three/industry_rank_three.png);
-            p:first-child{
-              margin-top: 108px;
+            p{
+              bottom: 9%;
             }
           }
         }
       }
       .right__sidebar{
-        float: right;
+        position: absolute;
+        right: 0;
+        bottom: 0;
         margin-top: -2px;
         font-size: 12px;
         .sidebar--item{
@@ -499,6 +516,56 @@ export default {
            }
         }
       }
+      /*@media only screen and (max-width: 1280px){*/
+        /*height: 200px;*/
+        /*.industry__rank--wrap{*/
+          /*padding-bottom: 10px;*/
+          /*.rank-items{*/
+            /*width: 64px;*/
+            /*p{*/
+              /*font-size: 13px;*/
+              /*&:nth-child(2){*/
+                /*width: 68px;*/
+                /*margin: 0 6px;*/
+              /*}*/
+            /*}*/
+          /*}*/
+        /*}*/
+      /*}*/
+      /*@media only screen and (min-width: 1280px){*/
+        /*height: 260px;*/
+        /*>.clearfix{*/
+          /*height: calc(100% - 30px);*/
+        /*}*/
+        /*.industry__rank--wrap{*/
+          /*.rank-items{*/
+            /*p{*/
+              /*font-size: 13px;*/
+            /*}*/
+          /*}*/
+        /*}*/
+        /*.right__sidebar{*/
+          /*font-size: 13px;*/
+          /*line-height: 1.5;*/
+        /*}*/
+      /*}*/
+      /*@media only screen and (min-width: 1600px){*/
+        /*height: 320px;*/
+        /*>.clearfix{*/
+          /*height: calc(100% - 40px);*/
+        /*}*/
+        /*.industry__rank--wrap{*/
+          /*.rank-items{*/
+            /*p{*/
+              /*font-size: 14px;*/
+            /*}*/
+          /*}*/
+        /*}*/
+        /*.right__sidebar{*/
+          /*font-size: 14px;*/
+          /*line-height: 1.5;*/
+        /*}*/
+      /*}*/
     }
     /*门店客流排行*/
     .store-flow-rank{
@@ -518,10 +585,36 @@ export default {
           color: #3a8ee6;
         }
         .el-progress{
-          /*float: left;*/
           width: calc(100% - 120px);
         }
       }
+      /*@media only screen and (max-width: 1280px){*/
+        /*.pl-items{*/
+          /*height: 30px;*/
+          /*line-height: 30px;*/
+          /*span{*/
+            /*font-size: 12px;*/
+          /*}*/
+        /*}*/
+      /*}*/
+      /*@media only screen and (min-width: 1280px){*/
+        /*.pl-items{*/
+          /*height: 34px;*/
+          /*line-height: 34px;*/
+          /*span{*/
+            /*font-size: 13px;*/
+          /*}*/
+        /*}*/
+      /*}*/
+      /*@media only screen and (min-width: 1600px){*/
+        /*.pl-items{*/
+          /*height: 40px;*/
+          /*line-height: 40px;*/
+          /*span{*/
+            /*font-size: 14px;*/
+          /*}*/
+        /*}*/
+      /*}*/
     }
   }
   /*楼宇地图展示*/
@@ -550,112 +643,6 @@ export default {
       width: 100%;
       height: 100%;
       background: #0F0E11;
-    }
-  }
-  /*实时客流样式表*/
-  .floor__block--passenger {
-    height: 132px;
-    .passenger-items{
-      width: 30%;
-      height: 80px;
-      margin-right: 15px;
-      border-radius: 8px;
-      padding: 16px 20px;
-      box-sizing: border-box;
-      background: #515055;
-      text-align: center;
-      color: #8c939d;
-      font-size: 12px;
-      &:last-child{
-        margin-right: 0;
-      }
-      .items-icon{
-        float: left;
-        margin-right: 25px;
-        text-align: center;
-        line-height: 1.2;
-        img{
-          height: 28px;
-        }
-      }
-      .items-data{
-        overflow: hidden;
-        text-align: left;
-        > div {
-          margin-right: 20px;
-          &:last-child{
-            margin-right: 0;
-          }
-        }
-      }
-      .sub-items{
-        display: inline-block;
-        strong{
-          font-size: 16px;
-          color: #3a8ee6;
-        }
-        span{
-          padding-left: 10px;
-          color: #C03639;
-          margin-left: 2px;
-          background-position: 2px center;
-          background-repeat: no-repeat;
-          background-image: url(../../assets/three/up-icon@2x.png);
-          background-size: auto 10px;
-          &.lower {
-            background-image: url(../../assets/three/up-icon@2x.png);
-          }
-        }
-      }
-    }
-  }
-  .floor__block--child{
-    overflow: hidden;
-    background: transparent;
-    .floor-visitor{
-      height: 584px;
-      .visitor-info-wrap{
-        background: #0F0E11;
-        border-radius: 10px;
-        padding: 16px;
-        margin-top: 10px;
-        .visitor-photo{
-          width: 144px;
-          height: 194px;
-          border: 1px solid #d1dbe5;
-          border-radius: 5px;
-        }
-        .detail-info{
-          text-align: left;
-          margin-left: 44px;
-          p{
-            height: 1.5em;
-            line-height: 1;
-            border-bottom: 1px dashed #979797;
-            margin-bottom: 18px;
-            font-size: 12px;
-            padding: 0 10px;
-            &:last-child{
-              margin-bottom: 0;
-            }
-          }
-        }
-      }
-      .visitor-history--list{
-        overflow: hidden;
-        margin-top: 25px;
-        width: calc(100% + 8px);
-        height: 256px;
-        img.visitor-avatar {
-          float: left;
-          width: 58px;
-          height: 80px;
-          box-sizing: border-box;
-          margin-right: 8px;
-          margin-bottom: 8px;
-          border-radius: 5px;
-        }
-      }
     }
   }
 </style>

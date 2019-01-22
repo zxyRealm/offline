@@ -401,7 +401,7 @@ export default {
       return title
     },
     isFullScreen () { // 当前是否全屏状态 (17 为浏览器默认滚动条宽度)
-      return Math.abs(window.screen.height - this.clientHeight) <= 17
+      return Math.abs(window.screen.height - this.clientHeight) <= 23
     }
   },
   watch: {
@@ -650,15 +650,16 @@ export default {
     // 切换全屏状态
     changeScreen () {
       if (!this.isFullScreen) {
-        this.fullScreen()
+        this.enterFullScreen()
       } else {
-        this.exitScreen()
+        this.exitFullScreen()
       }
     },
     // 打开浏览器全屏模式
-    fullScreen () {
+    enterFullScreen () {
       let el = document.documentElement
       let rfs = el.requestFullScreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen
+      // console.log('enter full------', rfs)
       if (rfs) { // typeof rfs != "undefined" && rfs
         rfs.call(el)
       } else if (typeof window.ActiveXObject !== 'undefined') {
@@ -670,7 +671,7 @@ export default {
       }
     },
     // 退出全屏
-    exitScreen () {
+    exitFullScreen () {
       let el = document
       let cfs = el.cancelFullScreen || el.mozCancelFullScreen || el.msExitFullscreen || el.webkitExitFullscreen || el.exitFullscreen
       if (cfs) { // typeof cfs != "undefined" && cfs
@@ -685,12 +686,14 @@ export default {
     },
     windowKeyDown (e) {
       e = e || window.event
+      // console.log('isFull----------', this.isFullScreen)
       if (e.keyCode === 122 && !this.isFullScreen) {
         e.preventDefault()
-        this.fullScreen()
+        this.enterFullScreen()
       }
     },
     windowResize () {
+      console.log('resize', window.screen.height, window.document.documentElement.clientHeight)
       this.clientHeight = window.document.documentElement.clientHeight
     },
     deleteLabel (index) {
