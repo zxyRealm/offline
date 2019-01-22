@@ -82,20 +82,42 @@ export default {
     * */
     initScene (floor = (this.$route.query.floor || 'F1')) {
       this.container = document.getElementById(this.id)
+      this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
+      this.renderer.setPixelRatio(window.devicePixelRatio)
+      this.renderer.setClearColor(0xeeeeee)
+      this.renderer.setSize(this.container.clientWidth - this.pd, this.container.clientHeight)
       //
-      if (this.renderer) {
-        this.disposeTotal(this.scene)
-        this.scene.remove(this.scene.children)
-        this.container.innerHTML = ''
-      }
+      this.renderer.shadowMapEnabled = true
+      this.renderer.shadowMapSoft = true
       this.scene = new THREE.Scene()
-      this.scene.background = new THREE.Color(0x0F0E11)
+      // this.scene.background = new THREE.Color(0x0F0E11)
       //
-      this.camera = new THREE.PerspectiveCamera(56, (this.container.clientWidth - this.pd) / this.container.clientHeight, 1, 5000)
+      this.camera = new THREE.PerspectiveCamera(30, (this.container.clientWidth - this.pd) / this.container.clientHeight, 1, 5000)
       this.camera.position.set(0, 0, 450)
       //
       this.group = new THREE.Group()
       this.scene.add(this.group)
+      var plane = new THREE.Mesh(new THREE.PlaneGeometry(580, 428, 3, 3),
+        new THREE.MeshLambertMaterial({color: 0x005BC9}))
+      plane.rotation.x = -Math.PI / 2
+      plane.position.y = -1
+      plane.receiveShadow = true
+      this.scene.add(plane)
+      var light = new THREE.SpotLight(0xffff00, 1, 100, Math.PI / 6, 25)
+      light.position.set(2, 5, 3)
+      // light.target = cube;
+      light.castShadow = true
+
+      light.shadowCameraNear = 1
+      light.shadowCameraFar = 5000
+      light.shadowCameraFov = 30
+      light.shadowCameraVisible = true
+
+      light.shadowMapWidth = 580
+      light.shadowMapHeight = 428
+      light.shadowDarkness = 0.3
+
+      this.scene.add(light)
       //
       // let directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
       // directionalLight.position.set(0, 0, 10).normalize()
@@ -110,7 +132,7 @@ export default {
       var geometry = new THREE.PlaneGeometry(580, 428, 1, 1)
       var material = new THREE.MeshBasicMaterial({map: texture})
       var mesh = new THREE.Mesh(geometry, material)
-      this.scene.add(mesh)
+      // this.scene.add(mesh)
       // svgLoader.load('/static/origin-floor/B1.svg', (paths) => {
       //   this.group.position.x = -290
       //   this.group.position.y = 214
@@ -155,10 +177,7 @@ export default {
       //   this.addFlashPoint()
       // })
       this.raycaster = new THREE.Raycaster()
-      this.renderer = new THREE.WebGLRenderer({antialias: true})
-      this.renderer.setPixelRatio(window.devicePixelRatio)
-      this.renderer.setClearColor(0xeeeeee)
-      this.renderer.setSize(this.container.clientWidth - this.pd, this.container.clientHeight)
+
       this.container.appendChild(this.renderer.domElement)
       // 轨道控制器
       this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement)
@@ -452,11 +471,6 @@ export default {
   beforeDestroy () {
     document.removeEventListener('resize', this.onWindowResize)
     document.removeEventListener('click', this.onDocumentMouseDown)
-    if (this.renderer) {
-      this.disposeTotal(this.scene)
-      this.scene.remove(this.scene.children)
-      this.renderer.dispose()
-    }
   }
 }
 </script>

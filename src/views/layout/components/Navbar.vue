@@ -672,8 +672,7 @@ export default {
     // 退出全屏
     exitScreen () {
       let el = document
-      let cfs = el.cancelFullScreen || el.webkitCancelFullScreen ||
-        el.mozCancelFullScreen || el.ExitFullscreen || el.msExitFullscreen
+      let cfs = el.cancelFullScreen || el.mozCancelFullScreen || el.msExitFullscreen || el.webkitExitFullscreen || el.exitFullscreen
       if (cfs) { // typeof cfs != "undefined" && cfs
         cfs.call(el)
       } else if (typeof window.ActiveXObject !== 'undefined') {
@@ -682,6 +681,13 @@ export default {
         if (wscript != null) {
           wscript.SendKeys('{F11}')
         }
+      }
+    },
+    windowKeyDown (e) {
+      e = e || window.event
+      if (e.keyCode === 122 && !this.isFullScreen) {
+        e.preventDefault()
+        this.fullScreen()
       }
     },
     windowResize () {
@@ -708,6 +714,7 @@ export default {
   mounted () {
     this.clientHeight = window.document.documentElement.clientHeight
     window.addEventListener('resize', this.windowResize)
+    window.addEventListener('keydown', this.windowKeyDown)
     eventObject().$on('ManageListRefresh', this.getManageList)
     eventObject().$on('CREATE_COMMUNITY-INDEX', () => {
       this.addFormVisible = true
@@ -718,6 +725,9 @@ export default {
     this.$store.commit('SET_GROUP_SELECT_ID')
     if (this.windowResize) {
       window.removeEventListener('resize', this.windowResize)
+    }
+    if (this.windowKeyDown) {
+      window.removeEventListener('keydown', this.windowKeyDown)
     }
   }
 }
