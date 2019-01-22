@@ -38,24 +38,8 @@
             <el-option label="黑名单" :value="3"></el-option>
           </el-select>
         </el-form-item>
-
-        <!--<el-form-item label="关联社群：">-->
-          <!--<div class="form__button" @click="getGroupList" v-show="!formData.groupName">关联</div>-->
-          <!--<div v-show="formData.groupName" class="edit__name">{{formData.groupName}}</div><i class="el-icon-edit edit" @click="getGroupList" v-show="formData.groupName"></i>-->
-        <!--</el-form-item>-->
       </uu-form>
     </div>
-
-    <!--设备绑定社群-->
-    <ob-dialog-form
-      filter
-      @remote-submit="bindCommunity"
-      :group="groupList"
-      title="关联社群"
-      type="group"
-      :visible.sync="dialogFormVisible"
-    >
-    </ob-dialog-form>
   </div>
 </template>
 
@@ -130,29 +114,7 @@ export default {
     // 返回上一级
     returnLast () {
       this.$router.go(-1)
-    },
-    // 获取自有社群列表，绑定社群时只能绑定自有社群
-    getGroupList () {
-      if (!this.currentManage.id) return
-      MemberNoFloor({groupId: this.currentManage.id}).then(res => {
-        if (res.data[0]) {
-          res.data[0].subGroupSon = res.data.slice(1)
-          this.groupList = [res.data[0]]
-        }
-        this.dialogFormVisible = true
-      })
-    },
-    // 确认关联
-    bindCommunity (data) {
-      if (!data.length) {
-        this.$tip('请选择关联社群', 'error')
-        return
-      }
-      this.formData.groupName = data[0].name
-      this.formData.groupGuid = data[0].guid
-      this.dialogFormVisible = false
     }
-
   },
   created () {
     if (this.$route.query.guid) {

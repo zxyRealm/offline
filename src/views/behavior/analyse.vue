@@ -155,7 +155,7 @@
 
 <script>
 import {MemberNoFloor} from '../../api/community'
-import {GetAllAioList, GetAllCameraList} from '../../api/device'
+import {GetAllAioList, GetAllCameraList, GetGroupAioList, GetGroupCameraList} from '../../api/device'
 import {GetBehaviorList} from '../../api/behavior'
 
 import {mapState} from 'vuex'
@@ -216,7 +216,7 @@ export default {
           if (this.selectType === 1) return
           this.selectType = 1
           this.search.device = ''
-          GetAllAioList().then(res => {
+          GetGroupAioList({groupGuid: this.currentManage.id}).then(res => {
             this.deviceOriginList = res.data
             this.deviceList = res.data
           })
@@ -225,7 +225,7 @@ export default {
           if (this.selectType === 2) return
           this.selectType = 2
           this.search.device = ''
-          GetAllCameraList().then(res => {
+          GetGroupCameraList({groupGuid: this.currentManage.id}).then(res => {
             this.deviceOriginList = res.data
             this.deviceList = res.data
           })

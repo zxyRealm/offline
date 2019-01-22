@@ -18,13 +18,13 @@
         <device-table
           :empty-text="emptyText"
           data-type="aio"
-          @refresh="getMineEquipment"
+          @refresh="getAioEquipment"
           v-model="equipmentList"
         >
         </device-table>
         <el-pagination
           v-if="pagination.total && pagination.total > pagination.length"
-          @current-change="getMineEquipment"
+          @current-change="getAioEquipment"
           @size-change="sizeChange"
           :page-sizes="[10, 20, 30]"
           :current-page="pagination.index"
@@ -40,7 +40,7 @@
 import {mapState} from 'vuex'
 import DeviceTable from '@/components/DeviceTable'
 import {eventObject} from '../../utils/event'
-import {GetOwnDeviceList} from '../../api/device'
+import {GetOwnDeviceList, GetGroupDeviceList} from '../../api/device'
 export default {
   name: 'index',
   components: {
@@ -61,17 +61,18 @@ export default {
   methods: {
     // 自有设备搜索
     search (val) {
-      this.getMineEquipment()
+      this.getAioEquipment()
     },
     sizeChange (size) {
       this.pagination.length = size
-      this.getMineEquipment()
+      this.getAioEquipment()
     },
     // 获取自有设备
-    getMineEquipment (page) {
+    getAioEquipment (page) {
+      if (!this.currentManage.id) return
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
       this.emptyText = '数据加载中...'
-      GetOwnDeviceList({index: page, searchText: this.searchValue || '', length: this.pagination.length || 10}).then(res => {
+      GetGroupDeviceList({groupGuid: this.currentManage.id, index: page, searchText: this.searchValue || '', length: this.pagination.length || 10}).then(res => {
         this.emptyText = '暂无设备'
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination || {}
@@ -98,8 +99,8 @@ export default {
         window.addEventListener('click', this.firstCreate)
       }
     })
-    this.getMineEquipment()
-    eventObject().$on('REFRESH_DEVICE_LIST', this.getMineEquipment)
+    this.getAioEquipment()
+    eventObject().$on('REFRESH_DEVICE_LIST', this.getAioEquipment)
   },
   filters: {
     type: function (val) {
@@ -114,12 +115,18 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loading', 'aliveState', 'userInfo', 'serverIp'])
+    ...mapState(['loading', 'aliveState', 'currentManage', 'userInfo', 'serverIp'])
   },
   watch: {
+    currentManage: {
+      handler (val) {
+        this.getAioEquipment()
+      },
+      deep: true
+    }
   },
   beforeDestroy () {
-    eventObject().$off('REFRESH_DEVICE_LIST', this.getMineEquipment)
+    eventObject().$off('REFRESH_DEVICE_LIST', this.getAioEquipment)
   }
 }
 </script>

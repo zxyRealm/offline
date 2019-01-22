@@ -116,8 +116,8 @@
 
 <script>
 import axios from 'axios'
-import {validateRule, validPhone} from '../../utils/validate'
-import {MemberTypeList, MemberTypeOperate, MemberCreate, MemberUpdate, MemberDetails, MemberImgDetect, MemberLibraryFind} from '../../api/member'
+import {validateRule} from '../../utils/validate'
+import {MemberTypeList, MemberTypeOperate, MemberCreate, MemberUpdate, MemberDetails, MemberImgDetect, MemberLibraryFind, MemberExistPhone} from '../../api/member'
 import {OssSignature} from '../../api/common'
 import {fileTypeAllow} from '../../utils'
 
@@ -138,12 +138,32 @@ export default {
         }
       }
     }
+    // 姓名校验规则
+    const validatePhone = (rule, value, callback) => {
+      if (value) {
+        if (value.length !== 11) {
+          callback(new Error('请输入11位手机号'))
+        } else if (!/^[\d]{11}$/.test(value)) {
+          callback(new Error('仅限数字'))
+        } else if (!validateRule(value, 6)) {
+          callback(new Error('非运营号段'))
+        } else {
+          MemberExistPhone({phone: value, memberLibraryGuid: this.$route.query.guid}).then(res => {
+            !res.data ? callback(new Error('手机号重复')) : callback()
+          }).catch(err => {
+            callback(err.msg || '验证失败')
+          })
+        }
+      } else {
+        callback()
+      }
+    }
     return {
       rules: {
         name: [{required: true, validator: validateName, trigger: 'blur'}],
         phone: [
           {required: true, message: '请输入手机号', trigger: 'blur'},
-          {validator: validPhone, trigger: 'blur'}
+          {validator: validatePhone, trigger: 'blur'}
         ]
       },
       // 面包屑名称
