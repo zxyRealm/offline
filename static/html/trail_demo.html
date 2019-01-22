@@ -339,7 +339,14 @@
   function animateLowerElevator(item, floorName, type, middleArr) {
     // 中间楼层的放置
     if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
-
+      middleArr.forEach(function(val){
+        if (item.name === val) {
+          item.position.y = 0;
+          item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
+          item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
+          return
+        }
+      });
       var lowPositionStart = {
         x: item.position.x,
         y: item.position.y
@@ -362,13 +369,7 @@
       var lowOpacityEnd = {
         opacity: TRANSFER_BOARD.OPACITY_BLOCK
       };
-      middleArr.forEach(function(val){
-        if (item.name === val) {
-          item.position.y = 0;
-          item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
-          item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
-        } else {}
-      });
+
       var lowAction1 = new TWEEN.Tween(lowPositionStart)
         .to(lowPositionEnd, duration)
         .onUpdate(function () {
