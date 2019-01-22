@@ -92,25 +92,30 @@ export default {
       let seriesData = this.formatData()
       let windowWidth = window.innerWidth
       let size = () => {
-        if (windowWidth < 1280) {
-          return {
-            tSize: 14,
-            itemHeight: 10,
-            itemGap: 6
-          }
-        } else if (windowWidth >= 1280 && windowWidth < 1600) {
-          return {
-            tSize: 15,
-            itemHeight: 12,
-            itemGap: 11
-          }
-        } else {
-          return {
-            tSize: 16,
-            itemHeight: 14,
-            itemGap: 16
-          }
+        return {
+          tSize: 14,
+          itemHeight: 10,
+          itemGap: 6
         }
+        // if (windowWidth < 1280) {
+        //   return {
+        //     tSize: 14,
+        //     itemHeight: 10,
+        //     itemGap: 6
+        //   }
+        // } else if (windowWidth >= 1280 && windowWidth < 1600) {
+        //   return {
+        //     tSize: 15,
+        //     itemHeight: 12,
+        //     itemGap: 11
+        //   }
+        // } else {
+        //   return {
+        //     tSize: 16,
+        //     itemHeight: 14,
+        //     itemGap: 16
+        //   }
+        // }
       }
       // let ageLegend = () => {
       // }
@@ -355,24 +360,24 @@ export default {
     p{
       line-height: 19px;
     }
-    @media only screen and (max-width: 1280px){
-      font-size: 12px;
-      p{
-        line-height: 19px;
-      }
-    }
-    @media only screen and (min-width: 1280px){
-      font-size: 14px;
-      p{
-        line-height: 24px;
-      }
-    }
-    @media only screen and (min-width: 1600px){
-      font-size: 15px;
-      top: calc(20% - 6px);
-      p{
-        line-height: 30px;
-      }
-    }
+    /*@media only screen and (max-width: 1280px){*/
+      /*font-size: 12px;*/
+      /*p{*/
+        /*line-height: 19px;*/
+      /*}*/
+    /*}*/
+    /*@media only screen and (min-width: 1280px){*/
+      /*font-size: 14px;*/
+      /*p{*/
+        /*line-height: 24px;*/
+      /*}*/
+    /*}*/
+    /*@media only screen and (min-width: 1600px){*/
+      /*font-size: 15px;*/
+      /*top: calc(20% - 6px);*/
+      /*p{*/
+        /*line-height: 30px;*/
+      /*}*/
+    /*}*/
   }
 </style>

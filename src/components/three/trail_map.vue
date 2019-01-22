@@ -60,7 +60,9 @@ export default {
       }
     },
     changeDate () {
-      this.iframe.changeDate()
+      if (this.iframe) {
+        this.iframe.changeDate()
+      }
     },
     getCommunityInfo (parentId) {
       if (!parentId) { return }
