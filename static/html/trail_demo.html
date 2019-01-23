@@ -301,12 +301,19 @@
           if(val.name === 'store_text' || val.name === 'sprite_elevator'){
             val.visible = true
           }
+          if(val.name === 'store' || val.name === 'plane'){
+            val.material.depthWrite = true;
+          }
         });
       }
       // 如果楼层上没有路径，则显示部分透明
       else {
         item.children.forEach(function (val) {
-          val.material.opacity = 0.2;
+          if (val.name === 'text') {
+            val.material.opacity = 1;
+          } else {
+            val.material.opacity = 0.2;
+          }
           if(val.name === 'store_text' || val.name === 'sprite_elevator'){
             val.visible = false
           }
@@ -523,13 +530,13 @@
           .to(opacityEnd, duration)
           .onUpdate(function () {
             item.children.forEach(function (val) {
-              if (val.name !== 'elevator') {
+              if (val.name !== 'elevator' || val.name !== 'text') {
                 val.material.opacity = opacityStart.opacity
               }
             });
           });
         item.children.forEach(function (val) {
-          if (val.name === 'store_text') {
+          if (val.name === 'store_text' || val.name === 'sprite_elevator') {
             val.visible = false
           }
         });
