@@ -51,9 +51,7 @@
   var pic_width = 0; // 图片宽度
   var pic_height = 0; // 图片高度
   var opacity = 0;
-  var sceneCube = 2;
   var emitter = new EventEmitter();
-  var windowType = ''
 
   var currentElevator = [];
 
@@ -196,7 +194,6 @@
     var floorInfo = calcFloorPosition(BEGIN_FLOOR, END_FLOOR)
     var highFloor = floorInfo.highFloor;
     var lowFloor = floorInfo.lowFloor;
-    var middleArr = floorInfo.middleArr;
     group.children.forEach(function (item) {
       if (item.name !== BEGIN_FLOOR && item.name !== LAST_FLOOR) {
         // 比高层更高的楼层，放在最高点
@@ -236,7 +233,7 @@
     return {
       highFloor: midObj.big.anti + midObj.big.num,
       lowFloor: midObj.small.anti + midObj.small.num,
-      middleArr: arr
+      middleArr: arr.reverse()
     };
   }
 
@@ -288,19 +285,37 @@
     }
     var floorInfo = calcFloorPosition(BEGIN_FLOOR, END_FLOOR)
     var middleArr = floorInfo.middleArr;
+    var highFloor = floorInfo.highFloor;
+    var lowFloor = floorInfo.lowFloor;
     group.children.forEach(function (item) {
-      animateLowerElevator(item, type === 'up' ? BEGIN_FLOOR : END_FLOOR, type, middleArr);
-      animateHigerElevator(item, type === 'up' ? END_FLOOR : BEGIN_FLOOR, type, middleArr);
+      animateLowerElevator(item, type === 'up' ? BEGIN_FLOOR : END_FLOOR, type);
+      animateHigerElevator(item, type === 'up' ? END_FLOOR : BEGIN_FLOOR, type);
+      animateOtherFloor(item, floorInfo);
     })
   }
 
   // step3: 回到所有楼层
   function ChapterFour() {
-    // craeteOrCamera();
-    // createControl(); // 更新旋转控制器
-    windowType = 'OrthographicCamera';
     new TWEEN.Tween( group.scale ).to( { x:0.6, y: 0.6, z: 0.6 }, 2000 ).start();
     group.children.forEach(function (item, index) {
+      // 如果楼层上有路径，则完全显示
+      if (item.userData.isPathFloor) {
+        item.children.forEach(function (val) {
+          val.material.opacity = 1
+          if(val.name === 'store_text' || val.name === 'sprite_elevator'){
+            val.visible = true
+          }
+        });
+      }
+      // 如果楼层上没有路径，则显示部分透明
+      else {
+        item.children.forEach(function (val) {
+          val.material.opacity = 0.2
+          if(val.name === 'store_text' || val.name === 'sprite_elevator'){
+            val.visible = false
+          }
+        });
+      }
       var position_start = {
         y: item.position.y
       };
@@ -313,11 +328,9 @@
         z: item.rotation.z
       };
       var rotate_end = {
-        x: 0 * Math.PI, y: -0.08* Math.PI, z: 0
+        x: 0, y: -0.08* Math.PI, z: 0
       };
-      item.children.forEach(function (val) {
-        val.material.opacity = 1
-      });
+
       var action1 = new TWEEN.Tween(position_start)
         .to(position_end, duration)
         .onUpdate(function () {
@@ -336,17 +349,9 @@
   }
 
   // 电梯动画片段: 低层变化过程
-  function animateLowerElevator(item, floorName, type, middleArr) {
-    // 中间楼层的放置
-    if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
-      middleArr.forEach(function(val){
-        if (item.name === val) {
-          item.position.y = 0;
-          item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
-          item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
-          return
-        }
-      });
+  function animateLowerElevator(item, floorName, type) {
+    // 如果当前楼层为起始/结束楼层
+    if (item.name === floorName) {
       var lowPositionStart = {
         x: item.position.x,
         y: item.position.y
@@ -394,29 +399,12 @@
         });
       lowAction2.chain(lowAction1);
       lowAction2.start()
-    } else if (item.name !== floorName && item.name !== BEGIN_FLOOR && END_FLOOR !== LAST_FLOOR) {
-      var lowOpacityStartO = {
-        opacity: item.children[0].material.opacity
-      };
-      var lowOpacityEndO = {
-        opacity: TRANSFER_BOARD.OPACITY_NONE
-      };
-      var lowAction4 = new TWEEN.Tween(lowOpacityStartO)
-        .to(lowOpacityEndO, duration)
-        .onUpdate(function () {
-          item.children.forEach(function (val) {
-            if (val.name !== 'elevator') {
-              val.material.opacity = lowOpacityStartO.opacity
-            }
-          })
-        });
-      lowAction4.start()
     }
   }
 
   // 电梯动画片段: 高层变化过程
   function animateHigerElevator(item, floorName, type) {
-    if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
+    if (item.name === floorName) {
       var highPositionStart = {
         x: item.position.x,
         y: item.position.y
@@ -463,73 +451,120 @@
         });
       highAction2.chain(highAction1);
       highAction2.start()
-    } else if (item.name !== floorName && item.name !== BEGIN_FLOOR && END_FLOOR !== LAST_FLOOR) {
-      var highOpacityStartO = {
-        opacity: item.children[0].material.opacity
-      };
-      var highOpacityEndO = {
-        opacity: TRANSFER_BOARD.OPACITY_NONE
-      };
-      var highAction4 = new TWEEN.Tween(highOpacityStartO)
-        .to(highOpacityEndO, duration)
-        .onUpdate(function () {
-          item.children.forEach(function (val) {
-            if (val.name !== 'elevator') {
-              val.material.opacity = highOpacityStartO.opacity
-            }
-          })
-        });
-      highAction4.start()
     }
   }
 
-  // 动画片段：中间楼层的显示和隐藏
-  function animateMiddleFloor(floorArr) {
-    var loader = new THREE.SVGLoader();
-    var middlePosition = (TRANSFER_BOARD.PASS_HIGH_POS + TRANSFER_BOARD.PASS_LOW_POS) / 2;
-    var middleIndex = parseInt(floorArr.length / 2);
-    var curPosition;
-    if (floorArr.length > 0) {
-      for (var i = 0; i < floorArr.length - 1; i++) {
-        if (i === middleIndex) {
-          curPosition = middlePosition
-        } else {
-          curPosition = middlePosition + (i - middleIndex) * 10
+  // 电梯动画片段：中间楼层变化过程
+  function animateOtherFloor(item, floorInfo) {
+    if (item.name !== BEGIN_FLOOR && item.name !== END_FLOOR) {
+      if(structFloorInfo(floorInfo.highFloor, item.name)){
+        var highPositionStart = {
+          y: item.position.y
+        };
+        var highPositionEnd = {
+          y: TRANSFER_BOARD.HIGH_POS
+        };
+        var highOpacityStart = {
+          opacity: item.children[0].material.opacity
+        };
+        var highOpacityEnd = {
+          opacity: TRANSFER_BOARD.OPACITY_NONE
+        };
+        var highAction1 = new TWEEN.Tween(highOpacityStart)
+          .to(highOpacityEnd, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              if (val.name !== 'elevator') {
+                val.material.opacity = highOpacityStart.opacity
+              }
+            });
+            highAction2.start();
+          });
+        var highAction2 = new TWEEN.Tween(highPositionStart)
+          .to(highPositionEnd, duration)
+          .onUpdate(function () {
+            item.position.y = highPositionStart.y
+          });
+        highAction1.start();
+      }
+      else if(!structFloorInfo(floorInfo.lowFloor, item.name)) {
+        var lowPositionStart = {
+          y: item.position.y
+        };
+        var lowPositionEnd = {
+          y: TRANSFER_BOARD.PASS_LOW_POS
+        };
+        var lowOpacityStart = {
+          opacity: item.children[0].material.opacity
+        };
+        var lowOpacityEnd = {
+          opacity: TRANSFER_BOARD.OPACITY_NONE
+        };
+        var lowAction1 = new TWEEN.Tween(lowOpacityStart)
+          .to(lowOpacityEnd, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              if (val.name !== 'elevator') {
+                val.material.opacity = lowOpacityStart.opacity
+              }
+            });
+            lowAction2.start();
+          });
+        var lowAction2 = new TWEEN.Tween(lowPositionStart)
+          .to(lowPositionEnd, duration)
+          .onUpdate(function () {
+            item.position.y = lowPositionStart.y
+          });
+        lowAction1.start();
+      }
+      else {
+        var middlePosition = (TRANSFER_BOARD.PASS_HIGH_POS + TRANSFER_BOARD.PASS_LOW_POS) / 2;
+        var middleIndex = parseInt(floorInfo.middleArr.length / 2);
+        var rotationStart = { x: item.rotation.x, y: item.rotation.y };
+        var rotationEnd = { x: TRANSFER_BOARD.ROTATE_X, y: TRANSFER_BOARD.ROTATE_Y };
+        var positionStart = { y: item.position.y };
+        var positionEnd = { y: middlePosition };
+        var opacityStart = {opacity: item.children[0].material.opacity}
+        var opacityEnd = {opacity: 0.2}
+        for(var i=0; i<floorInfo.middleArr.length; i++) {
+          if(item.name === floorInfo.middleArr[i]){
+            if (i === middleIndex) {
+              positionEnd.y = middlePosition
+            } else {
+              positionEnd.y = middlePosition + (i - middleIndex) * 20
+            }
+          }
         }
+        var action1 = new TWEEN.Tween(rotationStart)
+          .to(rotationEnd, duration)
+          .onUpdate(function () {
+            item.rotation.x = rotationStart.x;
+            item.rotation.y = rotationStart.y;
+            action2.start();
+            action3.start();
+          });
+        var action2 = new TWEEN.Tween(positionStart)
+          .to(positionEnd, duration)
+          .onUpdate(function () {
+            item.position.y = positionStart.y;
+          });
+        var action3 = new TWEEN.Tween(opacityStart)
+          .to(opacityEnd, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              if (val.name !== 'elevator') {
+                val.material.opacity = opacityStart.opacity
+              }
+            });
+          });
+        item.children.forEach(function (val) {
+          if (val.name === 'store_text') {
+            val.visible = false
+          }
+        });
+        action1.start()
       }
     }
-
-    var opacityStart = {
-      opacity: 0.2
-    };
-    var opacityEnd = {
-      opacity: 0
-    };
-    var opacityStart2 = {
-      opacity: 0.2
-    };
-    var opacityEnd2 = {
-      opacity: 0
-    };
-
-    var action1 = new TWEEN.Tween(opacityEnd)
-      .to(opacityStart, duration)
-      .onUpdate(function () {
-        maskGroup.children.forEach(function (val) {
-          val.material.opacity = opacityEnd.opacity
-        })
-      });
-
-    var action2 = new TWEEN.Tween(opacityStart2)
-      .to(opacityEnd2, duration)
-      .onUpdate(function () {
-        maskGroup.children.forEach(function (val) {
-          val.material.opacity = opacityStart2.opacity
-        })
-      }).delay(3000);
-
-    action1.chain(action2);
-    action1.start()
   }
 
   // 创建所有分组
@@ -658,6 +693,9 @@
     group.children.forEach(function (item) {
       if (item.name === floorName) {
         floorGroup = item;
+        if(!floorGroup.userData.isPathFloor){
+          floorGroup.userData.isPathFloor = true
+        }
         floorGroup.add(trailBall.mesh)
       }
     });
@@ -828,7 +866,7 @@
     var material = new THREE.MeshPhongMaterial({
       // color: new THREE.Color(PALLETTE.STORE),
       transparent: true,
-      depthWrite: true,
+      depthWrite: false,
       depthTest: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
       side: THREE.FrontSide,
@@ -858,13 +896,11 @@
     var material = new THREE.LineBasicMaterial({
       color: PALLETTE.EDGE,
       transparent: true,
-      depthTest: true,
-      depthWrite: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
     this.mesh = new THREE.Line(geometry, material);
     this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0);
-    this.mesh.position.set(offset_x, 9, offset_z);
+    this.mesh.position.set(offset_x, 10, offset_z);
     this.mesh.name = 'edge'
   }
 
@@ -875,7 +911,7 @@
       color: PALLETTE.PLANE,
       side: THREE.DoubleSide,
       depthTest: true,
-      depthWrite: true,
+      depthWrite: false,
       transparent: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
@@ -1021,6 +1057,7 @@
       // blending: THREE.AdditiveBlending,
     });
     var sprite = new THREE.Sprite(spriteMaterial);
+    sprite.name = 'sprite_elevator'
     sprite.scale.set(25, 25, 25);
     return sprite
   }
