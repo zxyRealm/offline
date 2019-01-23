@@ -464,7 +464,7 @@ export default {
     getManageList () {
       GetManageList().then(res => {
         this.manageList = res.data
-        if (res.data.length) {
+        if (this.manageList.length) {
           this.manageGroup = this.manageList[0]
         } else {
           this.addFormVisible = true
