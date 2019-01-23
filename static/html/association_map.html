@@ -575,7 +575,6 @@
     var textKey = 'name'
     var cz = camera.position.z // 摄像头z轴视距
     var textObj = createTextSprite(obj, textKey)
-    // textObj.scale.set(cz/2 , cz/2 , cz/2)
     scene.add(textObj)
     // 创建图片
     var sprite = createPictureSprite(obj)
@@ -612,20 +611,33 @@
   function createTextSprite (obj, key) {
     var cz = camera.position.z
     var canvas = document.createElement('canvas');
-    canvas.width = 1000;
-    canvas.height = 1000;
+    var fontSize = 30
+    // 文本最大长度
+    var maxLen = 32
+    canvas.width = fontSize * maxLen;
+    canvas.height = fontSize * maxLen;
     var ctx = canvas.getContext('2d')
     ctx.fillStyle = '#ffffff'
-    ctx.font = "40px '微软雅黑'";
+    ctx.font = fontSize + "px '微软雅黑'";
     ctx.textAlign = 'center';
-    ctx.fillText(obj[key], 500, key === 'nickName' ? 500 : 500+80);
+    ctx.fillText(obj[key], canvas.width / 2, key === 'nickName' ? canvas.width / 2 : canvas.width / 2 + fontSize * 1.8);
     var texture = new THREE.Texture(canvas)
     texture.needsUpdate = true
     // 使用Sprite显示文字
     var material = new THREE.SpriteMaterial({map: texture, transparent: true})
     var textObj = new THREE.Sprite(material)
-    textObj.scale.set(cz/2, cz/2, cz/2)
+    // 缩放比于字体大小的近似比例关系值 （尝试所得，并无确切依据）
+    var ratio = cz * fontSize * 0.025
+    textObj.scale.set(ratio, ratio, ratio)
     textObj.position.set(obj.position.x, obj.position.y, 1)
+
+    // var geometry1 = new THREE.BoxGeometry( 5, 5, 1 );
+    // console.log('position ------------', obj.position.x, obj.position.y)
+    // geometry1.translate(obj.position.x, obj.position.y, 1)
+    // var material1 = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+    // var cube1 = new THREE.Mesh( geometry1, material1 );
+    // group.add(cube1);
+
     return textObj
   }
 

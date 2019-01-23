@@ -351,8 +351,12 @@ export default {
     createGateway (data) {
       this.handleDialogType = 1
       this.handlePortalVisible = true
-      this.handlePortalForm.coordinates = [data.position.x, data.position.y, 0]
-      this.handlePortalForm.type = data.type
+      this.handlePortalForm = {
+        coordinates: [data.position.x, data.position.y, 0],
+        type: data.type,
+        name: '',
+        floor: this.currentFloor.floor
+      }
     },
     // 添加、编辑出入口
     handlePortal (formName) {
@@ -398,10 +402,14 @@ export default {
       },
       deep: true
     },
-    handlePortalVisible (val) {
-      if (!val && this.$refs.handlePortalForm) {
-        this.$refs.handlePortalForm.resetFields()
-      }
+    handlePortalVisible: {
+      handler (val) {
+        if (!val && this.$refs.handlePortalForm) {
+          // console.log('------------', val)
+          this.$refs.handlePortalForm.resetFields()
+        }
+      },
+      deep: true
     }
   },
   beforeDestroy () {
