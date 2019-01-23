@@ -147,6 +147,8 @@ export default {
           callback(new Error('仅限数字'))
         } else if (!validateRule(value, 6)) {
           callback(new Error('非运营号段'))
+        } else if (this.personMessge.originPhone === value) {
+          callback()
         } else {
           MemberExistPhone({phone: value, memberLibraryGuid: this.$route.query.guid}).then(res => {
             !res.data ? callback(new Error('手机号重复')) : callback()
@@ -435,6 +437,7 @@ export default {
       }
       MemberDetails(data).then(res => {
         if (res.result) {
+          res.data.originPhone = JSON.parse(JSON.stringify(res.data.phone))
           this.personMessge = res.data
         }
       })
@@ -456,10 +459,10 @@ export default {
 
 <style scoped>
   .menber{
-    padding: 0 20px;
+    /*padding: 0 20px;*/
   }
   .member__title{
-    padding-top: 26px;
+    padding: 26px 20px 0;
     margin-bottom: 22px;
     height: 36px;
     border-bottom: 1px dashed rgba(151,151,151,0.10);

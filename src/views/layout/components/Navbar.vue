@@ -41,6 +41,7 @@
         <button-select
           ref="buttonSelect"
           value-key="id"
+          placeholder="添加社群"
           v-model="manageGroup">
           <button-select-item
             v-for="(item,$index) in manageList"
@@ -674,6 +675,7 @@ export default {
     exitFullScreen () {
       let el = document
       let cfs = el.cancelFullScreen || el.mozCancelFullScreen || el.msExitFullscreen || el.webkitExitFullscreen || el.exitFullscreen
+      // console.log('exit full', cfs)
       if (cfs) { // typeof cfs != "undefined" && cfs
         cfs.call(el)
       } else if (typeof window.ActiveXObject !== 'undefined') {
@@ -686,14 +688,13 @@ export default {
     },
     windowKeyDown (e) {
       e = e || window.event
-      // console.log('isFull----------', this.isFullScreen)
       if (e.keyCode === 122 && !this.isFullScreen) {
-        e.preventDefault()
+        e.preventDefault ? e.preventDefault() : e.returnValue = false
         this.enterFullScreen()
       }
     },
     windowResize () {
-      console.log('resize', window.screen.height, window.document.documentElement.clientHeight)
+      // console.log('resize', window.screen.height, window.document.documentElement.clientHeight)
       this.clientHeight = window.document.documentElement.clientHeight
     },
     deleteLabel (index) {

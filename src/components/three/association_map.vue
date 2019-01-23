@@ -169,7 +169,7 @@ export default {
   mounted () {
     window.addEventListener('message', this.handleEvent)
     this.iframeObj = this.$refs.bindGroupIframe.contentWindow
-    this.initFloor()
+    // this.initFloor()
   },
   computed: {
     ...mapState(['currentManage', 'userInfo']),
@@ -390,12 +390,6 @@ export default {
     }
   },
   watch: {
-    floorList: {
-      handler (val) {
-        this.initFloor()
-      },
-      deep: true
-    },
     data: {
       handler (val) {
         if (Object.keys(val).length) {

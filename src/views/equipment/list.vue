@@ -155,7 +155,7 @@
             <el-input placeholder="请选取文件" readonly v-model="excelImportForm.filename"></el-input>
             <el-upload
               ref="excelUpload"
-              :data="{serverKey: $route.query.server_key,merchantGuid: userInfo.developerId}"
+              :data="{groupGuid: currentManage.id, serverKey: $route.query.server_key, merchantGuid: userInfo.developerId}"
               name="excelFile"
               class="import--excel white"
               :action="excelUrl"

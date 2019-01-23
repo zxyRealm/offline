@@ -12,71 +12,71 @@
         :btn-array="btnArray"
         :menu-array="menu2">
       </uu-sub-tab>
-      <el-scrollbar v-scroll-top="pageData.index" class="table">
-        <el-table
-          :empty-text="emptyText"
-          :data="tableData"
-          border
-          style="width: 100%">
+      <div class="data-list-wrap">
+        <el-scrollbar v-scroll-top="pageData.index" class="table">
+          <el-table
+            :empty-text="emptyText"
+            :data="tableData"
+            border
+            style="width: 100%">
 
-          <el-table-column label="姓名" :show-overflow-tooltip="true">
-            <template slot-scope="scope">
-              <span class="libraryName">{{scope.row.name || '—'}}</span>
-            </template>
-          </el-table-column>
+            <el-table-column label="姓名" :show-overflow-tooltip="true">
+              <template slot-scope="scope">
+                <span class="libraryName">{{scope.row.name || '—'}}</span>
+              </template>
+            </el-table-column>
 
-          <el-table-column label="手机号">
-            <template slot-scope="scope">
-              <span>{{scope.row.phone || '—'}}</span>
-            </template>
-          </el-table-column>
+            <el-table-column label="手机号">
+              <template slot-scope="scope">
+                <span>{{scope.row.phone || '—'}}</span>
+              </template>
+            </el-table-column>
 
-          <el-table-column width="90" label="性别">
-            <template slot-scope="scope">
-              <span v-if="scope.row.gender === 1">男</span>
-              <span v-else>女</span>
-            </template>
-          </el-table-column>
+            <el-table-column width="90" label="性别">
+              <template slot-scope="scope">
+                <span v-if="scope.row.gender === 1">男</span>
+                <span v-else>女</span>
+              </template>
+            </el-table-column>
 
-          <el-table-column label="生日">
-            <template slot-scope="scope">
-              <span>{{scope.row.birthdayStamp | parseTime('{y}-{m}-{d}') || '—'}}</span>
-            </template>
-          </el-table-column>
+            <el-table-column label="生日">
+              <template slot-scope="scope">
+                <span>{{scope.row.birthdayStamp | parseTime('{y}-{m}-{d}') || '—'}}</span>
+              </template>
+            </el-table-column>
 
-          <el-table-column label="人员类型">
-            <template slot-scope="scope">
-              <span>{{scope.row.memberTypeName || '—'}}</span>
-            </template>
-          </el-table-column>
+            <el-table-column label="人员类型">
+              <template slot-scope="scope">
+                <span>{{scope.row.memberTypeName || '—'}}</span>
+              </template>
+            </el-table-column>
 
-          <el-table-column width="100" label="照片">
-            <template slot-scope="scope">
-              <img :src="scope.row.faceImgUrl" width="54px" height="54px" @click.prevent="showImage(scope.row)" alt="">
-              <!--<image-box  width="54px" height="54px" @click.native="showImage(scope.row)" :src="scope.row.faceImgUrl"></image-box>-->
-              <!--<img v-show="scope.row.faceImgUrl" :src="scope.row.faceImgUrl" class="tableImg">-->
-              <!--<div v-show="!scope.row.faceImgUrl" class="tableImg">—</div>-->
-            </template>
-          </el-table-column>
+            <el-table-column width="100" label="照片">
+              <template slot-scope="scope">
+                <img :src="scope.row.faceImgUrl" width="54px" height="54px" @click.prevent="showImage(scope.row)" alt="">
+                <!--<image-box  width="54px" height="54px" @click.native="showImage(scope.row)" :src="scope.row.faceImgUrl"></image-box>-->
+                <!--<img v-show="scope.row.faceImgUrl" :src="scope.row.faceImgUrl" class="tableImg">-->
+                <!--<div v-show="!scope.row.faceImgUrl" class="tableImg">—</div>-->
+              </template>
+            </el-table-column>
 
-          <el-table-column label="操作">
-            <template slot-scope="scope">
-              <div class="fl edit" @click="editPerson(scope.row.guid)">编辑</div>
-              <div class="fl del" @click="delPerson(scope.row.guid)">删除</div>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-scrollbar>
-      <div>
-        <el-pagination
-          layout="total, sizes, prev, pager, next"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="pageData.index"
-          :page-sizes="[10, 20, 30]"
-          :page-size="pageData.length"
-          :total="pageData.total">
-        </el-pagination>
+            <el-table-column label="操作">
+              <template slot-scope="scope">
+                <div class="fl edit" @click="editPerson(scope.row.guid)">编辑</div>
+                <div class="fl del" @click="delPerson(scope.row.guid)">删除</div>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            layout="total, sizes, prev, pager, next"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="pageData.index"
+            :page-sizes="[10, 20, 30]"
+            :page-size="pageData.length"
+            :total="pageData.total">
+          </el-pagination>
+        </el-scrollbar>
       </div>
       <!-- 导入弹框 -->
       <upload-progress :visible.sync="dialogVisible">
@@ -348,11 +348,10 @@ export default {
 
 <style lang="scss" scoped>
   .menber{
-    padding: 0 20px;
+    /*padding: 0 20px;*/
   }
   .member__title{
-    padding-top: 26px;
-    margin-bottom: 22px;
+    padding: 26px 20px 0;
     height: 36px;
     border-bottom: 1px dashed rgba(151,151,151,0.10);
   }
@@ -379,10 +378,6 @@ export default {
     margin-left:30px;
     color: #FF6660;
     cursor: pointer;
-  }
-  .table{
-    margin: 13px 0 10px 0;
-    height: calc(100% - 59px - 78px);
   }
   .libraryName{
     float: left;
