@@ -991,18 +991,21 @@
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
     var cz = camera.position.z; // 摄像头z轴视距
-    canvas.width = 512 * ratio;
-    canvas.height = 512 * ratio;
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    var fontsize = 30
+    var maxLen = 20
+    var scale = cz * ((1 / 130)* fontsize);
+    canvas.width = fontsize * maxLen;
+    canvas.height = fontsize * maxLen;
+    // ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.fillStyle = 'rgba(255, 255,255,1)';
-    ctx.font = "bold 70px 'Arial'";
+    ctx.font = "normal " + fontsize + "px 'Arial'";
     ctx.lineWidth = 4;
     ctx.textAlign = 'center';
-    ctx.fillText(obj.text, 256, 256);
+    ctx.fillText(obj.text, canvas.width / 2, canvas.height / 2);
     var texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
-    texture.magFilter = THREE.NearestFilter;
-    texture.minFilter = THREE.LinearMipMapLinearFilter;
+    // texture.magFilter = THREE.NearestFilter;
+    // texture.minFilter = THREE.LinearMipMapLinearFilter;
     // texture.generateMipmaps = false
     // 使用Sprite显示文字
     var material = new THREE.SpriteMaterial({
@@ -1015,7 +1018,7 @@
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity
     });
     this.text = new THREE.Sprite(material);
-    this.text.scale.set(80, 80, 80);
+    this.text.scale.set(scale, scale, scale);
     this.text.name = 'store_text';
     // this.text.rotation.x = -0.5 * Math.PI
     this.text.position.set(obj.position.x, 13, -obj.position.y)
