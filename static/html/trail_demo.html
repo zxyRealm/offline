@@ -136,10 +136,10 @@
     createControl();
 
     // 开始动画
-    console.time("animate")
+    console.time("animate");
     ChapterZero();
     ChapterOne();
-    console.timeEnd("animate")
+    console.timeEnd("animate");
 
     if (getQueryString()) {
       replay()
@@ -191,26 +191,25 @@
 
   // step1: 次轮及以上动画的初始化，重置所有楼层的位置
   function ChapterOneOffCoast() {
-    var floorInfo = calcFloorPosition(BEGIN_FLOOR, END_FLOOR)
+    var floorInfo = calcFloorPosition(BEGIN_FLOOR, END_FLOOR);
     var highFloor = floorInfo.highFloor;
     var lowFloor = floorInfo.lowFloor;
-    group.children.forEach(function (item) {
-      if (item.name !== BEGIN_FLOOR && item.name !== LAST_FLOOR) {
-        // 比高层更高的楼层，放在最高点
-        if (structFloorInfo(highFloor, item.name)) {
-          item.position.y = TRANSFER_BOARD.HIGH_POS;
-          item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
-          item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
-        }
-        // 比低层更低的楼层，放在最低点
-        else if (!structFloorInfo(lowFloor, item.name)) {
-          item.position.y = TRANSFER_BOARD.LOW_POS;
-          item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
-          item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
-        }
-      }
-
-    })
+    // group.children.forEach(function (item) {
+    //   if (item.name !== BEGIN_FLOOR && item.name !== LAST_FLOOR) {
+    //     // 比高层更高的楼层，放在最高点
+    //     if (structFloorInfo(highFloor, item.name)) {
+    //       item.position.y = TRANSFER_BOARD.HIGH_POS;
+    //       item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
+    //       item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
+    //     }
+    //     // 比低层更低的楼层，放在最低点
+    //     else if (!structFloorInfo(lowFloor, item.name)) {
+    //       item.position.y = TRANSFER_BOARD.LOW_POS;
+    //       item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
+    //       item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
+    //     }
+    //   }
+    // })
   }
 
   // 根据楼层名 计算出中间楼层的数组
@@ -218,16 +217,16 @@
     var s_floor = {
       anti: beginFloor.slice(0, 1),
       num: parseInt(beginFloor.slice(1, beginFloor.length))
-    }
+    };
     var e_floor = {
       anti: endFloor.slice(0, 1),
       num: parseInt(endFloor.slice(1, endFloor.length))
-    }
-    var arr = []
-    var midObj = calcMiddleFloor(s_floor, e_floor)
+    };
+    var arr = [];
+    var midObj = calcMiddleFloor(s_floor, e_floor);
     for (var i = 1; i < midObj.d_val; i++) {
-      if (midObj.big.num - i > 0) arr.push('F' + (midObj.big.num - i))
-      else if (midObj.big.num - i === 0) continue
+      if (midObj.big.num - i > 0) arr.push('F' + (midObj.big.num - i));
+      else if (midObj.big.num - i === 0) continue;
       else arr.push('B' + -(midObj.big.num - i))
     }
     return {
@@ -238,17 +237,17 @@
   }
 
   function calcMiddleFloor (floorObj1, floorObj2) {
-    var resObj = {big: {}, d_val: '', small: {}}
-    if (floorObj1.anti === 'B') floorObj1.num = -floorObj1.num
-    if (floorObj2.anti === 'B') floorObj2.num = -floorObj2.num
+    var resObj = {big: {}, d_val: '', small: {}};
+    if (floorObj1.anti === 'B') floorObj1.num = -floorObj1.num;
+    if (floorObj2.anti === 'B') floorObj2.num = -floorObj2.num;
     if (floorObj1.num > floorObj2.num) {
-      resObj.big = floorObj1
+      resObj.big = floorObj1;
       resObj.small = floorObj2
     } else {
-      resObj.big = floorObj2
+      resObj.big = floorObj2;
       resObj.small = floorObj1
     }
-    resObj.d_val = Math.abs(floorObj1.num - floorObj2.num)
+    resObj.d_val = Math.abs(floorObj1.num - floorObj2.num);
     return resObj
   }
 
@@ -274,6 +273,7 @@
 
   // step2: 电梯楼层动画
   function ChapterTwo(type) {
+    var floorInfo = calcFloorPosition(BEGIN_FLOOR, END_FLOOR);
     // 清空上一次电梯轨迹数据
     if (elevatorGroup.children.length) {
       elevatorGroup.children.forEach(function (item) {
@@ -283,10 +283,6 @@
       });
       elevatorGroup.children = [];
     }
-    var floorInfo = calcFloorPosition(BEGIN_FLOOR, END_FLOOR)
-    var middleArr = floorInfo.middleArr;
-    var highFloor = floorInfo.highFloor;
-    var lowFloor = floorInfo.lowFloor;
     group.children.forEach(function (item) {
       animateLowerElevator(item, type === 'up' ? BEGIN_FLOOR : END_FLOOR, type);
       animateHigerElevator(item, type === 'up' ? END_FLOOR : BEGIN_FLOOR, type);
@@ -301,7 +297,7 @@
       // 如果楼层上有路径，则完全显示
       if (item.userData.isPathFloor) {
         item.children.forEach(function (val) {
-          val.material.opacity = 1
+          val.material.opacity = 1;
           if(val.name === 'store_text' || val.name === 'sprite_elevator'){
             val.visible = true
           }
@@ -310,7 +306,7 @@
       // 如果楼层上没有路径，则显示部分透明
       else {
         item.children.forEach(function (val) {
-          val.material.opacity = 0.2
+          val.material.opacity = 0.2;
           if(val.name === 'store_text' || val.name === 'sprite_elevator'){
             val.visible = false
           }
@@ -351,7 +347,7 @@
   // 电梯动画片段: 低层变化过程
   function animateLowerElevator(item, floorName, type) {
     // 如果当前楼层为起始/结束楼层
-    if (item.name === floorName) {
+    if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
       var lowPositionStart = {
         x: item.position.x,
         y: item.position.y
@@ -393,7 +389,8 @@
         .onUpdate(function () {
           item.children.forEach(function (val) {
             if (val.name !== 'elevator') {
-              val.material.opacity = lowOpacityStart.opacity
+              val.material.opacity = lowOpacityStart.opacity;
+              val.visible = true
             }
           })
         });
@@ -404,33 +401,16 @@
 
   // 电梯动画片段: 高层变化过程
   function animateHigerElevator(item, floorName, type) {
-    if (item.name === floorName) {
-      var highPositionStart = {
-        x: item.position.x,
-        y: item.position.y
-      };
-      var highPositionEnd = {
-        x: item.position.x,
-        y: TRANSFER_BOARD.PASS_HIGH_POS
-      };
-      var highRotationStart = {
-        x: item.rotation.x,
-        y: item.rotation.y
-      };
-      var highRotationEnd = {
-        x: TRANSFER_BOARD.ROTATE_X,
-        y: TRANSFER_BOARD.ROTATE_Y
-      };
-      var highOpacityStart = {
-        opacity: type === 'up' ? item.children[0].material.opacity : TRANSFER_BOARD.OPACITY_BLOCK
-      };
-      var highOpacityEnd = {
-        opacity: TRANSFER_BOARD.OPACITY_BLOCK
-      };
+    if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
+      var highPositionStart = { y: item.position.y };
+      var highPositionEnd = { y: TRANSFER_BOARD.PASS_HIGH_POS };
+      var highRotationStart = { x: item.rotation.x, y: item.rotation.y };
+      var highRotationEnd = { x: TRANSFER_BOARD.ROTATE_X, y: TRANSFER_BOARD.ROTATE_Y };
+      var highOpacityStart = { opacity: type === 'up' ? item.children[0].material.opacity : TRANSFER_BOARD.OPACITY_BLOCK };
+      var highOpacityEnd = { opacity: TRANSFER_BOARD.OPACITY_BLOCK };
       var highAction1 = new TWEEN.Tween(highPositionStart)
         .to(highPositionEnd, duration)
         .onUpdate(function () {
-          item.position.x = highPositionStart.x;
           item.position.y = highPositionStart.y;
         });
       var highAction2 = new TWEEN.Tween(highRotationStart)
@@ -446,6 +426,7 @@
           item.children.forEach(function (val) {
             if (val.name !== 'elevator') {
               val.material.opacity = highOpacityStart.opacity
+              val.visible = true
             }
           })
         });
@@ -458,18 +439,10 @@
   function animateOtherFloor(item, floorInfo) {
     if (item.name !== BEGIN_FLOOR && item.name !== END_FLOOR) {
       if(structFloorInfo(floorInfo.highFloor, item.name)){
-        var highPositionStart = {
-          y: item.position.y
-        };
-        var highPositionEnd = {
-          y: TRANSFER_BOARD.HIGH_POS
-        };
-        var highOpacityStart = {
-          opacity: item.children[0].material.opacity
-        };
-        var highOpacityEnd = {
-          opacity: TRANSFER_BOARD.OPACITY_NONE
-        };
+        var highPositionStart = { y: item.position.y };
+        var highPositionEnd = { y: TRANSFER_BOARD.HIGH_POS };
+        var highOpacityStart = { opacity: item.children[0].material.opacity };
+        var highOpacityEnd = { opacity: TRANSFER_BOARD.OPACITY_NONE };
         var highAction1 = new TWEEN.Tween(highOpacityStart)
           .to(highOpacityEnd, duration)
           .onUpdate(function () {
@@ -478,13 +451,11 @@
                 val.material.opacity = highOpacityStart.opacity
               }
             });
-            highAction2.start();
-          });
-        var highAction2 = new TWEEN.Tween(highPositionStart)
-          .to(highPositionEnd, duration)
-          .onUpdate(function () {
-            item.position.y = highPositionStart.y
-          });
+          highAction2.start();
+        });
+        var highAction2 = new TWEEN.Tween(highPositionStart).to(highPositionEnd, duration).onUpdate(function () {
+          item.position.y = highPositionStart.y
+        });
         highAction1.start();
       }
       else if(!structFloorInfo(floorInfo.lowFloor, item.name)) {
@@ -492,7 +463,7 @@
           y: item.position.y
         };
         var lowPositionEnd = {
-          y: TRANSFER_BOARD.PASS_LOW_POS
+          y: TRANSFER_BOARD.LOW_POS
         };
         var lowOpacityStart = {
           opacity: item.children[0].material.opacity
@@ -524,8 +495,8 @@
         var rotationEnd = { x: TRANSFER_BOARD.ROTATE_X, y: TRANSFER_BOARD.ROTATE_Y };
         var positionStart = { y: item.position.y };
         var positionEnd = { y: middlePosition };
-        var opacityStart = {opacity: item.children[0].material.opacity}
-        var opacityEnd = {opacity: 0.2}
+        var opacityStart = {opacity: item.children[0].material.opacity};
+        var opacityEnd = {opacity: 0.2};
         for(var i=0; i<floorInfo.middleArr.length; i++) {
           if(item.name === floorInfo.middleArr[i]){
             if (i === middleIndex) {
@@ -857,7 +828,7 @@
   function Store(shape, groupName) {
     var geometry2 = new THREE.ShapeBufferGeometry(shape);
     var geometryBuffer = new THREE.ExtrudeBufferGeometry(shape, {
-      depth: 8,
+      depth: 7,
       bevelEnabled: false
     });
     var geometry = new THREE.Geometry();
@@ -875,7 +846,7 @@
 
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0);
-    this.mesh.position.set(offset_x, 9, offset_z);
+    this.mesh.position.set(offset_x, 8, offset_z);
     this.mesh.castShadow = true;
     this.mesh.receiveShadow = true;
     this.mesh.name = 'store';
@@ -900,7 +871,7 @@
     });
     this.mesh = new THREE.Line(geometry, material);
     this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0);
-    this.mesh.position.set(offset_x, 10, offset_z);
+    this.mesh.position.set(offset_x, 8, offset_z);
     this.mesh.name = 'edge'
   }
 
