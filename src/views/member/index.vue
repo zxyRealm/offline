@@ -6,7 +6,8 @@
         </el-breadcrumb>
         <el-button class="affirm medium fr add__button" @click="addNew">添加库<div @click.stop="add__hint" class="first__enter" v-show="firstEnter">人员库添加点这里</div></el-button>
       </div>
-      <el-scrollbar v-scroll-top class="table">
+      <div class="data-list-wrap">
+        <el-scrollbar v-scroll-top class="table">
         <el-table
           :empty-text="emptyText"
           :data="tableData"
@@ -79,7 +80,7 @@
           :total="pagination.total">
         </el-pagination>
       </el-scrollbar>
-
+      </div>
       <!--设备绑定社群-->
       <ob-dialog-form
         filter
@@ -334,15 +335,13 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .menber{
-    padding: 0 20px;
   }
   .member__title{
-    padding-top: 26px;
-    margin-bottom: 22px;
     height: 36px;
     border-bottom: 1px dashed rgba(151,151,151,0.10);
+    padding: 26px 20px 0;
   }
   .hand{
     cursor: pointer;
@@ -359,7 +358,7 @@ export default {
     color: #FF6660;
   }
   .table{
-    height: calc(100% - 63px - 40px);
+    /*height: calc(100% - 63px - 40px);*/
     overflow: hidden;
   }
   .name__edit{

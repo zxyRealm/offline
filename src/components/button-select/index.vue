@@ -5,6 +5,7 @@
       readonly
       @focus="dropVisible = true"
       @blur="blur"
+      :placeholder="placeholder"
       v-model="currentLabel">
       <i
         :class="{'up': dropVisible !== false}"
@@ -45,6 +46,7 @@ export default {
       type: [Object, String],
       default: ''
     },
+    placeholder: String,
     valueKey: String,
     itemData: Array // 下拉列表数据对象
   },

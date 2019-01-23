@@ -150,10 +150,10 @@ export default {
     max-width: calc(100% - 30px);
   }
   .menber{
-    padding: 0 20px;
+    /*padding: 0 20px;*/
   }
   .member__title{
-    padding-top: 26px;
+    padding: 26px 20px 0;
     margin-bottom: 22px;
     height: 36px;
     border-bottom: 1px dashed rgba(151,151,151,0.10);

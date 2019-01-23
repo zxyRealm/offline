@@ -17,7 +17,8 @@ ul, li {
   list-style: none;
 }
 
-html {
+html,body {
+  width: 100%;
   font-size: 14px;
 }
 
@@ -84,6 +85,7 @@ $placeholder: #999;
 
 #app {
   height: 100%;
+  width: 100%;
   min-width: 1280px;
 }
 
