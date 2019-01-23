@@ -21,7 +21,7 @@
           服务器
         </router-link>
       </template>
-      <el-button class="affirm fr medium" @click="addDeviceVisible = true">添加设备</el-button>
+      <el-button class="affirm fr medium" @click="addDeviceDialog">添加设备</el-button>
     </div>
     <router-view></router-view>
 
@@ -360,15 +360,18 @@ export default {
         this.$router.push('/')
       }
     },
+    // 显示添加设备弹框
+    addDeviceDialog () {
+      if (!this.currentManage.id) {
+        this.$tip('管理社群不存在, 请先添加社群！', 'error', 3000)
+      } else {
+        this.addDeviceVisible = true
+      }
+    },
     // 添加摄像头设备
     addCameraDevice (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          if (!this.currentManage.id) {
-            this.$tip('管理社群不存在', 'error')
-            return
-          }
-          // this.addCameraForm.serverKey = this.$route.query.server_key
           let subData = JSON.parse(JSON.stringify(this.addCameraForm))
           subData.serverKey = this.$route.query.server_key
           subData.groupGuid = this.currentManage.id
@@ -384,10 +387,6 @@ export default {
     addServerDevice (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          if (!this.currentManage.id) {
-            this.$tip('管理社群不存在', 'error')
-            return
-          }
           let subData = JSON.parse(JSON.stringify(this.addServerForm))
           subData.groupGuid = this.currentManage.id
           AddDevice(subData).then(res => {
