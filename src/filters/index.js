@@ -1,5 +1,5 @@
 // set function parseTime,formatTime to filter
-export {parseTime, formatTime, customType} from '@/utils'
+export {parseTime, formatTime, customType, IntToFloor} from '@/utils'
 
 function pluralize (time, label) {
   if (time === 1) {
@@ -9,14 +9,20 @@ function pluralize (time, label) {
 }
 
 // 设备类型
-export function deviceType (type) {
+export function deviceType (type, use) {
   switch (type) {
     case 1:
-      return '分析终端'
+      return !use ? '服务器' : '为下辖设备通信'
     case 2:
-      return '客行分析'
+      return !use ? '一体机' : '客行分析' // 一体机
+    case 3:
+      return !use ? '一体机' : '人脸抓拍' // 一体机
+    case 4:
+      return !use ? '摄像头' : '客行分析'// 摄像头
+    case 5:
+      return !use ? '摄像头' : '人脸抓拍' // 摄像头
     default:
-      return '人脸抓拍'
+      return '—'
   }
 }
 
@@ -28,7 +34,7 @@ export function authority (str) {
 export function lineState (state) {
   switch (state) {
     case undefined:
-      return ''
+      return '暂无'
     case 1:
       return '离线'
     default:

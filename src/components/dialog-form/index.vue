@@ -5,14 +5,22 @@
     :lock-scroll="false"
     top="auto"
     @close="closeDialog"
+    :custom-class="customClass"
     class="dialog-form-wrapper vam"
-    width="500px" :title="title" :visible.sync="dialogFormVisible">
-    <el-scrollbar
+    :show-close="showClose"
+    :close-on-press-escape="closeOnPressEscape"
+    :close-on-click-modal="closeOnClickModal"
+    :width="width"
+    :title="title"
+    :visible.sync="dialogFormVisible">
+    <div
       class="mc"
       v-if="type==='group'"
       :style="customStyle"
     >
       <ob-group-nav
+        :filter="filter"
+        v-model="optionsGroup"
         ref="customGroup"
         :show-checkbox="true"
         node-key="uniqueKey"
@@ -22,62 +30,35 @@
         theme="white"
         type="custom"
       ></ob-group-nav>
-    </el-scrollbar>
+    </div>
+    <template v-if="$slots.form">
+      <slot name="form"></slot>
+    </template>
+    <template v-else-if="$slots.content">
+      <slot name="content"></slot>
+    </template>
     <el-form
-      block-message
-      style="width: 330px"
-      label-position="left"
-      class="common-form white"
-      ref="dialogForm"
-      :rules="rules"
-      :model="dialogForm"
-      v-else
-    >
-      <template v-if="type==='device'">
-        <el-form-item label="设备序列号：" prop="deviceKey" :label-width="formLabelWidth">
-          <el-input
-            v-model.trim="dialogForm.deviceKey"
-            placeholder="请输入设备序列号"></el-input>
-        </el-form-item>
-        <el-form-item label="设备别名：" prop="deviceName" :label-width="formLabelWidth">
-          <el-input
-            v-model.trim="dialogForm.deviceName"
-            placeholder="请输入设备别名"></el-input>
-        </el-form-item>
-        <el-form-item label="设备类型：" prop="type" :label-width="formLabelWidth">
-          <el-radio-group v-model="dialogForm.type" disabled size="small">
-            <el-radio-button :label="1">分析终端</el-radio-button>
-            <el-radio-button :label="2">客行分析一体机</el-radio-button>
-            <el-radio-button :label="3">人脸抓拍一体机</el-radio-button>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item v-show="dialogForm.type" class="tac">
-          <img v-if="dialogForm.type===1" src="./image/analysis_terminal_icon.png" alt="分析终端">
-          <img v-if="dialogForm.type===2 || dialogForm.type===3" src="./image/all_in_one_icon.png" alt="一体机">
-        </el-form-item>
-      </template>
-      <template v-if="type==='community'">
-        <el-form-item label="选择社群：" prop="groupGuid" :label-width="formLabelWidth">
-          <el-select v-model="dialogForm.groupGuid" placeholder="请选择社群">
-            <el-option v-for="(item,$index) in optionsGroup" :label="item.groupNickName" :value="$index"
-                       :key="$index"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="应用场景：" :label-width="formLabelWidth" prop="deviceScene">
-          <el-input type="textarea" v-model.trim="dialogForm.deviceScene" placeholder="请输入应用场景"
-                    auto-complete="off"></el-input>
-        </el-form-item>
-      </template>
+    block-message
+    style="width: 330px"
+    label-position="left"
+    class="common-form white"
+    ref="dialogForm"
+    :rules="rules"
+    :model="dialogForm"
+    v-else>
       <template v-if="type==='apply'">
         <el-form-item label="申请理由：" :label-width="formLabelWidth" prop="intro">
           <el-input type="textarea" v-model.trim="dialogForm.intro" placeholder="请输入申请理由"
-                    auto-complete="off"></el-input>
+        auto-complete="off"></el-input>
         </el-form-item>
       </template>
     </el-form>
-    <div slot="footer" class="dialog-footer">
+    <div slot="footer" v-if="showButton && !$slots.footer" class="dialog-footer">
       <el-button class="cancel" @click="dialogFormVisible = false">返 回</el-button>
       <el-button class="affirm" type="primary" @click="submitDialogForm('dialogForm')">确 定</el-button>
+    </div>
+    <div slot="footer" v-if="$slots.footer">
+      <slot name="footer"></slot>
     </div>
   </el-dialog>
 </template>
@@ -123,7 +104,7 @@ export default {
     },
     width: {
       type: [Number, String],
-      default: '330px'
+      default: '500px'
     },
     multiple: { // 当type为group是设置有效 是否可多选
       type: Boolean,
@@ -136,107 +117,50 @@ export default {
     disabledKeys: {
       type: Array,
       default: () => []
+    },
+    showButton: { // 是否显示操作按钮（返回/取消）
+      type: Boolean,
+      default: true
+    },
+    filter: { // 是否添加过滤功能(只在社群列表是设置有效)
+      type: Boolean,
+      default: false
+    },
+    isRules: { // 弹窗是否存在校验
+      type: Boolean,
+      default: true
+    },
+    customClass: {
+      type: String,
+      default: ''
+    },
+    closeOnClickModal: { // 是否可以通过点击 modal 关闭 Dialog
+      type: Boolean,
+      default: true
+    },
+    showClose: { // 是否显示关闭按钮
+      type: Boolean,
+      default: true
+    },
+    closeOnPressEscape: { // 是否可以通过按下 ESC 关闭 Dialog
+      type: Boolean,
+      default: false
     }
   },
   data () {
-    // 校验设备序列号
-    const validateKey = (rule, value, callback) => {
-      if (!value) {
-        this.dialogForm.type = ''
-        callback(new Error('请输入设备序列号'))
-      } else {
-        if (value.length === 16) {
-          // 校验设备是否被绑定过
-          this.$http('/merchant/device/exist', {deviceKey: value}, false).then(res => {
-            if (!res.data) {
-              // 获取设备状态
-              this.$http('/device/type', {deviceKey: value}, false).then(res2 => {
-                this.dialogForm.type = res2.data.deviceType
-                callback()
-              }).catch(err => {
-                this.dialogForm.type = ''
-                callback(new Error(err ? err.msg : '服务器异常'))
-              })
-            } else {
-              this.dialogForm.type = ''
-              callback(new Error('该设备已添加'))
-            }
-          }).catch(err => {
-            this.dialogForm.type = ''
-            callback(new Error(err.msg || '服务器异常'))
-          })
-        } else {
-          this.dialogForm.type = ''
-          callback(new Error('请输入16位设备序列号'))
-        }
-      }
-    }
-    // 校验设备别名
-    const validateName = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请输入设备别名'))
-      } else {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
-        } else if (validateRule(value, 2)) {
-          this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
-            if (res.data) {
-              callback(new Error('别名重复'))
-            } else {
-              callback()
-            }
-          }).catch(err => {
-            callback(new Error(err.msg || '验证失败'))
-          })
-        } else {
-          callback(new Error('请输入正确的设备别名'))
-        }
-      }
-    }
     return {
       dialogForm: {
-        deviceKey: '',
-        deviceName: '',
-        type: ''
+        intro: ''
       },
       rules: {
-        deviceKey: [
-          {validator: validateKey, trigger: 'blur'}
-        ],
-        deviceName: [
-          {validator: validateName, trigger: 'blur'}
-        ],
-        groupGuid: [
-          {required: true, message: '请选择一个自有社群', trigger: 'change'}
-        ],
-        deviceScene: [
-          {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
-        ],
         intro: [
           {required: true, message: '请输入申请理由', trigger: 'blur'},
-          {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
+          {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
         ]
-      },
-      optionsGroup: [],
-      dialogFormVisible: false
+      }
     }
   },
   watch: {
-    group: {
-      handler: function (val) {
-        this.optionsGroup = val || []
-      },
-      deep: true
-    },
-    visible: function (val) {
-      this.dialogFormVisible = val
-    },
-    dialogFormVisible: function (val) {
-      this.$emit('update:visible', val)
-      if (val && this.$refs.customGroup) {
-        this.$refs.customGroup.getGroupList()
-      }
-    },
     value: {
       handler: function (val) {
         this.dialogForm = val
@@ -246,12 +170,6 @@ export default {
     dialogForm: {
       handler: function (val) {
         this.$emit('input', val)
-      },
-      deep: true
-    },
-    disabledKeys: {
-      handler: function (val) {
-
       },
       deep: true
     }
@@ -275,8 +193,10 @@ export default {
       }
     },
     closeDialog () {
+      this.$emit('close')
+      this.$emit('update:visible', false)
       if (this.$refs.dialogForm) {
-        this.$refs.dialogForm.resetFields()
+        this.$refs.dialogForm.clearValidate()
       }
     },
     setCheckedNodes (key) {
@@ -287,7 +207,6 @@ export default {
   },
   created () {
     if (this.type === 'apply') this.dialogForm = this.value
-    // this.getDisabledKeys = this.disabledKeys
   },
   beforeDestroy () {
   },
@@ -300,14 +219,19 @@ export default {
           return {width: this.width}
       }
     },
-    getDisabledKeys: {
+    dialogFormVisible: {
       get () {
-        // console.log('child', this.disabledKeys)
-        return this.disabledKeys
+        return this.visible && (this.isRules ? this.isRules : !this.$store.state.expired)
       },
-      set () {
-        return this.disabledKeys
+      set (val) {
+        this.$emit('update:visible', val)
       }
+    },
+    optionsGroup: {
+      get () {
+        return this.group
+      },
+      set () {}
     }
   }
 }
@@ -319,7 +243,7 @@ export default {
   .dialog-form-wrapper {
     &[type=group] {
       .el-dialog__body {
-        padding: 0 20px 0;
+        padding: 0 20px 25px;
       }
       .el-tree.white {
         background: transparent;
@@ -329,7 +253,7 @@ export default {
       padding: 25px 20px 10px;
       text-align: center;
       .el-dialog__title {
-        font-size: 16px;
+        font-size: 17px;
       }
       .el-dialog__headerbtn {
         top: 10px;
@@ -344,7 +268,12 @@ export default {
       }
     }
     .el-dialog__footer{
+      padding-top: 0;
       padding-bottom: 30px;
+      .el-button[disabled]{
+        background: #B4B4B7;
+        box-shadow: none;
+      }
     }
     .el-button + .el-button {
       margin-left: 0;
@@ -358,7 +287,6 @@ export default {
         }
       }
     }
-
     .el-radio-group {
       .el-radio-button {
         float: left;

@@ -87,17 +87,17 @@ export function validName (name) {
 }
 
 export function validPhone (rule, value, callback) {
-  if (typeof value === 'string') {
-    value = value.trim()
-  }
-  // console.log(validateRule(value, 6))
   if (value) {
-    if (!validateRule(value, 6)) {
-      callback(new Error('请添加正确的手机号'))
+    if (value.length !== 11) {
+      callback(new Error('请输入11位手机号'))
+    } else if (!/^[\d]{11}$/.test(value)) {
+      callback(new Error('仅限数字'))
+    } else if (!validateRule(value, 6)) {
+      callback(new Error('非运营号段'))
     } else {
       callback()
     }
   } else {
-    callback(new Error('请添加手机号'))
+    callback()
   }
 }

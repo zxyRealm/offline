@@ -10,16 +10,20 @@ import App from './App'
 import router from './router'
 import Element from 'element-ui'
 import store from './store'
+import './assets/iconfont/iconfont.css'
 import './styles/index.scss' // global css
 import icons from '@/components/icons/index'
 import subTab from '@/components/subTab'
 import uuForm from '@/components/form'
 import obList from '@/components/data-list'
 import obListItem from '@/components/data-list/sub-item'
+import ImageBox from '@/components/ImageBox' // 图片展示组件
 import obDialogForm from '@/components/dialog-form'
 import obGroupNav from '@/components/group-nav'
 import obListEmpty from '@/components/list-empty'
+import ImagePreview from '@/components/preview'
 import * as filters from './filters'
+import directives from './directives/index'
 import echarts from 'echarts'
 promise.polyfill() // 使Axios兼容ie9
 Vue.prototype.$echarts = echarts
@@ -38,9 +42,14 @@ Vue.component(obListItem.name, obListItem)
 Vue.component(obGroupNav.name, obGroupNav)
 Vue.component(obDialogForm.name, obDialogForm)
 Vue.component(obListEmpty.name, obListEmpty)
+Vue.component(ImageBox.name, ImageBox)
+Vue.component(ImagePreview.name, ImagePreview)
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
+})
+Object.keys(directives).forEach(key => {
+  Vue.directive(key, directives[key])
 })
 Vue.config.productionTip = false
 /* eslint-disable no-new */

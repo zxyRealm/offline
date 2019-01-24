@@ -46,12 +46,12 @@ export default {
       if (!value) {
         callback(new Error('请输入回调地址'))
       } else {
-        if (value.length > 2038) {
-          callback(new Error('请输入1-2083位字符'))
+        if (value.length > 1024) {
+          callback(new Error('请输入1-1024位字符'))
         } else if (validateURL(value)) {
           callback()
         } else {
-          callback(new Error('请输入正确的回调地址'))
+          callback(new Error('非法回调地址'))
         }
       }
     }
@@ -69,7 +69,7 @@ export default {
         ],
         intro: [
           {required: true, message: '请输入描述', trigger: 'blur'},
-          {max: 255, message: '输入内容超过字符限制', trigger: 'blur'}
+          {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
         ]
       },
       callbackForm: {
@@ -119,6 +119,7 @@ export default {
       height: 520px;
       width: 690px;
       margin: 0 auto;
+      margin-top: 50px;
       background: rgba(1, 8, 20, 0.10);
       border: 1px dashed rgba(151, 151, 151, 0.10);
     }

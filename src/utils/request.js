@@ -1,7 +1,8 @@
 import axios from 'axios/index'
 import {Message, Loading, MessageBox} from 'element-ui'
 import Store from '@/store'
-import Router from '@/router'
+// import Router from '@/router'
+
 // 加载层
 export function load (text, target) {
   // target 必须用id
@@ -21,7 +22,12 @@ export function fetch (url, params, isTip = '数据加载中...') {
     params = null
   }
   params = params || {}
-  let instance = axios.create()
+  let instance = axios.create({
+    baseURL: process.env.BASE_API,
+    url: url,
+    data: params,
+    method: 'POST'
+  })
   instance.interceptors.request.use(config => {
     if (isTip) {
       Store.state.loading = true
@@ -31,7 +37,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
   }, error => {
     // 对请求错误做些什么
     if (isTip) {
-      Store.state.loading = true
+      Store.state.loading = false
       load(isTip)
     }
     return Promise.reject(error)
@@ -39,7 +45,7 @@ export function fetch (url, params, isTip = '数据加载中...') {
   instance.interceptors.response.use(
     response => { // ie9下responseType：'json'时response.data = undefined
       // IE 8-9
-      if (response.data == null && response.config.responseType === 'json' && response.request.responseText != null) {
+      if (response.data === null && response.config.responseType === 'json' && response.request.responseText !== null) {
         try {
           // eslint-disable-next-line no-param-reassign
           response.data = JSON.parse(response.request.responseText)
@@ -49,48 +55,36 @@ export function fetch (url, params, isTip = '数据加载中...') {
       }
       return response
     })
-  const promise = new Promise((resolve, reject) => {
-    instance({
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      baseURL: process.env.BASE_API,
-      method: 'POST',
-      url: url,
-      data: params,
-      responseType: 'json'
-    }).then(res => {
+  return new Promise((resolve, reject) => {
+    instance({}).then(res => {
       if (isTip) {
         load(isTip).close()
       }
-      if (!res.data) {
-        return resolve(res)
-      }
       if (res.status === 200) {
         if (res.data.code === 'ERR-110') {
+          Store.state.expired = true
+          exitMessage(res.data.data)
           reject(res.data)
-          let currentRoute = Router.app._route
-          // 路由变化时不重复显示确认框
-          if (currentRoute.name && currentRoute.path !== window.location.pathname) {
-            exitMessage(res.data.data)
-          }
           return false
         } else if (res.data.result) {
+          Store.state.expired = false
           if (isTip) {
             Store.state.loading = false
           }
           resolve(res.data)
         } else {
+          Store.state.expired = true
           if (isTip) {
-            message(res.data.msg, 'error', 1500)
+            message(res.data.msg, 'error', 3000)
           }
           reject(res.data)
         }
       } else {
-        message('网络异常，请稍后重试！', 'error', 1500)
+        message('网络异常，请稍后重试！', 'error', 3000)
         reject(res)
       }
     }).catch(error => {
+      Store.state.loading = false
       if (isTip) {
         load(isTip).close()
       }
@@ -98,24 +92,31 @@ export function fetch (url, params, isTip = '数据加载中...') {
       reject(error.response)
     })
   })
-  return promise
 }
 
 // 消息提示
 export function message (txt, type, delay = 1500) {
   const icon = (type !== 'waiting' && type !== 'caution' && type !== 'error') ? 'success' : type
   let cs = type === 'waiting' || type === 'caution' ? 'device' : ''
-  return Message({
+  let options = {
     message: `<div class="tip_message_content ${type}">
         <img class="tip_img_icon" src="/static/img/${icon}_tip_icon.png" alt="">
-        <p style="padding:0px" class="text">${txt}</p>
+        <p style="padding:0px" class="text">${txt === 'Filter threw Exception' ? '服务访问失败' : txt}</p>
       </div>`,
     center: true,
     customClass: `tip_message ${cs}`,
+    duration: typeof delay === 'function' ? 0 : delay,
     dangerouslyUseHTMLString: true,
-    duration: delay,
     type: type
-  }).startTimer()
+  }
+  if (typeof delay === 'function') {
+    options.callback = (action, instance, done) => {
+      if (typeof delay === 'function') {
+        delay(action, instance, done)
+      }
+    }
+  }
+  return typeof delay === 'function' ? Message(options) : Message(options).startTimer()
 }
 
 // 重新登录确认框
@@ -127,7 +128,10 @@ export function exitMessage (href) {
   return MessageBox.confirm(html, '登录确认', {
     center: true,
     dangerouslyUseHTMLString: true,
-    showCancelButton: false
+    showCancelButton: false,
+    closeOnClickModal: false,
+    closeOnPressEscape: false,
+    customClass: 'confirm__message--login'
   }).then(() => {
     window.location.href = `${href}?redirectURL=${window.location.href}`
   })

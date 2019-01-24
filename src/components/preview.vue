@@ -1,15 +1,16 @@
 <template>
     <div v-show="visible" @click.self="close" class="image__preview--wrap vam">
-      <img :src="src" alt="">
+      <img :src="src" :alt="alt">
     </div>
 </template>
 
 <script>
 export default {
-  name: 'imagePreview',
+  name: 'ImagePreview',
   props: {
     visible: Boolean,
-    src: String
+    src: String,
+    alt: String
   },
   data: () => ({
     show: false
@@ -38,6 +39,7 @@ export default {
   height: 100vh;
   text-align: center;
   overflow: hidden;
+  z-index: 9999;
   background: rgba(0,0,0,0.6);
   > img{
     max-width: 80%;

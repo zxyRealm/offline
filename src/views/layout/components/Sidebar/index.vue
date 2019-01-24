@@ -10,6 +10,14 @@
       text-color="#fff"
       active-text-color="#fff"
     >
+      <el-menu-item index="/index">
+        <i class="ob-icon__index"></i>
+        <span slot="title">首页</span>
+      </el-menu-item>
+      <!--<el-menu-item index="/console">-->
+        <!--<i class="ob-icon__console"></i>-->
+        <!--<span slot="title">控制台</span>-->
+      <!--</el-menu-item>-->
       <el-menu-item index="/community">
         <i class="ob-icon__community"></i>
         <span slot="title">社群管理</span>
@@ -18,14 +26,22 @@
         <i class="ob-icon__equipment"></i>
         <span slot="title">设备管理</span>
       </el-menu-item>
+      <el-menu-item index="/member">
+        <i class="ob-icon__member"></i>
+        <span slot="title">人员管理</span>
+      </el-menu-item>
+      <el-menu-item index="/behavior">
+        <i class="ob-icon__action"></i>
+        <span slot="title">行为分析</span>
+      </el-menu-item>
       <el-menu-item index="/data">
         <i class="ob-icon__data"></i>
-        <span slot="title">数据可视化</span>
+        <span slot="title">数据分析</span>
       </el-menu-item>
-      <el-menu-item index="/developer">
-        <i class="ob-icon__developer"></i>
-        <span slot="title">开发者中心</span>
-      </el-menu-item>
+      <!--<el-menu-item index="/developer">-->
+        <!--<i class="ob-icon__developer"></i>-->
+        <!--<span slot="title">开发者中心</span>-->
+      <!--</el-menu-item>-->
     </el-menu>
   </el-scrollbar>
 </template>
@@ -52,7 +68,7 @@ export default {
     ]),
     currRouter: function () {
       let path = this.$route.path
-      return path.substring(0, path.indexOf('/', 1))
+      return `/${path.split('/')[1]}`
     },
     isCollapse () {
       return !this.sidebar.opened
@@ -68,7 +84,7 @@ export default {
       height: 22px;
       background-position: center;
       background-repeat: no-repeat;
-      background-size: cover;
+      background-size: contain;
       & + span {
         margin-left: 16px;
       }
@@ -83,6 +99,18 @@ export default {
       }
       &.ob-icon__developer {
         background-image: url("../../image/nav_developer_icon.png");
+      }
+      &.ob-icon__console {
+        background-image: url("../../image/nav_console_icon.png");
+      }
+      &.ob-icon__index {
+        background-image: url("../../image/nav_index_icon.png");
+      }
+      &.ob-icon__action {
+        background-image: url("../../image/nav_action_icon.png");
+      }
+      &.ob-icon__member {
+        background-image: url("../../image/nav_member_icon.png");
       }
     }
     &.is-active {

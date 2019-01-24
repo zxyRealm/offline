@@ -3,33 +3,54 @@
     <div class="sub-tab-main vam">
       <i v-if="back" @click="backPrev" class="el-icon-arrow-left"></i>
       <template v-for="(item,$index) in menuArray">
-        <router-link v-if="item.index" :key="$index" :to="item.index">{{item.title}}</router-link>
-        <a href="javascript:void (0)" class="text" v-else >{{item.title}}</a>
-        <span v-if="$index!==menuArray.length-1" class="separator"></span>
+        <span :key="$index" class="tab__link--item">
+          <router-link v-if="item.index" :key="$index" :to="item.index" v-html="item.title"></router-link>
+          <a class="text" v-html="item.title" v-else ></a>
+        </span>
       </template>
+      <slot name="reference"></slot>
     </div>
     <template v-if="subLink.title">
-      <!--<router-link v-if="subLink.index" :to="subLink.index" class="sub-tab-link">{{subLink.title}}</router-link>-->
       <a href="javascript:void (0)" class="sub-tab-link" @click="routeChange(subLink.index)">{{subLink.title}}</a>
     </template>
-    <template v-if="showButton && !search">
-      <el-button class="affirm medium fr" @click="handleBtn">{{subBtn.text}}</el-button>
+    <template v-if="showButton">
+      <div class="fr ml50">
+        <template v-for="(item,index) in btnArray">
+          <slot v-if="$slots.file && item.type === 'file'" name="file"></slot>
+          <custom-popover
+            v-else
+            :key="index"
+            :size="btnSize"
+            :class="{ml10:index}"
+            :show-popover="item.showPopover"
+            :content="item.content"
+            :text="item.text"
+            @click.native="handleBtn(index)"></custom-popover>
+        </template>
+      </div>
     </template>
     <el-input
-      v-if="search && !showButton"
+      v-if="search"
       clearable
       @clear="searchMethod"
       class="nav-search fr"
       :placeholder="placeholder"
       @keyup.native.enter="searchMethod"
-      v-model="searchValue">
+      v-model.trim="searchValue">
       <i slot="prefix" @click="searchMethod" class="el-input__icon el-icon-search"></i>
     </el-input>
   </div>
 </template>
 <script>
+import CustomPopover from '@/components/CustomPopover'
+import {validateRule} from '../../utils/validate'
+import {eventObject} from '../../utils/event'
+
 export default {
   name: 'uu-sub-tab',
+  components: {
+    CustomPopover
+  },
   props: {
     back: {
       type: [Boolean, String],
@@ -53,6 +74,22 @@ export default {
         {index: '', title: ''}
       ]
     },
+    btnArray: {
+      type: [Array],
+      default: () => []
+    },
+    showPopover: { // popover状态是否可见
+      type: Boolean,
+      default: false
+    },
+    popover: { // popover文本内容
+      type: String,
+      default: ''
+    },
+    btnSize: {
+      type: String,
+      default: 'middle'
+    },
     subLink: {
       type: [Object],
       default: () => ({
@@ -72,33 +109,69 @@ export default {
   },
   data () {
     return {
-      searchValue: ''
+      searchValue: this.$route.params.name || '',
+      length: 0,
+      iframeCount: 0
     }
+  },
+  mounted () {
+    eventObject().$on('IFRAME_FRESH_COUNT', (count) => {
+      this.iframeCount = count
+    })
   },
   methods: {
     // @handle-btn subBtn未提供index参数是触发
-    handleBtn () {
+    handleBtn (index) {
       if (this.subBtn.index) {
         this.$router.push(this.subBtn.index)
-      } else {
-        this.$emit('handle-btn')
       }
+      this.$emit('handle-btn', index)
     },
     // 返回上一页 back为字符串时返回指定路径
     backPrev () {
       if (window.history.length) {
-        this.$router.go(-1)
+        this.$router.go(-1 - this.iframeCount)
       } else {
         this.$router.push('/')
       }
     },
     // @remote-search 点击图标或回车是触发
     searchMethod () {
+      if (this.searchValue) {
+        if (this.searchValue.length > 32) {
+          this.searchValue = this.searchValue.substr(0, 20)
+          this.$tip('请输入1-32位字符', 'error')
+          return
+        } else if (!validateRule(this.searchValue, 2)) {
+          this.$tip(`仅限汉字/字母/数字/下划线/空格`, 'error')
+          return
+        }
+      }
       this.$emit('remote-search', this.searchValue.toString().trim())
     },
     routeChange (link) {
       if (link) this.$router.push(link)
     }
+  },
+  computed: {
+    show: {
+      get () {
+        return this.showPopover
+      },
+      set () {
+      }
+    }
+  },
+  watch: {
+    $route: {
+      handler (val) {
+        this.iframeCount = 0
+      },
+      deep: true
+    }
+  },
+  beforeDestroy () {
+    eventObject().$off('IFRAME_FRESH_COUNT')
   }
 }
 </script>
@@ -106,9 +179,14 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
   // 主题内容区tab 菜单样式
   .sub-tab-wrap {
-    padding: 20px;
+    padding: 20px 20px 8px;
     line-height: 24px;
     font-size: 16px;
+    border-bottom: 1px dashed rgba(151,151,151,0.10);
+    &.pd--lr20{
+      padding-left: 20px;
+      padding-right: 20px;
+    }
     .sub-tab-main {
       float: left;
       font-size: 16px;
@@ -117,8 +195,40 @@ export default {
       .el-icon-arrow-left {
         cursor: pointer;
       }
-      > a:not(.router-link-active) {
-        color: #fff;
+      .tab__link--item{
+        + .tab__link--item{
+          margin-left: 40px;
+        }
+      }
+      a{
+        display: inline-block;
+        line-height: 30px;
+        padding: 0 5px;
+        box-sizing: border-box;
+        color: rgba(255, 255, 255, 1);
+        &:not([href]){
+          cursor: text;
+        }
+      }
+      a.router-link-active[href]{
+        position: relative;
+        color: rgba(255, 255, 255, 1);
+        /*border-bottom: 2px solid #fff;*/
+        &:after{
+          content: '';
+          position: absolute;
+          width: 100%;
+          left: 0;
+          bottom: -8px;
+          height: 2px;
+          background: #fff;
+          // background-image: linear-gradient(-90deg, #6D2EBB 0%, #0F9EE9 100%);
+          border-radius: 4px;
+        }
+      }
+      a[href] {
+        color: rgba(255, 255, 255, 0.5);
+        /*color: #fff;*/
       }
       > .text {
         cursor: text;
@@ -166,12 +276,12 @@ export default {
     }
     /*搜索框*/
     .nav-search {
-      width: 280px;
+      width: 190px;
       max-width: 100%;
       border: none;
       background: transparent;
       .el-input__prefix {
-        font-size: 24px;
+        font-size: 18px;
       }
       .el-input__inner {
         background: transparent !important;
@@ -179,32 +289,5 @@ export default {
         border-bottom: 1px solid #ddd;
       }
     }
-  }
-
-</style>
-<style lang="scss" rel="stylesheet/scss">
-  @import "@/styles/variables.scss";
-
-  .nav-search {
-    width: 280px;
-    border: none;
-    .el-input__prefix {
-      font-size: 22px;
-      color: $blue;
-      z-index: 999;
-      cursor: pointer;
-    }
-    &.el-input--prefix {
-      .el-input__inner {
-        background: transparent !important;
-        background-image: none;
-        border: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        padding-left: 35px;
-        border-radius: 0;
-        color: #fff;
-      }
-    }
-
   }
 </style>

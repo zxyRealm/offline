@@ -72,9 +72,11 @@
         <p>
           <span class="label__title">运行状态：</span>
           <span>
-             <span :class="data.deviceStatus===1?'error-color':'success-color'">{{data.deviceStatus | lineState}}</span>
-          <a href="javascript:void (0)" @click="getDeviceState(data)"><i v-if="data.deviceStatus!==undefined" class="el-icon-refresh success-color"></i><span v-else>获取</span>
-          </a>
+            <span :class="data.deviceStatus===1?'error-color':'success-color'">{{data.deviceStatus | lineState}}</span>
+            <a href="javascript:void (0)" @click="getDeviceState(data)">
+              <i v-if="data.deviceStatus!==undefined" class="el-icon-refresh success-color"></i>
+              <span v-else>获取</span>
+            </a>
           </span>
 
         </p>
@@ -159,7 +161,7 @@ export default {
       type: Boolean,
       default: false
     },
-    isChild: { // 是否是子社群设备列表
+    isChild: { // 是否是成员社群设备列表
       type: [Boolean],
       default: false
     }
@@ -173,12 +175,12 @@ export default {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           this.$http('/merchant/device/alias/exist', {deviceName: value}, false).then(res => {
-            res.data ? callback(new Error('设备别名已存在')) : callback()
+            res.data ? callback(new Error('该名称已存在')) : callback()
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
           })
         } else {
-          callback(new Error('请输入正确的设备别名'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       }
     }
@@ -238,7 +240,6 @@ export default {
         }
         this.$set(value, 'deviceStatus', res.data)
       }).catch(error => {
-        console.log(error)
         if (error.code) {
         }
       })
@@ -452,7 +453,7 @@ export default {
     },
     hidePopover () {
       if (this.$refs.tableForm) {
-        this.$refs.tableForm.resetFields()
+        this.$refs.tableForm.clearValidate()
       }
     }
   },

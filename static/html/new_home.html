@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="/static/three/three.min.js"></script>
+  <script src="/static/three/SVGLoader.js"></script>
+  <script src="/static/three/tween.js"></script>
+  <script src="/static/three/OrbitControls.js"></script>
+  <style>
+    html, body{
+      margin: 0;
+      padding: 0;
+      color: rgb(86, 191, 248);
+      /* b: #2f89f8 */
+    }
+  </style>
+</head>
+
+<body>
+  <div id="WebGL-output"></div>
+  <div id="slide" style="position: absolute;top: 0;display: none">
+    <a href="javascript:;" onclick="upTrigger()">上升</a>
+    <a href="javascript:;" onclick="downTrigger()">下降</a>
+  </div>
+
+  <script type="text/javascript">
+    var renderer, scene, camera, group;
+    var scale = 1; // 缩放比
+    var floorHeight = 140;
+    var planeList = []; // 面网格集合
+    var geometryArr = []; // 物体集合
+    var materialArr = []; // 材质=集合
+    var clock = new THREE.Clock(); // 动画clock
+    var pointCloudArr = []; // 单个粒子网格集合
+    var mixArr = [],
+      pointArr = new Array(1000) // 粒子集合
+
+    // 将第一层在数组中的索引值作为参考count
+    // 临界点：
+    // 最小count: 参考数-(地下层数-1)
+    // 最大count：参考数+(地上层数-5)
+    var floorCount // 楼层
+    var count // 动态参考值
+    var standardCount // 固定参考值
+    var positionSpeed = 2 // 位移运动速度
+    var opacitySpeed = 0.2 * positionSpeed / floorHeight // 透明度运动速度
+    var opacitySpeed2 = 1 * positionSpeed / floorHeight // 商店透明度运动参数
+    var opacitySpeed3 = 0.6 * positionSpeed / floorHeight // 边缘透明度运动参数
+    var upClick = false // 上升trigger变量
+    var upHeight = 0 // 上升起始高度
+    var downClick = false // 下降trigger变量
+    var downHeight = floorHeight // 下降起始高度
+
+    var aspectRatio = window.innerWidth / window.innerHeight;
+    var originalAspect = window.innerWidth / window.innerHeight;
+    var viewSize = window.innerHeight;
+
+    var floorArr; // 接收楼层信息
+
+    function createLight() {
+      var light = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+      light.position.set(0, 1500, 0);
+      scene.add(light);
+
+      var light2 = new THREE.DirectionalLight(0x4E98F2, 0.5);
+      light2.position.set(0, 300, -1500);
+      scene.add(light2);
+
+      var light3 = new THREE.DirectionalLight(0x4E98F2, 0.5);
+      light3.position.set(0, 200, 1500);
+      scene.add(light3);
+    }
+
+    function init() {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+      })
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      scene = new THREE.Scene();
+
+      camera = new THREE.OrthographicCamera(
+        viewSize * aspectRatio / -2,
+        viewSize * aspectRatio / 2,
+        viewSize / 2,
+        viewSize / -2,
+        0.1, 10000
+      );
+      camera.position.set(330, 160, 450);
+      camera.lookAt(0, 0, 0);
+      scene.add(camera);
+
+      createLight();
+
+      group = new THREE.Group();
+      group.position.set(-290 * scale, -80, -241 * scale);
+      scene.add(group);
+
+      document.getElementById("WebGL-output").appendChild(renderer.domElement);
+      window.addEventListener('resize', onWindowResize, false);
+      window.addEventListener('mousemove', onDocumentMouseMove, false);
+      window.addEventListener('mousedown', onDocumentMouseClick, false);
+
+      addControl();
+      loadSignal();
+
+    }
+
+    init();
+    render();
+
+    // 计算上升和下降的变化
+    function getUpDownFloorCount() {
+      var downFloorCount = 0;
+      var upFloorCount = 0;
+      var position = 0;
+      // console.log(floorArr)
+      floorArr.forEach(function (item, index) {
+        if (item.floor < 0) {
+          downFloorCount += 1
+        } else {
+          if (item.floor === 1) position = index;
+          upFloorCount += 1
+        }
+      });
+      return {
+        position: position,
+        down: downFloorCount,
+        up: upFloorCount
+      }
+    }
+
+    // 计算参考点的位置
+    function setSlideInfo() {
+      floorCount = getUpDownFloorCount()
+      count = floorCount.position // 动态基准数
+      // console.log(count)
+      standardCount = floorCount.position // 固定基准数
+      floorCount.down = standardCount - (floorCount.down - 1)
+      floorCount.up = standardCount + (floorCount.up - 5)
+      minFloor = caculateMinusIndex(floorArr)
+    }
+
+    function upTrigger() {
+      if (count > floorCount.down - 1 && upClick === false && downClick === false)
+        upClick = true
+    }
+
+    function downTrigger() {
+      if (count < floorCount.up + 1 && downClick === false && upClick === false)
+        downClick = true
+    }
+
+    function upFloor() {
+      upHeight += positionSpeed
+      group.position.y += positionSpeed
+      group.children[count - 1].children.forEach(function (item) {
+        if (item.name === 'plane') {
+          item.material.opacity += opacitySpeed
+        } else {
+          item.material.opacity += opacitySpeed2
+        }
+      })
+      group.children[count + 3].children.forEach(function (item) {
+        if (item.name === 'plane') {
+          item.material.opacity -= opacitySpeed
+        } else {
+          item.material.opacity -= opacitySpeed2
+        }
+      })
+      if (upHeight >= floorHeight) {
+        upClick = false
+        upHeight = 0
+        count--
+      }
+    }
+
+    function downFloor() {
+      downHeight -= positionSpeed
+      group.position.y -= positionSpeed
+      group.children[count].children.forEach(function (item) {
+        if (item.name === 'plane') {
+          item.material.opacity -= opacitySpeed
+        } else {
+          item.material.opacity -= opacitySpeed2
+        }
+      })
+      group.children[count + 4].children.forEach(function (item) {
+        if (item.name === 'plane') {
+          item.material.opacity += opacitySpeed
+        } else {
+          item.material.opacity += opacitySpeed2
+        }
+      })
+      if (downHeight <= 0) {
+        downClick = false
+        downHeight = floorHeight
+        count++
+      }
+    }
+
+    // 闪光粒子map
+    function ShineCanvas(status) {
+      var canvas = document.createElement('canvas');
+      canvas.width = 32;
+      canvas.height = 32;
+      var context = canvas.getContext('2d');
+      var gradient = context.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        canvas.width / 2
+      );
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      
+      if (status === 0) {
+        gradient.addColorStop(0.4, 'rgba(255, 213, 0, 1)');
+        gradient.addColorStop(0.2, 'rgba(255, 213, 0, 1)');
+      } else {
+        gradient.addColorStop(0.2, 'rgba(56, 223, 25, 1)');
+        gradient.addColorStop(0.4, 'rgba(56, 223, 25, 1)');
+      }
+      gradient.addColorStop(0.7, 'rgba(0,0,0,1)');
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      this.texture = new THREE.Texture(canvas);
+      this.texture.needsUpdate = true;
+    }
+
+    // 闪光粒子mesh
+    function Shine(i, alex, floor, status) {
+      if (i < 100) {
+        geometryArr[i] = new THREE.CircleGeometry(7, 50, 32)
+        materialArr[i] = new THREE.MeshBasicMaterial({
+          color: status === 1 ? new THREE.Color('rgba(56, 223, 25, 1)') : new THREE.Color('rgba(255, 213, 0, 1)'),
+          transparent: true,
+          side: THREE.DoubleSide,
+          blending: THREE.AdditiveBlending,
+          // map: new ShineCanvas(status).texture
+        })
+        pointArr[i] = new THREE.Mesh(
+          geometryArr[i],
+          materialArr[i]
+        )
+        // pointArr[i].sortParticles = true;
+        pointArr[i].position.set(alex[0], floor+1, alex[1])
+        pointArr[i].scale.set(0.01, 0.01, 0.01)
+        pointArr[i].rotation.x = 0.5 * Math.PI
+        scene.add(pointArr[i])
+      } else {
+        i = i % 100;
+        pointArr[i].position.set(alex[0], floor+1, alex[1])
+        pointArr[i].rotation.x = 0.5 * Math.PI
+      }
+      if (floor < -floorHeight || floor > 2 * floorHeight + 5) {
+        pointArr[i].visible = false
+      } else {
+        pointArr[i].visible = true
+      }
+      return pointArr[i]
+    }
+
+    // 闪光粒子animate
+    // var mixer;
+    function createAnimate(knot, index) {
+      var scaleStart = {
+        x: 0.01,
+        y: 0.01
+      }
+      var scaleEnd = {
+        x: 1,
+        y: 1
+      }
+      var scaleThird = {
+        x: 0.01,
+        y: 0.01
+      }
+      var action1 = new TWEEN.Tween(scaleStart)
+        .to(scaleEnd, 1000)
+        .onUpdate(function () {
+          knot.scale.x = scaleStart.x;
+          knot.scale.y = scaleStart.y;
+        })
+        .easing(TWEEN.Easing.Bounce.In)
+      var action2 = new TWEEN.Tween(scaleEnd)
+        .to(scaleThird, 1000)
+        .onUpdate(function () {
+          knot.scale.x = scaleEnd.x;
+          knot.scale.y = scaleEnd.y;
+        })
+        .easing(TWEEN.Easing.Elastic.InOut)
+      action1.chain(action2)
+      action1.start()
+    }
+
+    var shine;
+
+    // 创建闪点
+    function createShine(alx, floor, status) {
+      alx = alx.replace('[', '')
+      alx = alx.replace(']', '')
+      alx = alx.split(',')
+      pointCloudArr.push(alx)
+      var index = pointCloudArr.length - 1
+      // var floor = 1
+      var alpha = 1
+      if (floor > 0) {
+        alpha = 2
+      } else {
+        alpha = 1
+      }
+      floor = 6 + floor * floorHeight - (count - standardCount) * floorHeight - (10 - 1) * 140 - alpha * floorHeight -
+        80
+      shine = Shine(index, alx, floor, status)
+      createAnimate(shine, index)
+    }
+
+    function getRandom(n, m) {
+      var n1 = Number(n); //强制转换成数字
+      var m2 = Number(m);
+      if (isNaN(n1) || isNaN(m2)) { //判断是否为有效数字 ，其中一个不是有效数字就返回[0,1)之间的随机小数
+        return math.random();
+      }
+      if (n1 > m2) { //如果n>m则交换
+        var temp = n1;
+        n1 = m2;
+        m2 = temp;
+      }
+      return Math.round(Math.random() * (m2 - n1) + n1);
+    }
+
+    function onDocumentMouseMove(event) {
+      if (upClick === false && downClick === false) {
+        var raycaster = new THREE.Raycaster(); // create once
+        var mouse = new THREE.Vector2(); // create once
+        mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+        mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        var rayPlaneList = planeList.slice(count, count + 4)
+        var subRayList = group.children.slice(count, count + 4)
+        var intersects = raycaster.intersectObjects(rayPlaneList);
+        if (intersects.length > 0) {
+          for (var i = 0; i < rayPlaneList.length; i++) {
+            if (intersects[0].object === rayPlaneList[i]) {
+              moveChange(subRayList[i], 0x0068FC, 0x293864, 0x2A4586)
+            } else {
+              moveChange(subRayList[i], 0x4E98F2, 0x0F1252, 0x1A3050)
+            }
+          }
+        } else {
+          for (var i = 0; i < rayPlaneList.length; i++) {
+            moveChange(subRayList[i], 0x4E98F2, 0x0F1252, 0x1A3050)
+          }
+        }
+      }
+
+    }
+
+    function moveChange(objectList, meshColor, planeColor, lineColor) {
+      objectList.children.forEach(function (item) {
+        if (item.name === 'store') {
+          item.material.color = new THREE.Color(meshColor)
+        } else if (item.name === 'plane') {
+          item.material.color = new THREE.Color(planeColor)
+        } else {
+          item.material.color = new THREE.Color(lineColor)
+        }
+        // item.material.opacity = 0.3
+      })
+    }
+
+    function onDocumentMouseClick(event) {
+      // 透视相机计算raycaster
+      // var vector = new THREE.Vector3(
+      //   (event.clientX / (window.innerWidth)) * 2 - 1,
+      //   -(event.clientY / (window.innerHeight)) * 2 + 1,
+      //   0.5
+      // );
+      // vector = vector.unproject(camera);
+      // var raycaster = new THREE.Raycaster(
+      //   camera.position,
+      //   vector.sub(camera.position).normalize()
+      // );
+
+      // 正交相机计算raycaster
+      var raycaster = new THREE.Raycaster(); // create once
+      var mouse = new THREE.Vector2(); // create once
+      mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+      mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+
+      var rayPlaneList = planeList.slice(count, count + 4)
+      var intersects = raycaster.intersectObjects(rayPlaneList);
+      if (intersects.length > 0) {
+        window.parent.postMessage({
+          cmd: 'change-floor',
+          params: {
+            data: intersects[0].object.position.y
+          }
+        }, '*');
+      }
+    }
+
+    function loadSignal() {
+      window.parent.postMessage({
+        cmd: 'home-load_signal',
+        params: {}
+      }, '*');
+    }
+
+    // 接收楼层信息
+    function setFloorInfo(floor) {
+      if (floor.length > 1) {
+        if (floor[0].floor < floor[1].floor)
+          floorArr = floor
+        else
+          floorArr = floor.reverse()
+      }
+      if (floor.length > 4) {
+        var slideBox = document.getElementById('slide')
+        slideBox.style.display = 'block'
+      }
+      setSlideInfo()
+      // 创建楼层图片
+      for (var i = 0; i < floorArr.length; i++) {
+        loadSvg(group, floorArr[i], i)
+      }
+    }
+
+    // 添加Orbit控制器
+    function addControl() {
+      controls = new THREE.OrbitControls(camera);
+      // controls.maxPolarAngle = 1.28;//上下两极的可视区域的最大角度
+      // controls.minPolarAngle = 1.28;//上下两极的可视区域最小角度
+      // controls.dampingFactor = 0.25;
+      controls.enableZoom = true;
+      controls.enableRotate = true;
+      controls.screenSpacePanning = true;
+    }
+
+    function loadSvg(group, floorInfo, i) {
+      var floorGroup = new THREE.Group()
+
+      if (floorInfo.floor < 0) {
+        floorGroup.name = 'B' + Math.abs(floorInfo.floor)
+      } else {
+        floorGroup.name = 'F' + Math.abs(floorInfo.floor)
+      }
+
+      addLineShape(floorInfo, floorGroup)
+      addShape(floorInfo, floorGroup);
+
+      group.add(floorGroup)
+    }
+
+    var minFloor;
+
+    function caculateMinusIndex(arr) {
+      var minFloor = 1000
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].floor < minFloor && arr[i].floor > 0) {
+          minFloor = arr[i].floor;
+        }
+      }
+      return minFloor
+    }
+
+    // 初始的四层 旋转不同角度
+    // 上升：第四层回到正常角度 3到-1按次旋转
+    // 下降：第一层回到正常角度 4到2按次序旋转
+
+    function addLineShape(info, group) {
+      var loader = new THREE.SVGLoader()
+      // console.log('floor ----------', info)
+      if (!info.img_url) {
+        console.error('map url is not exist')
+        return
+      }
+      loader.load(info.img_url, function (paths) {
+        for (var i = 0; i < paths.length; i++) {
+          var path = paths[i]
+          var depth = 5
+          var shapes = path.toShapes(true);
+          var opacity = info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 1
+          for (var j = 0; j < shapes.length; j++) {
+            var shape = shapes[j];
+            // if (i !== 0) {
+              shape.autoClose = true
+              var points = shape.getPoints()
+              var geometry = new THREE.ExtrudeBufferGeometry(shape, {
+                depth: depth,
+                bevelEnabled: false
+              })
+
+              var geometry2 = new THREE.Geometry();
+              geometry2.fromBufferGeometry(geometry)
+
+              var materialLine = new THREE.MeshPhongMaterial({
+                color: new THREE.Color('#4E98F2'),
+                transparent: true,
+                opacity: opacity,
+                side: THREE.DoubleSide,
+                vertexColors: THREE.FaceColors
+                // depthWrite: false
+              })
+              var line = new THREE.Mesh(geometry2, materialLine)
+              line.geometry.faces.forEach(function (face) {
+                if (face.normal.y !== 0 && face.normal.z !== 0) {
+                  face.color = new THREE.Color('#4E98F2')
+                }
+              })
+
+              var edgeGeometry = new THREE.BufferGeometry().setFromPoints(points)
+              var edgeMaterial = new THREE.LineBasicMaterial({
+                color: '#1A3050',
+                transparent: true,
+                opacity: opacity
+              })
+              var edges = new THREE.Line(edgeGeometry, edgeMaterial)
+
+              // var edges = new THREE.EdgesGeometry(geometry)
+              // var edgeLine = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#000000'}))
+
+              line.position.set(0, info.coordinate_y + depth + 1, 0)
+              line.rotation.set(0.5 * Math.PI, 0, 0)
+              line.name = 'store'
+              edges.position.set(0, info.coordinate_y + depth + 1, 0)
+              edges.rotation.set(0.5 * Math.PI, 0, 0)
+              edges.name = 'edges'
+              group.add(edges)
+              group.add(line)
+            // }
+          }
+        }
+      })
+    }
+
+    function addShape(info, group) {
+      var loader = new THREE.SVGLoader()
+      loader.load('/static/origin-floor/bottom.svg', function (paths) {
+        for (var i = 0; i < paths.length; i++) {
+          var path = paths[i]
+          var shapes = path.toShapes(true);
+          for (var j = 0; j < shapes.length; j++) {
+            var shape = shapes[j];
+            var geometry = new THREE.ShapeBufferGeometry(shape);
+            var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+              color: '#0F1252',
+              side: THREE.DoubleSide,
+              transparent: true,
+              opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.2
+            }));
+
+            mesh.position.set(0, info.coordinate_y, 0);
+            mesh.rotation.set(0.5 * Math.PI, 0, 0);
+            mesh.name = 'plane'
+            planeList.push(mesh);
+            group.add(mesh);
+          }
+        }
+      })
+    }
+
+    function render() {
+      requestAnimationFrame(render)
+
+      // var alex = '[' + getRandom(-80, 80) + ',' + getRandom(-50, 50) + ']';
+      // var floor = getRandom(-4, 5)
+      // if ((count || count === 0) && upClick === false && downClick === false) {
+
+      //   createShine(alex, floor * floorHeight - (count - standardCount) * floorHeight)
+      // }
+      TWEEN.update()
+
+      if (upClick === true) upFloor()
+      if (downClick === true) downFloor()
+      renderer.render(scene, camera)
+    }
+
+    function onWindowResize() {
+      var aspect = window.innerWidth / window.innerHeight;
+      var change = originalAspect / aspect;
+      var newSize = viewSize * change;
+      camera.left = -aspect * newSize / 2;
+      camera.right = aspect * newSize  / 2;
+      camera.top = newSize / 2;
+      camera.bottom = -newSize / 2;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight)
+    }
+
+  </script>
+</body>
+
+</html>

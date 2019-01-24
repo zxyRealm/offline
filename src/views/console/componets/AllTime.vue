@@ -101,7 +101,7 @@ export default {
     div.identify {
       line-height: 80px;
       height: 80px;
-      width: 180px;
+      width: 176px;
       margin: 0 auto;
       background: url(../../../assets/console/device-name-bg@2x.png) no-repeat center;
       background-size: 100% 100%;

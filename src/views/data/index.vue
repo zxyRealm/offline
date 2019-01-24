@@ -52,12 +52,13 @@ export default {
 
 </style>
 <style rel="stylesheet/scss" lang="scss">
+  @import "@/styles/variables.scss";
   .guest-analysis {
     height: 100%;
     > .el-scrollbar {
       height: 100%;
       > .el-scrollbar__wrap {
-        background-color: rgba(0, 0, 0, 0.5);
+        /*background-color: rgba(0, 0, 0, 0.5);*/
 
       }
     }
@@ -75,6 +76,7 @@ export default {
         padding: 12px 0 0;
         .table-data {
           min-height: calc(100% - 330px);
+          background-color: $content-bg;
         }
       }
     }
@@ -91,7 +93,12 @@ export default {
 
   .data-wrap {
     height: 100%;
-    background: #0F0E11;
+    background: #040404;
+    .corner-bg{
+      > div:not(.table-wrap) {
+        background-color: $content-bg;
+      }
+    }
     .data-type {
       font-size: 16px;
       color: #FFFFFF;
@@ -100,7 +107,7 @@ export default {
       height: 40px;
       padding: 0 12px;
       box-sizing: border-box;
-      background: rgba(64, 58, 73, 0.30);
+      background-color: $content-bg;
       box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
       .router-link-active {
         color: #0F9EE9;

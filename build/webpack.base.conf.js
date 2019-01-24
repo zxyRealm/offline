@@ -40,6 +40,10 @@ module.exports = {
         include: [resolve('src'), resolve('test')]
       },
       {
+        test: /\.sass$/,
+        loaders: ['style', 'css', 'sass']
+      },
+      {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url-loader',
         options: {
@@ -62,6 +66,30 @@ module.exports = {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
+      },
+      {
+        test: require.resolve('three/examples/js/controls/OrbitControls'),
+        use: 'imports-loader?THREE=three'
+      },
+      {
+        test: require.resolve('three/examples/js/controls/OrbitControls'),
+        use: 'exports-loader?THREE.OrbitControls'
+      },
+      {
+        test: require.resolve('three/examples/js/loaders/SVGLoader'),
+        use: 'imports-loader?THREE=three'
+      },
+      {
+        test: require.resolve('three/examples/js/loaders/SVGLoader'),
+        use: 'exports-loader?THREE.SVGLoader'
+      },
+      {
+        test: require.resolve('three/examples/js/loaders/PLYLoader'),
+        use: 'imports-loader?THREE=three'
+      },
+      {
+        test: require.resolve('three/examples/js/loaders/PLYLoader'),
+        use: 'exports-loader?THREE.PLYLoader'
       }
     ]
   },

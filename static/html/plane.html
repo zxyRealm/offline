@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>2D地图</title>
+  <script src="/static/three/three.min.js"></script>
+  <script src="/static/three/OrbitControls.js"></script>
+  <script src="/static/three/SVGLoader.js"></script>
+  <script src="/static/three/util.js"></script>
+  <style>
+    html, body{
+      margin: 0;
+      padding: 0;
+    }
+    #label{
+      width: 556px;
+      left: 50%;
+      margin-left: -238px;
+      height: 16px;
+      position: absolute;
+      bottom: 30px;
+    }
+    #label .item{
+      padding-top: 1px;
+      box-sizing: border-box;
+      color: #ffffff;
+    }
+    #label .item .box{
+      float: left; width: 20px; height: 10px; line-height: 10px; border-radius: 9px;margin-right: 10px
+    }
+    #label .item .label{
+      float: left; line-height: 10px; height: 10px; font-size: 11px; margin-right: 30px;
+    }
+    .level-1{
+      background: #213A65
+    }
+    .level-2{
+      background: #0F9EE9
+    }
+    .level-3{
+      background: #005BC9
+    }
+    .level-4{
+      background: #2C0189
+    }
+    .level-5{
+      background: #481284
+    }
+    .levitaten {
+      width: 114px;
+      height: 120px;
+      background-color: rgba(35, 92, 194, 0.3);
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      padding: 5px;
+      font-size: 12px;
+      box-sizing: border-box;
+      display: none;
+      -webkit-animation-name: fadeIn; /*动画名称*/
+      -webkit-animation-duration: 0.1s; /*动画持续时间*/
+      -webkit-animation-iteration-count: 1; /*动画次数*/
+      -webkit-animation-delay: 0s;
+    }
+    @-webkit-keyframes fadeIn {
+      0% {
+        opacity: 0; /*初始状态 透明度为0*/
+      }
+      25% {
+        opacity: 0.25; /*中间状态 透明度为0*/
+      }
+      75% {
+        opacity: 0.75; /*中间状态 透明度为0*/
+      }
+      100% {
+        opacity: 1; /*结尾状态 透明度为1*/
+      }
+    }
+    .levitaten .title{
+      padding: 3px 5px;
+      color: #ffffff;
+      overflow: hidden;
+      border-bottom: 1px dashed #979797;
+    }
+    .levitaten .device-list {
+      height: 85px;
+      overflow: hidden;
+    }
+    .levitaten .device-list ul{
+      margin: 0;
+      padding: 4px 2px 0;
+      text-decoration: none;
+      color: #ffffff;
+    }
+    .levitaten .device-list li {
+      height: 27px;
+      line-height: 27px;
+      list-style: none;
+      position: relative;
+    }
+    .levitaten .device-list li span{
+      top: -3px;
+      margin-left: 5px;
+      position: absolute;
+    }
+    .levitaten .top-line {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      width: 1px;
+      height: 20px;
+    }
+    .under-line {
+      position: absolute;
+      top: -20px;
+      right: 57px;
+      background: #ffffff;
+      background: rgba(255, 255, 255, 0.5);
+      height: 1px;
+    }
+  </style>
+</head>
+<body>
+<div id="WebGL-output"></div>
+<div id="label">
+  <div class="item">
+    <div class="box level-1"></div>
+    <div class="label">10人以下</div>
+  </div>
+  <div class="item">
+    <div class="box level-2"></div>
+    <div class="label">10-20人</div>
+  </div>
+  <div class="item">
+    <div class="box level-3"></div>
+    <div class="label">20-30人</div>
+  </div>
+  <div class="item">
+    <div class="box level-4"></div>
+    <div class="label">30-40人</div>
+  </div>
+  <div class="item">
+    <div class="box level-5"></div>
+    <div class="label">40人以上</div>
+  </div>
+</div>
+
+<div class="levitaten" id="levitaten">
+  <div class="title" id="levitaten-title"></div>
+  <div class="device-list" id="levitaten-list">
+
+  </div>
+  <div class="top-line"></div>
+  <div class="under-line" id="underLine" style="width: 30px;"></div>
+</div>
+<script type="text/javascript">
+  var renderer, scene, camera, group;
+  var scale = 0.4
+  var spriteList = [];
+  var gateway = [
+    // {text: '东', position: {x: -4, y: -36}, logo: 'sprite0.png'},
+    // {text: '北门', position: {x: -8, y: 36}},
+    // {text: '南门', position: {x: 81, y: 31}, logo: 'sprite0.png'},
+    // {text: '三个字', position: {x: 4, y: 11}, logo: 'sprite0.png'},
+    // {text: '西门吹雪', position: {x: -113, y: 11}, logo: 'sprite0.png'},
+    // {text: '我有五个字', position: {x: -63, y: 11}, logo: 'sprite0.png'},
+    // {text: '我超过五个字', position: {x: -63, y: -11, logo: 'sprite0.png'}},
+    // {text: '我应该有七个字', position: {x: 63, y: -11}, logo: 'sprite0.png'},
+  ];
+  var shapesArr = []; // 保存shape几何体路径
+  var shapesMaterialArr = []; // 保存shape材质
+  var shapesGeometryArr = []; // 保存shape几何体
+  var shapesMeshArr = []; // 保存shape网格
+  var shapesEdgesArr = []; // 保存shape边缘
+  var shapesEdgesLineArr = []; // 保存绘制成线的shape边缘
+  var pathArr = [];
+  var currentIntersect = null; // 将当前intersect保存为中间值
+  var edges = null;
+  var line = null;
+  var levitaten = document.getElementById('levitaten');
+  var underLine = document.getElementById('underLine');
+  var boxAlexArr = []; // 用来保存坐标数据的数组
+  var hasColorBoxArr = [] // 用来保存有颜色的块的数组
+
+  function init() {
+    var innerWidth = window.innerWidth // 减去右侧aside的宽度
+    var innerHeight = window.innerHeight // 减去底部div的宽度
+    renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
+    renderer.setSize(innerWidth, innerHeight);
+    // renderer.setClearColor('#ffffff', 1.0);
+
+    scene = new THREE.Scene();
+    // scene.background = new THREE.Color( '#17151a' );
+
+    camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 1, 1000 );
+    camera.position.set(0, 0, 520);
+    scene.add(camera);
+
+    var light = new THREE.PointLight( 0xffffff, 0.8 );
+    camera.add(light);
+
+    // 计算label位置
+    var label = document.getElementById('label');
+
+    // 获取当前src并截取楼层号码
+    var floor = window.location.search.split('=')[1]
+
+    loadSvg(floor)
+
+    // 放置控制器
+    var controls = new THREE.OrbitControls(camera);
+    controls.dampingFactor = 0.25;
+    controls.enableZoom = true;
+    controls.enableRotate = false;
+    controls.screenSpacePanning = true;
+
+    document.getElementById('WebGL-output').appendChild(renderer.domElement);
+    window.addEventListener('resize', onWindowResize, false);
+    // window.addEventListener('mousemove', onDocumentMouseMove, false);
+    // window.addEventListener('click', onDocumentMouseClick, false);
+    loadSignal()
+  }
+
+  function loadSignal () {
+    window.parent.postMessage({
+      cmd: 'plane-load_signal',
+      params: {}
+    }, '*');
+  }
+
+  function animate() {
+    requestAnimationFrame(animate)
+    renderer.render(scene, camera)
+  }
+
+  // 接收组件中传入的社群信息
+  function getCommunityInfo(data) {
+    data.forEach(function(item) {
+      var positionArr = item.coordinates.replace('[', '').replace(']', '').split(',')
+      var obj = {
+        position: {x: parseInt(positionArr[0]), y: parseInt(positionArr[1])},
+        text: item.name,
+        logo: 'qizi2.png'
+      }
+      createSprite(obj, 'name')
+    })
+
+  }
+
+  init();
+  animate();
+
+  // 加载图片
+  function loadSvg(floor) {
+    var svgLoad = new THREE.SVGLoader()
+    svgLoad.load(floor, function (paths) {
+
+      // 创建分组容器
+      group = new THREE.Group()
+      group.position.x = -290 // 图片尺寸 * 缩放比
+      group.position.y = 214
+      group.scale.set(1, -1, 1)
+      scene.add(group)
+
+      for (var i = 0; i < paths.length; i++) {
+        // if (i === 0) continue
+        var path = paths[i]
+        var materialLine = new THREE.LineBasicMaterial({
+          color: new THREE.Color('#403E42'),
+          side: THREE.DoubleSide,
+          depthWrite: false
+        })
+        var shapes = path.toShapes(true)
+        for (var j = 0; j < shapes.length; j++) {
+          // 绘制线和面
+          var geometry = new THREE.ShapeBufferGeometry(shapes[j])
+          var mesh = new THREE.Mesh(geometry, materialLine)
+          group.add(mesh)
+          // var edges = new THREE.EdgesHelper(mesh, '#979797')
+          // group.add(edges)
+          var edges = new THREE.EdgesGeometry(geometry)
+          var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
+          group.add(line)
+
+          // 收集变量，便于销毁
+          pathArr.push(path)
+          shapesArr.push(shapes);
+          shapesMaterialArr.push(materialLine);
+          shapesGeometryArr.push(geometry);
+          shapesMeshArr.push(mesh);
+          shapesEdgesArr.push(edges);
+          shapesEdgesLineArr.push(line)
+        }
+      }
+    })
+  }
+
+  // 添加贴图
+  function createSprite(obj, type) {
+    // 创建文字
+    createTextSprite(obj, type)
+
+    // 创建图片
+    if(obj.logo){
+      var sprite = createPictureSprite(obj.logo)
+      sprite.scale.set(15, 15, 15)
+      sprite.position.set(obj.position.x, obj.position.y, 1)
+      scene.add(sprite)
+      // 文字贴图的参数传递到图片贴图的userData中
+      sprite.userData = { text: obj.text, logo: obj.logo }
+      // 将图片贴图保存到数组中
+      spriteList.push(sprite)
+    }
+  }
+
+  // 创建图片贴图
+  function createPictureSprite (logo) {
+    var spriteMaterial = new THREE.SpriteMaterial({
+      map: new THREE.TextureLoader().load('/static/floor/' + logo),
+      depthTest: false,
+      blending: THREE.AdditiveBlending,
+    })
+    var sprite = new THREE.Sprite(spriteMaterial)
+    return sprite
+  }
+
+  function initText(obj) {
+    var loader = new THREE.FontLoader();
+    loader.load('/static/three/FZLanTingHei_Regular.json', function (res){
+      var font = res;
+      var textGeometry = new THREE.TextGeometry(obj.text, {
+        font: font,
+        size: 7,
+        height: 1
+      })
+      text = new THREE.Mesh(textGeometry, new THREE.MultiMaterial([
+        new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          shading: THREE.FlatShading
+        })
+      ]))
+      textGeometry.computeBoundingBox();
+      var textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+      var textHeight = textGeometry.boundingBox.max.y - textGeometry.boundingBox.min.y
+      text.position.set(obj.position.x - textWidth / 2, obj.position.y - textHeight / 2 - 12, 1)
+      // console.log(text)
+      scene.add(text)
+    })
+  }
+
+  // 创建文字贴图
+  function createTextSprite (obj, type) {
+    // console.log(obj)
+    var cz = camera.position.z
+    var canvas = document.createElement('canvas');
+    canvas.width = 1000;
+    canvas.height = 1000;
+    var ctx = canvas.getContext('2d')
+    ctx.fillStyle = '#ffffff'
+    ctx.font = "40px '微软雅黑'";
+    ctx.textAlign = 'center';
+    ctx.fillText(obj.text, 500, type === 'nickName' ? 500 : 500+65);
+    var texture = new THREE.Texture(canvas)
+    texture.needsUpdate = true
+
+    // 使用Sprite显示文字
+    var material = new THREE.SpriteMaterial({map: texture, transparent: true})
+    var textObj = new THREE.Sprite(material)
+    textObj.scale.set(cz/2, cz/2, cz/2)
+    textObj.position.set(obj.position.x, obj.position.y, 1);
+    scene.add(textObj)
+    return textObj
+  }
+
+  // 设置悬浮框的显示隐藏和样式
+  function setLavitaten(display, levitaten, underLine) {
+    if (display === 'none') {
+      levitaten.style.display = 'none'
+    } else {
+      var point = getCenterExtraPoint(currentIntersect.geometry.attributes.position.array)
+      // 将两个坐标转换为屏幕坐标
+      var maxLeftPoint = worldToScreen({x: point.rx, y: point.cy})
+      var centerPoint = worldToScreen({x: point.cx, y: point.cy})
+      receiveStoreInfo()
+      // 悬浮框的位置和上浮线的宽度
+      levitaten.style.left = maxLeftPoint.x + 'px'
+      levitaten.style.top = maxLeftPoint.y + 20 + 'px'
+      levitaten.style.display = 'block'
+      underLine.style.width = maxLeftPoint.x - centerPoint.x + 47 + 'px'
+    }
+  }
+
+  ///////////////////////////////////////////
+  ///////////        接收值     //////////////
+  ///////////////////////////////////////////
+
+  var colorCount = {
+
+  }
+
+  // 添加色块和贴图
+  function addColor (boxArr) {
+    // 遍历所有块
+    for(var i in shapesMeshArr){
+      var meshAlex = getString(shapesMeshArr[i]) // 所有色块的顶点值转换为字符串
+      // 遍历从服务端获取到的坐标数据
+      for(var j in boxArr){
+        if(boxArr[j].position){
+          var shapeAlex = boxArr[j].position // 目标色块的顶点值字符串
+          if (shapeAlex === meshAlex) {
+            var point = getCenterExtraPoint(shapesMeshArr[i].geometry.attributes.position.array)
+            var ipc = {
+              text: boxArr[j].name,
+              position: {x: point.cx, y: point.cy},
+              logo: boxArr[j].logo
+            }
+            if (boxArr[j].count < 10) {
+              shapesMeshArr[i].material.color = new THREE.Color('#213A65')
+            } else if(boxArr[j].count >=10 && boxArr[j].count < 20) {
+              shapesMeshArr[i].material.color = new THREE.Color('#0F9EE9')
+            } else if(boxArr[j].count >= 20 && boxArr[j].count < 30) {
+              shapesMeshArr[i].material.color = new THREE.Color('#005BC9')
+            } else if(boxArr[j].count >= 30 && boxArr[j].count < 40) {
+              shapesMeshArr[i].material.color = new THREE.Color('#2C0189')
+            } else {
+              shapesMeshArr[i].material.color = new THREE.Color('#481284')
+            }
+
+            createSprite(ipc, 'nickName')
+
+            shapesMeshArr[i].remove(shapesMeshArr[i].children[0])
+            hasColorBoxArr.push(shapesMeshArr[i])
+            boxAlexArr.push(shapeAlex)
+          }
+        }
+      }
+    }
+  }
+
+  // 接收单店信息
+  function receiveStoreInfo (data) {
+    if (data) {
+      var title = '<div class="pull-left">'+data.gateway+'</div>'
+      var list = '';
+      for(var i = 0, len = data.camera.length; i < len; i++){
+        list += '<li><img src="/static/floor/camera1.png" width="11"><span>'+data.camera[i]+'</span></li>';
+      }
+      list = '<ul>'+list+'</ul>'
+      var levitatenTitle = document.getElementById('levitaten-title');
+      var levitatenList = document.getElementById('levitaten-list');
+      levitatenTitle.innerHTML = title
+      levitatenList.innerHTML = list
+    }
+  }
+
+  ///////////////////////////////////////////
+  ///////////        传递值     //////////////
+  ///////////////////////////////////////////
+
+  // 鼠标移入时向父组件传递坐标信息
+  function postCoordinate (mesh) {
+    window.parent.postMessage({
+      cmd: 'post-coordinate',
+      params: {
+        position: mesh.geometry.attributes.position.array,
+        name: mesh.userData.text,
+        logo: mesh.userData.logo
+      }
+    })
+  }
+
+  ///////////////////////////////////////////
+  /////////        监听事件     //////////////
+  ///////////////////////////////////////////
+
+  // 监听鼠标移动事件
+  function onDocumentMouseMove (event) {
+    var vector = new THREE.Vector3((event.clientX / (window.innerWidth-160)) * 2 - 1, -( event.clientY / (window.innerHeight-100) ) * 2 + 1, 0.5);
+    vector = vector.unproject(camera);
+    var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize()); // raycaster里只保存有颜色的块
+    var intersects = raycaster.intersectObjects(hasColorBoxArr);
+    if (intersects.length > 0) {
+      currentIntersect = intersects[0].object
+      // 避免在currentIntersect.children中多次添加line
+      if (currentIntersect.children.length < 1) {
+        edges = new THREE.EdgesGeometry(intersects[0].object.geometry)
+        line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0xffffff}))
+        currentIntersect.add(line)
+        postCoordinate(intersects[0].object)
+        setLavitaten('block', levitaten, underLine)
+      }
+    } else {
+      // 删除line
+      if (currentIntersect && currentIntersect.children.length) {
+        currentIntersect.children[0] = ''
+        currentIntersect.children.shift()
+        setLavitaten('none', levitaten)
+      }
+    }
+  }
+
+  // 监听屏幕尺寸变化
+  function onWindowResize () {
+    var innerWidth = window.innerWidth
+    var innerHeight = window.innerHeight
+    camera.aspect = innerWidth / innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(innerWidth, innerHeight)
+  }
+
+  // 监听点击事件
+  function onDocumentMouseClick(event) {
+    var vector = new THREE.Vector3((event.clientX / (window.innerWidth-160)) * 2 - 1, -( event.clientY / (window.innerHeight-100) ) * 2 + 1, 0.5);
+    vector = vector.unproject(camera);
+    var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+    var intersects = raycaster.intersectObjects(hasColorBoxArr);
+    if (intersects.length > 0) {
+      alert('进入单店')
+    }
+  }
+
+  ///////////////////////////////////////////
+  /////////        公共方法     //////////////
+  ///////////////////////////////////////////
+
+  // 屏幕坐标转世界坐标
+  var screenToWorld = function (screenPoint) {
+    // 获取屏幕坐标投影在相机上的x和y轴的值
+    var pX = (screenPoint.x / window.innerWidth) * 2 - 1;
+    var pY = -(screenPoint.y / window.innerHeight) * 2 + 1;
+    // 获取z轴深度 即视距
+    var zd = camera.position.z;
+    // 获取相机角度 (180-45)/2
+    var za = 67.5 * Math.PI/180;
+    // 获取世界坐标中的x轴边界
+    var bx = (zd/Math.tan(za))*(window.innerWidth/window.innerHeight);
+    // 获取世界坐标中的y轴边界
+    var by = zd/Math.tan(za);
+    // 获取世界坐标中x轴的实际坐标点
+    var sx = pX * bx;
+    // 获取世界坐标中y轴的实际坐标点
+    var sy = pY * by;
+    return {x: sx, y: sy};
+  }
+
+  // 世界坐标转屏幕坐标
+  var worldToScreen = function (worldPoint) {
+    var zd = camera.position.z;
+    var za = 67.5 * Math.PI/180;
+    var bx = (zd/Math.tan(za))*((window.innerWidth-160)/(window.innerHeight-100));
+    var by = zd/Math.tan(za);
+    var pX = worldPoint.x/bx
+    var pY = worldPoint.y/by
+
+    var sX = ( (pX+1) * (window.innerWidth-160) ) / 2
+    var sY = ( -(pY-1) * (window.innerHeight-100) ) / 2
+    return {x: sX, y: sY};
+  }
+
+  // 销毁内存
+  var dispose = function(o) {
+    try {
+      if (o && typeof o === 'object') {
+        if (Array.isArray(o)) {
+          o.forEach(dispose);
+        } else
+        if (o instanceof THREE.Object3D) {
+          dispose(o.geometry);
+          dispose(o.material);
+          if (o.parent) {
+            o.parent.remove(o);
+          }
+          dispose(o.children);
+        } else
+        if (o instanceof THREE.Geometry) {
+          o.dispose();
+        } else
+        if (o instanceof THREE.Material) {
+          o.dispose();
+          dispose(o.materials);
+          dispose(o.map);
+          dispose(o.lightMap);
+          dispose(o.bumpMap);
+          dispose(o.normalMap);
+          dispose(o.specularMap);
+          dispose(o.envMap);
+        } else
+        if (typeof o.dispose === 'function') {
+          o.dispose();
+        } else {
+          Object.values(o).forEach(dispose);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 转换字符串
+  var getString = function(mesh) {
+    return Array.prototype.slice.call(mesh.geometry.attributes.position.array).toString()
+  }
+
+  // 获取中心点和右侧点
+  var getCenterExtraPoint = function(array) {
+    var a = changeArrayLevel(array)
+    var ps = new Contour(a.buffer).centroid()
+    return {
+      rx: (a.maxLeft-290),
+      cx: (ps.x-290),
+      cy: (214-ps.y)
+    }
+  }
+
+</script>
+</body>
+</html>

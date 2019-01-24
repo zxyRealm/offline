@@ -15,17 +15,13 @@ export function parseTime (time, cFormat) {
     date = time
   } else if (typeof time === 'string') {
     time = time.replace(/-/g, '/') // ie无法处理2018-10-13 15:30:45 格式的时间 必需使用/为分隔符
-    if (Date.parse(time).toString().length === 13) {
+    if (time && !isNaN(Date.parse(time))) {
       date = new Date(time.replace(/-/g, '/'))
     } else {
       return time
     }
   } else if (typeof time === 'number') {
-    if (time.toString().length !== 13) {
-      return time
-    } else {
-      date = new Date(time)
-    }
+    date = new Date(time)
   }
   const formatObj = {
     y: date.getFullYear(),
@@ -165,7 +161,7 @@ export function html2Text (val) {
   div.innerHTML = val
   return div.textContent || div.innerText
 }
-
+// 合并对象
 export function objectMerge (target, source) {
   /* Merges two  objects,
      giving the last one precedence */
@@ -186,13 +182,12 @@ export function objectMerge (target, source) {
   })
   return target
 }
-
+// 滚动到具体位置
 export function scrollTo (element, to, duration) {
   if (duration <= 0) return
   const difference = to - element.scrollTop
   const perTick = difference / duration * 10
   setTimeout(() => {
-    // console.log(new Date())
     element.scrollTop = element.scrollTop + perTick
     if (element.scrollTop === to) return
     scrollTo(element, to, duration - 10)
@@ -339,4 +334,127 @@ export function arrayUnique (arr, name) {
     }
     return item
   }, [])
+}
+
+// 社群列表数组过滤分组结构
+export function simplifyGroups (data, key = 'memberItem') {
+  let customList = JSON.parse(JSON.stringify(data))
+  return customList.map(item => {
+    if (item[key] && item[key][item[key].length - 1]) {
+      item[key] = JSON.parse(JSON.stringify(item[key][item[key].length - 1][key]))
+    }
+    return item
+  })
+}
+
+/* 生成自定义名称
+* @params {Array} data 包含自定义名称的数组对象
+* @params {String} key 自定义名称key值
+* @params {String} txt 自定义名称文本
+* @return 不重复的新的自定义名称
+* */
+export function makeCustomName (data, key = 'name', txt = '新建名称') {
+  // 根据自定义分组名规则筛选已存在的文件，排序过滤后重新定义新的文件名
+  if (!Array.isArray(data)) return
+  let [customName, orderArr, nextIndex] = [[], '', '']
+  let reg = new RegExp(`${txt}[1-9]\\d*`)
+  data.map(item => {
+    let num = Number((item[key] || '').replace(txt, ''))
+    if (reg.test(item[key])) {
+      customName.unshift(num)
+    }
+  })
+  // 数组排序（正序）
+  orderArr = customName.sort((a, b) => a - b)
+  // 根据文件名最后编号大小，获取中间缺省值，如果有获取其值，没有则在最大编号值基础累加
+  for (let i = 0, len = orderArr.length; i < len; i++) {
+    if (orderArr[i] !== i + 1) {
+      nextIndex = i + 1
+      break
+    }
+  }
+  nextIndex = nextIndex || orderArr.length + 1
+  return `${txt}${nextIndex}`
+}
+
+export function byKeyDeviceType (keys) {
+  let backObj = {}
+  if (keys && keys.length === 16) {
+    switch (keys.substring(12)) {
+      case 'F082':
+        backObj = {
+          type: 1,
+          msg: '服务器'
+        }
+        break
+      case '8045':
+        backObj = {
+          type: 2,
+          msg: '客行分析一体机'
+        }
+        break
+      case '7045':
+        backObj = {
+          type: 3,
+          msg: '人脸抓拍一体机'
+        }
+        break
+      case '8A45':
+        backObj = {
+          type: 4,
+          msg: '客行分析摄像头'
+        }
+        break
+      case '7A45':
+        backObj = {
+          type: 5,
+          msg: '人脸抓拍摄像头'
+        }
+        break
+      default:
+        backObj = {
+          error: '序列号不存在'
+        }
+    }
+  } else {
+    backObj = {
+      error: '请输入16位序列号'
+    }
+  }
+  return backObj
+}
+
+// 数字转楼层信息
+export function IntToFloor (int) {
+  if (int > 0) {
+    return `F${int}`
+  } else {
+    return `B${-int}`
+  }
+}
+
+/* 文件类型判断
+* {String} name 要上传的文件名
+*  {String} types 允许上传的文件类型,类型名为小写（多个累心用逗号隔开，例如：jpeg,png,jpg）
+* */
+export function fileTypeAllow (name, types) {
+  return new Set(types.toLowerCase().split(',')).has(name.substring(name.lastIndexOf('.') + 1).toLowerCase())
+}
+
+/* 解析url 后键值对参数
+* {String} key 要获取的参数的键值
+* {[String]} href 需要解析的href, 默认为window.location.href
+* */
+
+export function parseUrlParams (key, href = '') {
+  var params = (href || window.location.href).split('?')[1]
+  var obj = {}
+  if (params) {
+    var arr = params.split('&')
+    for (var i = 0, len = arr.length; i < len; i++) {
+      var kv = arr[i].split('=')
+      obj[kv[0]] = kv[1]
+    }
+  }
+  return obj[key]
 }

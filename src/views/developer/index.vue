@@ -27,8 +27,11 @@
           v-model="userInfoForm">
           <el-form-item label="手机号：" prop="phone">
             <p class="readonly__text" v-if="!!userInfo.phone">{{userInfoForm.phone}}</p>
-            <el-input type="text" v-show="!userInfo.phone" placeholder="添加手机号"
-                      v-model.trim="userInfoForm.phone"></el-input>
+            <el-input
+              type="text"
+              v-show="!userInfo.phone"
+              placeholder="添加手机号"
+              v-model.trim="userInfoForm.phone"></el-input>
           </el-form-item>
           <el-form-item label="公司名称：" prop="company">
             <p class="readonly__text" v-if="!editable">{{userInfoForm.company}}</p>
@@ -36,7 +39,7 @@
                       v-model.trim="userInfoForm.company"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
-            <area-select placeholder="选择商铺所在区域" :readonly="!editable" v-model="userInfoForm.pca"></area-select>
+            <area-select placeholder="选择商铺所在区域" :readonly="!editable" v-model.trim="userInfoForm.pca"></area-select>
           </el-form-item>
           <el-form-item prop="address">
             <p class="readonly__text" v-if="!editable">{{userInfoForm.address}}</p>
@@ -58,7 +61,10 @@
 import area from '@/components/area-select/area-select'
 import {mapState, mapGetters} from 'vuex'
 import {validPhone, validateRule} from '@/utils/validate'
-
+import {OssSignature} from '../../api/common'
+import {UserCenterUpdate, SetUserImage} from '../../api/developer'
+import {fileTypeAllow} from '../../utils'
+import axios from 'axios'
 export default {
   components: {
     'area-select': area
@@ -73,7 +79,7 @@ export default {
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('请输入正确的公司名称'))
+          callback(new Error('仅限汉字/字母/数字/空格'))
         }
       } else {
         callback()
@@ -99,7 +105,7 @@ export default {
         } else if (validateRule(value, 1)) {
           callback()
         } else {
-          callback(new Error('请输入正确的联系人'))
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
       } else {
         callback()
@@ -112,6 +118,7 @@ export default {
           {validator: validCompany, trigger: 'blur'}
         ],
         phone: [
+          {required: true, message: '请添加手机号', trigger: 'blur'},
           {validator: validPhone, trigger: 'blur'}
         ],
         pca: [
@@ -145,7 +152,7 @@ export default {
       data.cityAreaID = pcaArr[1] || 0
       data.districtAreaID = pcaArr[2] || 0
       delete data.pca
-      this.$http('/merchant/usercenter/update', data).then(res => {
+      UserCenterUpdate(data).then(res => {
         if (res.result) {
           this.$tip('保存成功')
           this.$store.dispatch('GET_USER_INFO').then(() => {
@@ -174,10 +181,10 @@ export default {
     avatarUpload (data) {
       let uid = this.userInfo.developerId
       // 获取阿里云oss signature
-      this.$http('/auth/oss/image/signature').then(res => {
+      OssSignature({superKey: 'merchant'}).then(res => {
         if (res.data) {
           let formData = new FormData()
-          let customName = 'avatar_' + new Date().getTime()
+          let customName = 'avatar_' + uid + '.' + (fileTypeAllow(data.file.name, 'png') ? 'png' : 'jpg')
           formData.append('key', `merchant/${uid}/${customName}`)
           formData.append('policy', res.data['policy'])
           formData.append('OSSAccessKeyId', res.data['accessid'])
@@ -185,19 +192,19 @@ export default {
           formData.append('signature', res.data['signature'])
           formData.append('file', data.file, customName)
           // 构建formData 对象，将图片上传至阿里云oss服务
-          this.$http(res.data.host, formData).then(back => {
+          axios.post(res.data.host, formData).then(back => {
             if (!back.data) {
               let avatarHref = res.data.host + '/merchant/' + uid + '/' + customName
               // 图片地址提交后台更新个人头像信息
-              this.$http('/merchant/usercenter/image', {faceImgURL: avatarHref}).then(res => {
+              SetUserImage({faceImgURL: avatarHref}).then(res => {
                 this.$tip('头像上传成功')
-                this.$store.commit('SET_USER_INFO', {faceImgURL: avatarHref})
+                this.$store.commit('SET_USER_INFO', {faceImgURL: avatarHref + '?time_stamp=' + new Date().getTime()})
               })
             } else {
               this.$tip('上传失败，请稍后重试', 'error')
             }
-          }).catch(error => {
-            this.error = error
+          }).catch(() => {
+            this.$tip('网络异常，请稍后重新尝试', 'error')
           })
         }
       }).catch(() => {
@@ -206,13 +213,11 @@ export default {
     },
     // 上传前图片格式校验
     beforeAvatarUpload (file) {
-      const isJPG = (file.type === 'image/jpeg' || file.type === 'image/png')
-      const isLt2M = file.size / 1024 / 1024 < 2
-      if (!isJPG) {
+      if (!fileTypeAllow(file.name, 'jpeg,jpg,png')) {
         this.$tip('上传头像图片只能是 JPG/PNG 格式!', 'error')
         return false
       }
-      if (!isLt2M) {
+      if (file.size / 1024 / 1024 > 2) {
         this.$tip('上传头像图片大小不能超过 2MB!', 'error')
         return false
       }
@@ -232,6 +237,10 @@ export default {
   },
   watch: {
     '$route': function (val) {
+      if (!this.userInfo.company || !this.userInfo.phone) {
+        this.$router.push('/person/edit')
+        this.editable = false
+      }
       if (val.name === 'personEdit') {
         this.subLink.title = ''
         this.editable = true

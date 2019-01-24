@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #playBox {
+      position: absolute;
+      top: 10px;
+      left: 10px
+    }
+
+    #play {
+      color: #ffffff
+    }
+
+  </style>
+  <script src="/static/three/three.min.js"></script>
+  <script src="/static/three/SVGLoader.js"></script>
+  <script src="/static/three/OrbitControls.js"></script>
+  <script src="/static/three/tween.js"></script>
+  <script src="/static/three/util.js"></script>
+</head>
+
+<body>
+<div id="WebGL-output"></div>
+<div id="playBox">
+  <a href="javascript:;" onclick="createPath('',0)" id="play">
+    <img src="/static/img/play_animate.png" width="26" alt="..">
+  </a>
+  <!--<a href="javascript:;" onclick="changeDate()">换时间</a>-->
+</div>
+<script>
+  var data;
+  var renderer, scene, camera, group;
+  var clock = new THREE.Clock();
+  var maskGroup;
+  var elevatorGroup;
+  var offset_x = -290; // x中心点偏移量
+  var offset_z = -241; // z中心点偏移量
+  var duration = 1000; // 动画片段持续时间
+  var pic_width = 0; // 图片宽度
+  var pic_height = 0; // 图片高度
+  var opacity = 0;
+  var emitter = new EventEmitter();
+
+  var currentElevator = [];
+
+  // 动画参数板
+  var TRANSFER_BOARD = {
+    HALFROTATE: 0.5 * Math.PI,
+    ARROWROTATE: 0.5 * Math.PI,
+    ORIGIN_NONE_X: 0, // 隐藏楼层的初始偏转角
+    ORIGIN_PLAY_X: 0.08 * Math.PI, // 显示楼层的初始偏转角
+    ORIGIN_Y: 0, // 隐藏楼层和显示楼层的共同初始Y偏转角
+    ROTATE_X: -0.03 * Math.PI, // 过渡偏转角
+    ROTATE_Y: -0.04 * Math.PI, // 过渡偏转角
+    HIGH_POS: 250, // 最高点
+    PASS_HIGH_POS: 110, // 过渡点
+    MIDDLE_POS: 0, // 显示区
+    PASS_LOW_POS: -70, // 过渡点
+    LOW_POS: -210, // 最低点
+    OPACITY_BLOCK: 1, // 完全显示
+    OPACITY_NONE: 0 // 完全隐藏
+  };
+
+  // 记录三个楼层值：每轮动画的开始楼层和结束楼层，以及上一轮动画的开始楼层（last_floor），
+  // 如果新的结束楼层等于上一次的开始楼层，则不进行新的动画
+  var LAST_FLOOR;
+  var BEGIN_FLOOR;
+  var END_FLOOR;
+  // 获取当前url
+  var url = parent.document.getElementById("threeFrame").contentWindow.location.href
+
+  // 调色板
+  var PALLETTE = {
+    LIGHT: '#FFFFFF', // 灯光
+    STORE: '#4E98F2', // 商店
+    EDGE: '#1A3050', // 描边
+    PLANE: '#1C1A23', // 底座
+    PATH: '#FFE000', // 路径
+    CIRCLE: '#FFE000', // 抓拍点
+    CIRCLE_START: '#7ED321', // 起始点
+    CIRCLE_END: '#FF0000', // 结束点
+    ELEVATOR: '#FFE000', // 电梯点
+    SIDE: '#498EE2'
+  };
+
+  var play = false;
+  var play_count = parseInt(parent.document.getElementById("threeFrame").contentWindow.location.search.split('&')[0].split('=')[1]);
+
+  var communityInfo = []; // 接收社群信息
+  var elevatorList = []; // 接收电梯列表
+
+  var mixArr = []; // 动画mixer集合
+
+  // 接收轨迹点位
+  function getTrailData(trailData) {
+    data = trailData
+  }
+
+  function getElevatorPosition(data) {
+    elevatorList = data;
+  }
+
+  function receiveCommunityInfo(data) {
+    communityInfo = data;
+    init()
+  }
+
+  function init() {
+    // 布置场景
+    createScene();// 创建场景
+    createCamera();// 创建相机
+    createRenderer();// 创建渲染器
+    createLight();// 创建灯光
+    createGeneralGroup(); //建整体分组
+    createListener(); //创建监听函数
+
+    // 创建楼层
+    communityInfo.forEach(function (item) {
+      createFloor(item)
+    });
+
+    // 布置调度
+    // createAlexHelper()
+    createControl();
+
+    // 开始动画
+    console.time("animate");
+    ChapterZero();
+    ChapterOne();
+    console.timeEnd("animate");
+
+    if (getQueryString()) {
+      replay()
+    }
+
+    // 开始渲染
+    render()
+  }
+
+  loadSignal();
+
+  function replay() {
+    setTimeout(function () {
+      createPath('', 0)
+    }, 1000)
+  }
+
+  // 完成加载，向父组件发送消息，并传递数值
+  function loadSignal() {
+    window.parent.postMessage({
+      cmd: 'trail-load_signal',
+      params: {play_count: getQueryString()}
+    }, '*');
+  }
+
+  // 确定轨迹开始的楼层
+  function ChapterZero() {
+    BEGIN_FLOOR = data[0].floorName
+  }
+
+  // step1: 放置所有起始楼层的最初位置
+  function ChapterOne() {
+    group.children.forEach(function (item) {
+      if (item.name === BEGIN_FLOOR) {
+        item.position.set(0, 0, 0);
+        item.rotation.x = TRANSFER_BOARD.ORIGIN_PLAY_X;
+        item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
+      } else if (structFloorInfo(BEGIN_FLOOR, item.name)) {
+        item.position.y = TRANSFER_BOARD.HIGH_POS;
+        item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
+        item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
+      } else if (!structFloorInfo(BEGIN_FLOOR, item.name)) {
+        item.position.y = TRANSFER_BOARD.LOW_POS;
+        item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
+        item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
+      }
+    })
+  }
+
+  // step1: 次轮及以上动画的初始化，重置所有楼层的位置
+  function ChapterOneOffCoast() {
+    var floorInfo = calcFloorPosition(BEGIN_FLOOR, END_FLOOR);
+    var highFloor = floorInfo.highFloor;
+    var lowFloor = floorInfo.lowFloor;
+    // group.children.forEach(function (item) {
+    //   if (item.name !== BEGIN_FLOOR && item.name !== LAST_FLOOR) {
+    //     // 比高层更高的楼层，放在最高点
+    //     if (structFloorInfo(highFloor, item.name)) {
+    //       item.position.y = TRANSFER_BOARD.HIGH_POS;
+    //       item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
+    //       item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
+    //     }
+    //     // 比低层更低的楼层，放在最低点
+    //     else if (!structFloorInfo(lowFloor, item.name)) {
+    //       item.position.y = TRANSFER_BOARD.LOW_POS;
+    //       item.rotation.x = TRANSFER_BOARD.ORIGIN_NONE_X;
+    //       item.rotation.y = TRANSFER_BOARD.ORIGIN_Y;
+    //     }
+    //   }
+    // })
+  }
+
+  // 根据楼层名 计算出中间楼层的数组
+  function calcFloorPosition (beginFloor, endFloor) {
+    var s_floor = {
+      anti: beginFloor.slice(0, 1),
+      num: parseInt(beginFloor.slice(1, beginFloor.length))
+    };
+    var e_floor = {
+      anti: endFloor.slice(0, 1),
+      num: parseInt(endFloor.slice(1, endFloor.length))
+    };
+    var arr = [];
+    var midObj = calcMiddleFloor(s_floor, e_floor);
+    for (var i = 1; i < midObj.d_val; i++) {
+      if (midObj.big.num - i > 0) arr.push('F' + (midObj.big.num - i));
+      else if (midObj.big.num - i === 0) continue;
+      else arr.push('B' + -(midObj.big.num - i))
+    }
+    return {
+      highFloor: midObj.big.anti + midObj.big.num,
+      lowFloor: midObj.small.anti + midObj.small.num,
+      middleArr: arr.reverse()
+    };
+  }
+
+  function calcMiddleFloor (floorObj1, floorObj2) {
+    var resObj = {big: {}, d_val: '', small: {}};
+    if (floorObj1.anti === 'B') floorObj1.num = -floorObj1.num;
+    if (floorObj2.anti === 'B') floorObj2.num = -floorObj2.num;
+    if (floorObj1.num > floorObj2.num) {
+      resObj.big = floorObj1;
+      resObj.small = floorObj2
+    } else {
+      resObj.big = floorObj2;
+      resObj.small = floorObj1
+    }
+    resObj.d_val = Math.abs(floorObj1.num - floorObj2.num);
+    return resObj
+  }
+
+  // 动画trigger
+  function changefloor(currentElevator, index, targetFloorName, type) {
+    setTimeout(function () {
+      ChapterTwo(type) // duration: 2s
+    }, 1000);
+    if (targetFloorName) {
+      ChapterOneOffCoast()
+    }
+    if (currentElevator) {
+      setTimeout(function () {
+        TrailPath(currentElevator, type, targetFloorName, index)
+      }, 3000)
+    }
+    // if (index) {
+    //   setTimeout(function () {
+    //     createPath(targetFloorName, index)
+    //   }, 6000)
+    // }
+  }
+
+  // step2: 电梯楼层动画
+  function ChapterTwo(type) {
+    var floorInfo = calcFloorPosition(BEGIN_FLOOR, END_FLOOR);
+    // 清空上一次电梯轨迹数据
+    if (elevatorGroup.children.length) {
+      elevatorGroup.children.forEach(function (item) {
+        item.geometry.dispose();
+        item.material.dispose();
+        elevatorGroup.remove(item)
+      });
+      elevatorGroup.children = [];
+    }
+    group.children.forEach(function (item) {
+      animateLowerElevator(item, type === 'up' ? BEGIN_FLOOR : END_FLOOR, type);
+      animateHigerElevator(item, type === 'up' ? END_FLOOR : BEGIN_FLOOR, type);
+      animateOtherFloor(item, floorInfo);
+    })
+  }
+
+  // step3: 回到所有楼层
+  function ChapterFour() {
+    new TWEEN.Tween( group.scale ).to( { x:0.6, y: 0.6, z: 0.6 }, 2000 ).start();
+    group.children.forEach(function (item, index) {
+      // 如果楼层上有路径，则完全显示
+      if (item.userData.isPathFloor) {
+        item.children.forEach(function (val) {
+          val.material.opacity = 1;
+          if(val.name === 'store_text' || val.name === 'sprite_elevator'){
+            val.visible = true
+          }
+          if(val.name === 'store' || val.name === 'plane'){
+            val.material.depthWrite = true;
+          }
+        });
+      }
+      // 如果楼层上没有路径，则显示部分透明
+      else {
+        item.children.forEach(function (val) {
+          if (val.name === 'text') {
+            val.material.opacity = 1;
+          } else {
+            val.material.opacity = 0.2;
+          }
+          if(val.name === 'store_text' || val.name === 'sprite_elevator'){
+            val.visible = false
+          }
+        });
+      }
+      var position_start = {
+        y: item.position.y
+      };
+      var position_end = {
+        y: -220 + index * 140
+      };
+      var rotate_start = {
+        x: item.rotation.x,
+        y: item.rotation.y,
+        z: item.rotation.z
+      };
+      var rotate_end = {
+        x: 0, y: -0.08* Math.PI, z: 0
+      };
+
+      var action1 = new TWEEN.Tween(position_start)
+        .to(position_end, duration)
+        .onUpdate(function () {
+          item.position.y = position_start.y;
+        });
+      var action2 = new TWEEN.Tween(rotate_start)
+        .to(rotate_end, duration)
+        .onUpdate(function () {
+          item.rotation.x = rotate_start.x;
+          item.rotation.y = rotate_start.y;
+          item.rotation.z = rotate_start.z;
+        });
+      action1.chain(action2);
+      action1.start()
+    })
+  }
+
+  // 电梯动画片段: 低层变化过程
+  function animateLowerElevator(item, floorName, type) {
+    // 如果当前楼层为起始/结束楼层
+    if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
+      var lowPositionStart = {
+        x: item.position.x,
+        y: item.position.y
+      };
+      var lowPositionEnd = {
+        x: item.position.x,
+        y: TRANSFER_BOARD.PASS_LOW_POS
+      };
+      var lowRotationStart = {
+        x: item.rotation.x,
+        y: item.rotation.y
+      };
+      var lowRotationEnd = {
+        x: TRANSFER_BOARD.ROTATE_X,
+        y: TRANSFER_BOARD.ROTATE_Y
+      };
+      var lowOpacityStart = {
+        opacity: type === 'up' ? TRANSFER_BOARD.OPACITY_BLOCK : TRANSFER_BOARD.OPACITY_NONE
+      };
+      var lowOpacityEnd = {
+        opacity: TRANSFER_BOARD.OPACITY_BLOCK
+      };
+
+      var lowAction1 = new TWEEN.Tween(lowPositionStart)
+        .to(lowPositionEnd, duration)
+        .onUpdate(function () {
+          item.position.x = lowPositionStart.x;
+          item.position.y = lowPositionStart.y;
+        });
+      var lowAction2 = new TWEEN.Tween(lowRotationStart)
+        .to(lowRotationEnd, duration)
+        .onUpdate(function () {
+          item.rotation.x = lowRotationStart.x;
+          item.rotation.y = lowRotationStart.y;
+          lowAction3.start()
+        });
+      var lowAction3 = new TWEEN.Tween(lowOpacityStart)
+        .to(lowOpacityEnd, duration)
+        .onUpdate(function () {
+          item.children.forEach(function (val) {
+            if (val.name !== 'elevator') {
+              val.material.opacity = lowOpacityStart.opacity;
+              val.visible = true
+            }
+          })
+        });
+      lowAction2.chain(lowAction1);
+      lowAction2.start()
+    }
+  }
+
+  // 电梯动画片段: 高层变化过程
+  function animateHigerElevator(item, floorName, type) {
+    if (item.name === floorName && END_FLOOR !== LAST_FLOOR) {
+      var highPositionStart = { y: item.position.y };
+      var highPositionEnd = { y: TRANSFER_BOARD.PASS_HIGH_POS };
+      var highRotationStart = { x: item.rotation.x, y: item.rotation.y };
+      var highRotationEnd = { x: TRANSFER_BOARD.ROTATE_X, y: TRANSFER_BOARD.ROTATE_Y };
+      var highOpacityStart = { opacity: type === 'up' ? item.children[0].material.opacity : TRANSFER_BOARD.OPACITY_BLOCK };
+      var highOpacityEnd = { opacity: TRANSFER_BOARD.OPACITY_BLOCK };
+      var highAction1 = new TWEEN.Tween(highPositionStart)
+        .to(highPositionEnd, duration)
+        .onUpdate(function () {
+          item.position.y = highPositionStart.y;
+        });
+      var highAction2 = new TWEEN.Tween(highRotationStart)
+        .to(highRotationEnd, duration)
+        .onUpdate(function () {
+          item.rotation.x = highRotationStart.x;
+          item.rotation.y = highRotationStart.y;
+          highAction3.start()
+        });
+      var highAction3 = new TWEEN.Tween(highOpacityStart)
+        .to(highOpacityEnd, duration)
+        .onUpdate(function () {
+          item.children.forEach(function (val) {
+            if (val.name !== 'elevator') {
+              val.material.opacity = highOpacityStart.opacity
+              val.visible = true
+            }
+          })
+        });
+      highAction2.chain(highAction1);
+      highAction2.start()
+    }
+  }
+
+  // 电梯动画片段：中间楼层变化过程
+  function animateOtherFloor(item, floorInfo) {
+    if (item.name !== BEGIN_FLOOR && item.name !== END_FLOOR) {
+      if(structFloorInfo(floorInfo.highFloor, item.name)){
+        var highPositionStart = { y: item.position.y };
+        var highPositionEnd = { y: TRANSFER_BOARD.HIGH_POS };
+        var highOpacityStart = { opacity: item.children[0].material.opacity };
+        var highOpacityEnd = { opacity: TRANSFER_BOARD.OPACITY_NONE };
+        var highAction1 = new TWEEN.Tween(highOpacityStart)
+          .to(highOpacityEnd, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              if (val.name !== 'elevator') {
+                val.material.opacity = highOpacityStart.opacity
+              }
+            });
+          highAction2.start();
+        });
+        var highAction2 = new TWEEN.Tween(highPositionStart).to(highPositionEnd, duration).onUpdate(function () {
+          item.position.y = highPositionStart.y
+        });
+        highAction1.start();
+      }
+      else if(!structFloorInfo(floorInfo.lowFloor, item.name)) {
+        var lowPositionStart = {
+          y: item.position.y
+        };
+        var lowPositionEnd = {
+          y: TRANSFER_BOARD.LOW_POS
+        };
+        var lowOpacityStart = {
+          opacity: item.children[0].material.opacity
+        };
+        var lowOpacityEnd = {
+          opacity: TRANSFER_BOARD.OPACITY_NONE
+        };
+        var lowAction1 = new TWEEN.Tween(lowOpacityStart)
+          .to(lowOpacityEnd, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              if (val.name !== 'elevator') {
+                val.material.opacity = lowOpacityStart.opacity
+              }
+            });
+            lowAction2.start();
+          });
+        var lowAction2 = new TWEEN.Tween(lowPositionStart)
+          .to(lowPositionEnd, duration)
+          .onUpdate(function () {
+            item.position.y = lowPositionStart.y
+          });
+        lowAction1.start();
+      }
+      else {
+        var middlePosition = (TRANSFER_BOARD.PASS_HIGH_POS + TRANSFER_BOARD.PASS_LOW_POS) / 2;
+        var middleIndex = parseInt(floorInfo.middleArr.length / 2);
+        var rotationStart = { x: item.rotation.x, y: item.rotation.y };
+        var rotationEnd = { x: TRANSFER_BOARD.ROTATE_X, y: TRANSFER_BOARD.ROTATE_Y };
+        var positionStart = { y: item.position.y };
+        var positionEnd = { y: middlePosition };
+        var opacityStart = {opacity: item.children[0].material.opacity};
+        var opacityEnd = {opacity: 0.2};
+        for(var i=0; i<floorInfo.middleArr.length; i++) {
+          if(item.name === floorInfo.middleArr[i]){
+            if (i === middleIndex) {
+              positionEnd.y = middlePosition
+            } else {
+              positionEnd.y = middlePosition + (i - middleIndex) * 20
+            }
+          }
+        }
+        var action1 = new TWEEN.Tween(rotationStart)
+          .to(rotationEnd, duration)
+          .onUpdate(function () {
+            item.rotation.x = rotationStart.x;
+            item.rotation.y = rotationStart.y;
+            action2.start();
+            action3.start();
+          });
+        var action2 = new TWEEN.Tween(positionStart)
+          .to(positionEnd, duration)
+          .onUpdate(function () {
+            item.position.y = positionStart.y;
+          });
+        var action3 = new TWEEN.Tween(opacityStart)
+          .to(opacityEnd, duration)
+          .onUpdate(function () {
+            item.children.forEach(function (val) {
+              if (val.name !== 'elevator' || val.name !== 'text') {
+                val.material.opacity = opacityStart.opacity
+              }
+            });
+          });
+        item.children.forEach(function (val) {
+          if (val.name === 'store_text' || val.name === 'sprite_elevator') {
+            val.visible = false
+          }
+        });
+        action1.start()
+      }
+    }
+  }
+
+  // 创建所有分组
+  function createGeneralGroup() {
+    group = new THREE.Group();
+    group.name = 'all_scene';
+    maskGroup = new THREE.Group();
+    group.name = 'mask_scene';
+    elevatorGroup = new THREE.Object3D();
+    elevatorGroup.name = 'elevator';
+    scene.add(group);
+    scene.add(maskGroup);
+    scene.add(elevatorGroup);
+  }
+
+  function createFloor(item) {
+    var floorGroup = new THREE.Group();
+    var loader = new THREE.SVGLoader();
+    loader.load(item.mapUrl, function (paths) {
+      for (var i = 0; i < paths.length; i++) {
+        var shapes = paths[i].toShapes(true);
+
+        for (var j = 0; j < shapes.length; j++) {
+
+          var shape = shapes[j];
+          var points = shape.getPoints();
+          shape.autoClose = true;
+
+          // 放置商店
+          var store = new Store(shape, item.name);
+          store.mesh.updateMatrix();
+          floorGroup.add(store.mesh);
+
+          // 描边
+          var edge = new Edge(points, item.name);
+          edge.mesh.updateMatrix();
+          floorGroup.add(edge.mesh);
+        }
+
+        if (i === paths.length - 1) {
+          loader.load('/static/origin-floor/bottom.svg', function (paths) {
+            for (var i = 0; i < paths.length; i++) {
+              var shapes = paths[i].toShapes(true);
+              for (var j = 0; j < shapes.length; j++) {
+                var shape = shapes[j];
+
+                // 放置地板
+                var plane = new Plane(shape, item.name);
+                plane.mesh.updateMatrix();
+                floorGroup.add(plane.mesh);
+
+                // 放置文字贴图
+                var text = new TextSprite(item.name);
+                floorGroup.add(text.textObj);
+
+                // 放置电梯图标并添加动画
+                elevatorList.forEach(function (elevator) {
+                  if (elevator.floorName === item.name) {
+                    var elevatorSprite = PeopleSprite(item.name);
+                    elevatorSprite.position.set(elevator.point.x, 9, elevator.point.y - 25);
+                    floorGroup.add(elevatorSprite);
+                    var scaleKF = new THREE.VectorKeyframeTrack('.scale', [0, 0.5, 1], [25, 25, 25, 30, 30, 30, 25, 25, 25]);
+                    var clip = new THREE.AnimationClip('Action', 1, [scaleKF]);
+                    var mixer = new THREE.AnimationMixer(elevatorSprite);
+                    mixArr.push(mixer);
+                    var clipAction = mixer.clipAction(clip);
+                    clipAction.play();
+                  }
+                });
+                emitter.emit('done', floorGroup, item)
+              }
+            }
+          });
+        }
+      }
+    });
+
+    floorGroup.name = item.name;
+    group.add(floorGroup)
+  }
+
+  function createStoreText(floorGroup, item) {
+    // 对比数据/ 获取中点/ 添加色块名称
+    floorGroup.children.forEach(function (floor) {
+      if (floor.name === 'store') {
+        var meshAlex = getString(floor.userData.coordinates);
+        for (var j in item.subGroupSon) {
+          if (meshAlex === item.subGroupSon[j].coordinates) {
+            var point = getCenterExtraPoint(floor.userData.coordinates);
+            var ipc = {
+              text: item.subGroupSon[j].name,
+              position: {x: point.cx, y: point.cy}
+            };
+            var textStore = new Text(ipc, item.name);
+            floorGroup.add(textStore.text)
+          }
+        }
+      }
+    })
+  }
+
+  // 设置动画播放按钮的状态
+  function setPlayStatus() {
+    if (play) {
+      document.getElementById('play').removeAttribute('onclick')
+    } else {
+      document.getElementById('play').setAttribute('onclick', 'createPath("",0)')
+    }
+  }
+
+  var capturePoint_count = 0;
+  function createPath(floorName, currentPathPointIndex) {
+
+    if (!floorName) floorName = BEGIN_FLOOR; // 有floorName，表示为动画过程中第二次绘制路径，而不是第一次
+    if (status > 0) refresh(); // 有status，表示为第二次点击播放按钮
+
+    var count = currentPathPointIndex; // 记录当前路径的位置点
+    var capturePoint_color = PALLETTE.CIRCLE; // 设置抓拍点起始颜色（起点，过程点，终点）
+    var floorGroup; // 设置楼层分组
+    var trailBall = new TrailBall(); // 初始化轨迹球
+    var positionY = 10; // 设置轨迹偏移高度
+    play = true; // 设置播放按钮状态（禁用/可点击）
+    setPlayStatus(); // 设置播放按钮状态
+
+    // 找到目标组
+    group.children.forEach(function (item) {
+      if (item.name === floorName) {
+        floorGroup = item;
+        if(!floorGroup.userData.isPathFloor){
+          floorGroup.userData.isPathFloor = true
+        }
+        floorGroup.add(trailBall.mesh)
+      }
+    });
+
+    var timer1 = setInterval(function () {
+      // 绘制路径
+      if (count <= data.length - 2) {
+        // y轴实际上是z轴，转置之后y和z的坐标系方向是相反的
+        var pathGroup = {
+          start: {x: data[count].point.x, y: -data[count].point.y},
+          end: {x: data[count + 1].point.x, y: -data[count + 1].point.y}
+        };
+        var path = new Path(pathGroup);
+        path.line.position.y = positionY;
+        path.line.rotation.x = 0.5 * Math.PI;
+        floorGroup.add(path.line);
+        // 绘制轨迹球
+        var action1 = new TWEEN.Tween(pathGroup.start)
+          .to(pathGroup.end, 30)
+          .onUpdate(function () {
+            trailBall.mesh.position.x = pathGroup.start.x;
+            trailBall.mesh.position.y = positionY;
+            trailBall.mesh.position.z = pathGroup.start.y - 25; // 后台返回数据和实际数据存在25的偏移（?）
+          });
+        action1.start()
+      }
+
+      // 绘制抓拍点
+      if (data[count].capturePoint) {
+        if (capturePoint_count === 0) {
+          capturePoint_color = PALLETTE.CIRCLE_START
+        } else if (capturePoint_count > 0 && !data[count + 1]) {
+          capturePoint_color = PALLETTE.CIRCLE_END
+        } else {
+          capturePoint_color = PALLETTE.CIRCLE
+        }
+        let obj = new THREE.Vector3(
+          data[count].point.x - pic_width / 2,
+          positionY,
+          -data[count].point.y - pic_height / 2
+        );
+        let circle = new Circle(obj, capturePoint_color);
+        circle.mesh.rotation.x = -0.5 * Math.PI;
+        floorGroup.add(circle.mesh);
+        capturePoint_count++
+      }
+
+      // 抓拍点和路径需要在count递增之前添加
+      count += 1;
+
+      // count === data.length: 表示所有路径结束。
+      if (count === data.length) {
+        clearInterval(timer1);
+        // 设置播放状态
+        play = false;
+        play_count++;
+        status++;
+        setPlayStatus();
+        // 删除电梯轨迹
+        if (elevatorGroup.children.length) {
+          elevatorGroup.children.forEach(function (item) {
+            // item.geometry.dispose()
+            elevatorGroup.remove(item)
+          });
+          elevatorGroup.children = []
+        }
+        // 播放结束动画
+        setTimeout(function () {
+          ChapterFour()
+        }, 1000)
+      }
+
+      // 表示处于电梯位置
+      if (count > currentPathPointIndex + 2 && data[count - 1].elevator === true) {
+        // 设置电梯位置
+        currentElevator[0] = data[count - 1];
+        currentElevator[1] = data[count];
+        // 设置三个楼层参数
+        LAST_FLOOR = BEGIN_FLOOR;
+        BEGIN_FLOOR = data[count - 3].floorName;
+        END_FLOOR = data[count + 1].floorName;
+        // 和补间动画对应，切换楼层时删除轨迹球
+        var delay = setTimeout(function () {
+          floorGroup.remove(trailBall.mesh);
+          clearTimeout(delay)
+        }, 3000);
+        // 计算为上楼还是下楼，开始下一轮动画
+        if (structFloorInfo(BEGIN_FLOOR, END_FLOOR)) {
+          changefloor(currentElevator, count, END_FLOOR, 'up')
+        } else {
+          changefloor(currentElevator, count, END_FLOOR, 'down')
+        }
+        // 清楚定时器
+        clearInterval(timer1)
+      }
+    }, 30)
+  }
+
+  // 电梯轨迹
+  function TrailPath(currentElevator, type, targetFloor, index) {
+    // 设置电梯上下位置
+    var pathGroup = {
+      start: {
+        x: currentElevator[0].point.x - pic_width / 2,
+        y: type === 'up' ? TRANSFER_BOARD.PASS_LOW_POS: TRANSFER_BOARD.PASS_HIGH_POS,
+        z: -currentElevator[0].point.y - pic_height / 2 - 25,
+      },
+      end: {
+        x: currentElevator[1].point.x - pic_width / 2,
+        y: type === 'up' ? TRANSFER_BOARD.PASS_HIGH_POS: TRANSFER_BOARD.PASS_LOW_POS,
+        z: -currentElevator[1].point.y - pic_height / 2 - 25
+      }
+    };
+
+    // 设置动画总帧数和动画起始帧数
+    var timeDuration = pathGroup.end.y - pathGroup.start.y;
+    var timeUnit = 0;
+
+    // 画人
+    var people = new TrailBall();
+    people.mesh.position.set(pathGroup.start.x, pathGroup.start.y, pathGroup.start.z);
+    elevatorGroup.add(people.mesh);
+
+    // 电梯升降轨迹
+    var timer2 = setInterval(function () {
+      var cube = new ElevatorCube();
+      cube.mesh.position.set(pathGroup.start.x, pathGroup.start.y + timeUnit, pathGroup.start.z);
+      people.mesh.position.y = pathGroup.start.y + timeUnit;
+      elevatorGroup.add(cube.mesh);
+      if (timeUnit === timeDuration) {
+        clearInterval(timer2);
+        elevatorGroup.remove(people.mesh)
+        emitter.emit('pathBegin', targetFloor, index)
+      }
+      timeDuration > 0 ? timeUnit += 3 : timeUnit -= 3
+    }, 30)
+  }
+
+  emitter.on('pathBegin', createPath)
+  emitter.on('done', createStoreText)
+
+  /* ***************************
+   * ***************************
+   * ********** 物体类 *********
+   * ***************************
+   * ***************************/
+
+  // 电梯cube
+  function ElevatorCube() {
+    var cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+    var cubeMaterial = new THREE.MeshBasicMaterial({
+      color: PALLETTE.PATH,
+      side: THREE.DoubleSide
+    });
+    this.mesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
+  }
+  
+  // 单层楼色块
+  function Store(shape, groupName) {
+    var geometry2 = new THREE.ShapeBufferGeometry(shape);
+    var geometryBuffer = new THREE.ExtrudeBufferGeometry(shape, {
+      depth: 7,
+      bevelEnabled: false
+    });
+    var geometry = new THREE.Geometry();
+    geometry.fromBufferGeometry(geometryBuffer);
+
+    var material = new THREE.MeshPhongMaterial({
+      // color: new THREE.Color(PALLETTE.STORE),
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+      opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
+      side: THREE.FrontSide,
+      vertexColors: THREE.FaceColors
+    });
+
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0);
+    this.mesh.position.set(offset_x, 8, offset_z);
+    this.mesh.castShadow = true;
+    this.mesh.receiveShadow = true;
+    this.mesh.name = 'store';
+    this.mesh.userData.coordinates = geometry2.attributes.position.array;
+    this.mesh.geometry.faces.forEach(function (face) {
+      // normal.y: 上下两面 normal.x: 左右两面 normal.z：前后两面
+      if (face.normal.y !== 0 || face.normal.x !== 0) {
+        face.color = new THREE.Color(PALLETTE.SIDE)
+      }else if(face.normal.z !== 0) {
+        face.color = new THREE.Color(PALLETTE.STORE)
+      }
+    })
+  }
+
+  // 单层楼色块描边
+  function Edge(points, groupName) {
+    var geometry = new THREE.BufferGeometry().setFromPoints(points);
+    var material = new THREE.LineBasicMaterial({
+      color: PALLETTE.EDGE,
+      transparent: true,
+      opacity: groupName === BEGIN_FLOOR ? 1 : opacity
+    });
+    this.mesh = new THREE.Line(geometry, material);
+    this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0);
+    this.mesh.position.set(offset_x, 8, offset_z);
+    this.mesh.name = 'edge'
+  }
+
+  // 单层楼底座
+  function Plane(shape, groupName) {
+    var geometry = new THREE.ShapeBufferGeometry(shape);
+    var material = new THREE.MeshPhongMaterial({
+      color: PALLETTE.PLANE,
+      side: THREE.DoubleSide,
+      depthTest: true,
+      depthWrite: false,
+      transparent: true,
+      opacity: groupName === BEGIN_FLOOR ? 1 : opacity
+    });
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE, 0, 0);
+    this.mesh.position.set(offset_x, 0, offset_z);
+    this.mesh.name = 'plane';
+  }
+
+  // 中间楼层
+  function MiddlePlane() {
+    var geom = new THREE.PlaneGeometry(480, 340, 32);
+    var material = new THREE.MeshBasicMaterial({
+      transparent: true,
+      depthWrite: false, // 处理opacity为0时在不同角度依然遮挡的问题
+      side: THREE.DoubleSide,
+      color: PALLETTE.PLANE,
+      opacity: 0
+    });
+    this.mesh = new THREE.Mesh(geom, material);
+    this.mesh.rotation.set(TRANSFER_BOARD.HALFROTATE + TRANSFER_BOARD.ROTATE_X, 0, -TRANSFER_BOARD.ROTATE_Y);
+    this.mesh.name = 'middlePlane'
+  }
+
+  // 路径
+  function Path(group) {
+    var path = new THREE.Path([new THREE.Vector2(group.start.x - pic_width / 2, group.start.y - pic_height / 2 - 25)]);
+    path.lineTo(group.end.x - pic_width / 2, group.end.y - pic_height / 2 - 25);
+    var points = path.getPoints();
+    var geometry = new THREE.BufferGeometry().setFromPoints(points);
+    var material = new THREE.LineBasicMaterial({
+      transparent: true,
+      depthWrite: false,
+      color: PALLETTE.PATH
+    });
+    this.line = new THREE.Line(geometry, material);
+    this.line.name = 'path'
+  }
+
+  // 摄像头点
+  function Circle(vector, color, rotate) {
+    var geom = new THREE.CircleGeometry(5, 50);
+    var material = new THREE.MeshBasicMaterial({
+      transparent: true,
+      depthWrite: true,
+      color: color
+    });
+    this.mesh = new THREE.Mesh(geom, material);
+    this.mesh.position.set(vector.x, vector.y, vector.z - 25);
+    if (rotate) {
+      this.mesh.rotation.x = rotate * Math.PI
+    }
+    this.mesh.name = 'circle'
+  }
+
+  var PIXEL_RATIO = (function () {
+    var ctx = document.createElement("canvas").getContext("2d"),
+      dpr = window.devicePixelRatio || 1,
+      bsr = ctx.webkitBackingStorePixelRatio ||
+        ctx.mozBackingStorePixelRatio ||
+        ctx.msBackingStorePixelRatio ||
+        ctx.oBackingStorePixelRatio ||
+        ctx.backingStorePixelRatio || 1;
+
+    return dpr / bsr;
+  })();
+
+  // 楼层文字
+  function TextSprite(text, position) {
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    var cz = camera.position.z; // 摄像头z轴视距
+    canvas.width = 512;
+    canvas.height = 512;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = "100px '微软雅黑'";
+    ctx.textAlign = 'center';
+    ctx.fillText(text, 256, 256);
+    var texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    // 使用Sprite显示文字
+    var material = new THREE.SpriteMaterial({
+      map: texture,
+      color: 0xffffff,
+      depthWrite: false,
+      depthTest: true,
+      transparent: true,
+      opacity: text === BEGIN_FLOOR ? 1 : opacity
+    });
+    this.textObj = new THREE.Sprite(material);
+    this.textObj.name = 'text';
+    this.textObj.scale.set(64, 64, 64);
+    this.textObj.position.set(290, 0, 0)
+  }
+
+  // 商店文字
+  function Text(obj, groupName) {
+    var ratio = PIXEL_RATIO;
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    var cz = camera.position.z; // 摄像头z轴视距
+    var fontsize = 30
+    var maxLen = 20
+    var scale = cz * ((1 / 130)* fontsize);
+    canvas.width = fontsize * maxLen;
+    canvas.height = fontsize * maxLen;
+    // ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.fillStyle = 'rgba(255, 255,255,1)';
+    ctx.font = "normal " + fontsize + "px 'Arial'";
+    ctx.lineWidth = 4;
+    ctx.textAlign = 'center';
+    ctx.fillText(obj.text, canvas.width / 2, canvas.height / 2);
+    var texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    // texture.magFilter = THREE.NearestFilter;
+    // texture.minFilter = THREE.LinearMipMapLinearFilter;
+    // texture.generateMipmaps = false
+    // 使用Sprite显示文字
+    var material = new THREE.SpriteMaterial({
+      map: texture,
+      color: 0xffffff,
+      // blending: THREE.AdditiveBlending,
+      depthTest: true,
+      depthWrite: false,
+      transparent: true,
+      opacity: groupName === BEGIN_FLOOR ? 1 : opacity
+    });
+    this.text = new THREE.Sprite(material);
+    this.text.scale.set(scale, scale, scale);
+    this.text.name = 'store_text';
+    // this.text.rotation.x = -0.5 * Math.PI
+    this.text.position.set(obj.position.x, 13, -obj.position.y)
+  }
+
+  // 贴图
+  function PeopleSprite(groupName) {
+    var texture = new THREE.TextureLoader().load('/static/img/elevator.png');
+    texture.needsUpdate = true;
+    var spriteMaterial = new THREE.SpriteMaterial({
+      transparent: true,
+      opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
+      map: texture,
+      depthTest: false,
+      depthWrite: false,
+      // side: THREE.DoubleSide
+      // blending: THREE.AdditiveBlending,
+    });
+    var sprite = new THREE.Sprite(spriteMaterial);
+    sprite.name = 'sprite_elevator'
+    sprite.scale.set(25, 25, 25);
+    return sprite
+  }
+
+  // 轨迹球
+  function TrailBall() {
+    var geometry = new THREE.SphereGeometry(4, 32, 32);
+    var material = new THREE.MeshToonMaterial({
+      color: PALLETTE.PATH,
+      // depthTest: false,
+      side: THREE.DoubleSide
+    });
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.mesh.name = 'trail_ball'
+  }
+
+  /* **************************
+   * **************************
+   * ********** 布景 **********
+   * **************************
+   * **************************/
+
+  // 场景
+  function createScene() {
+    scene = new THREE.Scene();
+  }
+
+  // 相机
+  function createCamera() {
+    var camAngle = -0.890338608975752 + Math.PI / 2;
+    var camDir = [Math.cos(camAngle), Math.sin(camAngle)];
+    var camLen = 550;
+    var tiltAngle = 75.0 * Math.PI / 180.0;
+    camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 0.1, 10000)
+    // camera.position.set(762, 399, 1170)
+    camera.position.set(camDir[1] * camLen, Math.sin(tiltAngle) * camLen * 0.9, camDir[0] * camLen * 2.2);
+    camera.lookAt(scene.position);
+    scene.add(camera)
+  }
+
+  function craeteOrCamera() {
+    camera = new THREE.OrthographicCamera(
+      window.innerWidth / -2,
+      window.innerWidth / 2,
+      window.innerHeight / 2,
+      window.innerHeight / -2,
+      0.1, 10000
+    );
+    camera.position.set(330, 180, 450);
+    camera.lookAt(0, 0, 0);
+    camera.updateProjectionMatrix(); // 更新矩阵
+  }
+
+  // 灯光
+  function createLight() {
+    let lightHeight = 500
+    var light = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.8);
+    light.position.set(0, 800, 0);
+    scene.add(light);
+
+    var light2 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.5);
+    light2.position.set(0, 300, -800);
+    scene.add(light2);
+
+    var light3 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.5);
+    light3.position.set(0, 200, 800);
+    scene.add(light3);
+
+    var light4 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.3);
+    light4.position.set(800, 0, 0);
+    scene.add(light4);
+
+    var light5 = new THREE.DirectionalLight(PALLETTE.LIGHT, 0.3);
+    light5.position.set(-800, 0, 0);
+    scene.add(light5);
+
+    // var light6 = new THREE.DirectionalLight(0xffffff, 0.2);
+    // light6.position.set(-lightHeight * 2, lightHeight * 2, -lightHeight * 2);
+    // scene.add(light6);
+    //
+    // var light7 = new THREE.DirectionalLight(0xffffff, 0.2);
+    // light7.position.set(lightHeight * 2, lightHeight * 2, lightHeight * 2);
+    // scene.add(light7);
+  }
+
+  // 渲染器
+  function createRenderer() {
+    renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById("WebGL-output").appendChild(renderer.domElement)
+  }
+
+  // 监听器
+  function createListener() {
+    window.addEventListener('resize', onWindowResize, false)
+  }
+
+  // 控制函数
+  function createControl() {
+    controls = new THREE.OrbitControls(camera);
+    // console.log(0.35*Math.PI)
+    // controls.maxPolarAngle = 0.35 * Math.PI;//上下两极的可视区域的最大角度
+    // controls.minPolarAngle = 0.35 * Math.PI;//上下两极的可视区域最小角度
+    controls.dampingFactor = 0.25;
+    controls.enableZoom = true;
+    controls.enableRotate = true;
+    controls.screenSpacePanning = true;
+  }
+
+  function createAlexHelper() {
+    var axesHelper = new THREE.AxesHelper(100);
+    scene.add(axesHelper)
+  }
+
+  // 渲染函数
+  function render() {
+    requestAnimationFrame(render);
+    TWEEN.update();
+    let delta = clock.getDelta();
+    if (mixArr.length) {
+      for (let i = 0; i < mixArr.length; i++) {
+        mixArr[i].update(delta);
+      }
+    }
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.render(scene, camera)
+  }
+
+  function onWindowResize() {
+    var innerWidth = window.innerWidth;
+    var innerHeight = window.innerHeight;
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight)
+  }
+
+  /* **********************
+   * ****** 其他方法 *******
+   * **********************/
+
+  //发布订阅
+  function EventEmitter() {
+    //缓存列表，存放订阅者列表
+    var list = [];
+    var instance;
+    //订阅事件name,type = 0表示永久订阅 =1表示一次订阅
+    var on = function (name, fn, type = 0) {
+      //判断事件是否曾被订阅
+      if (!list[name]) {
+        list[name] = [];
+      }
+      list[name].push([fn, type]);//监听函数插入该事件列表
+    };
+    //订阅一次触发后删除
+    var once = function (name, fn, type = 1) {
+      on(name, fn, type);
+    };
+    //发布
+    var emit = function (name) {
+      var fns = list[name];//取出事件
+      //获取参数列表
+      var args = [].slice.call(arguments, 1);
+      //判断监听函数是否存在
+      if (!fns || fns.length == 0) {
+        return;
+      }
+      for (var i = 0; i < fns.length, fn = fns[i++];) {
+        fn[0].apply(this, args);
+        if (fn[1] == 1) {
+          remove(name, fn[0], 1);
+        }
+      }
+    };
+    //删除事件
+    var remove = function (name, fn, type = 0) {
+      if (!name) {
+        return;
+      }
+      var fns = list[name];
+      //未传入监听函数，取消全部
+      if (!fn) {
+        list[name] = [];
+      } else {
+        for (var i = 0; i < fns.length, fn1 = fns[i]; i++) {
+          //找到对应函数，删除之
+          if (fn === fn1[0] && type === fn1[1]) {
+            fns.splice(i, 1);
+          }
+        }
+      }
+    };
+    return {
+      on: on,
+      once: once,
+      emit: emit,
+      remove, remove
+    };
+  }
+
+  // 数组转字符串
+  var getString = function (arr) {
+    return '[' + Array.prototype.slice.call(arr).toString() + ']'
+  };
+
+  // 刷新页面
+  function refresh() {
+    var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
+    var host = url.split('?')[0];
+    var params = '?playcount=' + (play_count) + '&status=1';
+    window.location.href = host + params
+  }
+
+  function changeDate() {
+    var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
+    var host = url.split('?')[0];
+    var params = '?playcount=' + (play_count) + '&status=0';
+    window.location.href = host + params
+  }
+
+  // 获取中心点和右侧点
+  var getCenterExtraPoint = function (array) {
+    var a = changeArrayLevel(array);
+    var ps = new Contour(a.buffer).centroid();
+    return {
+      cx: (ps.x - 290),
+      cy: (241 - ps.y)
+    }
+  };
+
+  // 获取playCount的值
+  function getQueryString() {
+    var r = url.split('?')[1];
+    var s = r.split('&')[0];
+    if (s) {
+      return parseInt(s.split('=')[1]);
+    } else {
+      return null
+    }
+  }
+
+  // 0: 下楼 1: 上楼
+  function structFloorInfo(startFloor, endFloor) {
+    var s_floorAnti = startFloor.slice(0, 1);
+    var s_floorNum = parseInt(startFloor.slice(1, startFloor.length));
+    var e_floorAnti = endFloor.slice(0, 1);
+    var e_floorNum = parseInt(endFloor.slice(1, endFloor.length));
+    if (s_floorAnti === 'F' && e_floorAnti === 'B') return 0;
+    if (e_floorAnti === 'F' && s_floorAnti === 'B') return 1;
+    if (s_floorNum < e_floorNum) return 1;
+    if (s_floorNum > e_floorNum) return 0;
+  }
+
+  // 计算楼层
+  function calcFloor(startFloor, endFloor) {
+    var s_floorNum = parseInt(startFloor.slice(1, startFloor.length));
+    var e_floorNum = parseInt(endFloor.slice(1, endFloor.length));
+    return Math.abs(s_floorNum - e_floorNum)
+  }
+
+  // 计算楼层数组
+  function calcFloorArray(startFloor, endFloor) {
+    var s_floorNum = parseInt(startFloor.slice(1, startFloor.length));
+    var e_floorNum = parseInt(endFloor.slice(1, endFloor.length));
+    var targetArr = [];
+    for (var i = 0; i < Math.abs(s_floorNum - e_floorNum); i++) {
+      targetArr.push('F' + (parseInt(s_floorNum > e_floorNum ? e_floorNum : s_floorNum) + parseInt(i)))
+    }
+    return targetArr;
+  }
+
+</script>
+</body>
+
+</html>

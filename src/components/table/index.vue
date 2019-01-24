@@ -3,7 +3,7 @@
     <div class="table-search">
       <span>表格数据</span>
       <div v-if="false">
-        <input v-model="fuzzyQuery" type="text" placeholder="输入关键字"/>
+        <input v-model.trim="fuzzyQuery" type="text" placeholder="输入关键字"/>
         <img src="/static/img/table-input-search.png" @click="doSearch">
       </div>
     </div>
@@ -47,6 +47,7 @@
 <script>
 import {mapState} from 'vuex'
 import {eventObject} from '@/utils/event.js'
+import {GetFlowCount} from '../../api/visual'
 
 export default {
   name: 'table-index',
@@ -73,36 +74,24 @@ export default {
       this.pageParams.currentPage = val
       this.getData()
     },
-    // 条件请求数据
-    doSearch () {
-      // this.gettableData();
-    },
     // 请求数据
     getData () {
-      let params = this.$store.state.filterParams
-      let filterParams = {
-        groupGuid: params.groupGuid,
-        groupName: params.groupGuidName,
-        type: params.type, // 类型
-        dimension: params.dimension, // 维度
-        startTime: params.startTime, // 开始时间
-        endTime: params.endTime, // 结束时间
-        length: this.pageParams.pageSize,
-        index: this.pageParams.currentPage
-      }
-      if (filterParams.groupGuid) {
-        this.$http('/chart/flowCount', filterParams).then(res => {
-          if (res.result === 1) {
-            this.tableData = res.data.content || [];
-            // this.pageParams.total = res.data.pagination.total || 0;
-            (!!res.data.pagination) ? this.$set(this.pageParams, 'total', res.data.pagination.total || 0) : this.$set(this.pageParams, 'total', 0)
-          }
-        }).catch(error => {
-          console.info(error)
-        })
-      } else {
+      let params = JSON.parse(JSON.stringify(this.$store.state.filterParams))
+      params.length = this.pageParams.pageSize
+      params.index = this.pageParams.currentPage
+      params.startTime = params.startTime + ' 00:00:00'
+      params.endTime = params.endTime + ' 23:59:59'
+      params.groupSonGuid = params.group.guid
+      params.groupName = params.group.name
+      delete params.group
+      if (!params.groupSonGuid) {
         this.$tip('请您先选择社群', 'error')
+        return
       }
+      GetFlowCount(params).then(res => {
+        this.tableData = res.data.content || []
+        this.$set(this.pageParams, 'total', res.data.pagination.total || 0)
+      })
     },
     initSize () {
       // table高度改变
@@ -144,8 +133,6 @@ export default {
   watch: {
     filterParams: {
       handler: function (val, oldVal) {
-        // console.info(val,11111111);
-        // this.pageParams.currentPage = 1;
       },
       deep: true
     },

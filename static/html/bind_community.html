@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <title>线下浏览器</title>
+  <style type="text/css">
+    body,html{
+      padding: 0;
+      margin: 0;
+      height: 100%;
+    }
+    body canvas{
+      max-width: 100%;
+      min-height: 100%;
+    }
+    .three__map--wrap{
+      position: relative;
+    }
+    .three__floor--wrap {
+      position: absolute;
+      width: 30px;
+      top: 45%;
+      left: 10px;
+      transform: translateY(-50%);
+    }
+    .three__floor--wrap .three__floor--item{
+      height: 30px;
+      line-height: 30px;
+      margin-bottom: 2px;
+      text-align: center;
+      background: rgba(15, 14, 17, 0.7);
+      color: #fff;
+    }
+    .three__floor--wrap .three__floor--item:last-child{
+       margin-bottom: 0;
+     }
+    .three__floor--wrap .three__floor--item.active{
+       background: rgba(28, 56, 108, 0.7);
+     }
+    .three-wrap {
+      height: 100%;
+      position: relative;
+    }
+    .three-wrap canvas {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+<!--<div class="three__map&#45;&#45;wrap" style="height: 100%">-->
+  <!--<div :id="id" class="three-wrap">-->
+  <!--</div>-->
+  <!--<ul class="three__floor&#45;&#45;wrap">-->
+    <!--&lt;!&ndash;<li&ndash;&gt;-->
+      <!--&lt;!&ndash;class="three__floor&#45;&#45;item"&ndash;&gt;-->
+      <!--&lt;!&ndash;v-for="(item, $index) in floorList"&ndash;&gt;-->
+      <!--&lt;!&ndash;:class="{active: item.active}"&ndash;&gt;-->
+      <!--&lt;!&ndash;:key="$index">{{IntToFloor(item.floor)}}</li>&ndash;&gt;-->
+  <!--</ul>-->
+<!--</div>-->
+<script src="/static/three/WebGL.js"></script>
+<script src="/static/three/three.min.js"></script>
+<script src="/static/three/OrbitControls.js"></script>
+<script src="/static/three/SVGLoader.js"></script>
+<script>
+  var renderer, scene, camera, mouse = {}, group, currentFloor, bindList = []
+  var INTERSECTED, controls, raycaster, ratio, meshList = []
+  var windowOrigin = window.location.origin
+  /* 初始化创建场景
+     * @params eid 外部容器id
+     * @params pd 左右padding总距离值
+     * @params floor 渲染的楼层
+     * */
+  function initScene () {
+    if (!WEBGL.isWebGLAvailable()) {
+      var warning = WEBGL.getWebGLErrorMessage();
+      document.body.appendChild(warning);
+      return false
+    }
+    ratio = window.innerWidth / window.innerHeight
+    renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
+    renderer.setPixelRatio(window.devicePixelRatio)
+    renderer.setClearColor(0xeeeeee)
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    scene = new THREE.Scene()
+    scene.background = new THREE.Color(0x17151A)
+    camera = new THREE.PerspectiveCamera(45, ratio, 0.1, 5000)
+    camera.position.set(0, 0, 480)
+    scene.add(camera)
+    group = new THREE.Group()
+    scene.add(group)
+    // 通过svg文件构画出分布图
+    window.parent.postMessage({type: 'LOAD_SVG_BIND'}, windowOrigin)
+    // loadSvg()
+    raycaster = new THREE.Raycaster()
+    // 轨道控制器
+    controls = new THREE.OrbitControls(camera, renderer.domElement)
+    controls.enableRotate = false
+    // this.renderer.render(this.scene, this.camera)
+    // 窗口变化时重置模型尺寸和摄像头视角比例
+    document.body.appendChild(renderer.domElement)
+    window.addEventListener('click', this.onDocumentMouseClick, false)
+    window.addEventListener('resize', this.onWindowResize, false)
+    animate()
+  }
+  // 渲染svg地图模型
+  function loadSvg (floor) {
+    currentFloor = floor
+    var svgLoader = new THREE.SVGLoader()
+    var url = parseUrlParams('map_url') || ''
+    svgLoader.load(url, function (paths) {
+      group.position.x = -290
+      group.position.y = 214
+      group.scale.set(1, -1, 1)
+      for (var i = 0; i < paths.length; i++) {
+        // if (i === 0) continue
+        var path = paths[i]
+        var materialLine = new THREE.LineBasicMaterial({
+          color: new THREE.Color('#403E42'),
+          side: THREE.DoubleSide,
+          depthWrite: false
+        })
+        var shapes = path.toShapes(true)
+        for (var j = 0; j < shapes.length; j++) {
+          var shape = shapes[j]
+          var geometry = new THREE.ShapeBufferGeometry(shape)
+          if (currentFloor && currentFloor.subGroupSon && currentFloor.subGroupSon.filter(function (item){return JSON.parse(item.coordinates || '[]').toString() === [].slice.call(geometry.attributes.position.array).toString()}).length) {
+            materialLine.color = new THREE.Color('#1A3D6A')
+            materialLine.userData.select = true
+          }
+          var mesh = new THREE.Mesh(geometry, materialLine)
+          var edges = new THREE.EdgesGeometry(geometry)
+          var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
+          mesh.add(line)
+          if (!materialLine.userData.select) {
+            meshList.push(mesh)
+          } else {
+            bindList.push(mesh)
+          }
+          group.add(mesh)
+        }
+      }
+      // iframe加载完成是通知父页面初始化数据(svg 渲染完成后设置默认值，否侧meshList会是个空数组)
+      window.parent.postMessage({type: 'SET_DEFAULT_DATA'}, windowOrigin)
+    })
+  }
+  // 将url参数对象化
+  function parseUrlParams (key) {
+    var params = window.location.href.split('?')[1]
+    var obj = {}
+    if (params) {
+      var arr = params.split('&')
+      for (var i = 0, len = arr.length; i < len; i++) {
+        var kv = arr[i].split('=')
+        obj[kv[0]] = kv[1]
+      }
+    }
+    return obj[key]
+  }
+  // 窗口尺寸改变时重新渲染
+  function onWindowResize () {
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.render(scene, camera)
+  }
+  function animate () {
+    requestAnimationFrame(animate)
+    renderer.render( scene, camera );
+  }
+  // 添加点击事件
+  function onDocumentMouseClick (event, i) {
+    event.preventDefault()
+    mouse.x = (event.x / window.innerWidth) * 2 - 1
+    mouse.y = -(event.y / window.innerHeight) * 2 + 1
+    raycaster.setFromCamera(mouse, camera)
+    var intersects = raycaster.intersectObjects(meshList)
+    if (intersects.length > 0) {
+      if (INTERSECTED !== intersects[ 0 ].object) {
+        if (INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex)
+        INTERSECTED = intersects[ 0 ].object
+        INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
+        INTERSECTED.material.color.setHex(0xff0000)
+        window.parent.postMessage({type: 'BIND_GROUP_CLICK', data: [].slice.call(intersects[0].object.geometry.attributes.position.array), path: JSON.parse(JSON.stringify(intersects[0].object))}, windowOrigin)
+      }
+    } else {
+      if (INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex)
+      INTERSECTED = null
+    }
+  }
+  // 设置默认选中区域
+  function setDefaultSelect (arr) {
+    if (!arr) return
+    for (var k = 0, len = bindList.length; k < len; k++) {
+      if ([].slice.call(bindList[k].geometry.attributes.position.array).toString() === arr.toString()) {
+        bindList[k].material.color = new THREE.Color('#403E42')
+        bindList[k].material.userData.select = false
+        meshList.push(bindList[k])
+        if (INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex)
+        INTERSECTED = bindList[k]
+        INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
+        INTERSECTED.material.color.setHex(0xff0000)
+      }
+    }
+  }
+  window.onload = function () {
+    initScene()
+  }
+
+</script>
+</body>
+</html>

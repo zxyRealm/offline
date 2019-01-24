@@ -11,26 +11,25 @@
             <flow-info :type="'left'" :number="inNumber" class="flow-left"></flow-info>
             <flow-info :type="'right'" :number="outNumber" class="flow-right"></flow-info>
           </li>
-          <li class="corner-bg__2x vam">
+          <li class="corner-bg vam">
             <all-time class="li-all-time"></all-time>
           </li>
         </ul>
         <div class="left-div" ref="lineConsole">
-          <div class="passenger-flow--wrap corner-bg__2x">
+          <div class="passenger-flow--wrap corner-bg">
             <line-console ref="echartsLine" :line-params='lineParams'></line-console>
           </div>
-          <!--<line-console ref="echartsLine" :line-params='lineParams'></line-console>-->
           <!--会员信息-->
-          <div class="corner-bg__2x associator--wrap vam">
+          <div class="corner-bg associator--wrap vam">
             <div class="associator--inner" v-if="memberInfo.imgUrl && memberInfo.memberLabelList[0]">
               <h3>{{memberInfo.memberLabelList[0].name || '尊敬的'}}{{memberInfo.memberLabelList[0].gender===undefined ? memberInfo.gender? '先生' : '女士' : memberInfo.memberLabelList[0].gender ? '先生' : '女士'}}，您好</h3>
               <div class="detail-info--wrap">
                 <div class="base-info">
-                  <p><span class="ellipsis">{{memberInfo.memberLabelList[0].memberLibraryName || '嘉宾'}}</span></p>
+                  <p><span class="ellipsis">{{memberInfo.memberLabelList[0].memberLibraryName}}</span></p>
                   <p>{{memberInfo.memberLabelList[0].gender===undefined ? memberInfo.gender ? '男': '女' : memberInfo.memberLabelList[0].gender ? '男' : '女'}}</p>
-                  <p>{{memberInfo.memberLabelList[0].age || memberInfo.age}}</p>
-                  <p>{{ memberInfo.memberLabelList[0].appearanceDate || memberInfo.appearanceDate | parseTime('{m}/{d}')}}</p>
-                  <p>{{ memberInfo.memberLabelList[0].appearanceDate || memberInfo.appearanceDate | parseTime('{h}:{i}')}}</p>
+                  <p>{{memberInfo.age}}</p>
+                  <p>{{ memberInfo.appearanceDate | parseTime('{m}/{d}')}}</p>
+                  <p>{{ memberInfo.appearanceDate | parseTime('{h}:{i}')}}</p>
                 </div>
                 <div class="associator__avatar--wrap">
                   <img class="associator__avatar" :src="memberInfo.cropUrl" alt="">
@@ -57,7 +56,7 @@
         <transition-group name="list-customer" class="transition-wrap left" tag="ul">
           <li
             v-for="(item,$index) in pedestrianInData"
-            :key="$index"
+            :key="item.order"
             class="list-customer-item"
           >
             <customer-info :index="pedestrianInData.length -$index" :detailInfo="item" @handleDetailData="showDetailInfo"></customer-info>
@@ -77,7 +76,7 @@
         <transition-group name="list-customer" class="transition-wrap right" tag="ul">
           <li
             v-for="(item,$index) in pedestrianOutData"
-            :key="$index"
+            :key="item.order"
             class="list-customer-item out-li"
           >
             <customer-info :index="pedestrianOutData.length -$index" :detailInfo="item" @handleDetailData="showDetailInfo"></customer-info>
@@ -103,13 +102,14 @@ import pie from '@/components/echarts/pie.vue'
 import lineConsole from '@/components/echarts/line.vue'
 import CustomerInfo from './componets/CustomerInfo.vue'
 import {mapState} from 'vuex'
-import {eventObject} from '@/utils/event.js'
+import {eventObject} from '@/utils/event'
 import ObDialogInfo from './componets/ObDialogInfo'
 export default {
   name: 'console',
   components: {FlowInfo, AllTime, bar, pie, lineConsole, CustomerInfo, ObDialogInfo},
   data () {
     return {
+      memberInfo: {}, // 会员信息
       showDialogData: {},
       showDialog: false, // 显示图片详细信息
       style: {
@@ -195,9 +195,9 @@ export default {
           table.style.height = me.$refs.bar.offsetHeight + 'px'
         }
         me.$refs.echartsBar.resizeEcharts()
-        let tableLine = document.getElementById('echarts-line')
+        // let tableLine = document.getElementById('echarts-line')
         // tableLine.style.width = me.$refs.lineConsole.offsetWidth + 'px'
-        tableLine.style.height = me.$refs.lineConsole.offsetHeight + 'px'
+        // tableLine.style.height = me.$refs.lineConsole.offsetHeight + 'px'
         me.$refs.echartsLine.resizeEcharts()
       }, time || 50)
     },
@@ -205,29 +205,26 @@ export default {
     resolveDatad (data) {
       let obj = JSON.parse(data)
       // 判断是否是同一台数据推送的数据
+      // console.log(obj, obj.deviceKey, this.deviceKey)
       if (obj.deviceKey !== this.deviceKey) return
-      // console.log('push message ----', obj)
-      // 设置会员信息
-      this.setMemberInfo(obj.memberInfoList)
+      this.setMemberInfo(obj.memberInfo)
+      // console.log('get data------------')
       // 饼图 = 推送实时更新数据
       this.$set(this.pieParams.seriesData[0], 'value', obj.female)
       this.$set(this.pieParams.seriesData[1], 'value', obj.male)
       // 饼图 = 数据更新
-      if (!!this.$refs.echartsPie) {
+      if (this.$refs.echartsPie) {
         this.$refs.echartsPie.consoleEmit()
       }
       // 进出人数
       this.outNumber = obj.outNumber
       this.inNumber = obj.inNumber
       // 柱状图
-      this.ageBar = JSON.parse(obj.age)
-      // 图片展示
-      let imgObject = JSON.parse(JSON.stringify(obj.pedestrian[0]))
-      if (obj.memberInfoList[0] && obj.memberInfoList[0].memberLabelList[0].name) {
-        imgObject.age = obj.memberInfoList[0].memberLabelList[0].age
-        imgObject.gender = obj.memberInfoList[0].memberLabelList[0].gender
+      if (Array.isArray(JSON.parse(obj.age))) {
+        this.ageBar = JSON.parse(obj.age)
       }
-      this.typePedestrian(imgObject)
+      // 图片展示
+      this.typePedestrian(obj.pedestrian)
     },
     // 判断数据类型，并且限定大小4
     typePedestrian (pedestrian) {
@@ -245,7 +242,7 @@ export default {
       }
       currentList.unshift(pedestrian)
     },
-    // 获取长连接ip（端口号：8083）
+    // 获取长连接ip（端口号：8085）
     getwebsocketIp () {
       this.$http('/getServiceIp').then(res => {
         this.getwebsocket(res.data)
@@ -255,6 +252,8 @@ export default {
     },
     // 请求数据
     getData () {
+      // 更换设备时重置会员信息
+      this.memberInfo = {}
       this.$http('/personData', {
         deviceKey: this.deviceKey
       }).then(res => {
@@ -265,9 +264,8 @@ export default {
         }
         this.getwebsocketIp()
         this.resizeFunction()
-      }).catch(error => {
+      }).catch(() => {
         this.resizeFunction() // 请求失败渲染默认数据
-        console.info(error)
       })
     },
     // 当请求数据为空时
@@ -287,23 +285,16 @@ export default {
     },
     // 获取会员信息，并对图像进行剪裁显示
     setMemberInfo (data) {
-      // console.log('data---', data)
-      if (!data || !data[0]) return
-      data = data[0]
-      // let coordinate = data.extendedFaceBox
-      // let [url, startX, startY, width, height] = [data.memberLabelList[0].memberPictureUrl, coordinate.upperX, coordinate.upperY, coordinate.lowerX - coordinate.upperX, coordinate.lowerY - coordinate.upperY]
-      // 返回剪裁图片路径属于一个异步过程，因此使用回调方式返回url
-      // let url = 'https://offline-browser-images-test.oss-cn-hangzhou.aliyuncs.com/offline-browser-face/91-01-8102/0847978399351_0B94EFF6734D4F3095E88AAF7C1E30CA.png'
+      if (!data || !data) return
       data.cropUrl = data.imgUrl
       this.memberInfo = data
-      // 取消图片截取功能
-      // if (coordinate && data.memberLabelList[0] && !data.memberLabelList[0].memberPictureUrl) {
-      //   this.customDrawImage(url, startX, startY, width, height, url => {
-      //     data.cropUrl = url
-      //     this.memberInfo = data
-      //   })
-      // } else {
-      // }
+      // let coordinate = data.extendedFaceBox
+      // let [url, startX, startY, width, height] = [data.imgUrl, coordinate.upperX, coordinate.upperY, coordinate.lowerX - coordinate.upperX, coordinate.lowerY - coordinate.upperY]
+      // // 返回剪裁图片路径属于一个异步过程，因此使用回调方式返回url
+      // this.customDrawImage(url, startX, startY, width, height, url => {
+      //   data.cropUrl = url
+      //   this.memberInfo = data
+      // })
       // console.log(newUrl)
     },
     // 绘制图像（根据坐标）
@@ -315,14 +306,14 @@ export default {
       let xhr = new XMLHttpRequest()
       xhr.withCredentials = false
       if ('withCredentials' in xhr) {
-        // console.log('current support cros')
+        console.log('current support cros')
         // 此时即支持CORS的情况
         // 检查XMLHttpRequest对象是否有“withCredentials”属性
         // “withCredentials”仅存在于XMLHTTPRequest level 2对象里
       } else {
         // 否则检查是否支持XDomainRequest
         // XDomainRequest仅存在于IE中，是IE用于支持CORS请求的方式
-        // console.log('this is ie')
+        console.log('this is ie')
         xhr = new XDomainRequest()
       }
       xhr.onload = function () {
@@ -345,16 +336,6 @@ export default {
       xhr.open('GET', url, true)
       xhr.responseType = 'blob'
       xhr.send()
-    },
-    test () {
-      let obj = {
-        sex: 1,
-        person: {
-          sex: 0
-        }
-      }
-      let aa = obj.person.sex === undefined ? obj.sex ? '男' : '女' : obj.person.sex ? '男' : '女'
-      console.log(aa)
     }
   },
   created () {
@@ -428,14 +409,13 @@ export default {
       .content-top-left, .content-top-right {
         float: left;
       }
+      /*客流汇总信息/客流量统计/会员信息*/
       .content-top-left {
         height: 100%;
         width: 60%;
         box-sizing: border-box;
         .left-ul {
           height: 31%;
-          /*background-color: rgba(64, 58, 73, 0.30);*/
-          /*box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);*/
           li {
             float: left;
             background-color: rgba(64, 58, 73, 0.30);
@@ -465,8 +445,6 @@ export default {
             height: 100%;
             box-sizing: border-box;
             .li-all-time {
-              /*position: absolute;*/
-              /*top: calc(50% - 41px);*/
             }
           }
         }
@@ -481,16 +459,15 @@ export default {
             height: 100%;
             margin-right: 10px;
           }
+          /*会员信息*/
           .associator--wrap{
             float: left;
             width: calc(40% - 10px);
             height: 100%;
             padding: 24px 14px 40px;
             box-sizing: border-box;
-            background-color: rgba(20,24,71,.5);
-            box-shadow: 0 0 7px 2px #223270 inset;
-            /*background: url(/static/img/background-img-in.png) no-repeat center;*/
-            /*background-size: 100% 100%;*/
+            background-color: rgba(64, 58, 73, 0.3);
+            box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
             h3{
               font-size: 20px;
               text-align: center;

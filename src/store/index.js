@@ -8,20 +8,23 @@ import {parseTime} from '@/utils/index'
 Vue.use(Vuex)
 const state = {
   userInfo: {},
+  needLoadingRequestCount: 0,
   filterParams: { // 可视化社群条件
-    groupGuid: '', // 选择社群
-    type: 1, // 类型
-    dimension: 1, // 维度
+    group: '',
+    type: 'flow', // 类型
+    timeIntervalUnit: 'hour', // 维度
     startTime: parseTime(new Date(), '{y}-{m}-{d}'), // 开始时间
     endTime: parseTime(new Date(), '{y}-{m}-{d}'), // 结束时间
-    timeArray: [],
-    groupGuidName: ''
+    timeArray: []
   },
   groupConsoleId: '', // 控制台社群设备id
   groupSelectId: '', // 選擇群id
   loading: true,
+  serverIp: '', // 服务websocket ip 地址(包括端口信息）
   showBar: true, // 是否显示侧边栏
-  aliveState: {} // 保存上一页状态值
+  aliveState: {}, // 保存上一页状态值
+  expired: false, // 登录是否过期
+  currentManage: {} // 当前管理社群信息
 }
 
 const actions = {
@@ -31,6 +34,9 @@ const actions = {
     }).catch(error => {
       console.log(error)
     })
+  },
+  GET_GROUPS_LIST: ({commit}) => {
+
   }
 }
 
@@ -53,6 +59,9 @@ const mutations = {
   },
   SET_ALIVE_STATE: (state, data) => {
     state.aliveState = data || {}
+  },
+  SET_CURRENT_MANAGE: (state, data) => {
+    state.currentManage = data || {}
   }
 }
 

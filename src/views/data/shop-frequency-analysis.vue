@@ -2,7 +2,7 @@
   <div class="data-guest">
     <div class="data-guest-content">
       <div class="screening corner-bg">
-        <screening :type="4"></screening>
+        <screening type="repeat"></screening>
       </div>
       <div class="flow-diagram corner-bg" ref="pie">
         <echarts-pie ref="echartsPie" :pie-params="pieParams"></echarts-pie>

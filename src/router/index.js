@@ -2,25 +2,45 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import {fetch, exitMessage} from '@/utils/request'
 
+const Test = () => import('@/views/test.vue')
 const Layout = () => import('@/views/layout/Layout.vue')
-const Community = () => import('@/views/community/index.vue')
-const customCommunity = () => import('@/views/community/custom.vue')
-const editCustom = () => import('@/views/community/edit-custom.vue')
-const addCommunity = () => import('@/views/community/add-community.vue')
-const joinCommunity = () => import('@/views/community/join-community.vue')
+// 社群管理
+const Community = () => import('@/views/community/mine.vue')
 
-const Equipment = () => import('@/views/equipment/mine.vue')
-const EquipmentMore = () => import('@/views/equipment/more.vue')
-const EquipmentChildren = () => import('@/views/equipment/children.vue')
+// 设备管理
 
+const EquipmentList = () => import('@/views/equipment/list.vue')
+const EquipmentAio = () => import('@/views/equipment/aio.vue')
+const EquipmentServer = () => import('@/views/equipment/server.vue')
+const EquipmentPortal = () => import('@/views/equipment/portal.vue')
+const EquipmentCamera = () => import('@/views/equipment/camera.vue')
+// 人员管理
+const Member = () => import('@/views/member/index.vue')
+const Library = () => import('@/views/member/library.vue')
+const Person = () => import('@/views/member/person.vue')
+const Details = () => import('@/views/member/details.vue')
+
+// 行为分析
+const Behavior = () => import('@/views/Behavior/index.vue')
+const BehaviorAnalyse = () => import('@/views/Behavior/analyse.vue')
+const BehaviorTrail = () => import('@/views/Behavior/trail.vue')
+// 开发者中心
 const Developer = () => import('@/views/developer/index.vue')
+// 消息通知
 const notifyCallback = () => import('@/views/developer/notify/add-info')
 const sysNotify = () => import('@/views/developer/notify/index')
 const apiIndex = () => import('@/views/developer/api/index.vue')
+const ApiCode = () => import('@/views/developer/api/code.vue')
+const apiRule = () => import('@/views/developer/api/rule.vue')
+const apiCommon = () => import('@/views/developer/api/common.vue')
+const apiFlow = () => import('@/views/developer/api/flow.vue')
+const apiCommunity = () => import('@/views/developer/api/community.vue')
+const apiAuth = () => import('@/views/developer/api/auth.vue')
+
 const paramExplain = () => import('@/views/developer/notify/explain.vue')
-const Data = () => import('@/views/data/index.vue')
 
 /* 数据可视化的路由 */
+const Data = () => import('@/views/data/index.vue')
 const guestAnalysis = () => import('@/views/data/guest-analysis')
 const genderAnalysis = () => import('@/views/data/gender-analysis')
 const ageAnalysis = () => import('@/views/data/age-analysis')
@@ -28,10 +48,15 @@ const shopFrequencyAnalysis = () => import('@/views/data/shop-frequency-analysis
 
 /** 控制台 **/
 const consoleIndex = () => import('@/views/console/index.vue')
+// 转换svg文件模板
+const transformSvg = () => import('@/views/three/transform-svg.vue')
 
 /** 首页+消息 **/
-const homePage = () => import('@/views/index/index')
+const homePage = () => import('@/views/index/three')
+// 系统通知
 const homeNotify = () => import('@/views/index/notify/index')
+
+const ThreeTest = () => import('@/views/three/index')
 
 const error404 = () => import('@/views/errorPage/404')
 Vue.use(Router)
@@ -68,6 +93,16 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/test/:id([1-9]\\d*)?/:key?',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        component: Test
+      }
+    ]
+  },
+  {
     path: '/console',
     component: Layout,
     meta: {
@@ -100,63 +135,11 @@ export const constantRouterMap = [
           title: '我的社群-社群管理-线下浏览器服务平台'
         },
         component: Community
-      },
-      {
-        path: 'custom',
-        name: 'customCommunity',
-        meta: {
-          title: '自定义分组-社群管理-线下浏览器服务平台'
-        },
-        component: customCommunity
-      },
-      {
-        path: 'custom/create',
-        name: 'createCustom',
-        meta: {
-          title: '创建分组-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: editCustom
-      },
-      {
-        path: 'custom/edit/:id([0-9A-Z]{32})',
-        name: 'editCustom',
-        meta: {
-          title: '编辑分组信息-社群管理-线下浏览器服务平台',
-          keepAlive: true
-        },
-        component: editCustom
-      },
-      {
-        path: 'create',
-        name: 'createCommunity',
-        meta: {
-          title: '新建社群-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: addCommunity
-      },
-      {
-        path: 'edit/:gid([0-9A-Z]{32})',
-        name: 'editCommunity',
-        meta: {
-          title: '编辑社群信息-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: addCommunity
-      },
-      {
-        path: 'join',
-        name: 'joinCommunity',
-        meta: {
-          title: '编辑社群信息-社群管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: joinCommunity
       }
     ]
   },
-  {path: '/equipment', redirect: '/equipment/mine'},
+  {path: '/equipment', redirect: '/equipment/list/aio'},
+  {path: '/equipment/list', redirect: '/equipment/list/aio'},
   {
     path: '/equipment',
     component: Layout,
@@ -165,50 +148,83 @@ export const constantRouterMap = [
     },
     children: [
       {
-        path: 'mine',
+        path: 'list',
         name: 'equipment',
         meta: {
-          title: '自有设备-设备管理-线下浏览器服务平台',
+          title: '设备列表-设备管理-线下浏览器服务平台',
           keepAlive: true
         },
-        component: Equipment
+        component: EquipmentList,
+        children: [
+          {
+            path: 'aio',
+            name: 'equipmentAio',
+            meta: {
+              title: '自有设备-设备管理-线下浏览器服务平台',
+              keepAlive: true
+            },
+            component: EquipmentAio
+          },
+          {
+            path: 'camera',
+            name: 'equipmentCamera',
+            meta: {
+              title: '摄像头管理-设备管理-线下浏览器服务平台',
+              keepAlive: true
+            },
+            component: EquipmentCamera
+          },
+          {
+            path: 'server',
+            name: 'equipmentServer',
+            meta: {
+              title: '服务器-设备管理-线下浏览器服务平台',
+              keepAlive: true
+            },
+            component: EquipmentServer
+          },
+          {
+            path: '/equipment/portal',
+            name: 'equipmentPortal',
+            meta: {
+              title: '出入口设备-设备管理-线下浏览器服务平台',
+              auth: true,
+              keepAlive: false
+            },
+            component: EquipmentPortal
+          }
+        ]
+      }
+    ]
+  },
+  // 人员管理路由
+  {
+    path: '/member',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'MemberMine',
+        meta: {title: '人员管理-线下浏览器服务平台'},
+        component: Member
       },
       {
-        path: 'children',
-        name: 'equipmentChildren',
-        meta: {
-          title: '子社群设备-设备管理-线下浏览器服务平台',
-          auth: true,
-          keepAlive: false
-        },
-        component: EquipmentChildren
+        path: 'library',
+        name: 'Library',
+        meta: {title: '人员管理-线下浏览器服务平台'},
+        component: Library
       },
       {
-        path: 'more/:key', // ([0-9A-Z-_]{16})
-        name: 'equipmentMore',
-        meta: {
-          title: '分析终端用途-设备管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: EquipmentMore
+        path: 'person',
+        name: 'Person',
+        meta: {title: '人员管理-线下浏览器服务平台'},
+        component: Person
       },
       {
-        path: 'search/children/:key',
-        name: 'searchChildren',
-        meta: {
-          title: '子社群设备搜索-设备管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: EquipmentChildren
-      },
-      {
-        path: 'search/mine/:key',
-        name: 'searchMine',
-        meta: {
-          title: '自有社群设备搜索-设备管理-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: Equipment
+        path: 'details',
+        name: 'Details',
+        meta: {title: '人员管理-线下浏览器服务平台'},
+        component: Details
       }
     ]
   },
@@ -267,6 +283,39 @@ export const constantRouterMap = [
           }
         ],
         redirect: '/data/guest-analysis'
+      }
+    ]
+  },
+  {path: '/behavior', redirect: '/behavior/analyse'},
+  {
+    path: '/behavior',
+    component: Layout,
+    meta: {
+      title: '行为分析'
+    },
+    children: [
+      {
+        path: '',
+        component: Behavior,
+        name: 'Behavior',
+        children: [
+          {
+            path: 'trail/:personId?',
+            name: 'BehaviorTrail',
+            component: BehaviorTrail,
+            meta: {
+              title: '移动轨迹'
+            }
+          },
+          {
+            path: 'analyse',
+            component: BehaviorAnalyse,
+            name: 'BehaviorAnalyse',
+            meta: {
+              title: '行为分析'
+            }
+          }
+        ]
       }
     ]
   },
@@ -346,27 +395,79 @@ export const constantRouterMap = [
       },
       {
         path: 'api',
-        redirect: 'api/index'
+        redirect: 'api/rule'
       },
       {
-        path: 'api/index',
-        name: 'apiToken',
+        path: 'api',
+        name: 'developerApi',
         meta: {
           auth: true,
           title: '开放API-开发者中心-线下浏览器服务平台',
           keepAlive: false
         },
-        component: apiIndex
-      },
-      {
-        path: 'api/faceimg',
-        name: 'apiFaceImg',
-        meta: {
-          auth: true,
-          title: '开放API-开发者中心-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: apiIndex
+        component: apiIndex,
+        children: [
+          {
+            path: 'rule',
+            name: 'apiRule',
+            meta: {
+              auth: true,
+              title: 'API通用规则-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: apiRule
+          },
+          {
+            path: 'common',
+            name: 'ApiCommon',
+            meta: {
+              auth: true,
+              title: '通用返回值-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: apiCommon
+          },
+          {
+            path: 'auth',
+            name: 'ApiAuth',
+            meta: {
+              auth: true,
+              title: '鉴权接口-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: apiAuth
+          },
+          {
+            path: 'community',
+            name: 'ApiCommunity',
+            meta: {
+              auth: true,
+              title: '社群数据-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: apiCommunity
+          },
+          {
+            path: 'flow',
+            name: 'ApiFlow',
+            meta: {
+              auth: true,
+              title: '客流数据-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: apiFlow
+          },
+          {
+            path: 'code',
+            name: 'ApiCode',
+            meta: {
+              auth: true,
+              title: '状态码-开放API-线下浏览器服务平台',
+              keepAlive: false
+            },
+            component: ApiCode
+          }
+        ]
       },
       {
         path: 'param/explain',
@@ -379,6 +480,23 @@ export const constantRouterMap = [
         component: paramExplain
       }
     ]
+  },
+  // three.js 示例展示
+  {
+    path: '/three',
+    component: ThreeTest,
+    name: 'ThreeTest',
+    meta: {
+      title: 'Three.js 示例使用'
+    }
+  },
+  {
+    path: '/transform',
+    name: 'ThreeTransform',
+    meta: {
+      title: 'Three.js svg 文件转换'
+    },
+    component: transformSvg
   },
   {
     path: '*',
@@ -405,9 +523,13 @@ router.beforeEach((to, from, next) => {
   let aliveObj = {
     'editCustom': 'customCommunity',
     'editCommunity': 'community',
+    'editApplyCommunity': 'community',
+    'editSingleCommunity': 'community',
     'equipmentMore': 'equipmentChildren,equipment',
+    'equipmentService': 'equipmentChildren,equipment',
     'paramExplain': 'sysNotify',
-    'editNotifyCallback': 'sysNotify'
+    'editNotifyCallback': 'sysNotify',
+    'BehaviorTrail': 'BehaviorAnalyse'
   }
 
   fetch('/loginCheck', false).then(() => {
@@ -424,7 +546,7 @@ router.beforeEach((to, from, next) => {
     next()
   }).catch(err => {
     if (err.code === 'ERR-110') {
-      exitMessage(err.data)
+      // exitMessage(err.data)
     }
   })
 })

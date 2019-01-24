@@ -1,5 +1,5 @@
 <template>
-  <div class="area-select">
+  <!--<div class="area-select">-->
     <el-popover
       placement="bottom-start"
       width="400"
@@ -44,20 +44,25 @@
         :readonly="readonly">
         <el-input
           readonly
+          ref="areaInput"
           :placeholder="placeholder"
+          @blur="inputBlur"
           v-model="addressText">
         </el-input>
       </div>
     </el-popover>
-  </div>
+  <!--</div>-->
 </template>
 
 <script>
 import {makePy} from '@/utils/initial'
+import {GetAreaList} from '../../api/common'
+import Emitter from '../../components/utils/emitter'
 let OK_CODE = 1
 
 export default {
   name: 'area-select',
+  mixins: [Emitter],
   props: {
     readonly: {
       type: Boolean,
@@ -81,13 +86,14 @@ export default {
       currentType: 0, // 分为三个类型 0:province、1:city、2:area
       currentAddress: '',
       addressOption: [],
-      originAddress: []
+      originAddress: [],
+      idStr: ''
     }
   },
   methods: {
     // 获取省市区数据列表，并设置首字母缩写
     getAddressList () {
-      this.$http('/area/list', {level: 1}, false).then((res) => {
+      GetAreaList().then((res) => {
         if (res.result === OK_CODE) {
           this.$set(this.originAddress, 0, res.data[1].map(item => {
             this.$set(item, 'initial', makePy(item.name))
@@ -101,18 +107,7 @@ export default {
             this.$set(item, 'initial', makePy(item.name))
             return item
           }))
-          let idArr = this.value.split(',').map(Number)
-          if (this.value && idArr[0] && idArr[1] && idArr[2]) {
-            let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()]
-            this.originAddress[0].map(item => pMap.set(item.id, item))
-            this.originAddress[1].map(item => cMap.set(item.id, item))
-            this.originAddress[2].map(item => aMap.set(item.id, item))
-            this.currentValue = [
-              pMap.get(idArr[0]), cMap.get(idArr[1]), aMap.get(idArr[2])
-            ]
-            this.currentAddress = aMap.get(idArr[2])
-            this.currentType = 2
-          }
+          this.showDefaultValue()
           this.addressOption = this.originAddress[0]
         }
       })
@@ -124,12 +119,38 @@ export default {
       } else {
         return this.originAddress[type] || ''
       }
+    },
+    // 展示默认数据
+    showDefaultValue () {
+      let idArr = this.value.split(',').map(Number)
+      if (this.value && idArr[0] && idArr[1] && idArr[2]) {
+        let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()]
+        this.originAddress[0].map(item => pMap.set(item.id, item))
+        this.originAddress[1].map(item => cMap.set(item.id, item))
+        this.originAddress[2].map(item => aMap.set(item.id, item))
+        this.currentValue = [
+          pMap.get(idArr[0]), cMap.get(idArr[1]), aMap.get(idArr[2])
+        ]
+        this.currentAddress = aMap.get(idArr[2])
+        this.currentType = 2
+      } else if (!this.value) {
+        this.address = ''
+      }
+    },
+    inputBlur () {
+      this.dispatch('ElFormItem', 'el.form.blur', [this.idStr])
     }
   },
   mounted () {
     this.getAddressList()
   },
   watch: {
+    value: {
+      handler () {
+        this.showDefaultValue()
+      },
+      deep: true
+    },
     currentType: function (val) {
       this.addressOption = this.filterAddress(val)
     },
@@ -146,17 +167,19 @@ export default {
         this.currentType++
       } else if (val !== old) {
         this.visible = false
+        this.inputBlur()
       }
     },
     // v-model 数据绑定 拼接地址并显示
     currentValue: {
       handler: function (val) {
-        let [textStr, idStr] = ['', '']
-        val.map(item => {
-          idStr += idStr ? (',' + item.id) : item.id
-          textStr += (textStr ? ('-' + item.name) : item.name) || ''
-        })
-        this.$emit('input', idStr)
+        let [textStr] = ['']
+        this.idStr = ''
+        for (let i = 0, len = val.length; i < len; i++) {
+          this.idStr += this.idStr ? (',' + val[i].id) : val[i].id
+          textStr += (textStr ? ('-' + val[i].name) : val[i].name) || ''
+        }
+        this.$emit('input', this.idStr)
         this.address = textStr
       },
       deep: true
@@ -178,7 +201,7 @@ export default {
         })
       }
     },
-    visible: function (val) {
+    visible (val) {
       if (!val) {
         if (!this.currentValue[2]) {
           this.address = ''
@@ -191,7 +214,11 @@ export default {
   computed: {
     // 格式化地址
     addressText () {
-      return this.address.replace(/-/g, '')
+      let text = ''
+      Array.from(new Set(this.address.split('-'))).map((item) => {
+        text += item
+      })
+      return text
     }
   }
 }
@@ -209,7 +236,11 @@ export default {
       line-height: 30px;
       color: #fff;
       border: none;
+      background-image: url(/static/img/input_border_bg@2x.png);
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
       text-align: left;
+      border-radius: 4px;
       &[readonly] {
         background: transparent;
         cursor: text;

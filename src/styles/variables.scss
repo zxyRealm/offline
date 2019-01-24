@@ -18,8 +18,7 @@ $disable: rgba(81, 80, 85, .25);
 $default: transparent;
 $white: #fff;
 $placeholder-color: rgba(255, 255, 255, 0.4);
-
-// 控制台主题色
-$console-nav: #1E245E;
-$console-main: #141941;
-$console-item: #141847;
+$theme-bg: rgba(21, 21, 22, 0.5); // 主题背景色
+$content-bg: rgba(64, 58, 73, 0.3);
+$block-bg: #101116; // 区块背景色
+//$block-bg:   rgba(64,58,73,0.30);

@@ -6,7 +6,7 @@
   &[block-message]{
     .el-form-item{
       position: initial!important;
-      margin-bottom: 20px!important;
+      margin-bottom: 20px;
       .el-form-item__error{
         line-height: 20px!important;
         padding: 0!important;
@@ -17,6 +17,16 @@
   }
   .el-radio-button__orig-radio:disabled+.el-radio-button__inner{
     cursor: text;
+  }
+  .el-checkbox__input.is-disabled.is-checked{
+    .el-checkbox__inner{
+      background: url(/static/img/disabled__checked.png) no-repeat left center;
+      background-size: cover;
+      border: none;
+      &:after{
+        border: transparent;
+      }
+    }
   }
   .el-select{
     width: 100%;
@@ -36,9 +46,21 @@
       }
     }
   }
+  .form__item--des{
+    margin-top: 10px;
+    font-size: 12px;
+    word-break: break-all;
+    color: rgba(255,255,255,0.4);
+  }
   .el-form-item {
     margin-bottom: 10px;
     line-height: 30px;
+    .el-checkbox__input{
+      vertical-align: top;
+    }
+    .el-checkbox__label{
+      line-height: 1;
+    }
     .readonly__text{
       padding: 0 15px;
     }
@@ -62,12 +84,13 @@
       }
     }
     .el-form-item__label {
+      position: relative;
       line-height: 30px;
       font-size: 14px;
       font-weight: 500;
       color: #fff;
       &:before {
-        display: none;
+        //display: none;
       }
     }
     .el-form-item__content {
@@ -81,9 +104,9 @@
         background-image: url('/static/img/input_border_bg@2x.png');
         background-repeat: no-repeat;
         background-size: 100% 100%;
-        background-color: #232027;
+        background-color: $default;
         .el-input__inner {
-          background-color: transparent;
+          background-color: $default;
           border: none;
           color: #fff;
           width: calc(100%);
@@ -99,7 +122,7 @@
         background-image: url('/static/img/textarea_border_bg.png');
         background-repeat: no-repeat;
         background-size: 100% 100%;
-        background-color: #232027;
+        background-color: $default;
         .el-textarea__inner{
           height: 100%;
           width: 100%;
@@ -107,7 +130,7 @@
           resize: none;
           color: #fff;
           font-size:12px;
-          background-color: transparent;
+          background-color: $default;
         }
         &.el-input--medium{
           height: 300px;
@@ -156,9 +179,6 @@
       .el-form-item__label {
         color: #333;
         padding: 0;
-        &:before {
-          display: none;
-        }
       }
       .el-form-item__content {
         line-height: 30px;
@@ -185,6 +205,15 @@
             }
           }
         }
+        .el-checkbox{
+          .el-checkbox__label{
+            font-size:12px;
+            color: #333;
+          }
+        }
+      }
+      .form__item--des{
+        color: rgba(5,5,5,0.4);
       }
     }
   }
@@ -194,6 +223,6 @@
         left:278px;
       }
     }
-
   }
 }
+

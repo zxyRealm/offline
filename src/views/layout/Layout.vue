@@ -38,8 +38,14 @@ export default {
       }
     },
     cornerBg () {
-      if (/\/data/.test(this.$route.path) || this.$route.name === 'console-lwh') {
-        return ''
+      // let nameSet = new Set(['console-lwh'])
+      let routeName = this.$route.name
+      if (/^(\/data)/.test(this.$route.path)) {
+        return 'no-padding transparent'
+      } else if (routeName === 'console-lwh') {
+        return 'no-padding'
+      } else if (routeName === 'index-lwh') {
+        return 'corner-bg home--wrap'
       }
       return 'corner-bg'
     },
@@ -60,6 +66,7 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import "src/styles/mixin.scss";
+  @import "@/styles/variables.scss";
   .app-wrapper {
     @include clearfix;
     position: relative;
@@ -68,31 +75,30 @@ export default {
     overflow: hidden;
     .app-main-content {
       height: 100%;
-      overflow: hidden;
+      /*overflow: hidden;*/
       box-sizing: border-box;
-      background-color: #232027;
+      background-color: $content-bg;
       color: #fff;
+      &.home--wrap{
+        background: $theme-bg;
+      }
+      &.transparent{
+        background: transparent;
+      }
     }
   }
 </style>
 <style lang="scss" rel="stylesheet/scss">
-  @import "@/styles/variables.scss";
-  #app{
-    .app-wrapper {
-      .main-container{
-        &.console__main{
-          background-color: $console-main;
-          .app-main-content{
-            background-color: $console-main;
-            background-image: url(/static/img/main_bg_icon@2x.png);
-            background-size: 10px auto;
-          }
+
+  .app-wrapper {
+    .app-main-content {
+      &:not(.no-padding){
+        > div {
+          /*padding: 0 20px;*/
         }
       }
-      .app-main-content {
-        > div {
-          height: 100%;
-        }
+      > div {
+        height: 100%;
       }
 
     }

@@ -2,7 +2,7 @@
   <div class="data-guest">
     <div class="data-guest-content">
       <div class="screening corner-bg">
-        <screening :type="1"></screening>
+        <screening type="flow"></screening>
       </div>
       <div class="flow-diagram corner-bg" ref="line">
         <echarts-line :line-height="'320px'" :line-params='lineParams' ref="echartsLine"></echarts-line>
@@ -68,7 +68,7 @@ export default {
       }
     }
     .table-data {
-      background-color: rgba(64, 58, 73, 0.30);
+      /*background-color: rgba(64, 58, 73, 0.30);*/
       box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
     }
   }
