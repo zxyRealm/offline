@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-menu class="navbar" :class="{'console__nav': $route.name === 'console-lwh'}" mode="horizontal">
+    <el-menu class="navbar" mode="horizontal">
       <router-link to="/index" class="logo-wrap vam">
         <img src="/static/img/logo.png" alt="">
         <div class="des">
@@ -820,17 +820,6 @@ export default {
     border-radius: 0 !important;
     border: none !important;
     color: #fff;
-    background-image: url(/static/img/main_bg_icon.png);
-    &.console__nav{
-      background-color: $console-nav;
-      background-image: url(/static/img/main_bg_icon@2x.png);
-      background-size: 10px auto;
-      .logo-wrap{
-        background-color: $console-nav;
-        background-image: url(/static/img/main_bg_icon@2x.png);
-        background-size: 10px auto;
-      }
-    }
     .logo-wrap {
       float: left;
       width: 220px;
@@ -881,6 +870,7 @@ export default {
       height: 100%;
       font-size: 14px;
       user-select: none;
+      background-image: url("/static/img/main_bg_icon.png");
       box-sizing: border-box;
       &:focus {
         outline: none;
