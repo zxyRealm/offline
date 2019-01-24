@@ -350,6 +350,7 @@ export default {
     handleSocketFace (data, time) {
       if (data.memberInfo) {
         this.imgCut(data, time)
+        this.handleSocketShining(data)
       }
     },
     imgCut (data, time, arr, index) {
@@ -502,7 +503,6 @@ export default {
       const data = event.data
       switch (data.cmd) {
         case 'change-floor':
-          let currentFloor = ''
           this.floorArr.forEach((val, index) => {
             if (val.coordinate_y === data.params.data) {
               let path = '/static/html/plane.html?floor=' + val.img_url

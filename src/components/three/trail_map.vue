@@ -62,6 +62,9 @@ export default {
     changeDate () {
       if (this.iframe) {
         this.iframe.changeDate()
+        this.iframe.getTrailData(this.trailData)
+        this.iframe.getElevatorPosition(this.elevatorList)
+        this.iframe.receiveCommunityInfo(this.communityInfo)
       }
     },
     getCommunityInfo (parentId) {

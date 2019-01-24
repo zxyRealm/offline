@@ -201,6 +201,7 @@ export default {
             end: val[0].createTime.split(' ')[0] + ' 23:59:59',
             reduceFactor: 4
           }
+
           this.$nextTick(() => {
             if (this.$refs.trailMap) {
               this.$refs.trailMap.changeDate()

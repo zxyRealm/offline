@@ -136,10 +136,8 @@
     createControl();
 
     // 开始动画
-    console.time("animate");
     ChapterZero();
     ChapterOne();
-    console.timeEnd("animate");
 
     if (getQueryString()) {
       replay()
@@ -264,11 +262,6 @@
         TrailPath(currentElevator, type, targetFloorName, index)
       }, 3000)
     }
-    // if (index) {
-    //   setTimeout(function () {
-    //     createPath(targetFloorName, index)
-    //   }, 6000)
-    // }
   }
 
   // step2: 电梯楼层动画
@@ -805,7 +798,7 @@
       elevatorGroup.add(cube.mesh);
       if (timeUnit === timeDuration) {
         clearInterval(timer2);
-        elevatorGroup.remove(people.mesh)
+        elevatorGroup.remove(people.mesh);
         emitter.emit('pathBegin', targetFloor, index)
       }
       timeDuration > 0 ? timeUnit += 3 : timeUnit -= 3
@@ -844,7 +837,7 @@
     var material = new THREE.MeshPhongMaterial({
       // color: new THREE.Color(PALLETTE.STORE),
       transparent: true,
-      depthWrite: false,
+      depthWrite: true,
       depthTest: true,
       opacity: groupName === BEGIN_FLOOR ? 1 : opacity,
       side: THREE.FrontSide,
@@ -996,22 +989,16 @@
     var scale = cz * ((1 / 130)* fontsize);
     canvas.width = fontsize * maxLen;
     canvas.height = fontsize * maxLen;
-    // ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.fillStyle = 'rgba(255, 255,255,1)';
     ctx.font = "normal " + fontsize + "px 'Arial'";
-    ctx.lineWidth = 4;
     ctx.textAlign = 'center';
     ctx.fillText(obj.text, canvas.width / 2, canvas.height / 2);
     var texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
-    // texture.magFilter = THREE.NearestFilter;
-    // texture.minFilter = THREE.LinearMipMapLinearFilter;
-    // texture.generateMipmaps = false
     // 使用Sprite显示文字
     var material = new THREE.SpriteMaterial({
       map: texture,
       color: 0xffffff,
-      // blending: THREE.AdditiveBlending,
       depthTest: true,
       depthWrite: false,
       transparent: true,
@@ -1020,7 +1007,6 @@
     this.text = new THREE.Sprite(material);
     this.text.scale.set(scale, scale, scale);
     this.text.name = 'store_text';
-    // this.text.rotation.x = -0.5 * Math.PI
     this.text.position.set(obj.position.x, 13, -obj.position.y)
   }
 

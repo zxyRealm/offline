@@ -353,21 +353,26 @@
   function createTextSprite (obj, type) {
     // console.log(obj)
     var cz = camera.position.z
+    var fontSize = 30;
+    // 文本最大长度
+    var maxLen = 32;
+    var scale = cz * ((1 / 50)* fontSize);
     var canvas = document.createElement('canvas');
-    canvas.width = 1000;
-    canvas.height = 1000;
+    canvas.width = fontSize * maxLen;
+    canvas.height = fontSize * maxLen;
+
     var ctx = canvas.getContext('2d')
     ctx.fillStyle = '#ffffff'
-    ctx.font = "40px '微软雅黑'";
+    ctx.font = fontSize + "px '微软雅黑'";
     ctx.textAlign = 'center';
-    ctx.fillText(obj.text, 500, type === 'nickName' ? 500 : 500+65);
+    ctx.fillText(obj.text, canvas.width / 2, type === 'nickName' ? canvas.height / 2 : canvas.height/2 + 50);
     var texture = new THREE.Texture(canvas)
     texture.needsUpdate = true
 
     // 使用Sprite显示文字
     var material = new THREE.SpriteMaterial({map: texture, transparent: true})
     var textObj = new THREE.Sprite(material)
-    textObj.scale.set(cz/2, cz/2, cz/2)
+    textObj.scale.set(scale, scale, scale)
     textObj.position.set(obj.position.x, obj.position.y, 1);
     scene.add(textObj)
     return textObj
