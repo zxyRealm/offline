@@ -89,7 +89,6 @@ export default {
   }
 </style>
 <style lang="scss" rel="stylesheet/scss">
-
   .app-wrapper {
     .app-main-content {
       &:not(.no-padding){
@@ -100,7 +99,6 @@ export default {
       > div {
         height: 100%;
       }
-
     }
   }
 </style>

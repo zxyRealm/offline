@@ -30,6 +30,7 @@
                   <p>{{memberInfo.age}}</p>
                   <p>{{ memberInfo.appearanceDate | parseTime('{m}/{d}')}}</p>
                   <p>{{ memberInfo.appearanceDate | parseTime('{h}:{i}')}}</p>
+
                 </div>
                 <div class="associator__avatar--wrap">
                   <img class="associator__avatar" :src="memberInfo.cropUrl" alt="">
@@ -115,7 +116,6 @@ export default {
       style: {
         visibility: 'visible'
       },
-      memberInfo: {}, // 会员信息
       isShow: true, // 推送消息是否展示
       state: false, // 是否有数据
       deviceKey: '', // 设备序列号
@@ -307,6 +307,7 @@ export default {
       xhr.withCredentials = false
       if ('withCredentials' in xhr) {
         console.log('current support cros')
+
         // 此时即支持CORS的情况
         // 检查XMLHttpRequest对象是否有“withCredentials”属性
         // “withCredentials”仅存在于XMLHTTPRequest level 2对象里

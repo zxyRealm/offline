@@ -253,6 +253,7 @@ export default {
         })
         this.changeSeries()
         this.drawLine()
+
       })
     },
     // 请求数据

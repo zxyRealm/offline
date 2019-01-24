@@ -1,4 +1,4 @@
-@import "variables.scss";
+@import "./variables.scss";
 #app {
   // 主体区域
   .main-container {
@@ -9,7 +9,7 @@
     background: #040404;
     overflow-y: auto;
     box-sizing: border-box;
-    background-image: url(/static/img/main_bg_icon.png);
+    //background-image: url(/static/img/main_bg_icon.png);
     &.console__main{
       background-image: url(/static/img/main_bg_icon@2x.png);
       background-size: 10px auto;
