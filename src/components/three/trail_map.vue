@@ -55,7 +55,7 @@ export default {
           if (this.trailData.length) {
             this.$nextTick(() => {
               this.iframe = this.$refs.iframe.contentWindow
-              if (this.isDateChange === true) {
+              if (this.isDateChange === true && this.iframe.changeDate) {
                 this.iframe.changeDate()
                 this.isDateChange = false
               }
