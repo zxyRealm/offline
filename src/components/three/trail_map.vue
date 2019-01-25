@@ -37,7 +37,8 @@ export default {
       trailData: [],
       communityInfo: [],
       elevatorList: [],
-      playCount: ''
+      playCount: '',
+      isDateChange: false
     }
   },
   methods: {
@@ -54,18 +55,17 @@ export default {
           if (this.trailData.length) {
             this.$nextTick(() => {
               this.iframe = this.$refs.iframe.contentWindow
+              if (this.isDateChange === true) {
+                this.iframe.changeDate()
+                this.isDateChange = false
+              }
             })
           }
         })
       }
     },
     changeDate () {
-      if (this.iframe) {
-        this.iframe.changeDate()
-        this.iframe.getTrailData(this.trailData)
-        this.iframe.getElevatorPosition(this.elevatorList)
-        this.iframe.receiveCommunityInfo(this.communityInfo)
-      }
+      this.isDateChange = true
     },
     getCommunityInfo (parentId) {
       if (!parentId) { return }
