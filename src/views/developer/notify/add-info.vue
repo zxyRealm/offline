@@ -37,6 +37,7 @@
 
 <script>
 import {validateURL} from '@/utils/validate'
+import {HandleNotice, GetNoticeInfo} from '../../../api/developer'
 
 export default {
   name: 'notify',
@@ -83,16 +84,14 @@ export default {
     // 处理回调信息 根据路由名称确定当前是更新信息或创建信息
     handelCallbackInfo (data) {
       const type = this.$route.name === 'addNotifyCallback' ? 'create' : 'update'
-      this.$http('/dataNotice/' + type, data).then(res => {
-        if (res.result) {
-          this.$tip('操作成功')
-          this.$router.push('/developer/notify')
-        }
+      HandleNotice(data, type).then(res => {
+        this.$tip('操作成功')
+        this.$router.push('/developer/notify')
       })
     },
     // 获取回调信息
     getCallbackInfo () {
-      this.$http('/dataNotice/getInfo', {noticeGuid: this.$route.params.id}).then(res => {
+      GetNoticeInfo({noticeGuid: this.$route.params.id}).then(res => {
         this.callbackForm = res.data
       })
     }

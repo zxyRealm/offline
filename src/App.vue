@@ -6,6 +6,8 @@
 
 <script>
 import {GetSocketIP} from './api/common'
+import {GetMerchantInfo} from './api/developer'
+
 export default {
   name: 'App',
   created () {
@@ -15,7 +17,7 @@ export default {
     })
     this.$store.dispatch('GET_USER_INFO')
     if (!this.userInfo.company) {
-      this.$http('/merchant/getInfo').then(res => {
+      GetMerchantInfo().then(res => {
         this.$store.commit('SET_USER_INFO', res.data)
       }).catch(err => {
         console.log(err)

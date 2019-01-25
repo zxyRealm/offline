@@ -78,26 +78,9 @@ export default {
       }).catch(() => {
         this.emptyText = '数据请求失败'
       })
-    },
-    // 第一次进入设备列表，给出操作提示，点击页面后提示消失
-    firstCreate () {
-      this.btnArray.map(item => {
-        item.showPopover = false
-        return item
-      })
-      window.removeEventListener('click', this.firstCreate)
     }
   },
   created () {
-    this.$http('/firstCheck', {name: 'insight_device_list_first'}).then(res => {
-      if (res.data) {
-        this.btnArray.map(item => {
-          item.showPopover = true
-          return item
-        })
-        window.addEventListener('click', this.firstCreate)
-      }
-    })
     this.getAioEquipment()
     eventObject().$on('REFRESH_DEVICE_LIST', this.getAioEquipment)
   },

@@ -1,4 +1,4 @@
-import request from '@/utils/new-request'
+import request from '@/utils/request'
 
 // 获取管理社群下一体机设备列表
 export function GetGroupDeviceList (data) {

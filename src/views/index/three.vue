@@ -108,9 +108,8 @@ import ChartBar from '@/components/echarts/three-bar'
 import GeneralMap from '@/components/three/GeneralMap'
 import buildFloor from '@/views/three/index'
 import CustomPie from '@/components/echarts/custom-pie'
-import {GetSocketIP} from '../../api/common'
 import {eventObject} from '../../utils/event'
-import {GetFlowRank, GetTimeRatio, GetChartLine, GetChartPie} from '../../api'
+import {GetFlowRank, GetTimeRatio} from '../../api/visual'
 import {mapState} from 'vuex'
 export default {
   name: 'index',
@@ -234,7 +233,6 @@ export default {
         } else {
           this.num++
         }
-        // this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
       })
     },
     createCommunity () {

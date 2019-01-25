@@ -1,4 +1,4 @@
-import request from '@/utils/new-request'
+import request from '@/utils/request'
 
 // 会员库信息修改
 export function MemberLibraryUpdate (data) {

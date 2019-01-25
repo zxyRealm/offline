@@ -9,7 +9,7 @@
         :menu-array="[{title: '社群管理'}]">
       </uu-sub-tab>
       <div class="mine__community--main" :class="{'data-empty': currentManage.type !== 3 && !groupList.length}">
-        <ob-list-empty v-if="currentManage.type !== 3 && !groupList.length" top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
+        <ob-list-empty v-if="currentManage.id && !groupList.length" top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
         <div class="mine__community--content" v-else>
           <div class="community--sidebar" v-if="currentManage.type !== 3">
             <ob-group-nav
@@ -73,8 +73,6 @@
                   <span class="info__label">业态：</span>
                   <span class="ellipsis-64">{{communityInfo.industryTypeName}}</span></div>
                 <!--如果成员社群加入了管理员社群即展示其管理员社群列表-->
-                <!--v-if="userInfo.developerId === communityInfo.merchantGuid && communityInfo.parentGroups && communityInfo.parentGroups.length && communityInfo.level === 1"-->
-                <!--{{communityInfo}}-->
                 <div
                   v-if="communityInfo.parentInfoList && communityInfo.parentInfoList.length && communityInfo.level === 1"
                   class="parent__list"
@@ -105,32 +103,7 @@
           </div>
         </div>
       </div>
-      <!--自定义分组名-->
-      <ob-dialog-form
-        :title="groupsNameForm.customType ? '新建分组' : '编辑分组名'"
-        :visible.sync="groupsNameFormVisible"
-      >
-        <el-form
-          slot="form"
-          ref="groupsNameForm"
-          block-message
-          style="width: 330px"
-          @submit.native.prevent
-          label-position="left"
-          class="common-form white"
-          label-width="82px"
-          :model="groupsNameForm"
-          :rules="groupsRules"
-        >
-          <el-form-item label="分组名：" prop="name">
-            <el-input placeholder="请输入分组名" v-model="groupsNameForm.name"></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer mt50">
-          <el-button class="cancel" @click="groupsNameFormVisible = false">返 回</el-button>
-          <el-button class="affirm" type="primary" @click="setGroupsName('groupsNameForm')">确定</el-button>
-        </div>
-      </ob-dialog-form>
+
       <!--加入其他管理员社群-->
       <ob-dialog-form
         :show-button="false"
@@ -371,6 +344,7 @@ import area from '@/components/area-select/area-select'
 import BindCommunity from '@/components/three/bind_community'
 import {eventObject} from '../../utils/event'
 import {GetMarketList, GetCommunityInfoByCode, GetStoreList, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CheckMemberNickNameExist, UpdateMemberNickName, GetGroupPortalCount, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
+import {FirstLogin} from '../../api/common'
 import ThreeAssociationMap from '@/components/three/association_map'
 export default {
   name: 'mineCommunity',
@@ -723,7 +697,7 @@ export default {
     },
     ...mapState(['loading', 'aliveState', 'userInfo', 'currentManage']),
     showNickName () {
-      return this.userInfo.developerId !== this.communityInfo.merchantGuid && this.communityInfo.nickName
+      return this.communityInfo.type === 4 && this.currentManage.type !== 3 && this.communityInfo.nickName
     }
   },
   methods: {
@@ -841,7 +815,7 @@ export default {
             if (res.data[0].groupSonGuid) {
               GetMemberDetail({groupSonId: res.data[0].groupSonGuid, parentId: this.currentManage.id}).then(res2 => {
                 res2.data.level = 1
-                res2.data.self = res2.data.merchantGuid === this.userInfo.developerId
+                res2.data.self = this.currentManage.type === 3 || res2.data.type !== 4
                 this.communityInfo = res2.data || {}
                 this.currentCommunity = res.data || {}
               })
@@ -860,7 +834,7 @@ export default {
       }
       GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: val.groupParentGuid}).then(res => {
         res.data.level = val.type === 1 || val.type === 4 ? 1 : val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
-        res.data.self = val.type === 4 ? false : res.data.merchantGuid === this.userInfo.developerId // slef 属性控制自有与非自有社群操作限制
+        res.data.self = this.currentManage.type === 3 || val.type !== 4 // slef 属性控制自有与非自有社群操作限制
         if (val.self) res.data.nickName = res.data.name
         this.communityInfo = res.data || {}
       })
@@ -874,23 +848,7 @@ export default {
         this.$refs.groupNav.setCurrentKey(this.currentCommunity.groupSonGuid)
       }
     },
-    // 创建自定分组、编辑自定义分组名称
-    setGroupsName (formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          let url = '/groupCustom/update'
-          delete this.groupsNameForm.memberItem
-          if (this.groupsNameForm.customType) {
-            url = `/groupCustom/create`
-          }
-          this.$http(url, this.groupsNameForm).then(res => {
-            this.$tip(`${this.groupsNameForm.customType ? '创建' : '修改'}成功`)
-            this.groupsNameFormVisible = false
-            this.getGroupList()
-          })
-        }
-      })
-    },
+
     // 离开社群
     leaveCommunity (type, current, parent) {
       // type 可选类型 quit、kick
@@ -930,7 +888,6 @@ export default {
           let subData = JSON.parse(JSON.stringify(this.joinManageForm))
           subData.pid = this.ManageInfo.id
           subData.groupId = this.communityInfo.guid || this.groupList[0].groupSonGuid
-          // console.log('joinManageForm------', subData)
           if (!subData.coordinates || !subData.coordinates.length) {
             this.$tip('请选取绑定区域', 'error')
             return
@@ -1040,7 +997,6 @@ export default {
     },
     // 显示添加社群弹窗（商场、连锁店、单个门店）
     showAddForm (type) {
-      // console.log('type---------------', type)
       this.handleCommunityType = type
       if (type === 5 || type === 7 || type === 6) {
         GetIndustry().then(res => {

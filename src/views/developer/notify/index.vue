@@ -35,6 +35,7 @@
 </template>
 <script>
 import {mapState} from 'vuex'
+import {DiscardNotice, GetNoticeList} from '../../../api/developer'
 
 export default {
   name: 'notify',
@@ -65,7 +66,7 @@ export default {
         text: '确定废弃该通知？'
       }, (action, instance, done) => {
         if (action === 'confirm') {
-          this.$http('/dataNotice/discard', {noticeGuid: id}).then(res => {
+          DiscardNotice({noticeGuid: id}).then(res => {
             if (res.result) {
               this.$tip('操作成功')
               this.getNotifyList(this.notifyList.length === 1 ? this.pagination.index - 1 : this.pagination.index)
@@ -79,7 +80,7 @@ export default {
     },
     getNotifyList (page) {
       page = (this.$route.meta.keepAlive && this.aliveState.pagination ? this.aliveState.pagination.index : false) || page || 1
-      this.$http('/dataNotice/page/list', {index: page, length: 8}).then(res => {
+      GetNoticeList({index: page, length: 8}).then(res => {
         if (res.result) {
           this.notifyList = res.data.content || []
           this.pagination = res.data.pagination

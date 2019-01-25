@@ -105,6 +105,9 @@ import CustomerInfo from './componets/CustomerInfo.vue'
 import {mapState} from 'vuex'
 import {eventObject} from '@/utils/event'
 import ObDialogInfo from './componets/ObDialogInfo'
+import {GetSocketIP} from '../../api/common'
+import {GetMemberList} from '../../api/visual'
+
 export default {
   name: 'console',
   components: {FlowInfo, AllTime, bar, pie, lineConsole, CustomerInfo, ObDialogInfo},
@@ -183,7 +186,6 @@ export default {
         let tablePie = document.getElementById('echarts-pie')
         let barFather = document.getElementById('barFather')
         tablePie.style.width = me.$refs.pie.offsetWidth + 'px'
-        // tablePie.style.height = me.$refs.pie.offsetHeight + "px";
         me.$refs.echartsPie.resizeEcharts()
         let table = document.getElementById('echarts-bar')
         table.style.width = me.$refs.bar.offsetWidth + 'px'
@@ -195,9 +197,6 @@ export default {
           table.style.height = me.$refs.bar.offsetHeight + 'px'
         }
         me.$refs.echartsBar.resizeEcharts()
-        // let tableLine = document.getElementById('echarts-line')
-        // tableLine.style.width = me.$refs.lineConsole.offsetWidth + 'px'
-        // tableLine.style.height = me.$refs.lineConsole.offsetHeight + 'px'
         me.$refs.echartsLine.resizeEcharts()
       }, time || 50)
     },
@@ -205,10 +204,8 @@ export default {
     resolveDatad (data) {
       let obj = JSON.parse(data)
       // 判断是否是同一台数据推送的数据
-      // console.log(obj, obj.deviceKey, this.deviceKey)
       if (obj.deviceKey !== this.deviceKey) return
       this.setMemberInfo(obj.memberInfo)
-      // console.log('get data------------')
       // 饼图 = 推送实时更新数据
       this.$set(this.pieParams.seriesData[0], 'value', obj.female)
       this.$set(this.pieParams.seriesData[1], 'value', obj.male)
@@ -244,7 +241,7 @@ export default {
     },
     // 获取长连接ip（端口号：8085）
     getwebsocketIp () {
-      this.$http('/getServiceIp').then(res => {
+      GetSocketIP().then(res => {
         this.getwebsocket(res.data)
       }).catch(error => {
         console.info(error)
@@ -254,7 +251,7 @@ export default {
     getData () {
       // 更换设备时重置会员信息
       this.memberInfo = {}
-      this.$http('/personData', {
+      GetMemberList({
         deviceKey: this.deviceKey
       }).then(res => {
         if (res.data && res.data.length) {

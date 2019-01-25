@@ -1,4 +1,4 @@
-import request from '@/utils/new-request'
+import request from '@/utils/request'
 
 // 折线图接口
 export function GetChartLine (data) {
@@ -46,6 +46,14 @@ export function GetFlowCount (data) {
 export function GetLatestFace (data) {
   return request({
     url: '/chart/getLatestFace',
+    data
+  })
+}
+
+// 控制台获取会员信息
+export function GetMemberList (data) {
+  return request({
+    url: '/personData',
     data
   })
 }

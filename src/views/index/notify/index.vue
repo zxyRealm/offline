@@ -16,6 +16,8 @@
   </div>
 </template>
 <script>
+import {SiteNoticeList} from '../../../api/developer'
+
 export default {
   data () {
     return {
@@ -25,7 +27,7 @@ export default {
   },
   methods: {
     getData () {
-      this.$http('/siteNotice/list', {}).then(res => {
+      SiteNoticeList().then(res => {
         if (res.data.length > 0) {
           this.notifyData = res.data
         } else {
@@ -35,7 +37,6 @@ export default {
     }
   },
   created () {
-    let notifyState = this.$route.params.notifyState
     this.getData()
   }
 }

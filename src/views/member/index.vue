@@ -98,8 +98,8 @@
 <script>
 import {validateRule} from '@/utils/validate'
 import {MemberNoFloor} from '../../api/community'
-import {IsManageGroup} from '../../api/common'
-import {MemberLibraryUpdate, MemberLibrarySearch, MemberLibraryDelete, MemberLibraryList} from '../../api/member'
+import {IsManageGroup, FirstLogin} from '../../api/common'
+import {MemberLibraryUpdate, MemberLibrarySearch, MemberLibraryDelete, MemberLibraryList, MemberLibraryNameExist} from '../../api/member'
 import {mapState} from 'vuex'
 export default {
   name: 'index',
@@ -115,7 +115,7 @@ export default {
         let data = {
           name: value
         }
-        this.$http('/memberLibrary/name/exist', data, false).then(res => {
+        MemberLibraryNameExist(data).then(res => {
           if (res.data) {
             callback(new Error('应用库名称重复'))
           } else {
@@ -150,7 +150,7 @@ export default {
   },
   created () {
     this.getList()
-    this.$http('/firstCheck', {name: 'insight_member_list_first'}).then(res => {
+    FirstLogin({name: 'insight_member_list_first'}).then(res => {
       if (res.data) {
         this.firstEnter = true
       }

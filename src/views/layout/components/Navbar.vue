@@ -186,35 +186,20 @@
         </el-form-item>
         <el-form-item prop="map">
           <div class="label__list--wrap" v-if="communityForm.floorList.length">
-            <el-scrollbar class="scroll-auto">
-              <div class="label__item-wrap" v-for="(item, $index) in labelList" :key="$index">
-                <i class="el-icon-close" @click.stop="deleteLabel($index)"></i>
-                <label :for="'map__input--file' + $index" @input="onChange($event, $index)" class="label--item" >
-                  <input type="file" hidden class="input__file" :id="'map__input--file' + $index">
-                  <i v-if="!item.file" class="el-icon-plus"></i>
-                  <span v-else class="ellipsis">{{item.file ? item.file.name : ''}}</span>
-                </label>
-                <p>{{item.floor | IntToFloor}}</p>
+            <el-scrollbar>
+              <div class="clearfix">
+                <div class="label__item-wrap" v-for="(item, $index) in labelList" :key="$index">
+                  <i class="el-icon-close" @click.stop="deleteLabel($index)"></i>
+                  <label :for="'map__input--file' + $index" class="label--item" >
+                    <input type="file" class="input__file" @change.stop="onChange($event, $index)" :id="'map__input--file' + $index">
+                    <i v-if="!item.file" class="el-icon-plus"></i>
+                    <span v-else class="ellipsis">{{item.file ? item.file.name : ''}}</span>
+                  </label>
+                  <p>{{item.floor | IntToFloor}}</p>
+                </div>
               </div>
             </el-scrollbar>
-            <!--<input type="file" hidden class="input__file" id="map__input&#45;&#45;file">-->
           </div>
-          <!--<div v-if="fileList.length" class="import__map&#45;&#45;wrap">-->
-            <!--<el-scrollbar>-->
-              <!--<div class="file__items vam" v-for="(item,$index) in fileList" :key="$index">-->
-                <!--<img src="@/assets/public/file_icon.png" width="12" alt="">-->
-                <!--{{item.name}}-->
-              <!--</div>-->
-            <!--</el-scrollbar>-->
-            <!--<label for="map__input&#45;&#45;file" @change="onChange" class="g__input&#45;&#45;btn">-->
-              <!--<a>重新导入</a>-->
-              <!--<input type="file" id="map__input&#45;&#45;file" multiple="multiple">-->
-            <!--</label>-->
-          <!--</div>-->
-          <!--<label for="map__input&#45;&#45;file" @change="onChange" class="g__input&#45;&#45;btn" v-else>-->
-            <!--<a>导入地图</a>-->
-            <!--<input type="file" id="map__input&#45;&#45;file" multiple="multiple">-->
-          <!--</label>-->
         </el-form-item>
         <el-form-item label="联系人：" prop="contact">
           <el-input type="text" placeholder="请输入联系人"
@@ -253,12 +238,12 @@ import Hamburger from '@/components/Hamburger'
 import Group from '@/components/group-nav'
 import {eventObject} from '@/utils/event.js'
 import ConsoleDialog from '@/components/console'
-import {GetManageList, OssSignature} from '../../../api/common'
+import {GetManageList, OssSignature, FirstLogin, NoticeReadState} from '../../../api/common'
 import {CheckNameExist, AddNewCommunity} from '../../../api/community'
 import {validateRule, validPhone} from '../../../utils/validate'
 import {parseTime, fileTypeAllow, IntToFloor} from '../../../utils'
 import axios from 'axios'
-import {load} from '../../../utils/new-request'
+import {load} from '../../../utils/request'
 import AreaSelect from '@/components/area-select/area-select'
 import FloorSelect from '@/components/FloorSelect'
 import ButtonSelect from '@/components/button-select'
@@ -305,6 +290,7 @@ export default {
       }
     }
     return {
+      inputText: 'hh',
       clientHeight: '',
       addCommunitySuccess: false,
       communityCode: '',
@@ -566,30 +552,10 @@ export default {
         }
       })
     },
-    getGroupList () {
-      this.$http('/group/list/noCustom').then(res => {
-        this.groupList = res.data
-      })
-    },
     toggleSideBar () {
       this.$store.dispatch('DISPATCH_SIDEBAR')
       eventObject().$emit('resize-echarts-console', '') // 触发控制台图表重置
       eventObject().$emit('resize-echarts-data', '') // 触发数据可视化图表重置
-    },
-    // 选取社群时回调，获取社群下设备列表并展示
-    handleChange (val) {
-      this.deviceInfo = ''
-      this.groupSelectId = val.groupGuid
-      this.$store.commit('SET_GROUP_SELECT_ID', this.groupSelectId)
-      this.$http('/group/device', {
-        guid: val.groupGuid,
-        tag: 'console'
-      }).then(res => {
-        this.deviceList = res.data || []
-        if (!this.deviceList.length) this.$tip('该社群下暂时没有设备可以添加')
-      }).catch(error => {
-        console.info(error)
-      })
     },
     // 自定义文件上传
     httpRequest () {
@@ -638,7 +604,7 @@ export default {
     },
     // 文件改变事件监听
     onChange (e, index) {
-      let files = e.target.files
+      let files = (e || window.event).target.files
       if (files[0] && !fileTypeAllow(files[0].name, 'svg')) {
         this.$tip('文件格式只支持svg', 'error')
         return
@@ -704,14 +670,13 @@ export default {
   },
   created () {
     // 是否有新的消息
-    // console.log(parseTime(new Date()).replace(/[ :-]/g, ''))
-    this.$http('/siteNotice/unRead').then(res => {
+    NoticeReadState().then(res => {
       this.notifState = res.data > 0
     }).catch(error => {
       console.info(error)
     })
     this.getManageList()
-    this.$http('/firstCheck', {name: 'insight_index_first'}).then(res => {
+    FirstLogin({name: 'insight_index_first'}).then(res => {
       if (res.data) this.helpDialogVisible = true
     })
   },
@@ -1172,10 +1137,11 @@ export default {
     box-sizing: border-box;
     background: url(/static/img/textarea_border_bg.png) no-repeat center;
     background-size: 100% 101.7%;
-    overflow: hidden;
+    >.el-scrollbar{
+      height: 126px;
+    }
     .input__file{
       position: absolute;
-      left: 99999px;
       z-index: -1;
     }
     .label__item-wrap{
@@ -1208,6 +1174,7 @@ export default {
       font-weight: normal;
       overflow: hidden;
       input[type=file]{
+        opacity: 0;
         margin-left: -999999px;
       }
       .el-icon-plus{

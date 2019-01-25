@@ -1,17 +1,13 @@
 import Cookies from 'js-cookie'
 import QRCode from 'qrcodejs2'
-import {fetch} from '@/utils/request'
 import {restoreArray} from '@/utils'
-import {message} from './new-request'
+import {message} from './request'
+import {SignOut} from '../api/developer'
 
 exports.install = function (Vue, options) {
   // 公用提示框
   Vue.prototype.$tip = function (txt, type = 'info', delay = 1500) {
     return message(txt, type, delay)
-  }
-  // 异步请求
-  Vue.prototype.$http = function (url, params, showTip) {
-    return fetch(url, params, showTip)
   }
 
   Vue.prototype.$restoreArray = function (arr, child) {
@@ -24,7 +20,7 @@ exports.install = function (Vue, options) {
   Vue.prototype.$exit = function () {
     this.$affirm({text: '确认退出吗？'}, (action, instance, done) => {
       if (action === 'confirm') {
-        this.$http('/signout').then(res => {
+        SignOut().then(res => {
           localStorage.clear()
           Cookies.remove('guid')
           window.location.href = `${res.data}?redirectURL=${window.location.href}`

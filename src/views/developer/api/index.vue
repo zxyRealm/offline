@@ -70,7 +70,7 @@
 
 <script>
 import {mapState} from 'vuex'
-import {DeveloperFind} from '../../../api/developer'
+import {DeveloperFind, ApplyDeveloper} from '../../../api/developer'
 
 export default {
   name: 'api',
@@ -111,7 +111,7 @@ export default {
     },
     // 申请开发者
     applyDeveloper (data) {
-      this.$http('/developer/apply', data).then(res => {
+      ApplyDeveloper(data).then(res => {
         this.$tip('申请成功')
         this.dialogFormVisible = false
         this.getDeveloperInfo()

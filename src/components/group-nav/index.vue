@@ -235,65 +235,8 @@ export default {
     isHandle (val) {
       return (val || '').split(',').length === 2
     },
-    // 获取父社群列表
-    getParentList (value) {
-      if (!value[this.dataKey]) {
-        this.$tip('社群id不存在')
-      } else {
-        if (!value.parentList) {
-          this.$http('/group/fatherGruop', {guid: value[this.dataKey]}, false).then(res => {
-            if (res.data) {
-              this.$set(value, 'parentList', res.data)
-            }
-          })
-        }
-      }
-    },
     customType (type, txt) {
       return customType(type, txt)
-    },
-    addCommunity (data, node) {
-      this.$emit('handle-plus', node, data)
-    },
-    // 离开社群/ 退出自定义分组
-    leaveCommunity (current, node) {
-      // type 可选类型 quit、kick
-      let [url, des, parent] = ['/group/remove', '', node.parent]
-      let type = parent.data.groupPid ? 'quit' : 'kick' // quit 退出分组 kick 踢出社群（默认分组中操作相当于踢出社群）
-      let params
-      if (type === 'quit') {
-        params = {
-          groupGuids: [current.groupGuid],
-          groupCustomGuid: current.groupCustomGuid
-        }
-      } else {
-        params = {
-          groupPid: node.parent.parent.data.groupGuid,
-          groupGuid: current.groupGuid,
-          groupNickName: current.name,
-          parentGroupNickName: node.parent.parent.data.name
-        }
-      }
-      switch (type) {
-        case 'kick':
-          des = `确定要退出【<span class="maxw200 ellipsis">${params.parentGroupNickName}</span>】社群？`
-          url = '/group/remove'
-          break
-        default:
-          des = `确定将社群从分组移除？`
-          url = '/groupCustom/member/remove'
-      }
-      this.$affirm({text: `${des}`}, (action, instance, done) => {
-        if (action === 'confirm') {
-          this.$http(url, params).then(res => {
-            this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
-            this.$emit('refresh', type)
-          })
-          done()
-        } else {
-          done()
-        }
-      })
     },
     // 设置当前节点
     setCurrentKey (key) {

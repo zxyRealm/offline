@@ -1,4 +1,4 @@
-import request from '@/utils/new-request'
+import request from '@/utils/request'
 
 // 获取商户下管理员社群列表
 export function GetAreaList () {
@@ -34,6 +34,22 @@ export function GetSocketIP (data) {
 export function IsManageGroup (data) {
   return request({
     url: '/group/faceSetCheck',
+    data
+  })
+}
+
+// 账号第一次登录
+export function FirstLogin (data) {
+  return request({
+    url: '/firstCheck',
+    data
+  })
+}
+
+// 账号是否有未读通知消息
+export function NoticeReadState (data) {
+  return request({
+    url: '/siteNotice/unRead',
     data
   })
 }

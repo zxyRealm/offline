@@ -35,7 +35,7 @@ export default {
   },
   computed: {
     loading: function () {
-      return this.$store.state.loading
+      return this.$store.state.needLoadingRequestCount
     },
     wrapStyle: function () {
       let height = this.top

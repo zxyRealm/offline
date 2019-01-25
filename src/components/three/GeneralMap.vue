@@ -194,9 +194,8 @@
 <script>
 import {GetSocketIP} from '@/api/common'
 import {mapState} from 'vuex'
-import {GetMarketList, GetGroupPortalInfo} from '@/api/community'
-import {GetFlowRank} from '@/api/index'
-import {GetLatestFace} from '@/api/visual'
+import {GetMarketList, GetGroupPortalInfo} from '../../api/community'
+import {GetLatestFace, GetFlowRank} from '../../api/visual'
 import {parseTime} from '../../utils'
 import CountTo from 'vue-count-to'
 

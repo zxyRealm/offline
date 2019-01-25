@@ -1,7 +1,7 @@
-import axios from 'axios/index'
-import {Message, Loading, MessageBox} from 'element-ui'
+import axios from 'axios'
+import { Message, Loading, MessageBox } from 'element-ui'
+import router from '@/router'
 import Store from '@/store'
-// import Router from '@/router'
 
 // 加载层
 export function load (text, target) {
@@ -15,82 +15,42 @@ export function load (text, target) {
   })
 }
 
-// 异步请求
-export function fetch (url, params, isTip = '数据加载中...') {
-  if (typeof params === 'boolean') {
-    isTip = params
-    params = null
+function showFullScreenLoading (isLoading = true) { // isLoading 请求是否需要添加loading动画
+  if (Store.state.needLoadingRequestCount === 0 && (isLoading || isLoading === undefined)) {
+    load('数据加载中...')
   }
-  params = params || {}
-  let instance = axios.create({
-    baseURL: process.env.BASE_API,
-    url: url,
-    data: params,
-    method: 'POST'
-  })
-  instance.interceptors.request.use(config => {
-    if (isTip) {
-      Store.state.loading = true
-      load(isTip)
-    }
-    return config
-  }, error => {
-    // 对请求错误做些什么
-    if (isTip) {
-      Store.state.loading = false
-      load(isTip)
-    }
-    return Promise.reject(error)
-  })
-  instance.interceptors.response.use(
-    response => { // ie9下responseType：'json'时response.data = undefined
-      // IE 8-9
-      if (response.data === null && response.config.responseType === 'json' && response.request.responseText !== null) {
-        try {
-          // eslint-disable-next-line no-param-reassign
-          response.data = JSON.parse(response.request.responseText)
-        } catch (e) {
-          // ignored
-        }
-      }
-      return response
-    })
-  return new Promise((resolve, reject) => {
-    instance({}).then(res => {
-      if (isTip) {
-        load(isTip).close()
-      }
-      if (res.status === 200) {
-        if (res.data.code === 'ERR-110') {
-          Store.state.expired = true
-          exitMessage(res.data.data)
-          reject(res.data)
-          return false
-        } else if (res.data.result) {
-          Store.state.expired = false
-          if (isTip) {
-            Store.state.loading = false
-          }
-          resolve(res.data)
-        } else {
-          Store.state.expired = true
-          if (isTip) {
-            message(res.data.msg, 'error', 3000)
-          }
-          reject(res.data)
-        }
-      } else {
-        message('网络异常，请稍后重试！', 'error', 3000)
-        reject(res)
-      }
-    }).catch(error => {
-      Store.state.loading = false
-      if (isTip) {
-        load(isTip).close()
-      }
-      message(error.response ? error.response.statusText : '网络异常，请稍后重新尝试', 'error')
-      reject(error.response)
-    })
+  Store.state.loading = true
+  if (isLoading === undefined || isLoading) {
+    Store.state.needLoadingRequestCount++
+  }
+}
+
+function tryHideFullScreenLoading () {
+  if (Store.state.needLoadingRequestCount <= 0) {
+    return false
+  }
+  Store.state.needLoadingRequestCount--
+  if (Store.state.needLoadingRequestCount === 0) {
+    Store.state.loading = false
+    load().close()
+  }
+}
+
+// 重新登录确认框
+
+export function exitMessage (href) {
+  let html = `
+              <p>请登录！</p>
+            `
+  return MessageBox.confirm(html, '登录确认', {
+    center: true,
+    dangerouslyUseHTMLString: true,
+    showCancelButton: false,
+    closeOnClickModal: false,
+    closeOnPressEscape: false,
+    customClass: 'confirm__message--login'
+  }).then(() => {
+    window.location.href = `${href}?redirectURL=${window.location.href}`
   })
 }
 
@@ -119,20 +79,65 @@ export function message (txt, type, delay = 1500) {
   return typeof delay === 'function' ? Message(options) : Message(options).startTimer()
 }
 
-// 重新登录确认框
+// create an axios instance
+const service = axios.create({
+  baseURL: process.env.BASE_API, // api的base_url
+  // timeout: 5000, // request timeout
+  method: 'POST'
+})
 
-export function exitMessage (href) {
-  let html = `
-              <p>请登录！</p>
-            `
-  return MessageBox.confirm(html, '登录确认', {
-    center: true,
-    dangerouslyUseHTMLString: true,
-    showCancelButton: false,
-    closeOnClickModal: false,
-    closeOnPressEscape: false,
-    customClass: 'confirm__message--login'
-  }).then(() => {
-    window.location.href = `${href}?redirectURL=${window.location.href}`
+// request interceptor
+service.interceptors.request.use(config => {
+  // Do something before request is sent
+  showFullScreenLoading(config.tip)
+  return config
+}, error => {
+  // Do something with request error
+  tryHideFullScreenLoading()
+  if (error.status === '504') {
+    message('网关超时，请重试！', 'error', 3000)
+  } else {
+    message(`网络异常[-${error.status}]`, 'error', 3000)
+    console.log(error) // for debug
+  }
+  Promise.reject(error)
+})
+
+// respone interceptor
+service.interceptors.response.use(
+  response => {
+    // 格式化返回参数格式
+    tryHideFullScreenLoading()
+    if (response.status === 200) {
+      if (response.data.code === 'ERR-110') {
+        Store.state.expired = true
+        exitMessage(response.data.data)
+        return Promise.reject(response.data)
+      } else if (response.data.result) {
+        Store.state.expired = false
+        return Promise.resolve(response.data instanceof String ? JSON.parse(response.data) : response.data)
+      } else {
+        Store.state.expired = false
+        if (response.config.tip === undefined || response.config.tip) message(response.data.msg, 'error', 3000)
+        return Promise.reject(response.data)
+      }
+    } else {
+      if (response.data.code) {
+        message(response.data.msg, 'error', 3000)
+      } else {
+        message('网络异常，请稍后重试', 'error', 3000)
+      }
+    }
+  },
+  error => {
+    // 此处错误已由node项目中finalResult方法包装处理
+    tryHideFullScreenLoading()
+    if (error.response && /^5/.test(error.response.status)) {
+      message('网络异常，请稍后重试', 'error', 3000)
+    } else {
+      message(error.response.statusText, 'error', 3000)
+    }
+    return Promise.reject(error.response || error)
   })
-}
+
+export default service

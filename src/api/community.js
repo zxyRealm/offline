@@ -1,4 +1,4 @@
-import request from '@/utils/new-request'
+import request from '@/utils/request'
 // 获取商场结构信息
 
 // 校验社群名称是否存在

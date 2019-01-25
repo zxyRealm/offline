@@ -1,4 +1,4 @@
-import request from '@/utils/new-request'
+import request from '@/utils/request'
 
 // 行为分析
 export function GetBehaviorList (data) {

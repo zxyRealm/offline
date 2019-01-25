@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import app from './modules/app'
 import getters from './getters'
-import {fetch} from '@/utils/request'
+import request from '@/utils/request'
 import {parseTime} from '@/utils/index'
 
 Vue.use(Vuex)
@@ -29,7 +29,7 @@ const state = {
 
 const actions = {
   GET_USER_INFO: ({commit}) => {
-    return fetch('/merchant/usercenter').then(res => {
+    return request({url: '/merchant/usercenter'}).then(res => {
       commit('SET_USER_INFO', res.data)
     }).catch(error => {
       console.log(error)

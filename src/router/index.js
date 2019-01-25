@@ -1,8 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import {fetch, exitMessage} from '@/utils/request'
+import request from '@/utils/request'
 
-const Test = () => import('@/views/test.vue')
 const Layout = () => import('@/views/layout/Layout.vue')
 // 社群管理
 const Community = () => import('@/views/community/mine.vue')
@@ -89,16 +88,6 @@ export const constantRouterMap = [
           keepAlive: false
         },
         component: homeNotify
-      }
-    ]
-  },
-  {
-    path: '/test/:id([1-9]\\d*)?/:key?',
-    component: Layout,
-    children: [
-      {
-        path: '',
-        component: Test
       }
     ]
   },
@@ -532,7 +521,7 @@ router.beforeEach((to, from, next) => {
     'BehaviorTrail': 'BehaviorAnalyse'
   }
 
-  fetch('/loginCheck', false).then(() => {
+  request({url: '/loginCheck', tip: false}).then(() => {
     if (aliveObj[to.name]) {
       let nameSet = new Set(aliveObj[to.name].split(','))
       if (nameSet.has(from.name)) {

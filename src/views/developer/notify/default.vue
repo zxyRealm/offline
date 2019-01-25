@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import {DeviceIsEmpty} from '../../../api/developer'
+
 export default {
   name: 'notify',
   data () {
@@ -35,7 +37,7 @@ export default {
   methods: {
     // 根据商户设备存在状态显示提示信息或者直接跳转路由
     createCallback () {
-      this.$http('/device/merchant/exist', false).then(res => {
+      DeviceIsEmpty().then(res => {
         if (res.data) {
           this.$router.push('/developer/notify/add-info')
         } else {
