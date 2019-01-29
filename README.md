@@ -1,7 +1,14 @@
 # offline-browser
 
 > 线下浏览器服务平台
-
+外网环境
+    地址 insight-market.uni-uib.com
+    账号：lixin@uni-ubi.com
+    密码：test1234
+内网环境（开发）
+    地址 192.168.1.153
+    账号：zhangwanyi@uni-ubi.com
+    密码：test1234
 ## Build Setup
 
 ``` bash

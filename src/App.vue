@@ -11,7 +11,7 @@ import {GetMerchantInfo} from './api/developer'
 export default {
   name: 'App',
   created () {
-    console.log('version 2018-01-08 09:30')
+    console.log('version 2018-01-26 14:00')
     GetSocketIP().then(res => {
       this.$store.state.serverIp = `${res.data || ''}`
     })
