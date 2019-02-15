@@ -94,7 +94,7 @@ import Mixins from '../../utils/mixins'
 import {GetGroupPortalInfo, GetPortalDeviceList, PortalUnbindDevice, PortalBatchBindDevice, CheckPortalNameExist, CreatePortal, EditPortal, DeletePortal, GetGroupPortalCount} from '../../api/community'
 import {GetAllDevice, GetGroupDevice} from '../../api/device'
 import {validateRule} from '../../utils/validate'
-
+const ossPrefix = process.env.OSS_PREFIX
 export default {
   name: 'association_map',
   mixins: [Mixins],
@@ -201,7 +201,7 @@ export default {
       }
 
       if (this.currentFloor) {
-        this.iframeSrc = `/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
+        this.iframeSrc = `${ossPrefix}/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
         this.count++
         this.getPortalCameraCount()
       }

@@ -58,6 +58,7 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
+    // assetsPublicPath: '/',
     assetsPublicPath: 'http://offline-browser-images.oss-cn-hangzhou.aliyuncs.com/',
 
     /**

@@ -177,7 +177,7 @@ export default {
     right: 4px;
     height: 100%;
     width: 30px;
-    background: url(/static/img/select_arrow_icon.png) no-repeat center;
+    background: url(../assets/public/select_arrow_icon.png) no-repeat center;
     background-size: 10px auto;
     transition: transform 0.5s;
     transform: rotate(0deg);

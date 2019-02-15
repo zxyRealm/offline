@@ -92,7 +92,7 @@ export default {
         &::before {
           content: '';
           position: absolute;
-          background: url(/static/img/in_out_person_background.png) no-repeat center;
+          background: url(../../../assets/public/in_out_person_background.png) no-repeat center;
           background-size: 100% 100%;
           left: 0;
           top: 0;
@@ -103,11 +103,11 @@ export default {
         // background: rgba(16, 156, 231, 0.2);
         background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
         background-position: left top, right top, right bottom, left bottom;
-        background-image: url(/static/img/console-detail-border-icon-top.png), url(/static/img/console-detail-border-icon-right.png), url(/static/img/console-detail-border-icon-bottom.png), url(/static/img/console-detail-border-icon-left.png);
+        background-image: url(../../../assets/public/console-detail-border-icon-top.png), url(../../../assets/public/console-detail-border-icon-right.png), url(../../../assets/public/console-detail-border-icon-bottom.png), url(../../../assets/public/console-detail-border-icon-left.png);
         background-size: 52px auto;
         padding: 40px;
         &.in {
-          background-image: url(/static/img/console-detail-border-in-icon-top.png), url(/static/img/console-detail-border-in-icon-right.png), url(/static/img/console-detail-border-in-icon-bottom.png), url(/static/img/console-detail-border-in-left.png);
+          background-image: url(../../../assets/public/console-detail-border-in-icon-top.png), url(../../../assets/public/console-detail-border-in-icon-right.png), url(../../../assets/public/console-detail-border-in-icon-bottom.png), url(../../../assets/public/console-detail-border-in-left.png);
           > img {
             border: 2px solid #6D2EBB;
           }
@@ -135,7 +135,7 @@ export default {
         width: 32px;
         height: 32px;
         cursor: pointer;
-        background: url("/static/img/cancel-img.png") no-repeat center center;
+        background: url("../../../assets/public/cancel-img.png") no-repeat center center;
         background-size: cover;
         border-radius: 50%;
         margin-top: 12px;

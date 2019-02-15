@@ -3,7 +3,7 @@ import QRCode from 'qrcodejs2'
 import {restoreArray} from '@/utils'
 import {message} from './request'
 import {SignOut} from '../api/developer'
-
+const ossPrefix = process.env.OSS_PREFIX
 exports.install = function (Vue, options) {
   // 公用提示框
   Vue.prototype.$tip = function (txt, type = 'info', delay = 1500) {
@@ -51,7 +51,7 @@ exports.install = function (Vue, options) {
   Vue.prototype.$affirm = function (text, callback, type, showCancel = true) {
     let html = `${text.text}`
     if (type) {
-      html = ` <img width="72px" src="/static/img/${type}_tip_icon.png" alt="提示信息"><p>${text.text}</p>`
+      html = ` <img width="72px" src="${ossPrefix}/static/img/${type}_tip_icon.png" alt="提示信息"><p>${text.text}</p>`
     }
     this.$msgbox({
       title: text.title || '',

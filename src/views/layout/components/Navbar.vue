@@ -2,7 +2,7 @@
   <div>
     <el-menu class="navbar" :class="{'console__nav': $route.name === 'console-lwh'}" mode="horizontal">
       <router-link to="/index" class="logo-wrap vam">
-        <img src="/static/img/logo.png" alt="">
+        <img src="@/assets/public/logo.png" alt="">
         <div class="des">
           <h2>线下浏览器服务平台</h2>
           <p>Offline Browser service platform </p>
@@ -248,6 +248,7 @@ import AreaSelect from '@/components/area-select/area-select'
 import FloorSelect from '@/components/FloorSelect'
 import ButtonSelect from '@/components/button-select'
 import ButtonSelectItem from '@/components/button-select/button-select-item'
+const ossPrefix = process.env.OSS_PREFIX
 export default {
   components: {
     Hamburger,
@@ -363,7 +364,7 @@ export default {
     ]),
     avatarUrl: {
       get () {
-        return this.userInfo.faceImgURL || '/static/img/logo.png'
+        return this.userInfo.faceImgURL || ossPrefix + '/static/img/logo.png'
       },
       set () {
         return this.userInfo.faceImgURL || ''
@@ -748,7 +749,7 @@ export default {
     height: 130px;
     padding: 10px;
     box-sizing: border-box;
-    background: url(/static/img/textarea_border_bg.png) no-repeat center;
+    background: url(../../../assets/public/textarea_border_bg.png) no-repeat center;
     background-size: 100% 101.7%;
   }
 
@@ -834,6 +835,7 @@ export default {
       height: 100%;
       font-size: 14px;
       user-select: none;
+      background-image: url("../../../assets/public/main_bg_icon.png");
       box-sizing: border-box;
       &:focus {
         outline: none;
@@ -871,7 +873,7 @@ export default {
             width: 34px;
             border-radius: 50%;
             overflow: hidden;
-            background: url("/static/img/avatar_person_bg@1x.png") no-repeat left top;
+            background: url(../../../assets/public/avatar_person_bg@1x.png) no-repeat left top;
             background-size: contain;
             vertical-align: middle;
             margin-right: 10px;
@@ -1135,7 +1137,7 @@ export default {
     height: 142px;
     padding: 10px;
     box-sizing: border-box;
-    background: url(/static/img/textarea_border_bg.png) no-repeat center;
+    background: url(../../../assets/public/textarea_border_bg.png) no-repeat center;
     background-size: 100% 101.7%;
     >.el-scrollbar{
       height: 126px;

@@ -65,7 +65,7 @@ export default {
   box-shadow: 0 2px 4px 0 #161418;
   background-repeat: no-repeat;
   background-position: center center;
-  background-image: url(/static/img/affrim_btn_bg.png);
+  background-image: url(../assets/public/affrim_btn_bg.png);
   background-size: 110% 156%;
   cursor: pointer;
   text-align: center;

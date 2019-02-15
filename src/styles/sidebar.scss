@@ -32,7 +32,7 @@
     z-index: 1001;
     overflow: hidden;
     background-color: $theme-bg;
-    background-image: url("/static/img/main_bg_icon.png");
+    background-image: url("../assets/public/main_bg_icon.png");
     //reset element-ui css
     .horizontal-collapse-transition {
       transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;

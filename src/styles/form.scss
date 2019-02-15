@@ -20,8 +20,8 @@
   }
   .el-checkbox__input.is-disabled.is-checked{
     .el-checkbox__inner{
-      background: url(/static/img/disabled__checked.png) no-repeat left center;
-      background-size: cover;
+      //background: url(../../assets/public/disabled__checked.png) no-repeat left center;
+      //background-size: cover;
       border: none;
       &:after{
         border: transparent;
@@ -101,10 +101,10 @@
         height: 30px;
         line-height: 30px;
         border-radius: 5px;
-        background-image: url('/static/img/input_border_bg@2x.png');
-        background-repeat: no-repeat;
-        background-size: 100% 100%;
-        background-color: $default;
+        //background-image: url('../assets/public/input_border_bg@2x.png');
+        //background-repeat: no-repeat;
+        //background-size: 100% 100%;
+        //background-color: $default;
         .el-input__inner {
           background-color: $default;
           border: none;
@@ -119,10 +119,10 @@
         height: 70px;
         padding: 2px;
         box-sizing: border-box;
-        background-image: url('/static/img/textarea_border_bg.png');
-        background-repeat: no-repeat;
-        background-size: 100% 100%;
-        background-color: $default;
+        //background-image: url('../assets/public/textarea_border_bg.png');
+        //background-repeat: no-repeat;
+        //background-size: 100% 100%;
+        //background-color: $default;
         .el-textarea__inner{
           height: 100%;
           width: 100%;
@@ -135,7 +135,7 @@
         &.el-input--medium{
           height: 300px;
           .el-textarea__inner{
-            background-image:url("/static/img/textarea_border2_bg.png");
+            //background-image:url("../../assets/public/textarea_border2_bg.png");
           }
         }
       }
@@ -201,7 +201,7 @@
           }
           &.el-input--medium{
             .el-textarea__inner{
-              background-image:url("/static/img/textarea_border2_bg.png");
+              //background-image:url("../assets/public/textarea_border2_bg.png");
             }
           }
         }

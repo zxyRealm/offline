@@ -3,17 +3,17 @@
     <p class="tac fs12">若您已拥有设备，并配置了回调信息，则在消费者到店时便可接收到相关数据信息。</p>
     <div class="step-wrap vam">
       <div class="step-items">
-        <img src="/static/img/step_create_icon.png" alt="">
+        <img src="@/assets/public/step_create_icon.png" alt="">
         <p class="des">创建</p>
       </div>
       <span class="separate"></span>
       <div class="step-items">
-        <img src="/static/img/step_edit_icon.png" alt="">
+        <img src="@/assets/public/step_edit_icon.png" alt="">
         <p class="des">填写回调信息</p>
       </div>
       <span class="separate"></span>
       <div class="step-items">
-        <img src="/static/img/step_receive_icon.png" alt="">
+        <img src="@/assets/public/step_receive_icon.png" alt="">
         <p class="des">接收回调数据</p>
       </div>
     </div>

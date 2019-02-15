@@ -277,7 +277,7 @@ export default {
       width: 114px;
       height: 114px;
       border-radius: 50%;
-      background: url("/static/img/avatar_person_bg@2x.png") no-repeat center center;
+      background: url(../../assets/public/avatar_person_bg@2x.png) no-repeat center center;
       background-size: contain;
       margin: 0 auto;
       overflow: hidden;
@@ -302,7 +302,7 @@ export default {
       width: 720px;
       height: 300px;
       margin: 15px auto;
-      background: url("/static/img/form_border2_bg.png") no-repeat;
+      background: url(../../assets/public/form_border2_bg.png) no-repeat;
       background-size: 100% 100%;
     }
   }

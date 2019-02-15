@@ -171,7 +171,7 @@ export default {
     cursor: pointer;
     color: #1896E6;
     text-align: center;
-    background-image:url("/static/img/input_border_bg@2x.png");
+    background-image:url("../../assets/public/input_border_bg@2x.png");
     background-size: 100% 100%;
   }
   .form__position{

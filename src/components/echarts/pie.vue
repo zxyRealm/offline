@@ -279,8 +279,6 @@ export default {
     height: 230px;
     box-sizing: border-box;
     padding: 20px;
-    /*background: url('/static/img/pie-background.png') no-repeat center center;*/
-    /*background-size: 160px 160px;*/
     position: relative;
     background-color: rgba(64, 58, 73, 0.30);
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
@@ -295,7 +293,7 @@ export default {
     position: absolute;
     top: 0px;
     right: 0px;
-    background: url('/static/img/pie-background2.png') no-repeat center center;
+    background: url(../../assets/public/pie-background2.png) no-repeat center center;
     background-size: 168px;
     animation-name: piepie;
     animation-duration: 10000ms;
@@ -316,7 +314,7 @@ export default {
     content: '';
     width: 100%;
     height: 230px;
-    background: url(/static/img/pie-left-right.png) no-repeat center center;
+    background: url(../../assets/public/pie-left-right.png) no-repeat center center;
     -webkit-background-size: 170px 170px;
     background-size: 300px 22px;
     position: absolute;

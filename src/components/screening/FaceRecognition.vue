@@ -141,7 +141,7 @@ export default {
       width: 310px;
       position: relative;
       border: none;
-      background: url(/static/img/input_border_bg@2x.png) no-repeat center;
+      background: url(../../assets/public/input_border_bg@2x.png) no-repeat center;
       background-size: 100% 100%;
       background-color: transparent;
       color: #fff;

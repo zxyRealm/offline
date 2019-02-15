@@ -4,7 +4,7 @@
       <span>表格数据</span>
       <div v-if="false">
         <input v-model.trim="fuzzyQuery" type="text" placeholder="输入关键字"/>
-        <img src="/static/img/table-input-search.png" @click="doSearch">
+        <img src="@/assets/public/table-input-search.png" @click="doSearch">
       </div>
     </div>
     <!-- element自带滚动条 -->

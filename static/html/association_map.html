@@ -229,7 +229,7 @@
 <script>
   var renderer, scene, camera, group, meshList = [], textList = [], spriteList = []
   var width, height, userData, communityData
-  var windowOrigin = window.location.origin
+  var windowOrigin = '*'
   function init () {
     if (!WEBGL.isWebGLAvailable()) {
       var warning = WEBGL.getWebGLErrorMessage();
@@ -648,7 +648,6 @@
   }
 
   window.onload = function () {
-    windowOrigin = window.location.origin
     init()
     // animate()
     // initMouseEvent()

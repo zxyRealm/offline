@@ -6,7 +6,7 @@
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :visible.sync="show">
-    <img width="70" v-show="state === 'loading'" class="tip_img_icon" src="/static/img/waiting_tip_icon.png" alt="">
+    <img width="70" v-show="state === 'loading'" class="tip_img_icon" src="@/assets/public/waiting_tip_icon.png" alt="">
     <div class="progress-msg">
       <slot></slot>
     </div>

@@ -57,6 +57,37 @@
   }
 }
 
+//el-form 元素样式重置
+
+.common-form {
+  .el-checkbox__input.is-disabled.is-checked{
+    .el-checkbox__inner{
+      background: url(../assets/public/disabled__checked.png) no-repeat left center;
+      background-size: cover;
+    }
+  }
+  .el-form-item{
+    .el-form-item__content{
+      .el-input{
+        background-image: url('../assets/public/input_border_bg@2x.png');
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-color: $default;
+      }
+      .el-textarea{
+        background-image: url('../assets/public/textarea_border_bg.png');
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-color: $default;
+        &.el-input--medium{
+          .el-textarea__inner{
+            background-image:url("../assets/public/textarea_border_bg.png");
+          }
+        }
+      }
+    }
+  }
+}
 .white .el-input .el-input__inner {
   color: #333;
   //background: ;
@@ -77,7 +108,7 @@
     padding-top: 96px;
     box-sizing: border-box;
     height: 116px;
-    background: url(/static/img/ob__loading--icon.png) no-repeat center top;
+    background: url(../assets/public/ob__loading--icon.png) no-repeat center top;
     background-size: auto 96px;
     color: #fff;
   }
@@ -853,7 +884,7 @@
 }
 
 .date--picker{
-  background: url(/static/img/input_border_bg@2x.png) no-repeat center;
+  background: url(../assets/public/input_border_bg@2x.png) no-repeat center;
   background-size: 100% 100%;
   border: none;
   .el-range-separator{

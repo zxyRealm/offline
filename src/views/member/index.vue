@@ -438,7 +438,7 @@ export default {
     top: 12.5px;
     width: 15px;
     height: 15px;
-    background: url("/static/img/binding.png");
+    background: url("../../assets/public/binding.png");
     background-size: contain;
   }
   .noImage{

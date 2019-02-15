@@ -1,10 +1,10 @@
 <template>
   <div class="flow-info-wrap">
-    <img src="/static/img/enter-people.png" v-if="type=='left'">
-    <img src="/static/img/out-people.png" v-if="type=='right'">
+    <img src="@/assets/public/enter-people.png" v-if="type=='left'">
+    <img src="@/assets/public/out-people.png" v-if="type=='right'">
     <span class="number">{{number}}</span>
     <div class="add-people" v-show="isShow" :class="isShow==true?'animation-lwh-add':''">
-      <img class="number-img" src="/static/img/add-people.png">
+      <img class="number-img" src="@/assets/public/add-people.png">
       <span>+1</span>
     </div>
   </div>

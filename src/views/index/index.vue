@@ -1,6 +1,5 @@
 <template>
   <div class="home-page-wrapper">
-    <!-- <img src="/static/img/home-page-three.png"/>  -->
     <div class="head">
       <div>欢迎您使用</div>
       <p>线下浏览器服务平台</p>
@@ -61,7 +60,7 @@ export default {
     height: 100%;
     width: 100%;
     min-width: 1020px;
-    background: url(/static/img/home-page-three.png) no-repeat center;
+    background: url(../../assets/public/home-page-three.png) no-repeat center;
     background-size: 100%;
     position: relative;
     .head {

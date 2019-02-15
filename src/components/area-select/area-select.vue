@@ -236,7 +236,7 @@ export default {
       line-height: 30px;
       color: #fff;
       border: none;
-      background-image: url(/static/img/input_border_bg@2x.png);
+      background-image: url(../../assets/public/input_border_bg@2x.png);
       background-repeat: no-repeat;
       background-size: 100% 100%;
       text-align: left;
@@ -257,7 +257,7 @@ export default {
         right: 4px;
         height: 100%;
         width: 30px;
-        background: url("/static/img/select_arrow_icon.png") no-repeat center;
+        background: url(../../assets/public/select_arrow_icon.png) no-repeat center;
         background-size: 10px auto;
         transition: transform 0.5s;
         transform: rotate(0deg);
@@ -334,7 +334,7 @@ export default {
         }
         &.address-text-input {
           height: $line28;
-          background: url("/static/img/area_select_bg.png") no-repeat center;
+          background: url(../../assets/public/area_select_bg.png) no-repeat center;
           .el-input__inner {
             height: $line28;
             line-height: $line28;

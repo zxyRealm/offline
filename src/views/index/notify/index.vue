@@ -87,7 +87,7 @@ export default {
         /*border: 2px dashed hsla(0, 0%, 62%, 0.03);*/
         /*background: rgba(15, 158, 233, 0.003);*/
         /*border-image: linear-gradient(to right,#1896E6,#813FC5) 20 20;*/
-        background-image: url(/static/img/notify_background.png);
+        background-image: url(../../../assets/public/notify_background.png);
         background-repeat: no-repeat;
         background-position: center;
         background-size: 100% 100%;
@@ -98,10 +98,8 @@ export default {
           font-size: 14px;
           margin-bottom: 16px;
           padding: 0 30px;
-          text-align: right;
           padding-right: 50px;
           text-align: right;
-          //background: url("/static/img/list-icon-green.png") no-repeat left center;
           span {
             display: inline-block;
             vertical-align: middle;

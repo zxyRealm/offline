@@ -43,13 +43,13 @@
                   >
                     <img
                       v-if="statisticEndInfo.Incoming_percent >= 0"
-                      src="/static/img/grow_up@2x.png"
+                      src="@/assets/public/grow_up@2x.png"
                       alt
                       width="5"
                     >
                     <img
                       v-if="statisticEndInfo.Incoming_percent < 0"
-                      src="/static/img/grow-down.png"
+                      src="@/assets/public/grow-down.png"
                       alt
                       width="5"
                     >
@@ -97,13 +97,13 @@
                   >
                     <img
                       v-if="statisticEndInfo.Member_percent >= 0"
-                      src="/static/img/grow_up@2x.png"
+                      src="@/assets/public/grow_up@2x.png"
                       alt
                       width="5"
                     >
                     <img
                       v-if="statisticEndInfo.Member_percent < 0"
-                      src="/static/img/grow-down.png"
+                      src="@/assets/public/grow-down.png"
                       alt
                       width="5"
                     >
@@ -198,7 +198,7 @@ import {GetMarketList, GetGroupPortalInfo} from '../../api/community'
 import {GetLatestFace, GetFlowRank} from '../../api/visual'
 import {parseTime} from '../../utils'
 import CountTo from 'vue-count-to'
-
+const ossPrefix = process.env.OSS_PREFIX
 export default {
   name: 'GeneralMap',
   components: {
@@ -210,7 +210,7 @@ export default {
       routerList: [
         {
           name: '总',
-          path: '/static/html/new_home.html?timestamp = ' + Number(new Date()),
+          path: ossPrefix + '/static/html/new_home.html?timestamp = ' + Number(new Date()),
           id: 'threeFrame',
           floor: 0
         }
@@ -237,7 +237,7 @@ export default {
         minus: 0
       },
       frame: {
-        path: '/static/html/new_home.html?timestamp = ' + Number(new Date()),
+        path: ossPrefix + '/static/html/new_home.html?timestamp = ' + Number(new Date()),
         id: 'threeFrame'
       },
       statisticInfo: {
@@ -428,15 +428,15 @@ export default {
           console.log(floorInfo[i].floor, floorInfo[minIndex].floor)
           let upFloorCoordinateY = (floorInfo[i].floor - floorInfo[minIndex].floor - 1) * floorHeight
           let downFloorCoordinateY = (floorInfo[i].floor - 1) * floorHeight
-          let coordinate_y = floorInfo[i].floor >= 0 ? upFloorCoordinateY + lowFloor : downFloorCoordinateY + lowFloor
+          let coordinateY = floorInfo[i].floor >= 0 ? upFloorCoordinateY : downFloorCoordinateY
 
-          let img_url = floorInfo[i].mapUrl
+          let imgUrl = floorInfo[i].mapUrl
           let floor = floorInfo[i].floor
 
           // 分别设置routerList和传入iframe的数组
           this.floorArr.push({
-            coordinate_y: coordinate_y,
-            img_url: img_url,
+            coordinate_y: coordinateY,
+            img_url: imgUrl,
             floor: floor,
             groupSonGuid: floorInfo[i].groupSonGuid,
             groupParentGuid: floorInfo[i].groupParentGuid
@@ -444,9 +444,9 @@ export default {
 
           this.routerList.push({
             name: floorInfo[i].name,
-            id: img_url,
+            id: imgUrl,
             floor: floor,
-            path: '/static/html/plane.html?floor=' + img_url,
+            path: ossPrefix + '/static/html/plane.html?floor=' + imgUrl,
             groupSonGuid: floorInfo[i].groupSonGuid,
             groupParentGuid: floorInfo[i].groupParentGuid
           })
@@ -505,7 +505,7 @@ export default {
         case 'change-floor':
           this.floorArr.forEach((val, index) => {
             if (val.coordinate_y === data.params.data) {
-              let path = '/static/html/plane.html?floor=' + val.img_url
+              let path = ossPrefix + '/static/html/plane.html?floor=' + val.img_url
               let id = val.img_url
               let item = {
                 path: path,
@@ -602,6 +602,7 @@ export default {
     this.iframe = this.$refs.iframe.contentWindow
     this.getCommunityInfo()
     window.addEventListener('message', this.handleMessage)
+    console.log('oss-path---------------', ossPrefix)
   },
   watch: {
     'frame.name': {
@@ -635,12 +636,12 @@ export default {
             }
           }
           this.routerList = [
-            {name: '总', path: '/static/html/new_home.html', id: 'threeFrame'}
+            {name: '总', path: ossPrefix + '/static/html/new_home.html', id: 'threeFrame'}
           ]
           this.floorArr = []
           this.frame = {
             path:
-            '/static/html/new_home.html?timestamp = ' + Number(new Date()),
+            ossPrefix + '/static/html/new_home.html?timestamp = ' + Number(new Date()),
             id: 'threeFrame'
           }
           this.getCommunityInfo(val)
@@ -665,7 +666,7 @@ export default {
       display: flex;
       flex-direction: column;
       height: 100%;
-      background-image: url('/static/img/map_background.png');
+      background-image: url('../../assets/public/map_background.png');
       background-size: cover;
       #floor2 {
         top: 10px;

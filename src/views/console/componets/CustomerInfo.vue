@@ -131,7 +131,7 @@ export default {
         background: rgba(16, 156, 231, 0.2);
         background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
         background-position: left top, right top, right bottom, left bottom;
-        background-image: url(/static/img/console-detail-border-icon-top.png), url(/static/img/console-detail-border-icon-right.png), url(/static/img/console-detail-border-icon-bottom.png), url(/static/img/console-detail-border-icon-left.png);
+        background-image: url(../../../assets/public/console-detail-border-icon-top.png), url(../../../assets/public/console-detail-border-icon-right.png), url(../../../assets/public/console-detail-border-icon-bottom.png), url(../../../assets/public/console-detail-border-icon-left.png);
         background-size: 52px auto;
         padding: 40px;
         .detail-content-img {
@@ -168,12 +168,12 @@ export default {
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
   .customer-info-wrap-in {
-    background: url(/static/img/background-img-in.png) no-repeat center;
+    background: url(../../../assets/public/background-img-in.png) no-repeat center;
     background-size: 100% 100%;
   }
 
   .customer-info-wrap-out {
-    background: url(/static/img/background-image.png) no-repeat center;
+    background: url(../../../assets/public/background-image.png) no-repeat center;
     background-size: 100% 100%;
   }
 

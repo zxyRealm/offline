@@ -479,7 +479,7 @@ export default {
     height: 30px;
     color: #1896E6;
     text-align: center;
-    background-image:url("/static/img/input_border_bg@2x.png");
+    background-image:url(../../assets/public/input_border_bg@2x.png);
     background-size: 100% 100%;
   }
   .form__position{
@@ -581,7 +581,7 @@ export default {
   }
   .button__sure{
     color: #FFF;
-    background: url(/static/img/affrim_btn_bg.png) no-repeat center;
+    background: url(../../assets/public/affrim_btn_bg.png) no-repeat center;
     background-size: 110% 156%;
     margin-left: 10px;
   }

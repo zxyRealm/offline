@@ -37,7 +37,7 @@
                 </div>
               </div>
             </div>
-            <img v-else style="max-width: 100%;" src="/static/img/logo@2x.png" alt="">
+            <img v-else style="max-width: 100%;" src="@/assets/public/logo@2x.png" alt="">
           </div>
         </div>
       </div>
@@ -528,7 +528,7 @@ export default {
           position: absolute;
           top: 0px;
           right: 0px;
-          background: url('/static/img/pie-background3.png') no-repeat center center;
+          background: url(../../assets/public/pie-background3.png) no-repeat center center;
           background-size: 168px;
           animation-name: piepie;
           animation-duration: 10000ms;
@@ -651,12 +651,12 @@ export default {
       }
       .customer-middle-top {
         right: 6px;
-        background-image: url("/static/img/in-img-3.png"), url("/static/img/in-img-2.png"), url("/static/img/in-img-1.png");
+        background-image: url(../../assets/public/in-img-3.png), url(../../assets/public/in-img-2.png), url(../../assets/public/in-img-1.png);
       }
       .customer-middle-center {
         position: absolute;
         width: 230px;
-        background: url('/static/img/people-info.png') no-repeat center center;
+        background: url('../../assets/public/people-info.png') no-repeat center center;
         background-size: 100% auto;
         > img {
           width: 100%;
@@ -665,7 +665,7 @@ export default {
       .customer-middle-bottom {
         position: absolute;
         left: 276px;
-        background-image: url("/static/img/out-img-1.png"), url("/static/img/out-img-2.png"), url("/static/img/out-img-3.png");
+        background-image: url(../../assets/public/out-img-1.png), url(../../assets/public/out-img-2.png), url(../../assets/public/out-img-3.png);
         background-position: 0 center, 12px center, 24px center;
         background-size: 18px auto, 16px auto, 14px auto;
       }
@@ -719,11 +719,11 @@ export default {
       }
       .bottom--isShow__top {
         left: 30px;
-        background-image: url("/static/img/in-img-3.png"), url("/static/img/in-img-2.png"), url("/static/img/in-img-1.png");
+        background-image: url(../../assets/public/in-img-3.png), url(../../assets/public/in-img-2.png), url(../../assets/public/in-img-1.png);
       }
       .bottom--isShow__bottom {
         right: 18px;
-        background-image: url(/static/img/out-img-1.png), url(/static/img/out-img-2.png), url(/static/img/out-img-3.png);
+        background-image: url(../../assets/public/out-img-1.png), url(../../assets/public/out-img-2.png), url(../../assets/public/out-img-3.png);
         background-position: 0 center, 9px center, 17px center;
         background-size: 13px auto, 12px auto, 11px auto;
       }
@@ -732,7 +732,7 @@ export default {
         width: 14px;
         background-repeat: no-repeat;
         background-position: 0 center;
-        background-image: url(/static/img/console_icon_is_show.png);
+        background-image: url(../../assets/public/console_icon_is_show.png);
         background-size: 14px;
       }
     }

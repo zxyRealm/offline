@@ -298,7 +298,7 @@ code, pre {
 
 //四角背景样式
 .corner-bg {
-  background: url("/static/img/border_bottom_right_icon.png") no-repeat right bottom, url("/static/img/border_bottom_left_icon.png") no-repeat left bottom, url("/static/img/border_top_left_icon.png") no-repeat left top, url("/static/img/border_top_right_icon.png") no-repeat right top;
+  background: url("../assets/public/border_bottom_right_icon.png") no-repeat right bottom, url("../assets/public/border_bottom_left_icon.png") no-repeat left bottom, url("../assets/public/border_top_left_icon.png") no-repeat left top, url("../assets/public/border_top_right_icon.png") no-repeat right top;
   background-size: 16px auto;
   &__2x{
     background: url("/static/img/border_bottom_right_icon@2x.png") no-repeat right bottom, url("/static/img/border_bottom_left_icon@2x.png") no-repeat left bottom, url("/static/img/border_top_left_icon@2x.png") no-repeat left top, url("/static/img/border_top_right_icon@2x.png") no-repeat right top;
@@ -420,11 +420,11 @@ button, input {
     }
   }
   &.affirm {
-    background-image: url("/static/img/affrim_btn_bg.png");
+    background-image: url(../assets/public/affrim_btn_bg.png);
     background-size: 110% 156%;
   }
   &.cancel {
-    background-image: url("../assets/public/button_border_bg@2x.png");
+    background-image: url(../assets/public/button_border_bg@2x.png);
     background-size: 100% 100%;
     > span {
       color: #0F9EE9;
@@ -688,7 +688,7 @@ button, input {
 }
 
 .el-select__caret {
-  background: url("/static/img/select_arrow_icon.png") no-repeat center center;
+  background: url(../assets/public/select_arrow_icon.png) no-repeat center center;
   background-size: 10px auto;
   transform: rotateZ(0deg) !important;
   &.is-reverse {
@@ -737,7 +737,7 @@ button, input {
 .g__input--btn{
   position: relative;
   display: block;
-  background: url(/static/img/input_border_bg@2x.png) no-repeat center;
+  background: url(../assets/public/input_border_bg@2x.png) no-repeat center;
   background-size: 100% 100%;
   text-align: center;
   height: 30px;
@@ -758,7 +758,7 @@ button, input {
 //form表单元素风格
 
 .el-input {
-  background: url(/static/img/input_border_bg@2x.png) no-repeat center;
+  background: url(../assets/public/input_border_bg@2x.png) no-repeat center;
   background-size: 100% 100%;
   background-color: $default;
   height: 30px;
@@ -786,7 +786,7 @@ button, input {
 
 .el-textarea {
   background-color: $default;
-  background: url("/static/img/textarea_border_bg.png") no-repeat left top;
+  background: url("../assets/public/textarea_border_bg.png") no-repeat left top;
   background-size: 100% 100%;
   .el-textarea__inner {
     border: none !important;
