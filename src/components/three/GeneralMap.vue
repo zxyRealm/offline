@@ -422,12 +422,13 @@ export default {
         this.caculateMinus(this.community.infoArr)
         // 当最低楼层大于1层时, 需计算最低楼层和0层之间的差值
         let minIndex = this.caculateMinusIndex(floorInfo)
-
+        let lowFloor = Math.abs(floorInfo[0].floor) * floorHeight
         for (let i in floorInfo) {
           // 计算地上楼层和地下楼层的Y坐标
+          console.log(floorInfo[i].floor, floorInfo[minIndex].floor)
           let upFloorCoordinateY = (floorInfo[i].floor - floorInfo[minIndex].floor - 1) * floorHeight
           let downFloorCoordinateY = (floorInfo[i].floor - 1) * floorHeight
-          let coordinate_y = floorInfo[i].floor >= 0 ? upFloorCoordinateY : downFloorCoordinateY
+          let coordinate_y = floorInfo[i].floor >= 0 ? upFloorCoordinateY + lowFloor : downFloorCoordinateY + lowFloor
 
           let img_url = floorInfo[i].mapUrl
           let floor = floorInfo[i].floor
