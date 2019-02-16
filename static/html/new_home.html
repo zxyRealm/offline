@@ -547,26 +547,30 @@
 
     function addShape(info, group) {
       var loader = new THREE.SVGLoader()
+      var loader2 = new THREE.TextureLoader()
       loader.load('/static/origin-floor/bottom.svg', function (paths) {
         for (var i = 0; i < paths.length; i++) {
           var path = paths[i]
           var shapes = path.toShapes(true);
-          for (var j = 0; j < shapes.length; j++) {
-            var shape = shapes[j];
-            var geometry = new THREE.ShapeBufferGeometry(shape);
-            var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-              color: '#0F1252',
-              side: THREE.DoubleSide,
-              transparent: true,
-              opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.2
-            }));
+          // loader2.load('/static/img/11_copy.png', function (texture) {
+            for (var j = 0; j < shapes.length; j++) {
+              var shape = shapes[j];
+              var geometry = new THREE.ShapeBufferGeometry(shape);
+              var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+                color: '#0F1252',
+                side: THREE.DoubleSide,
+                // map: texture,
+                transparent: true,
+                opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.2
+              }));
 
-            mesh.position.set(0, info.coordinate_y, 0);
-            mesh.rotation.set(0.5 * Math.PI, 0, 0);
-            mesh.name = 'plane'
-            planeList.push(mesh);
-            group.add(mesh);
-          }
+              mesh.position.set(0, info.coordinate_y, 0);
+              mesh.rotation.set(0.5 * Math.PI, 0, 0);
+              mesh.name = 'plane'
+              planeList.push(mesh);
+              group.add(mesh);
+            }
+          // })
         }
       })
     }
