@@ -602,7 +602,6 @@ export default {
     this.iframe = this.$refs.iframe.contentWindow
     this.getCommunityInfo()
     window.addEventListener('message', this.handleMessage)
-    console.log('oss-path---------------', ossPrefix)
   },
   watch: {
     'frame.name': {

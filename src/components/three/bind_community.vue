@@ -32,11 +32,14 @@ export default {
     this.iframeObj = this.$refs.bindGroupIframe.contentWindow
   },
   computed: {
+    originSrc () {
+      return ossPrefix ? this.iframeSrc.split('?')[0] : '*'
+    }
   },
   methods: {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
-      this.currentFloor = this.floorList.filter(item => item.floor === (int || this.defaultData.floor || 1))[0] || this.floorList[0] || ''
+      this.currentFloor = this.floorList.filter(item => item.floor === (int || this.defaultData.floor))[0] || ''
       if (this.currentFloor) this.iframeSrc = `${ossPrefix}/static/html/bind_community.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
     },
     // 处理iframe传递出来的事件
@@ -47,7 +50,8 @@ export default {
       } else if (data.type === 'SET_DEFAULT_DATA') {
         this.setDefaultSelect()
       } else if (data.type === 'LOAD_SVG_BIND') {
-        this.iframeObj.loadSvg(this.currentFloor)
+        this.iframeObj.postMessage({type: 'BIND_LOAD_SVG', floor: this.currentFloor}, this.originSrc)
+        // this.iframeObj.loadSvg(this.currentFloor)
       }
     },
     // 设置默认选中区域
@@ -55,9 +59,9 @@ export default {
       // 位置信息数组
       if (!this.defaultData.coordinates) return
       let ps = this.defaultData.coordinates instanceof Object ? this.defaultData.coordinates : JSON.parse(this.defaultData.coordinates)
-      // console.log(this.defaultData, ps)
       this.$nextTick(() => {
-        this.iframeObj.setDefaultSelect(ps)
+        this.iframeObj.postMessage({type: 'BIND_SET_DEFAULT', ps: ps}, this.originSrc)
+        // this.iframeObj.setDefaultSelect(ps)
       })
     }
   },

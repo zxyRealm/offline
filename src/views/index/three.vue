@@ -324,9 +324,6 @@ export default {
         padding: 10px 15px;
         box-sizing: border-box;
         background: #101116;
-        /*@media screen and (max-width: 1280px){*/
-          /*padding: 10px 15px;*/
-        /*}*/
       }
       > div {
         margin-bottom: 10px;
@@ -357,7 +354,7 @@ export default {
         }
       }
       .sex__ratio--icon{
-        width: 42px;
+        width: 41px;
         height: 100%;
         margin: 0  8px;
         background-position: left center;
@@ -365,21 +362,6 @@ export default {
         background-image: url(../../assets/three/sex_ratio_icon.png);
         background-size: 100% auto;
       }
-      /*@media screen and (max-width: 1280px){*/
-        /*height: 198px;*/
-        /*.sex__ratio--icon{*/
-          /*width: 42px;*/
-        /*}*/
-      /*}*/
-      /*@media screen and (min-width: 1280px){*/
-        /*height: 236px;*/
-      /*}*/
-      /*@media only screen and (min-width: 1600px) {*/
-        /*height: 300px;*/
-        /*.sex__ratio--icon{*/
-          /*max-width: 72px;*/
-        /*}*/
-      /*}*/
     }
     /*回头客比例*/
     .return-ratio{
@@ -388,13 +370,6 @@ export default {
         margin-top: 15px;
         height: 28px;
       }
-      /*@media screen and (max-width: 1280px){*/
-        /*height: 116px;*/
-        /*.person__pie--wrap{*/
-          /*margin-top: 15px;*/
-          /*height: 28px;*/
-        /*}*/
-      /*}*/
     }
     .return__data--wrap{
       margin-top: 10px;
@@ -412,16 +387,6 @@ export default {
           float: right;
         }
       }
-      /*@media screen and (max-width: 1280px){*/
-        /*margin-top: 10px;*/
-        /*font-size: 12px;*/
-        /*> div{*/
-          /*img {*/
-            /*margin-right: 4px;*/
-            /*width: 15px;*/
-          /*}*/
-        /*}*/
-      /*}*/
     }
     .return__ratio--wrap{
       display: inline-block;
@@ -447,15 +412,6 @@ export default {
     /*年龄比例*/
     .age-ratio{
       height: 170px;
-      /*@media screen and (max-width: 1280px){*/
-        /*height: 170px;*/
-      /*}*/
-      /*@media only screen and (min-width: 1280px){*/
-        /*height: 220px;*/
-      /*}*/
-      /*@media screen and (min-width: 1600px){*/
-        /*height: 280px;*/
-      /*}*/
     }
     /*业态客流排行榜*/
     .format-flow-rank{
@@ -514,56 +470,6 @@ export default {
            }
         }
       }
-      /*@media only screen and (max-width: 1280px){*/
-        /*height: 200px;*/
-        /*.industry__rank--wrap{*/
-          /*padding-bottom: 10px;*/
-          /*.rank-items{*/
-            /*width: 64px;*/
-            /*p{*/
-              /*font-size: 13px;*/
-              /*&:nth-child(2){*/
-                /*width: 68px;*/
-                /*margin: 0 6px;*/
-              /*}*/
-            /*}*/
-          /*}*/
-        /*}*/
-      /*}*/
-      /*@media only screen and (min-width: 1280px){*/
-        /*height: 260px;*/
-        /*>.clearfix{*/
-          /*height: calc(100% - 30px);*/
-        /*}*/
-        /*.industry__rank--wrap{*/
-          /*.rank-items{*/
-            /*p{*/
-              /*font-size: 13px;*/
-            /*}*/
-          /*}*/
-        /*}*/
-        /*.right__sidebar{*/
-          /*font-size: 13px;*/
-          /*line-height: 1.5;*/
-        /*}*/
-      /*}*/
-      /*@media only screen and (min-width: 1600px){*/
-        /*height: 320px;*/
-        /*>.clearfix{*/
-          /*height: calc(100% - 40px);*/
-        /*}*/
-        /*.industry__rank--wrap{*/
-          /*.rank-items{*/
-            /*p{*/
-              /*font-size: 14px;*/
-            /*}*/
-          /*}*/
-        /*}*/
-        /*.right__sidebar{*/
-          /*font-size: 14px;*/
-          /*line-height: 1.5;*/
-        /*}*/
-      /*}*/
     }
     /*门店客流排行*/
     .store-flow-rank{
@@ -586,33 +492,6 @@ export default {
           width: calc(100% - 120px);
         }
       }
-      /*@media only screen and (max-width: 1280px){*/
-        /*.pl-items{*/
-          /*height: 30px;*/
-          /*line-height: 30px;*/
-          /*span{*/
-            /*font-size: 12px;*/
-          /*}*/
-        /*}*/
-      /*}*/
-      /*@media only screen and (min-width: 1280px){*/
-        /*.pl-items{*/
-          /*height: 34px;*/
-          /*line-height: 34px;*/
-          /*span{*/
-            /*font-size: 13px;*/
-          /*}*/
-        /*}*/
-      /*}*/
-      /*@media only screen and (min-width: 1600px){*/
-        /*.pl-items{*/
-          /*height: 40px;*/
-          /*line-height: 40px;*/
-          /*span{*/
-            /*font-size: 14px;*/
-          /*}*/
-        /*}*/
-      /*}*/
     }
   }
   /*楼宇地图展示*/

@@ -92,7 +92,7 @@
 import {mapState} from 'vuex'
 import Mixins from '../../utils/mixins'
 import {GetGroupPortalInfo, GetPortalDeviceList, PortalUnbindDevice, PortalBatchBindDevice, CheckPortalNameExist, CreatePortal, EditPortal, DeletePortal, GetGroupPortalCount} from '../../api/community'
-import {GetAllDevice, GetGroupDevice} from '../../api/device'
+import {GetGroupDevice} from '../../api/device'
 import {validateRule} from '../../utils/validate'
 const ossPrefix = process.env.OSS_PREFIX
 export default {
@@ -187,13 +187,16 @@ export default {
           break
       }
       return title
+    },
+    originSrc () {
+      return ossPrefix ? this.iframeSrc.split('?')[0] : '*'
     }
   },
   methods: {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
       if (!this.data.floor || this.data.type === 4) {
-        this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor || 1))[0] || this.floorList[0] || ''
+        this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor))[0] || this.floorList[0] || ''
       } else {
         let Info = JSON.parse(JSON.stringify(this.data || ''))
         Info.mapUrl = this.floorList.filter(item => item.floor === this.data.floor)[0].mapUrl
@@ -207,7 +210,8 @@ export default {
       }
     },
     loadIframeSvg () { // 加载iframe svg 地图
-      this.iframeObj.loadSvg(this.data, this.currentFloor.subGroupSon)
+      this.iframeObj.postMessage({type: 'IFRAME_LOAD_SVG', data: this.data, floor: this.currentFloor.subGroupSon}, this.originSrc)
+      // this.iframeObj.loadSvg(this.data, this.currentFloor.subGroupSon)
     },
     // 处理iframe传递出来的事件
     handleEvent (event) {
@@ -251,7 +255,8 @@ export default {
       if (this.data.guid || this.data.id) {
         GetGroupPortalInfo({groupSonId: this.data.coordinates ? this.data.guid : this.currentFloor.groupSonGuid || this.data.id}).then(res => {
           res.data.map(item => {
-            this.iframeObj.createSprite(item)
+            this.iframeObj.postMessage({type: 'IFRAME_CREATE_SPRITE', data: item}, this.originSrc)
+            // this.iframeObj.createSprite(item)
           })
         })
       }
@@ -262,7 +267,8 @@ export default {
       this.$set(this.deviceInfo, 'list', [])
       GetPortalDeviceList({portalGuid: data.guid}).then(res => {
         this.$set(this.deviceInfo, 'list', res.data || [])
-        this.iframeObj.createDeviceList(this.deviceInfo)
+        // this.iframeObj.createDeviceList(this.deviceInfo)
+        this.iframeObj.postMessage({type: 'IFRAME_CREATE_DEVICE', data: this.deviceInfo}, this.originSrc)
       })
     },
     // 添加出入口设备

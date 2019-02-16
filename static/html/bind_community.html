@@ -208,7 +208,17 @@
   window.onload = function () {
     initScene()
   }
-
+  window.addEventListener('message', function (e) {
+    var data = e.data
+    switch (data.type) {
+      case "BIND_LOAD_SVG":
+        loadSvg(data.floor)
+        break
+      case "BIND_SET_DEFAULT":
+        setDefaultSelect(data.ps)
+        break
+    }
+  })
 </script>
 </body>
 </html>

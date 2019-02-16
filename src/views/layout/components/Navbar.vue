@@ -778,6 +778,7 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
+    min-width: 1280px;
     height: 70px;
     z-index: 1010;
     background-color: $theme-bg;

@@ -673,6 +673,20 @@
       }
     }
   }
+  window.addEventListener('message', function (e) {
+    var data = e.data
+    switch (data.type) {
+      case "IFRAME_LOAD_SVG":
+        loadSvg(data.data, data.floor)
+        break
+      case "IFRAME_CREATE_SPRITE":
+        createSprite(data.data)
+        break
+      case "IFRAME_CREATE_DEVICE":
+        createDeviceList(data.data)
+        break
+    }
+  })
 </script>
 </body>
 </html>
