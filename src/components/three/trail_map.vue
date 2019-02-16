@@ -18,7 +18,7 @@ import { GetTrace, GetElevatorListByGroupGuid } from '@/api/behavior'
 import { GetMarketList } from '@/api/community'
 import { mapState } from 'vuex'
 import { eventObject } from '../../utils/event'
-
+const ossPrefix = process.env.OSS_PREFIX
 export default {
   name: 'TrailMap',
   props: {
@@ -55,14 +55,19 @@ export default {
           if (this.trailData.length) {
             this.$nextTick(() => {
               this.iframe = this.$refs.iframe.contentWindow
-              if (this.isDateChange === true && this.iframe.changeDate) {
-                this.iframe.changeDate()
+              if (this.isDateChange === true) {
+                this.iframe.postMessage({
+                  type: 'CHANGE_DATE'
+                }, this.originSrc)
                 this.isDateChange = false
               }
             })
           }
         })
       }
+    },
+    originSrc () {
+      return ossPrefix || '*'
     },
     changeDate () {
       this.isDateChange = true
@@ -87,9 +92,19 @@ export default {
         case 'trail-load_signal':
           eventObject().$emit('IFRAME_FRESH_COUNT', data.params.play_count)
           this.playCount = data.params.play_count
-          this.iframe.getTrailData(this.trailData)
-          this.iframe.getElevatorPosition(this.elevatorList)
-          this.iframe.receiveCommunityInfo(this.communityInfo)
+          this.changeDate()
+          this.iframe.postMessage({
+            type: 'GET_TRAIL_DATA',
+            trailData: this.trailData
+          }, this.originSrc)
+          this.iframe.postMessage({
+            type: 'GET_ELEVATOR_POSITION',
+            elevatorList: this.elevatorList
+          }, this.originSrc)
+          this.iframe.postMessage({
+            type: 'RECEIVE_COMMUNITY_INFO',
+            communityInfo: this.communityInfo
+          }, this.originSrc)
       }
     },
     sortFloorArr (arr) {

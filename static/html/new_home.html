@@ -118,6 +118,18 @@
     init();
     render();
 
+    window.addEventListener('message', function (e) {
+      var data = e.data
+      switch (data.type) {
+        case "CREATE_SHINE":
+          createShine(data.coordinates, data.floor, data.status)
+          break
+        case "SET_FLOOR_INFO":
+          setFloorInfo(data.floorArr)
+          break
+      }
+    })
+
     // 计算上升和下降的变化
     function getUpDownFloorCount() {
       var downFloorCount = 0;

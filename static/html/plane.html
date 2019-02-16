@@ -183,6 +183,18 @@
   var boxAlexArr = []; // 用来保存坐标数据的数组
   var hasColorBoxArr = [] // 用来保存有颜色的块的数组
 
+  window.addEventListener('message', function (e) {
+    var data = e.data
+    switch (data.type) {
+      case "GET_COMMUNITY_INFO":
+        getCommunityInfo(data.data)
+        break
+      case "ADD_COLOR":
+        addColor(data.data)
+        break
+    }
+  })
+
   function init() {
     var innerWidth = window.innerWidth // 减去右侧aside的宽度
     var innerHeight = window.innerHeight // 减去底部div的宽度

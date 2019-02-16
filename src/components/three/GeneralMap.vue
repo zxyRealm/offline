@@ -275,6 +275,9 @@ export default {
         }
       })
     },
+    originSrc () {
+      return ossPrefix || '*'
+    },
     // 获取socket服务地址并建立websocket链接
     getWebsocket (groupSonGuid, groupParentGuid) {
       // 重新建立连接时，先关闭之前已建立的连接
@@ -324,7 +327,13 @@ export default {
     // 处理推送闪点
     handleSocketShining (data) {
       if (data.coordinates) {
-        this.iframe.createShine(data.coordinates, data.floor, data.status)
+        // this.iframe.createShine(data.coordinates, data.floor, data.status)
+        this.iframe.postMessage({
+          type: 'CREATE_SHINE',
+          coordinates: data.coordinates,
+          floor: data.floor,
+          status: data.status
+        }, this.originSrc)
       }
     },
     // 处理推送实时数据
@@ -458,7 +467,11 @@ export default {
     getSingleCommunityInfo () {
       let params = this.community.infoArr[this.community.index]
       GetGroupPortalInfo({groupSonId: params.groupSonGuid}).then(res => {
-        this.iframe.getCommunityInfo(res.data)
+        // this.iframe.getCommunityInfo(res.data)
+        this.iframe.postMessage({
+          type: 'GET_COMMUNITY_INFO',
+          data: res.data
+        }, this.originSrc)
       })
     },
     // plane：传递色块
@@ -479,25 +492,33 @@ export default {
             name: item.groupName
           })
         })
-        this.iframe.addColor(storeInfoArr)
+        // this.iframe.addColor(storeInfoArr)
+        this.iframe.postMessage({
+          type: 'ADD_COLOR',
+          data: storeInfoArr
+        }, this.originSrc)
       })
     },
     // home：粒子闪烁
-    sendAlex () {
-      let count = 0
-      this.cloudTimer = setInterval(() => {
-        this.iframe.createPointCloud(count)
-      }, 1000)
-    },
+    // sendAlex () {
+    //   let count = 0
+    //   this.cloudTimer = setInterval(() => {
+    //     // this.iframe.createPointCloud(count)
+    //     this.iframe.postMessage({
+    //       type: 'CREATE_POINT_CLOUD',
+    //       count: count
+    //     })
+    //   }, 1000)
+    // },
     // 悬浮框数据
     sendStoreData () {
       let obj = {
         gateway: 'Gateway',
         camera: ['camera-one', 'camera-two', 'camera-three']
       }
-      if (this.iframe.receiveStoreInfo) {
-        this.iframe.receiveStoreInfo(obj)
-      }
+      // if (this.iframe.receiveStoreInfo) {
+      //   this.iframe.receiveStoreInfo(obj)
+      // }
     },
     handleMessage (event) {
       const data = event.data
@@ -525,7 +546,11 @@ export default {
           this.sendStoreData()
           break
         case 'home-load_signal':
-          this.iframe.setFloorInfo(this.floorArr)
+          // this.iframe.setFloorInfo(this.floorArr)
+          this.iframe.postMessage({
+            type: 'SET_FLOOR_INFO',
+            floorArr: this.floorArr
+          }, this.originSrc)
           break
         case 'plane-load_signal':
           this.getSingleCommunityInfo()
@@ -533,7 +558,6 @@ export default {
           break
       }
     },
-    /**** 方法 ****/
     // 计算地下楼层数量
     caculateMinus (arr) {
       for (let i = 0; i < arr.length; i++) {

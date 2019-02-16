@@ -163,6 +163,24 @@
     }, '*');
   }
 
+  window.addEventListener('message', function (e) {
+    var data = e.data
+    switch (data.type) {
+      case "CHANGE_DATE":
+        changeDate()
+        break
+      case "GET_TRAIL_DATA":
+        getTrailData(data.trailData)
+        break
+      case "GET_ELEVATOR_POSITION":
+        getElevatorPosition(data.elevatorList)
+        break
+      case "RECEIVE_COMMUNITY_INFO":
+        receiveCommunityInfo(data.communityInfo)
+        break
+    }
+  })
+
   // 确定轨迹开始的楼层
   function ChapterZero() {
     BEGIN_FLOOR = data[0].floorName
