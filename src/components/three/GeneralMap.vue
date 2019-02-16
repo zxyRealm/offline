@@ -406,6 +406,21 @@ export default {
         if (res.data.length) {
           let item0 = JSON.parse(res.data[0])
           this.imgCut(item0.data, item0.pushDate, res.data, 0)
+        } else {
+          this.personList = [
+            {imgUrl: '/static/img/avatar2.png', key: '1'},
+            {imgUrl: '/static/img/avatar2.png', key: '2'},
+            {imgUrl: '/static/img/avatar2.png', key: '4'},
+            {imgUrl: '/static/img/avatar2.png', key: '5'},
+            {imgUrl: '/static/img/avatar2.png', key: '6'},
+            {imgUrl: '/static/img/avatar2.png', key: '7'},
+            {imgUrl: '/static/img/avatar2.png', key: '8'},
+            {imgUrl: '/static/img/avatar2.png', key: '9'},
+            {imgUrl: '/static/img/avatar2.png', key: '10'},
+            {imgUrl: '/static/img/avatar2.png', key: '11'},
+            {imgUrl: '/static/img/avatar2.png', key: '12'},
+            {imgUrl: '/static/img/avatar2.png', key: '13'}
+          ]
         }
         this.getWebsocket(groupSonGuid, groupParentGuid)
       })
@@ -643,20 +658,20 @@ export default {
         if (val) {
           if (this.websocket) {
             this.websocket.close()
-            this.statisticInfo = {
-              Incoming_Today: 0,
-              Incoming_Yesterday: 0,
-              Member_Today: 0,
-              Member_Yesterday: 0,
-              Current: 0
-            }
-            this.statisticEndInfo = {
-              Incoming_Today: 0,
-              Incoming_Yesterday: 0,
-              Member_Today: 0,
-              Member_Yesterday: 0,
-              Current: 0
-            }
+          //   this.statisticInfo = {
+          //     Incoming_Today: 0,
+          //     Incoming_Yesterday: 0,
+          //     Member_Today: 0,
+          //     Member_Yesterday: 0,
+          //     Current: 0
+          //   }
+          //   this.statisticEndInfo = {
+          //     Incoming_Today: 0,
+          //     Incoming_Yesterday: 0,
+          //     Member_Today: 0,
+          //     Member_Yesterday: 0,
+          //     Current: 0
+          //   }
           }
           this.routerList = [
             {name: '总', path: ossPrefix + '/static/html/new_home.html', id: 'threeFrame'}
