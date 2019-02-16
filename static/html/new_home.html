@@ -143,7 +143,6 @@
     function setSlideInfo() {
       floorCount = getUpDownFloorCount()
       count = floorCount.position // 动态基准数
-      // console.log(count)
       standardCount = floorCount.position // 固定基准数
       floorCount.down = standardCount - (floorCount.down - 1)
       floorCount.up = standardCount + (floorCount.up - 1)
