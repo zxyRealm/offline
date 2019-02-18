@@ -203,6 +203,13 @@ div:focus {
   }
 }
 
+@each $mrl in 30{
+  .g-mrl#{$mrl} {
+    margin-left: $mrl + px;
+    margin-right: $mrl + px;
+  }
+}
+
 @each $maxw in 110, 150, 200, 94 {
   .maxw#{$maxw} {
     max-width: $maxw + px;

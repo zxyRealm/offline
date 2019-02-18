@@ -5,8 +5,10 @@
 
 <script>
 import {mapState} from 'vuex'
-import echarts from 'echarts'
 import {GetChartLine} from '../../api/visual'
+import {eventObject} from '../../utils/event'
+import {parseTime} from '../../utils'
+
 export default {
   name: 'echarts-line',
   props: ['lineHeight', 'lineParams'],
@@ -16,6 +18,15 @@ export default {
       data: [],
       // 比例图基本数据结构配置
       legendMap: {
+        inflow: [
+          {
+            name: '进客流',
+            value: '客流入',
+            textStyle: {
+              color: 'rgba(109,46,187,1)'
+            }
+          }
+        ],
         flow: [
           {
             name: '进客流',
@@ -76,7 +87,7 @@ export default {
           color: '#ffffff'
         },
         title: {
-          text: '进出客流量图',
+          text: '',
           textStyle: {
             color: '#ffffff',
             fontSize: '14',
@@ -109,7 +120,6 @@ export default {
         legend: {
           right: 0, // 排序方式
           textStyle: { // 字体设置
-            // color: '#ffffff',
             fontSize: '12',
             fontWeight: 'normal'
           },
@@ -139,14 +149,14 @@ export default {
         xAxis: [
           {
             type: 'category',
-            boundaryGap: false,
+            // boundaryGap: false,
             axisPointer: { // x轴鼠标移动虚线显示设置
               type: 'line',
               lineStyle: {
                 type: 'dashed'
               }
             },
-            data: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24']
+            data: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
           }
         ],
         yAxis: [
@@ -156,7 +166,11 @@ export default {
               show: false
             },
             splitLine: { // y轴横线不显示
-              show: false
+              show: true,
+              lineStyle: {
+                color: 'rgba(255, 255, 255, 0.07)',
+                type: 'dashed'
+              }
             }
           }
         ],
@@ -164,15 +178,11 @@ export default {
           {
             name: '进客流',
             type: 'line',
-            // smooth: true,
-            // itemStyle: {normal: {areaStyle: {type: 'default'}}},
             data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
           },
           {
             name: '出客流',
             type: 'line',
-            // smooth: true,
-            // itemStyle: {normal: {areaStyle: {type: 'default'}}},
             data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
           }
         ]
@@ -180,12 +190,14 @@ export default {
     }
   },
   created () {
+    eventObject().$on('REFRESH_DATA', this.getData)
   },
   methods: {
     // 绘制图表
     drawLine () {
       // 基于准备好的dom，初始化echarts实例
       let myChart = this.$echarts.init(document.getElementById('echarts-line'))
+      myChart.clear() // 清除数据缓存
       myChart.setOption(this.option)
       this.myChart = myChart
     },
@@ -202,69 +214,28 @@ export default {
     // 改变Series单个项目配置
     changeSeries () {
       let params = {
-        smooth: true,
-        itemStyle: {normal: {areaStyle: {type: 'default'}}}
+        smooth: true
       }
       for (let i = 0; i < this.option.series.length; i++) {
         this.$apply(this.option.series[i], params)
       }
     },
-    // 每一小时刷新一次 这里的考虑不让他重新初始化 = 控制台
-    timing () {
-      let me = this
-      me.showGenderData()
-      this.cleanTimer()
-      this.timer = window.setTimeout(this.timing, 1000 * 60 * 5)// 3600000
-    },
-    cleanTimer () {
-      if (this.timer) {
-        window.clearTimeout(this.timer)
-      }
-    },
-    // 显示客流量 = 控制台
-    showGenderData () {
-      this.changeTitle()
-      this.option.color = [new echarts.graphic.LinearGradient(
-        0, 1, 0, 0,
-        [
-          {offset: 0, color: 'rgba(166,91,223,0)'},
-          {offset: 1, color: 'rgba(109,46,187,1)'}
-        ]
-      ),
-      new echarts.graphic.LinearGradient(
-        0, 1, 0, 0,
-        [
-          {offset: 0, color: 'rgba(34,205,246,0)'},
-          {offset: 1, color: 'rgba(15,158,233,1)'}
-        ]
-      ), '#F1BB13', '#7FC16A', '#EE6C4B', '#DDDDDD']
-      if (!this.$store.state.groupSelectId) {
-        this.drawLine()
-        return
-      }
-      // console.log('echart line-------', this.filterParams)
-      GetChartLine(this.filterParams).then(res => {
-        this.data = res.data
-        this.option.xAxis[0] = this.$apply(this.option.xAxis[0], this.data.xAxisGroup[0])
-        this.option.yAxis[0] = this.$apply(this.option.yAxis[0], this.data.yAxis) // 这个yAxis是对象形式
-        // this.option.series = this.$apply(this.option.series, this.data.seriesGroup)
-        this.option.series = this.option.legend['data'].map(item => {
-          return res.data.seriesGroup.filter(item2 => item2.name === item.name)[0]
-        })
-        this.changeSeries()
-        this.drawLine()
-
-      })
-    },
     // 请求数据
     getData () {
       let params = JSON.parse(JSON.stringify(this.filterParams))
+      if (!params.startTime) {
+        this.$tip('请选择时间', 'error')
+        this.defaultShow()
+        this.drawLine()
+        return
+      }
       params.endTime = params.endTime + ' 23:59:59'
       params.startTime = params.startTime + ' 00:00:00'
       params.groupSonGuid = params.group.guid
       params.groupName = params.group.name
       delete params.group
       this.option.title = this.$apply(this.option.title, this.lineParams.title)
+      this.option.color = this.legendMap[this.filterParams.type].map(item => item.textStyle.color)
       GetChartLine(params).then(res => {
         let data = res.data
         this.option.xAxis[0] = this.$apply(this.option.xAxis[0], data.xAxisGroup[0])
@@ -275,6 +246,14 @@ export default {
           val.name = item.name
           return val
         })
+        if (this.filterParams.timeIntervalUnit === 'hour' && parseTime(new Date(), '{y}-{m}-{d}') === parseTime(this.filterParams.startTime, '{y}-{m}-{d}')) {
+          // console.log('date is current', parseTime(new Date(), '{h}'), this.option.series)
+          let num = parseTime(new Date(), '{h}')
+          this.option.series.map(item => {
+            item.data = item.data.slice(0, num)
+            return item
+          })
+        }
         this.changeSeries()
         this.drawLine()
       }).catch(error => {
@@ -289,7 +268,6 @@ export default {
           name: data[i].name,
           type: 'line',
           smooth: true,
-          itemStyle: {normal: {areaStyle: {type: 'default'}}},
           data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
         }
         emptyArray.push(params)
@@ -303,16 +281,12 @@ export default {
     }
   },
   mounted () {
-    if (this.lineParams.title.text == '客流量统计') {
-      this.timing() // 定时刷新数据，一个小时一次
-    } else {
-      // 根据数据类型设置不同颜色配置参数
-      this.option.color = this.legendMap[this.filterParams.type].map(item => item.textStyle.color)
-      if (!this.filterParams.group || !this.filterParams.group.group) {
-        this.changeTitle()
-        this.defaultShow()
-        this.drawLine()
-      }
+    // 根据数据类型设置不同颜色配置参数
+    this.option.color = this.legendMap[this.filterParams.type].map(item => item.textStyle.color)
+    if (!this.filterParams.group || !this.filterParams.group.group) {
+      this.changeTitle()
+      this.defaultShow()
+      this.drawLine()
     }
   },
   computed: {
@@ -322,13 +296,9 @@ export default {
     ])
   },
   watch: {
-    // 监听vuex groupConsoleId是否改变
-    groupConsoleId (val) {
-      this.timing() // 定时刷新数据，一个小时一次
-    }
   },
   beforeDestroy () {
-    this.cleanTimer()
+    eventObject().$off('REFRESH_DATA', this.getData)
   }
 }
 </script>

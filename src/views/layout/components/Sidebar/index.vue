@@ -76,7 +76,7 @@ export default {
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   .el-menu-item {
     [class^=ob-icon] {
       display: inline-block;
@@ -115,7 +115,7 @@ export default {
     }
     &.is-active {
       color: #fff;
-      background: url("../../image/ob-icon-nav__active.png") no-repeat center center;
+      background: url(../../image/ob-icon-nav__active.png) no-repeat center center;
       background-size: cover;
     }
   }

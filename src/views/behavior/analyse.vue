@@ -66,7 +66,7 @@
       </el-date-picker>
       <a href="javascript:void (0)" @click="getBehaviorList()" class="fr">刷新</a>
     </div>
-    <el-scrollbar id="analyse__scrollbar" class="table__scrollbar">
+    <el-scrollbar v-scroll-top="pagination.index" class="table__scrollbar">
       <el-table
       border
       :empty-text="emptyText"
@@ -271,7 +271,6 @@ export default {
         this.emptyText = '暂无数据'
         this.pagination = res.data.pagination
         this.behaviorList = res.data.content
-        if (document.getElementById('analyse__scrollbar')) document.getElementById('analyse__scrollbar').children[0].scrollTop = 0
       }).catch(() => {
         this.emptyText = '数据请求失败'
         this.$route.meta.keepAlive = false
@@ -279,7 +278,6 @@ export default {
     },
     // 通过名称搜索社群或者设备
     filterName (type) {
-      // console.log('filter type', type, this.search.group, '----0---')
       switch (type) {
         case 'group':
           this.groupList = this.groupOriginList.filter(item => item.name.indexOf(this.search.group) > -1 || item.nickName.indexOf(this.search.group) > -1)

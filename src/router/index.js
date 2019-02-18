@@ -84,7 +84,7 @@ export const constantRouterMap = [
         path: '/index/notify/:notifyState',
         name: 'index-home',
         meta: {
-          title: '系统消息-线下浏览器服务平台',
+          title: '站内信-线下浏览器服务平台',
           keepAlive: false
         },
         component: homeNotify
@@ -121,7 +121,7 @@ export const constantRouterMap = [
         path: 'mine',
         name: 'community',
         meta: {
-          title: '我的社群-社群管理-线下浏览器服务平台'
+          title: '社群管理-线下浏览器服务平台'
         },
         component: Community
       }
@@ -140,7 +140,7 @@ export const constantRouterMap = [
         path: 'list',
         name: 'equipment',
         meta: {
-          title: '设备列表-设备管理-线下浏览器服务平台',
+          title: '设备管理-线下浏览器服务平台',
           keepAlive: true
         },
         component: EquipmentList,
@@ -149,7 +149,7 @@ export const constantRouterMap = [
             path: 'aio',
             name: 'equipmentAio',
             meta: {
-              title: '自有设备-设备管理-线下浏览器服务平台',
+              title: '设备管理-线下浏览器服务平台',
               keepAlive: true
             },
             component: EquipmentAio
@@ -158,7 +158,7 @@ export const constantRouterMap = [
             path: 'camera',
             name: 'equipmentCamera',
             meta: {
-              title: '摄像头管理-设备管理-线下浏览器服务平台',
+              title: '设备管理-线下浏览器服务平台',
               keepAlive: true
             },
             component: EquipmentCamera
@@ -167,7 +167,7 @@ export const constantRouterMap = [
             path: 'server',
             name: 'equipmentServer',
             meta: {
-              title: '服务器-设备管理-线下浏览器服务平台',
+              title: '设备管理-线下浏览器服务平台',
               keepAlive: true
             },
             component: EquipmentServer
@@ -176,7 +176,7 @@ export const constantRouterMap = [
             path: '/equipment/portal',
             name: 'equipmentPortal',
             meta: {
-              title: '出入口设备-设备管理-线下浏览器服务平台',
+              title: '设备管理-线下浏览器服务平台',
               auth: true,
               keepAlive: false
             },
@@ -229,7 +229,7 @@ export const constantRouterMap = [
         path: 'index',
         name: 'data',
         meta: {
-          title: '数据可视化-线下浏览器服务平台',
+          title: '数据分析-线下浏览器服务平台',
           keepAlive: false
         },
         component: Data,
@@ -238,7 +238,7 @@ export const constantRouterMap = [
             path: '/data/guest-analysis',
             name: 'guest-analysis',
             meta: {
-              title: '客流统计-数据可视化-线下浏览器服务平台',
+              title: '数据分析-线下浏览器服务平台',
               keepAlive: false
             },
             component: guestAnalysis
@@ -247,7 +247,7 @@ export const constantRouterMap = [
             path: '/data/gender-analysis',
             name: 'gender-analysis',
             meta: {
-              title: '性别分析-数据可视化-线下浏览器服务平台',
+              title: '数据分析-线下浏览器服务平台',
               keepAlive: false
             },
             component: genderAnalysis
@@ -256,7 +256,7 @@ export const constantRouterMap = [
             path: '/data/age-analysis',
             name: 'age-analysis',
             meta: {
-              title: '年龄分析-数据可视化-线下浏览器服务平台',
+              title: '数据分析-线下浏览器服务平台',
               keepAlive: false
             },
             component: ageAnalysis
@@ -265,7 +265,7 @@ export const constantRouterMap = [
             path: '/data/shop-frequency-analysis',
             name: 'shop-frequency-analysis',
             meta: {
-              title: '到店频次分析-数据可视化-线下浏览器服务平台',
+              title: '数据分析-线下浏览器服务平台',
               keepAlive: false
             },
             component: shopFrequencyAnalysis
@@ -293,7 +293,7 @@ export const constantRouterMap = [
             name: 'BehaviorTrail',
             component: BehaviorTrail,
             meta: {
-              title: '移动轨迹'
+              title: '行为分析-线下浏览器服务平台'
             }
           },
           {
@@ -301,7 +301,7 @@ export const constantRouterMap = [
             component: BehaviorAnalyse,
             name: 'BehaviorAnalyse',
             meta: {
-              title: '行为分析'
+              title: '行为分析-线下浏览器服务平台'
             }
           }
         ]
@@ -323,7 +323,7 @@ export const constantRouterMap = [
         name: 'developer',
         meta: {
           auth: true,
-          title: '个人信息-开发者中心-线下浏览器服务平台',
+          title: '开发者中心-线下浏览器服务平台',
           keepAlive: false
         },
         component: Developer
@@ -333,7 +333,7 @@ export const constantRouterMap = [
         name: 'addNotifyCallback',
         meta: {
           auth: true,
-          title: '创建回调信息-开发者中心-线下浏览器服务平台',
+          title: '开发者中心-线下浏览器服务平台',
           keepAlive: false
         },
         component: notifyCallback
@@ -343,7 +343,7 @@ export const constantRouterMap = [
         name: 'editNotifyCallback',
         meta: {
           auth: true,
-          title: '编辑回调信息-开发者中心-线下浏览器服务平台',
+          title: '开发者中心-线下浏览器服务平台',
           keepAlive: false
         },
         component: notifyCallback
@@ -353,7 +353,7 @@ export const constantRouterMap = [
         name: 'sysNotify',
         meta: {
           auth: true,
-          title: '消息通知-开发者中心-线下浏览器服务平台',
+          title: '开发者中心-线下浏览器服务平台',
           keepAlive: false
         },
         component: sysNotify
@@ -367,7 +367,7 @@ export const constantRouterMap = [
         name: 'personCenter',
         meta: {
           auth: true,
-          title: '个人信息-开发者中心-线下浏览器服务平台',
+          title: '个人中心-线下浏览器服务平台',
           keepAlive: false
         },
         component: Developer
@@ -377,7 +377,7 @@ export const constantRouterMap = [
         name: 'personEdit',
         meta: {
           auth: true,
-          title: '编辑信息-开发者中心-线下浏览器服务平台',
+          title: '个人中心-线下浏览器服务平台',
           keepAlive: false
         },
         component: Developer
@@ -391,7 +391,7 @@ export const constantRouterMap = [
         name: 'developerApi',
         meta: {
           auth: true,
-          title: '开放API-开发者中心-线下浏览器服务平台',
+          title: '开发者中心-线下浏览器服务平台',
           keepAlive: false
         },
         component: apiIndex,
@@ -401,7 +401,7 @@ export const constantRouterMap = [
             name: 'apiRule',
             meta: {
               auth: true,
-              title: 'API通用规则-开放API-线下浏览器服务平台',
+              title: '开发者中心-线下浏览器服务平台',
               keepAlive: false
             },
             component: apiRule
@@ -411,7 +411,7 @@ export const constantRouterMap = [
             name: 'ApiCommon',
             meta: {
               auth: true,
-              title: '通用返回值-开放API-线下浏览器服务平台',
+              title: '开发者中心-线下浏览器服务平台',
               keepAlive: false
             },
             component: apiCommon
@@ -421,7 +421,7 @@ export const constantRouterMap = [
             name: 'ApiAuth',
             meta: {
               auth: true,
-              title: '鉴权接口-开放API-线下浏览器服务平台',
+              title: '开发者中心-线下浏览器服务平台',
               keepAlive: false
             },
             component: apiAuth
@@ -431,7 +431,7 @@ export const constantRouterMap = [
             name: 'ApiCommunity',
             meta: {
               auth: true,
-              title: '社群数据-开放API-线下浏览器服务平台',
+              title: '开发者中心-线下浏览器服务平台',
               keepAlive: false
             },
             component: apiCommunity
@@ -441,7 +441,7 @@ export const constantRouterMap = [
             name: 'ApiFlow',
             meta: {
               auth: true,
-              title: '客流数据-开放API-线下浏览器服务平台',
+              title: '开发者中心-线下浏览器服务平台',
               keepAlive: false
             },
             component: apiFlow
@@ -451,7 +451,7 @@ export const constantRouterMap = [
             name: 'ApiCode',
             meta: {
               auth: true,
-              title: '状态码-开放API-线下浏览器服务平台',
+              title: '开发者中心-线下浏览器服务平台',
               keepAlive: false
             },
             component: ApiCode
@@ -463,7 +463,7 @@ export const constantRouterMap = [
         name: 'paramExplain',
         meta: {
           auth: true,
-          title: '参数说明-开发者中心-线下浏览器服务平台',
+          title: '开发者中心-线下浏览器服务平台',
           keepAlive: false
         },
         component: paramExplain

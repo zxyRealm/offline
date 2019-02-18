@@ -36,7 +36,7 @@ export default {
         {title: '客流统计', path: '/data/guest-analysis'},
         {title: '性别分析', path: '/data/gender-analysis'},
         {title: '年龄分析', path: '/data/age-analysis'},
-        {title: '到店频次分析', path: '/data/shop-frequency-analysis'}
+        {title: '回头客分析', path: '/data/shop-frequency-analysis'}
       ]
     }
   },

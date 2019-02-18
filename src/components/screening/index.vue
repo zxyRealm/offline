@@ -16,7 +16,7 @@
             :label="item.name"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="维度：" prop="dimension" auto-complete="off">
+      <el-form-item label="维度：" prop="timeIntervalUnit" auto-complete="off">
         <template v-for="(ele,index ) in dimensionData">
           <button
             class="dimension-button" @click.stop.prevent="handleButton(ele)"
@@ -99,7 +99,6 @@ export default {
         timeArray: []
       },
       groupList: [] // 社群列表信息
-
     }
   },
   methods: {
@@ -108,6 +107,7 @@ export default {
       if (!this.currentManage.id) return
       MemberNoFloor({groupId: this.currentManage.id}).then(res => {
         this.groupList = res.data
+        this.filterParams.group = res.data[0]
       })
     },
     // 更换选取社群
@@ -117,7 +117,10 @@ export default {
     // 点击维度
     handleButton (value) {
       this.filterParams.timeIntervalUnit = value.type
-      if (value === 'hour') this.filterParams.endTime = this.filterParams.startTime = parseTime(new Date(), '{y}-{m}-{d}')
+      this.filterParams.endTime = ''
+      this.filterParams.startTime = ''
+      if (value.type === 'hour') this.filterParams.endTime = this.filterParams.startTime = parseTime(new Date(), '{y}-{m}-{d}')
+      this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
     },
     // 处理时间
     dealTime () {
@@ -132,10 +135,9 @@ export default {
     // vuex状态管理数据
     changeParams () {
       this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
-      // 这这里触发兄弟组件更新条件
+      // 通过eventBus通知兄弟组件更新数据
       try {
-        this.$parent.$children[1].getData()
-        this.$parent.$children[2].getData()
+        eventObject().$emit('REFRESH_DATA', '')
       } catch (e) {
         console.info(e)
       }
@@ -153,18 +155,23 @@ export default {
       eventObject().$emit('screening-params-change', '')
       this.dealTime()
       this.changeParams()
+    },
+    // 数据类型改变
+    changeType (type) {
+      this.filterParams.type = type
     }
   },
   created () {
-    eventObject().$on('resize-echarts-data', msg => { // eventObject接收事件  == 控制数据可视化的图表重置
-      let consoleTimer = null
-      if (consoleTimer) {
-        consoleTimer = null
-      }
-      consoleTimer = setTimeout(() => {
-        this.$parent.resizeFunction()
-      }, 300)
-    })
+    // eventObject().$on('resize-echarts-data', msg => { // eventObject接收事件  == 控制数据可视化的图表重置
+    //   let consoleTimer = null
+    //   if (consoleTimer) {
+    //     consoleTimer = null
+    //   }
+    //   consoleTimer = setTimeout(() => {
+    //     this.$parent.resizeFunction()
+    //   }, 300)
+    // })
+    eventObject().$on('CHANGE_TYPE', this.changeType)
     this.getGroupList()
   },
   mounted () {
@@ -173,8 +180,7 @@ export default {
     this.filterParams.type = this.type
     this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
     if (this.filterParams.group && this.filterParams.group.guid) {
-      this.$parent.$children[1].getData()
-      this.$parent.$children[2].getData()
+      eventObject().$emit('REFRESH_DATA', '')
     }
   },
   computed: {
@@ -187,6 +193,9 @@ export default {
       },
       deep: true
     }
+  },
+  beforeDestroy () {
+    eventObject().$off('CHANGE_TYPE', this.changeType)
   }
 }
 </script>

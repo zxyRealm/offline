@@ -48,7 +48,7 @@
           </div>
         </div>
         <div class="developer-api-content">
-          <el-scrollbar ref="scrollContent">
+          <el-scrollbar ref="scrollContent" v-scroll-top="$route.path">
             <div class="scroll-inner">
               <div class="total-content">
                 <router-view></router-view>
@@ -96,7 +96,6 @@ export default {
   methods: {
     // 根据路由显示不同api 文档信息，路由变化时滚动区回到顶部
     routeChange (route) {
-      this.$refs.scrollContent.wrap.scrollTop = 0
       if (route.name === 'apiFaceImg') {
         this.currentData = this.faceImgData
       } else {

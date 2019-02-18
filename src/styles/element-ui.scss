@@ -188,6 +188,26 @@
       color: #fff;
     }
   }
+
+  //数据分析页table样式定制
+  &.flow-table{
+    .has-gutter{
+      th:nth-child(3){
+        .cell{
+          padding: 0 30px;
+        }
+      }
+    }
+    .el-table__row{
+      td:last-child{
+        .cell{
+          padding: 0 30px;
+          overflow: hidden;
+          line-height: 54px;
+        }
+      }
+    }
+  }
 }
 
 //el-tree 树形组件定义默认主题 黑色（社群管理）

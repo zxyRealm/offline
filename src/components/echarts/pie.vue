@@ -7,6 +7,7 @@
 import echarts from 'echarts'
 import {mapState} from 'vuex'
 import {GetChartPie} from '../../api/visual'
+import {eventObject} from '../../utils/event'
 
 export default {
   name: 'echarts-pie',
@@ -45,20 +46,6 @@ export default {
           }
         ]
       },
-      // 到店频次图例字体样式
-      shopLegend: [
-        {
-          name: '多次',
-          textStyle: {
-            color: 'rgba(109,46,187,1)'
-          }
-        },
-        {
-          name: '单次',
-          textStyle: {
-            color: 'rgba(15,158,233,1)'
-          }
-        }],
       option: {
         color: [
           '#FFD500',
@@ -171,7 +158,7 @@ export default {
         ]
       },
       roseSeries: {
-        radius: [44, 75],
+        radius: [42, 70],
         center: ['50%', '50%'],
         // roseType: 'area'
         roseType: 'radius'
@@ -228,6 +215,11 @@ export default {
     // 请求数据
     getData () {
       let params = JSON.parse(JSON.stringify(this.filterParams))
+      if (!params.startTime) {
+        this.defaultShow()
+        this.drawPie()
+        return
+      }
       params.startTime = params.startTime + ' 00:00:00'
       params.endTime = params.endTime + ' 23:59:59'
       params.groupSonGuid = params.group.guid
@@ -246,6 +238,9 @@ export default {
       })
     }
   },
+  created () {
+    eventObject().$on('REFRESH_DATA', this.getData)
+  },
   mounted () {
     if (this.pieParams.title.text === '男女流量占比') {
       let me = this
@@ -254,7 +249,7 @@ export default {
       }, 300)
     } else {
       this.changeColor()
-      if (!this.filterParams.group || !this.filterParams.group.guid) {
+      if (!this.filterParams.group || !this.filterParams.group.guid || !this.filterParams.startTime) {
         this.changeTitle()
         this.defaultShow()
         this.drawPie()
@@ -269,6 +264,9 @@ export default {
       this.showAgeData()
       return true
     }
+  },
+  beforeDestroy () {
+    eventObject().$off('REFRESH_DATA', this.getData)
   }
 }
 </script>

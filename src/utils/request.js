@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Message, Loading, MessageBox } from 'element-ui'
 import router from '@/router'
 import Store from '@/store'
-
+const ossPrefix = process.env.OSS_PREFIX
 // 加载层
 export function load (text, target) {
   // target 必须用id
@@ -60,7 +60,7 @@ export function message (txt, type, delay = 1500) {
   let cs = type === 'waiting' || type === 'caution' ? 'device' : ''
   let options = {
     message: `<div class="tip_message_content ${type}">
-        <img class="tip_img_icon" src="/static/img/${icon}_tip_icon.png" alt="">
+        <img class="tip_img_icon" src="${ossPrefix}/static/img/${icon}_tip_icon.png" alt="">
         <p style="padding:0px" class="text">${txt === 'Filter threw Exception' ? '服务访问失败' : txt}</p>
       </div>`,
     center: true,
