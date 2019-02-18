@@ -30,7 +30,7 @@ export default {
   data () {
     return {
       frame: {
-        path: '/static/html/trail_demo.html?playcount=0&status=0',
+        path: ossPrefix + '/static/html/trail_demo.html?playcount=0&status=0',
         id: 'threeFrame'
       },
       iframe: null,
@@ -38,7 +38,8 @@ export default {
       communityInfo: [],
       elevatorList: [],
       playCount: '',
-      isDateChange: false
+      isDateChange: false,
+      iframeLoaded: false
     }
   },
   methods: {
@@ -55,7 +56,7 @@ export default {
           if (this.trailData.length) {
             this.$nextTick(() => {
               this.iframe = this.$refs.iframe.contentWindow
-              if (this.isDateChange === true) {
+              if (this.isDateChange === true && this.iframeLoaded) {
                 this.iframe.postMessage({
                   type: 'CHANGE_DATE'
                 }, this.originSrc)
@@ -65,9 +66,6 @@ export default {
           }
         })
       }
-    },
-    originSrc () {
-      return ossPrefix || '*'
     },
     changeDate () {
       this.isDateChange = true
@@ -93,6 +91,7 @@ export default {
           eventObject().$emit('IFRAME_FRESH_COUNT', data.params.play_count)
           this.playCount = data.params.play_count
           this.changeDate()
+          this.iframeLoaded = true
           this.iframe.postMessage({
             type: 'GET_TRAIL_DATA',
             trailData: this.trailData
@@ -131,7 +130,10 @@ export default {
     this.init(this.data, this.currentManage.id)
   },
   computed: {
-    ...mapState(['currentManage'])
+    ...mapState(['currentManage']),
+    originSrc () {
+      return ossPrefix || '*'
+    }
   },
   watch: {
     data: {
@@ -166,4 +168,3 @@ export default {
   }
 }
 </style>
-

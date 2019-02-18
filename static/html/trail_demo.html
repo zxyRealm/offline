@@ -79,8 +79,7 @@
   var BEGIN_FLOOR;
   var END_FLOOR;
   // 获取当前url
-  var url = parent.document.getElementById("threeFrame").contentWindow.location.href
-
+  var url = window.location.href
   // 调色板
   var PALLETTE = {
     LIGHT: '#FFFFFF', // 灯光
@@ -96,7 +95,7 @@
   };
 
   var play = false;
-  var play_count = parseInt(parent.document.getElementById("threeFrame").contentWindow.location.search.split('&')[0].split('=')[1]);
+  var play_count = parseInt(window.location.search.split('&')[0].split('=')[1]);
 
   var communityInfo = []; // 接收社群信息
   var elevatorList = []; // 接收电梯列表
@@ -841,7 +840,7 @@
     });
     this.mesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
   }
-  
+
   // 单层楼色块
   function Store(shape, groupName) {
     var geometry2 = new THREE.ShapeBufferGeometry(shape);
@@ -1252,14 +1251,16 @@
 
   // 刷新页面
   function refresh() {
-    var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
+    var url = window.location.href
+    // var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
     var host = url.split('?')[0];
     var params = '?playcount=' + (play_count) + '&status=1';
     window.location.href = host + params
   }
 
   function changeDate() {
-    var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
+    var url = window.location.href
+    // var url = parent.document.getElementById("threeFrame").contentWindow.location.href;
     var host = url.split('?')[0];
     var params = '?playcount=' + (play_count) + '&status=0';
     window.location.href = host + params

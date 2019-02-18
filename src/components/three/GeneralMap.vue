@@ -168,12 +168,18 @@
             <div class="box-right" style="position: relative">
               <div class="img-wrap">
                 <img
-                  :class="{'glow-border': item.imgUrl !== '/static/img/avatar2.png',
-                    'un-member-border': item.name === '---'&&item.imgUrl !== '/static/img/avatar2.png',
-                    'member-border': item.name !== '---'&&item.imgUrl !== '/static/img/avatar2.png'}"
+                  v-if="item.appearanceDate"
                   :src="item.imgUrl"
-                  alt
-                >
+                  class="glow-border"
+                  :class="{'un-member-border': item.name === '---', 'member-border': item.name !== '---'}" alt="">
+                <img src="@/assets/public/avatar2.png"  alt="" v-else>
+                <!--<img-->
+                  <!--:class="{'glow-border': item.imgUrl !== '/static/img/avatar2.png',-->
+                    <!--'un-member-border': item.name === '-&#45;&#45;'&&item.imgUrl !== '/static/img/avatar2.png',-->
+                    <!--'member-border': item.name !== '-&#45;&#45;'&&item.imgUrl !== '/static/img/avatar2.png'}"-->
+                  <!--:src="item.imgUrl"-->
+                  <!--alt-->
+                <!--&gt;-->
                 <span class="corner-icon"></span>
               </div>
               <div v-if="item.name && item.name === '---'" class="member-mask"><span
@@ -260,7 +266,10 @@ export default {
     }
   },
   computed: {
-    ...mapState(['currentManage'])
+    ...mapState(['currentManage']),
+    originSrc () {
+      return ossPrefix || '*'
+    }
   },
   methods: {
     // 切换iframe
@@ -274,9 +283,6 @@ export default {
           this.getLatestFace(item.groupParentGuid, item.groupSonGuid)
         }
       })
-    },
-    originSrc () {
-      return ossPrefix || '*'
     },
     // 获取socket服务地址并建立websocket链接
     getWebsocket (groupSonGuid, groupParentGuid) {
@@ -449,7 +455,7 @@ export default {
         let lowFloor = floorInfo[0].floor < 0 ? Math.abs(floorInfo[0].floor) * floorHeight : 0
         for (let i in floorInfo) {
           // 计算地上楼层和地下楼层的Y坐标
-          console.log(floorInfo[i].floor, floorInfo[minIndex].floor)
+          // console.log(floorInfo[i].floor, floorInfo[minIndex].floor)
           let upFloorCoordinateY = (floorInfo[i].floor - floorInfo[minIndex].floor - 1) * floorHeight
           let downFloorCoordinateY = (floorInfo[i].floor - 1) * floorHeight
           let coordinateY = floorInfo[i].floor >= 0 ? upFloorCoordinateY : downFloorCoordinateY
@@ -556,7 +562,7 @@ export default {
           break
         case 'post-coordinate':
           // 通过data.params调用接口
-          console.log(data.params)
+          // console.log(data.params)
           // 发送单点信息
           this.sendStoreData()
           break
@@ -704,7 +710,7 @@ export default {
       display: flex;
       flex-direction: column;
       height: 100%;
-      background-image: url('../../assets/public/map_background.png');
+      background-image: url(../../assets/public/map_background.png);
       background-size: cover;
       #floor2 {
         top: 10px;

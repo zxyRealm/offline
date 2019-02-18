@@ -121,6 +121,7 @@ export default {
       this.preview.src = row.imageUrl
       this.preview.visible = true
     },
+    // 获取个人行为轨迹信息列表
     getPersonTrail () {
       GetPersonTrail({personId: this.$route.params.personId}).then(res => {
         this.trailDetailInfo = res.data || {}
@@ -173,15 +174,8 @@ export default {
       let arr = this.trailList.filter(item => {
         return (item.visitTime.replace(/-/g, '/') === this.spoorDate)
       })[0]
-      let iterator = arr ? arr.captureFaceInfo.reverse() : []
+      let iterator = arr ? JSON.parse(JSON.stringify(arr.captureFaceInfo)).reverse() : []
       this.currentTrailList = iterator
-      // if (iterator[0] && iterator[0].rect) {
-      //   this.backAsyncData(iterator).then(list => {
-      //     this.currentTrailList = list
-      //   })
-      // } else {
-      //   this.currentTrailList = iterator
-      // }
     }
   },
   watch: {

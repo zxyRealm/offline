@@ -133,6 +133,7 @@ export default {
     }
     return {
       count: 1,
+      manageRefresh: false, // 管理社群是否改变
       showTip: false,
       handleDialogType: 1, // 弹窗类型
       AddDeviceVisible: false, // 出入口添加设备
@@ -196,6 +197,10 @@ export default {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
       if (!this.data.floor || this.data.type === 4) {
+        if (this.manageRefresh) {
+          int = this.floorList[0].floor
+          this.manageRefresh = false
+        }
         this.currentFloor = this.floorList.filter(item => item.floor === (int || this.currentFloor.floor))[0] || this.floorList[0] || ''
       } else {
         let Info = JSON.parse(JSON.stringify(this.data || ''))
@@ -408,10 +413,15 @@ export default {
       },
       deep: true
     },
+    currentManage: {
+      handler (val) {
+        this.manageRefresh = true
+      },
+      deep: true
+    },
     handlePortalVisible: {
       handler (val) {
         if (!val && this.$refs.handlePortalForm) {
-          // console.log('------------', val)
           this.$refs.handlePortalForm.resetFields()
         }
       },

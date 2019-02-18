@@ -479,24 +479,7 @@ export default {
     return {
       isManage: false,
       originCode: '', // 邀请码
-      parentGroups: [
-        {name: '西溪'},
-        {name: '西湖'},
-        {name: '城西'}
-      ],
       portalGuid: '', // 要绑定的出入口id
-      ownDeviceList: [
-        {name: '设备001', deviceKey: 'SLD61SFG4484'},
-        {name: '设备002', deviceKey: 'SLD61SFG4485'},
-        {name: '设备003', deviceKey: 'SLD61SFG4486'},
-        {name: '设备004', deviceKey: 'SLD61SFG4487', disabled: true},
-        {name: '设备005', deviceKey: 'SLD61SFG4488'},
-        {name: '设备001', deviceKey: 'SLD61SFG4484'},
-        {name: '设备002', deviceKey: 'SLD61SFG4485'},
-        {name: '设备003', deviceKey: 'SLD61SFG4486'},
-        {name: '设备004', deviceKey: 'SLD61SFG4487'},
-        {name: '设备005', deviceKey: 'SLD61SFG4488'}
-      ], // 自有设备列表
       checkedItems: [], // 已选中设备
       industryList: [], // 业态列表
       floorList: [], // 楼层列表
