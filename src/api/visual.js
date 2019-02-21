@@ -36,7 +36,6 @@ export function GetTimeRatio (data) {
 // 数据分析客流统计表格数据
 export function GetFlowCount (data) {
   return request({
-    tip: false,
     url: '/chart/flow/count',
     data
   })
@@ -54,6 +53,14 @@ export function GetLatestFace (data) {
 export function GetMemberList (data) {
   return request({
     url: '/personData',
+    data
+  })
+}
+
+// 客流统计人员到访记录
+export function GetVisitedList (data) {
+  return request({
+    url: '/chart/inflow/Image',
     data
   })
 }
