@@ -8,9 +8,8 @@
         @remote-search="remoteSearch"
         :menu-array="[{title: '社群管理'}]">
       </uu-sub-tab>
-      <div class="mine__community--main" :class="{'data-empty': currentManage.type !== 3 && !groupList.length}">
-        <ob-list-empty v-if="currentManage.id && !groupList.length" top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
-        <div class="mine__community--content" v-else>
+      <div class="mine__community--main" v-if="currentManage.id && (groupList.length || (storeFloor.length && currentManage.type === 3))">
+        <div class="mine__community--content">
           <div class="community--sidebar" v-if="currentManage.type !== 3">
             <ob-group-nav
               is-edit
@@ -103,6 +102,7 @@
           </div>
         </div>
       </div>
+      <ob-list-empty v-else top="70px" :supply="supply" :text="tipMsg"></ob-list-empty>
 
       <!--加入其他管理员社群-->
       <ob-dialog-form
@@ -754,6 +754,7 @@ export default {
       if (!pid) return
       switch (this.currentManage.type) {
         case 1:
+          this.storeFloor = []
           GetMarketList({parentId: pid}).then(res => {
             let arr = res.data || []
             if (arr[0] && arr[0].subGroupSon.length) {
@@ -793,9 +794,10 @@ export default {
           })
           break
         case 3:
+          this.groupList = []
           GetStoreList({parentGuid: pid}).then(res => {
             this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
-            if (res.data[0].groupSonGuid) {
+            if (res.data[0] && res.data[0].groupSonGuid) {
               GetMemberDetail({groupSonId: res.data[0].groupSonGuid, parentId: this.currentManage.id}).then(res2 => {
                 res2.data.level = 1
                 res2.data.self = this.currentManage.type === 3 || res2.data.type !== 4

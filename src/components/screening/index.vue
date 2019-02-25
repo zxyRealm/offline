@@ -81,7 +81,7 @@
 <script>
 import {eventObject} from '@/utils/event.js'
 import {parseTime} from '@/utils/index'
-import {MemberNoFloor} from '../../api/community'
+import {MemberNoFloor, GetStoreList} from '../../api/community'
 import {mapState} from 'vuex'
 import Moment from 'moment'
 export default {
@@ -121,10 +121,21 @@ export default {
     // 获取社群列表
     getGroupList () {
       if (!this.currentManage.id) return
-      MemberNoFloor({groupId: this.currentManage.id}).then(res => {
-        this.groupList = res.data
-        this.filterParams.group = res.data[0]
-      })
+      let pid = this.currentManage.id
+      if (this.currentManage.type === 3) {
+        GetStoreList({parentGuid: pid}).then(res => {
+          this.groupList = res.data
+          if (res.data[0]) {
+            res.data[0].guid = res.data[0].groupSonGuid
+          }
+          this.filterParams.group = res.data[0]
+        })
+      } else {
+        MemberNoFloor({groupId: pid}).then(res => {
+          this.groupList = res.data
+          this.filterParams.group = res.data[0]
+        })
+      }
     },
     // 更换选取社群
     groupChange () {

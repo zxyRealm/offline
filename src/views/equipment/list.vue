@@ -290,8 +290,10 @@ export default {
         let name = file.name.substring(0, file.name.lastIndexOf('.'))
         if (!fileTypeAllow(file.name, 'xlsx,xls')) {
           callback(new Error('只允许上传xlsx、xls文件'))
-        } else if ((this.$route.name !== 'equipmentCamera' && name !== '7045-8045') || (this.$route.name === 'equipmentCamera' && name !== '7A45-8A45')) {
-          callback(new Error('导入文件名与模版不同'))
+        } else if ((this.$route.name === 'equipmentCamera' && name !== '7A45-8A45')) {
+          callback(new Error('excel文件名需为“7A45-8A45”'))
+        } else if (this.$route.name !== 'equipmentCamera' && name !== '7045-8045') {
+          callback(new Error('excel文件名需为“7045-8045”'))
         } else {
           callback()
         }
