@@ -4,11 +4,9 @@
   </div>
 </template>
 <script>
-import echarts from 'echarts'
 import {mapState} from 'vuex'
 import {GetChartPie} from '../../api/visual'
 import {eventObject} from '../../utils/event'
-
 export default {
   name: 'echarts-pie',
   props: ['pieParams'],
@@ -220,8 +218,6 @@ export default {
         this.drawPie()
         return
       }
-      params.startTime = params.startTime + ' 00:00:00'
-      params.endTime = params.endTime + ' 23:59:59'
       params.groupSonGuid = params.group.guid
       params.groupName = params.group.name
       delete params.group

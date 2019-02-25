@@ -5,6 +5,7 @@
 
 <script>
 import {mapState} from 'vuex'
+import Moment from 'moment'
 import {GetChartLine} from '../../api/visual'
 import {eventObject} from '../../utils/event'
 import {parseTime} from '../../utils'
@@ -229,8 +230,6 @@ export default {
         this.drawLine()
         return
       }
-      params.endTime = params.endTime + ' 23:59:59'
-      params.startTime = params.startTime + ' 00:00:00'
       params.groupSonGuid = params.group.guid
       params.groupName = params.group.name
       delete params.group

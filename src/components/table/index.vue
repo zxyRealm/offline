@@ -204,8 +204,6 @@ export default {
       }
       params.length = this.pageParams.pageSize
       params.index = this.pageParams.currentPage
-      params.startTime = params.startTime + ' 00:00:00'
-      params.endTime = Moment(params.endTime).add(1, 'days').format('YYYY-MM-DD 00:00:00')
       params.groupSonGuid = params.group.guid
       params.groupName = params.group.name
       delete params.group
@@ -250,7 +248,6 @@ export default {
     formatDate (date) {
       let type = this.searchParams.timeIntervalUnit
       let show = ''
-      console.log('date-----', date)
       switch (type) {
         case 'hour':
           show = Moment(date).format('YYYY-MM-DD HH:00')

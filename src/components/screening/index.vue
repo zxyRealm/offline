@@ -29,7 +29,7 @@
         <el-date-picker
           v-show="filterParams.timeIntervalUnit === 'hour'"
           type="date"
-          v-model="filterParams.startTime"
+          v-model="filterParams.timeArray[0]"
           placeholder="选择日期"
           value-format="yyyy-MM-dd"
           class="picker-data"
@@ -40,14 +40,29 @@
         >
         </el-date-picker>
         <el-date-picker
-          v-show="filterParams.timeIntervalUnit !== 'hour'"
+          v-show="filterParams.timeIntervalUnit === 'day' || filterParams.timeIntervalUnit === 'week'"
           v-model="filterParams.timeArray"
           type="daterange"
           align="center"
           unlink-panels
           range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
+          start-placeholder="开始时间"
+          end-placeholder="结束时间"
+          value-format="yyyy-MM-dd"
+          :picker-options="pickerOptions1"
+          :clearable="false"
+          prefix-icon="''"
+        >
+        </el-date-picker>
+        <el-date-picker
+          v-show="filterParams.timeIntervalUnit === 'month'"
+          v-model="filterParams.timeArray"
+          type="monthrange"
+          align="center"
+          unlink-panels
+          range-separator="至"
+          start-placeholder="开始时间"
+          end-placeholder="结束时间"
           value-format="yyyy-MM-dd"
           :picker-options="pickerOptions1"
           :clearable="false"
@@ -68,6 +83,7 @@ import {eventObject} from '@/utils/event.js'
 import {parseTime} from '@/utils/index'
 import {MemberNoFloor} from '../../api/community'
 import {mapState} from 'vuex'
+import Moment from 'moment'
 export default {
   name: 'screening-index',
   props: ['type'],
@@ -96,7 +112,7 @@ export default {
         timeIntervalUnit: 'hour', // 维度
         startTime: '', // 开始时间
         endTime: '', // 结束时间
-        timeArray: []
+        timeArray: ['', '']
       },
       groupList: [] // 社群列表信息
     }
@@ -119,17 +135,33 @@ export default {
       this.filterParams.timeIntervalUnit = value.type
       this.filterParams.endTime = ''
       this.filterParams.startTime = ''
-      if (value.type === 'hour') this.filterParams.endTime = this.filterParams.startTime = parseTime(new Date(), '{y}-{m}-{d}')
+      // this.filterParams.timeArray = []
+      const current = Moment(new Date()).format('YYYY-MM-DD')
+      const firstDayMonth = Moment(new Date()).startOf('month').format('YYYY-MM-DD')
+      if (value.type === 'hour') {
+        this.filterParams.timeArray = [current, current]
+      } else if (!this.filterParams.timeArray[0] || this.filterParams.timeArray[0] === current) {
+        this.filterParams.timeArray = [firstDayMonth, current]
+      }
+      this.dealTime()
       this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
     },
     // 处理时间
     dealTime () {
-      if (this.filterParams.timeArray.length && this.filterParams.timeIntervalUnit !== 'hour') {
-        let tempDate = this.filterParams.timeArray
-        this.filterParams.startTime = tempDate[0]
-        this.filterParams.endTime = tempDate[1]
+      let tempDate = this.filterParams.timeArray
+      if (!tempDate[0]) {
+        this.filterParams.startTime = ''
+        this.filterParams.endTime = ''
+        return
+      }
+      this.filterParams.startTime = (tempDate[0] || Moment().format('YYYY-MM-DD')) + ' 00:00:00'
+      if (this.filterParams.timeIntervalUnit === 'month') {
+        this.filterParams.startTime = (Moment(tempDate[0] || new Date()).format('YYYY-MM-01')) + ' 00:00:00'
+        this.filterParams.endTime = Moment(tempDate[1]).endOf('month').format('YYYY-MM-DD 23:59:59')
+      } else if (this.filterParams.timeIntervalUnit === 'hour') {
+        this.filterParams.endTime = tempDate[0] + ' 23:59:59'
       } else {
-        this.filterParams.endTime = this.filterParams.startTime
+        this.filterParams.endTime = tempDate[1] + ' 23:59:59'
       }
     },
     // vuex状态管理数据
@@ -162,15 +194,6 @@ export default {
     }
   },
   created () {
-    // eventObject().$on('resize-echarts-data', msg => { // eventObject接收事件  == 控制数据可视化的图表重置
-    //   let consoleTimer = null
-    //   if (consoleTimer) {
-    //     consoleTimer = null
-    //   }
-    //   consoleTimer = setTimeout(() => {
-    //     this.$parent.resizeFunction()
-    //   }, 300)
-    // })
     eventObject().$on('CHANGE_TYPE', this.changeType)
     this.getGroupList()
   },
@@ -178,6 +201,12 @@ export default {
     // 默认值处理
     this.filterParams = this.$store.state.filterParams
     this.filterParams.type = this.type
+    if (this.filterParams.timeIntervalUnit === 'hour') {
+      this.filterParams.timeArray = [parseTime(new Date(), '{y}-{m}-{d}'), parseTime(new Date(), '{y}-{m}-{d}')]
+    } else {
+      this.filterParams.timeArray = []
+    }
+    this.dealTime()
     this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
     if (this.filterParams.group && this.filterParams.group.guid) {
       eventObject().$emit('REFRESH_DATA', '')
