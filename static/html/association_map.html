@@ -24,7 +24,7 @@
     }
     .flat {
       position: absolute;
-      top: 30px;
+      top: 28px;
       right: 24px;
       user-select: none;
 
@@ -194,8 +194,8 @@
 <div class="levitaten" id="device__popper--wrap">
   <div class="title">
     <div class="pull-right">
-      <img src="/static/img/edit_icon2x.png" data-type="editPortal" alt="">
-      <img src="/static/img/delete_icon.png" data-type="deletePortal" alt="">
+      <img src="../img/edit_icon2x.png" data-type="editPortal" alt="">
+      <img src="../img/delete_icon.png" data-type="deletePortal" alt="">
     </div>
     <div class="pull-left">
       <p id="device--title" class="ellipsis"></p>
@@ -213,19 +213,20 @@
 
 <div class="flat">
   <div id="image1">
-    <img src="/static/floor/qizi2.png" alt="">
+    <img src="" alt="">
     <span>出入口</span>
   </div>
   <div id="image2">
-    <img src="/static/floor/qizi1.png" alt="">
+    <img src="../floor/qizi2.png" alt="">
     <span>其他出入口</span>
   </div>
 </div>
-<script src="/static/three/WebGL.js"></script>
-<script src="/static/three/three.min.js"></script>
-<script src="/static/three/OrbitControls.js"></script>
-<script src="/static/three/SVGLoader.js"></script>
-<script src="/static/three/util.js"></script>
+<script src="../three/WebGL.js"></script>
+<script src="../three/three.min.js"></script>
+<script src="../three/SVGRenderer.js"></script>
+<script src="../three/OrbitControls.js"></script>
+<script src="../three/SVGLoader.js"></script>
+<script src="../three/util.js"></script>
 <script>
   var renderer, scene, camera, group, meshList = [], textList = [], spriteList = []
   var width, height, userData, communityData
@@ -280,8 +281,10 @@
     var img2 = document.getElementById('image2')
     var url = parseUrlParams('map_url') || ''
     if (!data.self) img1.style.display = 'none'
+
     if (data.level === 1 && data.type !== 4) {
       img1.children[1].innerText = '门店出入口'
+      img1.children[0].setAttribute('src', '../floor/qizi3.png')
       img2.style.display = 'none'
       // group.scale.set(1, -1, 1)
       // var objLoader = new THREE.ObjectLoader();
@@ -308,9 +311,11 @@
     } else {
       if (data.type !== 4) {
         img1.children[1].innerText = '主出入口'
+        img1.children[0].setAttribute('src', '../floor/qizi1.png')
         img2.style.display = 'block'
       } else {
         img1.children[1].innerText = '门店出入口'
+        img1.children[0].setAttribute('src', '../floor/qizi3.png')
         img2.style.display = 'none'
       }
     }
@@ -347,7 +352,7 @@
             var ps = changeArrayLevel([].slice.call(geometry.attributes.position.array))
             bindBlock[0].position = new Contour(ps.buffer).centroid()
             var txtSprite = createTextSprite(bindBlock[0], 'nickName')
-            // console.log(bindBlock[0].name, bindBlock[0].position, floor)
+
             mesh.add(txtSprite)
           }
           mesh.add(line)
@@ -592,7 +597,8 @@
 
   // 创建图片贴图
   function createPictureSprite (obj) {
-    var img = communityData.coordinates || communityData.type === 4 ? 'qizi2' : obj.type === 1 ? 'qizi2' : 'qizi1'
+    // var img = communityData.coordinates || communityData.type === 4 ? 'qizi2' : obj.type === 1 ? 'qizi2' : 'qizi1'
+    var img = 'qizi' + obj.type
     var texture = new THREE.TextureLoader().load('/static/floor/' + img + '.png')
     var spriteMaterial = new THREE.SpriteMaterial({
       map: texture,
@@ -611,13 +617,29 @@
   function createTextSprite (obj, key) {
     var cz = camera.position.z
     var canvas = document.createElement('canvas');
-    var fontSize = 30
+    var fontSize = 26
     // 文本最大长度
     var maxLen = 32
+    var textColor = '#FFFFFF'
+    // 出入口名称字体颜色和图标一致
+    if (obj.coordinates && obj.coordinates.split(',').length === 3) {
+      switch (obj.type) {
+        case 1:
+          textColor = '#FF9600';
+          break
+        case 2:
+          textColor = '#2DD145';
+          break
+        case 3:
+          textColor = '#EC1818';
+          break
+      }
+    }
+
     canvas.width = fontSize * maxLen;
     canvas.height = fontSize * maxLen;
     var ctx = canvas.getContext('2d')
-    ctx.fillStyle = '#ffffff'
+    ctx.fillStyle = textColor
     ctx.font = fontSize + "px '微软雅黑'";
     ctx.textAlign = 'center';
     ctx.fillText(obj[key], canvas.width / 2, key === 'nickName' ? canvas.width / 2 : canvas.width / 2 + fontSize * 1.8);
@@ -630,13 +652,6 @@
     var ratio = cz * fontSize * 0.025
     textObj.scale.set(ratio, ratio, ratio)
     textObj.position.set(obj.position.x, obj.position.y, 1)
-
-    // var geometry1 = new THREE.BoxGeometry( 5, 5, 1 );
-    // console.log('position ------------', obj.position.x, obj.position.y)
-    // geometry1.translate(obj.position.x, obj.position.y, 1)
-    // var material1 = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-    // var cube1 = new THREE.Mesh( geometry1, material1 );
-    // group.add(cube1);
 
     return textObj
   }

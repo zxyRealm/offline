@@ -1242,10 +1242,8 @@ export default {
           float: left;
           width: 33%;
           height: 16px;
+          line-height: 16px;
           margin-bottom: 18px;
-          /*&:nth-child(1),&:nth-child(2),&:nth-child(3){*/
-            /**/
-          /*}*/
           > * {
             float: left;
           }
