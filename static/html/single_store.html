@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>单店地图</title>
+  <script src="../three/three.min.js"></script>
+  <script src="../three/OrbitControls.js"></script>
+  <script src="../three/SVGLoader.js"></script>
+  <script src="../three/util.js"></script>
+  <link rel="stylesheet" href="../html/plane.css">
+</head>
+<body>
+<div class="levitaten" id="levitaten">
+  <div class="title" id="levitaten-title"></div>
+  <div class="device-list" id="levitaten-list">
+
+  </div>
+  <div class="top-line"></div>
+  <div class="under-line" id="underLine" style="width: 30px;"></div>
+</div>
+<div id="WebGL-output"></div>
+<script>
+  function World(canvasContainer){
+    this.container = canvasContainer || document.body;
+    this.createScene(); // 创建场景要素
+    this.createLight(); // 创建灯光
+    this.createOrbit(); // 创建轨道控制器
+    this.listener();
+
+    this.loadSvg(floorInfo); // 加载svg地图图片
+
+    this.update(); // 创建循环更新动画
+  }
+
+  World.prototype.createScene = function () {
+    this.WIDTH = window.innerWidth;
+    this.HEIGHT = window.innerHeight;
+
+    // 创建场景
+    this.scene = new THREE.Scene();
+
+    // 创建相机
+    this.camera = new THREE.PerspectiveCamera(45, this.WIDTH / this.HEIGHT, 1, 1000);
+    this.camera.position.set(0, 0, 520);
+    this.scene.add(this.camera);
+
+    // 创建渲染器
+    this.renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true
+    });
+    this.renderer.setSize(this.WIDTH, this.HEIGHT);
+    this.container.appendChild(this.renderer.domElement);
+  };
+
+  World.prototype.createLight = function () {
+    this.light = new THREE.PointLight(0xffffff, 0.8);
+    this.camera.add(this.light);
+  };
+
+  World.prototype.createOrbit = function () {
+    this.controls = new THREE.OrbitControls(this.camera);
+    this.controls.dampingFactor = 0.25;
+    this.controls.enableZoom = true;
+    this.controls.enableRotate = false;
+    this.controls.screenSpacePanning = true;
+  };
+
+  World.prototype.createGroup = function (vm) {
+    vm.group = new THREE.Group();
+    vm.group.position.x = -290;
+    vm.group.position.y = 214;
+    vm.group.scale.set(1, -1, 1);
+    vm.scene.add(vm.group)
+  };
+
+  World.prototype.createFlagGroup = function (vm) {
+    vm.groupFlag = new THREE.Group();
+    vm.scene.add(vm.groupFlag)
+  }
+
+  World.prototype.loadSvg = function (floor) {
+    var _this = this;
+    var svgLoader = new THREE.SVGLoader();
+    svgLoader.load(floor.imgUrl, function(paths) {
+      _this.createGroup(_this);
+      _this.createFlagGroup(_this)
+      for (var i = 0; i < paths.length; i++) {
+        var path = paths[i];
+        var shapes = path.toShapes(true);
+        for (var j = 0; j < shapes.length; j++) {
+          var mapMesh = _this.createMapMesh(shapes, _this, j);
+          _this.createMapEdge(_this, mapMesh.geometry);
+          _this.createMapColor(_this, mapMesh);
+          _this.createTextSprite(_this, mapMesh);
+        }
+      }
+      for (var k = 0; k < floorInfo.deviceInfoArr.length; k++) {
+        var coord = util.stringToObject(floorInfo.deviceInfoArr[k].coordinates)
+        floorInfo.deviceInfoArr[k].coord = coord
+        _this.createFlagSprite(_this, floorInfo.deviceInfoArr[k], 'qizi2.png');
+      }
+    })
+  };
+
+  World.prototype.update = function () {
+    var _this = this;
+    requestAnimationFrame(function () {
+      _this.update()
+    });
+    this.renderer.render(this.scene, this.camera);
+  };
+
+  // 创建地图块
+  World.prototype.createMapMesh = function (shapes, vm, j) {
+    var material = new THREE.LineBasicMaterial({
+      color: new THREE.Color(pallete.map),
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    var geometry = new THREE.ShapeBufferGeometry(shapes[j]);
+    var mesh = new THREE.Mesh(geometry, material);
+    mesh.name = 'store';
+    vm.group.add(mesh);
+    return mesh;
+  };
+
+  // 创建地图边框
+  World.prototype.createMapEdge = function (vm, mapGeo) {
+    var geometry = new THREE.EdgesGeometry(mapGeo);
+    var material = new THREE.LineBasicMaterial({
+      color: '#979797'
+    });
+    var mesh = new THREE.LineSegments(geometry, material);
+    mesh.name = 'edge';
+    vm.group.add(mesh);
+  };
+
+  // 目标店铺上色
+  World.prototype.createMapColor = function (vm, mapMesh) {
+    var meshCoordArr = mapMesh.geometry.attributes.position.array;
+    var currentCoord = '[' + meshCoordArr + ']';
+    var targetCoord = floorInfo.coordinates;
+    if (currentCoord === targetCoord) {
+      if (floorInfo.personCount < 10) {
+        mapMesh.material.color = new THREE.Color('#213A65')
+      } else if(floorInfo.personCount >= 10 && floorInfo.personCount < 20) {
+        mapMesh.material.color = new THREE.Color('#0F9EE9')
+      } else if(floorInfo.personCount >= 20 && floorInfo.personCount < 30) {
+        mapMesh.material.color = new THREE.Color('#005BC9')
+      } else if(floorInfo.personCount >= 30 && floorInfo.personCount < 40) {
+        mapMesh.material.color = new THREE.Color('#2C0189')
+      } else {
+        mapMesh.material.color = new THREE.Color('#481284')
+      }
+    }
+  };
+
+  // 目标店铺名称
+  World.prototype.createTextSprite = function (vm, mapMesh) {
+    var meshCoordArr = mapMesh.geometry.attributes.position.array;
+    var currentCoord = '[' + meshCoordArr + ']';
+    var targetCoord = floorInfo.coordinates;
+    if (currentCoord === targetCoord) {
+      var point = util.getCenterExtraPoint(meshCoordArr);
+      var ipc = {
+        text: floorInfo.name,
+        position: {x: point.cx, y: point.cy}
+      };
+      var textObj = this.createCanvasTextMesh(vm, ipc.text, ipc.position);
+      vm.scene.add(textObj);
+    }
+  };
+
+  World.prototype.createCanvasTextMesh = function (vm, text, position, type) {
+    var fontSize = 30;
+    var cz = vm.camera.position.z;
+    var scale = cz * ((1 / 50)* fontSize);
+    // 文本最大长度
+    var maxLen = 32;
+    var canvas = document.createElement('canvas');
+    canvas.width = fontSize * maxLen;
+    canvas.height = fontSize * maxLen;
+
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.font = fontSize + "px '微软雅黑'";
+    ctx.textAlign = 'center';
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    var texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+
+    var material = new THREE.SpriteMaterial({
+      map: texture, transparent: true
+    });
+    var textObj = new THREE.Sprite(material);
+    textObj.name = 'text';
+    textObj.scale.set(scale, scale, scale);
+    textObj.position.set(
+      type === 'flag' ? position.x - 3 : position.x,
+      type === 'flag' ? position.y - 18 : position.y,
+      1
+    );
+
+    return textObj;
+  };
+
+  // 创建旗子精灵
+  World.prototype.createFlagSprite = function (vm, deviceInfo, logo) {
+    var spriteMaterial = new THREE.SpriteMaterial({
+      map: new THREE.TextureLoader().load('/static/floor/' + logo),
+      depthTest: false,
+      blending: THREE.AdditiveBlending
+    })
+    var sprite = new THREE.Sprite(spriteMaterial)
+    sprite.scale.set(15, 15, 15)
+    console.log(deviceInfo)
+    sprite.position.set(deviceInfo.coord.x, deviceInfo.coord.y, 1)
+    sprite.name = 'flag';
+    sprite.userData = {
+      text: deviceInfo.name,
+      logo: logo,
+      guid: deviceInfo.guid
+    };
+    vm.groupFlag.add(sprite);
+
+    var textObj = this.createCanvasTextMesh(vm, deviceInfo.name, deviceInfo.coord, 'flag');
+    vm.scene.add(textObj);
+  };
+
+  World.prototype.listener = function () {
+    window.addEventListener('resize', util.resizing, false);
+    window.addEventListener('click', util.mousemove, false);
+  }
+
+  // 外部类：负责与外部的数据通信
+  function External () {
+    this.loadSignal();
+    this.receiveMessage();
+  }
+
+  External.prototype.loadSignal = function () {
+    window.parent.postMessage({
+      cmd: 'single-load_signal',
+      params: {}
+    }, '*');
+  };
+
+  var levitaten = document.getElementById('levitaten');
+  var underLine = document.getElementById('underLine');
+  External.prototype.setCameraList = function (intersect, deviceList, userData) {
+    if (deviceList.length) {
+      var wy = intersect.y + 25;
+      var wx = intersect.x;
+      levitaten.style.top = wy + 'px';
+      levitaten.style.left = wx + 'px';
+      levitaten.style.display = 'block';
+      underLine.style.width = 40 + 'px';
+      var title = '<div class="pull-left">'+userData.text+'</div>'
+      var list = '';
+      for(var i = 0, len = deviceList.length; i < len; i++){
+        list += '<li><img src="/static/floor/camera1.png" width="11"><span>'+deviceList[i].name+'</span></li>';
+      }
+      list = '<ul>'+list+'</ul>'
+      var levitatenTitle = document.getElementById('levitaten-title');
+      var levitatenList = document.getElementById('levitaten-list');
+      levitatenTitle.innerHTML = title
+      levitatenList.innerHTML = list
+    }
+  };
+
+  External.prototype.receiveMessage = function () {
+    var _this = this;
+    window.addEventListener('message', function(e) {
+      var data = e.data;
+      switch (data.type) {
+        case 'SET_SINGLE_STORE_INFO':
+          floorInfo = data.floorInfo;
+          _this.getSingleStoreInfo();
+          break;
+        case 'set-camera_list':
+          deviceList = data.deviceList;
+          var intersect = data.intersect;
+          var userData = data.userData;
+          _this.setCameraList(intersect, deviceList, userData);
+          break;
+      }
+    });
+  };
+
+  External.prototype.getSingleStoreInfo = function () {
+    world = new World(document.getElementById('WebGL-output'));
+  };
+
+  // 方法类
+  function Util () {}
+
+  Util.prototype.getCenterExtraPoint = function(array) {
+    var a = changeArrayLevel(array);
+    var ps = new Contour(a.buffer).centroid();
+    return {
+      rx: (a.maxLeft - 290),
+      cx: (ps.x - 290),
+      cy: (214 - ps.y)
+    }
+  };
+
+  Util.prototype.getString = function(arr) {
+    return Array.prototype.slice.call(arr).toString()
+  };
+
+  Util.prototype.stringToObject = function (str) {
+    var positionArr = str.replace('[', '').replace(']', '').split(',');
+    str = {x: parseInt(positionArr[0]), y: parseInt(positionArr[1])};
+    return str;
+  };
+
+  Util.prototype.mousemove = function (event) {
+    var mouse = {
+      x: (event.clientX / window.innerWidth) * 2 - 1,
+      y: -(event.clientY / window.innerHeight) * 2 + 1
+    };
+    var screenAlex = {
+      x: event.clientX,
+      y: event.clientY
+    };
+    var raycaster = new THREE.Raycaster()
+    raycaster.setFromCamera(mouse, world.camera);
+    var arr = world.groupFlag.children;
+    var intersects = raycaster.intersectObjects(arr);
+    if (intersects.length > 0) {
+     var userData = intersects[0].object.userData;
+     window.parent.postMessage({
+       cmd: 'get-camera_list',
+       userData: userData,
+       intersect: screenAlex,
+     }, '*');
+    }else {
+      levitaten.style.display = 'none'
+    }
+  };
+
+  Util.prototype.resizing = function () {
+    var innerWidth = window.innerWidth;
+    var innerHeight = window.innerHeight;
+    world.camera.aspect = innerWidth / innerHeight;
+    world.camera.updateProjectionMatrix();
+    world.renderer.setSize(innerWidth, innerHeight)
+  };
+
+  var world = null;
+  var external = null;
+  var util = null;
+  var floorInfo = {};
+  var deviceList = [];
+  var pallete = {
+    map: '#403e42',
+    edge: '#979797'
+  }; // 调色板
+
+  function init() {
+    external = new External();
+    util = new Util();
+  }
+
+  init();
+</script>
+</body>
+</html>

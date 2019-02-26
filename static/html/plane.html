@@ -3,123 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>2D地图</title>
-  <script src="/static/three/three.min.js"></script>
-  <script src="/static/three/OrbitControls.js"></script>
-  <script src="/static/three/SVGLoader.js"></script>
-  <script src="/static/three/util.js"></script>
-  <style>
-    html, body{
-      margin: 0;
-      padding: 0;
-    }
-    #label{
-      width: 556px;
-      left: 50%;
-      margin-left: -238px;
-      height: 16px;
-      position: absolute;
-      bottom: 30px;
-    }
-    #label .item{
-      padding-top: 1px;
-      box-sizing: border-box;
-      color: #ffffff;
-    }
-    #label .item .box{
-      float: left; width: 20px; height: 10px; line-height: 10px; border-radius: 9px;margin-right: 10px
-    }
-    #label .item .label{
-      float: left; line-height: 10px; height: 10px; font-size: 11px; margin-right: 30px;
-    }
-    .level-1{
-      background: #213A65
-    }
-    .level-2{
-      background: #0F9EE9
-    }
-    .level-3{
-      background: #005BC9
-    }
-    .level-4{
-      background: #2C0189
-    }
-    .level-5{
-      background: #481284
-    }
-    .levitaten {
-      width: 114px;
-      height: 120px;
-      background-color: rgba(35, 92, 194, 0.3);
-      position: absolute;
-      top: 30px;
-      left: 30px;
-      padding: 5px;
-      font-size: 12px;
-      box-sizing: border-box;
-      display: none;
-      -webkit-animation-name: fadeIn; /*动画名称*/
-      -webkit-animation-duration: 0.1s; /*动画持续时间*/
-      -webkit-animation-iteration-count: 1; /*动画次数*/
-      -webkit-animation-delay: 0s;
-    }
-    @-webkit-keyframes fadeIn {
-      0% {
-        opacity: 0; /*初始状态 透明度为0*/
-      }
-      25% {
-        opacity: 0.25; /*中间状态 透明度为0*/
-      }
-      75% {
-        opacity: 0.75; /*中间状态 透明度为0*/
-      }
-      100% {
-        opacity: 1; /*结尾状态 透明度为1*/
-      }
-    }
-    .levitaten .title{
-      padding: 3px 5px;
-      color: #ffffff;
-      overflow: hidden;
-      border-bottom: 1px dashed #979797;
-    }
-    .levitaten .device-list {
-      height: 85px;
-      overflow: hidden;
-    }
-    .levitaten .device-list ul{
-      margin: 0;
-      padding: 4px 2px 0;
-      text-decoration: none;
-      color: #ffffff;
-    }
-    .levitaten .device-list li {
-      height: 27px;
-      line-height: 27px;
-      list-style: none;
-      position: relative;
-    }
-    .levitaten .device-list li span{
-      top: -3px;
-      margin-left: 5px;
-      position: absolute;
-    }
-    .levitaten .top-line {
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      background: rgba(255, 255, 255, 0.5);
-      width: 1px;
-      height: 20px;
-    }
-    .under-line {
-      position: absolute;
-      top: -20px;
-      right: 57px;
-      background: #ffffff;
-      background: rgba(255, 255, 255, 0.5);
-      height: 1px;
-    }
-  </style>
+  <script src="../three/three.min.js"></script>
+  <script src="../three/OrbitControls.js"></script>
+  <script src="../three/SVGLoader.js"></script>
+  <script src="../three/util.js"></script>
+  <link rel="stylesheet" href="../html/plane.css">
 </head>
 <body>
 <div id="WebGL-output"></div>
@@ -156,18 +44,7 @@
 </div>
 <script type="text/javascript">
   var renderer, scene, camera, group;
-  var scale = 0.4
   var spriteList = [];
-  var gateway = [
-    // {text: '东', position: {x: -4, y: -36}, logo: 'sprite0.png'},
-    // {text: '北门', position: {x: -8, y: 36}},
-    // {text: '南门', position: {x: 81, y: 31}, logo: 'sprite0.png'},
-    // {text: '三个字', position: {x: 4, y: 11}, logo: 'sprite0.png'},
-    // {text: '西门吹雪', position: {x: -113, y: 11}, logo: 'sprite0.png'},
-    // {text: '我有五个字', position: {x: -63, y: 11}, logo: 'sprite0.png'},
-    // {text: '我超过五个字', position: {x: -63, y: -11, logo: 'sprite0.png'}},
-    // {text: '我应该有七个字', position: {x: 63, y: -11}, logo: 'sprite0.png'},
-  ];
   var shapesArr = []; // 保存shape几何体路径
   var shapesMaterialArr = []; // 保存shape材质
   var shapesGeometryArr = []; // 保存shape几何体
@@ -182,6 +59,7 @@
   var underLine = document.getElementById('underLine');
   var boxAlexArr = []; // 用来保存坐标数据的数组
   var hasColorBoxArr = [] // 用来保存有颜色的块的数组
+  var floor;
 
   window.addEventListener('message', function (e) {
     var data = e.data
@@ -216,8 +94,9 @@
     var label = document.getElementById('label');
 
     // 获取当前src并截取楼层号码
-    var floor = window.location.search.split('=')[1]
-
+    floor = window.location.search.split('=')[1]
+    floor = decodeURI(floor).trim()
+    console.log(floor)
     loadSvg(floor)
 
     // 放置控制器
@@ -230,7 +109,7 @@
     document.getElementById('WebGL-output').appendChild(renderer.domElement);
     window.addEventListener('resize', onWindowResize, false);
     // window.addEventListener('mousemove', onDocumentMouseMove, false);
-    // window.addEventListener('click', onDocumentMouseClick, false);
+    window.addEventListener('click', onDocumentMouseClick, false);
     loadSignal()
   }
 
@@ -265,6 +144,7 @@
 
   // 加载图片
   function loadSvg(floor) {
+
     var svgLoad = new THREE.SVGLoader()
     svgLoad.load(floor, function (paths) {
 
@@ -334,6 +214,7 @@
       blending: THREE.AdditiveBlending,
     })
     var sprite = new THREE.Sprite(spriteMaterial)
+    sprite.name = 'flag'
     return sprite
   }
 
@@ -384,6 +265,7 @@
     // 使用Sprite显示文字
     var material = new THREE.SpriteMaterial({map: texture, transparent: true})
     var textObj = new THREE.Sprite(material)
+    textObj.name = 'text'
     textObj.scale.set(scale, scale, scale)
     textObj.position.set(obj.position.x, obj.position.y, 1);
     scene.add(textObj)
@@ -419,6 +301,7 @@
   // 添加色块和贴图
   function addColor (boxArr) {
     // 遍历所有块
+    console.log(boxArr)
     for(var i in shapesMeshArr){
       var meshAlex = getString(shapesMeshArr[i]) // 所有色块的顶点值转换为字符串
       // 遍历从服务端获取到的坐标数据
@@ -427,6 +310,11 @@
           var shapeAlex = boxArr[j].position // 目标色块的顶点值字符串
           if (shapeAlex === meshAlex) {
             var point = getCenterExtraPoint(shapesMeshArr[i].geometry.attributes.position.array)
+            shapesMeshArr[i].userData = {
+              groupSonGuid: boxArr[j].groupSonGuid,
+              personCount: boxArr[j].count,
+              name: boxArr[j].name
+            }
             var ipc = {
               text: boxArr[j].name,
               position: {x: point.cx, y: point.cy},
@@ -528,12 +416,25 @@
 
   // 监听点击事件
   function onDocumentMouseClick(event) {
-    var vector = new THREE.Vector3((event.clientX / (window.innerWidth-160)) * 2 - 1, -( event.clientY / (window.innerHeight-100) ) * 2 + 1, 0.5);
+    var vector = new THREE.Vector3(
+      event.clientX / window.innerWidth * 2 - 1,
+      -event.clientY / window.innerHeight * 2 + 1,
+      0.5
+    );
     vector = vector.unproject(camera);
     var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
     var intersects = raycaster.intersectObjects(hasColorBoxArr);
     if (intersects.length > 0) {
-      alert('进入单店')
+      console.log(hasColorBoxArr)
+      window.parent.postMessage({
+        cmd: 'click-single_store',
+        params: {
+          groupSonGuid: intersects[0].object.userData.groupSonGuid,
+          personCount: intersects[0].object.userData.personCount,
+          name: intersects[0].object.userData.name,
+          imgUrl: floor
+        }
+      }, '*');
     }
   }
 
@@ -559,7 +460,7 @@
     // 获取世界坐标中y轴的实际坐标点
     var sy = pY * by;
     return {x: sx, y: sy};
-  }
+  };
 
   // 世界坐标转屏幕坐标
   var worldToScreen = function (worldPoint) {

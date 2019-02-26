@@ -6,15 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
-  <script src="/static/three/three.min.js"></script>
-  <script src="/static/three/SVGLoader.js"></script>
-  <script src="/static/three/tween.js"></script>
-  <script src="/static/three/OrbitControls.js"></script>
+  <script src="../three/three.min.js"></script>
+  <script src="../three/SVGLoader.js"></script>
+  <script src="../three/tween.js"></script>
+  <script src="../three/OrbitControls.js"></script>
+  <!--<script src="/static/three/"></script>-->
   <style>
     html, body{
       margin: 0;
       padding: 0;
-      color: rgb(86, 191, 248);
+      color: #3333ff;
       /* b: #2f89f8 */
     }
   </style>
@@ -70,11 +71,11 @@
       light.position.set(0, 1500, 0);
       scene.add(light);
 
-      var light2 = new THREE.DirectionalLight(0x4E98F2, 0.5);
+      var light2 = new THREE.DirectionalLight(0x3176ff, 0.5);
       light2.position.set(0, 300, -1500);
       scene.add(light2);
 
-      var light3 = new THREE.DirectionalLight(0x4E98F2, 0.5);
+      var light3 = new THREE.DirectionalLight(0x3176ff, 0.5);
       light3.position.set(0, 200, 1500);
       scene.add(light3);
     }
@@ -88,14 +89,18 @@
 
       scene = new THREE.Scene();
 
-      camera = new THREE.OrthographicCamera(
-        viewSize * aspectRatio / -2,
-        viewSize * aspectRatio / 2,
-        viewSize / 2,
-        viewSize / -2,
-        0.1, 10000
-      );
-      camera.position.set(330, 160, 450);
+      var innerWidth = window.innerWidth // 减去右侧aside的宽度
+      var innerHeight = window.innerHeight // 减去底部div的宽度
+
+      // camera = new THREE.OrthographicCamera(
+      //   viewSize * aspectRatio / -2,
+      //   viewSize * aspectRatio / 2,
+      //   viewSize / 2,
+      //   viewSize / -2,
+      //   0.1, 10000
+      // );
+      camera = new THREE.PerspectiveCamera(20, innerWidth / innerHeight, 1, 10000 );
+      camera.position.set(800, 600, 1600);
       camera.lookAt(0, 0, 0);
       scene.add(camera);
 
@@ -119,16 +124,16 @@
     render();
 
     window.addEventListener('message', function (e) {
-      var data = e.data
+      var data = e.data;
       switch (data.type) {
         case "CREATE_SHINE":
-          createShine(data.coordinates, data.floor, data.status)
-          break
+          createShine(data.coordinates, data.floor, data.status);
+          break;
         case "SET_FLOOR_INFO":
-          setFloorInfo(data.floorArr)
-          break
+          setFloorInfo(data.floorArr);
+          break;
       }
-    })
+    });
 
     // 计算上升和下降的变化
     function getUpDownFloorCount() {
@@ -368,14 +373,14 @@
         if (intersects.length > 0) {
           for (var i = 0; i < rayPlaneList.length; i++) {
             if (intersects[0].object === rayPlaneList[i]) {
-              moveChange(subRayList[i], 0x0068FC, 0x293864, 0x2A4586)
+              moveChange(subRayList[i], 0x3333ff, 0x1a425e, 0x2A4586)
             } else {
-              moveChange(subRayList[i], 0x4E98F2, 0x0F1252, 0x1A3050)
+              moveChange(subRayList[i], 0x3176ff, 0x1a425e, 0x1A3050)
             }
           }
         } else {
           for (var i = 0; i < rayPlaneList.length; i++) {
-            moveChange(subRayList[i], 0x4E98F2, 0x0F1252, 0x1A3050)
+            moveChange(subRayList[i], 0x3176ff, 0x1a425e, 0x1A3050)
           }
         }
       }
@@ -472,7 +477,6 @@
       } else {
         floorGroup.name = 'F' + Math.abs(floorInfo.floor)
       }
-
       addLineShape(floorInfo, floorGroup)
       addShape(floorInfo, floorGroup);
 
@@ -498,6 +502,7 @@
         console.error('map url is not exist')
         return
       }
+
       loader.load(info.img_url, function (paths) {
         for (var i = 0; i < paths.length; i++) {
           var path = paths[i]
@@ -518,7 +523,7 @@
               geometry2.fromBufferGeometry(geometry)
 
               var materialLine = new THREE.MeshPhongMaterial({
-                color: new THREE.Color('#4E98F2'),
+                color: new THREE.Color('#3176ff'),
                 transparent: true,
                 opacity: opacity,
                 side: THREE.DoubleSide,
@@ -528,13 +533,13 @@
               var line = new THREE.Mesh(geometry2, materialLine)
               line.geometry.faces.forEach(function (face) {
                 if (face.normal.y !== 0 && face.normal.z !== 0) {
-                  face.color = new THREE.Color('#4E98F2')
+                  face.color = new THREE.Color('#3176ff')
                 }
               })
 
               var edgeGeometry = new THREE.BufferGeometry().setFromPoints(points)
               var edgeMaterial = new THREE.LineBasicMaterial({
-                color: '#1A3050',
+                color: '#1A425e',
                 transparent: true,
                 opacity: opacity
               })
@@ -567,13 +572,16 @@
           // loader2.load('/static/img/11_copy.png', function (texture) {
             for (var j = 0; j < shapes.length; j++) {
               var shape = shapes[j];
-              var geometry = new THREE.ShapeBufferGeometry(shape);
+              var geometry = new THREE.ExtrudeBufferGeometry(shape, {
+                depth: 5,
+                bevelEnabled: false
+              });
               var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-                color: '#0F1252',
+                color: '#1a425e',
                 side: THREE.DoubleSide,
                 // map: texture,
                 transparent: true,
-                opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.2
+                opacity: info.coordinate_y < -floorHeight || info.coordinate_y > floorHeight * 2 ? 0 : 0.3
               }));
 
               mesh.position.set(0, info.coordinate_y, 0);
@@ -604,15 +612,11 @@
     }
 
     function onWindowResize() {
-      var aspect = window.innerWidth / window.innerHeight;
-      var change = originalAspect / aspect;
-      var newSize = viewSize * change;
-      camera.left = -aspect * newSize / 2;
-      camera.right = aspect * newSize  / 2;
-      camera.top = newSize / 2;
-      camera.bottom = -newSize / 2;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight)
+      var innerWidth = window.innerWidth
+      var innerHeight = window.innerHeight
+      camera.aspect = innerWidth / innerHeight
+      camera.updateProjectionMatrix()
+      renderer.setSize(innerWidth, innerHeight)
     }
 
   </script>

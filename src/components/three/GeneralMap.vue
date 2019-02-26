@@ -3,12 +3,18 @@
     <div class="map-left">
       <div id="floor2">
         <a
+          v-if="!singleStoreTrig"
           href="javascript:;"
           v-for="(item, index) in routerList"
           :class="{'active': item.id === frame.id}"
           :key="index"
           @click="updateFrameArea(item, index)"
         >{{item.name}}</a>
+        <div v-if="singleStoreTrig" class="single-store-title">
+          <span @click="backToFloor">{{'F'+singleStoreInfo.floor}}</span>
+          <span>/</span>
+          <span>{{singleStoreName}}</span>
+        </div>
       </div>
       <div id="iframeWrap">
         <iframe
@@ -20,7 +26,6 @@
           class="iframe"
         ></iframe>
       </div>
-
       <div id="statisticInfo">
         <div class="statistic-box" id="incoming">
           <div
@@ -76,9 +81,7 @@
           </div>
         </div>
         <div class="statistic-box" id="member">
-          <div
-            class="item member-item"
-          >
+          <div class="item member-item">
             <!-- :class="{'no-background': !statisticEndInfo.Member_Today && !statisticEndInfo.Member_Yesterday}" -->
             <div class="title">到访会员</div>
             <div class="data">
@@ -200,8 +203,17 @@
 <script>
 import {GetSocketIP} from '@/api/common'
 import {mapState} from 'vuex'
-import {GetMarketList, GetGroupPortalInfo} from '../../api/community'
-import {GetLatestFace, GetFlowRank} from '../../api/visual'
+import {
+  GetMarketList,
+  GetGroupPortalInfo,
+  GetMemberDetail,
+  GetPortalDeviceList,
+  GetStoreList
+} from '../../api/community'
+import {
+  GetLatestFace,
+  GetFlowRank
+} from '../../api/visual'
 import {parseTime} from '../../utils'
 import CountTo from 'vue-count-to'
 const ossPrefix = process.env.OSS_PREFIX
@@ -260,6 +272,9 @@ export default {
         Member_Yesterday: 0,
         Current: 0
       },
+      singleStoreInfo: {},
+      singleStoreTrig: false,
+      singleStoreName: '',
       iframe: null,
       cloudTimer: null,
       websocket: '' // websocket连接
@@ -274,6 +289,7 @@ export default {
   methods: {
     // 切换iframe
     updateFrameArea (item, index) {
+      console.log(item)
       this.$set(this.frame, 'path', item.path)
       this.$set(this.frame, 'id', item.id)
       this.community.infoArr.forEach((value, i) => {
@@ -437,52 +453,53 @@ export default {
       }
       GetMarketList({parentId: this.currentManage.id}).then(res => {
         // 整理数据结构, 所有楼层数组
-        let floorInfo = this.sortRouterList(res.data[0].subGroupSon)
-        floorInfo = floorInfo.reverse()
-        let allInfo = res.data
-        let floorHeight = 140
-        delete allInfo[0].subGroupSon
-        this.community.infoArr = allInfo.concat(floorInfo)
+        if (res.data.length) {
+          let floorInfo = this.sortRouterList(res.data[0].subGroupSon)
+          floorInfo = floorInfo.reverse()
+          let allInfo = res.data
+          let floorHeight = 140
+          delete allInfo[0].subGroupSon
+          this.community.infoArr = allInfo.concat(floorInfo)
 
-        // 总楼层添加id信息
-        this.routerList[0].groupParentGuid = allInfo[0].groupParentGuid
-        this.routerList[0].groupSonGuid = allInfo[0].groupSonGuid
+          // 总楼层添加id信息
+          this.routerList[0].groupParentGuid = allInfo[0].groupParentGuid
+          this.routerList[0].groupSonGuid = allInfo[0].groupSonGuid
 
-        // 计算地下楼层数量
-        this.caculateMinus(this.community.infoArr)
-        // 当最低楼层大于1层时, 需计算最低楼层和0层之间的差值
-        let minIndex = this.caculateMinusIndex(floorInfo)
-        let lowFloor = floorInfo[0].floor < 0 ? Math.abs(floorInfo[0].floor) * floorHeight : 0
-        for (let i in floorInfo) {
-          // 计算地上楼层和地下楼层的Y坐标
-          // console.log(floorInfo[i].floor, floorInfo[minIndex].floor)
-          let upFloorCoordinateY = (floorInfo[i].floor - floorInfo[minIndex].floor - 1) * floorHeight
-          let downFloorCoordinateY = (floorInfo[i].floor - 1) * floorHeight
-          let coordinateY = floorInfo[i].floor >= 0 ? upFloorCoordinateY : downFloorCoordinateY
+          // 计算地下楼层数量
+          this.caculateMinus(this.community.infoArr)
+          // 当最低楼层大于1层时, 需计算最低楼层和0层之间的差值
+          let minIndex = this.caculateMinusIndex(floorInfo)
+          let lowFloor = floorInfo[0].floor < 0 ? Math.abs(floorInfo[0].floor) * floorHeight : 0
+          for (let i in floorInfo) {
+            // 计算地上楼层和地下楼层的Y坐标
+            let upFloorCoordinateY = (floorInfo[i].floor - floorInfo[minIndex].floor - 1) * floorHeight
+            let downFloorCoordinateY = (floorInfo[i].floor - 1) * floorHeight
 
-          let imgUrl = floorInfo[i].mapUrl
-          let floor = floorInfo[i].floor
+            let coordinateY = floorInfo[i].floor >= 0 ? upFloorCoordinateY + lowFloor : downFloorCoordinateY + lowFloor
+            let imgUrl = floorInfo[i].mapUrl
+            let floor = floorInfo[i].floor
 
-          // 分别设置routerList和传入iframe的数组
-          this.floorArr.push({
-            coordinate_y: coordinateY,
-            img_url: imgUrl,
-            floor: floor,
-            groupSonGuid: floorInfo[i].groupSonGuid,
-            groupParentGuid: floorInfo[i].groupParentGuid
-          })
+            // 分别设置routerList和传入iframe的数组
+            this.floorArr.push({
+              coordinate_y: coordinateY,
+              img_url: imgUrl,
+              floor: floor,
+              groupSonGuid: floorInfo[i].groupSonGuid,
+              groupParentGuid: floorInfo[i].groupParentGuid
+            })
 
-          this.routerList.push({
-            name: floorInfo[i].name,
-            id: imgUrl,
-            floor: floor,
-            path: ossPrefix + '/static/html/plane.html?floor=' + imgUrl,
-            groupSonGuid: floorInfo[i].groupSonGuid,
-            groupParentGuid: floorInfo[i].groupParentGuid
-          })
+            this.routerList.push({
+              name: floorInfo[i].name,
+              id: imgUrl,
+              floor: floor,
+              path: ossPrefix + '/static/html/plane.html?floor=' + imgUrl,
+              groupSonGuid: floorInfo[i].groupSonGuid,
+              groupParentGuid: floorInfo[i].groupParentGuid
+            })
+          }
+          this.$emit('updateCommunity', allInfo[0])
+          this.getLatestFace(this.routerList[0].groupParentGuid, this.routerList[0].groupSonGuid)
         }
-        this.$emit('updateCommunity', allInfo[0])
-        this.getLatestFace(this.routerList[0].groupParentGuid, this.routerList[0].groupSonGuid)
       })
     },
     getSingleCommunityInfo () {
@@ -510,7 +527,8 @@ export default {
           storeInfoArr.push({
             position: position,
             count: item.count,
-            name: item.groupName
+            name: item.groupName,
+            groupSonGuid: item.groupSonGuid
           })
         })
         // this.iframe.addColor(storeInfoArr)
@@ -521,25 +539,8 @@ export default {
       })
     },
     // home：粒子闪烁
-    // sendAlex () {
-    //   let count = 0
-    //   this.cloudTimer = setInterval(() => {
-    //     // this.iframe.createPointCloud(count)
-    //     this.iframe.postMessage({
-    //       type: 'CREATE_POINT_CLOUD',
-    //       count: count
-    //     })
-    //   }, 1000)
-    // },
     // 悬浮框数据
     sendStoreData () {
-      let obj = {
-        gateway: 'Gateway',
-        camera: ['camera-one', 'camera-two', 'camera-three']
-      }
-      // if (this.iframe.receiveStoreInfo) {
-      //   this.iframe.receiveStoreInfo(obj)
-      // }
     },
     handleMessage (event) {
       const data = event.data
@@ -562,7 +563,6 @@ export default {
           break
         case 'post-coordinate':
           // 通过data.params调用接口
-          // console.log(data.params)
           // 发送单点信息
           this.sendStoreData()
           break
@@ -577,6 +577,45 @@ export default {
           this.getSingleCommunityInfo()
           this.sendColor()
           break
+        case 'single-load_signal':
+          this.iframe.postMessage({
+            type: 'SET_SINGLE_STORE_INFO',
+            floorInfo: this.singleStoreInfo
+          }, this.originSrc)
+          break
+        case 'click-single_store':
+          GetMemberDetail({groupSonId: data.params.groupSonGuid}).then(res => {
+            this.singleStoreInfo = res.data
+            this.singleStoreInfo.imgUrl = data.params.imgUrl
+            this.singleStoreInfo.personCount = data.params.personCount
+            this.singleStoreName = data.params.name
+            GetGroupPortalInfo({groupSonId: data.params.groupSonGuid}).then(res => {
+              this.singleStoreInfo.deviceInfoArr = res.data
+              this.frame = {
+                path: ossPrefix + '/static/html/single_store.html?timestamp = ' + Number(new Date()),
+                id: 'threeFrame'
+              }
+              this.singleStoreTrig = true
+            })
+          })
+          break
+        case 'get-camera_list':
+          GetPortalDeviceList({portalGuid: data.userData.guid}).then(res => {
+            this.iframe.postMessage({
+              type: 'set-camera_list',
+              deviceList: res.data,
+              intersect: data.intersect,
+              userData: data.userData
+            }, this.originSrc)
+          })
+      }
+    },
+    backToFloor () {
+      for (let i = 0; i < this.routerList.length; i++) {
+        if (this.singleStoreInfo.floor === this.routerList[i].floor) {
+          this.updateFrameArea(this.routerList[i])
+          this.singleStoreTrig = false
+        }
       }
     },
     // 计算地下楼层数量
@@ -598,6 +637,36 @@ export default {
         }
       }
       return index
+    },
+    getSingleStoreCommunityInfo (val) {
+      this.routerList = []
+      if (!val) {
+        return
+      }
+      GetStoreList({parentGuid: val.id}).then(res => {
+        for (let i = 0; i < res.data[0].subGroupSon.length; i++) {
+          this.routerList.push({
+            id: res.data[0].subGroupSon[i].mapUrl,
+            name: res.data[0].subGroupSon[i].name,
+            path: ossPrefix + '/static/html/plane.html?floor='+res.data[0].subGroupSon[i].mapUrl,
+            floor: res.data[0].subGroupSon[i].floor,
+            groupSonGuid: res.data[0].subGroupSon[i].groupSonGuid,
+            groupParentGuid: res.data[0].subGroupSon[i].groupParentGuid
+          })
+          this.floorArr.push({
+            img_url: res.data[0].subGroupSon[i].mapUrl,
+            floor: res.data[0].subGroupSon[i].floor,
+            groupSonGuid: res.data[0].subGroupSon[i].groupSonGuid,
+            groupParentGuid: res.data[0].subGroupSon[i].groupParentGuid
+          })
+        }
+        this.community.infoArr = this.sortRouterList(res.data[0].subGroupSon)
+        this.community.index = 0
+        this.frame = {
+          path: ossPrefix + '/static/html/plane.html?floor = ' + res.data[0].subGroupSon[0].mapUrl,
+          id: res.data[0].subGroupSon[0].mapUrl
+        }
+      })
     },
     // 数组排序
     sortRouterList (arr) {
@@ -645,7 +714,11 @@ export default {
   },
   mounted () {
     this.iframe = this.$refs.iframe.contentWindow
-    this.getCommunityInfo()
+    if (this.currentManage.type !== 3) {
+      this.getCommunityInfo(this.currentManage)
+    } else {
+      this.getSingleStoreCommunityInfo(this.currentManage)
+    }
     window.addEventListener('message', this.handleMessage)
   },
   watch: {
@@ -661,34 +734,25 @@ export default {
     },
     currentManage: {
       handler (val) {
-        if (val) {
+        if (Object.keys(val).length) {
+          if (val.type !== 3) {
+            this.routerList = [
+              {name: '总', path: ossPrefix + '/static/html/new_home.html', id: 'threeFrame'}
+            ]
+            this.floorArr = []
+            this.singleStoreTrig = false
+            this.frame = {
+              path:
+                ossPrefix + '/static/html/new_home.html?timestamp = ' + Number(new Date()),
+              id: 'threeFrame'
+            }
+            this.getCommunityInfo(val)
+          } else {
+           this.getSingleStoreCommunityInfo(val)
+          }
           if (this.websocket) {
             this.websocket.close()
-          //   this.statisticInfo = {
-          //     Incoming_Today: 0,
-          //     Incoming_Yesterday: 0,
-          //     Member_Today: 0,
-          //     Member_Yesterday: 0,
-          //     Current: 0
-          //   }
-          //   this.statisticEndInfo = {
-          //     Incoming_Today: 0,
-          //     Incoming_Yesterday: 0,
-          //     Member_Today: 0,
-          //     Member_Yesterday: 0,
-          //     Current: 0
-          //   }
           }
-          this.routerList = [
-            {name: '总', path: ossPrefix + '/static/html/new_home.html', id: 'threeFrame'}
-          ]
-          this.floorArr = []
-          this.frame = {
-            path:
-            ossPrefix + '/static/html/new_home.html?timestamp = ' + Number(new Date()),
-            id: 'threeFrame'
-          }
-          this.getCommunityInfo(val)
         }
       },
       deep: true
@@ -711,7 +775,7 @@ export default {
       flex-direction: column;
       height: 100%;
       background-image: url(../../assets/public/map_background.png);
-      background-size: cover;
+      background-size: 100% 100%;
       #floor2 {
         top: 10px;
         text-align: center;
@@ -959,6 +1023,23 @@ export default {
           }
         }
       }
+    }
+
+    .single-store-title{
+      height: 55px;
+      line-height: 55px;
+      font-size: 16px;
+      span{
+        &:first-child{
+          color: #777674;
+          margin-right: 5px;
+          cursor: pointer;
+        }
+        &:last-child{
+          margin-left: 5px;
+        }
+      }
+
     }
 
     .red-text {
