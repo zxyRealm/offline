@@ -661,11 +661,14 @@ export default {
           })
         }
         this.community.infoArr = this.sortRouterList(res.data[0].subGroupSon)
+        var allInfo = res.data[0]
         this.community.index = 0
         this.frame = {
           path: ossPrefix + '/static/html/plane.html?floor = ' + res.data[0].subGroupSon[0].mapUrl,
           id: res.data[0].subGroupSon[0].mapUrl
         }
+        this.getLatestFace(this.routerList[0].groupParentGuid, this.routerList[0].groupSonGuid)
+        this.$emit('updateCommunity', allInfo)
       })
     },
     // 数组排序
@@ -774,7 +777,7 @@ export default {
       display: flex;
       flex-direction: column;
       height: 100%;
-      background-image: url(../../assets/public/map_background.png);
+      background-image: url('../../assets/public/background_im.png');
       background-size: 100% 100%;
       #floor2 {
         top: 10px;
