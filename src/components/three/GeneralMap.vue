@@ -517,6 +517,7 @@ export default {
       let storeInfoArr = []
       let params = this.community.infoArr[this.community.index]
       GetFlowRank({
+        type: params.type,
         groupFloor: params.floor,
         groupGuid: params.groupParentGuid
       }).then(res => {
@@ -575,7 +576,9 @@ export default {
           break
         case 'plane-load_signal':
           this.getSingleCommunityInfo()
-          this.sendColor()
+          if (this.currentManage.type === 1) {
+            this.sendColor()
+          }
           break
         case 'single-load_signal':
           this.iframe.postMessage({
@@ -648,13 +651,14 @@ export default {
           this.routerList.push({
             id: res.data[0].subGroupSon[i].mapUrl,
             name: res.data[0].subGroupSon[i].name,
-            path: ossPrefix + '/static/html/plane.html?floor='+res.data[0].subGroupSon[i].mapUrl,
+            path: ossPrefix + '/static/html/single_plane_map.html',
             floor: res.data[0].subGroupSon[i].floor,
             groupSonGuid: res.data[0].subGroupSon[i].groupSonGuid,
             groupParentGuid: res.data[0].subGroupSon[i].groupParentGuid
           })
           this.floorArr.push({
-            img_url: res.data[0].subGroupSon[i].mapUrl,
+            // img_url: res.data[0].subGroupSon[i].mapUrl,
+            img_url: '/static/html/chamahuajie_wudi.png',
             floor: res.data[0].subGroupSon[i].floor,
             groupSonGuid: res.data[0].subGroupSon[i].groupSonGuid,
             groupParentGuid: res.data[0].subGroupSon[i].groupParentGuid
@@ -664,7 +668,7 @@ export default {
         var allInfo = res.data[0]
         this.community.index = 0
         this.frame = {
-          path: ossPrefix + '/static/html/plane.html?floor = ' + res.data[0].subGroupSon[0].mapUrl,
+          path: ossPrefix + '/static/html/single_plane_map.html',
           id: res.data[0].subGroupSon[0].mapUrl
         }
         this.getLatestFace(this.routerList[0].groupParentGuid, this.routerList[0].groupSonGuid)
