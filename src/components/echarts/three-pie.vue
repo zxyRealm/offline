@@ -81,6 +81,7 @@ export default {
   methods: {
     initData () {
       this.setOptions()
+      this.chart.resize()
       this.chart.setOption(this.options)
     },
     // 计算百分比
@@ -90,37 +91,14 @@ export default {
     // 根据type定义配置信息
     setOptions () {
       let seriesData = this.formatData()
-      let windowWidth = window.innerWidth
       let size = () => {
         return {
           tSize: 14,
           itemHeight: 10,
           itemGap: 6
         }
-        // if (windowWidth < 1280) {
-        //   return {
-        //     tSize: 14,
-        //     itemHeight: 10,
-        //     itemGap: 6
-        //   }
-        // } else if (windowWidth >= 1280 && windowWidth < 1600) {
-        //   return {
-        //     tSize: 15,
-        //     itemHeight: 12,
-        //     itemGap: 11
-        //   }
-        // } else {
-        //   return {
-        //     tSize: 16,
-        //     itemHeight: 14,
-        //     itemGap: 16
-        //   }
-        // }
       }
-      // let ageLegend = () => {
-      // }
       if (this.type === 'age') {
-      // #979797
         let color = this.total ? [
           '#FFD500',
           '#7ED321',
@@ -267,14 +245,6 @@ export default {
                   formatter: '{per|{b}} {per|{d}%}', // '{per|{d}%}',//'{d}%',  //显示百分比
                   position: 'inner',
                   rich: {
-                    // gray: {
-                    //   color: 'rgba(109,46,187,1)',
-                    //   fontSize: 12
-                    // },
-                    // green: {
-                    //   color: 'rgba(15,158,233,1)',
-                    //   fontSize: 12
-                    // },
                     per: {
                       color: '#fff',
                       fontSize: 12,

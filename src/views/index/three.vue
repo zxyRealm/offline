@@ -5,7 +5,7 @@
     <template v-if="currentManage.id">
       <div class="floor__data--wrap">
         <el-scrollbar>
-          <div class="float-block clearfix">
+          <div class="float-block clearfix" :class="{single: currentManage.type === 3}">
             <!--会员比例-->
             <div class="member-ratio items">
               <Chart title="会员比例" :data="ratioData.member" type="member" width="100%" height="100%"></Chart>
@@ -30,7 +30,7 @@
             </div>
           </div>
           <!--回头客比例-->
-          <div class="return-ratio items" :class="{'empty--data': !ratioData.appearance.many || !ratioData.appearance.many.total}">
+          <div class="return-ratio items" :class="{'empty--data': !ratioData.appearance.many || !ratioData.appearance.many.total, single: currentManage.type === 3}">
             <div class="floor__sub--title">
               回头客比例
             </div>
@@ -47,11 +47,11 @@
             </div>
           </div>
           <!--年龄比例-->
-          <div class="age-ratio items">
+          <div class="age-ratio items" :class="{single: currentManage.type === 3}">
             <Chart :data="ratioData.age" title="年龄比例" type="age" width="100%" height="100%"></Chart>
           </div>
           <!--业态客流排行榜-->
-          <div class="format-flow-rank items" v-if="currentFloor && currentFloor.floor === 0">
+          <div class="format-flow-rank items" v-if="currentManage.type === 1 && currentFloor && currentFloor.floor === 0">
             <div class="floor__sub--title">
             业态客流排行榜
             </div>
@@ -78,7 +78,7 @@
             <!--<chart-bar title="业态客流排行榜" width="100%" height="100%"></chart-bar>-->
           </div>
           <!--门店客流排行榜-->
-          <div class="store-flow-rank items">
+          <div class="store-flow-rank items" v-if="currentManage.type === 1">
             <div class="floor__sub--title">
               门店客流排行榜
             </div>
@@ -185,35 +185,36 @@ export default {
       }
       // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
       if (!info) return
-      GetFlowRank({groupFloor: info.floor, groupGuid: info.groupParentGuid}).then(res => {
-        this.num = 0
-        res.data = JSON.parse(res.data)
-        let industryTotal = 0
-        let groupTotal = 0
-        res.data.industry.map(item => {
-          industryTotal += item.count
+      if (this.currentManage.type === 1) {
+        GetFlowRank({groupFloor: info.floor, groupGuid: info.groupParentGuid, type: info.type}).then(res => {
+          this.num = 0
+          res.data = JSON.parse(res.data)
+          let industryTotal = 0
+          let groupTotal = 0
+          res.data.industry.map(item => {
+            industryTotal += item.count
+          })
+          res.data.group.map(item => {
+            groupTotal += item.count
+          })
+          res.data.industry.map(item => {
+            this.$set(item, 'percent', industryTotal ? ((item.count / industryTotal) * 100).toFixed(1) + '%' : '0%')
+          })
+          res.data.group.map(item => {
+            this.$set(item, 'percent', groupTotal ? Number(((item.count / groupTotal) * 100).toFixed(1)) : 0)
+          })
+          this.rankData = res.data
+        }).catch(err => {
+          if (err.code === 'ERR-110') {
+            this.num = 4
+          } else {
+            this.num++
+          }
+          console.error(err.msg || '网络异常，请稍后重新尝试')
         })
-        res.data.group.map(item => {
-          groupTotal += item.count
-        })
-        res.data.industry.map(item => {
-          this.$set(item, 'percent', industryTotal ? ((item.count / industryTotal) * 100).toFixed(1) + '%' : '0%')
-        })
-        res.data.group.map(item => {
-          this.$set(item, 'percent', groupTotal ? Number(((item.count / groupTotal) * 100).toFixed(1)) : 0)
-        })
-        this.rankData = res.data
-      }).catch(err => {
-        if (err.code === 'ERR-110') {
-          this.num = 4
-        } else {
-          this.num++
-        }
-        console.error(err.msg || '网络异常，请稍后重新尝试')
-        // this.$tip(err.msg || '网络异常，请稍后重新尝试', 'error')
-      })
+      }
       // 获取实时比率
-      GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupParentGuid}).then(res => {
+      GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupParentGuid, type: info.type}).then(res => {
         this.num = 0
         let resData = JSON.parse(res.data)
         resData = this.ComunicationPer(resData)
@@ -335,6 +336,9 @@ export default {
     /*会员比例、男女比例*/
     .float-block{
       height: 198px;
+      &.single{
+        height: 220px;
+      }
       .items{
         float: left;
         height: 100%;
@@ -366,6 +370,14 @@ export default {
     /*回头客比例*/
     .return-ratio{
       height: 116px;
+      &.single{
+        height: 146px;
+        .person__pie--wrap{
+          margin-top: 28px;
+          margin-bottom: 15px;
+          height: 38px;
+        }
+      }
       .person__pie--wrap{
         margin-top: 15px;
         height: 28px;
@@ -412,6 +424,9 @@ export default {
     /*年龄比例*/
     .age-ratio{
       height: 170px;
+      &.single{
+        height: 200px;
+      }
     }
     /*业态客流排行榜*/
     .format-flow-rank{

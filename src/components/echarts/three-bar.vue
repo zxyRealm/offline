@@ -63,6 +63,7 @@ export default {
   methods: {
     initData () {
       this.chart = echarts.init(document.getElementById(this.eid))
+      this.chart.resize()
       this.chart.setOption(this.options)
     },
     // 计算百分比

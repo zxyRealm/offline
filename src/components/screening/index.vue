@@ -144,21 +144,22 @@ export default {
     // 点击维度
     handleButton (value) {
       this.filterParams.timeIntervalUnit = value.type
-      this.filterParams.endTime = ''
-      this.filterParams.startTime = ''
-      // this.filterParams.timeArray = []
-      const current = Moment(new Date()).format('YYYY-MM-DD')
-      const firstDayMonth = Moment(new Date()).startOf('month').format('YYYY-MM-DD')
-      if (value.type === 'hour') {
-        this.filterParams.timeArray = [current, current]
-      } else if (!this.filterParams.timeArray[0] || this.filterParams.timeArray[0] === current) {
-        this.filterParams.timeArray = [firstDayMonth, current]
-      }
-      this.dealTime()
-      this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
+      this.dealTime('default')
+      // this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
     },
     // 处理时间
-    dealTime () {
+    dealTime (type) {
+      const current = Moment(new Date()).format('YYYY-MM-DD')
+      const firstDayMonth = Moment(new Date()).startOf('month').format('YYYY-MM-DD')
+      if (type === 'default') {
+        if (this.filterParams.timeIntervalUnit === 'hour') {
+          this.filterParams.timeArray = [current, current]
+        } else if (this.filterParams.timeIntervalUnit === 'month') {
+          this.filterParams.timeArray = [Moment(new Date()).format('YYYY-01-01'), current]
+        } else {
+          this.filterParams.timeArray = [firstDayMonth, current]
+        }
+      }
       let tempDate = this.filterParams.timeArray
       if (!tempDate[0]) {
         this.filterParams.startTime = ''
@@ -173,6 +174,9 @@ export default {
         this.filterParams.endTime = tempDate[0] + ' 23:59:59'
       } else {
         this.filterParams.endTime = tempDate[1] + ' 23:59:59'
+      }
+      if (type === 'default') {
+        this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
       }
     },
     // vuex状态管理数据
@@ -212,13 +216,7 @@ export default {
     // 默认值处理
     this.filterParams = this.$store.state.filterParams
     this.filterParams.type = this.type
-    if (this.filterParams.timeIntervalUnit === 'hour') {
-      this.filterParams.timeArray = [parseTime(new Date(), '{y}-{m}-{d}'), parseTime(new Date(), '{y}-{m}-{d}')]
-    } else {
-      this.filterParams.timeArray = []
-    }
-    this.dealTime()
-    this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
+    this.dealTime('default')
     if (this.filterParams.group && this.filterParams.group.guid) {
       eventObject().$emit('REFRESH_DATA', '')
     }

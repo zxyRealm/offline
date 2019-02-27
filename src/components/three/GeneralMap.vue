@@ -289,7 +289,7 @@ export default {
   methods: {
     // 切换iframe
     updateFrameArea (item, index) {
-      console.log(item)
+      // console.log(item)
       this.$set(this.frame, 'path', item.path)
       this.$set(this.frame, 'id', item.id)
       this.community.infoArr.forEach((value, i) => {
