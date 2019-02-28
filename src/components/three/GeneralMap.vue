@@ -176,13 +176,6 @@
                   class="glow-border"
                   :class="{'un-member-border': item.name === '---', 'member-border': item.name !== '---'}" alt="">
                 <img src="@/assets/public/avatar2.png"  alt="" v-else>
-                <!--<img-->
-                  <!--:class="{'glow-border': item.imgUrl !== '/static/img/avatar2.png',-->
-                    <!--'un-member-border': item.name === '-&#45;&#45;'&&item.imgUrl !== '/static/img/avatar2.png',-->
-                    <!--'member-border': item.name !== '-&#45;&#45;'&&item.imgUrl !== '/static/img/avatar2.png'}"-->
-                  <!--:src="item.imgUrl"-->
-                  <!--alt-->
-                <!--&gt;-->
                 <span class="corner-icon"></span>
               </div>
               <div v-if="item.name && item.name === '---'" class="member-mask"><span
@@ -289,7 +282,7 @@ export default {
   methods: {
     // 切换iframe
     updateFrameArea (item, index) {
-      // console.log(item)
+
       this.$set(this.frame, 'path', item.path)
       this.$set(this.frame, 'id', item.id)
       this.community.infoArr.forEach((value, i) => {
@@ -755,7 +748,7 @@ export default {
             }
             this.getCommunityInfo(val)
           } else {
-           this.getSingleStoreCommunityInfo(val)
+            this.getSingleStoreCommunityInfo(val)
           }
           if (this.websocket) {
             this.websocket.close()
