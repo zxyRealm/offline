@@ -9,7 +9,7 @@
 
 <script>
 import resize from './mixins/resize'
-import echarts from 'echarts'
+import {mapState} from 'vuex'
 export default {
   name: 'three-pie',
   mixins: [resize],
@@ -63,10 +63,11 @@ export default {
   created () {
   },
   mounted () {
-    this.chart = echarts.init(document.getElementById(this.eid))
+    this.chart = this.$echarts.init(document.getElementById(this.eid))
     this.initData()
   },
   computed: {
+    ...mapState(['currentManage']),
     eid () {
       return this.id || 'echarts_' + this.type
     },
@@ -99,6 +100,16 @@ export default {
         }
       }
       if (this.type === 'age') {
+        let style = {
+          fontSize: 12,
+          top: '20%'
+        }
+        if (this.currentManage.type === 3) {
+          style = {
+            fontSize: 13,
+            top: '24%'
+          }
+        }
         let color = this.total ? [
           '#FFD500',
           '#7ED321',
@@ -127,7 +138,7 @@ export default {
           },
           legend: {
             orient: 'vertical',
-            top: '20%',
+            top: style.top,
             right: '20%',
             align: 'left',
             itemWidth: 16,
@@ -135,7 +146,7 @@ export default {
             itemGap: size().itemGap,
             textStyle: {
               color: '#ffffff',
-              fontSize: '13',
+              fontSize: style.fontSize,
               fontWeight: 'normal'
             },
             icon: 'square',
@@ -328,26 +339,16 @@ export default {
     display: inline-block;
     font-size: 12px;
     p{
-      line-height: 19px;
+      line-height: 18px;
     }
-    /*@media only screen and (max-width: 1280px){*/
-      /*font-size: 12px;*/
-      /*p{*/
-        /*line-height: 19px;*/
-      /*}*/
-    /*}*/
-    /*@media only screen and (min-width: 1280px){*/
-      /*font-size: 14px;*/
-      /*p{*/
-        /*line-height: 24px;*/
-      /*}*/
-    /*}*/
-    /*@media only screen and (min-width: 1600px){*/
-      /*font-size: 15px;*/
-      /*top: calc(20% - 6px);*/
-      /*p{*/
-        /*line-height: 30px;*/
-      /*}*/
-    /*}*/
+  }
+  .single {
+    .percent-wrap{
+      top: calc(25%);
+      font-size: 13px;
+      p{
+        line-height: 19px;
+      }
+    }
   }
 </style>

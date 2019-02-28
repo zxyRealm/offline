@@ -15,7 +15,6 @@
       :highlight-current-row="false"
       class="table-content flow-table">
       <el-table-column
-        prop="dateTime"
         width="180"
         align="center"
         label="时间">
@@ -24,7 +23,6 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="inFlowerCount"
         width="150"
         align="center"
         label="客流量">
@@ -36,13 +34,9 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="outFlowerCount"
-
         label="到访记录">
         <template slot-scope="scope">
-          <!--<img class="flow-avatar" src="/static/img/avatar2.png" v-for="(item,$index) in 8" alt="" :key="$index">-->
-          <!--<image-box width="54px" height="54px" :key="$index" v-if="$index < 8" v-for="(item,$index) in scope.row.imgs" :src="item"></image-box>-->
-          <img class="flow-avatar" v-if="$index < 8" @click="showImage(item)" :src="item" v-for="(item,$index) in scope.row.imgs" alt="" :key="$index">
+          <img class="flow-avatar" v-if="$index < 8" @click="showImage(item)" :src="item" v-for="(item,$index) in scope.row.inImgs" alt="" :key="$index">
           <a href="javascript:void (0)" class="fr" @click="showLog(scope.row)">更多信息</a>
         </template>
       </el-table-column>
@@ -103,7 +97,6 @@
 <script>
 import {mapState} from 'vuex'
 import {eventObject} from '@/utils/event.js'
-import {getWeekNumber, parseTime} from '../../utils'
 import {GetFlowCount, GetVisitedList} from '../../api/visual'
 import Moment from 'moment'
 export default {
@@ -298,6 +291,8 @@ export default {
     num (val) {
       let txt = val
       if (val.toString().length >= 5) {
+        // let numStr = (val / 10000).toString()
+        // txt = numStr.substring(0, numStr.lastIndexOf('.') + 2) + '万'
         txt = (val / 10000).toFixed(1) + '万'
       }
       return txt

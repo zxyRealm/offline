@@ -246,8 +246,7 @@ export default {
           return val
         })
         if (this.filterParams.timeIntervalUnit === 'hour' && parseTime(new Date(), '{y}-{m}-{d}') === parseTime(this.filterParams.startTime, '{y}-{m}-{d}')) {
-          // console.log('date is current', parseTime(new Date(), '{h}'), this.option.series)
-          let num = parseTime(new Date(), '{h}')
+          let num = Number(parseTime(new Date(), '{h}')) + 1
           this.option.series.map(item => {
             item.data = item.data.slice(0, num)
             return item

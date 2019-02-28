@@ -50,6 +50,12 @@
           <div class="age-ratio items" :class="{single: currentManage.type === 3}">
             <Chart :data="ratioData.age" title="年龄比例" type="age" width="100%" height="100%"></Chart>
           </div>
+          <!--进客流柱状图-->
+
+          <div class="in-flow items" v-if="currentManage.type === 3">
+            <chart-bar title="进客流量" :data="flowData" type="inflow" width="100%" height="100%"></chart-bar>
+          </div>
+
           <!--业态客流排行榜-->
           <div class="format-flow-rank items" v-if="currentManage.type === 1 && currentFloor && currentFloor.floor === 0">
             <div class="floor__sub--title">
@@ -109,8 +115,9 @@ import GeneralMap from '@/components/three/GeneralMap'
 import buildFloor from '@/views/three/index'
 import CustomPie from '@/components/echarts/custom-pie'
 import {eventObject} from '../../utils/event'
-import {GetFlowRank, GetTimeRatio} from '../../api/visual'
+import {GetFlowRank, GetTimeRatio, GetChartLine} from '../../api/visual'
 import {mapState} from 'vuex'
+import Moment from 'moment'
 export default {
   name: 'index',
   data () {
@@ -133,6 +140,7 @@ export default {
         group: [],
         industry: []
       },
+      flowData: [],
       currentFloor: {}, // 当前查看的楼层信息
       num: 0, // 左侧数据轮询时接口连续出错的次数 （连续3次都异常，则停止数据轮询）
       timer: null // 数据获取定时器
@@ -157,6 +165,7 @@ export default {
     setFloorInfo (data) {
       this.currentFloor = data
       this.initBaseData()
+      this.getFlowData()
     },
     ComunicationPer (data) {
       for (let val in data) {
@@ -236,6 +245,23 @@ export default {
         }
       })
     },
+
+    // 获取客流数据
+    getFlowData () {
+      if (this.currentManage.type !== 3) return
+      let date = Moment().format('YYYY-MM-DD')
+      GetChartLine({
+        groupSonGuid: this.currentFloor.groupSonGuid,
+        // groupName: Manage.name,
+        timeIntervalUnit: 'hour',
+        startTime: date + ' 00:00:00',
+        endTime: date + ' 23:59:59',
+        type: 'flow'
+      }).then(res2 => {
+        this.flowData = res2.data.seriesGroup.filter(item => item.name === '客流入')[0]
+      })
+    },
+
     createCommunity () {
       eventObject().$emit('CREATE_COMMUNITY-INDEX')
     }
@@ -427,6 +453,9 @@ export default {
       &.single{
         height: 200px;
       }
+    }
+    .in-flow{
+      height: 230px;
     }
     /*业态客流排行榜*/
     .format-flow-rank{

@@ -6,13 +6,13 @@
 
 <script>
 import resize from './mixins/resize'
-import echarts from 'echarts'
 export default {
   name: 'three-pie',
   mixins: [resize],
   data () {
     return {
       chart: null,
+      seriesData: [],
       dataList: [
         {value: 10, name: '0-10岁'},
         {value: 25, name: '10-20岁'},
@@ -29,7 +29,7 @@ export default {
       default: ''
     },
     data: {
-      type: Array,
+      type: [Array, Object],
       default: () => []
     },
     type: {
@@ -62,7 +62,7 @@ export default {
   },
   methods: {
     initData () {
-      this.chart = echarts.init(document.getElementById(this.eid))
+      this.chart = this.$echarts.init(document.getElementById(this.eid))
       this.chart.resize()
       this.chart.setOption(this.options)
     },
@@ -87,35 +87,48 @@ export default {
           }
         },
         tooltip: {
-          show: false,
+          show: true,
           trigger: 'axis',
+          padding: [8, 10],
+          backgroundColor: 'rgba(59, 92, 131, 0.42)',
           axisPointer: { // 坐标轴指示器，坐标轴触发有效
-            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+            type: 'shadow', // 默认为直线，可选为：'line' | 'shadow'
+            shadowStyle: {
+              opacity: 0.1,
+              color: '#fff',
+              type: 'dashed'
+            }
+          },
+          formatter: '时间：{b}:00<br />{a}：{c}',
+          textStyle: {
+            fontSize: 12
           }
         },
         grid: {
           left: '3%',
           right: '4%',
-          bottom: '10%',
+          bottom: '4%',
           containLabel: true
         },
         xAxis: [
           {
+            name: '时间',
             type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            data: ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'],
             axisTick: {
-              alignWithLabel: false
+              alignWithLabel: false,
+              interval: 0
             },
             axisLine: {
               lineStyle: {
-                color: '#fff'
+                color: 'rgba(255, 255, 255, 0.07)'
               }
             },
             axisLabel: {
-              interval: 0,
-              rotate: -30,
+              interval: 2,
               color: '#fff',
-              fontSize: 12
+              fontSize: 12,
+              align: 'center'
             }
           }
         ],
@@ -125,32 +138,51 @@ export default {
             axisLabel: {
               color: '#fff'
             },
+            axisTick: {
+              show: false
+            },
             axisLine: {
-              lineStyle: {
-                color: '#fff'
-              }
+              show: false
             },
             splitLine: {
-              show: false
+              show: true,
+              lineStyle: {
+                color: 'rgba(255, 255, 255, 0.07)',
+                type: 'dashed'
+              }
             }
           }
         ],
         series: [
           {
-            name: '直接访问',
+            name: '人流量',
             type: 'bar',
-            barWidth: '60%',
-            data: [10, 52, 200, 334, 390, 330, 220],
-            label: {
-              show: true,
-              position: 'top'
-            }
+            itemStyle: {
+              color: '#71C7F4'
+            },
+            emphasis: { // 高亮时属性配置
+              itemStyle: {
+                color: '#0F9EE9'
+              }
+            },
+            data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
           }
         ]
       }
     }
   },
-  watch: {}
+  watch: {
+    data: {
+      handler (val) {
+        this.chart.setOption({series: [{
+          name: '人流量',
+          type: 'bar',
+          data: val.data
+        }]})
+      },
+      deep: true
+    }
+  }
 }
 </script>
 

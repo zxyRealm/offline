@@ -764,7 +764,6 @@ export default {
 <style lang="scss" scoped>
   .general-map {
     height: 100%;
-    min-height: 700px;
     position: relative;
     overflow: hidden;
     display: flex;
