@@ -780,7 +780,6 @@ export default {
         top: 10px;
         text-align: center;
         height: 55px;
-        // background: #17151a;
         padding: 10px;
         box-sizing: border-box;
         a {
@@ -807,7 +806,6 @@ export default {
       #iframeWrap {
         flex: 1;
         display: flex;
-
         .iframe {
           width: 100%;
           height: 100%;
@@ -816,9 +814,7 @@ export default {
       #statisticInfo {
         height: 100px;
         overflow: hidden;
-        // background: #17151a;
         padding-bottom: 5px;
-        // box-sizing: border-box;
         .statistic-box:last-child {
           width: 28%;
         }

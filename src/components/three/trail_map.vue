@@ -1,8 +1,8 @@
 <template>
   <div class="trail-map" id="trail-map">
     <div id="iframeWrap">
+      <!--v-if="trailData.length"-->
       <iframe
-        v-if="trailData.length"
         :src="frame.path"
         :id="frame.id"
         scrolling="no"
@@ -72,17 +72,26 @@ export default {
     },
     getCommunityInfo (parentId) {
       if (!parentId) { return }
-      GetMarketList({parentId: parentId}).then(res => {
-        let floorInfo = this.sortFloorArr(res.data[0].subGroupSon)
-        floorInfo = floorInfo.reverse()
-        this.communityInfo = floorInfo
-      })
+      if (this.currentManage.type !== 3) {
+        GetMarketList({parentId: parentId}).then(res => {
+          let floorInfo = this.sortFloorArr(res.data[0].subGroupSon)
+          floorInfo = floorInfo.reverse()
+          this.communityInfo = floorInfo
+        })
+      } else {
+        this.frame = {
+          path: ossPrefix + '/static/html/single_store_trail.html',
+          id: 'threeFrame'
+        }
+      }
     },
     getElevatorList (parentId) {
       if (!parentId) { return }
-      GetElevatorListByGroupGuid({groupGuid: parentId}).then(res => {
-        this.elevatorList = res.data
-      })
+      if (this.currentManage.type !== 3) {
+        GetElevatorListByGroupGuid({groupGuid: parentId}).then(res => {
+          this.elevatorList = res.data
+        })
+      }
     },
     handleMessage (event) {
       const data = event.data
@@ -103,6 +112,12 @@ export default {
           this.iframe.postMessage({
             type: 'RECEIVE_COMMUNITY_INFO',
             communityInfo: this.communityInfo
+          }, this.originSrc)
+          break
+        case 'single-trail-load_signal':
+          this.iframe.postMessage({
+            type: 'GET_TRAIL_DATA2',
+            trailData: this.trailData
           }, this.originSrc)
       }
     },
