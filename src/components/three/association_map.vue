@@ -27,6 +27,7 @@
     </ul>
     <!--添加出入口-->
     <ob-dialog-form
+      :close-on-click-modal="false"
       :title="portalDialogTitle"
       :visible.sync="handlePortalVisible"
       :showButton="false"
@@ -216,7 +217,6 @@ export default {
     },
     loadIframeSvg () { // 加载iframe svg 地图
       this.iframeObj.postMessage({type: 'IFRAME_LOAD_SVG', data: this.data, floor: this.currentFloor.subGroupSon}, this.originSrc)
-      // this.iframeObj.loadSvg(this.data, this.currentFloor.subGroupSon)
     },
     // 处理iframe传递出来的事件
     handleEvent (event) {

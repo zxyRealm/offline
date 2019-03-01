@@ -227,8 +227,8 @@
 <script src="../three/SVGLoader.js"></script>
 <script src="../three/util.js"></script>
 <script>
-  var renderer, scene, camera, group, meshList = [], textList = [], spriteList = []
-  var width, height, userData, communityData
+  var renderer, scene, camera, group, textList = [], spriteList = []
+  var width, height, userData, communityData, floorData
   var windowOrigin = '*'
   function init () {
     if (!WEBGL.isWebGLAvailable()) {
@@ -238,9 +238,7 @@
     }
     renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
     renderer.setSize(window.innerWidth, window.innerHeight)
-    // renderer.setClearColor('#ffffff', 0.0)
     scene = new THREE.Scene()
-    // scene.background = new THREE.Color('#232027')
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000)
     camera.position.set(0, 0, 480)
     scene.add(camera)
@@ -275,38 +273,17 @@
   // 加载渲染svg地图
   function loadSvg (data, floor) {
     communityData = data
+    floorData = floor
     var svgLoad = new THREE.SVGLoader()
     var img1 = document.getElementById('image1')
     var img2 = document.getElementById('image2')
     var url = parseUrlParams('map_url') || ''
     if (!data.self) img1.style.display = 'none'
-
-    if (data.level === 1 && data.type !== 4) {
+    console.log('level', data.level)
+    if (data.level === 1) {
       img1.children[1].innerText = '门店出入口'
       img1.children[0].setAttribute('src', '../floor/qizi3.png')
       img2.style.display = 'none'
-      // group.scale.set(1, -1, 1)
-      // var objLoader = new THREE.ObjectLoader();
-      // var geometry = objLoader.parse(shapes).geometry;
-      // var materialLine = new THREE.LineBasicMaterial({
-      //   color: new THREE.Color('#403E42'),
-      //   side: THREE.DoubleSide,
-      //   depthWrite: false
-      // })
-      // var ps = changeArrayLevel([].slice.call(geometry.attributes.position.array))
-      //
-      // var center = new Contour(ps.buffer).centroid()
-      // // console.info(ps.buffer, center)
-      // var zDistance = calculateDistance(geometry)
-      // group.position.x = -Math.ceil(center.x)
-      // group.position.y = Math.ceil(center.y)
-      // camera.position.set(0, 0, zDistance * 1.6)
-      // var mesh = new THREE.Mesh(geometry, materialLine)
-      // var edges = new THREE.EdgesGeometry(geometry)
-      // var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: '#979797'}))
-      // mesh.add(line)
-      // group.add(mesh)
-      // initGateway()
     } else {
       if (data.type !== 4) {
         img1.children[1].innerText = '主出入口'
@@ -381,9 +358,10 @@
     var body = document.getElementsByTagName('body')[0]
     var image1 = document.getElementById('image1')
     var image2 = document.getElementById('image2')
+
     image2.onmousedown = function (event) {
       var box = document.createElement('img')
-      box.src = '/static/floor/qizi1.png'
+      box.src = '/static/floor/qizi2.png'
       box.style.width = '10px'
       box.style.position = 'absolute'
       var divX = event.clientX - image2.children[0].offsetWidth / 2
@@ -411,8 +389,10 @@
     }
     image1.onmousedown = function (event) {
       var box = document.createElement('img')
+      // 根据level判断是否是门店或者商场成员
+      var iconSrc = '../floor/qizi' + (communityData.level === 1 ? 3 : 1) + '.png'
       box.style.width = '10px'
-      box.src = '/static/floor/qizi2.png'
+      box.src = iconSrc
       box.style.position = 'absolute'
       var divX = event.clientX - image1.children[0].offsetWidth / 2
       var divY = event.clientY - image1.children[0].offsetHeight / 2
@@ -663,8 +643,6 @@
 
   window.onload = function () {
     init()
-    // animate()
-    // initMouseEvent()
     // 出入口弹窗中设备列表事件绑定
     var popper = document.getElementById('device__popper--wrap');
     popper.onclick = function(ev){
