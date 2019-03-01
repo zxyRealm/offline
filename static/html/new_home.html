@@ -67,17 +67,11 @@
     var floorArr; // 接收楼层信息
 
     function createLight() {
-      var light = new THREE.DirectionalLight(0xFFFFFF, 0.8);
-      light.position.set(0, 1500, 0);
-      scene.add(light);
+      var AmbientLight = new THREE.AmbientLight( 0xffffff, 0.2 ); // soft white light
+      scene.add( AmbientLight );
 
-      var light2 = new THREE.DirectionalLight(0x3176ff, 0.5);
-      light2.position.set(0, 300, -1500);
-      scene.add(light2);
-
-      var light3 = new THREE.DirectionalLight(0x3176ff, 0.5);
-      light3.position.set(0, 200, 1500);
-      scene.add(light3);
+      var light = new THREE.HemisphereLight( 0xffffff, 0x000000, 0.9 );
+      scene.add( light );
     }
 
     function init() {
@@ -541,7 +535,7 @@
               var edgeMaterial = new THREE.LineBasicMaterial({
                 color: '#1A425e',
                 transparent: true,
-                opacity: opacity
+                opacity: opacity / 3
               })
               var edges = new THREE.Line(edgeGeometry, edgeMaterial)
 
