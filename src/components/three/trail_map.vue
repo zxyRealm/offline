@@ -3,6 +3,7 @@
     <div id="iframeWrap">
       <!--v-if="trailData.length"-->
       <iframe
+        v-if="trailData.length"
         :src="frame.path"
         :id="frame.id"
         scrolling="no"
@@ -119,6 +120,7 @@ export default {
             type: 'GET_TRAIL_DATA2',
             trailData: this.trailData
           }, this.originSrc)
+          break
       }
     },
     sortFloorArr (arr) {
