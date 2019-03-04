@@ -3,7 +3,15 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
-
+const env = process.env.NODE_ENV
+let config = {assetsPublicPath: '/'}
+switch (env) {
+  case 'production':
+    config = {
+      assetsPublicPath: 'http://offline-browser-images.oss-cn-hangzhou.aliyuncs.com/'
+    }
+    break
+}
 module.exports = {
   dev: {
     // Paths
@@ -52,6 +60,9 @@ module.exports = {
   },
 
   build: {
+    prodEnv: require('./prod.env'),
+    devEnv: require('./dev.env'),
+    relEnv: require('./rel.env'),
     // Template for index.html
     index: path.resolve(__dirname, '../dist/index.html'),
 
@@ -59,7 +70,7 @@ module.exports = {
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
     // assetsPublicPath: '/',
-    assetsPublicPath: 'http://offline-browser-images.oss-cn-hangzhou.aliyuncs.com/',
+    assetsPublicPath: config.assetsPublicPath,
 
     /**
      * Source Maps
@@ -82,7 +93,6 @@ module.exports = {
     // Set to `true` or `false` to always turn it on or off
     bundleAnalyzerReport: process.env.npm_config_report
   },
-
   test: {
     // Template for index.html
     index: path.resolve(__dirname, '../dist/index.html'),

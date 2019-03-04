@@ -112,7 +112,6 @@
 import Chart from '@/components/echarts/three-pie'
 import ChartBar from '@/components/echarts/three-bar'
 import GeneralMap from '@/components/three/GeneralMap'
-import buildFloor from '@/views/three/index'
 import CustomPie from '@/components/echarts/custom-pie'
 import {eventObject} from '../../utils/event'
 import {GetFlowRank, GetTimeRatio, GetChartLine} from '../../api/visual'
@@ -150,7 +149,6 @@ export default {
     Chart,
     ChartBar,
     GeneralMap,
-    buildFloor,
     CustomPie
   },
   created () {},

@@ -1,6 +1,5 @@
 <template>
   <div class="three__floor--wrap">
-    <!--<el-button @click="downloadSvg('http://localhost/copy.svg')">下载</el-button>-->
     <div id="svg" style="width: 580px;"></div>
   </div>
 </template>

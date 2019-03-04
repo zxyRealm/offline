@@ -36,7 +36,7 @@
       <el-table-column
         label="到访记录">
         <template slot-scope="scope">
-          <img class="flow-avatar" v-if="$index < 8" @click="showImage(item)" :src="item" v-for="(item,$index) in scope.row.inImgs" alt="" :key="$index">
+          <img class="flow-avatar" v-if="$index < 8 && item" @click="showImage(item)" :src="item" v-for="(item,$index) in scope.row.inImgs" alt="" :key="$index">
           <a href="javascript:void (0)" class="fr" @click="showLog(scope.row)">更多信息</a>
         </template>
       </el-table-column>

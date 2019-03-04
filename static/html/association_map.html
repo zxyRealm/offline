@@ -279,7 +279,6 @@
     var img2 = document.getElementById('image2')
     var url = parseUrlParams('map_url') || ''
     if (!data.self) img1.style.display = 'none'
-    console.log('level', data.level)
     if (data.level === 1) {
       img1.children[1].innerText = '门店出入口'
       img1.children[0].setAttribute('src', '../floor/qizi3.png')

@@ -55,8 +55,6 @@ const homePage = () => import('@/views/index/three')
 // 系统通知
 const homeNotify = () => import('@/views/index/notify/index')
 
-const ThreeTest = () => import('@/views/three/index')
-
 const error404 = () => import('@/views/errorPage/404')
 Vue.use(Router)
 export const constantRouterMap = [
@@ -469,15 +467,6 @@ export const constantRouterMap = [
         component: paramExplain
       }
     ]
-  },
-  // three.js 示例展示
-  {
-    path: '/three',
-    component: ThreeTest,
-    name: 'ThreeTest',
-    meta: {
-      title: 'Three.js 示例使用'
-    }
   },
   {
     path: '/transform',

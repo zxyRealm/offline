@@ -1,5 +1,6 @@
 'use strict'
 module.exports = {
+  CONFIG: '"prod"',
   NODE_ENV: '"production"',
   BASE_API: '"/api"',
   // OSS_PREFIX: '"http://192.168.11.182"'

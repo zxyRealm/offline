@@ -16,9 +16,9 @@ module.exports = {
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
-    publicPath: process.env.NODE_ENV === 'production'
-      ? config.build.assetsPublicPath
-      : config.dev.assetsPublicPath
+    publicPath: process.env.NODE_ENV === 'development'
+      ? config.dev.assetsPublicPath
+      : config.build.assetsPublicPath
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
@@ -66,31 +66,16 @@ module.exports = {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
-      },
-      {
-        test: require.resolve('three/examples/js/controls/OrbitControls'),
-        use: 'imports-loader?THREE=three'
-      },
-      {
-        test: require.resolve('three/examples/js/controls/OrbitControls'),
-        use: 'exports-loader?THREE.OrbitControls'
-      },
-      {
-        test: require.resolve('three/examples/js/loaders/SVGLoader'),
-        use: 'imports-loader?THREE=three'
-      },
-      {
-        test: require.resolve('three/examples/js/loaders/SVGLoader'),
-        use: 'exports-loader?THREE.SVGLoader'
-      },
-      {
-        test: require.resolve('three/examples/js/loaders/PLYLoader'),
-        use: 'imports-loader?THREE=three'
-      },
-      {
-        test: require.resolve('three/examples/js/loaders/PLYLoader'),
-        use: 'exports-loader?THREE.PLYLoader'
       }
+      // {
+      //   test: require.resolve('three/examples/js/loaders/SVGLoader'),
+      //   use: 'imports-loader?THREE=three'
+      // },
+      // {
+      //   test: require.resolve('three/examples/js/loaders/SVGLoader'),
+      //   use: 'exports-loader?THREE.SVGLoader'
+      // },
+      // {
     ]
   },
   node: {

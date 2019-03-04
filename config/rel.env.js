@@ -1,6 +1,7 @@
 'use strict'
 module.exports = {
-  NODE_ENV: '"test"',
+  CONFIG: '"rel"',
+  NODE_ENV: '"release"',
   BASE_API: '"/api"',
   OSS_PREFIX: '""'
 }
