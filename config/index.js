@@ -60,9 +60,6 @@ module.exports = {
   },
 
   build: {
-    prodEnv: require('./prod.env'),
-    devEnv: require('./dev.env'),
-    relEnv: require('./rel.env'),
     // Template for index.html
     index: path.resolve(__dirname, '../dist/index.html'),
 
