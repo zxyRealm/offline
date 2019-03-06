@@ -285,6 +285,16 @@ export default {
         this.layout = val.length === 0 ? 'total, sizes' : 'total, sizes, prev, pager, next'
       },
       deep: true
+    },
+    visible (val) { // 弹框关闭时清空数据列表和分页信息
+      if (!val) {
+        this.pagination = {
+          index: 1,
+          length: 10,
+          total: 0
+        }
+        this.visitedList = []
+      }
     }
   },
   filters: {
