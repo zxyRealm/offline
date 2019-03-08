@@ -237,7 +237,7 @@ export default {
       this.option.color = this.legendMap[this.filterParams.type].map(item => item.textStyle.color)
       GetChartLine(params).then(res => {
         let data = res.data
-        this.option.xAxis[0] = this.$apply(this.option.xAxis[0], data.xAxisGroup[0])
+        this.option.xAxis[0] = this.$apply(this.option.xAxis[0], data.xaxisGroup)
         this.option.yAxis[0] = this.$apply(this.option.yAxis[0], data.yAxis) // 这个yAxis是对象形式
         this.option.legend['data'] = this.legendMap[this.filterParams.type] // 根据type类型设置配置信息
         this.option.series = this.legendMap[this.filterParams.type].map(item => {

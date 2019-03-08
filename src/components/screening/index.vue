@@ -1,14 +1,13 @@
 <template>
   <div class="screening-wrap">
     <div>筛选</div>
-    <el-form v-model="filterParams" class="demo-ruleForm" label-width="90px" :class="type!=1?'normal-from':'' ">
+    <el-form v-model="currentParams" class="demo-ruleForm" label-width="90px" :class="type!=1?'normal-from':'' ">
       <el-form-item label="选择社群：" class="white" prop="groupGuidName">
         <el-select
           class="group-name-input"
-          @change="groupChange"
           value-key="guid"
           placeholder="请选择社群"
-          v-model="filterParams.group">
+          v-model="currentParams.group">
           <el-option
             v-for="(item, $index) in groupList"
             :key="$index"
@@ -21,15 +20,15 @@
           <button
             class="dimension-button" @click.stop.prevent="handleButton(ele)"
             :key="index"
-            :class="{actived: filterParams.timeIntervalUnit === ele.type}">{{ele.name}}
+            :class="{actived: currentParams.timeIntervalUnit === ele.type}">{{ele.name}}
           </button>
         </template>
       </el-form-item>
       <el-form-item label="时间：" class="white" prop="startTime">
         <el-date-picker
-          v-show="filterParams.timeIntervalUnit === 'hour'"
+          v-show="currentParams.timeIntervalUnit === 'hour'"
           type="date"
-          v-model="filterParams.timeArray[0]"
+          v-model="currentParams.timeArray[0]"
           placeholder="选择日期"
           value-format="yyyy-MM-dd"
           class="picker-data"
@@ -40,8 +39,8 @@
         >
         </el-date-picker>
         <el-date-picker
-          v-show="filterParams.timeIntervalUnit === 'day' || filterParams.timeIntervalUnit === 'week'"
-          v-model="filterParams.timeArray"
+          v-show="currentParams.timeIntervalUnit === 'day' || currentParams.timeIntervalUnit === 'week'"
+          v-model="currentParams.timeArray"
           type="daterange"
           align="center"
           unlink-panels
@@ -55,8 +54,8 @@
         >
         </el-date-picker>
         <el-date-picker
-          v-show="filterParams.timeIntervalUnit === 'month'"
-          v-model="filterParams.timeArray"
+          v-show="currentParams.timeIntervalUnit === 'month'"
+          v-model="currentParams.timeArray"
           type="monthrange"
           align="center"
           unlink-panels
@@ -106,7 +105,7 @@ export default {
         {name: '周', type: 'week'},
         {name: '月', type: 'month'}
       ], // 维度
-      filterParams: {
+      currentParams: {
         group: '', // 选择社群 6867A6C096844AD4982F19323B6C9574
         type: 'flow', // 类型
         timeIntervalUnit: 'hour', // 维度
@@ -128,60 +127,51 @@ export default {
           if (res.data[0]) {
             res.data[0].guid = res.data[0].groupSonGuid
           }
-          this.filterParams.group = res.data[0]
+          this.currentParams.group = res.data[0]
         })
       } else {
         MemberNoFloor({groupId: pid}).then(res => {
           this.groupList = res.data
-          this.filterParams.group = res.data[0]
+          this.currentParams.group = res.data.filter(item => item.guid === this.filterParams.group.guid)[0] || res.data[0]
         })
       }
     },
-    // 更换选取社群
-    groupChange () {
-      // this.filterParams.groupName = this.groupList.filter(item => item.guid === this.filterParams.groupSonGuid)[0].name
-    },
+
     // 点击维度
     handleButton (value) {
-      this.filterParams.timeIntervalUnit = value.type
+      this.currentParams.timeIntervalUnit = value.type
       this.dealTime('default')
-      // this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
     },
     // 处理时间
     dealTime (type) {
       const current = Moment(new Date()).format('YYYY-MM-DD')
       const firstDayMonth = Moment(new Date()).startOf('month').format('YYYY-MM-DD')
-      if (type === 'default') {
-        if (this.filterParams.timeIntervalUnit === 'hour') {
-          this.filterParams.timeArray = [current, current]
-        } else if (this.filterParams.timeIntervalUnit === 'month') {
-          this.filterParams.timeArray = [Moment(new Date()).format('YYYY-01-01'), current]
+      let tempDate = this.currentParams.timeArray
+      if (type === 'default' || !tempDate[0]) {
+        if (this.currentParams.timeIntervalUnit === 'hour') {
+          this.currentParams.timeArray = [current, current]
+        } else if (this.currentParams.timeIntervalUnit === 'month') {
+          this.currentParams.timeArray = [Moment(new Date()).format('YYYY-01-01'), current]
         } else {
-          this.filterParams.timeArray = [firstDayMonth, current]
+          this.currentParams.timeArray = [firstDayMonth, current]
         }
       }
-      let tempDate = this.filterParams.timeArray
-      if (!tempDate[0]) {
-        this.filterParams.startTime = ''
-        this.filterParams.endTime = ''
-        return
-      }
-      this.filterParams.startTime = (tempDate[0] || Moment().format('YYYY-MM-DD')) + ' 00:00:00'
-      if (this.filterParams.timeIntervalUnit === 'month') {
-        this.filterParams.startTime = (Moment(tempDate[0] || new Date()).format('YYYY-MM-01')) + ' 00:00:00'
-        this.filterParams.endTime = Moment(tempDate[1]).endOf('month').format('YYYY-MM-DD 23:59:59')
-      } else if (this.filterParams.timeIntervalUnit === 'hour') {
-        this.filterParams.endTime = tempDate[0] + ' 23:59:59'
+
+      this.currentParams.startTime = (tempDate[0] || Moment().format('YYYY-MM-DD')) + ' 00:00:00'
+      if (this.currentParams.timeIntervalUnit === 'month') {
+        this.currentParams.startTime = (Moment(tempDate[0] || new Date()).format('YYYY-MM-01')) + ' 00:00:00'
+        this.currentParams.endTime = Moment(tempDate[1]).endOf('month').format('YYYY-MM-DD 23:59:59')
+      } else if (this.currentParams.timeIntervalUnit === 'hour') {
+        this.currentParams.endTime = tempDate[0] + ' 23:59:59'
       } else {
-        this.filterParams.endTime = tempDate[1] + ' 23:59:59'
+        this.currentParams.endTime = tempDate[1] + ' 23:59:59'
       }
-      if (type === 'default') {
-        this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
-      }
+
+      this.$store.commit('SET_FILTER_PARAMS', this.currentParams)
     },
     // vuex状态管理数据
     changeParams () {
-      this.$store.commit('SET_FILTER_PARAMS', this.filterParams)
+      this.$store.commit('SET_FILTER_PARAMS', this.currentParams)
       // 通过eventBus通知兄弟组件更新数据
       try {
         eventObject().$emit('REFRESH_DATA', '')
@@ -191,11 +181,11 @@ export default {
     },
     // 查询
     submitForm () {
-      if (!this.filterParams.group || !this.filterParams.group.guid) {
+      if (!this.currentParams.group || !this.currentParams.group.guid) {
         this.$tip('请选择社群', 'error')
         return
       }
-      if (this.filterParams.timeIntervalUnit !== 'hour' && !this.filterParams.timeArray.length) {
+      if (this.currentParams.timeIntervalUnit !== 'hour' && !this.currentParams.timeArray.length) {
         this.$tip('请选择时间', 'error')
         return
       }
@@ -205,7 +195,7 @@ export default {
     },
     // 数据类型改变
     changeType (type) {
-      this.filterParams.type = type
+      this.currentParams.type = type
     }
   },
   created () {
@@ -214,15 +204,15 @@ export default {
   },
   mounted () {
     // 默认值处理
-    this.filterParams = this.$store.state.filterParams
-    this.filterParams.type = this.type
-    this.dealTime('default')
-    if (this.filterParams.group && this.filterParams.group.guid) {
+    this.currentParams = this.$store.state.filterParams
+    this.currentParams.type = this.type
+    this.dealTime()
+    if (this.currentParams.group && this.currentParams.group.guid) {
       eventObject().$emit('REFRESH_DATA', '')
     }
   },
   computed: {
-    ...mapState(['currentManage'])
+    ...mapState(['currentManage', 'filterParams'])
   },
   watch: {
     currentManage: {

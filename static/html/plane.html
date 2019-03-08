@@ -96,7 +96,7 @@
     // 获取当前src并截取楼层号码
     floor = window.location.search.split('=')[1]
     floor = decodeURI(floor).trim()
-    console.log(floor)
+    // console.log(floor)
     loadSvg(floor)
 
     // 放置控制器
@@ -301,7 +301,7 @@
   // 添加色块和贴图
   function addColor (boxArr) {
     // 遍历所有块
-    console.log(boxArr)
+    // console.log(boxArr)
     for(var i in shapesMeshArr){
       var meshAlex = getString(shapesMeshArr[i]) // 所有色块的顶点值转换为字符串
       // 遍历从服务端获取到的坐标数据
@@ -425,7 +425,7 @@
     var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
     var intersects = raycaster.intersectObjects(hasColorBoxArr);
     if (intersects.length > 0) {
-      console.log(hasColorBoxArr)
+      // console.log(hasColorBoxArr)
       window.parent.postMessage({
         cmd: 'click-single_store',
         params: {

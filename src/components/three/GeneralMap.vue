@@ -153,9 +153,6 @@
     </div>
     <div class="map-right">
       <div id="sideInfo" @mouseenter="maskToggle=true" @mouseleave="maskToggle=false">
-        <transition name="fade">
-          <!--<div id="sideMask" v-if="!maskToggle"></div>-->
-        </transition>
         <transition-group name="list-customer" class="transition-wrap right" tag="ul">
           <li class="side-box" v-for="(item) in personList" :key="item.key">
             <div class="box-left">
@@ -457,6 +454,7 @@ export default {
           // 总楼层添加id信息
           this.routerList[0].groupParentGuid = allInfo[0].groupParentGuid
           this.routerList[0].groupSonGuid = allInfo[0].groupSonGuid
+          this.routerList[0].floor = 0
 
           // 计算地下楼层数量
           this.caculateMinus(this.community.infoArr)
@@ -471,7 +469,6 @@ export default {
             let coordinateY = floorInfo[i].floor >= 0 ? upFloorCoordinateY + lowFloor : downFloorCoordinateY + lowFloor
             let imgUrl = floorInfo[i].mapUrl
             let floor = floorInfo[i].floor
-
             // 分别设置routerList和传入iframe的数组
             this.floorArr.push({
               coordinate_y: coordinateY,

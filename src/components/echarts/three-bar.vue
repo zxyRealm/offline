@@ -13,13 +13,6 @@ export default {
     return {
       chart: null,
       seriesData: [],
-      dataList: [
-        {value: 10, name: '0-10岁'},
-        {value: 25, name: '10-20岁'},
-        {value: 30, name: '20-30岁'},
-        {value: 20, name: '30-40岁'},
-        {value: 20, name: '50岁以上'}
-      ],
       options: {}
     }
   },
@@ -65,14 +58,6 @@ export default {
       this.chart = this.$echarts.init(document.getElementById(this.eid))
       this.chart.resize()
       this.chart.setOption(this.options)
-    },
-    // 计算百分比
-    getPercent (val) {
-      let total = 0
-      for (let i = 0, l = this.dataList.length; i < l; i++) {
-        total += this.dataList[i].value
-      }
-      return ((val / total) * 100).toFixed(2) + '%'
     },
     // 根据type定义配置信息
     setOptions () {

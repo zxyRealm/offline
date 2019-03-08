@@ -190,7 +190,10 @@ export default {
       data = data.seriesGroup
       this.option.legend['data'] = this.legendMap[this.filterParams.type]
       this.option.series[0].data = this.option.legend['data'].map(item => {
-        return data.filter(item2 => item2.name === item.name)[0].data[0]
+        return data.filter(item2 => item2.name === item.name).map((val) => {
+          val.value = val.data
+          return val
+        })[0]
       })
     },
     // 转化数组 = 没有设备时候的id
