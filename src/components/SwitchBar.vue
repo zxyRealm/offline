@@ -1,21 +1,31 @@
 <template>
   <div class="zxy__switch--bar" :class="mode">
-    <slot name="prefix" ></slot>
-    <i v-if="data.length > maxNum" :class="arrowClass()" @click="switchBar('pre')"></i>
+    <div
+      v-if="showTotal"
+      class="switch--bar-item"
+      :style="{margin: listSize.margin}"
+      @click="clickItem(data[0], 0)"
+      :class="{active: currentIndex === 0}"
+    >总</div>
+    <div v-if="itemList.length > maxNum" class="arrow-wrap">
+      <i :class="arrowClass()" @click="switchBar('pre')"></i>
+    </div>
     <div class="switch--bar-transform" :style="wrapSize">
       <ul class="switch--bar-wrap clearfix" :style="{height: listSize.height, width:listSize.width, transform: transform}">
         <li
           class="switch--bar-item"
           :style="{margin: listSize.margin}"
-          v-for="(item, $index) in data"
-          @click="clickItem(item, $index)"
-          :class="{active: $index === currentIndex}"
+          v-for="(item, $index) in itemList"
+          @click="clickItem(item, showTotal ? $index + 1 : $index)"
+          :class="{active: (showTotal ? $index + 1 : $index) === currentIndex}"
           :key="$index">
           {{item[label] | IntToFloor}}
         </li>
       </ul>
     </div>
-    <i v-if="data.length > maxNum" :class="arrowClass(1)" @click="switchBar('next')"></i>
+    <div v-if="itemList.length > maxNum" class="arrow-wrap">
+      <i :class="arrowClass(1)" @click="switchBar('next')"></i>
+    </div>
   </div>
 </template>
 
@@ -40,6 +50,10 @@ export default {
     mode: {
       type: String,
       default: 'horizontal' // 可选值 horizontal / vertical
+    },
+    showTotal: {
+      type: Boolean,
+      default: false
     },
     // 子元素之间的间隙
     offset: {
@@ -71,6 +85,13 @@ export default {
     },
     wrapSize () {
       return this.setStyle('wrap')
+    },
+    itemList () {
+      if (this.showTotal) {
+        return this.data.slice(1)
+      } else {
+        return this.data || []
+      }
     }
   },
   methods: {
@@ -83,10 +104,10 @@ export default {
       let classStr = ''
       switch (type) {
         case 1:
-          classStr = 'switch--arrow_' + (this.mode === 'horizontal' ? 'right' : 'bottom')
+          classStr = 'el-icon-caret-' + (this.mode === 'horizontal' ? 'right' : 'bottom')
           break
         default:
-          classStr = 'switch--arrow_' + (this.mode === 'horizontal' ? 'left' : 'top')
+          classStr = 'el-icon-caret-' + (this.mode === 'horizontal' ? 'left' : 'top')
           break
       }
       return classStr
@@ -96,7 +117,7 @@ export default {
       let translate
       if (type === 'pre' && this.translateIndex < 0) {
         this.translateIndex++
-      } else if (type === 'next' && this.translateIndex > (this.maxNum - this.data.length)) {
+      } else if (type === 'next' && this.translateIndex > (this.maxNum - this.itemList.length)) {
         this.translateIndex--
       }
       switch (this.mode) {
@@ -111,7 +132,7 @@ export default {
     },
     setStyle (type) {
       this.itemObj = document.getElementsByClassName('switch--bar-item')[0]
-      let len = this.data.length
+      let len = this.itemList.length
       let style = {
         height: 'auto',
         width: 'auto'
@@ -150,6 +171,14 @@ export default {
       } else {
         return int
       }
+    }
+  },
+  watch: {
+    data: {
+      handler (val) {
+        this.currentIndex = this.initialIndex
+      },
+      deep: true
     }
   }
 }
@@ -196,30 +225,16 @@ export default {
       float: left;
       overflow: hidden;
     }
-    .switch--arrow{
-      float: left;
-      display: block;
-      width: 0;
-      height: 0;
-      border: 10px;
-      border-style: solid;
+    .arrow-wrap{
+      position: relative;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
       text-align: center;
-      cursor: pointer;
-      &_left{
-        @extend .switch--arrow;
-        border-color: transparent $aColor transparent transparent;
-      }
-      &_right{
-        @extend .switch--arrow;
-        border-color: transparent transparent transparent $aColor;
-      }
-      &_top{
-        @extend .switch--arrow;
-        border-color: transparent transparent $aColor;
-      }
-      &_bottom{
-        @extend .switch--arrow;
-        border-color: $aColor transparent transparent;
+      [class^=el-icon-caret] {
+        font-size: 28px;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.7);
       }
     }
     .switch--bar-item {

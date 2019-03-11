@@ -24,7 +24,7 @@
       :data="floorList"
       label="floor"
       class="association-bar"
-      @change="initFloor($event.floor)">
+      @change="initFloor(arguments[0].floor)">
     </switch-bar>
 
     <!--添加出入口-->
