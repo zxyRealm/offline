@@ -17,14 +17,16 @@
       </div>
     </div>
     <!--楼层列表-->
-    <ul v-if="!data.coordinates" class="floor__list--wrap">
-      <li
-        class="floor__list--item"
-        v-for="(item, $index) in floorList"
-        :class="{active: item.floor === currentFloor.floor}"
-        @click="initFloor(item.floor)"
-        :key="$index">{{IntToFloor(item.floor)}}</li>
-    </ul>
+    <switch-bar
+      v-if="!data.coordinates"
+      :max-num="5"
+      mode="vertical"
+      :data="floorList"
+      label="floor"
+      class="association-bar"
+      @change="initFloor($event.floor)">
+    </switch-bar>
+
     <!--添加出入口-->
     <ob-dialog-form
       :close-on-click-modal="false"
@@ -95,10 +97,14 @@ import Mixins from '../../utils/mixins'
 import {GetGroupPortalInfo, GetPortalDeviceList, PortalUnbindDevice, PortalBatchBindDevice, CheckPortalNameExist, CreatePortal, EditPortal, DeletePortal, GetGroupPortalCount} from '../../api/community'
 import {GetGroupDevice} from '../../api/device'
 import {validateRule} from '../../utils/validate'
+import SwitchBar from '../../components/SwitchBar'
 const ossPrefix = process.env.OSS_PREFIX
 export default {
   name: 'association_map',
   mixins: [Mixins],
+  components: {
+    SwitchBar
+  },
   props: {
     data: { // 当前社群信息
       type: Object,
@@ -133,6 +139,41 @@ export default {
       }
     }
     return {
+      barList: [
+        {
+          label: 'F10'
+        },
+        {
+          label: 'F11'
+        },
+        {
+          label: 'F12'
+        },
+        {
+          label: 'F13'
+        },
+        {
+          label: 'F14'
+        },
+        {
+          label: 'F15'
+        },
+        {
+          label: 'F16'
+        },
+        {
+          label: 'F17'
+        },
+        {
+          label: 'F18'
+        },
+        {
+          label: 'F19'
+        },
+        {
+          label: 'F20'
+        }
+      ],
       count: 1,
       manageRefresh: false, // 管理社群是否改变
       showTip: false,
@@ -171,7 +212,6 @@ export default {
   mounted () {
     window.addEventListener('message', this.handleEvent)
     this.iframeObj = this.$refs.bindGroupIframe.contentWindow
-    // this.initFloor()
   },
   computed: {
     ...mapState(['currentManage', 'userInfo']),
@@ -208,7 +248,6 @@ export default {
         Info.mapUrl = this.floorList.filter(item => item.floor === this.data.floor)[0].mapUrl
         this.currentFloor = Info
       }
-
       if (this.currentFloor) {
         this.iframeSrc = `${ossPrefix}/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
         this.count++
@@ -500,30 +539,14 @@ export default {
     user-select: none;
   }
   /*楼层信息侧边栏*/
-  .floor__list--wrap{
+  .association-bar{
     position: absolute;
     top: 48%;
     left: 20px;
-    width: 40px;
-    text-align: center;
-    z-index: 999;
     transform: translateY(-50%);
-    .floor__list--item{
-      height: 40px;
-      line-height: 40px;
-      background: #111013;
-      margin-bottom: 2px;
-      font-size: 14px;
-      cursor: pointer;
-      &.active,&:hover{
-        /*background: rgb(37,36, 39);*/
-        background: #005BC9;
-      }
-      &:last-child{
-        margin-bottom: 0;
-      }
-    }
+    z-index: 1999;
   }
+
   /*出入口设备列表*/
   .levitaten{
     width: 114px;

@@ -3,7 +3,7 @@
     <div class="trail__info--wrap dashed--border">
       <div class="fl clearfix">
         <div class="ti-item">
-          <p>姓名：{{trailDetailInfo.name}}</p>
+          <p>姓名：{{trailDetailInfo.name || '--'}}</p>
           <p>到访次数：{{trailDetailInfo.countNum}}</p>
         </div>
         <div class="ti-item">

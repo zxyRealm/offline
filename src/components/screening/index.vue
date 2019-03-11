@@ -146,8 +146,8 @@ export default {
     dealTime (type) {
       const current = Moment(new Date()).format('YYYY-MM-DD')
       const firstDayMonth = Moment(new Date()).startOf('month').format('YYYY-MM-DD')
-      let tempDate = this.currentParams.timeArray
-      if (type === 'default' || !tempDate[0]) {
+
+      if (type === 'default' || !this.currentParams.timeArray[0]) {
         if (this.currentParams.timeIntervalUnit === 'hour') {
           this.currentParams.timeArray = [current, current]
         } else if (this.currentParams.timeIntervalUnit === 'month') {
@@ -156,7 +156,7 @@ export default {
           this.currentParams.timeArray = [firstDayMonth, current]
         }
       }
-
+      let tempDate = this.currentParams.timeArray
       this.currentParams.startTime = (tempDate[0] || Moment().format('YYYY-MM-DD')) + ' 00:00:00'
       if (this.currentParams.timeIntervalUnit === 'month') {
         this.currentParams.startTime = (Moment(tempDate[0] || new Date()).format('YYYY-MM-01')) + ' 00:00:00'
@@ -164,7 +164,7 @@ export default {
       } else if (this.currentParams.timeIntervalUnit === 'hour') {
         this.currentParams.endTime = tempDate[0] + ' 23:59:59'
       } else {
-        this.currentParams.endTime = tempDate[1] + ' 23:59:59'
+        this.currentParams.endTime = (tempDate[1] || Moment().format('YYYY-MM-DD')) + ' 23:59:59'
       }
 
       this.$store.commit('SET_FILTER_PARAMS', this.currentParams)
