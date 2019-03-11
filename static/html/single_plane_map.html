@@ -23,228 +23,185 @@
 </head>
 <body>
 <script>
-  class World {
-    constructor(canvas) {
-      this.container = canvas || document.body;
-      console.log(singleStoreInfo)
-      this.spriteList = [];
-      this.i = 0;
-      this.createScene();
-      this.createGroup();
-      this.createTexture();
-      this.createLight();
-      this.createOrbit();
-      // this.createGroup();
-      window.addEventListener('resize', () => {
-        this.onWindowResize()
-      }, false);
-      this.update();
-    }
+  function World(canvas) {
+    this.container = canvas || document.body;
+    this.spriteList = [];
+    var _this = this;
+    this.createScene();
+    this.createGroup();
+    this.createTexture();
+    this.createLight();
+    this.createOrbit();
+    window.addEventListener('resize', function(){
+      _this.camera.aspect = window.innerWidth / window.innerHeight;
+      _this.camera.updateProjectionMatrix();
+      _this.renderer.setSize(window.innerWidth, window.innerHeight);
+    }, false);
+    this.update();
+  }
 
-    createScene() {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
-      this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 10000);
-      this.camera.position.y = 50;
-      this.camera.position.z = 450;
-      // this.camera.position.y = -200
+  World.prototype.createScene = function() {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 10000);
+    this.camera.position.y = 50;
+    this.camera.position.z = 450;
+    // this.camera.position.y = -200
 
-      this.scene = new THREE.Scene();
+    this.scene = new THREE.Scene();
 
-      this.renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true
-      });
-      this.renderer.setPixelRatio(window.devicePixelRatio);
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.container.appendChild(this.renderer.domElement);
-    }
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true
+    });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.container.appendChild(this.renderer.domElement);
+  }
 
-    createOrbit() {
-      this.control = new THREE.OrbitControls(this.camera);
-      this.control.enableZoom = true;
-      this.control.screenSpacePanning = true;
-      this.control.enableRotate = false
-    }
+  World.prototype.createOrbit = function() {
+    this.control = new THREE.OrbitControls(this.camera);
+    // this.control.enableZoom = true;
+    // this.control.screenSpacePanning = true;
+    // this.control.enableRotate = false
+  }
 
-    createMapMesh(shape, path) {
-      var extrudeSettings = {depth: 6, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1};
-      var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
-      var material = new THREE.MeshPhongMaterial({
-        color: path.color,
-        transparent: true
-      });
-      this.mesh = new THREE.Mesh(geometry, material);
-    }
+  World.prototype.createMapMesh = function(shape, path) {
+    var extrudeSettings = {depth: 6, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1};
+    var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
+    var material = new THREE.MeshPhongMaterial({
+      color: path.color,
+      transparent: true
+    });
+    this.mesh = new THREE.Mesh(geometry, material);
+  }
 
-    createGroup() {
-      this.group = new THREE.Group();
-      this.scene.add(this.group);
-      this.group.rotation.x = - Math.PI / 5;
-      this.group.position.y = 50
-    }
+  World.prototype.createGroup = function() {
+    this.group = new THREE.Group();
+    this.scene.add(this.group);
+    this.group.rotation.x = - Math.PI / 5;
+    this.group.position.y = 50
+  }
 
-    createTexture() {
-      new THREE.SVGLoader().load(singleStoreInfo[0].mapUrl, (paths) => {
-        for (var i = 0; i < paths.length; i++) {
-          var path = paths[i];
-          var shapes = path.toShapes();
-          for (var j = 0; j < shapes.length; j++) {
-            var shape = shapes[j];
-            this.createMapMesh(shape, path);
-            this.mesh.position.x = -291;
-            this.mesh.position.y = 214;
-            this.mesh.scale.set(1, -1, 1);
-            this.group.add(this.mesh);
+  World.prototype.createTexture = function() {
+    new THREE.SVGLoader().load(singleStoreInfo[0].mapUrl, (paths) => {
+      for (var i = 0; i < paths.length; i++) {
+        var path = paths[i];
+        var shapes = path.toShapes();
+        for (var j = 0; j < shapes.length; j++) {
+          var shape = shapes[j];
+          this.createMapMesh(shape, path);
+          this.mesh.position.x = -291;
+          this.mesh.position.y = 214;
+          this.mesh.scale.set(1, -1, 1);
+          this.group.add(this.mesh);
+        }
+      }
+      // this.createSprite();
+      if (singleStoreInfo[0].storeLocalInfos) {
+        var data = singleStoreInfo[0].storeLocalInfos;
+        for (var i = 0; i < data.length; i++) {
+          var center = JSON.parse(data[i].localCoordinate);
+          var centerObj = { cx: parseFloat(center.cx), cy: parseFloat(center.cy) };
+          var hasLogo = false;
+          if (data[i].localLogo) {
+            hasLogo = true;
+            this.createSprite(centerObj, data[i].localLogo);
           }
-        }
-        // this.createSprite();
-        if (singleStoreInfo[0].storeLocalInfos) {
-          var data = singleStoreInfo[0].storeLocalInfos;
-          for (var i = 0; i < data.length; i++) {
-            var center = JSON.parse(data[i].localCoordinate);
-            var centerObj = { cx: parseFloat(center.cx), cy: parseFloat(center.cy) };
-            var hasLogo = false;
-            if (data[i].localLogo) {
-              hasLogo = true;
-              this.createSprite(centerObj, data[i].localLogo);
-            }
-            this.createText(centerObj, data[i].localName, hasLogo);
-          }
-        }
-        // this.updateSprites(this.spriteList);
-      });
-    }
-
-    createSprite(center, logo) {
-      var spriteMap = new THREE.TextureLoader().load(logo);
-      var spriteMaterial = new THREE.SpriteMaterial({
-        map: spriteMap,
-        // sizeAttenuation: false,
-        depthTest: false,
-        // matrixWorldNeedsUpdate: true,
-        transparent: true
-      });
-      var sprite = new THREE.Sprite(spriteMaterial);
-      sprite.scale.set(16, 16, 16);
-      sprite.position.x = center.cx;
-      sprite.position.y = center.cy;
-      sprite.position.z = 8;
-      var spriteWidth = Math.ceil(383 * 0.045);
-      var spriteHeight = Math.ceil(377 * 0.045);
-      sprite.userData.coord = {x: sprite.position.x, y: sprite.position.y, w: spriteWidth, h: spriteHeight};
-      this.group.add(sprite);
-      this.spriteList.push(sprite);
-      return sprite;
-    }
-
-    createText(center, text, hasLogo) {
-      console.log(hasLogo)
-      var cz = this.camera.position.z;
-      var fontSize = 30;
-      // 文本最大长度
-      var maxLen = 32;
-      var scale = cz * ((1 / 55) * fontSize);
-      // scale = 0.55;
-      var canvas = document.createElement('canvas');
-      canvas.width = fontSize * maxLen;
-      canvas.height = fontSize * maxLen;
-
-      var ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.font = fontSize + "px '微软雅黑'";
-      ctx.textAlign = 'center';
-      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-      var texture = new THREE.Texture(canvas);
-      texture.needsUpdate = true;
-
-      // 使用Sprite显示文字
-      var material = new THREE.SpriteMaterial({
-        map: texture,
-        // sizeAttenuation: false,
-        transparent: true,
-        depthTest: false
-      });
-      var textObj = new THREE.Sprite(material);
-      textObj.name = 'text';
-      textObj.scale.set(scale, scale, scale);
-      textObj.position.x = center.cx;
-      textObj.position.y = hasLogo ? center.cy - 17 : center.cy;
-      textObj.position.z = 8;
-      this.group.add(textObj);
-    }
-
-    // 获取中心点和右侧点
-    getCenterExtraPoint(array) {
-      var a = changeArrayLevel(array);
-      var ps = new Contour(a.buffer).centroid();
-      return {
-        cx: (ps.x - 290),
-        cy: (214 - ps.y)
-      }
-    }
-
-    createLight() {
-      var AmbientLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
-      this.scene.add(AmbientLight);
-      var HemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.9);
-      this.scene.add(HemisphereLight);
-    }
-
-    updateSprites(spriteList) {
-      for (var i = 0; i < spriteList.length - 1; i++) {
-        this.isPOICollision(spriteList, i);
-      }
-    }
-
-    isPOICollision(spriteList, index) {
-      var sprite = spriteList[index];
-      var collisionList = spriteList.slice(index + 1, spriteList.length);
-      // 获取物体中心点坐标
-      var originPoint = sprite.position.clone();
-      for (var vertexIndex = 0; vertexIndex < sprite.geometry.vertices.length; vertexIndex++) {
-        // 顶点原始坐标
-        var localVertex = sprite.geometry.vertices[vertexIndex].clone();
-        // 顶点经过变换后的坐标
-        var globalVertex = localVertex.applyMatrix4(sprite.matrix);
-        // 获得由中心指向顶点的向量
-        var directionVector = globalVertex.sub(sprite.position);
-        // 将方向向量初始化,并发射光线
-        var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
-        // 检测射线与多个物体的相交情况
-        // 如果为true，它还检查所有后代。否则只检查该对象本身。缺省值为false
-        var collisionResults = ray.intersectObjects(collisionList, true);
-        // 如果返回结果不为空，且交点与射线起点的距离小于物体中心至顶点的距离，则发生了碰撞
-        if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
-          var crash = true; // crash 是一个标记变量
+          this.createText(centerObj, data[i].localName, hasLogo);
         }
       }
-    }
+      // this.updateSprites(this.spriteList);
+    });
+  }
 
-    // 首先，计算出色块中心点的坐标，而这个坐标并不是中心点的真实位置，而是在旋转之前的位置。
-    // 第二，通过计算得到的坐标，再去计算出色块中心点的真实位置。
-    // 第三，得出中心点的真实位置，可以计算出中心点的真实高度。
-    // 第四，中心点的真实高度只是在三角形中的高度，真实的坐标原点处于三角形斜边中点的位置，所以需要计算坐标原点在三角形中的高度。
-    // 第五，中心点的真实高度 - 坐标原点的的真实高度 = logo需要被设置的高度。
-    caculateLogoHeight(euler, pointAxes) {
-    }
+  World.prototype.createSprite = function(center, logo) {
+    var spriteMap = new THREE.TextureLoader().load(logo);
+    var spriteMaterial = new THREE.SpriteMaterial({
+      map: spriteMap,
+      // sizeAttenuation: false,
+      depthTest: false,
+      // matrixWorldNeedsUpdate: true,
+      transparent: true
+    });
+    var sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(16, 16, 16);
+    sprite.position.x = center.cx;
+    sprite.position.y = center.cy;
+    sprite.position.z = 8;
+    var spriteWidth = Math.ceil(383 * 0.045);
+    var spriteHeight = Math.ceil(377 * 0.045);
+    sprite.userData.coord = {x: sprite.position.x, y: sprite.position.y, w: spriteWidth, h: spriteHeight};
+    this.group.add(sprite);
+    this.spriteList.push(sprite);
+    return sprite;
+  }
 
-    onWindowResize() {
-      this.camera.aspect = window.innerWidth / window.innerHeight;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.updateSprites(this.spriteList)
-    }
+  World.prototype.createText = function (center, text, hasLogo) {
+    var cz = this.camera.position.z;
+    var fontSize = 30;
+    // 文本最大长度
+    var maxLen = 32;
+    var scale = cz * ((1 / 55) * fontSize);
+    // scale = 0.55;
+    var canvas = document.createElement('canvas');
+    canvas.width = fontSize * maxLen;
+    canvas.height = fontSize * maxLen;
 
-    update() {
-      requestAnimationFrame(() => {
-        this.update()
-      });
-      if (this.spriteList) {
-        // this.updateSprites(this.spriteList)
-      }
-      this.renderer.render(this.scene, this.camera);
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.font = fontSize + "px '微软雅黑'";
+    ctx.textAlign = 'center';
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    var texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+
+    // 使用Sprite显示文字
+    var material = new THREE.SpriteMaterial({
+      map: texture,
+      // sizeAttenuation: false,
+      transparent: true,
+      depthTest: false
+    });
+    var textObj = new THREE.Sprite(material);
+    textObj.name = 'text';
+    textObj.scale.set(scale, scale, scale);
+    textObj.position.x = center.cx;
+    textObj.position.y = hasLogo ? center.cy - 17 : center.cy;
+    textObj.position.z = 8;
+    this.group.add(textObj);
+  }
+
+  World.prototype.getCenterExtraPoint = function(array) {
+    var a = changeArrayLevel(array);
+    var ps = new Contour(a.buffer).centroid();
+    return {
+      cx: (ps.x - 290),
+      cy: (214 - ps.y)
     }
+  }
+
+  World.prototype.createLight = function() {
+    var AmbientLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+    this.scene.add(AmbientLight);
+    var HemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.9);
+    this.scene.add(HemisphereLight);
+  };
+
+  World.prototype.onWindowResize = function (vm) {
+    vm.camera.aspect = window.innerWidth / window.innerHeight;
+    vm.camera.updateProjectionMatrix();
+    vm.renderer.setSize(window.innerWidth, window.innerHeight);
+  };
+
+  World.prototype.update = function() {
+    requestAnimationFrame(() => {
+      this.update()
+    });
+    // if (this.spriteList) {
+    // this.updateSprites(this.spriteList)
+    // }
+    this.renderer.render(this.scene, this.camera);
   }
 
   var singleStoreInfo;
@@ -267,7 +224,8 @@
     }
   }
 
-  loadSignal()
+  loadSignal();
+
 </script>
 </body>
 </html>

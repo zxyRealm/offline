@@ -7,8 +7,9 @@
           <!--:class="{'active': routerList[0].id === frame.id}"-->
           <!--@click="updateFrameArea(routerList[0], 0)"-->
         <!--&gt;总</a>-->
-        <switch-bar :data="currentManage.type !== 3 ? routerList.slice(1): routerList"
+        <switch-bar :data="routerList"
                     label="floor"
+                    :show-total="currentManage.type !== 3"
                     :max-num="3"
                     style="display: inline-block"
                     @change="updateFrameArea">
