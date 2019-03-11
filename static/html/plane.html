@@ -425,7 +425,6 @@
     var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
     var intersects = raycaster.intersectObjects(hasColorBoxArr);
     if (intersects.length > 0) {
-      // console.log(hasColorBoxArr)
       window.parent.postMessage({
         cmd: 'click-single_store',
         params: {

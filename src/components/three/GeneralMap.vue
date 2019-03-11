@@ -1,15 +1,18 @@
 <template>
   <div class="general-map" id="general-map">
     <div class="map-left">
-      <div id="floor2">
-        <a
-          v-if="!singleStoreTrig"
-          href="javascript:;"
-          v-for="(item, index) in routerList"
-          :class="{'active': item.id === frame.id}"
-          :key="index"
-          @click="updateFrameArea(item, index)"
-        >{{item.name}}</a>
+      <div id="floor2" style="text-align: center">
+        <!--<a v-if="currentManage.type !== 3"-->
+          <!--href="javascript:;"-->
+          <!--:class="{'active': routerList[0].id === frame.id}"-->
+          <!--@click="updateFrameArea(routerList[0], 0)"-->
+        <!--&gt;总</a>-->
+        <switch-bar :data="currentManage.type !== 3 ? routerList.slice(1): routerList"
+                    label="floor"
+                    :max-num="3"
+                    style="display: inline-block"
+                    @change="updateFrameArea">
+        </switch-bar>
         <div v-if="singleStoreTrig" class="single-store-title">
           <span @click="backToFloor">{{'F'+singleStoreInfo.floor}}</span>
           <span>/</span>
@@ -192,6 +195,7 @@
 
 <script>
 import {GetSocketIP} from '@/api/common'
+import SwitchBar from '../../components/SwitchBar'
 import {mapState} from 'vuex'
 import {
   GetMarketList,
@@ -210,7 +214,8 @@ const ossPrefix = process.env.OSS_PREFIX
 export default {
   name: 'GeneralMap',
   components: {
-    CountTo
+    CountTo,
+    SwitchBar
   },
   data () {
     return {
@@ -496,6 +501,7 @@ export default {
       let params = this.community.infoArr[this.community.index]
       GetGroupPortalInfo({groupSonId: params.groupSonGuid}).then(res => {
         // this.iframe.getCommunityInfo(res.data)
+        console.log(res.data)
         this.iframe.postMessage({
           type: 'GET_COMMUNITY_INFO',
           data: res.data
@@ -571,9 +577,10 @@ export default {
           }
           break
         case 'single-load_signal':
+          // console.log(this.community.infoArr)
           this.iframe.postMessage({
             type: 'SET_SINGLE_STORE_INFO',
-            floorInfo: this.singleStoreInfo
+            floorInfo: this.community.infoArr
           }, this.originSrc)
           break
         case 'click-single_store':
@@ -779,6 +786,8 @@ export default {
         padding: 10px;
         box-sizing: border-box;
         a {
+          top: -15px;
+          position: relative;
           display: inline-block;
           width: 40px;
           height: 40px;
