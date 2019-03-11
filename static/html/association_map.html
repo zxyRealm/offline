@@ -303,7 +303,7 @@
         var path = paths[i]
         var color = new THREE.Color('#403E42')
         var materialLine = new THREE.LineBasicMaterial({
-          color: color,
+          color: (communityData.type === 4 && path.color) ? path.color: color,
           side: THREE.DoubleSide,
           depthWrite: false
         })

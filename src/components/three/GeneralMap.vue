@@ -10,7 +10,7 @@
         <switch-bar :data="routerList"
                     label="floor"
                     :show-total="currentManage.type !== 3"
-                    :max-num="3"
+                    :max-num="8"
                     style="display: inline-block"
                     @change="updateFrameArea">
         </switch-bar>
