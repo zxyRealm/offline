@@ -575,13 +575,12 @@
 
   // 创建图片贴图
   function createPictureSprite (obj) {
-    // var img = communityData.coordinates || communityData.type === 4 ? 'qizi2' : obj.type === 1 ? 'qizi2' : 'qizi1'
     var img = 'qizi' + obj.type
     var texture = new THREE.TextureLoader().load('/static/floor/' + img + '.png')
     var spriteMaterial = new THREE.SpriteMaterial({
       map: texture,
       depthTest: false,
-      blending: THREE.AdditiveBlending,
+      transparent: true
     })
     var sprite = new THREE.Sprite(spriteMaterial)
     return sprite

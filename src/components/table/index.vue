@@ -143,6 +143,7 @@ export default {
     },
     getVisitedList (page) {
       let params = JSON.parse(JSON.stringify(this.$store.state.filterParams))
+      params.groupGuid = this.currentManage.id
       params.groupSonGuid = params.group.guid
       switch (params.timeIntervalUnit) {
         case 'hour':
@@ -195,6 +196,7 @@ export default {
         this.tableData = []
         return
       }
+      params.groupGuid = this.currentManage.id
       params.length = this.pageParams.pageSize
       params.index = this.pageParams.currentPage
       params.groupSonGuid = params.group.guid
@@ -271,7 +273,8 @@ export default {
   },
   computed: {
     ...mapState([
-      'filterParams'
+      'filterParams',
+      'currentManage'
     ])
   },
   watch: {

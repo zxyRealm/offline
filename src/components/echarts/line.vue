@@ -230,6 +230,7 @@ export default {
         this.drawLine()
         return
       }
+      params.groupGuid = this.currentManage.id
       params.groupSonGuid = params.group.guid
       params.groupName = params.group.name
       delete params.group
@@ -290,7 +291,8 @@ export default {
   computed: {
     ...mapState([
       'groupConsoleId',
-      'filterParams'
+      'filterParams',
+      'currentManage'
     ])
   },
   watch: {

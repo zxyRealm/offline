@@ -164,7 +164,10 @@ export default {
       },
       searchValue: '',
       cameraList: [],
-      pagination: {},
+      pagination: {
+        index: 1,
+        length: 10
+      },
       serverInfo: '',
       deviceList: [],
       ipcListForm: {
@@ -189,7 +192,7 @@ export default {
     },
     // 获取摄像头 设备列表信息
     getCameraList (page) {
-      page = page || this.pagination.length || 1
+      page = page || this.pagination.index || 1
       this.emptyText = '数据加载中...'
       SearchCamera({
         serverKey: this.$route.query.server_key,
@@ -203,11 +206,6 @@ export default {
       }).catch(() => {
         this.emptyText = '数据请求失败'
       })
-      // GetCameraList({serverKey: this.$route.query.server_key, index: page, length: this.pagination.length || 10}).then(res => {
-      //   this.emptyText = '暂无设备'
-      //   this.cameraList = res.data.content
-      //   this.pagination = res.data.pagination
-      // })
     },
     showPopover (index) {
       this.ipcListForm = JSON.parse(JSON.stringify(this.deviceList[index]))

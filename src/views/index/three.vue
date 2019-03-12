@@ -193,7 +193,7 @@ export default {
       // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
       if (!info) return
       if (this.currentManage.type === 1) {
-        GetFlowRank({groupFloor: info.floor, groupGuid: info.groupParentGuid, type: info.type}).then(res => {
+        GetFlowRank({groupFloor: info.floor, groupGuid: this.currentManage.id, type: info.type}).then(res => {
           this.num = 0
           res.data = JSON.parse(res.data)
           let industryTotal = 0
@@ -221,7 +221,7 @@ export default {
         })
       }
       // 获取实时比率
-      GetTimeRatio({groupFloor: info.floor, groupGuid: info.groupParentGuid, type: info.type}).then(res => {
+      GetTimeRatio({groupFloor: info.floor, groupGuid: this.currentManage.id, type: info.type}).then(res => {
         this.num = 0
         let resData = JSON.parse(res.data)
         resData = this.ComunicationPer(resData)

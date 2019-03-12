@@ -784,9 +784,9 @@ export default {
                   // 在树形组件中重新获取当前选中项，并保存当前值
                   let node = this.$refs.groupNav.$refs.GroupTree.getCurrentNode()
                   this.currentCommunity = node
-                  if (currentNode.groupParentGuid) {
+                  // if (currentNode.groupParentGuid) {
                     this.getCommunityInfo(this.currentCommunity)
-                  }
+                  // }
                 })
               }
               this.$route.meta.keepAlive = false
@@ -817,7 +817,7 @@ export default {
           this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
         })
       }
-      GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: val.groupParentGuid}).then(res => {
+      GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: this.currentManage.id}).then(res => {
         res.data.level = val.type === 1 || val.type === 4 ? 1 : val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
         res.data.self = this.currentManage.type === 3 || val.type !== 4 // slef 属性控制自有与非自有社群操作限制
         if (val.self) res.data.nickName = res.data.name

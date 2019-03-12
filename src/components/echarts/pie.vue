@@ -221,6 +221,7 @@ export default {
         this.drawPie()
         return
       }
+      params.groupGuid = this.currentManage.id
       params.groupSonGuid = params.group.guid
       params.groupName = params.group.name
       delete params.group
@@ -256,7 +257,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['filterParams'])
+    ...mapState(['filterParams', 'currentManage'])
   },
   watch: {
     pieParams (val, oldVal) {
