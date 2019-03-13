@@ -1,5 +1,6 @@
 <template>
   <div class="general-map" id="general-map">
+    <!--<canvas id="canvas"></canvas>-->
     <div class="map-left">
       <div id="floor2" style="text-align: center">
         <!--<a v-if="currentManage.type !== 3"-->
@@ -575,7 +576,7 @@ export default {
           this.sendStoreData()
           break
         case 'home-load_signal':
-          // this.iframe.setFloorInfo(this.floorArr)
+          console.log('receive: home-load_signal')
           this.iframe.postMessage({
             type: 'SET_FLOOR_INFO',
             floorArr: this.floorArr
@@ -729,6 +730,7 @@ export default {
     }
   },
   mounted () {
+
     this.iframe = this.$refs.iframe.contentWindow
     if (this.currentManage.type !== 3) {
       this.getCommunityInfo(this.currentManage)

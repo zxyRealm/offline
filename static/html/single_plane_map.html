@@ -113,7 +113,7 @@
   }
 
   World.prototype.createSprite = function(center, logo) {
-    var spriteMap = new THREE.TextureLoader().load(logo);
+    var spriteMap = new THREE.TextureLoader().load(logo + '?t=' + new Date().getTime().toString());
     var spriteMaterial = new THREE.SpriteMaterial({
       map: spriteMap,
       // sizeAttenuation: false,
