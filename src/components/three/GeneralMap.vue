@@ -730,7 +730,6 @@ export default {
     }
   },
   mounted () {
-
     this.iframe = this.$refs.iframe.contentWindow
     if (this.currentManage.type !== 3) {
       this.getCommunityInfo(this.currentManage)
