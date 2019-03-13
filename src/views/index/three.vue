@@ -249,8 +249,9 @@ export default {
       if (this.currentManage.type !== 3) return
       let date = Moment().format('YYYY-MM-DD')
       GetChartLine({
+        groupGuid: this.currentManage.id,
+        groupName: this.currentFloor.name,
         groupSonGuid: this.currentFloor.groupSonGuid,
-        // groupName: Manage.name,
         timeIntervalUnit: 'hour',
         startTime: date + ' 00:00:00',
         endTime: date + ' 23:59:59',

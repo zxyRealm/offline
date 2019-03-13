@@ -784,9 +784,7 @@ export default {
                   // 在树形组件中重新获取当前选中项，并保存当前值
                   let node = this.$refs.groupNav.$refs.GroupTree.getCurrentNode()
                   this.currentCommunity = node
-                  // if (currentNode.groupParentGuid) {
-                    this.getCommunityInfo(this.currentCommunity)
-                  // }
+                  this.getCommunityInfo(this.currentCommunity)
                 })
               }
               this.$route.meta.keepAlive = false

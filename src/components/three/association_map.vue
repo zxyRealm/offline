@@ -23,6 +23,7 @@
       mode="vertical"
       :data="floorList"
       label="floor"
+      :initial-index="initialIndex"
       class="association-bar"
       @change="initFloor(arguments[0].floor)">
     </switch-bar>
@@ -232,6 +233,15 @@ export default {
     },
     originSrc () {
       return ossPrefix ? this.iframeSrc.split('?')[0] : '*'
+    },
+    initialIndex () {
+      let index = 0
+      this.floorList.map((item, i) => {
+        if (item.floor === this.currentFloor.floor) {
+          index = i
+        }
+      })
+      return index
     }
   },
   methods: {
@@ -447,7 +457,7 @@ export default {
     data: {
       handler (val) {
         if (Object.keys(val).length) {
-          this.initFloor()
+          this.initFloor(this.floorList[0].floor)
         }
       },
       deep: true

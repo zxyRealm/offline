@@ -207,9 +207,6 @@ export default {
     this.currentParams = this.$store.state.filterParams
     this.currentParams.type = this.type
     this.dealTime()
-    if (this.currentParams.group && this.currentParams.group.guid) {
-      eventObject().$emit('REFRESH_DATA', '')
-    }
   },
   computed: {
     ...mapState(['currentManage', 'filterParams'])
@@ -218,6 +215,14 @@ export default {
     currentManage: {
       handler (val) {
         this.getGroupList()
+      },
+      deep: true
+    },
+    'currentParams.group': {
+      handler (val) {
+        if (val && val.guid) {
+          eventObject().$emit('REFRESH_DATA', '')
+        }
       },
       deep: true
     }

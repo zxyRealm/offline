@@ -179,6 +179,9 @@ export default {
         this.currentIndex = this.initialIndex
       },
       deep: true
+    },
+    initialIndex (val) {
+      this.currentIndex = val
     }
   }
 }
