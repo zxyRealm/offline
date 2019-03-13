@@ -293,6 +293,16 @@ export default {
           this.community.index = i
           this.$emit('updateCommunity', this.community.infoArr[i])
           this.getLatestFace(item.groupParentGuid, item.groupSonGuid)
+          if (this.currentManage.type === 3) {
+            this.community.infoArr.forEach((val, inx) => {
+              if (val.floor === item.floor) {
+                this.iframe.postMessage({
+                  type: 'SET_SINGLE_STORE_INFO',
+                  floorInfo: [val]
+                }, this.originSrc)
+              }
+            })
+          }
         }
       })
     },
@@ -590,6 +600,7 @@ export default {
             this.singleStoreInfo.imgUrl = data.params.imgUrl
             this.singleStoreInfo.personCount = data.params.personCount
             this.singleStoreName = data.params.name
+            console.log(this.singleStoreInfo)
             GetGroupPortalInfo({groupSonId: data.params.groupSonGuid}).then(res => {
               this.singleStoreInfo.deviceInfoArr = res.data
               this.frame = {

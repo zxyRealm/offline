@@ -46,10 +46,7 @@
     this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 10000);
     this.camera.position.y = 50;
     this.camera.position.z = 450;
-    // this.camera.position.y = -200
-
     this.scene = new THREE.Scene();
-
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true
@@ -57,13 +54,13 @@
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.container.appendChild(this.renderer.domElement);
-  }
+  };
 
   World.prototype.createOrbit = function() {
     this.control = new THREE.OrbitControls(this.camera);
-    // this.control.enableZoom = true;
-    // this.control.screenSpacePanning = true;
-    // this.control.enableRotate = false
+    this.control.enableZoom = true;
+    this.control.screenSpacePanning = true;
+    this.control.enableRotate = false
   }
 
   World.prototype.createMapMesh = function(shape, path) {
@@ -220,6 +217,7 @@
     switch (data.type) {
       case 'SET_SINGLE_STORE_INFO':
         singleStoreInfo = data.floorInfo;
+        console.log(singleStoreInfo)
         new World();
     }
   }
