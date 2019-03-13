@@ -8,8 +8,9 @@
           <!--:class="{'active': routerList[0].id === frame.id}"-->
           <!--@click="updateFrameArea(routerList[0], 0)"-->
         <!--&gt;总</a>-->
-        <switch-bar :data="routerList"
+        <switch-bar v-if="!singleStoreTrig" :data="routerList"
                     label="floor"
+                    :initial-index="initialIndex"
                     :show-total="currentManage.type !== 3"
                     :max-num="8"
                     style="display: inline-block"
@@ -274,6 +275,7 @@ export default {
       singleStoreName: '',
       iframe: null,
       cloudTimer: null,
+      initialIndex: 0,
       websocket: '' // websocket连接
     }
   },
@@ -566,6 +568,7 @@ export default {
                 groupSonGuid: val.groupSonGuid,
                 groupParentGuid: val.groupParentGuid
               }
+              this.initialIndex = index
               this.updateFrameArea(item, index)
             }
           })
@@ -588,6 +591,12 @@ export default {
             this.sendColor()
           }
           break
+        case 'single-load_signal_single':
+          this.iframe.postMessage({
+            type: 'SET_SINGLE_STORE_INFO_SINGLE',
+            floorInfo: this.singleStoreInfo
+          })
+          break
         case 'single-load_signal':
           // console.log(this.community.infoArr)
           this.iframe.postMessage({
@@ -601,7 +610,6 @@ export default {
             this.singleStoreInfo.imgUrl = data.params.imgUrl
             this.singleStoreInfo.personCount = data.params.personCount
             this.singleStoreName = data.params.name
-            console.log(this.singleStoreInfo)
             GetGroupPortalInfo({groupSonId: data.params.groupSonGuid}).then(res => {
               this.singleStoreInfo.deviceInfoArr = res.data
               this.frame = {
@@ -735,6 +743,7 @@ export default {
       this.getCommunityInfo(this.currentManage)
     } else {
       this.getSingleStoreCommunityInfo(this.currentManage)
+      this.initialIndex = 0
     }
     window.addEventListener('message', this.handleMessage)
   },

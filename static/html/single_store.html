@@ -81,6 +81,7 @@
 
   World.prototype.loadSvg = function (floor) {
     var _this = this;
+    console.log(floorInfo)
     var svgLoader = new THREE.SVGLoader();
     svgLoader.load(floor.imgUrl, function(paths) {
       _this.createGroup(_this);
@@ -241,7 +242,7 @@
 
   External.prototype.loadSignal = function () {
     window.parent.postMessage({
-      cmd: 'single-load_signal',
+      cmd: 'single-load_signal_single',
       params: {}
     }, '*');
   };
@@ -274,7 +275,7 @@
     window.addEventListener('message', function(e) {
       var data = e.data;
       switch (data.type) {
-        case 'SET_SINGLE_STORE_INFO':
+        case 'SET_SINGLE_STORE_INFO_SINGLE':
           floorInfo = data.floorInfo;
           _this.getSingleStoreInfo();
           break;
