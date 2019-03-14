@@ -605,7 +605,15 @@ export default {
         case 'click-single_store':
           GetMemberDetail({groupSonId: data.params.groupSonGuid}).then(res => {
             this.singleStoreInfo = res.data
-            this.singleStoreInfo.imgUrl = data.params.imgUrl
+            if (data.params.floor) {
+              this.community.infoArr.forEach(val => {
+                if (val.floor === data.params.floor) {
+                  this.singleStoreInfo.imgUrl = val.mapUrl
+                }
+              })
+            } else {
+              this.singleStoreInfo.imgUrl = data.params.imgUrl
+            }
             this.singleStoreInfo.personCount = data.params.personCount
             this.singleStoreName = data.params.name
             GetGroupPortalInfo({groupSonId: data.params.groupSonGuid}).then(res => {
