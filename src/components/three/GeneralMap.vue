@@ -515,7 +515,6 @@ export default {
       let params = this.community.infoArr[this.community.index]
       GetGroupPortalInfo({groupSonId: params.groupSonGuid}).then(res => {
         // this.iframe.getCommunityInfo(res.data)
-        console.log(res.data)
         this.iframe.postMessage({
           type: 'GET_COMMUNITY_INFO',
           data: res.data
@@ -598,7 +597,6 @@ export default {
           })
           break
         case 'single-load_signal':
-          // console.log(this.community.infoArr)
           this.iframe.postMessage({
             type: 'SET_SINGLE_STORE_INFO',
             floorInfo: this.community.infoArr

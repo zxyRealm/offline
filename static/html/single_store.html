@@ -81,7 +81,6 @@
 
   World.prototype.loadSvg = function (floor) {
     var _this = this;
-    console.log(floorInfo)
     var svgLoader = new THREE.SVGLoader();
     svgLoader.load(floor.imgUrl, function(paths) {
       _this.createGroup(_this);
