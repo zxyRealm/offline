@@ -17,7 +17,7 @@
                     @change="updateFrameArea">
         </switch-bar>
         <div v-if="singleStoreTrig" class="single-store-title">
-          <span @click="backToFloor">{{'F'+singleStoreInfo.floor}}</span>
+          <span @click="backToFloor">{{singleStoreInfo.floor}}</span>
           <span>/</span>
           <span>{{singleStoreName}}</span>
         </div>
@@ -531,10 +531,13 @@ export default {
         groupGuid: params.groupParentGuid
       }).then(res => {
         let groupList = JSON.parse(res.data).group
+
         groupList.forEach(item => {
+          console.log(item)
           let position = item.coordinates.replace('[', '').replace(']', '')
           // this.transFloat(position)
           storeInfoArr.push({
+            floor: item.floor,
             position: position,
             count: item.count,
             name: item.groupName,
@@ -616,6 +619,7 @@ export default {
             }
             this.singleStoreInfo.personCount = data.params.personCount
             this.singleStoreName = data.params.name
+            this.singleStoreInfo.floor = data.params.floor > 0 ? 'F' + data.params.floor : 'B' + data.params.floor.toString().charAt(1)
             GetGroupPortalInfo({groupSonId: data.params.groupSonGuid}).then(res => {
               this.singleStoreInfo.deviceInfoArr = res.data
               this.$emit('updateCommunity', this.singleStoreInfo)

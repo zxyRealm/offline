@@ -305,8 +305,10 @@
         if(boxArr[j].position){
           var shapeAlex = boxArr[j].position // 目标色块的顶点值字符串
           if (shapeAlex === meshAlex) {
+            console.log(boxArr[j])
             var point = getCenterExtraPoint(shapesMeshArr[i].geometry.attributes.position.array)
             shapesMeshArr[i].userData = {
+              floor: boxArr[j].floor,
               groupSonGuid: boxArr[j].groupSonGuid,
               personCount: boxArr[j].count,
               name: boxArr[j].name
@@ -424,6 +426,7 @@
       window.parent.postMessage({
         cmd: 'click-single_store',
         params: {
+          floor: intersects[0].object.userData.floor,
           groupSonGuid: intersects[0].object.userData.groupSonGuid,
           personCount: intersects[0].object.userData.personCount,
           name: intersects[0].object.userData.name,
