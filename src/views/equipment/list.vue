@@ -152,7 +152,7 @@
           :rules="excelImportRules"
         >
           <el-form-item label="导入文件:" prop="filename">
-            <el-input placeholder="请选取文件" readonly v-model="excelImportForm.filename"></el-input>
+            <el-input placeholder="请选取文件" readonly v-model.trim="excelImportForm.filename"></el-input>
             <el-upload
               ref="excelUpload"
               :data="{groupGuid: currentManage.id, serverKey: $route.query.server_key, merchantGuid: userInfo.developerId}"

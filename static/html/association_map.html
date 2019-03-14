@@ -230,6 +230,18 @@
   var renderer, scene, camera, group, textList = [], spriteList = []
   var width, height, userData, communityData, floorData
   var windowOrigin = '*'
+
+  function compareColor (c1, c2) {
+    var common = true
+    for (var c in c1) {
+      if (c1.hasOwnProperty(c)) {
+        if (c2[c] !== c1[c]) {
+          common = false
+        }
+      }
+    }
+    return common
+  }
   function init () {
     if (!WEBGL.isWebGLAvailable()) {
       var warning = WEBGL.getWebGLErrorMessage();
@@ -294,6 +306,7 @@
         img2.style.display = 'none'
       }
     }
+
     svgLoad.load(url, function (paths) {
       group.position.x = -290
       group.position.y = 214
@@ -302,8 +315,9 @@
         // if (i === 0) continue
         var path = paths[i]
         var color = new THREE.Color('#403E42')
+        var com = compareColor(path.color, new THREE.Color('#000'))
         var materialLine = new THREE.LineBasicMaterial({
-          color: (communityData.type === 4 && path.color) ? path.color: color,
+          color: (communityData.type === 4 && path.color && !com) ? path.color : color,
           side: THREE.DoubleSide,
           depthWrite: false
         })

@@ -103,6 +103,8 @@ export default {
     },
     notifyType (type) {
       switch (type) {
+        case 2:
+          return '人脸通知'
         default:
           return '到店通知'
       }

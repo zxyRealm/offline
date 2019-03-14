@@ -122,7 +122,7 @@
             :rules="joinManageRules"
           >
             <el-form-item label="邀请码：" prop="code">
-              <el-input placeholder="请输入10位数字、字母" v-model="joinManageForm.code"></el-input>
+              <el-input placeholder="请输入10位数字、字母" v-model.trim="joinManageForm.code"></el-input>
               <!--{{isManage}}&#45;&#45;&#45;&#45;&#45;&#45;-->
             </el-form-item>
             <template v-if="ManageInfo.id">
@@ -206,7 +206,7 @@
           :rules="handleMemberRules"
         >
           <el-form-item label="名称：" prop="name">
-            <el-input placeholder="请填写社群名称" v-model="handleMemberForm.name"></el-input>
+            <el-input placeholder="请填写社群名称" v-model.trim="handleMemberForm.name"></el-input>
           </el-form-item>
           <template v-if="communityInfo.type === 2">
             <el-form-item label="地区：" prop="pca">
@@ -275,10 +275,10 @@
           :rules="addCommunityRules"
         >
           <el-form-item label="名称：" prop="name">
-            <el-input placeholder="请输入社群名称" v-model="communityForm.name"></el-input>
+            <el-input placeholder="请输入社群名称" v-model.trim="communityForm.name"></el-input>
           </el-form-item>
           <el-form-item label="地区：" prop="pca">
-            <area-select placeholder="请选择地区" v-model="communityForm.pca"></area-select>
+            <area-select placeholder="请选择地区" v-model.trim="communityForm.pca"></area-select>
           </el-form-item>
           <el-form-item
             :rules="[
@@ -324,7 +324,7 @@
           :rules="editNicknameRules"
         >
           <el-form-item label="备注名：" prop="name">
-            <el-input placeholder="请输入备注名" v-model="editNicknameForm.name"></el-input>
+            <el-input placeholder="请输入备注名" v-model.trim="editNicknameForm.name"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer mt50">

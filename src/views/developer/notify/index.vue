@@ -3,7 +3,8 @@
     <uu-sub-tab
       :menu-array="menu"
       :show-button="!!notifyList.length && !loading"
-      :sub-btn="btnOption"
+      :btn-array="btnOption"
+      btn-size="small"
       @handle-btn="addCallbackInfo"></uu-sub-tab>
     <div class="data-list-wrap" v-if="notifyList && notifyList.length">
       <el-scrollbar>
@@ -25,7 +26,7 @@
           @current-change="getNotifyList"
           :current-page="pagination.index"
           :page-size="pagination.length"
-          layout="total,prev, pager, next, jumper"
+          layout="total, prev, pager, next, jumper"
           :total="pagination.total">
         </el-pagination>
       </el-scrollbar>
@@ -47,9 +48,9 @@ export default {
       paste: '',
       update: '升级',
       equipmentEmpty: false,
-      btnOption: {
+      btnOption: [{
         text: '创建'
-      },
+      }],
       menu: [
         {title: '消息通知', index: '/developer/notify'},
         {title: '开放API', index: '/developer/api'}
@@ -116,8 +117,10 @@ export default {
   filters: {
     type: function (value) {
       switch (value) {
-        case '1':
+        case 1:
           return '到店通知'
+        case 2:
+          return '人脸通知'
       }
     }
   },

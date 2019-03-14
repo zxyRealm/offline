@@ -13,8 +13,11 @@
         v-model="callbackForm">
         <el-form-item label="类型：" prop="type">
           <el-select v-model="callbackForm.type" placeholder="请选择类型">
-            <el-option value="1" label="到店通知">
+            <el-option :value="1" label="到店通知">
               到店通知
+            </el-option>
+            <el-option :value="2" label="人脸通知">
+              人脸通知
             </el-option>
           </el-select>
         </el-form-item>
@@ -74,7 +77,7 @@ export default {
         ]
       },
       callbackForm: {
-        type: '1',
+        type: 1,
         tokenURL: '',
         intro: ''
       }

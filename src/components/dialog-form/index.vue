@@ -155,7 +155,7 @@ export default {
       rules: {
         intro: [
           {required: true, message: '请输入申请理由', trigger: 'blur'},
-          {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
+          {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
         ]
       }
     }

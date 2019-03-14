@@ -52,7 +52,7 @@
           </div>
           <!--进客流柱状图-->
 
-          <div class="in-flow items" v-if="currentManage.type === 3">
+          <div class="in-flow items" v-if="currentManage.type === 3 || currentFloor.industryType || currentFloor.type === 4">
             <chart-bar title="进客流量" :data="flowData" type="inflow" width="100%" height="100%"></chart-bar>
           </div>
 
@@ -84,7 +84,7 @@
             <!--<chart-bar title="业态客流排行榜" width="100%" height="100%"></chart-bar>-->
           </div>
           <!--门店客流排行榜-->
-          <div class="store-flow-rank items" v-if="currentManage.type === 1">
+          <div class="store-flow-rank items" v-if="currentManage.type === 1 && !currentFloor.industryType && currentFloor.type !== 4">
             <div class="floor__sub--title">
               门店客流排行榜
             </div>
@@ -92,7 +92,10 @@
               <div class="pl-items vam" v-for="(val, $index) in 6" :key="val" :class="{'empty--data': !rankData.group[$index]}">
                 <span class="ellipsis">{{val}}.{{rankData.group[$index] ? rankData.group[$index].groupName : `门店${$index + 1}`}}</span>
                 <el-progress :color="rankData.group[$index] ? industryColor[$index] : '#005BC9'" :percentage="rankData.group[$index] ? rankData.group[$index].percent : 0" ></el-progress>
-                <el-icon class="el-icon-d-arrow-right" :class="{'c-grey': !rankData.group[$index]}"></el-icon>
+                <el-icon
+                  class="el-icon-d-arrow-right"
+                  @click.native="enterStore(rankData.group[$index])"
+                  :class="{'c-grey': !rankData.group[$index]}"></el-icon>
               </div>
             </div>
           </div>
@@ -162,7 +165,10 @@ export default {
   methods: {
     setFloorInfo (data) {
       this.currentFloor = data
+      // console.log('currentFloor--------', data)
+
       this.initBaseData()
+
       this.getFlowData()
     },
     ComunicationPer (data) {
@@ -185,6 +191,7 @@ export default {
     initBaseData () {
       let info = this.currentFloor
       clearTimeout(this.timer)
+      if (info.type === 4) return
       if (this.num < 4) {
         this.timer = setTimeout(() => {
           this.initBaseData()
@@ -251,7 +258,7 @@ export default {
       GetChartLine({
         groupGuid: this.currentManage.id,
         groupName: this.currentFloor.name,
-        groupSonGuid: this.currentFloor.groupSonGuid,
+        groupSonGuid: this.currentFloor.groupSonGuid || this.currentFloor.guid,
         timeIntervalUnit: 'hour',
         startTime: date + ' 00:00:00',
         endTime: date + ' 23:59:59',
@@ -263,6 +270,20 @@ export default {
 
     createCommunity () {
       eventObject().$emit('CREATE_COMMUNITY-INDEX')
+    },
+    // 进入成员社群
+    enterStore (data) {
+      if (data) {
+        window.postMessage({
+          cmd: 'click-single_store',
+          params: {
+            name: data.groupName,
+            groupSonGuid: data.groupSonGuid,
+            personCount: data.count,
+            floor: data.floor
+          }
+        }, '*')
+      }
     }
   },
   watch: {
@@ -530,6 +551,7 @@ export default {
         }
         .el-icon-d-arrow-right:not(.c-grey){
           color: #3a8ee6;
+          cursor: pointer;
         }
         .el-progress{
           width: calc(100% - 120px);

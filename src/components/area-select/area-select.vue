@@ -21,7 +21,7 @@
         <el-input
           type="text" readonly
           class="address-text-input"
-          v-model="address"
+          v-model.trim="address"
           placeholder="请选择省份/直辖市/自治区">
         </el-input>
         <el-radio-group class="area-radio-wrap" v-model="currentAddress">
@@ -47,7 +47,7 @@
           ref="areaInput"
           :placeholder="placeholder"
           @blur="inputBlur"
-          v-model="addressText">
+          v-model.trim="addressText">
         </el-input>
       </div>
     </el-popover>

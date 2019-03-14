@@ -160,7 +160,7 @@
     <div class="map-right">
       <div id="sideInfo" @mouseenter="maskToggle=true" @mouseleave="maskToggle=false">
         <transition-group name="list-customer" class="transition-wrap right" tag="ul">
-          <li class="side-box" v-for="(item) in personList" :key="item.key">
+          <li class="side-box" :class="{active: item.personGuid}" @click="pushDetail(item)" v-for="(item) in personList" :key="item.key">
             <div class="box-left">
               <div class="name">{{item.name}}</div>
               <div class="info">
@@ -416,7 +416,8 @@ export default {
           gender: data.memberInfo.gender === 1 ? '男' : '女',
           appearanceDate: parseTime(time, '{h}:{i}'),
           imgUrl: dataURL,
-          key: Math.random()
+          key: Math.random(),
+          personGuid: data.personGuid
         }
         this.personList.pop()
         this.personList.unshift(obj)
@@ -740,6 +741,12 @@ export default {
       } else {
         this.$refs[ref].pause()
       }
+    },
+    // 进入行为轨迹详情页
+    pushDetail (data) {
+      if (data.personGuid) {
+        this.$router.push(`/behavior/trail/${data.personGuid}`)
+      }
     }
   },
   beforeDestroy () {
@@ -959,6 +966,9 @@ export default {
           /*clear: both;*/
           margin-bottom: 20px;
           transition: all 1s;
+          &.active{
+            cursor: pointer;
+          }
           .box-left {
             float: left;
             padding: 12px 8px;

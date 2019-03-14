@@ -122,8 +122,8 @@ export default {
   methods: {
     // @handle-btn subBtn未提供index参数是触发
     handleBtn (index) {
-      if (this.subBtn.index) {
-        this.$router.push(this.subBtn.index)
+      if (this.btnArray[index] && this.btnArray[index].path) {
+        this.$router.push(this.btnArray[index].path)
       }
       this.$emit('handle-btn', index)
     },
