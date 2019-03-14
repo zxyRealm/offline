@@ -618,6 +618,7 @@ export default {
             this.singleStoreName = data.params.name
             GetGroupPortalInfo({groupSonId: data.params.groupSonGuid}).then(res => {
               this.singleStoreInfo.deviceInfoArr = res.data
+              this.$emit('updateCommunity', this.singleStoreInfo)
               this.frame = {
                 path: ossPrefix + '/static/html/single_store.html?timestamp = ' + Number(new Date()),
                 id: 'threeFrame'
