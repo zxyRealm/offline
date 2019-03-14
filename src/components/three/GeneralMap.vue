@@ -542,7 +542,7 @@ export default {
             groupSonGuid: item.groupSonGuid
           })
         })
-        // this.iframe.addColor(storeInfoArr)
+
         this.iframe.postMessage({
           type: 'ADD_COLOR',
           data: storeInfoArr

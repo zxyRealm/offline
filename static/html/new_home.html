@@ -111,6 +111,7 @@
         break;
       case "SET_FLOOR_INFO":
         console.log('receive: SET_FLOOR_INFO')
+        console.log(data.floorArr)
         setFloorInfo(data.floorArr);
         break;
     }
@@ -355,6 +356,9 @@
 
   // 接收楼层信息
   function setFloorInfo(floor) {
+    if (floor.length === 1) {
+      floorArr = floor
+    }
     if (floor.length > 1) {
       if (floor[0].floor < floor[1].floor)
         floorArr = floor
