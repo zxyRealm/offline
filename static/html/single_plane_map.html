@@ -60,7 +60,7 @@
     this.control = new THREE.OrbitControls(this.camera);
     this.control.enableZoom = true;
     this.control.screenSpacePanning = true;
-    this.control.enableRotate = false
+    this.control.enableRotate = true
   }
 
   World.prototype.createMapMesh = function(shape, path) {
@@ -115,13 +115,13 @@
     var spriteMap = new THREE.TextureLoader().load(logo + '?t=' + new Date().getTime().toString());
     spriteMap.needsUpdate = true;
     var spriteMaterial = new THREE.SpriteMaterial({
-      map: spriteMap,
+      map: new THREE.TextureLoader().load(logo + '?t=' + new Date().getTime().toString()),
       // sizeAttenuation: false,
       depthTest: false,
       transparent: true
     });
     var sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(16, 16, 16);
+    sprite.scale.set(32, 32, 32);
     sprite.position.x = center.cx;
     sprite.position.y = center.cy;
     sprite.position.z = 8;

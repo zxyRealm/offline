@@ -571,7 +571,7 @@ export default {
                 groupSonGuid: val.groupSonGuid,
                 groupParentGuid: val.groupParentGuid
               }
-              this.initialIndex = index+1
+              this.initialIndex = index + 1
               this.updateFrameArea(item, index)
             }
           })
