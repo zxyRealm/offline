@@ -609,6 +609,7 @@ export default {
         case 'click-single_store':
           GetMemberDetail({groupSonId: data.params.groupSonGuid}).then(res => {
             this.singleStoreInfo = res.data
+            console.log(this.singleStoreInfo)
             if (data.params.floor) {
               this.community.infoArr.forEach(val => {
                 if (val.floor === data.params.floor) {
@@ -617,6 +618,9 @@ export default {
               })
             } else {
               this.singleStoreInfo.imgUrl = data.params.imgUrl
+            }
+            if (data.params.coordinates) {
+              this.singleStoreInfo.coordinates = data.params.coordinates
             }
             this.singleStoreInfo.personCount = data.params.personCount
             this.singleStoreName = data.params.name
