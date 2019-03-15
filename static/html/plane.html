@@ -305,7 +305,6 @@
         if(boxArr[j].position){
           var shapeAlex = boxArr[j].position // 目标色块的顶点值字符串
           if (shapeAlex === meshAlex) {
-            console.log(boxArr[j])
             var point = getCenterExtraPoint(shapesMeshArr[i].geometry.attributes.position.array)
             shapesMeshArr[i].userData = {
               floor: boxArr[j].floor,

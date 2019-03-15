@@ -534,7 +534,6 @@ export default {
         let groupList = JSON.parse(res.data).group
 
         groupList.forEach(item => {
-          console.log(item)
           let position = item.coordinates.replace('[', '').replace(']', '')
           // this.transFloat(position)
           storeInfoArr.push({
