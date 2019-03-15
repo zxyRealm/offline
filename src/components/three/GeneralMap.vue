@@ -623,6 +623,7 @@ export default {
             }
             this.singleStoreInfo.personCount = data.params.personCount
             this.singleStoreName = data.params.name
+            this.singleStoreInfo.floorOrigin = res.data.floor
             this.singleStoreInfo.floor = data.params.floor > 0 ? 'F' + data.params.floor : 'B' + data.params.floor.toString().charAt(1)
             GetGroupPortalInfo({groupSonId: data.params.groupSonGuid}).then(res => {
               this.singleStoreInfo.deviceInfoArr = res.data
@@ -647,8 +648,9 @@ export default {
       }
     },
     backToFloor () {
+      console.log(this.singleStoreInfo.floorOrigin)
       for (let i = 0; i < this.routerList.length; i++) {
-        if (this.singleStoreInfo.floor === this.routerList[i].floor) {
+        if (this.singleStoreInfo.floorOrigin === this.routerList[i].floor) {
           this.updateFrameArea(this.routerList[i])
           this.singleStoreTrig = false
         }
