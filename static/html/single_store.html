@@ -140,7 +140,7 @@
   World.prototype.createMapColor = function (vm, mapMesh) {
     var meshCoordArr = mapMesh.geometry.attributes.position.array;
     var currentCoord = '[' + meshCoordArr + ']';
-    var targetCoord = floorInfo.coordinates;
+    var targetCoord = '[' + floorInfo.coordinates + ']';
     if (currentCoord === targetCoord) {
       if (floorInfo.personCount < 10) {
         mapMesh.material.color = new THREE.Color('#213A65')

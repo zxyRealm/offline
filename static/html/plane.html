@@ -307,6 +307,7 @@
           if (shapeAlex === meshAlex) {
             var point = getCenterExtraPoint(shapesMeshArr[i].geometry.attributes.position.array)
             shapesMeshArr[i].userData = {
+              coordinates: boxArr[j].position,
               floor: boxArr[j].floor,
               groupSonGuid: boxArr[j].groupSonGuid,
               personCount: boxArr[j].count,
@@ -425,6 +426,7 @@
       window.parent.postMessage({
         cmd: 'click-single_store',
         params: {
+          coordinates: intersects[0].object.userData.coordinates,
           floor: intersects[0].object.userData.floor,
           groupSonGuid: intersects[0].object.userData.groupSonGuid,
           personCount: intersects[0].object.userData.personCount,
