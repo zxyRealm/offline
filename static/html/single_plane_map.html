@@ -95,25 +95,25 @@
         }
       }
 
-      // if (singleStoreInfo[0].storeLocalInfos) {
-      //   var data = singleStoreInfo[0].storeLocalInfos;
-      //   for (var i = 0; i < data.length; i++) {
-      //     var center = JSON.parse(data[i].localCoordinate);
-      //     var centerObj = { cx: parseFloat(center.cx), cy: parseFloat(center.cy) };
-      //     var hasLogo = false;
-      //     if (data[i].localLogo) {
-      //       hasLogo = true;
-            this.createSprite();
-          // }
-          // this.createText(centerObj, data[i].localName, hasLogo);
-        // }
-      // }
+      if (singleStoreInfo[0].storeLocalInfos) {
+        var data = singleStoreInfo[0].storeLocalInfos;
+        for (var i = 0; i < data.length; i++) {
+          var center = JSON.parse(data[i].localCoordinate);
+          var centerObj = { cx: parseFloat(center.cx), cy: parseFloat(center.cy) };
+          var hasLogo = false;
+          if (data[i].localLogo) {
+            hasLogo = true;
+            this.createSprite(centerObj, data[i].localLogo);
+          }
+          this.createText(centerObj, data[i].localName, hasLogo);
+        }
+      }
     });
   }
 
   World.prototype.createSprite = function(center, logo) {
     var spriteMap = new THREE.TextureLoader().load(logo + '?t=' + new Date().getTime().toString());
-    // var spriteMap = new THREE.TextureLoader().load('http://offline-browser-images.oss-cn-hangzhou.aliyuncs.com/logo/%E6%A7%91%E5%AD%90%E5%90%9B.png?t=1552632858580')
+    spriteMap.needsUpdate = true;
     var spriteMaterial = new THREE.SpriteMaterial({
       map: spriteMap,
       // sizeAttenuation: false,
@@ -122,8 +122,8 @@
     });
     var sprite = new THREE.Sprite(spriteMaterial);
     sprite.scale.set(16, 16, 16);
-    sprite.position.x = -83.15000152587899;
-    sprite.position.y = -140.94999694824196;
+    sprite.position.x = center.cx;
+    sprite.position.y = center.cy;
     sprite.position.z = 8;
     var spriteWidth = Math.ceil(383 * 0.045);
     var spriteHeight = Math.ceil(377 * 0.045);
