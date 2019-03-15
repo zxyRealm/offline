@@ -609,7 +609,6 @@ export default {
         case 'click-single_store':
           GetMemberDetail({groupSonId: data.params.groupSonGuid}).then(res => {
             this.singleStoreInfo = res.data
-            console.log(this.singleStoreInfo)
             if (data.params.floor) {
               this.community.infoArr.forEach(val => {
                 if (val.floor === data.params.floor) {
