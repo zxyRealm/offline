@@ -188,7 +188,7 @@ export default {
     initBaseData () {
       let info = this.currentFloor
       clearTimeout(this.timer)
-      if (info.type === 4 || info.industryType) return
+      // if (info.type === 4 || info.industryType) return
       if (this.num < 4) {
         this.timer = setTimeout(() => {
           this.initBaseData()
@@ -196,7 +196,7 @@ export default {
       }
       // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
       if (!info) return
-      if (this.currentManage.type === 1) {
+      if (info.type !== 4 && !info.industryType) {
         GetFlowRank({groupFloor: info.floor, groupGuid: this.currentManage.id, type: info.type}).then(res => {
           this.num = 0
           res.data = JSON.parse(res.data)
