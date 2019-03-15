@@ -598,7 +598,7 @@ export default {
           this.iframe.postMessage({
             type: 'SET_SINGLE_STORE_INFO_SINGLE',
             floorInfo: this.singleStoreInfo
-          })
+          }, this.originSrc)
           break
         case 'single-load_signal':
           this.iframe.postMessage({

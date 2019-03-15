@@ -279,7 +279,7 @@ export default {
             groupSonGuid: data.groupSonGuid,
             personCount: data.count,
             floor: data.floor,
-            coordinates: data.coordinates
+            coordinates: data.coordinates.replace(/[\[\]]/g, '')
           }
         }, '*')
       }
