@@ -113,12 +113,13 @@
   }
 
   World.prototype.createSprite = function(center, logo) {
+    console.log('in')
     var spriteMap = new THREE.TextureLoader().load(logo + '?t=' + new Date().getTime().toString());
+    // var spriteMap = new THREE.TextureLoader().load('http://offline-browser-images.oss-cn-hangzhou.aliyuncs.com/logo/%E6%A7%91%E5%AD%90%E5%90%9B.png?t=1552632858575')
     var spriteMaterial = new THREE.SpriteMaterial({
       map: spriteMap,
       // sizeAttenuation: false,
       depthTest: false,
-      // matrixWorldNeedsUpdate: true,
       transparent: true
     });
     var sprite = new THREE.Sprite(spriteMaterial);
@@ -129,6 +130,7 @@
     var spriteWidth = Math.ceil(383 * 0.045);
     var spriteHeight = Math.ceil(377 * 0.045);
     sprite.userData.coord = {x: sprite.position.x, y: sprite.position.y, w: spriteWidth, h: spriteHeight};
+    console.log(sprite)
     this.group.add(sprite);
     this.spriteList.push(sprite);
     return sprite;

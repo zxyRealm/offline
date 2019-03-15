@@ -111,6 +111,7 @@
         break;
       case "SET_FLOOR_INFO":
         console.log('receive: SET_FLOOR_INFO')
+        console.log(data.floorArr)
         setFloorInfo(data.floorArr);
         break;
     }
@@ -339,7 +340,8 @@
       window.parent.postMessage({
         cmd: 'change-floor',
         params: {
-          data: intersects[0].object.position.y
+          data: intersects[0].object.position.y,
+          floor: intersects[0].object.userData.floor
         }
       }, '*');
     }
@@ -494,6 +496,7 @@
           mesh.position.set(0, info.coordinate_y, 0);
           mesh.rotation.set(0.5 * Math.PI, 0, 0);
           mesh.name = 'plane'
+          mesh.userData.floor = info.floor;
           planeList.push(mesh);
           group.add(mesh);
         }
