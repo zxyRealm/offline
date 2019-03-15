@@ -320,6 +320,12 @@ export default {
         this.initData()
       },
       deep: true
+    },
+    currentManage: {
+      handler (val) {
+        this.initData()
+      },
+      deep: true
     }
   }
 }

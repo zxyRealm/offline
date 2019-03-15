@@ -165,10 +165,7 @@ export default {
   methods: {
     setFloorInfo (data) {
       this.currentFloor = data
-      // console.log('currentFloor--------', data)
-
       this.initBaseData()
-
       this.getFlowData()
     },
     ComunicationPer (data) {
@@ -191,7 +188,7 @@ export default {
     initBaseData () {
       let info = this.currentFloor
       clearTimeout(this.timer)
-      if (info.type === 4) return
+      if (info.type === 4 || info.industryType) return
       if (this.num < 4) {
         this.timer = setTimeout(() => {
           this.initBaseData()
@@ -253,19 +250,20 @@ export default {
 
     // 获取客流数据
     getFlowData () {
-      if (this.currentManage.type !== 3) return
-      let date = Moment().format('YYYY-MM-DD')
-      GetChartLine({
-        groupGuid: this.currentManage.id,
-        groupName: this.currentFloor.name,
-        groupSonGuid: this.currentFloor.groupSonGuid || this.currentFloor.guid,
-        timeIntervalUnit: 'hour',
-        startTime: date + ' 00:00:00',
-        endTime: date + ' 23:59:59',
-        type: 'flow'
-      }).then(res2 => {
-        this.flowData = res2.data.seriesGroup.filter(item => item.name === '客流入')[0]
-      })
+      if (this.currentFloor.industryType || this.currentFloor.type === 4) {
+        let date = Moment().format('YYYY-MM-DD')
+        GetChartLine({
+          groupGuid: this.currentManage.id,
+          groupName: this.currentFloor.name,
+          groupSonGuid: this.currentFloor.groupSonGuid || this.currentFloor.guid,
+          timeIntervalUnit: 'hour',
+          startTime: date + ' 00:00:00',
+          endTime: date + ' 23:59:59',
+          type: 'flow'
+        }).then(res2 => {
+          this.flowData = res2.data.seriesGroup.filter(item => item.name === '客流入')[0]
+        })
+      }
     },
 
     createCommunity () {
@@ -280,7 +278,8 @@ export default {
             name: data.groupName,
             groupSonGuid: data.groupSonGuid,
             personCount: data.count,
-            floor: data.floor
+            floor: data.floor,
+            coordinates: data.coordinates
           }
         }, '*')
       }
