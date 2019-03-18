@@ -112,26 +112,36 @@
   }
 
   World.prototype.createSprite = function(center, logo) {
-    var spriteMap = new THREE.TextureLoader().load(logo + '?t=' + new Date().getTime().toString());
-    spriteMap.needsUpdate = true;
-    var spriteMaterial = new THREE.SpriteMaterial({
-      map: new THREE.TextureLoader().load(logo + '?t=' + new Date().getTime().toString()),
-      // sizeAttenuation: false,
-      depthTest: false,
-      transparent: true
-    });
-    var sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(32, 32, 32);
-    sprite.position.x = center.cx;
-    sprite.position.y = center.cy;
-    sprite.position.z = 8;
-    var spriteWidth = Math.ceil(383 * 0.045);
-    var spriteHeight = Math.ceil(377 * 0.045);
-    sprite.userData.coord = {x: sprite.position.x, y: sprite.position.y, w: spriteWidth, h: spriteHeight};
-    sprite.needsUpdate = true;
-    this.group.add(sprite);
-    this.spriteList.push(sprite);
-    return sprite;
+    var loader = new THREE.TextureLoader();
+    loader.load(
+      logo + '?t=' + new Date().getTime().toString(),
+      function (texture) {
+        var spriteMaterial = new THREE.MeshBasicMaterial( {
+          map: texture,
+          needsUpdate: true,
+          depthTest: false,
+          transparent: true
+        });
+        var sprite = new THREE.Sprite(spriteMaterial);
+        sprite.scale.set(32, 32, 32);
+        sprite.position.x = center.cx;
+        sprite.position.y = center.cy;
+        sprite.position.z = 8;
+        var spriteWidth = Math.ceil(383 * 0.045);
+        var spriteHeight = Math.ceil(377 * 0.045);
+        sprite.userData.coord = {x: sprite.position.x, y: sprite.position.y, w: spriteWidth, h: spriteHeight};
+        sprite.needsUpdate = true;
+        this.group.add(sprite);
+        this.spriteList.push(sprite);
+        return sprite;
+      },
+
+      undefined,
+
+      function ( err ) {
+        console.error( 'An error happened.' );
+      }
+    );
   }
 
   World.prototype.createText = function (center, text, hasLogo) {
