@@ -113,6 +113,7 @@
 
   World.prototype.createSprite = function(center, logo) {
     var loader = new THREE.TextureLoader();
+    var _this = this;
     loader.load(
       logo + '?t=' + new Date().getTime().toString(),
       function (texture) {
@@ -131,8 +132,8 @@
         var spriteHeight = Math.ceil(377 * 0.045);
         sprite.userData.coord = {x: sprite.position.x, y: sprite.position.y, w: spriteWidth, h: spriteHeight};
         sprite.needsUpdate = true;
-        this.group.add(sprite);
-        this.spriteList.push(sprite);
+        _this.group.add(sprite);
+        _this.spriteList.push(sprite);
         return sprite;
       },
 
