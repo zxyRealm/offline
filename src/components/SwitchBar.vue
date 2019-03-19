@@ -95,10 +95,12 @@ export default {
     }
   },
   methods: {
-    // 点击子元素时重置当前选中元素状态，并触发@change
+    // 点击子元素时重置当前选中元素状态，并触发@change, 重复点击当前选中元素时不再触发回调事件
     clickItem (value, index) {
-      this.currentIndex = index
-      this.$emit('change', value, index)
+      if (this.currentIndex !== index) {
+        this.currentIndex = index
+        this.$emit('change', value, index)
+      }
     },
     arrowClass (type) {
       let classStr = ''
