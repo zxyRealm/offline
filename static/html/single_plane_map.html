@@ -94,27 +94,28 @@
         }
       }
 
-      if (singleStoreInfo[0].storeLocalInfos) {
-        var data = singleStoreInfo[0].storeLocalInfos;
-        for (var i = 0; i < data.length; i++) {
-          var center = JSON.parse(data[i].localCoordinate);
-          var centerObj = { cx: parseFloat(center.cx), cy: parseFloat(center.cy) };
-          var hasLogo = false;
-          if (data[i].localLogo) {
-            hasLogo = true;
-            _this.createSprite(centerObj, data[i].localLogo, _this);
-          }
+      // if (singleStoreInfo[0].storeLocalInfos) {
+      //   var data = singleStoreInfo[0].storeLocalInfos;
+      //   for (var i = 0; i < data.length; i++) {
+      //     var center = JSON.parse(data[i].localCoordinate);
+      //     var centerObj = { cx: parseFloat(center.cx), cy: parseFloat(center.cy) };
+      //     var hasLogo = false;
+      //     if (data[i].localLogo) {
+      //       hasLogo = true;
+            _this.createSprite();
+          // }
           _this.createText(centerObj, data[i].localName, hasLogo);
-        }
-      }
+        // }
+      // }
     });
   };
 
-  World.prototype.createSprite = function(center, logo, vm) {
+  World.prototype.createSprite = function(center, logo) {
     var loader = new THREE.TextureLoader();
     var _this = this;
     loader.load(
-      logo + '?t=' + new Date().getTime().toString(),
+      // logo + '?t=' + new Date().getTime().toString(),
+      'https://user-gold-cdn.xitu.io/2019/3/19/16994fe3ad6ed161?w=128&h=128&f=png&s=11353',
       function (texture) {
         var spriteMaterial = new THREE.MeshBasicMaterial({
           map: texture,
@@ -123,18 +124,15 @@
           transparent: true
         });
         var sprite = new THREE.Sprite(spriteMaterial);
-        sprite.scale.set(32, 32, 32);
-        sprite.position.x = center.cx;
-        sprite.position.y = center.cy;
+        sprite.scale.set(16, 16, 16);
+        sprite.position.x = 0;
+        sprite.position.y = 0;
         sprite.position.z = 8;
         var spriteWidth = Math.ceil(383 * 0.045);
         var spriteHeight = Math.ceil(377 * 0.045);
         sprite.userData.coord = {x: sprite.position.x, y: sprite.position.y, w: spriteWidth, h: spriteHeight};
-        sprite.needsUpdate = true;
-        vm.group.add(sprite);
-        vm.spriteList.push(sprite);
-        console.log(vm.group);
-        console.log(vm.scene);
+        _this.group.add(sprite);
+        _this.spriteList.push(sprite);
         return sprite;
       }
     );
