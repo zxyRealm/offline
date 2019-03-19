@@ -80,6 +80,7 @@
 
   World.prototype.createTexture = function() {
     var _this = this;
+    console.log(singleStoreInfo[0])
     new THREE.SVGLoader().load(singleStoreInfo[0].mapUrl, function (paths) {
       for (var i = 0; i < paths.length; i++) {
         var path = paths[i];

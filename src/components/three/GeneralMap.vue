@@ -297,18 +297,18 @@ export default {
           this.community.index = i
           this.$emit('updateCommunity', this.community.infoArr[i])
           this.getLatestFace(item.groupParentGuid, item.groupSonGuid)
-          if (this.currentManage.type === 3) {
-            this.community.infoArr.forEach((val, inx) => {
-              if (val.floor === item.floor) {
-                this.iframe.postMessage({
-                  type: 'SET_SINGLE_STORE_INFO',
-                  floorInfo: [val]
-                }, this.originSrc)
-              }
-            })
-          }
         }
       })
+      if (this.currentManage.type === 3) {
+        this.community.infoArr.forEach((val, inx) => {
+          if (val.floor === item.floor) {
+            this.iframe.postMessage({
+              type: 'SET_SINGLE_STORE_INFO',
+              floorInfo: [val]
+            }, this.originSrc)
+          }
+        })
+      }
     },
     // 获取socket服务地址并建立websocket链接
     getWebsocket(groupSonGuid, groupParentGuid) {
@@ -603,7 +603,7 @@ export default {
         case 'single-load_signal':
           this.iframe.postMessage({
             type: 'SET_SINGLE_STORE_INFO',
-            floorInfo: this.community.infoArr
+            floorInfo: this.community.infoArr.reverse()
           }, this.originSrc)
           break
         case 'click-single_store':
@@ -651,7 +651,6 @@ export default {
       for (let i = 0; i < this.routerList.length; i++) {
         if (this.singleStoreInfo.floor === this.routerList[i].floor) {
           this.initialIndex = i
-          console.log(i, this.routerList[i])
           this.updateFrameArea(this.routerList[i])
           this.singleStoreTrig = false
         }
@@ -683,6 +682,7 @@ export default {
         return
       }
       GetStoreList({parentGuid: val.id}).then(res => {
+        console.log(res.data)
         for (let i = 0; i < res.data[0].subGroupSon.length; i++) {
           this.routerList.push({
             id: res.data[0].subGroupSon[i].mapUrl,
