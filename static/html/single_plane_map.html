@@ -94,19 +94,19 @@
         }
       }
 
-      // if (singleStoreInfo[0].storeLocalInfos) {
-      //   var data = singleStoreInfo[0].storeLocalInfos;
-      //   for (var i = 0; i < data.length; i++) {
-      //     var center = JSON.parse(data[i].localCoordinate);
-      //     var centerObj = { cx: parseFloat(center.cx), cy: parseFloat(center.cy) };
-      //     var hasLogo = false;
-      //     if (data[i].localLogo) {
-      //       hasLogo = true;
-            _this.createSprite();
-          // }
-          // _this.createText(centerObj, data[i].localName, hasLogo);
-        // }
-      // }
+      if (singleStoreInfo[0].storeLocalInfos) {
+        var data = singleStoreInfo[0].storeLocalInfos;
+        for (var i = 0; i < data.length; i++) {
+          var center = JSON.parse(data[i].localCoordinate);
+          var centerObj = { cx: parseFloat(center.cx), cy: parseFloat(center.cy) };
+          var hasLogo = false;
+          if (data[i].localLogo) {
+            hasLogo = true;
+            _this.createSprite(centerObj, data[i].localLogo);
+          }
+          _this.createText(centerObj, data[i].localName, hasLogo);
+        }
+      }
     });
   };
 
@@ -114,8 +114,8 @@
     var loader = new THREE.TextureLoader();
     var _this = this;
     loader.load(
-      // logo + '?t=' + new Date().getTime().toString(),
-      'https://user-gold-cdn.xitu.io/2019/3/19/16994fe3ad6ed161?w=128&h=128&f=png&s=11353',
+      logo + '?t=' + new Date().getTime().toString(),
+      // 'https://user-gold-cdn.xitu.io/2019/3/19/16994fe3ad6ed161?w=128&h=128&f=png&s=11353',
       function (texture) {
         var spriteMaterial = new THREE.MeshBasicMaterial({
           map: texture,

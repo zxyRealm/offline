@@ -704,7 +704,7 @@ export default {
         var allInfo = res.data[0]
         this.community.index = 0
         this.frame = {
-          path: ossPrefix + '/static/html/single_plane_map.html',
+          path: ossPrefix + '/static/html/single_plane_map.html?t=' + new Date().getTime().toString(),
           id: res.data[0].subGroupSon[0].mapUrl
         }
         this.getLatestFace(this.routerList[0].groupParentGuid, this.routerList[0].groupSonGuid)
@@ -713,9 +713,7 @@ export default {
     },
     // 数组排序
     sortRouterList (arr) {
-      if (arr.length <= 1) {
-        return arr
-      }
+      if (arr.length <= 1) { return arr }
       let pivotIndex = Math.floor(arr.length / 2)
       let pivot = arr.splice(pivotIndex, 1)[0]
       let left = []
