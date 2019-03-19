@@ -16,8 +16,6 @@
     body {
       width: 100%;
       height: 100%;
-      /*background-image: url("../../src/assets/background_im.png");*/
-      /*background-size: 100% 100%;*/
     }
   </style>
 </head>
@@ -81,17 +79,18 @@
   }
 
   World.prototype.createTexture = function() {
-    new THREE.SVGLoader().load(singleStoreInfo[0].mapUrl, (paths) => {
+    var _this = this;
+    new THREE.SVGLoader().load(singleStoreInfo[0].mapUrl, function (paths) {
       for (var i = 0; i < paths.length; i++) {
         var path = paths[i];
         var shapes = path.toShapes();
         for (var j = 0; j < shapes.length; j++) {
           var shape = shapes[j];
-          this.createMapMesh(shape, path);
-          this.mesh.position.x = -291;
-          this.mesh.position.y = 214;
-          this.mesh.scale.set(1, -1, 1);
-          this.group.add(this.mesh);
+          _this.createMapMesh(shape, path);
+          _this.mesh.position.x = -291;
+          _this.mesh.position.y = 214;
+          _this.mesh.scale.set(1, -1, 1);
+          _this.group.add(_this.mesh);
         }
       }
 
@@ -103,21 +102,21 @@
           var hasLogo = false;
           if (data[i].localLogo) {
             hasLogo = true;
-            this.createSprite(centerObj, data[i].localLogo);
+            _this.createSprite(centerObj, data[i].localLogo, _this);
           }
-          this.createText(centerObj, data[i].localName, hasLogo);
+          _this.createText(centerObj, data[i].localName, hasLogo);
         }
       }
     });
-  }
+  };
 
-  World.prototype.createSprite = function(center, logo) {
+  World.prototype.createSprite = function(center, logo, vm) {
     var loader = new THREE.TextureLoader();
     var _this = this;
     loader.load(
       logo + '?t=' + new Date().getTime().toString(),
       function (texture) {
-        var spriteMaterial = new THREE.MeshBasicMaterial( {
+        var spriteMaterial = new THREE.MeshBasicMaterial({
           map: texture,
           needsUpdate: true,
           depthTest: false,
@@ -132,18 +131,14 @@
         var spriteHeight = Math.ceil(377 * 0.045);
         sprite.userData.coord = {x: sprite.position.x, y: sprite.position.y, w: spriteWidth, h: spriteHeight};
         sprite.needsUpdate = true;
-        _this.group.add(sprite);
-        _this.spriteList.push(sprite);
+        vm.group.add(sprite);
+        vm.spriteList.push(sprite);
+        vm.log(vm.group);
+        vm.log(vm.scene);
         return sprite;
-      },
-
-      undefined,
-
-      function ( err ) {
-        console.error( 'An error happened.' );
       }
     );
-  }
+  };
 
   World.prototype.createText = function (center, text, hasLogo) {
     var cz = this.camera.position.z;
