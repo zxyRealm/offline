@@ -315,16 +315,6 @@ export default {
           }
         }
       })
-      if (this.currentManage.type === 3) {
-        this.community.infoArr.forEach((val, inx) => {
-          if (val.floor === item.floor) {
-            this.iframe.postMessage({
-              type: 'SET_SINGLE_STORE_INFO',
-              floorInfo: [val]
-            }, this.originSrc)
-          }
-        })
-      }
     },
     // 获取socket服务地址并建立websocket链接
     getWebsocket(groupSonGuid, groupParentGuid) {

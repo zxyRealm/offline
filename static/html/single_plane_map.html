@@ -126,8 +126,8 @@
         });
         var sprite = new THREE.Sprite(spriteMaterial);
         sprite.scale.set(16, 16, 16);
-        sprite.position.x = 0;
-        sprite.position.y = 0;
+        sprite.position.x = center.cx;
+        sprite.position.y = center.cy;
         sprite.position.z = 8;
         var spriteWidth = Math.ceil(383 * 0.045);
         var spriteHeight = Math.ceil(377 * 0.045);
