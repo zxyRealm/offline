@@ -69,17 +69,18 @@ export default {
     return {
       currentIndex: 0, // 当前选中元素序列号
       translateIndex: 0, // 最左侧或者最顶部元素序列号
-      transform: {},
-      itemObj: null
+      transform: {}
     }
   },
   created () {
     this.currentIndex = this.initialIndex
   },
   mounted () {
-    this.itemObj = document.getElementsByClassName('switch--bar-item')[0]
   },
   computed: {
+    itemSize () {
+      return document.getElementsByClassName('switch--bar-item')[0] ? document.getElementsByClassName('switch--bar-item')[0].offsetHeight : 40
+    },
     listSize () {
       return this.setStyle()
     },
@@ -124,36 +125,35 @@ export default {
       }
       switch (this.mode) {
         case 'vertical': // 垂直模式
-          translate = `translateY(${(this.itemObj.offsetHeight + this.offset) * this.translateIndex}px)`
+          translate = `translateY(${(this.itemSize + this.offset) * this.translateIndex}px)`
           break
         case 'horizontal': // 水平模式
-          translate = `translateX(${(this.itemObj.offsetWidth + this.offset) * this.translateIndex}px)`
+          translate = `translateX(${(this.itemSize + this.offset) * this.translateIndex}px)`
           break
       }
       this.transform = translate
     },
     setStyle (type) {
-      this.itemObj = document.getElementsByClassName('switch--bar-item')[0]
       let len = this.itemList.length
       let style = {
         height: 'auto',
         width: 'auto'
       }
-      if (this.itemObj) {
+      if (this.itemSize) {
         switch (this.mode) {
           case 'vertical':
             if (type === 'wrap') {
-              style.maxHeight = (this.itemObj.offsetHeight * this.maxNum + this.offset * (this.maxNum - 1)) + 'px'
+              style.maxHeight = (this.itemSize * this.maxNum + this.offset * (this.maxNum - 1)) + 'px'
             } else {
-              style.height = ((this.itemObj.offsetHeight + this.offset) * len) + 'px'
+              style.height = ((this.itemSize + this.offset) * len) + 'px'
               style.margin = `0px 0px ${this.offset}px`
             }
             break
           case 'horizontal':
             if (type === 'wrap') {
-              style.maxWidth = (this.itemObj.offsetWidth * this.maxNum + this.offset * (this.maxNum - 1)) + 'px'
+              style.maxWidth = (this.itemSize * this.maxNum + this.offset * (this.maxNum - 1)) + 'px'
             } else {
-              style.width = ((this.itemObj.offsetWidth + this.offset) * len) + 'px'
+              style.width = ((this.itemSize + this.offset) * len) + 'px'
               style.margin = `0px ${this.offset}px 0px 0px`
             }
             break
