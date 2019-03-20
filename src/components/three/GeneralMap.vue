@@ -194,7 +194,6 @@
         </transition-group>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -222,7 +221,7 @@ export default {
     CountTo,
     SwitchBar
   },
-  data() {
+  data () {
     return {
       maskToggle: false,
       routerList: [
@@ -272,6 +271,7 @@ export default {
         Member_Yesterday: 0,
         Current: 0
       },
+      currentSingleStoreInfo: {},
       singleStoreInfo: {},
       singleStoreTrig: false,
       singleStoreName: '',
@@ -283,20 +283,36 @@ export default {
   },
   computed: {
     ...mapState(['currentManage']),
-    originSrc() {
+    originSrc () {
       return ossPrefix || '*'
     }
   },
   methods: {
     // 切换iframe
-    updateFrameArea(item, index) {
-      this.$set(this.frame, 'path', item.path)
-      this.$set(this.frame, 'id', item.id)
-      this.community.infoArr.forEach((value, i) => {
-        if (value.floor === item.floor) {
-          this.community.index = i
-          this.$emit('updateCommunity', this.community.infoArr[i])
+    updateFrameArea (item) {
+      this.community.infoArr.forEach((val, inx) => {
+        if (val.floor === item.floor) {
+          this.$set(this.frame, 'path', item.path)
+          this.$set(this.frame, 'id', item.id)
+          this.community.index = inx
+          this.$emit('updateCommunity', this.community.infoArr[inx])
           this.getLatestFace(item.groupParentGuid, item.groupSonGuid)
+          if (this.currentManage.type === 3) {
+            this.currentSingleStoreInfo = item
+            // this.community.infoArr.forEach((val) => {
+            //   if (val.floor === item.floor) {
+            //     this.iframe.postMessage({
+            //       type: 'SET_SINGLE_STORE_INFO',
+            //       floorInfo: [val]
+            //     }, this.originSrc)
+            //   }
+            // })
+            // this.iframe.postMessage({
+            //   type: 'SET_SINGLE_STORE_INFO',
+            //   floorInfo: [val]
+            // }, this.originSrc)
+          } else {
+          }
         }
       })
       if (this.currentManage.type === 3) {
@@ -428,7 +444,7 @@ export default {
         }
       }
     },
-    getLatestFace(groupParentGuid, groupSonGuid) {
+    getLatestFace (groupParentGuid, groupSonGuid) {
       GetLatestFace({
         groupGuid: groupParentGuid,
         groupSonGuid: groupSonGuid
@@ -458,7 +474,7 @@ export default {
         this.getWebsocket(groupSonGuid, groupParentGuid)
       })
     },
-    getCommunityInfo() {
+    getCommunityInfo () {
       if (!this.currentManage.id) {
         return
       }
@@ -513,7 +529,7 @@ export default {
         }
       })
     },
-    getSingleCommunityInfo() {
+    getSingleCommunityInfo () {
       let params = this.community.infoArr[this.community.index]
       GetGroupPortalInfo({groupSonId: params.groupSonGuid}).then(res => {
         // this.iframe.getCommunityInfo(res.data)
@@ -524,7 +540,7 @@ export default {
       })
     },
     // plane：传递色块
-    sendColor() {
+    sendColor () {
       let storeInfoArr = []
       let params = this.community.infoArr[this.community.index]
       GetFlowRank({
@@ -554,9 +570,9 @@ export default {
     },
     // home：粒子闪烁
     // 悬浮框数据
-    sendStoreData() {
+    sendStoreData () {
     },
-    handleMessage(event) {
+    handleMessage (event) {
       const data = event.data
       switch (data.cmd) {
         case 'change-floor':
@@ -601,10 +617,21 @@ export default {
           }, this.originSrc)
           break
         case 'single-load_signal':
-          this.iframe.postMessage({
-            type: 'SET_SINGLE_STORE_INFO',
-            floorInfo: this.community.infoArr.reverse()
-          }, this.originSrc)
+          if (!Object.keys(this.currentSingleStoreInfo).length) {
+            this.iframe.postMessage({
+              type: 'SET_SINGLE_STORE_INFO',
+              floorInfo: this.community.infoArr.reverse()
+            }, this.originSrc)
+          } else {
+            this.community.infoArr.forEach(val => {
+              if (val.floor === this.currentSingleStoreInfo.floor) {
+                this.iframe.postMessage({
+                  type: 'SET_SINGLE_STORE_INFO',
+                  floorInfo: [val]
+                }, this.originSrc)
+              }
+            })
+          }
           break
         case 'click-single_store':
           // GetMemberDetail({groupSonId: data.params.groupSonGuid}).then(res => {
@@ -647,7 +674,7 @@ export default {
           })
       }
     },
-    backToFloor() {
+    backToFloor () {
       for (let i = 0; i < this.routerList.length; i++) {
         if (this.singleStoreInfo.floor === this.routerList[i].floor) {
           this.initialIndex = i
@@ -657,7 +684,7 @@ export default {
       }
     },
     // 计算地下楼层数量
-    caculateMinus(arr) {
+    caculateMinus (arr) {
       for (let i = 0; i < arr.length; i++) {
         if (arr[i].floor < 0) {
           this.community.minus++
@@ -665,7 +692,7 @@ export default {
       }
     },
     // 计算最低楼层大于一时的偏差值
-    caculateMinusIndex(arr) {
+    caculateMinusIndex (arr) {
       let minFloor = 1000
       let index = 0
       for (let i = 0; i < arr.length; i++) {
@@ -687,7 +714,7 @@ export default {
           this.routerList.push({
             id: res.data[0].subGroupSon[i].mapUrl,
             name: res.data[0].subGroupSon[i].name,
-            path: ossPrefix + '/static/html/single_plane_map.html',
+            path: ossPrefix + '/static/html/single_plane_map.html?t=' + res.data[0].subGroupSon[i].mapUrl,
             floor: res.data[0].subGroupSon[i].floor,
             groupSonGuid: res.data[0].subGroupSon[i].groupSonGuid,
             groupParentGuid: res.data[0].subGroupSon[i].groupParentGuid
@@ -704,7 +731,7 @@ export default {
         var allInfo = res.data[0]
         this.community.index = 0
         this.frame = {
-          path: ossPrefix + '/static/html/single_plane_map.html?t=' + new Date().getTime().toString(),
+          path: ossPrefix + '/static/html/single_plane_map.html?t=' + res.data[0].subGroupSon[0].mapUrl,
           id: res.data[0].subGroupSon[0].mapUrl
         }
         this.getLatestFace(this.routerList[0].groupParentGuid, this.routerList[0].groupSonGuid)
