@@ -64,8 +64,9 @@
   World.prototype.createMapMesh = function(shape, path) {
     var extrudeSettings = {depth: 6, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1};
     var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
+    console.log(path.color.r)
     var material = new THREE.MeshPhongMaterial({
-      color: path.color,
+      color: path.color.r !== 0 ? path.color : new THREE.Color('#3176ff'),
       transparent: true
     });
     this.mesh = new THREE.Mesh(geometry, material);
@@ -120,7 +121,7 @@
       function (texture) {
         var spriteMaterial = new THREE.MeshBasicMaterial({
           map: texture,
-          needsUpdate: true,
+          // needsUpdate: true,
           depthTest: false,
           transparent: true
         });
@@ -131,7 +132,7 @@
         sprite.position.z = 8;
         var spriteWidth = Math.ceil(383 * 0.045);
         var spriteHeight = Math.ceil(377 * 0.045);
-        sprite.userData.coord = {x: sprite.position.x, y: sprite.position.y, w: spriteWidth, h: spriteHeight};
+        sprite.userData.coord = { x: sprite.position.x, y: sprite.position.y, w: spriteWidth, h: spriteHeight };
         _this.group.add(sprite);
         _this.spriteList.push(sprite);
         return sprite;

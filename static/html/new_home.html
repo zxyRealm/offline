@@ -318,11 +318,11 @@
   function moveChange(objectList, meshColor, planeColor, lineColor) {
     objectList.children.forEach(function (item) {
       if (item.name === 'store') {
-        item.material.color = new THREE.Color(meshColor)
+        // item.material.color = new THREE.Color(meshColor)
       } else if (item.name === 'plane') {
-        item.material.color = new THREE.Color(planeColor)
+        // item.material.color = new THREE.Color(planeColor)
       } else {
-        item.material.color = new THREE.Color(lineColor)
+        // item.material.color = new THREE.Color(lineColor)
       }
     })
   }
@@ -440,7 +440,7 @@
           geometry2.fromBufferGeometry(geometry)
 
           var materialLine = new THREE.MeshPhongMaterial({
-            color: new THREE.Color('#3176ff'),
+            color: path.color,
             transparent: true,
             opacity: opacity,
             side: THREE.DoubleSide,
