@@ -3,15 +3,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
-const env = process.env.NODE_ENV
-let config = {assetsPublicPath: '/'}
-switch (env) {
-  case 'production':
-    config = {
-      assetsPublicPath: 'http://offline-browser-images.oss-cn-hangzhou.aliyuncs.com/'
-    }
-    break
-}
+const config = require('../config/prod.env')
 module.exports = {
   dev: {
     // Paths
@@ -67,7 +59,7 @@ module.exports = {
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
     // assetsPublicPath: '/',
-    assetsPublicPath: config.assetsPublicPath,
+    assetsPublicPath: config.assetsPublicPath.replace(/"/g, ''),
 
     /**
      * Source Maps

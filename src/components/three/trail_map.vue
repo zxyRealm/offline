@@ -19,7 +19,7 @@ import { GetTrace, GetElevatorListByGroupGuid } from '@/api/behavior'
 import { GetMarketList } from '@/api/community'
 import { mapState } from 'vuex'
 import { eventObject } from '../../utils/event'
-const ossPrefix = process.env.OSS_PREFIX
+const ossPrefix = process.env.assetsPublicPath
 export default {
   name: 'TrailMap',
   props: {
@@ -31,7 +31,7 @@ export default {
   data () {
     return {
       frame: {
-        path: ossPrefix + '/static/html/trail_demo.html?playcount=0&status=0',
+        path: ossPrefix + 'static/html/trail_demo.html?playcount=0&status=0',
         id: 'threeFrame'
       },
       iframe: null,
@@ -81,7 +81,7 @@ export default {
         })
       } else {
         this.frame = {
-          path: ossPrefix + '/static/html/single_store_trail.html',
+          path: ossPrefix + 'static/html/single_store_trail.html',
           id: 'threeFrame'
         }
       }
@@ -149,7 +149,7 @@ export default {
   computed: {
     ...mapState(['currentManage']),
     originSrc () {
-      return ossPrefix || '*'
+      return '*'
     }
   },
   watch: {

@@ -99,7 +99,7 @@ import {GetGroupPortalInfo, GetPortalDeviceList, PortalUnbindDevice, PortalBatch
 import {GetGroupDevice} from '../../api/device'
 import {validateRule} from '../../utils/validate'
 import SwitchBar from '../../components/SwitchBar'
-const ossPrefix = process.env.OSS_PREFIX
+const ossPrefix = process.env.assetsPublicPath
 export default {
   name: 'association_map',
   mixins: [Mixins],
@@ -232,7 +232,7 @@ export default {
       return title
     },
     originSrc () {
-      return ossPrefix ? this.iframeSrc.split('?')[0] : '*'
+      return '*'
     },
     initialIndex () {
       let index = 0
@@ -259,7 +259,7 @@ export default {
         this.currentFloor = Info
       }
       if (this.currentFloor) {
-        this.iframeSrc = `${ossPrefix}/static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
+        this.iframeSrc = `${ossPrefix}static/html/association_map.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
         this.count++
         this.getPortalCameraCount()
       }

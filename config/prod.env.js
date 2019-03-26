@@ -1,8 +1,23 @@
 'use strict'
+let assetsPublicPath = '' // 外网静态资源oss地址
+switch (process.env.BUILD_ENV) {
+  case 'inner':
+    assetsPublicPath = '"/"'
+    break
+  case 'test':
+    assetsPublicPath = '"/"'
+    break
+  case 'release':
+    assetsPublicPath = '"http://offline-browser-images.oss-cn-hangzhou.aliyuncs.com/"'
+    break
+  default:
+    assetsPublicPath = '"/"'
+    break
+}
+
 module.exports = {
-  CONFIG: '"prod"',
   NODE_ENV: '"production"',
   BASE_API: '"/api"',
-  // OSS_PREFIX: '"http://192.168.11.182"'
-  OSS_PREFIX: '"http://offline-browser-images.oss-cn-hangzhou.aliyuncs.com"'
+  // assetsPublicPath: '"http://192.168.11.182"'
+  assetsPublicPath: assetsPublicPath
 }

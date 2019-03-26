@@ -5,7 +5,7 @@
 </template>
 
 <script>
-const ossPrefix = process.env.OSS_PREFIX
+const ossPrefix = process.env.assetsPublicPath
 export default {
   name: 'bind_community',
   props: {
@@ -33,14 +33,14 @@ export default {
   },
   computed: {
     originSrc () {
-      return ossPrefix ? this.iframeSrc.split('?')[0] : '*'
+      return '*'
     }
   },
   methods: {
     // 初始化楼层信息 （设置当前楼层信息）
     initFloor (int) {
       this.currentFloor = this.floorList.filter(item => item.floor === (int || this.defaultData.floor))[0] || ''
-      if (this.currentFloor) this.iframeSrc = `${ossPrefix}/static/html/bind_community.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
+      if (this.currentFloor) this.iframeSrc = `${ossPrefix}static/html/bind_community.html?map_url=${this.currentFloor.mapUrl}&time_stamp=${new Date().getTime()}`
     },
     // 处理iframe传递出来的事件
     handleEvent (event) {

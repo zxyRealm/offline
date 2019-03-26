@@ -248,7 +248,7 @@ import AreaSelect from '@/components/area-select/area-select'
 import FloorSelect from '@/components/FloorSelect'
 import ButtonSelect from '@/components/button-select'
 import ButtonSelectItem from '@/components/button-select/button-select-item'
-const ossPrefix = process.env.OSS_PREFIX
+const ossPrefix = process.env.assetsPublicPath
 export default {
   components: {
     Hamburger,
@@ -364,7 +364,7 @@ export default {
     ]),
     avatarUrl: {
       get () {
-        return this.userInfo.faceImgURL || ossPrefix + '/static/img/logo.png'
+        return this.userInfo.faceImgURL || ossPrefix + 'static/img/logo.png'
       },
       set () {
         return this.userInfo.faceImgURL || ''

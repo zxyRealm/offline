@@ -214,7 +214,7 @@ import {
 } from '../../api/visual'
 import {parseTime} from '../../utils'
 import CountTo from 'vue-count-to'
-const ossPrefix = process.env.OSS_PREFIX
+const ossPrefix = process.env.assetsPublicPath
 export default {
   name: 'GeneralMap',
   components: {
@@ -227,7 +227,7 @@ export default {
       routerList: [
         {
           name: '总',
-          path: ossPrefix + '/static/html/new_home.html?timestamp = ' + Number(new Date()),
+          path: ossPrefix + 'static/html/new_home.html?timestamp = ' + Number(new Date()),
           id: 'threeFrame',
           floor: 0
         }
@@ -254,7 +254,7 @@ export default {
         minus: 0
       },
       frame: {
-        path: ossPrefix + '/static/html/new_home.html?timestamp = ' + Number(new Date()),
+        path: ossPrefix + 'static/html/new_home.html?timestamp = ' + Number(new Date()),
         id: 'threeFrame'
       },
       statisticInfo: {
@@ -284,7 +284,7 @@ export default {
   computed: {
     ...mapState(['currentManage']),
     originSrc () {
-      return ossPrefix || '*'
+      return '*'
     }
   },
   methods: {
@@ -509,7 +509,7 @@ export default {
               name: floorInfo[i].name,
               id: imgUrl,
               floor: floor,
-              path: ossPrefix + '/static/html/plane.html?floor=' + imgUrl,
+              path: ossPrefix + 'static/html/plane.html?floor=' + imgUrl,
               groupSonGuid: floorInfo[i].groupSonGuid,
               groupParentGuid: floorInfo[i].groupParentGuid
             })
@@ -568,7 +568,7 @@ export default {
         case 'change-floor':
           this.floorArr.forEach((val, index) => {
             if (val.floor === data.params.floor) {
-              let path = ossPrefix + '/static/html/plane.html?floor=' + val.img_url
+              let path = ossPrefix + 'static/html/plane.html?floor=' + val.img_url
               let id = val.img_url
               let item = {
                 path: path,
@@ -646,7 +646,7 @@ export default {
             this.singleStoreInfo.deviceInfoArr = res.data
             this.$emit('updateCommunity', this.singleStoreInfo)
             this.frame = {
-              path: ossPrefix + '/static/html/single_store.html?timestamp = ' + Number(new Date()),
+              path: ossPrefix + 'static/html/single_store.html?timestamp = ' + Number(new Date()),
               id: 'threeFrame'
             }
             this.singleStoreTrig = true
@@ -704,14 +704,14 @@ export default {
           this.routerList.push({
             id: res.data[0].subGroupSon[i].mapUrl,
             name: res.data[0].subGroupSon[i].name,
-            path: ossPrefix + '/static/html/single_plane_map.html?t=' + res.data[0].subGroupSon[i].mapUrl,
+            path: ossPrefix + 'static/html/single_plane_map.html?t=' + res.data[0].subGroupSon[i].mapUrl,
             floor: res.data[0].subGroupSon[i].floor,
             groupSonGuid: res.data[0].subGroupSon[i].groupSonGuid,
             groupParentGuid: res.data[0].subGroupSon[i].groupParentGuid
           })
           this.floorArr.push({
             // img_url: res.data[0].subGroupSon[i].mapUrl,
-            img_url: '/static/html/chamahuajie_wudi.png',
+            img_url: ossPrefix + 'static/html/chamahuajie_wudi.png',
             floor: res.data[0].subGroupSon[i].floor,
             groupSonGuid: res.data[0].subGroupSon[i].groupSonGuid,
             groupParentGuid: res.data[0].subGroupSon[i].groupParentGuid
@@ -721,7 +721,7 @@ export default {
         var allInfo = res.data[0]
         this.community.index = 0
         this.frame = {
-          path: ossPrefix + '/static/html/single_plane_map.html?t=' + res.data[0].subGroupSon[0].mapUrl,
+          path: ossPrefix + 'static/html/single_plane_map.html?t=' + res.data[0].subGroupSon[0].mapUrl,
           id: res.data[0].subGroupSon[0].mapUrl
         }
         this.getLatestFace(this.routerList[0].groupParentGuid, this.routerList[0].groupSonGuid)
@@ -802,13 +802,13 @@ export default {
         if (Object.keys(val).length) {
           if (val.type !== 3) {
             this.routerList = [
-              {name: '总', path: ossPrefix + '/static/html/new_home.html', id: 'threeFrame'}
+              {name: '总', path: ossPrefix + 'static/html/new_home.html', id: 'threeFrame'}
             ]
             this.floorArr = []
             this.singleStoreTrig = false
             this.frame = {
               path:
-              ossPrefix + '/static/html/new_home.html?timestamp = ' + Number(new Date()),
+              ossPrefix + 'static/html/new_home.html?timestamp = ' + Number(new Date()),
               id: 'threeFrame'
             }
             this.getCommunityInfo(val)
