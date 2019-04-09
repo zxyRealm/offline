@@ -60,6 +60,9 @@ const homePage = () => import('@/views/index/three')
 // 系统通知
 const homeNotify = () => import('@/views/index/notify/index')
 
+// tree component test page
+const treeTest = () => import('@/views/community/test-tree')
+
 // 404 page
 const error404 = () => import('@/views/errorPage/404')
 
@@ -168,14 +171,6 @@ export const constantRouterMap = [
         },
         component: CommunityCreate
       },
-      // {
-      //   path: 'create/market-map',
-      //   name: 'createMarketMap',
-      //   meta: {
-      //     title: '添加地图-线下浏览器服务平台', auth: true
-      //   },
-      //   component: CommunityMap
-      // },
       {
         path: 'edit/market',
         name: 'editMarket',
@@ -184,7 +179,6 @@ export const constantRouterMap = [
         },
         component: CommunityCreate
       },
-
       {
         path: 'edit/chain',
         name: 'editChain',
@@ -205,7 +199,6 @@ export const constantRouterMap = [
   },
   // 设备管理
   {path: '/equipment', redirect: '/equipment/list'},
-  // {path: '/equipment/list', redirect: '/equipment/list/aio'},
   {
     path: '/equipment',
     component: Layout,
@@ -221,45 +214,6 @@ export const constantRouterMap = [
           keepAlive: true
         },
         component: EquipmentList
-        // children: [
-        //   {
-        //     path: 'aio',
-        //     name: 'equipmentAio',
-        //     meta: {
-        //       title: '设备管理-线下浏览器服务平台',
-        //       keepAlive: true
-        //     },
-        //     component: EquipmentAio
-        //   },
-        //   {
-        //     path: 'camera',
-        //     name: 'equipmentCamera',
-        //     meta: {
-        //       title: '设备管理-线下浏览器服务平台',
-        //       keepAlive: true
-        //     },
-        //     component: EquipmentCamera
-        //   },
-        //   {
-        //     path: 'server',
-        //     name: 'equipmentServer',
-        //     meta: {
-        //       title: '设备管理-线下浏览器服务平台',
-        //       keepAlive: true
-        //     },
-        //     component: EquipmentServer
-        //   },
-        //   {
-        //     path: '/equipment/portal',
-        //     name: 'equipmentPortal',
-        //     meta: {
-        //       title: '设备管理-线下浏览器服务平台',
-        //       auth: true,
-        //       keepAlive: false
-        //     },
-        //     component: EquipmentPortal
-        //   }
-        // ]
       }
     ]
   },
