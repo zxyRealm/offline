@@ -1,4 +1,4 @@
-const ossPrefix = process.env.assetsPublicPath
+const ossPrefix = process.env.BASE_URL
 const getters = {
   sidebar: state => state.app.sidebar,
   device: state => state.app.device,

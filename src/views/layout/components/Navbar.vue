@@ -248,7 +248,7 @@ import AreaSelect from '@/components/area-select/area-select'
 import FloorSelect from '@/components/FloorSelect'
 import ButtonSelect from '@/components/button-select'
 import ButtonSelectItem from '@/components/button-select/button-select-item'
-const ossPrefix = process.env.assetsPublicPath
+const ossPrefix = process.env.BASE_URL
 export default {
   components: {
     Hamburger,
@@ -786,7 +786,7 @@ export default {
     border-radius: 0 !important;
     border: none !important;
     color: #fff;
-    background-image: url(/static/img/main_bg_icon.png);
+    background-image: url(../../../assets/public/main_bg_icon.png);
     .logo-wrap {
       float: left;
       width: 220px;

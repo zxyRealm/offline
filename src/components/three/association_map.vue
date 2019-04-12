@@ -99,7 +99,7 @@ import {GetGroupPortalInfo, GetPortalDeviceList, PortalUnbindDevice, PortalBatch
 import {GetGroupDevice} from '../../api/device'
 import {validateRule} from '../../utils/validate'
 import SwitchBar from '../../components/SwitchBar'
-const ossPrefix = process.env.assetsPublicPath
+const ossPrefix = process.env.BASE_URL
 export default {
   name: 'association_map',
   mixins: [Mixins],

@@ -19,7 +19,7 @@ import { GetTrace, GetElevatorListByGroupGuid } from '@/api/behavior'
 import { GetMarketList } from '@/api/community'
 import { mapState } from 'vuex'
 import { eventObject } from '../../utils/event'
-const ossPrefix = process.env.assetsPublicPath
+const ossPrefix = process.env.BASE_URL
 export default {
   name: 'TrailMap',
   props: {

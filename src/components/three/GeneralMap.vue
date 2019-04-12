@@ -214,7 +214,7 @@ import {
 } from '../../api/visual'
 import {parseTime} from '../../utils'
 import CountTo from 'vue-count-to'
-const ossPrefix = process.env.assetsPublicPath
+const ossPrefix = process.env.BASE_URL
 export default {
   name: 'GeneralMap',
   components: {

@@ -553,9 +553,9 @@
     var cameraList = '';
     for(var i = 0, len = data.list.length; i < len; i++){
       cameraList += '<li>' +
-        '<img src="/static/floor/camera1.png" width="11">' +
+        '<img src="/public/static/floor/camera1.png" width="11">' +
         '<span class="ellipsis">' + data.list[i].name + '</span>' +
-        '<img class="delete--icon" style="display:'+ (communityData.self ? 'block': 'none') + '}" src="/static/img/close_icon.png" data-type="delete" data-index="'+ i + '" alt="">' +
+        '<img class="delete--icon" style="display:'+ (communityData.self ? 'block': 'none') + '}" src="/public/static/img/close_icon.png" data-type="delete" data-index="'+ i + '" alt="">' +
         '</li>'
     }
     if (!data.list.length) cameraList = '<li class="text-center">暂无设备</li>'

@@ -1,6 +1,5 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import promise from 'es6-promise'
 import Vue from 'vue'
 // App 在UI库css 后引用可以避免生产环境与开发环境中样式不一致的问题
 // 引用顺序决定打包后css 顺序
@@ -24,10 +23,10 @@ import ImagePreview from '@/components/preview'
 import * as filters from './filters'
 import directives from './directives/index'
 import echarts from 'echarts'
-promise.polyfill() // 使Axios兼容ie9
+import Global from './utils/global'
 Vue.prototype.$echarts = echarts
 
-Vue.use(require('./utils/global'))
+Vue.use(Global)
 Vue.use(require('vue-wechat-title'))
 Vue.use(Element, {
   size: 'small'
@@ -53,9 +52,7 @@ Object.keys(directives).forEach(key => {
 Vue.config.productionTip = false
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
   router,
   store,
-  components: {App},
-  template: '<App/>'
-})
+  render: h => h(App)
+}).$mount('#app')

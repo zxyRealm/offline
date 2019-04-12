@@ -5,7 +5,7 @@
 </template>
 
 <script>
-const ossPrefix = process.env.assetsPublicPath
+const ossPrefix = process.env.BASE_URL
 export default {
   name: 'bind_community',
   props: {

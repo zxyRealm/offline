@@ -3,16 +3,17 @@ import Router from 'vue-router'
 import request from '@/utils/request'
 
 const Layout = () => import('@/views/layout/Layout.vue')
+
 // 社群管理
 const Community = () => import('@/views/community/mine.vue')
 
 // 设备管理
-
 const EquipmentList = () => import('@/views/equipment/list.vue')
 const EquipmentAio = () => import('@/views/equipment/aio.vue')
 const EquipmentServer = () => import('@/views/equipment/server.vue')
 const EquipmentPortal = () => import('@/views/equipment/portal.vue')
 const EquipmentCamera = () => import('@/views/equipment/camera.vue')
+
 // 人员管理
 const Member = () => import('@/views/member/index.vue')
 const Library = () => import('@/views/member/library.vue')
@@ -20,11 +21,13 @@ const Person = () => import('@/views/member/person.vue')
 const Details = () => import('@/views/member/details.vue')
 
 // 行为分析
-const Behavior = () => import('@/views/Behavior/index.vue')
-const BehaviorAnalyse = () => import('@/views/Behavior/analyse.vue')
-const BehaviorTrail = () => import('@/views/Behavior/trail.vue')
+const Behavior = () => import('@/views/behavior/index.vue')
+const BehaviorAnalyse = () => import('@/views/behavior/analyse.vue')
+const BehaviorTrail = () => import('@/views/behavior/trail.vue')
+
 // 开发者中心
 const Developer = () => import('@/views/developer/index.vue')
+
 // 消息通知
 const notifyCallback = () => import('@/views/developer/notify/add-info')
 const sysNotify = () => import('@/views/developer/notify/index')
@@ -35,7 +38,6 @@ const apiCommon = () => import('@/views/developer/api/common.vue')
 const apiFlow = () => import('@/views/developer/api/flow.vue')
 const apiCommunity = () => import('@/views/developer/api/community.vue')
 const apiAuth = () => import('@/views/developer/api/auth.vue')
-
 const paramExplain = () => import('@/views/developer/notify/explain.vue')
 
 /* 数据可视化的路由 */
@@ -47,6 +49,7 @@ const shopFrequencyAnalysis = () => import('@/views/data/shop-frequency-analysis
 
 /** 控制台 **/
 const consoleIndex = () => import('@/views/console/index.vue')
+
 // 转换svg文件模板
 const transformSvg = () => import('@/views/three/transform-svg.vue')
 
@@ -55,7 +58,9 @@ const homePage = () => import('@/views/index/three')
 // 系统通知
 const homeNotify = () => import('@/views/index/notify/index')
 
+// 404 page
 const error404 = () => import('@/views/errorPage/404')
+
 Vue.use(Router)
 export const constantRouterMap = [
   {

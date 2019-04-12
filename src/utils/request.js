@@ -1,8 +1,7 @@
 import axios from 'axios'
 import { Message, Loading, MessageBox } from 'element-ui'
-import router from '@/router'
 import Store from '@/store'
-const ossPrefix = process.env.assetsPublicPath
+const ossPrefix = process.env.BASE_URL
 // 加载层
 export function load (text, target) {
   // target 必须用id
@@ -81,7 +80,7 @@ export function message (txt, type, delay = 1500) {
 
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.BASE_API, // api的base_url
+  baseURL: process.env.VUE_APP_BASE_API, // api的base_api
   // timeout: 5000, // request timeout
   method: 'POST'
 })
