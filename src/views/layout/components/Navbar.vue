@@ -235,9 +235,7 @@
 <script>
 import {mapGetters, mapState} from 'vuex'
 import Hamburger from '@/components/Hamburger'
-import Group from '@/components/group-nav'
 import {eventObject} from '@/utils/event.js'
-import ConsoleDialog from '@/components/console'
 import {GetManageList, OssSignature, FirstLogin, NoticeReadState} from '../../../api/common'
 import {CheckNameExist, AddNewCommunity} from '../../../api/community'
 import {validateRule, validPhone} from '../../../utils/validate'
@@ -252,8 +250,6 @@ const ossPrefix = process.env.BASE_URL
 export default {
   components: {
     Hamburger,
-    Group,
-    ConsoleDialog,
     AreaSelect,
     FloorSelect,
     ButtonSelect,
@@ -401,7 +397,7 @@ export default {
       },
       deep: true
     },
-    $route (to, from) {
+    $route (to) {
       if (to.path === '/console') this.selectName = '请选择您的社群'
       if (to.path.indexOf('index/notify') > -1) this.notifyToggle()
       if (!this.manageList.length) {
@@ -497,19 +493,7 @@ export default {
               return
             }
           }
-          // let nameList = []
-          // for (let k = 0, len = this.fileList.length; k < len; k++) {
-          //   nameList.push(this.fileList[k].name.substring(0, this.fileList[k].name.lastIndexOf('.')))
-          // }
-          // let nameSet = new Set(nameList.map(Number))
-          // for (let k = 0, len = this.communityForm.floorList.length; k < len; k++) {
-          //   if (!nameSet.has(k + 1)) {
-          //     this.$tip(`缺少${this.communityForm.floorList[k]}楼层地图`, 'error', 5000)
-          //     return
-          //   }
-          // }
           this.httpRequest()
-        } else {
         }
       })
     },
@@ -627,7 +611,6 @@ export default {
     enterFullScreen () {
       let el = document.documentElement
       let rfs = el.requestFullScreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen
-      // console.log('enter full------', rfs)
       if (rfs) { // typeof rfs != "undefined" && rfs
         rfs.call(el)
       } else if (typeof window.ActiveXObject !== 'undefined') {
