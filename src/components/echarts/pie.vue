@@ -1,6 +1,5 @@
 <template>
   <div id="echarts-pie" class="pie-wrap pie-console" :class="pieParams.type===3 ? '':'pie-wrap-circle'">
-    <!--:class="pieParams.type!=3 ? 'pie-wing':''"-->
   </div>
 </template>
 <script>
@@ -260,7 +259,7 @@ export default {
     ...mapState(['filterParams', 'currentManage'])
   },
   watch: {
-    pieParams (val, oldVal) {
+    pieParams () {
       this.showAgeData()
       return true
     }

@@ -87,7 +87,7 @@ export default {
     // 处理回调信息 根据路由名称确定当前是更新信息或创建信息
     handelCallbackInfo (data) {
       const type = this.$route.name === 'addNotifyCallback' ? 'create' : 'update'
-      HandleNotice(data, type).then(res => {
+      HandleNotice(data, type).then(() => {
         this.$tip('操作成功')
         this.$router.push('/developer/notify')
       })

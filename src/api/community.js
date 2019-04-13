@@ -29,7 +29,7 @@ export function CheckMemberNickNameExist (data) {
 }
 
 // 社群业态
-export function GetIndustry (data) {
+export function GetIndustry () {
   return request({
     url: '/dictionary/type',
     data: {type: 'industry'}

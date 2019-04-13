@@ -377,7 +377,7 @@ export default {
           let subData = JSON.parse(JSON.stringify(this.addCameraForm))
           subData.serverKey = this.$route.query.server_key
           subData.groupGuid = this.currentManage.id
-          AddCamera(subData).then(res => {
+          AddCamera(subData).then(() => {
             this.$tip('添加成功')
             this.addCameraVisible = false
             eventObject().$emit('REFRESH_DEVICE_LIST')
@@ -391,7 +391,7 @@ export default {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.addServerForm))
           subData.groupGuid = this.currentManage.id
-          AddDevice(subData).then(res => {
+          AddDevice(subData).then(() => {
             this.$tip('添加成功')
             this.addServerVisible = false
             eventObject().$emit('REFRESH_DEVICE_LIST')

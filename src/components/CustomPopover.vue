@@ -22,8 +22,8 @@ export default {
       type: String,
       default: 'middle'
     },
-    text: '',
-    content: '',
+    text: String,
+    content: String,
     width: {
       type: String,
       default: 'auto'
@@ -43,7 +43,7 @@ export default {
       get () {
         return this.showPopover
       },
-      set (val) {
+      set () {
       }
     }
   },

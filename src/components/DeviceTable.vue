@@ -126,7 +126,6 @@
 import {validateRule} from '@/utils/validate'
 import {ChangeDeviceAlias, DeviceAliasExist, UpdateCameraName, CheckCameraName, DeleteCameraBatch, DeleteDevice, GetDeviceState, DeviceHandleUrl, DeviceUpgrade, GetDeviceVersion} from '../api/device'
 import {mapState} from 'vuex'
-import {fileTypeAllow} from '../utils'
 
 export default {
   name: 'device-table',
@@ -246,13 +245,13 @@ export default {
           // ChangeDeviceAlias(this.equipmentForm).then()
           if (subData.type === 4 || subData.type === 5) {
             subData.name = this.equipmentForm.deviceName
-            UpdateCameraName(subData).then(res => {
+            UpdateCameraName(subData).then(() => {
               this.$tip('修改成功')
               this.$set(this.data[index], 'popover', false)
               this.data[index].name = this.equipmentForm.deviceName
             })
           } else {
-            ChangeDeviceAlias(this.equipmentForm).then(res => {
+            ChangeDeviceAlias(this.equipmentForm).then(() => {
               this.$tip('修改成功')
               this.$set(this.data[index], 'popover', false)
               this.data[index].name = this.equipmentForm.deviceName
@@ -287,8 +286,6 @@ export default {
         this.$set(value, 'deviceStatus', res.data)
       }).catch(error => {
         console.log(error)
-        if (error.code) {
-        }
       })
     },
     // 设备状态class
@@ -477,7 +474,7 @@ export default {
               if (type === 'run') subData.operationCode = value.deviceStatus === 5 ? 0 : 1
               // 升级时单独处理
               this.$load(`正在${des}中...`)
-              DeviceHandleUrl(url, subData).then(res => {
+              DeviceHandleUrl(url, subData).then(() => {
                 this.$load().close()
                 switch (type) {
                   case 'reboot':
@@ -524,12 +521,12 @@ export default {
         }, (action, instance, done) => {
           if (action === 'confirm') {
             if (item.type === 4 || item.type === 5) {
-              DeleteCameraBatch([item.deviceKey]).then(res => {
+              DeleteCameraBatch([item.deviceKey]).then(() => {
                 this.$tip('删除成功')
                 this.$emit('refresh')
               })
             } else {
-              DeleteDevice({deviceKey: item.deviceKey}).then(res => {
+              DeleteDevice({deviceKey: item.deviceKey}).then(() => {
                 this.$tip('删除成功')
                 this.$emit('refresh')
               })
@@ -542,7 +539,7 @@ export default {
       )
     },
     deviceUpdate () {
-      DeviceUpgrade({deviceKey: this.currentDevice.deviceKey}).then(res => {
+      DeviceUpgrade({deviceKey: this.currentDevice.deviceKey}).then(() => {
         this.$set(this.currentDevice, 'deviceStatus', 4)
         this.deviceUpdateVisible = false
       })

@@ -31,7 +31,6 @@ Vue.use(require('vue-wechat-title'))
 Vue.use(Element, {
   size: 'small'
 })
-
 Vue.component(icons.name, icons)
 Vue.component(subTab.name, subTab)
 Vue.component(uuForm.name, uuForm)

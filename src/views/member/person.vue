@@ -303,7 +303,7 @@ export default {
       this.hover = e
     },
     // hover事件复位
-    operationHide (e) {
+    operationHide () {
       this.hover = ''
     },
     // 列表恢复状态
@@ -321,7 +321,7 @@ export default {
         memberLibraryGuid: this.$route.query.guid,
         memberTypeList: this.issuesList
       }
-      MemberTypeOperate(data).then(res => {
+      MemberTypeOperate(data).then(() => {
         this.recoverState()
       })
     },

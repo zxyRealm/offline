@@ -7,12 +7,8 @@
 </template>
 
 <script>
-import subItem from './sub-item'
 
 export default {
-  components: {
-    'ob-list-sub-item': subItem
-  },
   name: 'ob-list',
   props: {
     data: {

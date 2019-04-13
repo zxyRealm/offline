@@ -28,11 +28,6 @@ export default {
       let now = new Date()
       let hh = now.getHours() // 时
       let mm = now.getMinutes() // 分
-      let clock = ''
-      if (hh < 10) clock += '0'
-      clock += hh + ':'
-      if (mm < 10) clock += '0'
-      clock += mm
       this.dd = Math.floor(hh / 10)
       this.d = hh % 10
       this.tt = Math.floor(mm / 10)
@@ -55,7 +50,7 @@ export default {
     this.setTime()
   },
   watch: {
-    dd (val, oldVal) {
+    dd () {
       this.$refs.dd.classList.add('animation-lwh-show')
       let timer = window.setTimeout(() => {
         if (!this.$refs.dd) return
@@ -63,7 +58,7 @@ export default {
         window.clearTimeout(timer)
       }, 6000)
     },
-    d (val, oldVal) {
+    d () {
       this.$refs.d.classList.add('animation-lwh-show')
       let timer = window.setTimeout(() => {
         if (!this.$refs.d) return
@@ -71,7 +66,7 @@ export default {
         window.clearTimeout(timer)
       }, 6000)
     },
-    tt (val, oldVal) {
+    tt () {
       this.$refs.tt.classList.add('animation-lwh-show')
       let timer = window.setTimeout(() => {
         if (!this.$refs.tt) return
@@ -79,7 +74,7 @@ export default {
         window.clearTimeout(timer)
       }, 6000)
     },
-    t (val, oldVal) {
+    t () {
       this.$refs.t.classList.add('animation-lwh-show')
       let timer = window.setTimeout(() => {
         if (!this.$refs.t) return

@@ -46,7 +46,6 @@
 <script>
 import {validateRule} from '@/utils/validate'
 import {mapState} from 'vuex'
-import {MemberNoFloor} from '../../api/community'
 import {MemberLibraryUpdate, MemberLibraryCreate, MemberLibraryFind, MemberLibraryNameExist} from '../../api/member'
 
 export default {
@@ -102,11 +101,11 @@ export default {
         groupGuid: this.currentManage.id
       }
       if (this.$route.query.guid) {
-        MemberLibraryUpdate(data).then(res => {
+        MemberLibraryUpdate(data).then(() => {
           this.$router.go(-1)
         })
       } else {
-        MemberLibraryCreate(data).then(res => {
+        MemberLibraryCreate(data).then(() => {
           this.$router.go(-1)
         })
       }

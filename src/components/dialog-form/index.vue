@@ -64,8 +64,6 @@
 </template>
 <script>
 import Group from '@/components/group-nav'
-import {uniqueKey} from '@/utils'
-import {validateRule} from '@/utils/validate'
 
 export default {
   components: {

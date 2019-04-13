@@ -155,7 +155,7 @@
 
 <script>
 import {MemberNoFloor} from '../../api/community'
-import {GetAllAioList, GetAllCameraList, GetGroupAioList, GetGroupCameraList} from '../../api/device'
+import {GetGroupAioList, GetGroupCameraList} from '../../api/device'
 import {GetBehaviorList} from '../../api/behavior'
 
 import {mapState} from 'vuex'
@@ -300,14 +300,14 @@ export default {
   },
   watch: {
     currentManage: {
-      handler (val) {
+      handler () {
         this.getGroupList()
         this.getBehaviorList()
       },
       deep: true
     },
     filter: {
-      handler (val) {
+      handler () {
         this.getBehaviorList(1)
       },
       deep: true

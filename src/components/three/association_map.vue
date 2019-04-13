@@ -127,7 +127,6 @@ export default {
           if (this.handleDialogType === 2 && this.handlePortalForm.originName === value) {
             callback(new Error('该名称已存在'))
           } else {
-            // console.log('currentFloor', this.currentFloor)
             CheckPortalNameExist({name: value, groupGuid: this.currentManage.id, groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
               !res.data ? callback() : callback(new Error('该名称已存在'))
             }).catch(err => {
@@ -270,6 +269,7 @@ export default {
     // 处理iframe传递出来的事件
     handleEvent (event) {
       let data = event.data instanceof Object ? event.data : JSON.parse(event.data || '{}')
+      let copy
       switch (data.type) {
         case 'LOAD_SVG_PATH': // 渲染地图
           this.loadIframeSvg()
@@ -289,7 +289,7 @@ export default {
         case 'EDIT_PORTAL_CLICK': // 编辑出入口信息
           this.handleDialogType = 2
           this.handlePortalVisible = true
-          let copy = JSON.parse(JSON.stringify(data.data))
+          copy = JSON.parse(JSON.stringify(data.data))
           copy.originName = JSON.parse(JSON.stringify(copy.name || ''))
           this.handlePortalForm = copy
           break
@@ -310,7 +310,6 @@ export default {
         GetGroupPortalInfo({groupSonId: this.data.coordinates ? this.data.guid : this.currentFloor.groupSonGuid || this.data.id}).then(res => {
           res.data.map(item => {
             this.iframeObj.postMessage({type: 'IFRAME_CREATE_SPRITE', data: item}, this.originSrc)
-            // this.iframeObj.createSprite(item)
           })
         })
       }
@@ -321,7 +320,6 @@ export default {
       this.$set(this.deviceInfo, 'list', [])
       GetPortalDeviceList({portalGuid: data.guid}).then(res => {
         this.$set(this.deviceInfo, 'list', res.data || [])
-        // this.iframeObj.createDeviceList(this.deviceInfo)
         this.iframeObj.postMessage({type: 'IFRAME_CREATE_DEVICE', data: this.deviceInfo}, this.originSrc)
       })
     },
@@ -344,7 +342,7 @@ export default {
           portalGuid: this.currentPortal.guid
         }
       })
-      PortalBatchBindDevice({deviceGroupPortalReqs: arr}).then(res => {
+      PortalBatchBindDevice({deviceGroupPortalReqs: arr}).then(() => {
         this.$tip('添加成功')
         this.AddDeviceVisible = false
         this.getPortalCameraCount()
@@ -359,7 +357,7 @@ export default {
         text: '删除关系后，该出入口下将不包含该设备'
       }, (action, instance, done) => {
         if (action === 'confirm') {
-          PortalUnbindDevice({deviceKey: this.deviceInfo.list[data.index].deviceKey, portalGuid: data.detail.guid}).then(res => {
+          PortalUnbindDevice({deviceKey: this.deviceInfo.list[data.index].deviceKey, portalGuid: data.detail.guid}).then(() => {
             this.$tip('删除成功')
             this.getPortalCameraCount()
             this.getDeviceList(data.detail)
@@ -399,7 +397,7 @@ export default {
     deletePortal (data) {
       this.$affirm({text: `删除出入口后，出入口与设备之间的绑定关系也会被删除`, title: '删除出入口', confirm: '删除'}, (action, instance, done) => {
         if (action === 'confirm') {
-          DeletePortal({portalGuid: data.guid}).then(res => {
+          DeletePortal({portalGuid: data.guid}).then(() => {
             this.$tip('删除成功')
             this.initFloor()
           })
@@ -431,13 +429,13 @@ export default {
             /* 商场楼层 主出入口 1 其他出入口 2 成员、门店出入口 3
             * */
             if (this.data.coordinates || this.data.type === 4) subData.type = 3
-            CreatePortal(subData).then(res => {
+            CreatePortal(subData).then(() => {
               this.$tip('添加成功')
               this.handlePortalVisible = false
               this.initFloor()
             })
           } else { // 编辑出入口
-            EditPortal(subData).then(res => {
+            EditPortal(subData).then(() => {
               this.$tip('保存成功')
               this.handlePortalVisible = false
               this.initFloor()
@@ -463,7 +461,7 @@ export default {
       deep: true
     },
     currentManage: {
-      handler (val) {
+      handler () {
         this.manageRefresh = true
       },
       deep: true

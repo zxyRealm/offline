@@ -176,12 +176,6 @@ export default {
     search () {
       this.$emit('remote-search', this.filterText)
     },
-    loadNodeList (node, resolve) {
-      if (node.level > 1) {
-      } else {
-        resolve([])
-      }
-    },
     /*
     * 节点被点击时的回调
     * multiple 是否多选
@@ -265,7 +259,6 @@ export default {
       if (!this.multiple) {
         this.$refs.GroupTree.setCheckedNodes([nodes])
       }
-      // this.$emit('current-change', nodes)
     },
     // 获取已选中对象 键值数组
     getCheckedKeys () {
@@ -311,7 +304,7 @@ export default {
     currentKey: function (key) {
       this.setCurrentKey(key)
     },
-    TreeList (val) {
+    TreeList () {
       if (this.type === 'device') {
         this.setCurrentKey(this.select.currentNode ? this.select.currentNode.uniqueKey : '')
       }

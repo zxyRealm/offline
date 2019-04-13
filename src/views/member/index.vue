@@ -65,7 +65,6 @@
             label="操作">
             <template slot-scope="scope">
               <router-link class="fl" :to="{name: 'Library', query: {guid: scope.row.guid}}">编辑</router-link>
-              <!--<div class="fl hand edit" @click="editNew(scope.row.guid)">编辑</div>-->
               <div class="fl hand manage" @click="goDetails(scope.row.guid)">人员管理</div>
               <div class="fl hand del" @click="del(scope.row.guid)">删除</div>
             </template>
@@ -99,7 +98,7 @@
 import {validateRule} from '@/utils/validate'
 import {MemberNoFloor} from '../../api/community'
 import {IsManageGroup, FirstLogin} from '../../api/common'
-import {MemberLibraryUpdate, MemberLibrarySearch, MemberLibraryDelete, MemberLibraryList, MemberLibraryNameExist} from '../../api/member'
+import {MemberLibraryUpdate, MemberLibraryDelete, MemberLibraryList, MemberLibraryNameExist} from '../../api/member'
 import {mapState} from 'vuex'
 export default {
   name: 'index',
@@ -204,10 +203,6 @@ export default {
         }
       })
     },
-    // 编辑库
-    editNew (e) {
-      // this.$router.push({path: '/member/library', query: {guid: e}})
-    },
     // 删除库
     del (e) {
       let data = {
@@ -219,7 +214,7 @@ export default {
         text: '确定删除该人员库信息？'
       }, (action, instance, done) => {
         if (action === 'confirm') {
-          MemberLibraryDelete(data).then(res => {
+          MemberLibraryDelete(data).then(() => {
             this.getList()
             done()
           })
@@ -240,7 +235,7 @@ export default {
       }
       this.$refs['tableForm' + index].validate((valid) => {
         if (valid) {
-          MemberLibraryUpdate(data).then(res => {
+          MemberLibraryUpdate(data).then(() => {
             this.getList()
             this.removeState()
           })
@@ -295,7 +290,7 @@ export default {
         name: this.sendData.name,
         groupGuid: gid
       }
-      MemberLibraryUpdate(send).then(res => {
+      MemberLibraryUpdate(send).then(() => {
         this.getList()
         this.dialogFormVisible = false
       })
@@ -309,7 +304,7 @@ export default {
   },
   watch: {
     currentManage: {
-      handler (val) {
+      handler () {
         this.getList()
       },
       deep: true

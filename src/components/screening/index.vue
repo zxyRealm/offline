@@ -79,7 +79,6 @@
 
 <script>
 import {eventObject} from '@/utils/event.js'
-import {parseTime} from '@/utils/index'
 import {MemberNoFloor, GetStoreList} from '../../api/community'
 import {mapState} from 'vuex'
 import Moment from 'moment'
@@ -213,7 +212,7 @@ export default {
   },
   watch: {
     currentManage: {
-      handler (val) {
+      handler () {
         this.getGroupList()
       },
       deep: true

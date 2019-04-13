@@ -29,13 +29,9 @@
 </template>
 
 <script>
-import ButtonSelectItem from './button-select-item'
 export default {
   name: 'ButtonSelect',
   componentName: 'ButtonSelect',
-  components: {
-    ButtonSelectItem
-  },
   provide () {
     return {
       'select': this

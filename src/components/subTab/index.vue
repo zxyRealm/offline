@@ -164,7 +164,7 @@ export default {
   },
   watch: {
     $route: {
-      handler (val) {
+      handler () {
         this.iframeCount = 0
       },
       deep: true

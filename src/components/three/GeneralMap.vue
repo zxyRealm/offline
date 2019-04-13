@@ -204,7 +204,6 @@ import {mapState} from 'vuex'
 import {
   GetMarketList,
   GetGroupPortalInfo,
-  GetMemberDetail,
   GetPortalDeviceList,
   GetStoreList
 } from '../../api/community'
@@ -299,19 +298,6 @@ export default {
           this.getLatestFace(item.groupParentGuid, item.groupSonGuid)
           if (this.currentManage.type === 3) {
             this.currentSingleStoreInfo = item
-            // this.community.infoArr.forEach((val) => {
-            //   if (val.floor === item.floor) {
-            //     this.iframe.postMessage({
-            //       type: 'SET_SINGLE_STORE_INFO',
-            //       floorInfo: [val]
-            //     }, this.originSrc)
-            //   }
-            // })
-            // this.iframe.postMessage({
-            //   type: 'SET_SINGLE_STORE_INFO',
-            //   floorInfo: [val]
-            // }, this.originSrc)
-          } else {
           }
         }
       })
@@ -327,7 +313,7 @@ export default {
         let data = {}
         let wsServer = `ws://${res.data}/websocket/${groupSonGuid}_${groupParentGuid}` // 服务器地址
         this.websocket = new WebSocket(wsServer)
-        this.websocket.onopen = function (evt) {
+        this.websocket.onopen = function () {
           // 已经建立连接
           _this.websocket.send(`${groupSonGuid}_${groupParentGuid}_channel`) // 向服务器发送消息
           console.info('已经连接')
@@ -352,12 +338,13 @@ export default {
                 break
             }
           } catch (err) {
+            console.error(err)
           }
         }
-        this.websocket.onclose = function (evt) {
+        this.websocket.onclose = function () {
           console.info('已经关闭连接')
         }
-        this.websocket.onerror = function (evt) {
+        this.websocket.onerror = function () {
           console.info('产生异常')
         }
       })

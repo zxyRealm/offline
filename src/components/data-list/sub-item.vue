@@ -2,13 +2,15 @@
   <td :width="width" :style="styles" class="ob-list-sub-item">
     <div class="sub-item__inner">
       <template>
-        <p v-if="!router" v-for="(item,$index) in propList" :key="$index">
-          <span class="label__title">{{labelList[$index]?labelList[$index]+'：':''}}</span>
-          <el-tooltip v-if="tooltip" :content="format(data[item])" placement="top">
-            <span class="ellipsis">{{format(data[item])}}</span>
-          </el-tooltip>
-          <span v-else class="ellipsis">{{format(data[item])}}</span>
-        </p>
+        <template v-if="!router">
+          <p v-for="(item,$index) in propList" :key="$index">
+            <span class="label__title">{{labelList[$index]?labelList[$index]+'：':''}}</span>
+            <el-tooltip v-if="tooltip" :content="format(data[item])" placement="top">
+              <span class="ellipsis">{{format(data[item])}}</span>
+            </el-tooltip>
+            <span v-else class="ellipsis">{{format(data[item])}}</span>
+          </p>
+        </template>
         <p v-else>
           <span class="label__title">{{label}}</span><br>
           <router-link :to="router">

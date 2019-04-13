@@ -171,7 +171,7 @@ export default {
                 normal: {
                   show: false,
                   fontSize: 12,
-                  formatter: function (v) {
+                  formatter: function () {
                     return ''
                   }, // '{per|{d}%}',//'{d}%',  //显示百分比
                   position: 'outside'
@@ -316,13 +316,13 @@ export default {
   },
   watch: {
     data: {
-      handler (val) {
+      handler () {
         this.initData()
       },
       deep: true
     },
     currentManage: {
-      handler (val) {
+      handler () {
         this.initData()
       },
       deep: true

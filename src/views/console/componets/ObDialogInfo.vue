@@ -4,9 +4,11 @@
       <div class="ob-dialog-info-content vam" :class="type">
         <img :src="'data:image/jpg;base64,'+data.img" alt="访客图像">
         <div class="detail-info">
-          <p v-for="(item,$index) in info" :key="$index" v-if="$index!=='img'">
-            {{item}}
-          </p>
+          <template v-for="(item,$index) in info">
+            <p :key="$index" v-if="$index!=='img'">
+              {{item}}
+            </p>
+          </template>
         </div>
       </div>
       <div class="tac">
@@ -46,12 +48,6 @@ export default {
     },
     isShow (val) {
       this.$emit('update:visible', val)
-    },
-    data: {
-      handler (val) {
-        // console.log('new data',val)
-      },
-      deep: true
     }
   },
   computed: {

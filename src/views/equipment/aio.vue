@@ -39,7 +39,7 @@
 import {mapState} from 'vuex'
 import DeviceTable from '@/components/DeviceTable'
 import {eventObject} from '../../utils/event'
-import {GetOwnDeviceList, GetGroupDeviceList} from '../../api/device'
+import {GetGroupDeviceList} from '../../api/device'
 export default {
   name: 'index',
   components: {
@@ -59,7 +59,7 @@ export default {
   },
   methods: {
     // 自有设备搜索
-    search (val) {
+    search () {
       this.getAioEquipment()
     },
     sizeChange (size) {
@@ -101,7 +101,7 @@ export default {
   },
   watch: {
     currentManage: {
-      handler (val) {
+      handler () {
         this.getAioEquipment()
       },
       deep: true

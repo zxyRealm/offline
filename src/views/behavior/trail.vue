@@ -18,16 +18,16 @@
       <div class="ti-item ti-right">
         <p>Person ID：{{trailDetailInfo.personId}}</p>
         <p v-if="trailDetailInfo.lableList">
-          <span :key="$index" v-if="val" v-for="(val, $index) in trailDetailInfo.lableList">{{val}}</span>
+          <template v-for="(val, $index) in trailDetailInfo.lableList">
+            <span :key="$index" v-if="val">{{val}}</span>
+          </template>
         </p>
       </div>
     </div>
     <div class="trail__detail--wrap">
       <div class="td--left dashed--border">
         <div class="td__date--wrap">
-          <!--<i class="el-icon-arrow-left"></i>-->
           <span>{{spoorDate}}</span>
-          <!--<i class="el-icon-arrow-right"></i>-->
           <i class="el-icon-date fr"></i>
           <el-date-picker
             :clearable="false"
@@ -43,9 +43,7 @@
         <el-scrollbar>
           <div v-for="(item, $index) in currentTrailList" class="spoor-item" :key="$index">
             <div class="img-box">
-              <!--<img width="36" @click="showImage(item)" :src="item.cropImg" alt="">-->
               <image-box width="36px" @click.native="showImage(item)" height="54px" :src="item.cropImg || item.imageUrl"></image-box>
-              <!--<img width="36" :src="item.imageUrl" alt="">-->
             </div>
             <div class="item--info">
               <p
@@ -73,7 +71,6 @@
 import {parseTime} from '../../utils'
 import {GetPersonTrail} from '../../api/behavior'
 import TrailMap from '../../components/three/trail_map'
-import {eventObject} from '../../utils/event'
 import {mapState} from 'vuex'
 export default {
   name: 'trail',
@@ -180,7 +177,7 @@ export default {
   },
   watch: {
     currentManage: {
-      handler (val) {
+      handler () {
         this.$router.push('/behavior/analyse')
       },
       deep: true
@@ -206,7 +203,7 @@ export default {
       deep: true
     },
     spoorDate: {
-      handler (val) {
+      handler () {
         this.backTrailList()
       },
       deep: true

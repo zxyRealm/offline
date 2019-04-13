@@ -74,11 +74,16 @@
                 </div>
               </div>
               <ul class="right__sidebar">
-                <li
-                  v-for="(item, $index) in rankData.industry"
-                  :key="$index"
-                  v-if="$index > 2 && $index < 10"
-                  class="sidebar--item"><span>{{$index + 1}}.{{item.industryName}}</span><span>{{item.percent}}</span> </li>
+                <template v-for="(item, $index) in rankData.industry">
+                  <li
+                    :key="$index"
+                    v-if="$index > 2 && $index < 10"
+                    class="sidebar--item">
+                    <span>{{$index + 1}}.{{item.industryName}}</span>
+                    <span>{{item.percent}}</span>
+                  </li>
+                </template>
+
               </ul>
             </div>
             <!--<chart-bar title="业态客流排行榜" width="100%" height="100%"></chart-bar>-->
@@ -279,19 +284,13 @@ export default {
             groupSonGuid: data.groupSonGuid,
             personCount: data.count,
             floor: data.floor,
-            coordinates: data.coordinates.replace(/[\[\]]/g, '')
+            coordinates: data.coordinates.replace(/\[\]/g, '')
           }
         }, '*')
       }
     }
   },
   watch: {
-    currentManage: {
-      handler (val) {
-        // this.initBaseData()
-      },
-      deep: true
-    }
   },
   beforeDestroy () {
     if (this.timer) {

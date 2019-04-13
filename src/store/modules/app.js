@@ -17,7 +17,7 @@ const app = {
     }
   },
   actions: {
-    DISPATCH_SIDEBAR ({commit, state}, data) {
+    DISPATCH_SIDEBAR ({commit}, data) {
       if (!data) {
         Cookies.set('sidebarStatus', 1)
       } else {

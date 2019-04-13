@@ -20,7 +20,7 @@ export default {
   },
   methods: {},
   watch: {
-    number (val, oldVal) {
+    number (val) {
       if (val == 0) return
       this.isShow = true
       setTimeout(() => {

@@ -1,6 +1,5 @@
 <template>
   <div class="common__image--box" @click="showImage" :style="{backgroundImage: `url(${src})`, height: height, width: width}">
-    <!--<image-preview :src="src" :visible.sync="visible"></image-preview>-->
   </div>
 </template>
 

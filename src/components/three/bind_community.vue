@@ -51,7 +51,6 @@ export default {
         this.setDefaultSelect()
       } else if (data.type === 'LOAD_SVG_BIND') {
         this.iframeObj.postMessage({type: 'BIND_LOAD_SVG', floor: this.currentFloor}, this.originSrc)
-        // this.iframeObj.loadSvg(this.currentFloor)
       }
     },
     // 设置默认选中区域
@@ -61,13 +60,12 @@ export default {
       let ps = this.defaultData.coordinates instanceof Object ? this.defaultData.coordinates : JSON.parse(this.defaultData.coordinates)
       this.$nextTick(() => {
         this.iframeObj.postMessage({type: 'BIND_SET_DEFAULT', ps: ps}, this.originSrc)
-        // this.iframeObj.setDefaultSelect(ps)
       })
     }
   },
   watch: {
     floorList: {
-      handler (val) {
+      handler () {
         this.initFloor()
       },
       deep: true

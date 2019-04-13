@@ -36,7 +36,9 @@
       <el-table-column
         label="到访记录">
         <template slot-scope="scope">
-          <img class="flow-avatar" v-if="$index < 8 && item" @click="showImage(item)" :src="item" v-for="(item,$index) in scope.row.inImgs" alt="" :key="$index">
+          <template v-for="(item,$index) in scope.row.inImgs">
+            <img class="flow-avatar" v-if="$index < 8 && item" @click="showImage(item)" :src="item"  alt="" :key="$index">
+          </template>
           <a href="javascript:void (0)" class="fr" @click="showLog(scope.row)">更多信息</a>
         </template>
       </el-table-column>
@@ -265,7 +267,7 @@ export default {
   },
   mounted () {
     // 查询条件改变并且确定后，当前页码重置为1
-    eventObject().$on('screening-params-change', msg => {
+    eventObject().$on('screening-params-change', () => {
       this.pageParams.currentPage = 1
     })
     window.addEventListener('resize', this.initSize)
@@ -278,13 +280,8 @@ export default {
     ])
   },
   watch: {
-    filterParams: {
-      handler: function (val, oldVal) {
-      },
-      deep: true
-    },
     tableData: {
-      handler: function (val, oldVal) {
+      handler: function (val) {
         this.layout = val.length === 0 ? 'total, sizes' : 'total, sizes, prev, pager, next'
       },
       deep: true

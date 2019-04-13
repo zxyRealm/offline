@@ -177,7 +177,7 @@ export default {
   },
   watch: {
     data: {
-      handler (val) {
+      handler () {
         this.currentIndex = this.initialIndex
       },
       deep: true

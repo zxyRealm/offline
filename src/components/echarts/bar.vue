@@ -108,7 +108,7 @@ export default {
   },
   watch: {
     ageBar: { // 监听数组
-      handler (val, oldVal) {
+      handler () {
         this.drawBar()
       },
       deep: true

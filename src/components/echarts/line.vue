@@ -5,7 +5,6 @@
 
 <script>
 import {mapState} from 'vuex'
-import Moment from 'moment'
 import {GetChartLine} from '../../api/visual'
 import {eventObject} from '../../utils/event'
 import {parseTime} from '../../utils'

@@ -41,7 +41,7 @@
 
             <el-table-column label="生日">
               <template slot-scope="scope">
-                <span>{{scope.row.birthdayStamp | parseTime('{y}-{m}-{d}') || '—'}}</span>
+                <span>{{(scope.row.birthdayStamp | parseTime('{y}-{m}-{d}')) || '—'}}</span>
               </template>
             </el-table-column>
 
@@ -54,9 +54,6 @@
             <el-table-column width="100" label="照片">
               <template slot-scope="scope">
                 <img :src="scope.row.faceImgUrl" width="54px" height="54px" @click.prevent="showImage(scope.row)" alt="">
-                <!--<image-box  width="54px" height="54px" @click.native="showImage(scope.row)" :src="scope.row.faceImgUrl"></image-box>-->
-                <!--<img v-show="scope.row.faceImgUrl" :src="scope.row.faceImgUrl" class="tableImg">-->
-                <!--<div v-show="!scope.row.faceImgUrl" class="tableImg">—</div>-->
               </template>
             </el-table-column>
 
@@ -133,7 +130,7 @@
 </template>
 
 <script>
-import {MemberLibraryFind, MemberSearch, MemberDelete, MemberTemplate} from '../../api/member'
+import {MemberLibraryFind, MemberSearch, MemberDelete} from '../../api/member'
 import {mapState} from 'vuex'
 import {fileTypeAllow} from '../../utils'
 import UploadProgress from '../../components/UploadProgressDialog'

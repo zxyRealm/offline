@@ -23,10 +23,9 @@
 </template>
 <script>
 import {mapState} from 'vuex'
-import {simplifyGroups} from '@/utils'
 import DeviceTable from '@/components/DeviceTable'
 import {eventObject} from '../../utils/event'
-import {GetServerDeviceList, GetGroupServerList} from '../../api/device'
+import {GetGroupServerList} from '../../api/device'
 export default {
   name: 'server',
   components: {
@@ -72,7 +71,7 @@ export default {
   },
   watch: {
     currentManage: {
-      handler (val) {
+      handler () {
         this.getServerEquipment()
       },
       deep: true

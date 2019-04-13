@@ -60,7 +60,7 @@ import {validateRule} from '@/utils/validate'
 import {mapState} from 'vuex'
 import DeviceTable from '@/components/DeviceTable'
 import {eventObject} from '../../utils/event'
-import {DeviceIsExisted, DeviceIsAdded, SearchCamera, GetCameraList, CheckCameraName} from '../../api/device'
+import {DeviceIsExisted, DeviceIsAdded, SearchCamera, CheckCameraName} from '../../api/device'
 import {byKeyDeviceType} from '../../utils'
 export default {
   name: 'index',
@@ -210,7 +210,7 @@ export default {
     showPopover (index) {
       this.ipcListForm = JSON.parse(JSON.stringify(this.deviceList[index]))
     },
-    hidePopover (index) {
+    hidePopover () {
       this.$refs.nickNameForm.clearValidate()
     }
   },

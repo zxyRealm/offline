@@ -344,7 +344,6 @@ import area from '@/components/area-select/area-select'
 import BindCommunity from '@/components/three/bind_community'
 import {eventObject} from '../../utils/event'
 import {GetMarketList, GetCommunityInfoByCode, GetStoreList, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CheckMemberNickNameExist, UpdateMemberNickName, GetGroupPortalCount, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
-import {FirstLogin} from '../../api/common'
 import ThreeAssociationMap from '@/components/three/association_map'
 export default {
   name: 'mineCommunity',
@@ -633,7 +632,7 @@ export default {
   },
   computed: {
     communityDialogTitle () {
-      let title
+      let [title,gText] = ['','']
       switch (this.handleCommunityType) {
         case 1:
           title = '添加商场'
@@ -649,7 +648,6 @@ export default {
           title = '编辑社群'
           break
         case 5:
-          let gText = ''
           switch (this.currentManage.type) {
             case 1:
               gText = '商场'
@@ -808,7 +806,7 @@ export default {
       }
     },
     // 获取社群详细信息
-    getCommunityInfo (val, node) {
+    getCommunityInfo (val) {
       if (!this.currentManage.id) return
       if (val.type === 4) {
         GetStoreList({groupSonGuid: val.groupSonGuid}).then(res => {
@@ -852,7 +850,7 @@ export default {
       }
       this.$affirm({title: title, text: `${des}`, confirm: '退出'}, (action, instance, done) => {
         if (action === 'confirm') {
-          ExitManage(params).then(res => {
+          ExitManage(params).then(() => {
             this.$tip(`${type === 'quit' ? '退出' : '移除'}成功`)
             if (this.currentManage.type === 3) {
               this.getGroupList()
@@ -875,7 +873,7 @@ export default {
             this.$tip('请选取绑定区域', 'error')
             return
           }
-          JoinOtherManage(subData).then(res => {
+          JoinOtherManage(subData).then(() => {
             this.$tip('加入成功')
             this.joinFormVisible = false
             this.getGroupList()
@@ -893,12 +891,11 @@ export default {
           subData.cityAreaId = address[1] || 0
           subData.districtAreaId = address[2] || 0
           if (subData.type === 4) subData.guid = this.currentManage.id
-          GetCommunityUpdate(subData).then(res => {
+          GetCommunityUpdate(subData).then(() => {
             this.$tip('保存成功')
             this.addCommunityVisible = false
             this.getGroupList()
           })
-        } else {
         }
       })
     },
@@ -918,7 +915,7 @@ export default {
             return
           }
           if (this.handleCommunityType === 5) {
-            AddMember(subData).then(res => {
+            AddMember(subData).then(() => {
               this.$tip('添加成功')
               this.handleMemberVisible = false
               this.getGroupList()
@@ -929,7 +926,7 @@ export default {
                 if (res.data.portalNumber) {
                   this.$tip('更换绑定区域时请先解绑出入口', 'error')
                 } else {
-                  UpdateMemberInfo(subData).then(res => {
+                  UpdateMemberInfo(subData).then(() => {
                     this.$tip('保存成功')
                     this.handleMemberVisible = false
                     this.getGroupList()
@@ -937,7 +934,7 @@ export default {
                 }
               })
             } else {
-              UpdateMemberInfo(subData).then(res => {
+              UpdateMemberInfo(subData).then(() => {
                 this.$tip('保存成功')
                 this.handleMemberVisible = false
                 this.getGroupList()
@@ -953,7 +950,7 @@ export default {
     editNickname (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          UpdateMemberNickName(this.editNicknameForm).then(res => {
+          UpdateMemberNickName(this.editNicknameForm).then(() => {
             this.$tip('保存成功')
             this.editNicknameVisible = false
             this.getGroupList()
@@ -1071,12 +1068,12 @@ export default {
             this.$affirm({text: `删除社群后，社群下的所有信息都将被删除`, title: '删除社群', confirm: '删除'}, (action, instance, done) => {
               if (action === 'confirm') {
                 if (this.communityInfo.level === 1 && this.communityInfo.type !== 4) {
-                  DeleteMember({groupSonId: this.communityInfo.guid}).then(res => {
+                  DeleteMember({groupSonId: this.communityInfo.guid}).then(() => {
                     this.$tip('删除成功')
                     this.getGroupList('refresh')
                   })
                 } else {
-                  DeleteCommunity({id: this.currentManage.id}).then(res => {
+                  DeleteCommunity({id: this.currentManage.id}).then(() => {
                     this.$tip('删除成功')
                     eventObject().$emit('ManageListRefresh')
                   })
@@ -1094,7 +1091,7 @@ export default {
               groupPid: this.currentManage.id,
               groupNickName: this.communityInfo.nickName,
               parentGroupNickName: this.currentManage.name
-            }).then(res => {
+            }).then(() => {
               this.$tip('删除成功')
               this.getGroupList('refresh')
             })

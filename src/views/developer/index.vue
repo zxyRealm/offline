@@ -196,7 +196,7 @@ export default {
             if (!back.data) {
               let avatarHref = res.data.host + '/merchant/' + uid + '/' + customName
               // 图片地址提交后台更新个人头像信息
-              SetUserImage({faceImgURL: avatarHref}).then(res => {
+              SetUserImage({faceImgURL: avatarHref}).then(() => {
                 this.$tip('头像上传成功')
                 this.$store.commit('SET_USER_INFO', {faceImgURL: avatarHref + '?time_stamp=' + new Date().getTime()})
               })
@@ -255,7 +255,7 @@ export default {
       })
     },
     'userInfo': {
-      handler (val) {
+      handler () {
         this.initData()
       },
       deep: true

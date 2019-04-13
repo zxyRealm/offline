@@ -14,7 +14,6 @@
   </div>
 </template>
 <script>
-import { parseTime } from '@/utils/index'
 
 export default {
   components: {},

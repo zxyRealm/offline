@@ -97,7 +97,7 @@
 
 <script>
 import {mapState} from 'vuex'
-import { PortalDeviceList, PortalMemberDevice, GetAllDevice, GetGroupDevice } from '../../api/device'
+import { PortalDeviceList, PortalMemberDevice, GetGroupDevice } from '../../api/device'
 import {MemberNoFloor, PortalBatchBindDevice, PortalUnbindDevice} from '../../api/community'
 
 export default {
@@ -175,7 +175,7 @@ export default {
           portalGuid: this.currentPortal.portalGuid
         }
       })
-      PortalBatchBindDevice({deviceGroupPortalReqs: arr}).then(res => {
+      PortalBatchBindDevice({deviceGroupPortalReqs: arr}).then(() => {
         this.$tip('添加成功')
         this.AddDeviceVisible = false
         this.getPortalEquipment()
@@ -204,7 +204,7 @@ export default {
         text: '删除关系后，该出入口下将不包含该设备'
       }, (action, instance, done) => {
         if (action === 'confirm') {
-          PortalUnbindDevice({deviceKey: data.deviceKey, portalGuid: data.portalGuid}).then(res => {
+          PortalUnbindDevice({deviceKey: data.deviceKey, portalGuid: data.portalGuid}).then(() => {
             this.$tip('删除成功')
             this.getPortalEquipment()
           })
@@ -221,7 +221,7 @@ export default {
   },
   watch: {
     currentManage: {
-      handler (val) {
+      handler () {
         this.currentGroup = ''
         this.getGroupList()
         this.getPortalEquipment(1, 4)

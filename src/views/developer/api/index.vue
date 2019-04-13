@@ -110,7 +110,7 @@ export default {
     },
     // 申请开发者
     applyDeveloper (data) {
-      ApplyDeveloper(data).then(res => {
+      ApplyDeveloper(data).then(() => {
         this.$tip('申请成功')
         this.dialogFormVisible = false
         this.getDeveloperInfo()

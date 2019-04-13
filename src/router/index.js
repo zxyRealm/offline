@@ -50,8 +50,6 @@ const shopFrequencyAnalysis = () => import('@/views/data/shop-frequency-analysis
 /** 控制台 **/
 const consoleIndex = () => import('@/views/console/index.vue')
 
-// 转换svg文件模板
-const transformSvg = () => import('@/views/three/transform-svg.vue')
 
 /** 首页+消息 **/
 const homePage = () => import('@/views/index/three')
@@ -472,14 +470,6 @@ export const constantRouterMap = [
         component: paramExplain
       }
     ]
-  },
-  {
-    path: '/transform',
-    name: 'ThreeTransform',
-    meta: {
-      title: 'Three.js svg 文件转换'
-    },
-    component: transformSvg
   },
   {
     path: '*',

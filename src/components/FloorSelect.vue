@@ -158,7 +158,7 @@ export default {
   },
   watch: {
     value: {
-      handler (val) {
+      handler () {
         this.setSelected()
       },
       deep: true

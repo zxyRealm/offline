@@ -158,7 +158,7 @@ export default {
       let me = this
       let wsServer = 'ws://' + data // 服务器地址
       this.websocket = new WebSocket(wsServer)
-      this.websocket.onopen = function (evt) {
+      this.websocket.onopen = function () {
         // 已经建立连接
         me.websocket.send(me.deviceKey + '_channel') // 向服务器发送消息
         console.info('已经连接')
@@ -167,10 +167,10 @@ export default {
         // 收到服务器消息，使用evt.data提取
         me.resolveDatad(evt.data)
       }
-      this.websocket.onclose = function (evt) {
+      this.websocket.onclose = function () {
         console.info('已经关闭连接')
       }
-      this.websocket.onerror = function (evt) {
+      this.websocket.onerror = function () {
         console.info('产生异常')
       }
     },
@@ -338,7 +338,7 @@ export default {
   },
   created () {
     // this.test()
-    eventObject().$on('resize-echarts-console', msg => { // eventObject接收事件  == 控制控制台的图表重置
+    eventObject().$on('resize-echarts-console', () => { // eventObject接收事件  == 控制控制台的图表重置
       this.resizeFunction()
     })
   },
@@ -358,9 +358,6 @@ export default {
     ])
   },
   watch: {
-    showDialog (val, oldVal) {
-      // console.info(val)
-    },
     // 监听vuex groupConsoleId是否改变
     groupConsoleId (val) {
       if (!val || val === '') {
