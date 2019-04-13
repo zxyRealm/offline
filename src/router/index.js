@@ -47,10 +47,6 @@ const genderAnalysis = () => import('@/views/data/gender-analysis')
 const ageAnalysis = () => import('@/views/data/age-analysis')
 const shopFrequencyAnalysis = () => import('@/views/data/shop-frequency-analysis')
 
-/** 控制台 **/
-const consoleIndex = () => import('@/views/console/index.vue')
-
-
 /** 首页+消息 **/
 const homePage = () => import('@/views/index/three')
 // 系统通知
@@ -89,24 +85,6 @@ export const constantRouterMap = [
           keepAlive: false
         },
         component: homeNotify
-      }
-    ]
-  },
-  {
-    path: '/console',
-    component: Layout,
-    meta: {
-      title: '控制台'
-    },
-    children: [
-      {
-        path: '/',
-        name: 'console-lwh',
-        meta: {
-          title: '控制台-线下浏览器服务平台',
-          keepAlive: false
-        },
-        component: consoleIndex
       }
     ]
   },

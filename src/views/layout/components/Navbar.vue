@@ -398,7 +398,6 @@ export default {
       deep: true
     },
     $route (to) {
-      if (to.path === '/console') this.selectName = '请选择您的社群'
       if (to.path.indexOf('index/notify') > -1) this.notifyToggle()
       if (!this.manageList.length) {
         this.addFormVisible = true
