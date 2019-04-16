@@ -7,11 +7,11 @@
 <script>
 import {GetSocketIP} from './api/common'
 import {GetMerchantInfo} from './api/developer'
-
+const version = require('../package').version
 export default {
   name: 'App',
   created () {
-    console.log('version 2018-04-12')
+    console.log('version 2018-04-12  ' + version)
     GetSocketIP().then(res => {
       this.$store.state.serverIp = `${res.data || ''}`
     })

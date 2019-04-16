@@ -1,6 +1,6 @@
 {
   "name": "uniubi-offline-browser-web-vue",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "线下浏览器服务平台",
   "author": "折威 <zhangxiaoyuan@uni-ubi.com>",
   "private": true,
@@ -30,6 +30,7 @@
     "@vue/cli-plugin-babel": "^3.5.0",
     "@vue/cli-plugin-eslint": "^3.5.0",
     "@vue/cli-service": "^3.5.0",
+    "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.1",
     "babel-plugin-component": "^1.1.1",
     "current-script-polyfill": "^1.0.0",
@@ -46,7 +47,7 @@
     },
     "extends": [
       "plugin:vue/essential",
-      "eslint:recommended"
+      "@vue/standard"
     ],
     "globals": {
       "window": true,
