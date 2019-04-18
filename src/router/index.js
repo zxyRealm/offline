@@ -4,6 +4,14 @@ import request from '@/utils/request'
 
 const Layout = () => import('@/views/layout/Layout.vue')
 
+// 账号
+
+// 登录
+const Login = () => import('@/views/account/login.vue')
+
+// 注册
+const Register = () => import('@/views/account/register.vue')
+
 // 社群管理
 const Community = () => import('@/views/community/mine.vue')
 
@@ -88,6 +96,28 @@ export const constantRouterMap = [
       }
     ]
   },
+  // 登录
+  {
+    path: '/login',
+    name: 'Login',
+    meta: {
+      title: '登录-线下浏览器服务平台',
+      keepAlive: false
+    },
+    component: Login
+  },
+  // 注册
+  {
+    path: '/register',
+    name: 'Register',
+    meta: {
+      title: '注册-线下浏览器服务平台',
+      keepAlive: false
+    },
+    component: Register
+  },
+
+  // 社群管理
   {
     path: '/community',
     component: Layout,
@@ -106,6 +136,7 @@ export const constantRouterMap = [
       }
     ]
   },
+  // 设备管理
   {path: '/equipment', redirect: '/equipment/list/aio'},
   {path: '/equipment/list', redirect: '/equipment/list/aio'},
   {
@@ -196,6 +227,7 @@ export const constantRouterMap = [
       }
     ]
   },
+  // 数据分析
   {
     path: '/data',
     component: Layout,
@@ -254,6 +286,7 @@ export const constantRouterMap = [
       }
     ]
   },
+  // 行为分析
   {path: '/behavior', redirect: '/behavior/analyse'},
   {
     path: '/behavior',
@@ -287,6 +320,7 @@ export const constantRouterMap = [
       }
     ]
   },
+  // 开发者中心
   {
     path: '/developer',
     component: Layout,
@@ -482,23 +516,26 @@ router.beforeEach((to, from, next) => {
     'editNotifyCallback': 'sysNotify',
     'BehaviorTrail': 'BehaviorAnalyse'
   }
-
-  request({url: '/loginCheck', tip: false}).then(() => {
-    if (aliveObj[to.name]) {
-      let nameSet = new Set(aliveObj[to.name].split(','))
-      if (nameSet.has(from.name)) {
-        from.meta.keepAlive = true
-      } else {
-        from.meta.keepAlive = false
-      }
-    } else {
-      from.meta.keepAlive = false
-    }
-    next()
-  }).catch(err => {
-    if (err.code === 'ERR-110') {
-      // exitMessage(err.data)
-    }
-  })
+  next()
+  // if (to.meta.auth) {
+  //   request({url: '/loginCheck', tip: false}).then(() => {
+  //     if (aliveObj[to.name]) {
+  //       let nameSet = new Set(aliveObj[to.name].split(','))
+  //       if (nameSet.has(from.name)) {
+  //         from.meta.keepAlive = true
+  //       } else {
+  //         from.meta.keepAlive = false
+  //       }
+  //     } else {
+  //       from.meta.keepAlive = false
+  //     }
+  //     next()
+  //   }).catch(err => {
+  //     if (err.code === 'ERR-110') {
+  //     }
+  //   })
+  // } else {
+  //   next()
+  // }
 })
 export default router

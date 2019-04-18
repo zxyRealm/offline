@@ -1,18 +1,18 @@
 <template>
-  <div class="app-wrapper" :class="classObj">
-    <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"></div>
-    <navbar></navbar>
-    <div class="main-container" :class="{'no-bar':!showBar,'console__main': $route.name === 'console-lwh'}">
-      <sidebar v-show="showBar" class="sidebar-container"></sidebar>
-      <app-main class="app-main-content" :class="cornerBg" id="app_main--content">
-      </app-main>
+    <div class="app-wrapper" :class="classObj">
+        <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"></div>
+        <navbar></navbar>
+        <div class="main-container" :class="{'no-bar':!showBar,'console__main': $route.name === 'console-lwh'}">
+            <sidebar v-show="showBar" class="sidebar-container"></sidebar>
+            <app-main class="app-main-content" :class="cornerBg" id="app_main--content">
+            </app-main>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
-import {Navbar, Sidebar, AppMain} from './components'
-import {mapState} from 'vuex'
+import { Navbar, Sidebar, AppMain } from './components'
+import { mapState } from 'vuex'
 
 export default {
   name: 'layout',
@@ -38,7 +38,6 @@ export default {
       }
     },
     cornerBg () {
-      // let nameSet = new Set(['console-lwh'])
       let routeName = this.$route.name
       if (/^(\/data)/.test(this.$route.path)) {
         return 'no-padding transparent'
@@ -58,47 +57,48 @@ export default {
   },
   methods: {
     handleClickOutside () {
-      this.$store.dispatch('closeSideBar', {withoutAnimation: false})
+      this.$store.dispatch('closeSideBar', { withoutAnimation: false })
     }
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  @import "src/styles/mixin.scss";
-  @import "@/styles/variables.scss";
-  .app-wrapper {
-    @include clearfix;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    .app-main-content {
-      height: 100%;
-      /*overflow: hidden;*/
-      box-sizing: border-box;
-      background-color: $content-bg;
-      color: #fff;
-      &.home--wrap{
-        background: $theme-bg;
-      }
-      &.transparent{
-        background: transparent;
-      }
+    @import "@/styles/mixin.scss";
+    @import "@/styles/variables.scss";
+
+    .app-wrapper {
+        @include clearfix;
+        position: relative;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        .app-main-content {
+            height: 100%;
+            /*overflow: hidden;*/
+            box-sizing: border-box;
+            background-color: $content-bg;
+            color: #fff;
+            &.home--wrap {
+                background: $theme-bg;
+            }
+            &.transparent {
+                background: transparent;
+            }
+        }
     }
-  }
 </style>
 <style lang="scss" rel="stylesheet/scss">
-  .app-wrapper {
-    .app-main-content {
-      &:not(.no-padding){
-        > div {
-          /*padding: 0 20px;*/
+    .app-wrapper {
+        .app-main-content {
+            &:not(.no-padding) {
+                > div {
+                    /*padding: 0 20px;*/
+                }
+            }
+            > div {
+                height: 100%;
+            }
         }
-      }
-      > div {
-        height: 100%;
-      }
     }
-  }
 </style>

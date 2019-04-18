@@ -75,6 +75,14 @@ export default {
     placeholder: {
       type: String,
       default: '请选择地址'
+    },
+    childProps: {
+      type: Object,
+      default: () => ({
+        label: 'name',
+        id: 'code',
+        pid: ''
+      })
     }
   },
   data () {
@@ -125,9 +133,10 @@ export default {
       let idArr = this.value.split(',').map(Number)
       if (this.value && idArr[0] && idArr[1] && idArr[2]) {
         let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()]
-        this.originAddress[0].map(item => pMap.set(item.id, item))
-        this.originAddress[1].map(item => cMap.set(item.id, item))
-        this.originAddress[2].map(item => aMap.set(item.id, item))
+        this.originAddress[0].map(item => pMap.set(item[this.childProps.id], item))
+        this.originAddress[1].map(item => cMap.set(item[this.childProps.id], item))
+        this.originAddress[2].map(item => aMap.set(item[this.childProps.id], item))
+        console.log()
         this.currentValue = [
           pMap.get(idArr[0]), cMap.get(idArr[1]), aMap.get(idArr[2])
         ]
@@ -175,9 +184,10 @@ export default {
       handler: function (val) {
         let [textStr] = ['']
         this.idStr = ''
+        console.log('current val-', val)
         for (let i = 0, len = val.length; i < len; i++) {
-          this.idStr += this.idStr ? (',' + val[i].id) : val[i].id
-          textStr += (textStr ? ('-' + val[i].name) : val[i].name) || ''
+          this.idStr += this.idStr ? (',' + val[i][this.childProps.id]) : val[i][this.childProps.id]
+          textStr += (textStr ? ('-' + val[i][this.childProps.name]) : val[i][this.childProps.name]) || ''
         }
         this.$emit('input', this.idStr)
         this.address = textStr

@@ -1,52 +1,52 @@
 <template>
-  <div class="menber">
-    <div class="member__title">
-      <div class="el-icon-arrow-left retrun" @click="returnLast"></div>
-      <el-breadcrumb separator="/" class="fl">
-        <el-breadcrumb-item>人员管理</el-breadcrumb-item>
-        <el-breadcrumb-item v-if="!this.$route.query.guid">新建库</el-breadcrumb-item>
-        <el-breadcrumb-item v-else>编辑库</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
-    <div class="member__form">
-      <uu-form
-        :rules="rules"
-        v-model="formData"
-        class="form__position"
-        ref="userInfoForm"
-        form-class="user-info-form"
-        @handle-submit="save"
-        :subText="'保存'">
+    <div class="menber">
+        <div class="member__title">
+            <div class="el-icon-arrow-left retrun" @click="returnLast"></div>
+            <el-breadcrumb separator="/" class="fl">
+                <el-breadcrumb-item>人员管理</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="!this.$route.query.guid">新建库</el-breadcrumb-item>
+                <el-breadcrumb-item v-else>编辑库</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="member__form">
+            <uu-form
+                    :rules="rules"
+                    v-model="formData"
+                    class="form__position"
+                    ref="userInfoForm"
+                    form-class="user-info-form"
+                    @handle-submit="save"
+                    :subText="'保存'">
 
-        <el-form-item label="库名称：" prop="name">
-          <el-input type="text"  placeholder="添加库名称" v-model.trim="formData.name" clearable></el-input>
-        </el-form-item>
+                <el-form-item label="库名称：" prop="name">
+                    <el-input type="text" placeholder="添加库名称" v-model.trim="formData.name" clearable></el-input>
+                </el-form-item>
 
-        <el-form-item
-          label="备注："
-          :rules="[
+                <el-form-item
+                        label="备注："
+                        :rules="[
             {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
           ]"
-          prop="remark">
-          <el-input type="text" placeholder="添加备注" v-model.trim="formData.remark" clearable></el-input>
-        </el-form-item>
+                        prop="remark">
+                    <el-input type="text" placeholder="添加备注" v-model.trim="formData.remark" clearable></el-input>
+                </el-form-item>
 
-        <el-form-item label="类型：" prop="type">
-          <el-select v-model="formData.type" placeholder="请选择">
-            <el-option label="会员" :value="1"></el-option>
-            <el-option label="员工" :value="2"></el-option>
-            <el-option label="黑名单" :value="3"></el-option>
-          </el-select>
-        </el-form-item>
-      </uu-form>
+                <el-form-item label="类型：" prop="type">
+                    <el-select v-model="formData.type" placeholder="请选择">
+                        <el-option label="会员" :value="1"></el-option>
+                        <el-option label="员工" :value="2"></el-option>
+                        <el-option label="黑名单" :value="3"></el-option>
+                    </el-select>
+                </el-form-item>
+            </uu-form>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
-import {validateRule} from '@/utils/validate'
-import {mapState} from 'vuex'
-import {MemberLibraryUpdate, MemberLibraryCreate, MemberLibraryFind, MemberLibraryNameExist} from '../../api/member'
+import { validateRule } from '@/utils/validate'
+import { mapState } from 'vuex'
+import { MemberLibraryUpdate, MemberLibraryCreate, MemberLibraryFind, MemberLibraryNameExist } from '../../api/member'
 
 export default {
   name: 'library',
@@ -133,53 +133,60 @@ export default {
 </script>
 
 <style scoped>
-  .edit{
-    float: left;
-    color: #0F9EE9;
-    font-size: 14px;
-    cursor: pointer;
-    margin: 10px 0 0 10px;
-  }
-  .edit__name{
-    float: left;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    display: inline-block;
-    max-width: calc(100% - 30px);
-  }
-  .menber{
-    /*padding: 0 20px;*/
-  }
-  .member__title{
-    padding: 26px 20px 0;
-    margin-bottom: 22px;
-    height: 36px;
-    border-bottom: 1px dashed rgba(151,151,151,0.10);
-  }
-  .member__form{
-    margin: 0 auto;
-    width: 67.6%;
-    height: 85%;
-    background-color: rgba(1,8,20,0.10);
-    border: 1px dashed rgba(151,151,151,0.10);
-  }
-  .form__button{
-    width: 222px;
-    height: 30px;
-    cursor: pointer;
-    color: #1896E6;
-    text-align: center;
-    background-image:url("../../assets/public/input_border_bg@2x.png");
-    background-size: 100% 100%;
-  }
-  .form__position{
-    position: relative;
-    top: 30%;
-  }
-  .retrun{
-    float: left;
-    cursor: pointer;
-    line-height: 30px;
-  }
+    .edit {
+        float: left;
+        color: #0F9EE9;
+        font-size: 14px;
+        cursor: pointer;
+        margin: 10px 0 0 10px;
+    }
+
+    .edit__name {
+        float: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        max-width: calc(100% - 30px);
+    }
+
+    .menber {
+        /*padding: 0 20px;*/
+    }
+
+    .member__title {
+        padding: 26px 20px 0;
+        margin-bottom: 22px;
+        height: 36px;
+        border-bottom: 1px dashed rgba(151, 151, 151, 0.10);
+    }
+
+    .member__form {
+        margin: 0 auto;
+        width: 67.6%;
+        height: 85%;
+        background-color: rgba(1, 8, 20, 0.10);
+        border: 1px dashed rgba(151, 151, 151, 0.10);
+    }
+
+    .form__button {
+        width: 222px;
+        height: 30px;
+        cursor: pointer;
+        color: #1896E6;
+        text-align: center;
+        background-image: url("../../assets/public/input_border_bg@2x.png");
+        background-size: 100% 100%;
+    }
+
+    .form__position {
+        position: relative;
+        top: 30%;
+    }
+
+    .retrun {
+        float: left;
+        cursor: pointer;
+        line-height: 30px;
+    }
 </style>

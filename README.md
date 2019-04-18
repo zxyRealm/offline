@@ -10,6 +10,14 @@
     账号：zhangwanyi@uni-ubi.com  
     密码：test1234
 
+### mock 使用swagger地址
+* 谭雁成：
+   1. http://192.168.12.127:8007/v2/api-docs?group=uniubi-insight-visualization  
+* 杨旭： 
+   1. 账号：http://192.168.12.161:8015/v2/api-docs  
+* 段启超：
+  1. http://192.168.12.123:8001/v2/api-docs?group=uniubi-insight-basic-manage
+
 ## Project setup
 ```
 npm install

@@ -1,139 +1,141 @@
 <template>
     <div class="menber">
-      <uu-sub-tab
-        search
-        back
-        show-button
-        btn-size="small"
-        :sub-btn="{text: '创建社群'}"
-        placeholder="输入人员姓名、手机号"
-        @remote-search="search"
-        @handle-btn="button"
-        :btn-array="btnArray"
-        :menu-array="menu2">
-      </uu-sub-tab>
-      <div class="data-list-wrap">
-        <el-scrollbar v-scroll-top="pageData.index" class="table">
-          <el-table
-            :empty-text="emptyText"
-            :data="tableData"
-            border
-            style="width: 100%">
+        <uu-sub-tab
+                search
+                back
+                show-button
+                btn-size="small"
+                :sub-btn="{text: '创建社群'}"
+                placeholder="输入人员姓名、手机号"
+                @remote-search="search"
+                @handle-btn="button"
+                :btn-array="btnArray"
+                :menu-array="menu2">
+        </uu-sub-tab>
+        <div class="data-list-wrap">
+            <el-scrollbar v-scroll-top="pageData.index" class="table">
+                <el-table
+                        :empty-text="emptyText"
+                        :data="tableData"
+                        border
+                        style="width: 100%">
 
-            <el-table-column label="姓名" :show-overflow-tooltip="true">
-              <template slot-scope="scope">
-                <span class="libraryName">{{scope.row.name || '—'}}</span>
-              </template>
-            </el-table-column>
+                    <el-table-column label="姓名" :show-overflow-tooltip="true">
+                        <template slot-scope="scope">
+                            <span class="libraryName">{{scope.row.name || '—'}}</span>
+                        </template>
+                    </el-table-column>
 
-            <el-table-column label="手机号">
-              <template slot-scope="scope">
-                <span>{{scope.row.phone || '—'}}</span>
-              </template>
-            </el-table-column>
+                    <el-table-column label="手机号">
+                        <template slot-scope="scope">
+                            <span>{{scope.row.phone || '—'}}</span>
+                        </template>
+                    </el-table-column>
 
-            <el-table-column width="90" label="性别">
-              <template slot-scope="scope">
-                <span v-if="scope.row.gender === 1">男</span>
-                <span v-else>女</span>
-              </template>
-            </el-table-column>
+                    <el-table-column width="90" label="性别">
+                        <template slot-scope="scope">
+                            <span v-if="scope.row.gender === 1">男</span>
+                            <span v-else>女</span>
+                        </template>
+                    </el-table-column>
 
-            <el-table-column label="生日">
-              <template slot-scope="scope">
-                <span>{{(scope.row.birthdayStamp | parseTime('{y}-{m}-{d}')) || '—'}}</span>
-              </template>
-            </el-table-column>
+                    <el-table-column label="生日">
+                        <template slot-scope="scope">
+                            <span>{{(scope.row.birthdayStamp | parseTime('{y}-{m}-{d}')) || '—'}}</span>
+                        </template>
+                    </el-table-column>
 
-            <el-table-column label="人员类型">
-              <template slot-scope="scope">
-                <span>{{scope.row.memberTypeName || '—'}}</span>
-              </template>
-            </el-table-column>
+                    <el-table-column label="人员类型">
+                        <template slot-scope="scope">
+                            <span>{{scope.row.memberTypeName || '—'}}</span>
+                        </template>
+                    </el-table-column>
 
-            <el-table-column width="100" label="照片">
-              <template slot-scope="scope">
-                <img :src="scope.row.faceImgUrl" width="54px" height="54px" @click.prevent="showImage(scope.row)" alt="">
-              </template>
-            </el-table-column>
+                    <el-table-column width="100" label="照片">
+                        <template slot-scope="scope">
+                            <img :src="scope.row.faceImgUrl" width="54px" height="54px"
+                                 @click.prevent="showImage(scope.row)" alt="">
+                        </template>
+                    </el-table-column>
 
-            <el-table-column label="操作">
-              <template slot-scope="scope">
-                <div class="fl edit" @click="editPerson(scope.row.guid)">编辑</div>
-                <div class="fl del" @click="delPerson(scope.row.guid)">删除</div>
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-pagination
-            layout="total, sizes, prev, pager, next"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="pageData.index"
-            :page-sizes="[10, 20, 30]"
-            :page-size="pageData.length"
-            :total="pageData.total">
-          </el-pagination>
-        </el-scrollbar>
-      </div>
-      <!-- 导入弹框 -->
-      <upload-progress :visible.sync="dialogVisible">
-        正在导入，请耐心等待…<br>{{percent}}
-      </upload-progress>
-      <el-dialog
-        :visible.sync="downloadVisible"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        width="500px">
-        <div class="word__center">导入完成！</div>
-        <div class="word__two">部分信息未成功导入，请在反馈中查看原因</div>
-        <el-button class="affirm widthAuto"><a :href="downloadURL">下载&lt;导入结果反馈&gt;</a></el-button>
-      </el-dialog>
-      <ob-dialog-form
-        title="批量导入"
-        :showButton="false"
-        :visible.sync="uploadDialogVisible"
-      >
-        <div slot="content" class="upload__dialog--inner">
-          <el-upload
-            class="library__upload"
-            :action="ip"
-            drag
-            :show-file-list="false"
-            :data="{merchantGuid: userInfo.developerId, memberLibraryGuid: $route.query.guid}"
-            :before-upload="beforeAvatarUpload"
-            :on-success="uploadSuccess"
-            :on-error="uploadError"
-            :on-progress="uploading"
-            :multiple="false"
-            slot="file">
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-              <p class="c-grey fs12">压缩包上传后，导入需要一定时间，请耐心等待您可前往操作记录中查看具有的进度</p>
-            </div>
-          </el-upload>
-          <p class="fs12 c-grey">
-            操作须知：<br>
-            批量导入仅支持zip压缩包的形式上传人脸照片，压缩包限制大小为1G。<br>
-            每张照片格式仅限jpg/png/jpeg/tiff，大小不超过2Mb。<br>
-            <span class="danger">请直接压缩照片,不要压缩照片文件夹</span>
-          </p>
-          <p class="fs12 c-grey">
-            请以"姓名-性别-手机号-出生年月日"来命名图片，其中"出生年月日"可为空。<br>
-            <span class="danger">示例：张木木-女-13101234567-19920414</span><br>
-            <span class="danger">张木木-女-13101234567</span>
-          </p>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <div class="fl edit" @click="editPerson(scope.row.guid)">编辑</div>
+                            <div class="fl del" @click="delPerson(scope.row.guid)">删除</div>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-pagination
+                        layout="total, sizes, prev, pager, next"
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        :current-page="pageData.index"
+                        :page-sizes="[10, 20, 30]"
+                        :page-size="pageData.length"
+                        :total="pageData.total">
+                </el-pagination>
+            </el-scrollbar>
         </div>
-      </ob-dialog-form>
-      <image-preview :src="preview.src" :visible.sync="preview.visible"></image-preview>
+        <!-- 导入弹框 -->
+        <upload-progress :visible.sync="dialogVisible">
+            正在导入，请耐心等待…<br>{{percent}}
+        </upload-progress>
+        <el-dialog
+                :visible.sync="downloadVisible"
+                :close-on-click-modal="false"
+                :close-on-press-escape="false"
+                width="500px">
+            <div class="word__center">导入完成！</div>
+            <div class="word__two">部分信息未成功导入，请在反馈中查看原因</div>
+            <el-button class="affirm widthAuto"><a :href="downloadURL">下载&lt;导入结果反馈&gt;</a></el-button>
+        </el-dialog>
+        <ob-dialog-form
+                title="批量导入"
+                :showButton="false"
+                :visible.sync="uploadDialogVisible"
+        >
+            <div slot="content" class="upload__dialog--inner">
+                <el-upload
+                        class="library__upload"
+                        :action="ip"
+                        drag
+                        :show-file-list="false"
+                        :data="{merchantGuid: userInfo.developerId, memberLibraryGuid: $route.query.guid}"
+                        :before-upload="beforeAvatarUpload"
+                        :on-success="uploadSuccess"
+                        :on-error="uploadError"
+                        :on-progress="uploading"
+                        :multiple="false"
+                        slot="file">
+                    <i class="el-icon-upload"></i>
+                    <div class="el-upload__text">
+                        将文件拖到此处，或<em>点击上传</em>
+                        <p class="c-grey fs12">压缩包上传后，导入需要一定时间，请耐心等待您可前往操作记录中查看具有的进度</p>
+                    </div>
+                </el-upload>
+                <p class="fs12 c-grey">
+                    操作须知：<br>
+                    批量导入仅支持zip压缩包的形式上传人脸照片，压缩包限制大小为1G。<br>
+                    每张照片格式仅限jpg/png/jpeg/tiff，大小不超过2Mb。<br>
+                    <span class="danger">请直接压缩照片,不要压缩照片文件夹</span>
+                </p>
+                <p class="fs12 c-grey">
+                    请以"姓名-性别-手机号-出生年月日"来命名图片，其中"出生年月日"可为空。<br>
+                    <span class="danger">示例：张木木-女-13101234567-19920414</span><br>
+                    <span class="danger">张木木-女-13101234567</span>
+                </p>
+            </div>
+        </ob-dialog-form>
+        <image-preview :src="preview.src" :visible.sync="preview.visible"></image-preview>
     </div>
 </template>
 
 <script>
-import {MemberLibraryFind, MemberSearch, MemberDelete} from '../../api/member'
-import {mapState} from 'vuex'
-import {fileTypeAllow} from '../../utils'
+import { MemberLibraryFind, MemberSearch, MemberDelete } from '../../api/member'
+import { mapState } from 'vuex'
+import { fileTypeAllow } from '../../utils'
 import UploadProgress from '../../components/UploadProgressDialog'
+
 export default {
   name: 'index',
   components: {
@@ -344,101 +346,119 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .menber{
-    /*padding: 0 20px;*/
-  }
-  .member__title{
-    padding: 26px 20px 0;
-    height: 36px;
-    border-bottom: 1px dashed rgba(151,151,151,0.10);
-  }
-  .hand{
-    margin-right: 10px;
-  }
-  .retrun{
-    float: left;
-    line-height: 30px;
-  }
-  .tableImg{
-    width: 48px;
-    height: 48px;
-    line-height: 48px;
-  }
-  .common__image--box{
-    cursor: pointer;
-  }
-  .edit{
-    color: #0F9EE9;
-    cursor: pointer;
-  }
-  .del{
-    margin-left:30px;
-    color: #FF6660;
-    cursor: pointer;
-  }
-  .libraryName{
-    float: left;
-    width: calc(100% - 50px);
-    overflow: hidden;
-    text-overflow:ellipsis;
-    white-space: nowrap;
-  }
-  .avatar-uploader{
-    margin-left: 10px;
-    float: right;
-    width: 80px;
-  }
-  .affirm{
-    width: 80px;
-  }
-  .widthAuto{
-    margin: 26px 0 0 130px;
-    width: 200px;
-  }
-  .widthAuto a{
-    color: #FFF;
-  }
-  .tip_img_icon{
-    margin-left: 195px;
-    width: 67px;
-    height: 65px;
-  }
-  .icon__hint{
-    margin-top: 20px;
-    text-align: center;
-  }
-  .icon__hint--no{
-    text-align: center;
-  }
-  .word__center{
-    text-align: center;
-    font-size: 14px;
-    color: #333333;
-  }
-  .word__two{
-    margin-top: 20px;
-    text-align: center;
-    font-size: 12px;
-    color: #B4B4B7;
-  }
-  /*上传弹框样式*/
-  .upload__dialog--inner{
-    padding-bottom: 34px;
-    > p.c-grey{
-      line-height: 1.4;
-      padding: 0 15px;
-      &:last-child{
-        margin-top: 15px;
-      }
+    .menber {
+        /*padding: 0 20px;*/
     }
-    .library__upload{
-      margin-bottom: 10px;
+
+    .member__title {
+        padding: 26px 20px 0;
+        height: 36px;
+        border-bottom: 1px dashed rgba(151, 151, 151, 0.10);
     }
-  }
+
+    .hand {
+        margin-right: 10px;
+    }
+
+    .retrun {
+        float: left;
+        line-height: 30px;
+    }
+
+    .tableImg {
+        width: 48px;
+        height: 48px;
+        line-height: 48px;
+    }
+
+    .common__image--box {
+        cursor: pointer;
+    }
+
+    .edit {
+        color: #0F9EE9;
+        cursor: pointer;
+    }
+
+    .del {
+        margin-left: 30px;
+        color: #FF6660;
+        cursor: pointer;
+    }
+
+    .libraryName {
+        float: left;
+        width: calc(100% - 50px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .avatar-uploader {
+        margin-left: 10px;
+        float: right;
+        width: 80px;
+    }
+
+    .affirm {
+        width: 80px;
+    }
+
+    .widthAuto {
+        margin: 26px 0 0 130px;
+        width: 200px;
+    }
+
+    .widthAuto a {
+        color: #FFF;
+    }
+
+    .tip_img_icon {
+        margin-left: 195px;
+        width: 67px;
+        height: 65px;
+    }
+
+    .icon__hint {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .icon__hint--no {
+        text-align: center;
+    }
+
+    .word__center {
+        text-align: center;
+        font-size: 14px;
+        color: #333333;
+    }
+
+    .word__two {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 12px;
+        color: #B4B4B7;
+    }
+
+    /*上传弹框样式*/
+    .upload__dialog--inner {
+        padding-bottom: 34px;
+        > p.c-grey {
+            line-height: 1.4;
+            padding: 0 15px;
+            &:last-child {
+                margin-top: 15px;
+            }
+        }
+        .library__upload {
+            margin-bottom: 10px;
+        }
+    }
 </style>
 
 <style>
-  .menber .el-scrollbar__wrap{
-    overflow-x:hidden;
-  }
+    .menber .el-scrollbar__wrap {
+        overflow-x: hidden;
+    }
 </style>

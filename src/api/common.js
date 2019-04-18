@@ -3,7 +3,8 @@ import request from '@/utils/request'
 // 获取商户下管理员社群列表
 export function GetAreaList () {
   return request({
-    url: '/area/list'
+    url: '/area/read/list',
+    method: 'get'
   })
 }
 

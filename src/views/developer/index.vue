@@ -1,70 +1,73 @@
 <template>
-  <div class="developer-center clearfix">
-    <uu-sub-tab :menu-array="[{title: '个人中心'}]" :sub-link="subLink"></uu-sub-tab>
-    <div class="user-info-wrap">
-      <div class="avatar-wrap">
-        <el-upload
-          class="avatar-uploader"
-          action=""
-          accept="jpg/png"
-          :show-file-list="false"
-          :http-request="avatarUpload"
-          :before-upload="beforeAvatarUpload">
-          <div v-if="avatar" class="avatar vam">
-            <img :src="avatar" alt="">
-          </div>
-          <i class="el-icon-plus avatar-uploader-icon" v-else></i>
-        </el-upload>
-      </div>
-      <div class="form-filed vam">
-        <uu-form
-          ref="userInfoForm"
-          form-class="user-info-form"
-          :rules="rules"
-          :readonly="!editable"
-          :subText="editable?'保存':''"
-          @handle-submit="submitForm"
-          v-model="userInfoForm">
-          <el-form-item label="手机号：" prop="phone">
-            <p class="readonly__text" v-if="!!userInfo.phone">{{userInfoForm.phone}}</p>
-            <el-input
-              type="text"
-              v-show="!userInfo.phone"
-              placeholder="添加手机号"
-              v-model.trim="userInfoForm.phone"></el-input>
-          </el-form-item>
-          <el-form-item label="公司名称：" prop="company">
-            <p class="readonly__text" v-if="!editable">{{userInfoForm.company}}</p>
-            <el-input type="text" v-show="editable" placeholder="添加公司名称"
-                      v-model.trim="userInfoForm.company"></el-input>
-          </el-form-item>
-          <el-form-item label="地区：" prop="pca">
-            <area-select placeholder="选择商铺所在区域" :readonly="!editable" v-model.trim="userInfoForm.pca"></area-select>
-          </el-form-item>
-          <el-form-item prop="address">
-            <p class="readonly__text" v-if="!editable">{{userInfoForm.address}}</p>
-            <el-input type="text" v-show="editable" placeholder="添加商户详细地址"
-                      v-model.trim="userInfoForm.address"></el-input>
-          </el-form-item>
+    <div class="developer-center clearfix">
+        <uu-sub-tab :menu-array="[{title: '个人中心'}]" :sub-link="subLink"></uu-sub-tab>
+        <div class="user-info-wrap">
+            <div class="avatar-wrap">
+                <el-upload
+                        class="avatar-uploader"
+                        action=""
+                        accept="jpg/png"
+                        :show-file-list="false"
+                        :http-request="avatarUpload"
+                        :before-upload="beforeAvatarUpload">
+                    <div v-if="avatar" class="avatar vam">
+                        <img :src="avatar" alt="">
+                    </div>
+                    <i class="el-icon-plus avatar-uploader-icon" v-else></i>
+                </el-upload>
+            </div>
+            <div class="form-filed vam">
+                <uu-form
+                        ref="userInfoForm"
+                        form-class="user-info-form"
+                        :rules="rules"
+                        :readonly="!editable"
+                        :subText="editable?'保存':''"
+                        @handle-submit="submitForm"
+                        v-model="userInfoForm">
+                    <el-form-item label="手机号：" prop="phone">
+                        <p class="readonly__text" v-if="!!userInfo.phone">{{userInfoForm.phone}}</p>
+                        <el-input
+                                type="text"
+                                v-show="!userInfo.phone"
+                                placeholder="添加手机号"
+                                v-model.trim="userInfoForm.phone"></el-input>
+                    </el-form-item>
+                    <el-form-item label="公司名称：" prop="company">
+                        <p class="readonly__text" v-if="!editable">{{userInfoForm.company}}</p>
+                        <el-input type="text" v-show="editable" placeholder="添加公司名称"
+                                  v-model.trim="userInfoForm.company"></el-input>
+                    </el-form-item>
+                    <el-form-item label="地区：" prop="pca">
+                        <area-select placeholder="选择商铺所在区域" :readonly="!editable"
+                                     v-model.trim="userInfoForm.pca"></area-select>
+                    </el-form-item>
+                    {{userInfoForm.pca}}
+                    <el-form-item prop="address">
+                        <p class="readonly__text" v-if="!editable">{{userInfoForm.address}}</p>
+                        <el-input type="text" v-show="editable" placeholder="添加商户详细地址"
+                                  v-model.trim="userInfoForm.address"></el-input>
+                    </el-form-item>
 
-          <el-form-item label="联系人：" prop="contacts">
-            <p class="readonly__text" v-if="!editable">{{userInfoForm.contacts}}</p>
-            <el-input type="text" v-show="editable" placeholder="添加联系人"
-                      v-model.trim="userInfoForm.contacts"></el-input>
-          </el-form-item>
-        </uu-form>
-      </div>
+                    <el-form-item label="联系人：" prop="contacts">
+                        <p class="readonly__text" v-if="!editable">{{userInfoForm.contacts}}</p>
+                        <el-input type="text" v-show="editable" placeholder="添加联系人"
+                                  v-model.trim="userInfoForm.contacts"></el-input>
+                    </el-form-item>
+                </uu-form>
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 <script>
 import area from '@/components/area-select/area-select'
-import {mapState, mapGetters} from 'vuex'
-import {validPhone, validateRule} from '@/utils/validate'
-import {OssSignature} from '../../api/common'
-import {UserCenterUpdate, SetUserImage} from '../../api/developer'
-import {fileTypeAllow} from '../../utils'
+import { mapState, mapGetters } from 'vuex'
+import { validPhone, validateRule } from '@/utils/validate'
+import { OssSignature } from '../../api/common'
+import { UserCenterUpdate, SetUserImage } from '../../api/developer'
+import { fileTypeAllow } from '../../utils'
 import axios from 'axios'
+
 export default {
   components: {
     'area-select': area
@@ -115,23 +118,23 @@ export default {
       error: '',
       rules: {
         company: [
-          {validator: validCompany, trigger: 'blur'}
+          { validator: validCompany, trigger: 'blur' }
         ],
         phone: [
-          {required: true, message: '请添加手机号', trigger: 'blur'},
-          {validator: validPhone, trigger: 'blur'}
+          { required: true, message: '请添加手机号', trigger: 'blur' },
+          { validator: validPhone, trigger: 'blur' }
         ],
         pca: [
-          {message: '选择商铺所在区域', trigger: 'blur'}
+          { message: '选择商铺所在区域', trigger: 'blur' }
         ],
         address: [
-          {validator: validDetail, trigger: 'blur'}
+          { validator: validDetail, trigger: 'blur' }
         ],
         contacts: [
-          {validator: validContacts, trigger: 'blur'}
+          { validator: validContacts, trigger: 'blur' }
         ]
       },
-      subLink: {title: '编辑', index: '/person/edit'},
+      subLink: { title: '编辑', index: '/person/edit' },
       userInfoForm: {
         contacts: '', // 联系人
         phone: '',
@@ -181,7 +184,7 @@ export default {
     avatarUpload (data) {
       let uid = this.userInfo.developerId
       // 获取阿里云oss signature
-      OssSignature({superKey: 'merchant'}).then(res => {
+      OssSignature({ superKey: 'merchant' }).then(res => {
         if (res.data) {
           let formData = new FormData()
           let customName = 'avatar_' + uid + '.' + (fileTypeAllow(data.file.name, 'png') ? 'png' : 'jpg')
@@ -196,9 +199,9 @@ export default {
             if (!back.data) {
               let avatarHref = res.data.host + '/merchant/' + uid + '/' + customName
               // 图片地址提交后台更新个人头像信息
-              SetUserImage({faceImgURL: avatarHref}).then(() => {
+              SetUserImage({ faceImgURL: avatarHref }).then(() => {
                 this.$tip('头像上传成功')
-                this.$store.commit('SET_USER_INFO', {faceImgURL: avatarHref + '?time_stamp=' + new Date().getTime()})
+                this.$store.commit('SET_USER_INFO', { faceImgURL: avatarHref + '?time_stamp=' + new Date().getTime() })
               })
             } else {
               this.$tip('上传失败，请稍后重试', 'error')
@@ -272,70 +275,70 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .user-info-wrap {
-    .avatar-wrap {
-      width: 114px;
-      height: 114px;
-      border-radius: 50%;
-      background: url(../../assets/public/avatar_person_bg@2x.png) no-repeat center center;
-      background-size: contain;
-      margin: 0 auto;
-      overflow: hidden;
-      padding: 3px;
-      box-sizing: border-box;
-      margin-bottom: 18px;
-      .avatar-uploader {
-        height: 100%;
-        width: 100%;
-        .el-upload {
-          width: 100%;
-          height: 100%;
+    .user-info-wrap {
+        .avatar-wrap {
+            width: 114px;
+            height: 114px;
+            border-radius: 50%;
+            background: url(../../assets/public/avatar_person_bg@2x.png) no-repeat center center;
+            background-size: contain;
+            margin: 0 auto;
+            overflow: hidden;
+            padding: 3px;
+            box-sizing: border-box;
+            margin-bottom: 18px;
+            .avatar-uploader {
+                height: 100%;
+                width: 100%;
+                .el-upload {
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+            > img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+            }
         }
-      }
-      > img {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-      }
+        .form-filed {
+            width: 720px;
+            height: 300px;
+            margin: 15px auto;
+            background: url(../../assets/public/form_border2_bg.png) no-repeat;
+            background-size: 100% 100%;
+        }
     }
-    .form-filed {
-      width: 720px;
-      height: 300px;
-      margin: 15px auto;
-      background: url(../../assets/public/form_border2_bg.png) no-repeat;
-      background-size: 100% 100%;
-    }
-  }
 </style>
 <style lang="scss">
-  .avatar-wrap {
-    .avatar-uploader {
-      .el-upload {
-        height: 100%;
-        width: 100%;
-        box-sizing: border-box;
-        padding: 2px;
-        .avatar {
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          overflow: hidden;
-          > img {
-            max-width: 100%;
-            max-height: 100%;
-          }
+    .avatar-wrap {
+        .avatar-uploader {
+            .el-upload {
+                height: 100%;
+                width: 100%;
+                box-sizing: border-box;
+                padding: 2px;
+                .avatar {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    > img {
+                        max-width: 100%;
+                        max-height: 100%;
+                    }
+                }
+            }
         }
-      }
     }
-  }
 
-  .form-filed {
-    .user-info-form {
-      .el-input__inner {
-        &[readonly] {
-          background: transparent !important;
+    .form-filed {
+        .user-info-form {
+            .el-input__inner {
+                &[readonly] {
+                    background: transparent !important;
+                }
+            }
         }
-      }
     }
-  }
 </style>

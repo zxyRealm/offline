@@ -1,12 +1,13 @@
 <template>
-  <div id="app">
-    <router-view v-wechat-title="$route.meta.title"></router-view>
-  </div>
+    <div id="app">
+        <router-view v-wechat-title="$route.meta.title"></router-view>
+    </div>
 </template>
 
 <script>
-import {GetSocketIP} from './api/common'
-import {GetMerchantInfo} from './api/developer'
+import { GetSocketIP } from './api/common'
+import { GetMerchantInfo } from './api/developer'
+
 const version = require('../package').version
 export default {
   name: 'App',

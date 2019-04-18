@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { Message, Loading, MessageBox } from 'element-ui'
 import Store from '@/store'
+import Qs from 'qs'
 const ossPrefix = process.env.BASE_URL
 // 加载层
 export function load (text, target) {
@@ -89,6 +90,9 @@ const service = axios.create({
 service.interceptors.request.use(config => {
   // Do something before request is sent
   showFullScreenLoading(config.tip)
+  if (config.method === 'post') {
+    config.data = Qs.stringify(config.data)
+  }
   return config
 }, error => {
   // Do something with request error

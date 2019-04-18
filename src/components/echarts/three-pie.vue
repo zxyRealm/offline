@@ -19,12 +19,12 @@ export default {
       chart: null,
       dataMap: {
         age: [
-          {key: 'child', name: '0-10岁'},
-          {key: 'teen', name: '10-20岁'},
-          {key: 'youth', name: '20-30岁'},
-          {key: 'man', name: '30-40岁'},
-          {key: 'middle', name: '40-50岁'},
-          {key: 'old', name: '50岁以上'}
+          {key: 'child', name: '0-10'},
+          {key: 'teen', name: '10-20'},
+          {key: 'youth', name: '20-30'},
+          {key: 'man', name: '30-40'},
+          {key: 'middle', name: '40-50'},
+          {key: 'old', name: '50以上'}
         ],
         member: [
           {key: 'not_member', name: '非会员'},
@@ -151,12 +151,12 @@ export default {
             },
             icon: 'square',
             data: [
-              {name: '0-10岁'},
-              {name: '10-20岁'},
-              {name: '20-30岁'},
-              {name: '30-40岁'},
-              {name: '40-50岁'},
-              {name: '50岁以上'}
+              {name: '0-10'},
+              {name: '10-20'},
+              {name: '20-30'},
+              {name: '30-40'},
+              {name: '40-50'},
+              {name: '50以上'}
             ]
           },
           series: [

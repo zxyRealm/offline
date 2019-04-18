@@ -5,14 +5,16 @@ module.exports = {
   assetsDir: 'static',
   productionSourceMap: false,
   devServer: {
-    contentBase: ['./public'],
+    contentBase: ['./public'], // 设置public为静态资源根目录
     port: '3010',
-    disableHostCheck: true, //取消host检查
+    disableHostCheck: true, // 取消host检查
     proxy: {
       '/api': {
-        target: 'http://192.168.12.182:3015',
+        target: 'http://192.168.1.171:7301/mock/5cb061e458260982ec16f592/offline-browser',
         changeOrigin: true,
-        pathRewrite: {}
+        pathRewrite: {
+          '^/api': ''
+        }
       }
     }
   },
