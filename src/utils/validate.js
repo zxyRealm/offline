@@ -101,3 +101,15 @@ export function validPhone (rule, value, callback) {
     callback()
   }
 }
+
+export function validPhoneEmail (rule, value, callback) {
+  if (value) {
+    if (!validateRule(value, 6) && !validateRule(value, 8)) {
+      callback(new Error('请输入正确的邮箱地址或手机号码'))
+    } else {
+      callback()
+    }
+  } else {
+    callback()
+  }
+}

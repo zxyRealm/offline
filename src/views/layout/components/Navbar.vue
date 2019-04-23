@@ -8,7 +8,6 @@
                     <p>Offline Browser service platform </p>
                 </div>
             </router-link>
-            <router-link to="/login">返回登录</router-link>
             <div class="right-menu vam tal">
                 <div class="navbar-console">
                     <hamburger
