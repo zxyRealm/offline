@@ -1,23 +1,24 @@
 <template>
-    <div>
-    </div>
+  <div class="register">
+  </div>
 </template>
 
 <script>
 export default {
   name: 'register',
   data () {
-    return {}
+    return {
+    }
   },
-  created () {
-  },
-  mounted () {
-  },
+  created () {},
+  mounted () {},
   computed: {},
-  methods: {},
+  methods: {
+  },
   watch: {}
 }
 </script>
 
 <style scoped>
+
 </style>
