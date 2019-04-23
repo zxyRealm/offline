@@ -20,9 +20,9 @@
                                 <el-progress :color="rankData.group[$index] ? industryColor[$index] : '#005BC9'"
                                              :percentage="rankData.group[$index] ? rankData.group[$index].percent : 0"></el-progress>
                                 <el-icon
-                                        class="el-icon-d-arrow-right"
-                                        @click.native="enterStore(rankData.group[$index])"
-                                        :class="{'c-grey': !rankData.group[$index]}"></el-icon>
+                                    class="el-icon-d-arrow-right"
+                                    @click.native="enterStore(rankData.group[$index])"
+                                    :class="{'c-grey': !rankData.group[$index]}"></el-icon>
                             </div>
                         </div>
                     </div>
@@ -37,26 +37,30 @@
                     <div class="float-block clearfix" :class="{single: currentManage.type === 3}">
                         <!--会员比例-->
                         <div class="member-ratio items">
-                            <Chart title="会员比例" :data="ratioData.member" type="member" width="100%"
-                                   height="100%"></Chart>
+                            <Chart
+                                title="会员比例" :data="ratioData.member" type="member" width="100%"
+                                height="100%"></Chart>
                         </div>
                         <!--男女比例-->
                         <div class="sex-ratio items"
                              :class="{'empty--data': !ratioData.gender.man || !ratioData.gender.man.total}">
-                            <div class="floor__sub--title">
-                                男女比例
-                            </div>
-                            <div class="sex__data--wrap vam">
-                                <div>
-                                    <span>{{ratioData.gender.woman ? ratioData.gender.woman.percent: '0%'}}</span>
-                                    <p><img width="15" src="@/assets/three/girl_icon@2x.png" alt="">女</p>
-                                </div>
-                                <div class="sex__ratio--icon"></div>
-                                <div>
-                                    <p><img width="15" src="@/assets/three/boy_icon@2x.png" alt="">男</p>
-                                    <span>{{ratioData.gender.man ? ratioData.gender.man.percent: '0%'}}</span>
-                                </div>
-                            </div>
+                            <Chart
+                                title="性别比例" :data="ratioData.gender" type="gender" width="100%"
+                                height="100%"></Chart>
+                            <!--<div class="floor__sub&#45;&#45;title">-->
+                                <!--男女比例-->
+                            <!--</div>-->
+                            <!--<div class="sex__data&#45;&#45;wrap vam">-->
+                                <!--<div>-->
+                                    <!--<span>{{ratioData.gender.woman ? ratioData.gender.woman.percent: '0%'}}</span>-->
+                                    <!--<p><img width="15" src="@/assets/three/girl_icon@2x.png" alt="">女</p>-->
+                                <!--</div>-->
+                                <!--<div class="sex__ratio&#45;&#45;icon"></div>-->
+                                <!--<div>-->
+                                    <!--<p><img width="15" src="@/assets/three/boy_icon@2x.png" alt="">男</p>-->
+                                    <!--<span>{{ratioData.gender.man ? ratioData.gender.man.percent: '0%'}}</span>-->
+                                <!--</div>-->
+                            <!--</div>-->
                         </div>
                     </div>
                     <!--回头客比例-->
@@ -109,9 +113,9 @@
                                 <ul class="right__sidebar">
                                     <template v-for="(item, $index) in rankData.industry">
                                         <li
-                                                :key="$index"
-                                                v-if="$index > 2 && $index < 10"
-                                                class="sidebar--item">
+                                            :key="$index"
+                                            v-if="$index > 2 && $index < 10"
+                                            class="sidebar--item">
                                             <span>{{$index + 1}}.{{item.industryName}}</span>
                                             <span>{{item.percent}}</span>
                                         </li>
@@ -141,7 +145,7 @@ import ChartBar from '@/components/echarts/three-bar'
 import GeneralMap from '@/components/three/GeneralMap'
 import CustomPie from '@/components/echarts/custom-pie'
 import { eventObject } from '../../utils/event'
-import { GetFlowRank, GetTimeRatio, GetChartLine } from '../../api/visual'
+import { GetFlowRank, GetTimeRatio, GetChartLine, getTimeRatio } from '../../api/visual'
 import { mapState } from 'vuex'
 import Moment from 'moment'
 
@@ -194,7 +198,7 @@ export default {
       this.initBaseData()
       this.getFlowData()
     },
-    ComunicationPer (data) {
+    CommunicationPer (data) {
       for (let val in data) {
         if (Array.isArray(data[val])) {
           let total = 0
@@ -218,7 +222,7 @@ export default {
       if (this.num < 4) {
         this.timer = setTimeout(() => {
           this.initBaseData()
-        }, 5000)
+        }, 60 * 1000)
       }
       // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
       if (!info) return
@@ -251,14 +255,14 @@ export default {
         })
       }
       // 获取实时比率
-      GetTimeRatio({ groupFloor: info.floor, groupGuid: this.currentManage.id, type: info.type }).then(res => {
+      getTimeRatio({ groupFloor: info.floor, groupGuid: this.currentManage.id, type: info.type }).then(res => {
         this.num = 0
         let resData = JSON.parse(res.data)
-        resData = this.ComunicationPer(resData)
-        resData.gender = {
-          man: resData.gender.filter(item => item.code === 'MAN')[0] || '',
-          woman: resData.gender.filter(item => item.code === 'WOMAN')[0] || ''
-        }
+        resData = this.CommunicationPer(resData)
+        // resData.gender = {
+        //   man: resData.gender.filter(item => item.code === 'MAN')[0] || '',
+        //   woman: resData.gender.filter(item => item.code === 'WOMAN')[0] || ''
+        // }
         resData.appearance = {
           many: resData.appearance.filter(item => item.code === 'MANY')[0] || '',
           first: resData.appearance.filter(item => item.code === 'FIRST')[0] || ''
@@ -291,7 +295,17 @@ export default {
         })
       }
     },
+    /*
+    * @params {type} appearance(回头客)、member(会员)、age(年龄)、gender(性别)
+    * */
+    getRatioData (type) {
 
+      getTimeRatio({ groupFloor: info.floor, groupGuid: this.currentManage.id, type: type }).then((res) => {
+        this.num = 0
+        let resData = JSON.parse(res.data)
+        resData = this.CommunicationPer(resData)
+      })
+    },
     createCommunity () {
       eventObject().$emit('CREATE_COMMUNITY-INDEX')
     },

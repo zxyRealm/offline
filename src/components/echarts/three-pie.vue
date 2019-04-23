@@ -1,15 +1,16 @@
 <template>
-  <div class="echarts--wrap" :style="{width: width, height: height}" :class="{'empty--data': total === 0}">
-    <div :id="eid" :style="{width: width, height: height}"></div>
-    <div class="percent-wrap" v-if="type === 'age'">
-      <p v-for="(item, $index) in percentList" :key="$index">{{getPercent(item.value)}}</p>
+    <div class="echarts--wrap" :style="{width: width, height: height}" :class="{'empty--data': total === 0}">
+        <div :id="eid" :style="{width: width, height: height}"></div>
+        <div class="percent-wrap" v-if="type === 'age'">
+            <p v-for="(item, $index) in percentList" :key="$index">{{getPercent(item.value)}}</p>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
 import resize from './mixins/resize'
-import {mapState} from 'vuex'
+import { mapState } from 'vuex'
+
 export default {
   name: 'three-pie',
   mixins: [resize],
@@ -19,16 +20,20 @@ export default {
       chart: null,
       dataMap: {
         age: [
-          {key: 'child', name: '0-10'},
-          {key: 'teen', name: '10-20'},
-          {key: 'youth', name: '20-30'},
-          {key: 'man', name: '30-40'},
-          {key: 'middle', name: '40-50'},
-          {key: 'old', name: '50以上'}
+          { key: 'child', name: '0-10' },
+          { key: 'teen', name: '10-20' },
+          { key: 'youth', name: '20-30' },
+          { key: 'man', name: '30-40' },
+          { key: 'middle', name: '40-50' },
+          { key: 'old', name: '50以上' }
         ],
         member: [
-          {key: 'not_member', name: '非会员'},
-          {key: 'member', name: '会员'}
+          { key: 'not_member', name: '非会员' },
+          { key: 'member', name: '会员' }
+        ],
+        gender: [
+          { key: 'man', name: '男' },
+          { key: 'woman', name: '女' }
         ]
       },
       options: {}
@@ -58,6 +63,10 @@ export default {
     title: {
       type: String,
       default: ''
+    },
+    mode: {
+      type: String,
+      default: 'vertical'
     }
   },
   created () {
@@ -91,6 +100,7 @@ export default {
     },
     // 根据type定义配置信息
     setOptions () {
+      let _this = this
       let seriesData = this.formatData()
       let size = () => {
         return {
@@ -99,6 +109,25 @@ export default {
           itemGap: 6
         }
       }
+      let color = []
+      switch (this.type) {
+        case 'gender':
+          color = ['#005BC9', '#EA9D49']
+          break
+        case 'member':
+          color = ['#28C0B1', '#E4DA52']
+          break
+        case 'age':
+          color = [
+            '#28C0B1',
+            '#79CF62',
+            '#E4DA52',
+            '#EA9D49',
+            '#2B51ED',
+            '#6201ED']
+          break
+      }
+      // if (!this.total) color = ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
       if (this.type === 'age') {
         let style = {
           fontSize: 12,
@@ -110,16 +139,8 @@ export default {
             top: '24%'
           }
         }
-        let color = this.total ? [
-          '#FFD500',
-          '#7ED321',
-          '#FF6660',
-          '#0F9EE9',
-          '#005BC9',
-          '#8663FF'
-        ] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
         this.options = {
-          color: color, // ['#2187DF','#6D2EBB']
+          color: color,
           title: {
             text: this.title,
             textStyle: {
@@ -144,6 +165,20 @@ export default {
             itemWidth: 16,
             itemHeight: size().itemHeight,
             itemGap: size().itemGap,
+            formatter: function (name) {
+              // console.log(arguments, seriesData.filter(item => item.name === name)[0].count)
+              let space = ' '
+              switch (name) {
+                case '0-10':
+                  space = '  '
+                  break
+                case '50以上':
+                  space = ''
+                  break
+              }
+              let per = space + _this.getPercent(seriesData.filter(item => item.name === name)[0].value)
+              return `${name}${space}         ${per}`
+            },
             textStyle: {
               color: '#ffffff',
               fontSize: style.fontSize,
@@ -151,12 +186,12 @@ export default {
             },
             icon: 'square',
             data: [
-              {name: '0-10'},
-              {name: '10-20'},
-              {name: '20-30'},
-              {name: '30-40'},
-              {name: '40-50'},
-              {name: '50以上'}
+              { name: '0-10', percent: '10%' },
+              { name: '10-20', percent: '15%' },
+              { name: '20-30',percent: '20%' },
+              { name: '30-40', percent: '18%' },
+              { name: '40-50', percent: '32%' },
+              { name: '50以上', percent: '10%' }
             ]
           },
           series: [
@@ -201,9 +236,8 @@ export default {
           ]
         }
       } else {
-        let color = this.total ? ['#005BC9', '#0F9EE9'] : ['#403E42', '#403E42']
         this.options = {
-          color: color, // ['#2187DF','#6D2EBB']
+          color: color,
           title: {
             text: this.title,
             textStyle: {
@@ -230,18 +264,13 @@ export default {
             itemGap: 12,
             textStyle: {
               color: '#ffffff',
+              background: '#fff',
               fontSize: '12',
               fontWeight: 'normal'
             },
             icon: 'square',
-            data: [
-              {
-                name: '0-10岁'
-              },
-              {
-                name: '10-20岁'
-              }
-            ]
+            shadowColor: 'none',
+            data: []
           },
           series: [
             {
@@ -290,26 +319,14 @@ export default {
     },
     formatData () {
       let _data = []
-      switch (this.type) {
-        case 'age':
-          _data = this.dataMap.age.map(item => {
-            let num = this.data.filter(item2 => item2.code === item.key.toUpperCase())[0]
-            return {
-              name: item.name,
-              value: num ? num.count : 0
-            }
-          })
-          break
-        default:
-          _data = this.dataMap.member.map(item => {
-            let num = this.data.filter(item2 => item2.code === item.key.toUpperCase())[0]
-            return {
-              name: item.name,
-              value: num ? num.count : 0
-            }
-          })
-          break
-      }
+      if (!this.dataMap[this.type]) return
+      _data = this.dataMap[this.type].map(item => {
+        let num = this.data.filter(item2 => item2.code === item.key.toUpperCase())[0]
+        return {
+          name: item.name,
+          value: num ? num.count : 0
+        }
+      })
       this.percentList = _data
       return _data
     }
@@ -332,29 +349,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .echarts--wrap{
-    position: relative;
-  }
-  .empty--data .percent-wrap{
-    color: #fff;
-  }
-  .percent-wrap{
-    position: absolute;
-    top: calc(20%);
-    right: 2%;
-    display: inline-block;
-    font-size: 12px;
-    p{
-      line-height: 18px;
+    .echarts--wrap {
+        position: relative;
     }
-  }
-  .single {
-    .percent-wrap{
-      top: calc(25%);
-      font-size: 13px;
-      p{
-        line-height: 19px;
-      }
+
+    .empty--data .percent-wrap {
+        color: #fff;
     }
-  }
+
+    .percent-wrap {
+        position: absolute;
+        top: calc(20%);
+        right: 2%;
+        display: inline-block;
+        font-size: 12px;
+        p {
+            line-height: 18px;
+        }
+    }
+
+    .single {
+        .percent-wrap {
+            top: calc(25%);
+            font-size: 13px;
+            p {
+                line-height: 19px;
+            }
+        }
+    }
 </style>

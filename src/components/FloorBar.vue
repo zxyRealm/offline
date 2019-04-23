@@ -6,7 +6,7 @@
       :style="{margin: listSize.margin}"
       @click="clickItem(data[0], 0)"
       :class="{active: currentIndex === 0}"
-    >总</div>
+    >{{totalText}}</div>
     <div v-if="itemList.length > maxNum" class="arrow-wrap">
       <i :class="arrowClass()" @click="switchBar('pre')"></i>
     </div>
@@ -31,7 +31,7 @@
 
 <script>
 export default {
-  name: 'switch-bar',
+  name: 'floor-bar',
   props: {
     data: {
       type: Array,
@@ -55,12 +55,16 @@ export default {
       type: Boolean,
       default: false
     },
+    totalText: {
+      type: String,
+      default: '总'
+    },
     // 子元素之间的间隙
     offset: {
       type: Number,
       default: 2
     },
-    maxNum: {
+    maxNum: { // 设置显示元素的最大数量
       type: Number,
       default: 5
     }

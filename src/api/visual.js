@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-
+import prefix from './prefix'
 // 折线图接口
 export function GetChartLine (data) {
   return request({
@@ -22,6 +22,14 @@ export function GetFlowRank (data) {
     tip: false,
     url: '/chart/top/flow',
     data
+  })
+}
+
+// 首页实时比例接口
+export function getTimeRatio (data) {
+  return request({
+    tip: false,
+    url: `${prefix[1]}/realTime/typeDayRealTime`
   })
 }
 // 获取实时比率

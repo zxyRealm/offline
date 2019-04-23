@@ -1,13 +1,13 @@
 <template>
-    <div class="app-wrapper" :class="classObj">
-        <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"></div>
-        <navbar></navbar>
-        <div class="main-container" :class="{'no-bar':!showBar,'console__main': $route.name === 'console-lwh'}">
-            <sidebar v-show="showBar" class="sidebar-container"></sidebar>
-            <app-main class="app-main-content" :class="cornerBg" id="app_main--content">
-            </app-main>
-        </div>
+  <div class="app-wrapper" :class="classObj">
+    <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"></div>
+    <navbar></navbar>
+    <div class="main-container" :class="{'no-bar':!showBar,'console__main': $route.name === 'console-lwh'}">
+      <sidebar v-show="showBar" class="sidebar-container"></sidebar>
+      <app-main class="app-main-content" :class="cornerBg" id="app_main--content">
+      </app-main>
     </div>
+  </div>
 </template>
 
 <script>
@@ -34,7 +34,8 @@ export default {
       return {
         hideSidebar: !this.sidebar.opened,
         withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === 'mobile'
+        mobile: this.device === 'mobile',
+        'theme-white': true
       }
     },
     cornerBg () {
@@ -57,48 +58,62 @@ export default {
   },
   methods: {
     handleClickOutside () {
-      this.$store.dispatch('closeSideBar', { withoutAnimation: false })
+      this.$store.dispatch('closeSideBar', {withoutAnimation: false})
     }
   }
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
-    @import "@/styles/mixin.scss";
-    @import "@/styles/variables.scss";
+<style lang="scss" scoped>
+  @import "@/styles/mixin.scss";
+  @import "@/styles/variables.scss";
 
-    .app-wrapper {
-        @include clearfix;
-        position: relative;
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-        .app-main-content {
-            height: 100%;
-            /*overflow: hidden;*/
-            box-sizing: border-box;
-            background-color: $content-bg;
-            color: #fff;
-            &.home--wrap {
-                background: $theme-bg;
-            }
-            &.transparent {
-                background: transparent;
-            }
-        }
+  .app-wrapper {
+    @include clearfix;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+
+    .app-main-content {
+      height: 100%;
+      /*overflow: hidden;*/
+      box-sizing: border-box;
+      background-color: $content-bg;
+      color: #fff;
+
+      &.home--wrap {
+        background: $theme-bg;
+      }
+
+      &.transparent {
+        background: transparent;
+      }
     }
+
+    /********
+    白色主题
+    ********/
+
+    &.theme-white{
+      .app-main-content{
+        background: $theme-white;
+        color: #333;
+      }
+    }
+  }
 </style>
-<style lang="scss" rel="stylesheet/scss">
-    .app-wrapper {
-        .app-main-content {
-            &:not(.no-padding) {
-                > div {
-                    /*padding: 0 20px;*/
-                }
-            }
-            > div {
-                height: 100%;
-            }
+<style lang="scss">
+  .app-wrapper {
+    .app-main-content {
+      &:not(.no-padding) {
+        > div {
+          /*padding: 0 20px;*/
         }
+      }
+      > div {
+        height: 100%;
+      }
     }
+  }
 </style>

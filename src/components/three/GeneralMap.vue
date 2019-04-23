@@ -8,14 +8,14 @@
         <!--:class="{'active': routerList[0].id === frame.id}"-->
         <!--@click="updateFrameArea(routerList[0], 0)"-->
         <!--&gt;总</a>-->
-        <switch-bar v-if="!singleStoreTrig" :data="routerList"
+        <floor-bar v-if="!singleStoreTrig" :data="routerList"
                     label="floor"
                     :initial-index="initialIndex"
                     :show-total="currentManage.type !== 3"
                     :max-num="8"
                     style="display: inline-block"
                     @change="updateFrameArea">
-        </switch-bar>
+        </floor-bar>
         <div v-if="singleStoreTrig" class="single-store-title">
           <span @click="backToFloor">{{singleStoreInfo.floorOrigin}}</span>
           <span>/</span>
@@ -199,7 +199,7 @@
 
 <script>
 import {GetSocketIP} from '@/api/common'
-import SwitchBar from '../../components/SwitchBar'
+import FloorBar from '../../components/FloorBar'
 import {mapState} from 'vuex'
 import {
   GetMarketList,
@@ -218,7 +218,7 @@ export default {
   name: 'GeneralMap',
   components: {
     CountTo,
-    SwitchBar
+    FloorBar
   },
   data () {
     return {
