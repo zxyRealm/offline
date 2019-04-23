@@ -1145,3 +1145,17 @@ p>.ellipsis{
 }
 
 
+// login中的表单样式
+.login .form .el-input .el-input__inner {
+  color: #555555;
+}
+.login .form .el-input input::placeholder{
+  color:#bdbbcd !important;
+  font-size: 14px;
+}
+.login .el-form-item__error{
+  margin-top: 3px;
+}
+.login .el-checkbox__label{
+  color: #ffffff;
+}
