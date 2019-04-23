@@ -67,7 +67,7 @@ Vue.use(Router)
 export const constantRouterMap = [
   {
     path: '/',
-    redirect: '/index'
+    redirect: '/login'
   },
   {
     path: '/index',
