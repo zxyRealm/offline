@@ -10,7 +10,7 @@ export function GetCode (data) {
 
 export function GetForgotCode (data) {
   return request({
-    url: '/account/generateForgotPasswordVerifyCod',
+    url: '/account/generateForgotPasswordVerifyCode',
     method: 'post',
     data
   })
