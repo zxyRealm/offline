@@ -31,8 +31,12 @@
         <div class="behavior__select--inner clearfix">
           <div class="inner-left">
             <el-option :value="0" :class="{active: !filter.device && !selectType}" label="全部设备"></el-option>
-            <div class="el-select-dropdown__item" @click="getDeviceList('aio')" :class="{active: selectType === 1}">一体机</div>
-            <div class="el-select-dropdown__item" @click="getDeviceList('camera')" :class="{active: selectType === 2}">摄像机</div>
+            <div class="el-select-dropdown__item" @click="getDeviceList('aio')" :class="{active: selectType === 1}">
+              一体机
+            </div>
+            <div class="el-select-dropdown__item" @click="getDeviceList('camera')" :class="{active: selectType === 2}">
+              摄像机
+            </div>
           </div>
           <div class="inner-right" v-show="selectType">
             <el-input
@@ -68,9 +72,9 @@
     </div>
     <el-scrollbar v-scroll-top="pagination.index" class="table__scrollbar">
       <el-table
-      border
-      :empty-text="emptyText"
-      :data="behaviorList"
+        border
+        :empty-text="emptyText"
+        :data="behaviorList"
       >
         <el-table-column
           prop="name"
@@ -109,12 +113,13 @@
           </template>
         </el-table-column>
         <el-table-column
-        prop="imageUrl"
-        width="100"
-        align="center"
-        label="照片">
+          prop="imageUrl"
+          width="100"
+          align="center"
+          label="照片">
           <template slot-scope="scope">
-            <image-box width="54px" height="54px" @click.native="showImage(scope.row)" :src="scope.row.imageUrl"></image-box>
+            <image-box width="54px" height="54px" @click.native="showImage(scope.row)"
+                       :src="scope.row.imageUrl"></image-box>
           </template>
         </el-table-column>
         <el-table-column
@@ -123,7 +128,7 @@
           label="比对照片/识别分数">
           <template slot-scope="scope">
             <div class="img-wrap" v-for="(item, $index) in scope.row.top3InfoList" :key="$index">
-              <image-box  width="54px" height="54px" @click.native="showImage(item)" :src="item.imageUrl"></image-box>
+              <image-box width="54px" height="54px" @click.native="showImage(item)" :src="item.imageUrl"></image-box>
               <p>{{item.score}}</p>
             </div>
 
@@ -154,11 +159,12 @@
 </template>
 
 <script>
-import {MemberNoFloor} from '../../api/community'
-import {GetGroupAioList, GetGroupCameraList} from '../../api/device'
-import {GetBehaviorList} from '../../api/behavior'
+import { MemberNoFloor } from '../../api/community'
+import { GetGroupAioList, GetGroupCameraList } from '../../api/device'
+import { GetBehaviorList } from '../../api/behavior'
 
-import {mapState} from 'vuex'
+import { mapState } from 'vuex'
+
 export default {
   name: 'analyse',
   data () {
@@ -182,8 +188,7 @@ export default {
       groupOriginList: [], // 原始社群列表数据
       deviceOriginList: [], // 原始设备列表数据
       deviceList: [], // 设备列表
-      behaviorList: [
-      ], // 行为信息列表
+      behaviorList: [], // 行为信息列表
       pagination: {
         index: 1,
         length: 10,
@@ -195,7 +200,8 @@ export default {
     this.getGroupList()
     this.getBehaviorList()
   },
-  mounted () {},
+  mounted () {
+  },
   computed: {
     ...mapState(['currentManage', 'aliveState'])
   },
@@ -319,25 +325,28 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-  .table__scrollbar{
+<style lang="scss" type="text/scss" scoped>
+  .table__scrollbar {
     height: calc(100% - 100px);
   }
-  .common__image--box{
+
+  .common__image--box {
     cursor: pointer;
   }
-  .img-wrap{
+
+  .img-wrap {
     display: inline-block;
     margin: 0 5px;
   }
-.select__container{
-  padding: 16px 0 12px;
-  .behavior__select{
-    width: 154px;
-    margin-right: 20px;
+
+  .select__container {
+    padding: 16px 0 12px;
+    .behavior__select {
+      width: 154px;
+      margin-right: 20px;
+    }
+    .date--picker {
+      width: 220px;
+    }
   }
-  .date--picker{
-    width: 220px;
-  }
-}
 </style>

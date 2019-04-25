@@ -2,14 +2,15 @@
   <el-form
     :model="ruleForm"
     :readonly="readonly"
-    :style="{width:width}"
+    :style="{width: width}"
     :rules="rules"
     ref="submitForm"
     :label-width="labelWidth"
     label-position="left"
     :class="formClass"
+    class="common-form"
     @submit.native.prevent
-    class="common-form">
+  >
     <slot></slot>
     <el-form-item class="form-item-button" v-if="subText">
       <el-button class="affirm" @click="submitForm('submitForm')">{{subText}}</el-button>
@@ -27,7 +28,7 @@ export default {
     },
     width: {
       type: [String, Number],
-      default: '332px'
+      default: '390px'
     },
     labelPosition: {
       type: [String],

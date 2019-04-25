@@ -32,6 +32,7 @@ export default {
   $s12: 12px;
   $s14: 14px;
   $s16: 16px;
+  $s20: 20px;
   $s24: 24px;
   .uu-icon {
     display: inline-block;
@@ -51,6 +52,10 @@ export default {
       background-image: url(../../assets/public/notify_icon.png);
       height: $s24;
       width: $s24;
+      &.middle{
+        height: $s20;
+        width: $s20;
+      }
     }
     &.arrow {
       background-image: url(../../assets/public/arrow_icon.png);

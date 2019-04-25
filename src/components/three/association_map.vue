@@ -17,7 +17,7 @@
       </div>
     </div>
     <!--楼层列表-->
-    <switch-bar
+    <floor-bar
       v-if="!data.coordinates"
       :max-num="5"
       mode="vertical"
@@ -26,7 +26,7 @@
       :initial-index="initialIndex"
       class="association-bar"
       @change="initFloor(arguments[0].floor)">
-    </switch-bar>
+    </floor-bar>
 
     <!--添加出入口-->
     <ob-dialog-form
@@ -98,13 +98,13 @@ import Mixins from '../../utils/mixins'
 import {GetGroupPortalInfo, GetPortalDeviceList, PortalUnbindDevice, PortalBatchBindDevice, CheckPortalNameExist, CreatePortal, EditPortal, DeletePortal, GetGroupPortalCount} from '../../api/community'
 import {GetGroupDevice} from '../../api/device'
 import {validateRule} from '../../utils/validate'
-import SwitchBar from '../../components/SwitchBar'
+import FloorBar from '../../components/FloorBar'
 const ossPrefix = process.env.BASE_URL
 export default {
   name: 'association_map',
   mixins: [Mixins],
   components: {
-    SwitchBar
+    FloorBar
   },
   props: {
     data: { // 当前社群信息

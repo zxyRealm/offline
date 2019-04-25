@@ -139,27 +139,31 @@ import { GetCode, Login, Register, UpdateForgotPassword, GetForgotCode } from '.
 import { clearInterval } from 'timers'
 import { validPhone, validateRule, validPhoneEmail } from '../../utils/validate'
 
+
 export default {
   name: 'login',
   data() {
     const validateCheckPass = (rule, value, callback) => {
-      if (value === '' || !value) {
-        callback(new Error('请再次输入密码'))
-      } else if (value !== this.reg.form.password && value !== this.forgot.form.password) {
-        callback(new Error('两次输入密码不一致!'))
+      if (value === "" || !value) {
+        callback(new Error("请再次输入密码"));
+      } else if (
+        value !== this.reg.form.password &&
+        value !== this.forgot.form.password
+      ) {
+        callback(new Error("两次输入密码不一致!"));
       } else {
-        callback()
+        callback();
       }
-    }
+    };
     const validateEmail = (rule, value, callback) => {
-      if (value === '' || !value) {
-        callback(new Error('请输入邮箱'))
+      if (value === "" || !value) {
+        callback(new Error("请输入邮箱"));
       } else if (!validateRule(value, 8)) {
-        callback(new Error('请输入正确的邮箱地址'))
+        callback(new Error("请输入正确的邮箱地址"));
       } else {
-        callback()
+        callback();
       }
-    }
+    };
     return {
       login: {
         form: {
@@ -219,7 +223,7 @@ export default {
           { validator: validPhoneEmail, trigger: 'blur' }
         ]
       },
-      clock: '',
+      clock: "",
       isSuccess: false,
       mode: 'login'
     }
@@ -318,7 +322,7 @@ export default {
       }, 1000)
     },
     _setSuccess(cb) {
-      this.isSuccess = true
+      this.isSuccess = true;
       this.clock = window.setTimeout(res => {
         this.isSuccess = false
         cb()

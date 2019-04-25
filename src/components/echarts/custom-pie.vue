@@ -1,13 +1,10 @@
 <template>
   <div ref="personWrap" class="person__pie--wrap">
-    <!--<span-->
-      <!--class="return__ratio&#45;&#45;icon">-->
       <span
         :key="item"
         v-for="item in iconCount"
-        class="iconfont return__ratio--icon"
+        class="iconfont icon-huitoukebili"
         :class="item > girlInt ? 'icon-nan':'icon-nv'"></span>
-    <!--</span>-->
   </div>
 </template>
 
@@ -87,7 +84,7 @@ export default {
 
 <style lang="scss" scoped>
   .empty--data{
-    .return__ratio--icon{
+    .icon-huitoukebili{
       color: #79787B;
       &.icon-nv, &.icon-nan{
         color: #79787B;
@@ -98,7 +95,7 @@ export default {
     display: block;
     overflow: hidden;
   }
-  .return__ratio--icon{
+  .icon-huitoukebili{
     display: inline-block;
     width: 10px;
     color: #005BC9;

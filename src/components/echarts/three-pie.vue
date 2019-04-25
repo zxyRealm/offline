@@ -1,19 +1,31 @@
 <template>
-  <div class="echarts--wrap" :style="{width: width, height: height}" :class="{'empty--data': total === 0}">
-    <div :id="eid" :style="{width: width, height: height}"></div>
-    <div class="percent-wrap" v-if="type === 'age'">
-      <p v-for="(item, $index) in percentList" :key="$index">{{getPercent(item.value)}}</p>
-    </div>
+  <div ref="echartsWrap" class="echarts--wrap" :style="{width: width, height: height}" :class="{'empty--data': total === 0}">
+    <!--<div :id="eid" :style="{width: width, height: height}"></div>-->
+    <!--<div class="percent-wrap" v-if="type === 'age'">-->
+    <!--<p v-for="(item, $index) in percentList" :key="$index">{{getPercent(item.value)}}</p>-->
+    <!--</div>-->
   </div>
 </template>
 
 <script>
 import resize from './mixins/resize'
-import {mapState} from 'vuex'
+import { mapState } from 'vuex'
+const setEchartsFontSize = () => {
+  let offsetWidth = document.body.offsetWidth
+  // console.log('offset width', offsetWidth)
+  if (offsetWidth <= 1440) {
+    return 12
+  } else if (offsetWidth > 1440 && offsetWidth < 1600) {
+    return 13
+  } else {
+    return 14
+  }
+}
 export default {
   name: 'three-pie',
   mixins: [resize],
   data () {
+    let width = 3000
     return {
       percentList: [],
       chart: null,
@@ -29,6 +41,10 @@ export default {
         member: [
           {key: 'not_member', name: '非会员'},
           {key: 'member', name: '会员'}
+        ],
+        gender: [
+          {key: 'man', name: '男'},
+          {key: 'woman', name: '女'}
         ]
       },
       options: {}
@@ -58,13 +74,17 @@ export default {
     title: {
       type: String,
       default: ''
+    },
+    mode: {
+      type: String,
+      default: 'vertical' // vertical horizontal
     }
   },
   created () {
   },
   mounted () {
-    this.chart = this.$echarts.init(document.getElementById(this.eid))
     this.initData()
+    window.addEventListener('resize', this.setOptions)
   },
   computed: {
     ...mapState(['currentManage']),
@@ -77,13 +97,55 @@ export default {
         total += item.count
       })
       return total
+    },
+    modeOption () {
+      let option = {
+        height: '',
+        right: '6%',
+        bottom: '24%',
+        itemHeight: 14,
+        itemGap: 10,
+        center: ['28%', '50%'],
+        radius: ['46%', '82%']
+      }
+console.log('width-------------', document.getElementById(this.eid).offsetWidth)
+      if (this.mode === 'horizontal') {
+        option = {
+          right: 'auto',
+          bottom: '1.5%',
+          // height: (option.itemHeight + option.itemGap) * 3,
+          itemHeight: 13,
+          itemGap: 8,
+          center: ['50%', '32%'],
+          radius: ['36%', '60%']
+        }
+      }
+      console.log('----------', option)
+      return option
     }
   },
   methods: {
     initData () {
-      this.setOptions()
-      this.chart.resize()
-      this.chart.setOption(this.options)
+      /*
+      *
+      * 重设echarts配置信息option legend: { orient: 'horizontal', right: 'auto' } 后，图例内容不能居中显示
+      * 将echarts 实例销毁重新设置相同设置信息是可以使 图例内容居中的
+      */
+
+      if (!document.getElementById(this.eid)) {
+        let container = document.createElement('div')
+        container.id = this.eid
+        container.style.width = this.width
+        container.style.height = this.height
+        this.$refs.echartsWrap.appendChild(container)
+      }
+      this.$nextTick(() => {
+        this.chart = this.$echarts.init(document.getElementById(this.eid))
+        this.setOptions()
+        this.chart.resize()
+        this.chart.setOption(this.options)
+      })
+
     },
     // 计算百分比
     getPercent (val) {
@@ -91,6 +153,7 @@ export default {
     },
     // 根据type定义配置信息
     setOptions () {
+      let _this = this
       let seriesData = this.formatData()
       let size = () => {
         return {
@@ -99,6 +162,27 @@ export default {
           itemGap: 6
         }
       }
+      let color = []
+      let fontSize = setEchartsFontSize()
+      if (this.mode !== 'vertical') fontSize = fontSize -1
+      switch (this.type) {
+        case 'gender':
+          color = ['#005BC9', '#EA9D49']
+          break
+        case 'member':
+          color = ['#28C0B1', '#E4DA52']
+          break
+        case 'age':
+          color = [
+            '#28C0B1',
+            '#79CF62',
+            '#E4DA52',
+            '#EA9D49',
+            '#2B51ED',
+            '#6201ED']
+          break
+      }
+      // if (!this.total) color = ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
       if (this.type === 'age') {
         let style = {
           fontSize: 12,
@@ -110,21 +194,14 @@ export default {
             top: '24%'
           }
         }
-        let color = this.total ? [
-          '#FFD500',
-          '#7ED321',
-          '#FF6660',
-          '#0F9EE9',
-          '#005BC9',
-          '#8663FF'
-        ] : ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
+        let op = this.modeOption
         this.options = {
-          color: color, // ['#2187DF','#6D2EBB']
+          color: color,
           title: {
             text: this.title,
             textStyle: {
               color: '#ffffff',
-              fontSize: size().tSize,
+              fontSize: fontSize + 2,
               fontWeight: 'normal'
             }
           },
@@ -137,17 +214,34 @@ export default {
             }
           },
           legend: {
-            orient: 'vertical',
-            top: style.top,
-            right: '20%',
-            align: 'left',
-            itemWidth: 16,
-            itemHeight: size().itemHeight,
-            itemGap: size().itemGap,
+            orient: _this.mode,
+            height: op.height,
+            bottom: op.bottom,
+            right: op.right,
+            // align: 'center',
+            itemWidth: 14,
+            itemHeight: fontSize,
+            itemGap: op.itemGap,
+            selectedMode: false,
+            formatter: function (name) {
+              // let per = _this.getPercent(seriesData.filter(item => item.name === name)[0].value) || '88.8%'
+              let per = (_this.mode === 'vertical' ?  '  ' : '') +  '88.8%'
+              return `{name|${name}}{per|${per}}`
+            },
             textStyle: {
               color: '#ffffff',
-              fontSize: style.fontSize,
-              fontWeight: 'normal'
+              fontSize: fontSize,
+              fontWeight: 'normal',
+              rich: {
+                name: {
+                  width: fontSize * 4,
+                  fontSize: fontSize
+                },
+                per: {
+                  width: fontSize * 3,
+                  fontSize: fontSize
+                }
+              }
             },
             icon: 'square',
             data: [
@@ -163,8 +257,8 @@ export default {
             {
               name: '',
               type: 'pie',
-              center: ['28%', '56%'],
-              radius: ['36%', '60%'],
+              center: op.center,
+              radius: op.radius,
               avoidLabelOverlap: false,
               roseType: 'radius',
               label: {
@@ -201,9 +295,8 @@ export default {
           ]
         }
       } else {
-        let color = this.total ? ['#005BC9', '#0F9EE9'] : ['#403E42', '#403E42']
         this.options = {
-          color: color, // ['#2187DF','#6D2EBB']
+          color: color,
           title: {
             text: this.title,
             textStyle: {
@@ -230,18 +323,13 @@ export default {
             itemGap: 12,
             textStyle: {
               color: '#ffffff',
+              background: '#fff',
               fontSize: '12',
               fontWeight: 'normal'
             },
             icon: 'square',
-            data: [
-              {
-                name: '0-10岁'
-              },
-              {
-                name: '10-20岁'
-              }
-            ]
+            shadowColor: 'none',
+            data: []
           },
           series: [
             {
@@ -287,29 +375,19 @@ export default {
           ]
         }
       }
+      this.chart.setOption(this.options)
+      // this.chart.reset()
     },
     formatData () {
       let _data = []
-      switch (this.type) {
-        case 'age':
-          _data = this.dataMap.age.map(item => {
-            let num = this.data.filter(item2 => item2.code === item.key.toUpperCase())[0]
-            return {
-              name: item.name,
-              value: num ? num.count : 0
-            }
-          })
-          break
-        default:
-          _data = this.dataMap.member.map(item => {
-            let num = this.data.filter(item2 => item2.code === item.key.toUpperCase())[0]
-            return {
-              name: item.name,
-              value: num ? num.count : 0
-            }
-          })
-          break
-      }
+      if (!this.dataMap[this.type]) return
+      _data = this.dataMap[this.type].map(item => {
+        let num = this.data.filter(item2 => item2.code === item.key.toUpperCase())[0]
+        return {
+          name: item.name,
+          value: num ? num.count : 0
+        }
+      })
       this.percentList = _data
       return _data
     }
@@ -326,33 +404,46 @@ export default {
         this.initData()
       },
       deep: true
+    },
+    mode () {
+      this.setOptions()
+      if (this.chart) {
+        this.chart.dispose()
+        this.initData()
+      }
     }
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.setOptions)
   }
 }
 </script>
 
 <style lang="scss" scoped>
-  .echarts--wrap{
+  .echarts--wrap {
     position: relative;
   }
-  .empty--data .percent-wrap{
+
+  .empty--data .percent-wrap {
     color: #fff;
   }
-  .percent-wrap{
+
+  .percent-wrap {
     position: absolute;
     top: calc(20%);
     right: 2%;
     display: inline-block;
     font-size: 12px;
-    p{
+    p {
       line-height: 18px;
     }
   }
+
   .single {
-    .percent-wrap{
+    .percent-wrap {
       top: calc(25%);
       font-size: 13px;
-      p{
+      p {
         line-height: 19px;
       }
     }

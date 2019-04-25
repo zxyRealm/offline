@@ -1,9 +1,9 @@
 import request from '@/utils/request'
-
+import prefix from './prefix'
 // 获取商户下管理员社群列表
 export function GetAreaList () {
   return request({
-    url: '/area/read/list',
+    url: `${prefix[0]}/area/read/list`,
     method: 'get'
   })
 }
