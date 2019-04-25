@@ -47,3 +47,20 @@ export function UpdateForgotPassword (data) {
     data
   })
 }
+
+export function exitLogin (data) {
+  return request({
+    url: '/account/logout',
+    method: 'post',
+    data
+  })
+}
+
+export function checkLoginStatus (data) {
+  return request({
+    tip: false,
+    url: '/account/checkLoginStatus',
+    method: 'post',
+    data
+  })
+}

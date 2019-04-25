@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Cookie from 'js-cookie'
 import request from '@/utils/request'
+import { checkLoginStatus } from '../api/account'
 
 const Layout = () => import('@/views/layout/Layout.vue')
 
@@ -75,7 +77,7 @@ export const constantRouterMap = [
     path: '/index',
     component: Layout,
     meta: {
-      title: '首页'
+      title: '首页', auth: true
     },
     children: [
       {
@@ -83,6 +85,7 @@ export const constantRouterMap = [
         name: 'index-lwh',
         meta: {
           title: '首页-线下浏览器服务平台',
+          auth: true,
           keepAlive: false
         },
         component: homePage
@@ -92,6 +95,7 @@ export const constantRouterMap = [
         name: 'index-home',
         meta: {
           title: '站内信-线下浏览器服务平台',
+          auth: true,
           keepAlive: false
         },
         component: homeNotify
@@ -132,7 +136,7 @@ export const constantRouterMap = [
         path: 'mine',
         name: 'community',
         meta: {
-          title: '社群管理-线下浏览器服务平台'
+          title: '社群管理-线下浏览器服务平台', auth: true
         },
         component: Community
       },
@@ -140,7 +144,7 @@ export const constantRouterMap = [
         path: 'create',
         name: 'communityCreate',
         meta: {
-          title: '社群管理-线下浏览器服务平台'
+          title: '社群管理-线下浏览器服务平台', auth: true
         },
         component: CommunityGuide
       },
@@ -156,7 +160,7 @@ export const constantRouterMap = [
         path: 'create/chain',
         name: 'createChain',
         meta: {
-          title: '创建连锁-线下浏览器服务平台'
+          title: '创建连锁-线下浏览器服务平台', auth: true
         },
         component: CommunityCreate
       },
@@ -164,7 +168,7 @@ export const constantRouterMap = [
         path: 'create/store',
         name: 'createStore',
         meta: {
-          title: '创建单店-线下浏览器服务平台'
+          title: '创建单店-线下浏览器服务平台', auth: true
         },
         component: CommunityCreate
       },
@@ -172,7 +176,7 @@ export const constantRouterMap = [
         path: 'edit/market',
         name: 'editMarket',
         meta: {
-          title: '编辑商场-线下浏览器服务平台'
+          title: '编辑商场-线下浏览器服务平台', auth: true
         },
         component: CommunityCreate
       },
@@ -180,7 +184,7 @@ export const constantRouterMap = [
         path: 'edit/chain',
         name: 'editChain',
         meta: {
-          title: '编辑连锁-线下浏览器服务平台'
+          title: '编辑连锁-线下浏览器服务平台', auth: true
         },
         component: CommunityCreate
       },
@@ -188,7 +192,7 @@ export const constantRouterMap = [
         path: 'edit/store',
         name: 'editStore',
         meta: {
-          title: '编辑单店-线下浏览器服务平台'
+          title: '编辑单店-线下浏览器服务平台', auth: true
         },
         component: CommunityCreate
       }
@@ -201,7 +205,7 @@ export const constantRouterMap = [
     path: '/equipment',
     component: Layout,
     meta: {
-      title: '设备管理-线下浏览器服务平台'
+      title: '设备管理-线下浏览器服务平台', auth: true
     },
     children: [
       {
@@ -262,25 +266,25 @@ export const constantRouterMap = [
       {
         path: '',
         name: 'MemberMine',
-        meta: {title: '人员管理-线下浏览器服务平台'},
+        meta: {title: '人员管理-线下浏览器服务平台', auth: true},
         component: Member
       },
       {
         path: 'library',
         name: 'Library',
-        meta: {title: '人员管理-线下浏览器服务平台'},
+        meta: {title: '人员管理-线下浏览器服务平台', auth: true},
         component: Library
       },
       {
         path: 'person',
         name: 'Person',
-        meta: {title: '人员管理-线下浏览器服务平台'},
+        meta: {title: '人员管理-线下浏览器服务平台', auth: true},
         component: Person
       },
       {
         path: 'details',
         name: 'Details',
-        meta: {title: '人员管理-线下浏览器服务平台'},
+        meta: {title: '人员管理-线下浏览器服务平台', auth: true},
         component: Details
       }
     ]
@@ -299,6 +303,7 @@ export const constantRouterMap = [
         name: 'data',
         meta: {
           title: '数据分析-线下浏览器服务平台',
+          auth: true,
           keepAlive: false
         },
         component: Data,
@@ -308,6 +313,7 @@ export const constantRouterMap = [
             name: 'guest-analysis',
             meta: {
               title: '数据分析-线下浏览器服务平台',
+              auth: true,
               keepAlive: false
             },
             component: guestAnalysis
@@ -317,6 +323,7 @@ export const constantRouterMap = [
             name: 'gender-analysis',
             meta: {
               title: '数据分析-线下浏览器服务平台',
+              auth: true,
               keepAlive: false
             },
             component: genderAnalysis
@@ -326,6 +333,7 @@ export const constantRouterMap = [
             name: 'age-analysis',
             meta: {
               title: '数据分析-线下浏览器服务平台',
+              auth: true,
               keepAlive: false
             },
             component: ageAnalysis
@@ -335,6 +343,7 @@ export const constantRouterMap = [
             name: 'shop-frequency-analysis',
             meta: {
               title: '数据分析-线下浏览器服务平台',
+              auth: true,
               keepAlive: false
             },
             component: shopFrequencyAnalysis
@@ -363,7 +372,7 @@ export const constantRouterMap = [
             name: 'BehaviorTrail',
             component: BehaviorTrail,
             meta: {
-              title: '行为分析-线下浏览器服务平台'
+              title: '行为分析-线下浏览器服务平台', auth: true
             }
           },
           {
@@ -371,7 +380,7 @@ export const constantRouterMap = [
             component: BehaviorAnalyse,
             name: 'BehaviorAnalyse',
             meta: {
-              title: '行为分析-线下浏览器服务平台'
+              title: '行为分析-线下浏览器服务平台', auth: true
             }
           }
         ]
@@ -574,7 +583,28 @@ router.beforeEach((to, from, next) => {
     'editNotifyCallback': 'sysNotify',
     'BehaviorTrail': 'BehaviorAnalyse'
   }
-  next()
+  if (to.meta.auth) {
+    let [phone, token] = [Cookie.get('user_phone'), Cookie.get('user_token')]
+    if (phone && token) {
+      checkLoginStatus({phoneNumber: phone, token: token}).then((res) => {
+        Cookie.set('user_phone', res.data.phoneNumber)
+        Cookie.set('user_token', res.data.token)
+        router.app.$options.store.state.userInfo = res.data
+        next()
+      }).catch(() => {
+        Cookie.remove('user_phone')
+        Cookie.remove('user_token')
+        next({path: '/login'})
+      })
+    } else {
+      Cookie.remove('user_phone')
+      Cookie.remove('user_token')
+      next({path: '/login'})
+    }
+  } else {
+    next()
+  }
+  // next()
   // if (to.meta.auth) {
   //   request({url: '/loginCheck', tip: false}).then(() => {
   //     if (aliveObj[to.name]) {

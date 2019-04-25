@@ -3,21 +3,21 @@
     <h2 class="guide-title">创建社群</h2>
     <div class="guide-content">
       <router-link to="/community/create/market" class="guide-items">
-        <img width="220" src="@/assets/community/chain_icon@2x.png" alt="商场">
+        <img width="220" src="@/assets/community/market-icon@2x.png" alt="商场">
         <div class="content">
           <h3 class="sub-title">商场</h3>
           <p>例如：银泰商场，商场可包含单店</p>
         </div>
       </router-link>
       <router-link to="/community/create/chain" class="guide-items">
-        <img width="220" src="@/assets/community/chain_icon@2x.png" alt="商场">
+        <img width="220" src="@/assets/community/chain-icon@2x.png" alt="连锁总店">
         <div class="content">
           <h3 class="sub-title">连锁总店</h3>
           <p>例如：屈臣氏总店，连锁总店可包含单店</p>
         </div>
       </router-link>
       <router-link to="/community/create/store" class="guide-items">
-        <img width="220" src="@/assets/community/chain_icon@2x.png" alt="商场">
+        <img width="220" src="@/assets/community/store-icon@2x.png" alt="单个门店">
         <div class="content">
           <h3 class="sub-title">单个门店</h3>
           <p>例如：屈臣氏分店</p>

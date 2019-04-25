@@ -38,14 +38,14 @@
             <span class="iconfont icon-xiaoxi" :class="{'notify-have': notifState}"></span>
             <!--<uu-icon type="notify" size="middle" :class="notifState?'notify-have':''"></uu-icon>-->
           </router-link>
-          <el-dropdown>
+          <el-dropdown @command="handleCommand">
             <span class="el-dropdown-link">
               <img width="26" :src="avatar" alt="">
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>{{userInfo.phone}}</el-dropdown-item>
-              <el-dropdown-item>狮子头</el-dropdown-item>
-              <el-dropdown-item>螺蛳粉</el-dropdown-item>
+              <el-dropdown-item command="user">{{userInfo.phoneNumber || '13145697895'}}</el-dropdown-item>
+              <!--<el-dropdown-item>狮子头</el-dropdown-item>-->
+              <el-dropdown-item command="exit">退出</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -214,6 +214,7 @@ import { GetManageList, OssSignature, FirstLogin, NoticeReadState } from '../../
 import { CheckNameExist, AddNewCommunity } from '../../../api/community'
 import { validateRule, validPhone } from '../../../utils/validate'
 import { parseTime, fileTypeAllow, IntToFloor } from '../../../utils'
+import { exitLogin } from '../../../api/account'
 import axios from 'axios'
 import { load } from '../../../utils/request'
 import AreaSelect from '@/components/area-select/area-select'
@@ -419,6 +420,16 @@ export default {
     }
   },
   methods: {
+    // 下拉菜单事件处理
+    handleCommand (e) {
+      if (e === 'exit') {
+        exitLogin({phoneNumber: '', token: ''}).then(() => {
+          this.$cookie().remove('user_phone')
+          this.$cookie().remove('user_token')
+          this.$router.push('/login')
+        })
+      }
+    },
     // 获取商户所有管管理层社群
     getManageList () {
       GetManageList().then(res => {

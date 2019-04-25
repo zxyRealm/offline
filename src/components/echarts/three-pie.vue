@@ -1,6 +1,6 @@
 <template>
-  <div class="echarts--wrap" :style="{width: width, height: height}" :class="{'empty--data': total === 0}">
-    <div :id="eid" :style="{width: width, height: height}"></div>
+  <div ref="echartsWrap" class="echarts--wrap" :style="{width: width, height: height}" :class="{'empty--data': total === 0}">
+    <!--<div :id="eid" :style="{width: width, height: height}"></div>-->
     <!--<div class="percent-wrap" v-if="type === 'age'">-->
     <!--<p v-for="(item, $index) in percentList" :key="$index">{{getPercent(item.value)}}</p>-->
     <!--</div>-->
@@ -77,13 +77,12 @@ export default {
     },
     mode: {
       type: String,
-      default: 'horizontal' // vertical horizontal
+      default: 'vertical' // vertical horizontal
     }
   },
   created () {
   },
   mounted () {
-    this.chart = this.$echarts.init(document.getElementById(this.eid))
     this.initData()
     window.addEventListener('resize', this.setOptions)
   },
@@ -101,26 +100,22 @@ export default {
     },
     modeOption () {
       let option = {
-        fontSize: setEchartsFontSize(),
         height: '',
-        top: 'auto',
         right: '6%',
-        bottom: '20%',
+        bottom: '24%',
         itemHeight: 14,
         itemGap: 10,
         center: ['28%', '50%'],
         radius: ['46%', '82%']
       }
-
-      if (this.mode !== 'vertical') {
+console.log('width-------------', document.getElementById(this.eid).offsetWidth)
+      if (this.mode === 'horizontal') {
         option = {
-          fontSize: setEchartsFontSize(),
-          top: 'auto',
           right: 'auto',
-          bottom: '8%',
-          height: (option.itemHeight + option.itemGap) * 3,
-          itemHeight: 14,
-          itemGap: 10,
+          bottom: '1.5%',
+          // height: (option.itemHeight + option.itemGap) * 3,
+          itemHeight: 13,
+          itemGap: 8,
           center: ['50%', '32%'],
           radius: ['36%', '60%']
         }
@@ -131,9 +126,26 @@ export default {
   },
   methods: {
     initData () {
-      this.setOptions()
-      this.chart.resize()
-      this.chart.setOption(this.options)
+      /*
+      *
+      * 重设echarts配置信息option legend: { orient: 'horizontal', right: 'auto' } 后，图例内容不能居中显示
+      * 将echarts 实例销毁重新设置相同设置信息是可以使 图例内容居中的
+      */
+
+      if (!document.getElementById(this.eid)) {
+        let container = document.createElement('div')
+        container.id = this.eid
+        container.style.width = this.width
+        container.style.height = this.height
+        this.$refs.echartsWrap.appendChild(container)
+      }
+      this.$nextTick(() => {
+        this.chart = this.$echarts.init(document.getElementById(this.eid))
+        this.setOptions()
+        this.chart.resize()
+        this.chart.setOption(this.options)
+      })
+
     },
     // 计算百分比
     getPercent (val) {
@@ -202,16 +214,18 @@ export default {
             }
           },
           legend: {
-            orient: 'vertical',
+            orient: _this.mode,
             height: op.height,
             bottom: op.bottom,
             right: op.right,
-            // itemWidth: 16,
+            // align: 'center',
+            itemWidth: 14,
             itemHeight: fontSize,
             itemGap: op.itemGap,
+            selectedMode: false,
             formatter: function (name) {
               // let per = _this.getPercent(seriesData.filter(item => item.name === name)[0].value) || '88.8%'
-              let per = '88.8%'
+              let per = (_this.mode === 'vertical' ?  '  ' : '') +  '88.8%'
               return `{name|${name}}{per|${per}}`
             },
             textStyle: {
@@ -361,6 +375,8 @@ export default {
           ]
         }
       }
+      this.chart.setOption(this.options)
+      // this.chart.reset()
     },
     formatData () {
       let _data = []
@@ -388,6 +404,13 @@ export default {
         this.initData()
       },
       deep: true
+    },
+    mode () {
+      this.setOptions()
+      if (this.chart) {
+        this.chart.dispose()
+        this.initData()
+      }
     }
   },
   beforeDestroy () {

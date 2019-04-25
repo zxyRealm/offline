@@ -3,22 +3,31 @@
     <!--楼宇3D/平面分布图展示 start-->
     <!--没有管理层信息是空数据状态 使用class="empty--data"-->
     <template v-if="!currentManage.id">
-
+      <!--<el-button @click="changeType">切换</el-button>-->
       <div class="floor__data--wrap">
         <el-scrollbar>
+          <h2 class="title">{{currentManage.name || '屈臣氏'}}</h2>
+          <!--进客流柱状图-->
+          <!--门店状态（商场、连锁）或者单店状态下显示-->
+          <div class="in-flow items" v-if="isStore">
+            <chart-bar title="进客流量" :data="flowData" type="inflow" width="100%" height="100%"></chart-bar>
+          </div>
           <!--门店客流排行榜-->
           <!--商场管理、商场楼层、连锁全国、省、市、区 状态下显示-->
           <!--v-if="currentManage.type === 1 && !currentFloor.industryType && currentFloor.type !== 4"-->
-          <div class="store-flow-rank items">
+          <div class="store-flow-rank items" v-else>
             <div class="floor__sub--title">
               门店客流排行榜
             </div>
             <div class="process__list--wrap">
-              <div class="pl-items vam" v-for="(val, $index) in 6" :key="val"
-                   :class="{'empty--data': !rankData.group[$index]}">
+              <div
+                class="pl-items vam"
+                v-for="(val, $index) in 6" :key="val"
+                :class="{'empty--data': !rankData.group[$index]}">
                 <span class="ellipsis">{{val}}.{{rankData.group[$index] ? rankData.group[$index].groupName : `门店${$index + 1}`}}</span>
-                <el-progress :color="rankData.group[$index] ? industryColor[$index] : '#005BC9'"
-                             :percentage="rankData.group[$index] ? rankData.group[$index].percent : 0"></el-progress>
+                <el-progress
+                  :color="rankData.group[$index] ? industryColor[$index] : '#005BC9'"
+                  :percentage="rankData.group[$index] ? rankData.group[$index].percent : 0"></el-progress>
                 <el-icon
                   class="el-icon-d-arrow-right"
                   @click.native="enterStore(rankData.group[$index])"
@@ -26,14 +35,6 @@
               </div>
             </div>
           </div>
-
-          <!--进客流柱状图-->
-          <!--门店状态（商场、连锁）或者单店状态下显示-->
-          <div class="in-flow items"
-               v-if="currentManage.type === 3 || currentFloor.industryType || currentFloor.type === 4">
-            <chart-bar title="进客流量" :data="flowData" type="inflow" width="100%" height="100%"></chart-bar>
-          </div>
-
           <div class="float-block clearfix" :class="{single: currentManage.type === 3}">
             <!--会员比例-->
             <div class="member-ratio items">
@@ -69,10 +70,10 @@
             </div>
           </div>
 
-          <div class="content--wrap">
+          <div class="content--wrap" :class="{'double-item': showIndustry}">
             <!--业态客流排行榜-->
             <!--v-if="currentManage.type === 1 && currentFloor && currentFloor.floor === 0"-->
-            <div class="format-flow-rank items">
+            <div class="format-flow-rank items" v-if="showIndustry">
               <div class="floor__sub--title">
                 业态客流排行榜
               </div>
@@ -108,8 +109,8 @@
             </div>
 
             <!--年龄比例-->
-            <div class="age-ratio items" :class="{single: currentManage.type === 3, vertical: true}">
-              <Chart :data="ratioData.age" title="年龄比例" type="age" width="100%" height="100%"></Chart>
+            <div class="age-ratio items" :class="{single: currentManage.type === 3, vertical: showIndustry}">
+              <Chart :data="ratioData.age" :mode="!showIndustry ? 'vertical': 'horizontal'" title="年龄比例" type="age" width="100%" height="100%"></Chart>
             </div>
           </div>
 
@@ -177,11 +178,24 @@ export default {
     this.initBaseData()
   },
   computed: {
-    ...mapState(['currentManage'])
+    ...mapState(['currentManage']),
+    // 是否显示业态排行
+    // 仅商场下总楼层状态和楼层地图时展示业态排行
+    showIndustry () {
+      return this.currentManage.type === 1 && this.currentFloor && this.currentFloor.type !== 4
+    },
+    // 是否是单店/商场门店/连锁门店
+    isStore () {
+      return this.currentManage.type === 3 || new Set([3, 4]).has(this.currentFloor.type)
+    }
   },
   methods: {
+    changeType () {
+      this.$set(this.currentFloor, 'type', 3)
+      this.$store.state.currentManage = {type: 1}
+    },
     setFloorInfo (data) {
-      this.currentFloor = data
+      this.currentFloor = data || {}
       this.initBaseData()
       this.getFlowData()
     },
@@ -215,7 +229,6 @@ export default {
     },
     // 初始化获取数据
     initBaseData () {
-      let info = this.currentFloor
       clearTimeout(this.timer)
       // if (info.type === 4 || info.industryType) return
       if (this.num < 4) {
@@ -226,57 +239,9 @@ export default {
       // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
       // if (!info) return
       this.getRankData(2)
-      // if (info.type !== 4 && !info.industryType) {
-      //   getFlowRank({groupFloor: info.floor, groupGuid: this.currentManage.id, topType: info.type}).then(res => {
-      //     this.num = 0
-      //     res.data = JSON.parse(res.data)
-      //     let industryTotal = 0
-      //     let groupTotal = 0
-      //
-      //     res.data.industry.map(item => {
-      //       industryTotal += item.count
-      //     })
-      //     res.data.group.map(item => {
-      //       groupTotal += item.count
-      //     })
-      //     res.data.industry.map(item => {
-      //       this.$set(item, 'percent', industryTotal ? ((item.count / industryTotal) * 100).toFixed(1) + '%' : '0%')
-      //     })
-      //     res.data.group.map(item => {
-      //       this.$set(item, 'percent', groupTotal ? Number(((item.count / groupTotal) * 100).toFixed(1)) : 0)
-      //     })
-      //     this.rankData = res.data
-      //   }).catch(err => {
-      //     if (err.code === 'ERR-110') {
-      //       this.num = 4
-      //     } else {
-      //       this.num++
-      //     }
-      //     console.error(err.msg || '网络异常，请稍后重新尝试')
-      //   })
-      // }
+
       // 获取实时比率
       this.getRatioData('member')
-      // getTimeRatio({groupFloor: info.floor, groupGuid: this.currentManage.id, type: info.type}).then(res => {
-      //   this.num = 0
-      //   let resData = JSON.parse(res.data)
-      //   resData = this.CommunicationPer(resData)
-      //   // resData.gender = {
-      //   //   man: resData.gender.filter(item => item.code === 'MAN')[0] || '',
-      //   //   woman: resData.gender.filter(item => item.code === 'WOMAN')[0] || ''
-      //   // }
-      //   resData.appearance = {
-      //     many: resData.appearance.filter(item => item.code === 'MANY')[0] || '',
-      //     first: resData.appearance.filter(item => item.code === 'FIRST')[0] || ''
-      //   }
-      //   this.ratioData = resData
-      // }).catch(err => {
-      //   if (err.code === 'ERR-110') {
-      //     this.num = 4
-      //   } else {
-      //     this.num++
-      //   }
-      // })
     },
     //
     /*
@@ -286,11 +251,14 @@ export default {
     getRankData (type) {
       // if (this.currentManage.type === 1 && type === 2) return //
       let keyMap = {1: 'group', 2: 'industry'}
-      getFlowRank({groupFloor: this.currentFloor.floor, groupGuid: this.currentManage.id, topType: type}).then((res) => {
+      getFlowRank({
+        groupFloor: this.currentFloor.floor,
+        groupGuid: this.currentManage.id,
+        topType: type
+      }).then((res) => {
         this.num = 0
         this.$set(this.rankData, keyMap[type], this.CommunicationPer(res.data.industry))
         // console.log('industry------------', )
-
       }).catch(err => {
         if (err.code === 'ERR-110') {
           this.num = 4
@@ -361,7 +329,6 @@ export default {
   @import "@/styles/variables.scss";
 
   .app-wrapper .app-main-content .three__floor--wrap {
-    padding: 10px;
     box-sizing: border-box;
   }
 
@@ -423,7 +390,26 @@ export default {
     /*max-width: 400px;*/
     min-width: 340px;
     height: 100%;
-    margin-left: 10px;
+    padding: 0 10px;
+    /*margin-left: 10px;*/
+    background: $theme-bg1;
+    .title{
+      height: 56px;
+      line-height: 56px;
+      margin-bottom: 12px;
+      border-bottom: 1px dashed #3B3F46;
+      font-size: 20px;
+      color: $gray-title;
+      &:before{
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 20px;
+        margin-right: 15px;
+        vertical-align: middle;
+        background: $theme-blue;
+      }
+    }
     .el-scrollbar {
       height: 100%;
       overflow: hidden;
@@ -432,7 +418,7 @@ export default {
       .items {
         padding: 10px 15px;
         box-sizing: border-box;
-        background: $theme-bg1;
+        background: #26273D;
       }
       > div {
         margin-bottom: 10px;
@@ -477,7 +463,7 @@ export default {
     }
     /*回头客比例*/
     .return-ratio {
-      height: 116px;
+      height: 126px;
       &.single {
         height: 146px;
         .person__pie--wrap {
@@ -487,8 +473,8 @@ export default {
         }
       }
       .person__pie--wrap {
-        margin-top: 15px;
-        height: 28px;
+        margin-top: 20px;
+        height: 32px;
       }
     }
     .return__data--wrap {
@@ -529,14 +515,19 @@ export default {
         }
       }
     }
+    .content--wrap {
+      height: 250px;
+      &.double-item {
+        height: 300px;
+      }
+    }
+
     /*年龄比例*/
     .age-ratio {
       float: left;
-      height: 300px;
-      /*&.single {*/
-        /*height: 200px;*/
-      /*}*/
-      &.vertical{
+      width: 100%;
+      height: 100%;
+      &.vertical {
         width: calc(50% - 5px);
       }
     }
@@ -547,14 +538,14 @@ export default {
     .format-flow-rank {
       float: left;
       width: calc(50% - 5px);
-      height: 300px;
+      height: 100%;
       margin-right: 10px;
-      @media screen and(max-width: 1280px) {
-        height: 200px;
-      }
-      @media screen and(min-width: 1920px) {
-        height: 300px;
-      }
+      /*@media screen and(max-width: 1280px) {*/
+      /*height: 200px;*/
+      /*}*/
+      /*@media screen and(min-width: 1920px) {*/
+      /*height: 300px;*/
+      /*}*/
       > .clearfix {
         position: relative;
         height: calc(100% - 20px);
@@ -601,7 +592,7 @@ export default {
         .sidebar--item {
           float: left;
           width: 50%;
-          .ellipsis{
+          .ellipsis {
             width: 64%;
           }
           span + span {
