@@ -69,19 +69,19 @@
   .el-form-item{
     .el-form-item__content{
       .el-input{
-        background-image: url('../assets/public/input_border_bg@2x.png');
+        //background-image: url('../assets/public/input_border_bg@2x.png');
         background-repeat: no-repeat;
         background-size: 100% 100%;
         background-color: $default;
       }
       .el-textarea{
-        background-image: url('../assets/public/textarea_border_bg.png');
+        //background-image: url('../assets/public/textarea_border_bg.png');
         background-repeat: no-repeat;
         background-size: 100% 100%;
         background-color: $default;
         &.el-input--medium{
           .el-textarea__inner{
-            background-image:url("../assets/public/textarea_border_bg.png");
+            //background-image:url("../assets/public/textarea_border_bg.png");
           }
         }
       }
@@ -659,9 +659,6 @@
       }
     }
   }
-  //.ad-item{
-  //  text-align: center;
-  //}
 }
 
 //设备列表 ? 图标信息 样式
@@ -672,9 +669,6 @@
 
 // 开放API侧边菜单样式
 .custom__menu--api{
-  //.el-submenu__title, .el-menu-item{
-  //
-  //}
   border-right: none;
   .el-submenu__title,
   .el-menu-item{
@@ -715,7 +709,6 @@
           left: 0;
           background: #0F9EE9;
         }
-        //border-left: 2px solid #0F9EE9;
       }
     }
   }
@@ -750,7 +743,6 @@
   .el-select-dropdown__list{
     padding: 6px 15px;
     color: #fff;
-    //box-sizing: border-box;
     .el-select-dropdown__item{
       height: 24px;
       line-height: 24px;
@@ -781,7 +773,6 @@
         color: #2493D2;
         font-size: 18px;
         cursor: pointer;
-        //background-image: linear-gradient(-135deg, #4BC5EB 0%, #2493D2 100%);
       }
     }
     .inner-left{
@@ -926,11 +917,11 @@
       color: #fff;
     }
     .el-progress-bar__outer{
-      background: #192630;
+      background: rgba(15, 158, 233, 0.1);
     }
     &.empty--data{
       .el-progress__text{
-        color: #79787B ;
+        color: #79787B;
       }
     }
   }
@@ -970,5 +961,25 @@
     > img{
        margin: 0 auto;
     }
+  }
+}
+
+.button__select--wrap{
+  .el-input__inner{
+    border: none;
+    color: $theme-white-color;
+  }
+}
+
+/****************
+
+  深色主题 element-ui重置样式
+
+******************/
+
+.app-wrapper:not(.theme-white){
+  .el-input__inner{
+    background: none;
+    color: #fff;
   }
 }

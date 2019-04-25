@@ -14,6 +14,8 @@ const Register = () => import('@/views/account/register.vue')
 
 // 社群管理
 const Community = () => import('@/views/community/mine.vue')
+const CommunityGuide = () => import('@/views/community/guide.vue')
+const CommunityCreate = () => import('@/views/community/create.vue')
 
 // 设备管理
 const EquipmentList = () => import('@/views/equipment/list.vue')
@@ -133,6 +135,62 @@ export const constantRouterMap = [
           title: '社群管理-线下浏览器服务平台'
         },
         component: Community
+      },
+      {
+        path: 'create',
+        name: 'communityCreate',
+        meta: {
+          title: '社群管理-线下浏览器服务平台'
+        },
+        component: CommunityGuide
+      },
+      {
+        path: 'create/market',
+        name: 'createMarket',
+        meta: {
+          title: '创建商场-线下浏览器服务平台'
+        },
+        component: CommunityCreate
+      },
+      {
+        path: 'create/chain',
+        name: 'createChain',
+        meta: {
+          title: '创建连锁-线下浏览器服务平台'
+        },
+        component: CommunityCreate
+      },
+      {
+        path: 'create/store',
+        name: 'createStore',
+        meta: {
+          title: '创建单店-线下浏览器服务平台'
+        },
+        component: CommunityCreate
+      },
+      {
+        path: 'edit/market',
+        name: 'editMarket',
+        meta: {
+          title: '编辑商场-线下浏览器服务平台'
+        },
+        component: CommunityCreate
+      },
+      {
+        path: 'edit/chain',
+        name: 'editChain',
+        meta: {
+          title: '编辑连锁-线下浏览器服务平台'
+        },
+        component: CommunityCreate
+      },
+      {
+        path: 'edit/store',
+        name: 'editStore',
+        meta: {
+          title: '编辑单店-线下浏览器服务平台'
+        },
+        component: CommunityCreate
       }
     ]
   },

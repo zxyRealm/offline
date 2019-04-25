@@ -250,7 +250,8 @@ export default {
       line-height: 30px;
       color: #fff;
       border: none;
-      background-image: url(../../assets/public/input_border_bg@2x.png);
+      background: #0B7EF9;
+      /*background-image: url(../../assets/public/input_border_bg@2x.png);*/
       background-repeat: no-repeat;
       background-size: 100% 100%;
       text-align: left;
@@ -348,7 +349,8 @@ export default {
         }
         &.address-text-input {
           height: $line28;
-          background: url(../../assets/public/area_select_bg.png) no-repeat center;
+          background: #0B7EF9;
+          /*background: url(../../assets/public/area_select_bg.png) no-repeat center;*/
           .el-input__inner {
             height: $line28;
             line-height: $line28;

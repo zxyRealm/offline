@@ -1,43 +1,16 @@
 <template>
   <div>
     <el-menu class="navbar" :class="{'console__nav': $route.name === 'console-lwh'}" mode="horizontal">
-      <router-link to="/index" class="logo-wrap vam">
+      <router-link to="/index" class="logo-wrap vam" :class="{'hide-sidebar': hideSidebar}">
         <img src="@/assets/public/logo.png" alt="">
-        <div class="des">
+        <div class="des" v-show="!hideSidebar">
           <h2>线下浏览器服务平台</h2>
           <p>Offline Browser service platform </p>
         </div>
       </router-link>
-      <div class="right-menu vam tal">
-        <div class="navbar-console">
-          <hamburger
-            class="hamburger-container vam"
-            v-show="showBar"
-            :toggleClick="toggleSideBar"
-            :isActive="!sidebar.opened"></hamburger>
-        </div>
-        <uu-icon type="screen" @click.native="changeScreen" :class="{exit: isFullScreen}"></uu-icon>
-        <!--<el-select-->
-        <!--ref="manageSelect"-->
-        <!--value-key="id"-->
-        <!--placeholder="添加社群"-->
-        <!--popper-class="select__dropdown&#45;&#45;manage"-->
-        <!--class="nav__select&#45;&#45;manage" v-model="manageGroup">-->
-        <!--<el-option-->
-        <!--v-for="(item) in manageList"-->
-        <!--:key="item.id"-->
-        <!--:label="item.name"-->
-        <!--:value="item">-->
-        <!--<span class="ellipsis" style="float: left">{{ item.name }}</span>-->
-        <!--<uu-icon v-if="item.type === 1" type="role01"></uu-icon>-->
-        <!--<uu-icon v-if="item.type === 2" type="role02"></uu-icon>-->
-        <!--<uu-icon v-if="item.type === 3" type="role03"></uu-icon>-->
-        <!--</el-option>-->
-        <!--<el-option v-if="!manageList.length" value="" style="height: 30px;">-->
-        <!--<el-button class="affirm" @click="addNewGroup">添加新社群</el-button>-->
-        <!--</el-option>-->
-        <!--<el-button v-else class="affirm" @click="addNewGroup">添加新社群</el-button>-->
-        <!--</el-select>-->
+      <div class="right-menu vam tal" :class="{'hide-sidebar': hideSidebar}">
+        <span class="iconfont icon-kongzhitai" :class="{'hide': !sidebar.opened}" @click="toggleSideBar"></span>
+        <span class="iconfont" :class="isFullScreen ? 'icon-suoxiao' : 'icon-fangda'" @click="changeScreen"></span>
         <button-select
           ref="buttonSelect"
           value-key="id"
@@ -61,8 +34,9 @@
              :class="{'flicker-animation': showAnimation}"
              @click="helpDialogVisible = true">帮助</a>
           <router-link to="/developer">开发者中心</router-link>
-          <router-link :to="'/index/notify/'+notifState" class="system-notify">
-            <uu-icon type="notify" :class="notifState?'notify-have':''"></uu-icon>
+          <router-link :to="'/index/notify/' + notifState" class="system-notify">
+            <span class="iconfont icon-xiaoxi" :class="{'notify-have': notifState}"></span>
+            <!--<uu-icon type="notify" size="middle" :class="notifState?'notify-have':''"></uu-icon>-->
           </router-link>
           <el-dropdown>
             <span class="el-dropdown-link">
@@ -74,18 +48,6 @@
               <el-dropdown-item>螺蛳粉</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
-          <!--<router-link to="/person" class="user-info">-->
-            <!--<div class="avatar-wrap">-->
-              <!--<div class="avatar vam">-->
-                <!--<img :src="avatar" alt="">-->
-              <!--</div>-->
-            <!--</div>-->
-            <!--<span>{{userInfo.phone?userInfo.phone:userInfo.email}}</span>-->
-          <!--</router-link>-->
-
-          <!--<a href="javascript:void (0);" class="exit" @click="$exit()">-->
-          <!--<uu-icon type="exit"></uu-icon>-->
-          <!--</a>-->
         </div>
       </div>
     </el-menu>
@@ -247,7 +209,6 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import Hamburger from '@/components/Hamburger'
 import { eventObject } from '@/utils/event.js'
 import { GetManageList, OssSignature, FirstLogin, NoticeReadState } from '../../../api/common'
 import { CheckNameExist, AddNewCommunity } from '../../../api/community'
@@ -260,10 +221,10 @@ import FloorSelect from '@/components/FloorSelect'
 import ButtonSelect from '@/components/button-select'
 import ButtonSelectItem from '@/components/button-select/button-select-item'
 
+
 const ossPrefix = process.env.BASE_URL
 export default {
   components: {
-    Hamburger,
     AreaSelect,
     FloorSelect,
     ButtonSelect,
@@ -379,6 +340,9 @@ export default {
         return this.userInfo.faceImgURL || ''
       }
     },
+    hideSidebar () {
+      return !this.$store.state.app.sidebar.opened
+    },
     showBar () {
       return this.$route.name !== 'console-lwh'
     },
@@ -468,7 +432,8 @@ export default {
       })
     },
     addNewGroup () {
-      this.addFormVisible = true
+      // this.addFormVisible = true
+      this.$router.push('/community/create')
       this.$refs.buttonSelect.blur()
     },
     showAddForm (type) {
@@ -777,20 +742,22 @@ export default {
     min-width: 1280px;
     height: 70px;
     z-index: 1010;
-    background-color: $theme-bg;
+    background-color: $theme-bg1;
     box-shadow: 3px 3px 5px 0 rgba(1, 7, 17, 0.60);
     border-radius: 0 !important;
     border: none;
     color: #fff;
-    /*background-image: url(../../../assets/public/main_bg_icon.png);*/
     .logo-wrap {
       float: left;
-      width: 220px;
+      width: $barWidth;
       height: 70px;
       text-align: center;
-      box-shadow: 3px 3px 5px 0 rgba(1, 7, 17, 0.60);
+      overflow: hidden;
       color: #fff;
       z-index: 999;
+      &.hide-sidebar{
+        width: 65px;
+      }
       > img {
         height: 30px;
       }
@@ -828,26 +795,40 @@ export default {
     }
     .right-menu {
       padding: 18px;
-      margin-left: 220px;
+      margin-left: $barWidth;
       height: 100%;
       font-size: 14px;
       user-select: none;
       background: $theme-bg1;
       box-sizing: border-box;
+      .iconfont{
+        font-size: 22px;
+        transition: all 0.3s;
+        cursor: pointer;
+        margin-right: 8px;
+        &.hide{
+          transform: rotateZ(-90deg);
+        }
+      }
+      &.hide-sidebar{
+        margin-left: 65px;
+      }
       &:focus {
         outline: none;
       }
       .right-menu-item {
         float: right;
         display: inline-block;
-        margin: 0 8px;
+        margin: 4px 8px;
         a {
           color: rgba(255, 255, 255, 0.50);
           font-size: 12px;
         }
         > * {
           display: inline-block;
+          height: 26px;
           margin: 0 8px;
+          line-height: 26px;
         }
         .notify-have {
           position: relative;
@@ -1193,10 +1174,11 @@ export default {
   .theme-white {
     .navbar {
       box-shadow: none;
-      border-bottom:1px solid #E6EAEE;
+      /*border-bottom:1px solid #E6EAEE;*/
       .right-menu {
         background: $theme-white;
         color: #333;
+        border-bottom: 1px solid #E6EAEE;
         .right-menu-item {
           a {
             color: $theme-white-color;
@@ -1208,40 +1190,29 @@ export default {
 </style>
 <style lang="scss">
   .dialog__item--content {
-
     .el-scrollbar__wrap {
       overflow-x: hidden;
     }
-
     .ob-group-nav[type=custom] {
-
       .el-tree {
         padding-right: 0;
       }
-
     }
     > div {
-
-      &
-      :last-child {
-
+      &:last-child {
         .el-scrollbar__view {
           min-height: 100%;
-
-          &
-          :after {
+          &:after {
             display: inline-block;
             content: '';
             min-height: 374px;
             width: 0;
             vertical-align: middle;
           }
-
           .el-radio-group {
             max-width: 80%;
             text-align: left;
           }
-
         }
       }
     }
@@ -1291,7 +1262,6 @@ export default {
         .item--supply {
           padding-left: 50px;
         }
-
       }
     }
   }

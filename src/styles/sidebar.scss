@@ -1,7 +1,5 @@
 @import "./variables.scss";
 
-$barWidth: 200px;
-
 // 主体区域 深色主题
 .main-container {
   width: 100%;
@@ -10,7 +8,7 @@ $barWidth: 200px;
   padding: 90px 20px 20px $barWidth + 20px;
   overflow-y: auto;
   box-sizing: border-box;
-  background: $theme-bg1;
+  background: $content-bg;
   &.console__main {
     background-image: url(/static/img/main_bg_icon@2x.png);
     background-size: 10px auto;

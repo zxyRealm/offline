@@ -17,11 +17,12 @@ export function GetChartPie (data) {
 }
 
 // 客流排行榜查询
-export function GetFlowRank (data) {
+export function getFlowRank (data) {
   return request({
     tip: false,
-    url: '/chart/top/flow',
-    data
+    url: `${prefix[1]}/realTime/topTypeRankingTop`,
+    data,
+    method: 'get'
   })
 }
 
@@ -29,7 +30,8 @@ export function GetFlowRank (data) {
 export function getTimeRatio (data) {
   return request({
     tip: false,
-    url: `${prefix[1]}/realTime/typeDayRealTime`
+    url: `${prefix[1]}/realTime/typeDayRealTime`,
+    method: 'get'
   })
 }
 // 获取实时比率

@@ -8,7 +8,7 @@ import App from './App'
 import router from './router'
 import Element from 'element-ui'
 import store from './store'
-import './assets/iconfont/iconfont.css'
+import '@/assets/iconfont/iconfont.css'
 import './styles/index.scss' // global css
 import icons from '@/components/icons/index'
 import subTab from '@/components/subTab'
@@ -29,7 +29,7 @@ Vue.prototype.$echarts = echarts
 Vue.use(Global)
 Vue.use(require('vue-wechat-title'))
 Vue.use(Element, {
-  size: 'small'
+  size: 'medium'
 })
 Vue.component(icons.name, icons)
 Vue.component(subTab.name, subTab)

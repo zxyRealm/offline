@@ -35,7 +35,7 @@ export default {
         hideSidebar: !this.sidebar.opened,
         withoutAnimation: this.sidebar.withoutAnimation,
         mobile: this.device === 'mobile',
-        'theme-white': true
+        'theme-white': this.$route.path.split('/')[1] !== 'index'
       }
     },
     cornerBg () {
@@ -77,18 +77,9 @@ export default {
 
     .app-main-content {
       height: 100%;
-      /*overflow: hidden;*/
       box-sizing: border-box;
-      background-color: $content-bg;
+      background: $content-bg;
       color: #fff;
-
-      &.home--wrap {
-        background: $theme-bg;
-      }
-
-      &.transparent {
-        background: transparent;
-      }
     }
 
     /********
@@ -113,6 +104,7 @@ export default {
       }
       > div {
         height: 100%;
+        overflow: hidden;
       }
     }
   }

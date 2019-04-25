@@ -1,39 +1,50 @@
 <template>
-    <div class="echarts--wrap" :style="{width: width, height: height}" :class="{'empty--data': total === 0}">
-        <div :id="eid" :style="{width: width, height: height}"></div>
-        <div class="percent-wrap" v-if="type === 'age'">
-            <p v-for="(item, $index) in percentList" :key="$index">{{getPercent(item.value)}}</p>
-        </div>
-    </div>
+  <div class="echarts--wrap" :style="{width: width, height: height}" :class="{'empty--data': total === 0}">
+    <div :id="eid" :style="{width: width, height: height}"></div>
+    <!--<div class="percent-wrap" v-if="type === 'age'">-->
+    <!--<p v-for="(item, $index) in percentList" :key="$index">{{getPercent(item.value)}}</p>-->
+    <!--</div>-->
+  </div>
 </template>
 
 <script>
 import resize from './mixins/resize'
 import { mapState } from 'vuex'
-
+const setEchartsFontSize = () => {
+  let offsetWidth = document.body.offsetWidth
+  // console.log('offset width', offsetWidth)
+  if (offsetWidth <= 1440) {
+    return 12
+  } else if (offsetWidth > 1440 && offsetWidth < 1600) {
+    return 13
+  } else {
+    return 14
+  }
+}
 export default {
   name: 'three-pie',
   mixins: [resize],
   data () {
+    let width = 3000
     return {
       percentList: [],
       chart: null,
       dataMap: {
         age: [
-          { key: 'child', name: '0-10' },
-          { key: 'teen', name: '10-20' },
-          { key: 'youth', name: '20-30' },
-          { key: 'man', name: '30-40' },
-          { key: 'middle', name: '40-50' },
-          { key: 'old', name: '50以上' }
+          {key: 'child', name: '0-10'},
+          {key: 'teen', name: '10-20'},
+          {key: 'youth', name: '20-30'},
+          {key: 'man', name: '30-40'},
+          {key: 'middle', name: '40-50'},
+          {key: 'old', name: '50以上'}
         ],
         member: [
-          { key: 'not_member', name: '非会员' },
-          { key: 'member', name: '会员' }
+          {key: 'not_member', name: '非会员'},
+          {key: 'member', name: '会员'}
         ],
         gender: [
-          { key: 'man', name: '男' },
-          { key: 'woman', name: '女' }
+          {key: 'man', name: '男'},
+          {key: 'woman', name: '女'}
         ]
       },
       options: {}
@@ -66,7 +77,7 @@ export default {
     },
     mode: {
       type: String,
-      default: 'vertical'
+      default: 'horizontal' // vertical horizontal
     }
   },
   created () {
@@ -74,6 +85,7 @@ export default {
   mounted () {
     this.chart = this.$echarts.init(document.getElementById(this.eid))
     this.initData()
+    window.addEventListener('resize', this.setOptions)
   },
   computed: {
     ...mapState(['currentManage']),
@@ -86,6 +98,35 @@ export default {
         total += item.count
       })
       return total
+    },
+    modeOption () {
+      let option = {
+        fontSize: setEchartsFontSize(),
+        height: '',
+        top: 'auto',
+        right: '6%',
+        bottom: '20%',
+        itemHeight: 14,
+        itemGap: 10,
+        center: ['28%', '50%'],
+        radius: ['46%', '82%']
+      }
+
+      if (this.mode !== 'vertical') {
+        option = {
+          fontSize: setEchartsFontSize(),
+          top: 'auto',
+          right: 'auto',
+          bottom: '8%',
+          height: (option.itemHeight + option.itemGap) * 3,
+          itemHeight: 14,
+          itemGap: 10,
+          center: ['50%', '32%'],
+          radius: ['36%', '60%']
+        }
+      }
+      console.log('----------', option)
+      return option
     }
   },
   methods: {
@@ -110,6 +151,8 @@ export default {
         }
       }
       let color = []
+      let fontSize = setEchartsFontSize()
+      if (this.mode !== 'vertical') fontSize = fontSize -1
       switch (this.type) {
         case 'gender':
           color = ['#005BC9', '#EA9D49']
@@ -139,13 +182,14 @@ export default {
             top: '24%'
           }
         }
+        let op = this.modeOption
         this.options = {
           color: color,
           title: {
             text: this.title,
             textStyle: {
               color: '#ffffff',
-              fontSize: size().tSize,
+              fontSize: fontSize + 2,
               fontWeight: 'normal'
             }
           },
@@ -159,47 +203,48 @@ export default {
           },
           legend: {
             orient: 'vertical',
-            top: style.top,
-            right: '20%',
-            align: 'left',
-            itemWidth: 16,
-            itemHeight: size().itemHeight,
-            itemGap: size().itemGap,
+            height: op.height,
+            bottom: op.bottom,
+            right: op.right,
+            // itemWidth: 16,
+            itemHeight: fontSize,
+            itemGap: op.itemGap,
             formatter: function (name) {
-              // console.log(arguments, seriesData.filter(item => item.name === name)[0].count)
-              let space = ' '
-              switch (name) {
-                case '0-10':
-                  space = '  '
-                  break
-                case '50以上':
-                  space = ''
-                  break
-              }
-              let per = space + _this.getPercent(seriesData.filter(item => item.name === name)[0].value)
-              return `${name}${space}         ${per}`
+              // let per = _this.getPercent(seriesData.filter(item => item.name === name)[0].value) || '88.8%'
+              let per = '88.8%'
+              return `{name|${name}}{per|${per}}`
             },
             textStyle: {
               color: '#ffffff',
-              fontSize: style.fontSize,
-              fontWeight: 'normal'
+              fontSize: fontSize,
+              fontWeight: 'normal',
+              rich: {
+                name: {
+                  width: fontSize * 4,
+                  fontSize: fontSize
+                },
+                per: {
+                  width: fontSize * 3,
+                  fontSize: fontSize
+                }
+              }
             },
             icon: 'square',
             data: [
-              { name: '0-10', percent: '10%' },
-              { name: '10-20', percent: '15%' },
-              { name: '20-30',percent: '20%' },
-              { name: '30-40', percent: '18%' },
-              { name: '40-50', percent: '32%' },
-              { name: '50以上', percent: '10%' }
+              {name: '0-10'},
+              {name: '10-20'},
+              {name: '20-30'},
+              {name: '30-40'},
+              {name: '40-50'},
+              {name: '50以上'}
             ]
           },
           series: [
             {
               name: '',
               type: 'pie',
-              center: ['28%', '56%'],
-              radius: ['36%', '60%'],
+              center: op.center,
+              radius: op.radius,
               avoidLabelOverlap: false,
               roseType: 'radius',
               label: {
@@ -344,37 +389,40 @@ export default {
       },
       deep: true
     }
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.setOptions)
   }
 }
 </script>
 
 <style lang="scss" scoped>
-    .echarts--wrap {
-        position: relative;
-    }
+  .echarts--wrap {
+    position: relative;
+  }
 
-    .empty--data .percent-wrap {
-        color: #fff;
-    }
+  .empty--data .percent-wrap {
+    color: #fff;
+  }
 
+  .percent-wrap {
+    position: absolute;
+    top: calc(20%);
+    right: 2%;
+    display: inline-block;
+    font-size: 12px;
+    p {
+      line-height: 18px;
+    }
+  }
+
+  .single {
     .percent-wrap {
-        position: absolute;
-        top: calc(20%);
-        right: 2%;
-        display: inline-block;
-        font-size: 12px;
-        p {
-            line-height: 18px;
-        }
+      top: calc(25%);
+      font-size: 13px;
+      p {
+        line-height: 19px;
+      }
     }
-
-    .single {
-        .percent-wrap {
-            top: calc(25%);
-            font-size: 13px;
-            p {
-                line-height: 19px;
-            }
-        }
-    }
+  }
 </style>
