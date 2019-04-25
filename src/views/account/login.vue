@@ -135,116 +135,94 @@
 </template>
 
 <script>
-import {
-  GetCode,
-  Login,
-  Register,
-  UpdateForgotPassword,
-  GetForgotCode
-} from "../../api/account";
-import { clearInterval } from "timers";
-import {
-  validPhone,
-  validateRule,
-  validPhoneEmail
-} from "../../utils/validate";
+import { GetCode, Login, Register, UpdateForgotPassword, GetForgotCode } from '../../api/account'
+import { clearInterval } from 'timers'
+import { validPhone, validateRule, validPhoneEmail } from '../../utils/validate'
 
 export default {
-  name: "login",
+  name: 'login',
   data() {
     const validateCheckPass = (rule, value, callback) => {
-      if (value === "" || !value) {
-        callback(new Error("请再次输入密码"));
-      } else if (
-        value !== this.reg.form.password &&
-        value !== this.forgot.form.password
-      ) {
-        callback(new Error("两次输入密码不一致!"));
+      if (value === '' || !value) {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.reg.form.password && value !== this.forgot.form.password) {
+        callback(new Error('两次输入密码不一致!'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     const validateEmail = (rule, value, callback) => {
-      if (value === "" || !value) {
-        callback(new Error("请输入邮箱"));
+      if (value === '' || !value) {
+        callback(new Error('请输入邮箱'))
       } else if (!validateRule(value, 8)) {
-        callback(new Error("请输入正确的邮箱地址"));
+        callback(new Error('请输入正确的邮箱地址'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     return {
       login: {
         form: {
-          phoneNumber: "",
-          password: "",
-          code: ""
+          phoneNumber: '',
+          password: '',
+          code: ''
         }
       },
       reg: {
         form: {
-          phoneNumber: "",
-          verifyCode: "",
-          email: "",
-          password: "",
-          verifyPassword: "",
-          readCheck: ""
+          phoneNumber: '',
+          verifyCode: '',
+          email: '',
+          password: '',
+          verifyPassword: '',
+          readCheck: ''
         }
       },
       forgot: {
         form: {
-          contactInfo: "",
-          verifyCode: "",
-          password: "",
-          verifyPassword: ""
+          contactInfo: '',
+          verifyCode: '',
+          password: '',
+          verifyPassword: ''
         }
       },
       code: {
-        content: "发送验证码",
+        content: '发送验证码',
         time: 60,
         mode: 1,
         clock: null
       },
       rules: {
         phoneNumber: [
-          { required: true, message: "请输入手机号码", trigger: "blur" },
-          { validator: validPhone, trigger: "blur" }
+          { required: true, message: '请输入手机号码', trigger: 'blur' },
+          { validator: validPhone, trigger: 'blur' }
         ],
         password: [
-          { required: true, message: "请输入密码", trigger: "blur" },
+          { required: true, message: '请输入密码', trigger: 'blur' },
           {
             min: 6,
             max: 18,
-            message: "密码长度在 6 到 18 个字符之间",
-            trigger: "blur"
+            message: '密码长度在 6 到 18 个字符之间',
+            trigger: 'blur'
           }
         ],
-        code: [{ required: true, message: "请输入验证码", trigger: "blur" }],
-        verifyCode: [
-          { required: true, message: "请输入验证码", trigger: "blur" }
-        ],
-        email: [{ validator: validateEmail, trigger: "blur" }],
+        code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+        verifyCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+        email: [{ validator: validateEmail, trigger: 'blur' }],
         verifyPassword: [
-          { required: true, message: "请再次输入密码", trigger: "blur" },
-          { validator: validateCheckPass, trigger: "blur" }
+          { required: true, message: '请再次输入密码', trigger: 'blur' },
+          { validator: validateCheckPass, trigger: 'blur' }
         ],
-        readCheck: [{ required: true, message: "请确认阅读条款", trigger: "" }],
+        readCheck: [{ required: true, message: '请确认阅读条款', trigger: '' }],
         contactInfo: [
-          {
-            required: true,
-            message: "请输入联系方式",
-            trigger: ""
-          },
-          {
-            validator: validPhoneEmail,
-            trigger: "blur"
-          }
+          { required: true, message: '请输入联系方式', trigger: '' },
+          { validator: validPhoneEmail, trigger: 'blur' }
         ]
       },
-      clock: "",
+      clock: '',
       isSuccess: false,
-      mode: "login"
-    };
+      mode: 'login'
+    }
   },
   created() {},
   mounted() {},
@@ -252,126 +230,117 @@ export default {
   methods: {
     // 跳转并初始化
     skipTo(mode) {
-      this._resetForm();
-      this.mode = mode;
-      window.clearInterval(this.code.clock);
-      window.clearTimeout(this.clock);
-      this.isSuccess = false;
+      this._resetForm()
+      this.mode = mode
+      window.clearInterval(this.code.clock)
+      window.clearTimeout(this.clock)
+      this.isSuccess = false
       this.code = {
-        content: "发送验证码",
+        content: '发送验证码',
         time: 60,
         mode: 1,
         clock: null
-      };
-      this.clock = null;
+      }
+      this.clock = null
     },
     // 点击登录提交按钮
     submit(loginObj) {
       this._verifyForm(() => {
-        const data = {
-          phoneNumber: loginObj.phoneNumber,
-          password: loginObj.password
-        };
+        const { phoneNumber, password } = loginObj
+        const data = { phoneNumber, password }
         Login(data).then(res => {
           if (res.data) {
             this._setSuccess(() => {
-              this.$router.push("/index");
-            });
+              this.$router.push('/index')
+            })
           }
-        });
-      });
+        })
+      })
     },
     // 点击注册提交按钮
     registAccount(regObj) {
-      const data = {
-        phoneNumber: regObj
-      };
+      const { phoneNumber } = this.reg.form
+      const data = { phoneNumber }
       this._verifyForm(() => {
         Register(regObj).then(res => {
           if (res.data) {
             this._setSuccess(() => {
-              this.$router.push("/index");
-            });
+              this.$router.push('/index')
+            })
           }
-        });
-      });
+        })
+      })
     },
     // 点击密码找回确定按钮
     findAccount(forgotObj) {
-      const data = {
-        contactInfo: forgotObj.contactInfo,
-        verifyCode: forgotObj.verifyCode,
-        password: forgotObj.password
-      };
+      const { contactInfo, verifyCode, password } = forgotObj
+      const data = { contactInfo, verifyCode, password }
       this._verifyForm(() => {
         UpdateForgotPassword(data).then(res => {
           if (res.data) {
             this._setSuccess(() => {
-              this.skipTo("login");
-            });
+              this.skipTo('login')
+            })
           }
-        });
-      });
+        })
+      })
     },
     // 获取验证码
     getCode() {
       if (this.code.mode === 1) {
-        const data = {
-          phoneNumber: this.reg.form.phoneNumber
-        };
+        const { phoneNumber } = this.reg.form
+        const data = { phoneNumber }
         GetCode(data).then(res => {
-          this._codeClock();
-        });
+          this._codeClock()
+        })
       }
     },
     getForgotCode() {
       if (this.code.mode === 1) {
-        const data = {
-          contactInfo: this.forgot.form.contactInfo
-        };
+        const { contactInfo } = this.forgot.form
+        const data = { contactInfo }
         GetForgotCode(data).then(res => {
-          this._codeClock();
-        });
+          this._codeClock()
+        })
       }
     },
     _codeClock() {
       this.code.clock = window.setInterval(() => {
-        this.code.time--;
-        this.code.content = this.code.time + "s后重新发送";
-        this.code.mode = 0;
+        this.code.time--
+        this.code.content = this.code.time + 's后重新发送'
+        this.code.mode = 0
         if (this.code.time <= 0) {
-          window.clearInterval(this.code.clock);
-          this.code.time = 60;
-          this.code.content = "重新发送验证码";
-          this.code.mode = 1;
+          window.clearInterval(this.code.clock)
+          this.code.time = 60
+          this.code.content = '重新发送验证码'
+          this.code.mode = 1
         }
-      }, 1000);
+      }, 1000)
     },
     _setSuccess(cb) {
-      this.isSuccess = true;
+      this.isSuccess = true
       this.clock = window.setTimeout(res => {
-        this.isSuccess = false;
-        cb();
-      }, 3000);
+        this.isSuccess = false
+        cb()
+      }, 3000)
     },
     // 重置表单
     _resetForm() {
-      this.$refs[this.mode].resetFields();
+      this.$refs[this.mode].resetFields()
     },
     // 验证表单
     _verifyForm(cb) {
       this.$refs[this.mode].validate(valid => {
         if (valid) {
-          cb();
+          cb()
         } else {
-          console.log("error submit!!");
-          return false;
+          return false
         }
-      });
+      })
     }
   },
   watch: {}
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -398,7 +367,7 @@ export default {
     .logo {
       width: 100%;
       height: 100%;
-      background-image: url("../../assets/account/Logo@2x.png");
+      background-image: url('../../assets/account/Logo@2x.png');
       background-repeat: no-repeat;
       background-size: 360px 40px;
       background-position: left center;
@@ -406,7 +375,7 @@ export default {
   }
   .content {
     flex: 1;
-    background-image: url("../../assets/account/background.png");
+    background-image: url('../../assets/account/background.png');
     background-repeat: no-repeat;
     background-size: 100% 100%;
     display: flex;
