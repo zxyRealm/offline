@@ -256,6 +256,8 @@ export default {
           if (res.data) {
             this._setSuccess(() => {
               this.$router.push('/index')
+              this.$cookie().set('user_phone', res.data.phoneNumber)
+              this.$cookie().set('user_token', res.data.token)
             })
           }
         })
