@@ -1,10 +1,11 @@
 import Cookies from 'js-cookie'
-import {restoreArray} from '@/utils'
-import {message} from './request'
-import {SignOut} from '../api/developer'
+import { restoreArray } from '@/utils'
+import { message } from './request'
+import { SignOut } from '../api/developer'
+import router from '../router'
 const ossPrefix = process.env.BASE_URL
 export default {
-  install(Vue) {
+  install (Vue) {
     // 公用提示框
     Vue.prototype.$tip = function (txt, type = 'info', delay = 1500) {
       return message(txt, type, delay)
@@ -104,6 +105,16 @@ export default {
         }
       })
       return arr
+    }
+
+    // 返回上一页
+
+    Vue.prototype.$backPrev = function () {
+      if (window.history.length) {
+        router.go(-1)
+      } else {
+        router.push('/index')
+      }
     }
   }
 }

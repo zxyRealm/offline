@@ -1,11 +1,10 @@
 <template>
-  <div class="community__create--wrap">
+  <div class="add-map--wrap">
     <h3 class="form-title">
-      <span class="el-icon-arrow-left" @click="$backPrev"></span>{{moduleHeader.title}}
+      <span class="el-icon-arrow-left" @click="$backPrev"></span>添加楼层地图
     </h3>
     <el-form
-      slot="form"
-      ref="communityForm"
+      ref="mapForm"
       block-message
       style="width: 380px"
       label-position="left"
@@ -72,108 +71,22 @@
 </template>
 
 <script>
-import AreaSelect from '@/components/area-select/area-select'
-import { validateRule } from '../../utils/validate'
-
 export default {
-  name: 'CreateCommunity',
-  components: {
-    AreaSelect
-  },
+  name: 'AddMap',
   data () {
-    const validateName = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请输入社群名称'))
-      } else {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
-        } else if (validateRule(value, 2)) {
-          CheckNameExist({name: value}).then(res => {
-            !res.data ? callback() : callback(new Error('社群名称已存在'))
-          }).catch(err => {
-            callback(new Error(err.msg || '验证失败'))
-          })
-        } else {
-          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
-        }
-      }
-    }
-    const validateContact = (rule, value, callback) => {
-      if (value) {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
-        } else if (validateRule(value, 1)) {
-          callback()
-        } else {
-          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
-        }
-      } else {
-        callback()
-      }
-    }
-    return {
-      communityForm: {},
-      communityRules: {}
-    }
+    return {}
   },
   created () {
   },
   mounted () {
   },
-  computed: {
-    moduleType () {
-      return this.$route.name
-    },
-    moduleHeader () {
-      let head = {}
-      let text = ''
-      if (this.$route.name.indexOf('create') > -1) {
-        text = '创建'
-      } else if (this.$route.name.indexOf('edit') > -1) {
-        text = '编辑'
-      }
-      switch (this.moduleType.replace(/create|edit/, '')) {
-        case 'Market':
-          head = {
-            title: `${text}商场`,
-            type: 'market'
-          }
-          break
-        case 'Chain':
-          head = {
-            title: `${text}连锁总店`,
-            type: 'chain'
-          }
-          break
-        case 'Store':
-          head = {
-            title: `${text}单个门店`,
-            type: 'store'
-          }
-          break
-      }
-      return head
-    }
-  },
-  methods: {
-    submitForm () {
-      this.$refs.communityForm.validate((valid) => {
-        if (valid) {
-
-        }
-      })
-    }
-  },
+  computed: {},
+  methods: {},
   watch: {}
 }
 </script>
 
 <style lang="scss" scoped>
-  .community__create--wrap {
-    padding: 0 30px;
-    box-sizing: content-box;
-  }
-
   .form-title {
     height: 56px;
     line-height: 56px;
