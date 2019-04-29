@@ -1,6 +1,9 @@
 <template>
   <div>
-    <el-menu class="navbar" :class="{'console__nav': $route.name === 'console-lwh'}" mode="horizontal">
+    <el-menu
+      class="navbar"
+      :class="{'console__nav': $route.name === 'console-lwh'}"
+      mode="horizontal">
       <router-link to="/index" class="logo-wrap vam" :class="{'hide-sidebar': hideSidebar}">
         <img src="@/assets/public/logo.png" alt="">
         <div class="des" v-show="!hideSidebar">
@@ -9,8 +12,15 @@
         </div>
       </router-link>
       <div class="right-menu vam tal" :class="{'hide-sidebar': hideSidebar}">
-        <span class="iconfont icon-kongzhitai" :class="{'hide': !sidebar.opened}" @click="toggleSideBar"></span>
-        <span class="iconfont" :class="isFullScreen ? 'icon-suoxiao' : 'icon-fangda'" @click="changeScreen"></span>
+        <span
+          class="iconfont icon-kongzhitai"
+          :class="{'hide': !sidebar.opened}"
+          @click="toggleSideBar"></span>
+        <span
+          v-show="$route.name === 'index-lwh'"
+          class="iconfont"
+          :class="isFullScreen ? 'icon-suoxiao' : 'icon-fangda'"
+          @click="changeScreen"></span>
         <button-select
           ref="buttonSelect"
           value-key="id"
@@ -36,7 +46,6 @@
           <router-link to="/developer">开发者中心</router-link>
           <router-link :to="'/index/notify/' + notifState" class="system-notify">
             <span class="iconfont icon-xiaoxi" :class="{'notify-have': notifState}"></span>
-            <!--<uu-icon type="notify" size="middle" :class="notifState?'notify-have':''"></uu-icon>-->
           </router-link>
           <el-dropdown @command="handleCommand">
             <span class="el-dropdown-link">
@@ -44,7 +53,6 @@
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="user">{{userInfo.phoneNumber || '13145697895'}}</el-dropdown-item>
-              <!--<el-dropdown-item>狮子头</el-dropdown-item>-->
               <el-dropdown-item command="exit">退出</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -121,76 +129,6 @@
       </div>
     </ob-dialog-form>
 
-    <!--添加社群（商场、连锁总店、单个门店）-->
-    <ob-dialog-form
-      :title="communityDialogTitle"
-      :visible.sync="addCommunityVisible"
-    >
-      <el-form
-        slot="form"
-        ref="addCommunityForm"
-        block-message
-        style="width: 330px"
-        label-position="left"
-        class="common-form white"
-        label-width="82px"
-        :model="communityForm"
-        :rules="communityRules"
-      >
-        <el-form-item label="名称：" prop="name">
-          <el-input placeholder="请输入社群名称" v-model.trim="communityForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="地区：" prop="pca">
-          <area-select placeholder="请选择地区" v-model="communityForm.pca"></area-select>
-        </el-form-item>
-        <el-form-item
-          :rules="[
-            {required: true, message: '请输入详细地址', trigger: 'blur'},
-            {max: 128, message: '请输入1-128位字符', trigger: 'blur'}
-          ]"
-          prop="address">
-          <el-input
-            type="text"
-            placeholder="请输入详细地址"
-            v-model.trim="communityForm.address"></el-input>
-        </el-form-item>
-        <el-form-item label="楼层：" prop="floorList">
-          <floor-select v-model.trim="communityForm.floorList"></floor-select>
-        </el-form-item>
-        <el-form-item prop="map">
-          <div class="label__list--wrap" v-if="communityForm.floorList.length">
-            <el-scrollbar>
-              <div class="clearfix">
-                <div class="label__item-wrap" v-for="(item, $index) in labelList" :key="$index">
-                  <i class="el-icon-close" @click.stop="deleteLabel($index)"></i>
-                  <label :for="'map__input--file' + $index" class="label--item">
-                    <input
-                      type="file" class="input__file" @change.stop="onChange($event, $index)"
-                      :id="'map__input--file' + $index">
-                    <i v-if="!item.file" class="el-icon-plus"></i>
-                    <span v-else class="ellipsis">{{item.file ? item.file.name : ''}}</span>
-                  </label>
-                  <p>{{item.floor | IntToFloor}}</p>
-                </div>
-              </div>
-            </el-scrollbar>
-          </div>
-        </el-form-item>
-        <el-form-item label="联系人：" prop="contact">
-          <el-input type="text" placeholder="请输入联系人"
-                    v-model.trim="communityForm.contact"></el-input>
-        </el-form-item>
-        <el-form-item label="联系电话：" prop="phone">
-          <el-input type="text" placeholder="请输入联系电话"
-                    v-model.trim="communityForm.phone"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer mt50">
-        <el-button class="cancel" @click="addCommunityVisible = false">返 回</el-button>
-        <el-button class="affirm" type="primary" @click="addNewCommunity('addCommunityForm')">添加</el-button>
-      </div>
-    </ob-dialog-form>
-
     <!--添加商场社群成功确认弹框-->
     <ob-dialog-form
       title="已添加成功，下方是自动生成的邀请码"
@@ -222,7 +160,6 @@ import FloorSelect from '@/components/FloorSelect'
 import ButtonSelect from '@/components/button-select'
 import ButtonSelectItem from '@/components/button-select/button-select-item'
 
-
 const ossPrefix = process.env.BASE_URL
 export default {
   components: {
@@ -239,7 +176,7 @@ export default {
         if (value.length > 32) {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
-          CheckNameExist({name: value}).then(res => {
+          CheckNameExist({ name: value }).then(res => {
             !res.data ? callback() : callback(new Error('社群名称已存在'))
           }).catch(err => {
             callback(new Error(err.msg || '验证失败'))
@@ -269,37 +206,27 @@ export default {
       handleCommunityType: 1,
       addCommunityVisible: false, // 添加社群表单弹框
       addFormVisible: false, // 添加弹框
-      communityForm: { // 添加社群表单对象
-        name: '',
-        pca: '',
-        address: '',
-        floorList: [],
-        imgUrlList: [],
-        contact: '',
-        rule: [0],
-        phone: ''
-      },
       communityRules: {
         name: [
-          {required: true, validator: validateName, trigger: 'blur'}
+          { required: true, validator: validateName, trigger: 'blur' }
         ],
         code: [
-          {required: true, message: '请获取社群邀请码', trigger: 'blur'}
+          { required: true, message: '请获取社群邀请码', trigger: 'blur' }
         ],
         pca: [
-          {required: true, message: '请选择地区', trigger: ['blur']}
+          { required: true, message: '请选择地区', trigger: ['blur'] }
         ],
         floorList: [
-          {required: true, type: 'array', message: '请选取楼层', trigger: 'blur'}
+          { required: true, type: 'array', message: '请选取楼层', trigger: 'blur' }
         ],
         contact: [
-          {validator: validateContact, trigger: 'blur'}
+          { validator: validateContact, trigger: 'blur' }
         ],
         rule: [
-          {required: true, type: 'array', message: '请选择索权范围', trigger: 'blur'}
+          { required: true, type: 'array', message: '请选择索权范围', trigger: 'blur' }
         ],
         phone: [
-          {validator: validPhone, trigger: 'blur'}
+          { validator: validPhone, trigger: 'blur' }
         ]
       },
       fileList: [], // 上传的文件列表
@@ -423,7 +350,7 @@ export default {
     // 下拉菜单事件处理
     handleCommand (e) {
       if (e === 'exit') {
-        exitLogin({phoneNumber: '', token: ''}).then(() => {
+        exitLogin({ phoneNumber: '', token: '' }).then(() => {
           this.$cookie().remove('user_phone')
           this.$cookie().remove('user_token')
           this.$router.push('/login')
@@ -532,7 +459,7 @@ export default {
     },
     // 自定义文件上传
     httpRequest () {
-      OssSignature({superKey: 'floor_map'}).then(res => {
+      OssSignature({ superKey: 'floor_map' }).then(res => {
         if (res.data) {
           let time = parseTime(new Date()).replace(/[ :-]/g, '')
           this.loadModule = load('数据加载中...')
@@ -583,9 +510,6 @@ export default {
         return
       }
       this.$set(this.labelList[index], 'file', files[0])
-    },
-    // 文件上传成功回调
-    handleSuccess () {
     },
     // 切换全屏状态
     changeScreen () {
@@ -648,9 +572,9 @@ export default {
       console.info(error)
     })
     this.getManageList()
-    FirstLogin({name: 'insight_index_first'}).then(res => {
-      if (res.data) this.helpDialogVisible = true
-    })
+    // FirstLogin({ name: 'insight_index_first' }).then(res => {
+    //   if (res.data) this.helpDialogVisible = true
+    // })
   },
   mounted () {
     this.clientHeight = window.document.documentElement.clientHeight
@@ -766,7 +690,7 @@ export default {
       overflow: hidden;
       color: #fff;
       z-index: 999;
-      &.hide-sidebar{
+      &.hide-sidebar {
         width: 65px;
       }
       > img {
@@ -812,16 +736,16 @@ export default {
       user-select: none;
       background: $theme-bg1;
       box-sizing: border-box;
-      .iconfont{
+      .iconfont {
         font-size: 22px;
         transition: all 0.3s;
         cursor: pointer;
         margin-right: 8px;
-        &.hide{
+        &.hide {
           transform: rotateZ(-90deg);
         }
       }
-      &.hide-sidebar{
+      &.hide-sidebar {
         margin-left: 65px;
       }
       &:focus {

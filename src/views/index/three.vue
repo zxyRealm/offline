@@ -2,7 +2,7 @@
   <div class="three__floor--wrap">
     <!--楼宇3D/平面分布图展示 start-->
     <!--没有管理层信息是空数据状态 使用class="empty--data"-->
-    <template v-if="!currentManage.id">
+    <template v-if="currentManage.id">
       <!--<el-button @click="changeType">切换</el-button>-->
       <div class="floor__data--wrap">
         <el-scrollbar>

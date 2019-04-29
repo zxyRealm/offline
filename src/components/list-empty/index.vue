@@ -1,11 +1,16 @@
 <template>
   <div v-if="!loading" class="ob-list-empty-wrap vam" :style="wrapStyle">
     <div class="ob-list-empty vam" :class="size">
-      <div class="empty-content">
-        <p class="main-text">{{text}}</p>
-        <p class="supply" v-if="supply">
-          {{supply}}
-        </p>
+      <img src="@/assets/empty-default@2x.png" width="530px" alt="">
+      <!--<div class="empty-content">-->
+        <!--<p class="main-text">{{text}}</p>-->
+        <!--<p class="supply" v-if="supply">-->
+          <!--{{supply}}-->
+        <!--</p>-->
+        <!--<slot></slot>-->
+      <!--</div>-->
+      <div class="empty-text" :style="{top: subTextTop, bottom: subTextBottom}">
+        <h2 class="text-title">{{text}}</h2>
         <slot></slot>
       </div>
     </div>
@@ -22,7 +27,7 @@ export default {
     },
     text: {
       type: String,
-      default: '暂无数据'
+      default: '暂无信息'
     },
     supply: {
       type: String,
@@ -31,6 +36,14 @@ export default {
     size: {
       type: String,
       default: ''
+    },
+    subTextTop: {
+      type: String,
+      default: ''
+    },
+    subTextBottom: {
+      type: String,
+      default: '18%'
     }
   },
   computed: {
@@ -53,15 +66,20 @@ export default {
   }
 
   .ob-list-empty {
-    text-align: center;
-    border: 1px dashed #1f2d3d;
-    background: rgba(0, 0, 0, 0.20);
-    height: 110px;
-    width: 80%;
-    max-width: 720px;
+    position: relative;
     font-size: 12px;
-    line-height: 110px;
-    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    .empty-text{
+      position: absolute;
+      width: 100%;
+      left: 0;
+      text-align: center;
+    }
+    .text-title{
+      font-size: 24px;
+      font-weight: normal;
+      color: #495174;
+    }
     .empty-content{
       display: inline-block;
       text-align: center;
@@ -77,6 +95,13 @@ export default {
       height: 50px;
       width: 480px;
       line-height: 50px;
+    }
+  }
+  .theme-white{
+    .ob-list-empty{
+      .text-title{
+
+      }
     }
   }
 </style>

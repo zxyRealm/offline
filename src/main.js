@@ -24,6 +24,7 @@ import * as filters from './filters'
 import directives from './directives/index'
 import echarts from 'echarts'
 import Global from './utils/global'
+
 Vue.prototype.$echarts = echarts
 
 Vue.use(Global)

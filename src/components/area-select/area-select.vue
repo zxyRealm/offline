@@ -1,63 +1,66 @@
 <template>
   <!--<div class="area-select">-->
-    <el-popover
-      placement="bottom-start"
-      width="400"
-      :disabled="readonly"
-      class="address-input"
-      popper-class="address-popover"
-      v-model="visible">
-      <div class="select-wrap">
-        <div class="white">
-          <el-input
-            type="text"
-            class="search-input"
-            v-model="search"
-            placeholder="拼音支持首字母输入">
-            <span slot="suffix" class="el-input__icon" @click="address=''">重置</span>
-            <span slot="suffix" class="el-input__icon el-icon-close" @click="visible=false"></span>
-          </el-input>
-        </div>
+  <el-popover
+    placement="bottom-start"
+    width="400"
+    :disabled="readonly"
+    class="address-input"
+    popper-class="address-popover"
+    v-model="visible">
+    <div class="select-wrap">
+      <div class="white">
         <el-input
-          type="text" readonly
-          class="address-text-input"
-          v-model.trim="address"
-          placeholder="请选择省份/直辖市/自治区">
-        </el-input>
-        <el-radio-group class="area-radio-wrap" v-model="currentAddress">
-          <el-tooltip
-            v-for="(item,$index) in addressOption"
-            :key="item.code"
-            :disabled="item.name.length<=4" :content="item.name">
-            <el-radio-button
-              class="ellipsis"
-              :class="{selectable:item.active}"
-              :label="item[childProps.id]">{{item.name}}
-            </el-radio-button>
-          </el-tooltip>
-        </el-radio-group>
-      </div>
-      <div
-        slot="reference"
-        class="address-btn"
-        :class="{'popover-icon':visible}"
-        :readonly="readonly">
-        <el-input
-          readonly
-          ref="areaInput"
-          :placeholder="placeholder"
-          @blur="inputBlur"
-          v-model.trim="addressText">
+          type="text"
+          class="search-input"
+          v-model.trim="search"
+          placeholder="拼音支持首字母输入">
+          <span slot="suffix" class="el-input__icon" @click="resetAddress">重置</span>
+          <span slot="suffix" class="el-input__icon el-icon-close" @click="visible = false"></span>
         </el-input>
       </div>
-    </el-popover>
+      <el-input
+        type="text" readonly
+        class="address-text-input"
+        v-model.trim="address"
+        placeholder="请选择省份/直辖市/自治区">
+      </el-input>
+      <el-radio-group class="area-radio-wrap" v-model="currentAddress">
+        <el-tooltip
+          v-for="item in addressShowOption"
+          :key="item[childProps.id]"
+          :disabled="item[childProps.label].length<=4" :content="item[childProps.label]">
+          <el-radio-button
+            class="ellipsis"
+            :class="{selectable:item.active}"
+            :label="item[childProps.id]">{{item[childProps.label]}}
+          </el-radio-button>
+        </el-tooltip>
+      </el-radio-group>
+    </div>
+    <div
+      slot="reference"
+      class="address-btn"
+      :class="{'popover-icon':visible}"
+      :readonly="readonly">
+      <el-input
+        readonly
+        ref="areaInput"
+        v-model.trim="addressText"
+        :placeholder="placeholder"
+        @blur="inputBlur"
+      >
+        <i slot="suffix" class="iconfont icon-xialaanniu"></i>
+      </el-input>
+    </div>
+  </el-popover>
   <!--</div>-->
 </template>
 
 <script>
-import {makePy} from '@/utils/initial'
-import {GetAreaList} from '../../api/common'
+import { makePy } from '@/utils/initial'
+import { GetAreaList } from '../../api/common'
 import Emitter from '../../components/utils/emitter'
+
 let OK_CODE = 1
 
 export default {
@@ -150,6 +153,11 @@ export default {
     },
     inputBlur () {
       this.dispatch('ElFormItem', 'el.form.blur', [this.idStr])
+    },
+    // 重置地址选取
+    resetAddress () {
+      this.address = ''
+      this.search  = ''
     }
   },
   mounted () {
@@ -198,23 +206,24 @@ export default {
       },
       deep: true
     },
+
     // 查询过滤（支持首字母查询）
-    search (val) {
-      val = val.trim()
-      if (val) {
-        this.addressOption.map(item => {
-          if (item.name.indexOf(val) > -1 || item.initial[0].indexOf(val.toUpperCase()) > -1) {
-            this.$set(item, 'active', 1)
-          } else {
-            this.$set(item, 'active', 0)
-          }
-        })
-      } else {
-        this.addressOption.map(item => {
-          this.$set(item, 'active', 0)
-        })
-      }
-    },
+    // search (val) {
+    //   val = val.trim()
+    //   if (val) {
+    //     this.addressOption.map(item => {
+    //       // if (item.name.indexOf(val) > -1 || item.initial[0].indexOf(val.toUpperCase()) > -1) {
+    //       //   this.$set(item, 'active', 1)
+    //       // } else {
+    //       //   this.$set(item, 'active', 0)
+    //       // }
+    //     })
+    //   } else {
+    //     // this.addressOption.map(item => {
+    //     //   this.$set(item, 'active', 0)
+    //     // })
+    //   }
+    // },
     visible (val) {
       if (!val) {
         if (!this.currentValue[2]) {
@@ -233,6 +242,12 @@ export default {
         text += item
       })
       return text
+    },
+    addressShowOption () {
+      let searchText = this.search
+      return this.addressOption.filter(item =>
+        item[this.childProps.label].indexOf(searchText) > -1 ||
+        item.initial[0].indexOf(searchText.toUpperCase()) > -1)
     }
   }
 }
@@ -240,20 +255,16 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import '../../styles/variables';
+
   .address-input {
     width: 100%;
     display: inline-block;
-    height: 30px;
     .address-btn {
       position: relative;
       width: 100%;
-      line-height: 30px;
       color: #fff;
       border: none;
       background: #0B7EF9;
-      /*background-image: url(../../assets/public/input_border_bg@2x.png);*/
-      background-repeat: no-repeat;
-      background-size: 100% 100%;
       text-align: left;
       border-radius: 4px;
       &[readonly] {
@@ -266,20 +277,16 @@ export default {
       &[placeholder] {
         color: $placeholder-color;
       }
-      &:after {
-        position: absolute;
-        content: '';
-        right: 4px;
-        height: 100%;
-        width: 30px;
-        background: url(../../assets/public/select_arrow_icon.png) no-repeat center;
-        background-size: 10px auto;
-        transition: transform 0.5s;
-        transform: rotate(0deg);
-      }
-      &.popover-icon:after {
-        transform: rotate(180deg);
-      }
+      /*&:after {*/
+        /*position: absolute;*/
+        /*content: '';*/
+        /*right: 4px;*/
+        /*height: 100%;*/
+        /*width: 30px;*/
+      /*}*/
+      /*&.popover-icon:after {*/
+        /*transform: rotate(180deg);*/
+      /*}*/
     }
   }
 
@@ -301,7 +308,7 @@ export default {
   $line28: 28px;
   .address-popover {
     padding: 0;
-    height: 230px;
+    height: 240px;
     box-sizing: border-box;
     border: none !important;
     .select-wrap {
@@ -392,6 +399,11 @@ export default {
           }
         }
       }
+    }
+  }
+  .address-btn{
+    .el-input__suffix{
+      right: 8px;
     }
   }
 </style>

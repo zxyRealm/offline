@@ -11,7 +11,8 @@ export function GetAreaList () {
 // 获取商户下管理员社群列表
 export function GetManageList () {
   return request({
-    url: '/group/all'
+    url:`${prefix[0]}/group/`,
+    method: 'get'
   })
 }
 

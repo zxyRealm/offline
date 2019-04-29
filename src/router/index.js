@@ -172,6 +172,14 @@ export const constantRouterMap = [
         },
         component: CommunityCreate
       },
+      // {
+      //   path: 'create/market-map',
+      //   name: 'createMarketMap',
+      //   meta: {
+      //     title: '添加地图-线下浏览器服务平台', auth: true
+      //   },
+      //   component: CommunityMap
+      // },
       {
         path: 'edit/market',
         name: 'editMarket',
@@ -180,6 +188,7 @@ export const constantRouterMap = [
         },
         component: CommunityCreate
       },
+
       {
         path: 'edit/chain',
         name: 'editChain',

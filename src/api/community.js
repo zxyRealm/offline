@@ -1,11 +1,12 @@
 import request from '@/utils/request'
+import prefix from './prefix'
 // 获取商场结构信息
 
 // 校验社群名称是否存在
-export function CheckNameExist (data) {
+export function CheckGroupNameExist (data) {
   return request({
     tip: false,
-    url: '/group/name/exist',
+    url: `${prefix[0]}/group/common/read/name`,
     data
   })
 }
@@ -48,8 +49,9 @@ export function AddNewCommunity (url, data) {
 export function GetMarketList (data, tip = true) {
   return request({
     tip: tip,
-    url: '/group/son/market/list',
-    data
+    url: `${prefix[0]}/market/read/structure/${data.groupGuid}`,
+    data,
+    method: 'get'
   })
 }
 

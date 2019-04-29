@@ -3,14 +3,7 @@
     <div class="wscn-http404 vam">
       <div class="pic-404">
         <img class="pic-404__parent" :src="img_404" alt="404">
-      </div>
-      <div class="bullshit">
-        <h1>404</h1>
-        <p class="fs16">My God……页面居然丢失！</p>
-        <p class="fs12">我们正在努力让页面重见天日，请稍后再试！<span>{{delay}}</span> 秒后将回到首页......</p>
-
-        <el-button @click="$router.push('/')" class="el-button affirm">返回首页</el-button>
-
+        <p class="g-gray">网络异常，请检查您的网络</p>
       </div>
     </div>
   </div>
@@ -18,27 +11,25 @@
 
 <script>
 import img_404 from '@/assets/404_images/404.png'
-import img_404_cloud from '@/assets/404_images/404_cloud.png'
 export default {
   name: 'page404',
   data () {
     return {
       img_404,
-      img_404_cloud,
       delay: 5,
       timer: null
     }
   },
   created () {
     this.delay = 5
-    this.timer = setInterval(() => {
-      this.delay--
-      if (this.delay <= 1) {
-        clearInterval(this.timer)
-        this.timer = null
-        this.$router.push('/')
-      }
-    }, 1000)
+    // this.timer = setInterval(() => {
+    //   this.delay--
+    //   if (this.delay <= 1) {
+    //     clearInterval(this.timer)
+    //     this.timer = null
+    //     this.$router.push('/')
+    //   }
+    // }, 1000)
   },
   beforeDestroy () {
     if (this.timer) {
@@ -50,9 +41,8 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style lang="scss" scoped>
   .wscn-http404-wrap {
-    background: rgba(0, 0, 0, .9);
     height: 100%;
   }
 
@@ -70,8 +60,15 @@ export default {
       position: relative;
       overflow: hidden;
       &__parent {
-        width: 376px;
+        width: 685px;
       }
+    }
+    .g-gray{
+      position: absolute;
+      bottom: 16%;
+      width: 100%;
+      text-align: center;
+      color: #BEBEBE;
     }
     .bullshit {
       position: relative;

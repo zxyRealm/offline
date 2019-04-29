@@ -58,7 +58,7 @@ export default {
   },
   methods: {
     handleClickOutside () {
-      this.$store.dispatch('closeSideBar', {withoutAnimation: false})
+      this.$store.dispatch('closeSideBar', { withoutAnimation: false })
     }
   }
 }
@@ -86,8 +86,8 @@ export default {
     白色主题
     ********/
 
-    &.theme-white{
-      .app-main-content{
+    &.theme-white {
+      .app-main-content {
         background: $theme-white;
         color: #333;
       }
@@ -98,13 +98,9 @@ export default {
   .app-wrapper {
     .app-main-content {
       &:not(.no-padding) {
-        > div {
-          /*padding: 0 20px;*/
-        }
       }
       > div {
         height: 100%;
-        overflow: hidden;
       }
     }
   }
