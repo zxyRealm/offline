@@ -1,174 +1,205 @@
+/*
+* @author  张晓元
+* @date    2019-05-05
+*/
 <template>
-  <div class="data-wrap" v-if="$route.name!=='guest-analysis'">
-    <ul class="data-type">
-      <li v-for="(value,index) in dataType" :key="index">
-        <router-link :to="value.path">{{value.title}}</router-link>
-      </li>
-    </ul>
-    <div class="data-wrap-content">
-      <router-view></router-view>
+  <div class="data__content--wrap">
+    <h3 class="data-title">数据分析</h3>
+    <div class="filter-wrap">
+      <el-date-picker
+        v-show="currentParams.timeIntervalUnit === 'hour'"
+        type="date"
+        v-model="currentParams.timeArray[0]"
+        placeholder="选择日期"
+        format="yyyy/MM/dd"
+        value-format="yyyy/MM/dd"
+        class="picker-data"
+        :picker-options="pickerOptions1"
+        :clearable="false"
+        prefix-icon="''"
+      ></el-date-picker>
+      <el-date-picker
+        v-show="currentParams.timeIntervalUnit === 'day' || currentParams.timeIntervalUnit === 'week'"
+        v-model="currentParams.timeArray"
+        type="daterange"
+        align="center"
+        unlink-panels
+        range-separator="-"
+        start-placeholder="开始时间"
+        end-placeholder="结束时间"
+        format="yyyy/MM/dd"
+        value-format="yyyy/MM/dd"
+        :picker-options="pickerOptions1"
+        :clearable="false"
+      >
+      </el-date-picker>
+      <el-date-picker
+        v-show="currentParams.timeIntervalUnit === 'month'"
+        v-model="currentParams.timeArray"
+        type="monthrange"
+        align="center"
+        unlink-panels
+        range-separator="至"
+        start-placeholder="开始时间"
+        end-placeholder="结束时间"
+        format="yyyy/MM/dd"
+        value-format="yyyy/MM/dd"
+        :picker-options="pickerOptions1"
+        :clearable="false"
+      >
+      </el-date-picker>
+      <el-radio-group v-model="currentParams.timeIntervalUnit">
+        <el-radio-button label="hour">小时</el-radio-button>
+        <el-radio-button label="day">日</el-radio-button>
+        <el-radio-button label="week">周</el-radio-button>
+        <el-radio-button label="month">月</el-radio-button>
+      </el-radio-group>
     </div>
-  </div>
-  <div class="guest-analysis" v-else>
-    <el-scrollbar ref="scrollItem">
-      <div class="data-wrap">
-        <ul class="data-type">
-          <li v-for="(value,index) in dataType" :key="index">
-            <router-link :to="value.path">{{value.title}}</router-link>
-          </li>
-        </ul>
-        <router-view></router-view>
+    <div class="echarts-wrap">
+      <!--客流量-->
+      <div class="flow">
+        <div class="item item-4-3">
+
+        </div>
+        <div class="item item-4-1"></div>
       </div>
-    </el-scrollbar>
+      <!--排行榜-->
+      <div class="rank">
+        <div class="item item-4"></div>
+        <div class="item item-4"></div>
+        <div class="item item-4"></div>
+        <div class="item item-4"></div>
+      </div>
+      <!--性别-->
+      <div class="sex">
+        <div class="item item-4-1"></div>
+        <div class="item item-4-3"></div>
+      </div>
+      <!--年龄-->
+      <div class="age">
+        <div class="item item-4-3"></div>
+        <div class="item item-4-1">
+          <Chart
+            :data="ratioData.age"
+            mode="horizontal"
+            title="年龄比例" type="age"
+            width="100%" height="100%"></Chart>
+        </div>
+      </div>
+      <!--回头客-->
+      <div class="return">
+        <div class="item item-4-1"></div>
+        <div class="item item-4-3"></div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import {eventObject} from '@/utils/event.js'
-
+import Chart from '@/components/echarts/three-pie'
 export default {
-  name: 'data-index',
-  components: {},
+  name: 'index',
+  components: {
+    Chart
+  },
   data () {
     return {
-      activeName: '客流统计',
-      dataType: [
-        {title: '客流统计', path: '/data/guest-analysis'},
-        {title: '性别分析', path: '/data/gender-analysis'},
-        {title: '年龄分析', path: '/data/age-analysis'},
-        {title: '回头客分析', path: '/data/shop-frequency-analysis'}
-      ]
+      pickerOptions1: {
+        disabledDate (time) {
+          return time.getTime() > Date.now()
+        }
+      },
+      dimensionData: [
+        { name: '小时', type: 'hour' },
+        { name: '日', type: 'day' },
+        { name: '周', type: 'week' },
+        { name: '月', type: 'month' }
+      ],
+      currentParams: {
+        timeIntervalUnit: 'day',
+        timeArray: []
+      },
+      ratioData: {
+        age: []
+      }
     }
+  },
+  created () {
   },
   mounted () {
   },
-  beforeRouteLeave (to, from, next) {
-    eventObject().$off('resize-echarts-data')
-    next()
-  }
+  computed: {},
+  methods: {},
+  watch: {}
 }
 </script>
+
 <style lang="scss" scoped>
-
-</style>
-<style rel="stylesheet/scss" lang="scss">
-  @import "@/styles/variables.scss";
-  .guest-analysis {
-    height: 100%;
-    > .el-scrollbar {
-      height: 100%;
-      > .el-scrollbar__wrap {
-        /*background-color: rgba(0, 0, 0, 0.5);*/
-
-      }
+  .data__content--wrap {
+    .data-title {
+      height: 72px;
+      line-height: 72px;
+      padding: 0 40px;
+      border-bottom: 1px solid #F0F0F0;
+      font-size: 22px;
+      font-weight: normal;
     }
-    > .is-horizontal {
-      display: none;
-    }
-    .el-scrollbar__wrap {
-      overflow-x: hidden;
-      height: 100%;
-    }
-    .el-scrollbar__view {
-      height: 100%;
-      .data-guest {
-        height: calc(100% - 40px);
-        padding: 12px 0 0;
-        .table-data {
-          min-height: calc(100% - 330px);
-          background-color: $content-bg;
-        }
-      }
-    }
-  }
-
-  .main-container {
-    overflow: hidden;
-  }
-
-  /* 防止動效影響路由 */
-  .flow-diagram {
-    overflow: hidden;
-  }
-
-  .data-wrap {
-    height: 100%;
-    background: #040404;
-    .corner-bg{
-      > div:not(.table-wrap) {
-        background-color: $content-bg;
-      }
-    }
-    .data-type {
-      font-size: 16px;
-      color: #FFFFFF;
-      width: 100%;
-      min-width: 1020px;
-      height: 40px;
-      padding: 0 12px;
+    .filter-wrap {
+      height: 72px;
+      padding: 18px 40px;
+      border-bottom: 1px solid #F0F0F0;
       box-sizing: border-box;
-      background-color: $content-bg;
-      box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
-      .router-link-active {
-        color: #0F9EE9;
-        position: relative;
-      }
-      .router-link-active::after {
-        content: '';
-        background-image: linear-gradient(340deg, #813DC7 5%, #0F9EE9 100%);
-        height: 3px;
-        position: absolute;
-        width: 100%;
-        left: 0;
-        bottom: 0;
-      }
-      > li {
-        width: 17.6%;
-        height: 40px;
-        display: inline-block;
-        line-height: 40px;
-        text-align: center;
-        a {
-          color: #FFFFFF;
-          display: block;
-        }
-      }
-    }
-    //下面路由使用的公共样式
-  }
-
-  .data-guest {
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 12px 0 12px 0;
-    .data-guest-content {
-      width: 100%;
-      .screening, .flow-diagram {
-        height: 230px;
-      }
-      .screening {
-        width: 36.86%;
+      .el-date-editor {
         float: left;
-      }
-      .flow-diagram {
-        width: 62.17%;
-        float: right;
-      }
-      &::after {
-        content: '';
-        width: 0;
-        height: 0;
-        clear: both;
-        display: block;
-        overflow: hidden;
+        width: 218px;
+        margin-right: 20px;
+        .el-range-input {
+          font-size: 13px;
+        }
       }
     }
-    .table-data {
-      width: 100%;
-      margin-top: 10px;
+    .echarts-wrap{
+      padding: 20px 20px 0;
       box-sizing: border-box;
+      background: #F7F7F7;
+      overflow: hidden;
+      > div{
+        height: 500px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #0f9ee9;
+      }
+      .item-4{
+        width: calc(25% - 15px);
+      }
+      .item-4-1{
+        width: calc(25% - 10px);
+      }
+      .item-4-3{
+        width: calc(75% - 10px);
+      }
+      .item{
+        float: left;
+        height: 100%;
+        background: #fff;
+        &+ .item{
+          margin-left: 20px;
+        }
+      }
+      .flow{
+        /*height: 502px;*/
+      }
+
     }
   }
-
+</style>
+<style lang="scss">
+  .data__content--wrap {
+    .filter-wrap {
+      .el-date-editor {
+        .el-range-input {
+          font-size: 13px;
+        }
+      }
+    }
+  }
 </style>

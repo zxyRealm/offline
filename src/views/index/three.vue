@@ -4,36 +4,23 @@
     <!--没有管理层信息是空数据状态 使用class="empty--data"-->
     <template v-if="currentManage.id">
       <!--<el-button @click="changeType">切换</el-button>-->
-      <div class="floor__data--wrap">
+      <div class="floor__data--wrap" v-if="!emptyMap">
         <el-scrollbar>
           <h2 class="title">{{currentManage.name || '屈臣氏'}}</h2>
           <!--进客流柱状图-->
           <!--门店状态（商场、连锁）或者单店状态下显示-->
           <div class="in-flow items" v-if="isStore">
-            <chart-bar title="进客流量" :data="flowData" type="inflow" width="100%" height="100%"></chart-bar>
+            <chart-bar
+              title="去重客流量"
+              :data="flowData"
+              type="inflow"
+              width="100%"
+              height="100%"></chart-bar>
           </div>
           <!--门店客流排行榜-->
           <!--商场管理、商场楼层、连锁全国、省、市、区 状态下显示-->
-          <!--v-if="currentManage.type === 1 && !currentFloor.industryType && currentFloor.type !== 4"-->
           <div class="store-flow-rank items" v-else>
-            <div class="floor__sub--title">
-              门店客流排行榜
-            </div>
-            <div class="process__list--wrap">
-              <div
-                class="pl-items vam"
-                v-for="(val, $index) in 6" :key="val"
-                :class="{'empty--data': !rankData.group[$index]}">
-                <span class="ellipsis">{{val}}.{{rankData.group[$index] ? rankData.group[$index].groupName : `门店${$index + 1}`}}</span>
-                <el-progress
-                  :color="rankData.group[$index] ? industryColor[$index] : '#005BC9'"
-                  :percentage="rankData.group[$index] ? rankData.group[$index].percent : 0"></el-progress>
-                <el-icon
-                  class="el-icon-d-arrow-right"
-                  @click.native="enterStore(rankData.group[$index])"
-                  :class="{'c-grey': !rankData.group[$index]}"></el-icon>
-              </div>
-            </div>
+            <store-rank label="industryName" :data="rankData.group"></store-rank>
           </div>
           <div class="float-block clearfix" :class="{single: currentManage.type === 3}">
             <!--会员比例-->
@@ -43,81 +30,105 @@
                 height="100%"></Chart>
             </div>
             <!--男女比例-->
-            <div class="sex-ratio items"
-                 :class="{'empty--data': !ratioData.gender.man || !ratioData.gender.man.total}">
+            <div
+              class="sex-ratio items"
+              :class="{'empty--data': !ratioData.gender.man || !ratioData.gender.man.total}">
               <Chart
-                title="性别比例" :data="ratioData.gender" type="gender" width="100%"
+                title="性别比例"
+                :data="ratioData.gender"
+                type="gender" width="100%"
                 height="100%"></Chart>
             </div>
           </div>
           <!--回头客比例-->
-          <div class="return-ratio items"
-               :class="{'empty--data': !ratioData.appearance.many || !ratioData.appearance.many.total, single: currentManage.type === 3}">
-            <div class="floor__sub--title">
-              回头客比例
-            </div>
-            <custom-pie :total="ratioData.appearance.many ? ratioData.appearance.many.total : 0"
-                        :percent="ratioData.appearance.many ? ratioData.appearance.many.percent : 0"></custom-pie>
-            <div class="return__data--wrap">
-              <div class="multi__box vam">
-                <img src="@/assets/three/return_multi_icon@2x.png" alt=""><span>多次</span>
-                <span>{{ratioData.appearance.many ? ratioData.appearance.many.percent : '0%'}}</span>
-              </div>
-              <div class="single__box vam">
-                <img src="@/assets/three/return_single_icon@2x.png" alt=""><span>单次</span>
-                <span>{{ratioData.appearance.first ? ratioData.appearance.first.percent : '0%'}}</span>
-              </div>
-            </div>
+          <div
+            class="return-ratio items"
+            :class="{'empty--data': !ratioData.appearance.many || !ratioData.appearance.many.total, single: currentManage.type === 3}">
+            <return-flow :data="ratioData.appearance.many"></return-flow>
+
           </div>
 
           <div class="content--wrap" :class="{'double-item': showIndustry}">
             <!--业态客流排行榜-->
-            <!--v-if="currentManage.type === 1 && currentFloor && currentFloor.floor === 0"-->
             <div class="format-flow-rank items" v-if="showIndustry">
-              <div class="floor__sub--title">
-                业态客流排行榜
-              </div>
-              <div class="clearfix">
-                <div class="industry__rank--wrap">
-                  <div class="rank-items">
-                    <p>{{rankData.industry[1] ? rankData.industry[1].industryName : ''}}<br>{{rankData.industry[1]
-                      ? rankData.industry[1].percent: ''}}</p>
-                  </div>
-                  <div class="rank-items">
-                    <p>{{rankData.industry[0] ? rankData.industry[0].industryName : ''}}<br>{{rankData.industry[0]
-                      ? rankData.industry[0].percent: ''}}</p>
-                  </div>
-                  <div class="rank-items">
-                    <p>{{rankData.industry[2] ? rankData.industry[2].industryName : ''}}<br>{{rankData.industry[2]
-                      ? rankData.industry[2].percent : ''}}</p>
-                  </div>
-                </div>
-                <ul class="right__sidebar">
-                  <template v-for="(item, $index) in rankData.industry">
-                    <li
-                      :key="$index"
-                      v-if="$index > 2 && $index < 7"
-                      class="sidebar--item">
-                      <span class="ellipsis">{{$index + 1}}.{{item.industryName}}</span>
-                      <span>{{item.percent}}</span>
-                    </li>
-                  </template>
-
-                </ul>
-              </div>
-              <!--<chart-bar title="业态客流排行榜" width="100%" height="100%"></chart-bar>-->
+              <industry-rank :data="rankData.industry"></industry-rank>
             </div>
 
             <!--年龄比例-->
             <div class="age-ratio items" :class="{single: currentManage.type === 3, vertical: showIndustry}">
-              <Chart :data="ratioData.age" :mode="!showIndustry ? 'vertical': 'horizontal'" title="年龄比例" type="age" width="100%" height="100%"></Chart>
+              <Chart
+                :data="ratioData.age"
+                :mode="!showIndustry ? 'vertical': 'horizontal'"
+                title="年龄比例" type="age"
+                width="100%" height="100%"></Chart>
             </div>
           </div>
 
         </el-scrollbar>
       </div>
       <div class="floor__3d--wrap black">
-        <general-map @updateCommunity="setFloorInfo"></general-map>
+        <general-map @updateCommunity="setFloorInfo" v-if="!emptyMap"></general-map>
+        <!--单店无地图时-->
+        <div class="store__map--empty" v-if="emptyMap">
+          <div class="bar-box">
+
+          </div>
+          <div class="main-content">
+            <div class="item--top">
+              <div class="double items">
+                <div class="time-echart--wrap">
+                  <time-echarts type="flow"></time-echarts>
+                </div>
+              </div>
+              <div class="double items">
+                <div class="time-echart--wrap">
+                  <time-echarts type="member"></time-echarts>
+                </div>
+
+              </div>
+            </div>
+            <div class="item--middle">
+              <div class="double-ratio">
+                <div class="ratio-item items">
+                  <Chart
+                    title="会员比例"
+                    :data="ratioData.member"
+                    type="member" width="100%"
+                    height="100%"></Chart>
+                </div>
+                <div class="ratio-item items">
+                  <Chart
+                    title="性别比例"
+                    :data="ratioData.gender"
+                    type="gender" width="100%"
+                    height="100%"></Chart>
+                </div>
+              </div>
+              <div class="flow-wrap">
+                <div class="items">
+                  <chart-bar
+                    title="去重客流量"
+                    :data="flowData"
+                    type="inflow"
+                    width="100%"
+                    height="100%"></chart-bar>
+                </div>
+              </div>
+            </div>
+            <div class="item--bottom">
+              <div class="double items">
+                <Chart
+                  :data="ratioData.age"
+                  :mode="!showIndustry ? 'vertical': 'horizontal'"
+                  title="年龄比例" type="age"
+                  width="100%" height="100%"></Chart>
+              </div>
+              <div class="double items">
+                <return-flow size="large" :data="ratioData.appearance.many"></return-flow>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </template>
     <ob-list-empty v-else :text="'您尚未创建社群'">
@@ -130,9 +141,13 @@
 import Chart from '@/components/echarts/three-pie'
 import ChartBar from '@/components/echarts/three-bar'
 import GeneralMap from '@/components/three/GeneralMap'
-import CustomPie from '@/components/echarts/custom-pie'
+import StoreRank from './components/store'
+import IndustryRank from './components/industry'
+import ReturnFlow from './components/return'
+import TimeEcharts from '@/components/echarts/time'
 import { eventObject } from '../../utils/event'
-import { getFlowRank, GetTimeRatio, GetChartLine, getTimeRatio } from '../../api/visual'
+import { GetChartLine } from '@/api/visual'
+import { getFlowAnalysisTime, getFlowRankTime, getRatioTime } from '@/api'
 import { mapState } from 'vuex'
 import Moment from 'moment'
 
@@ -146,14 +161,6 @@ export default {
         appearance: [],
         gender: []
       },
-      industryColor: [
-        '#FF6660',
-        '#FD951B',
-        '#FFEF03',
-        '#7ED321',
-        '#005BC9',
-        '#4A21B8'
-      ],
       rankData: { // 排行榜 （业态、门店）
         group: [],
         industry: []
@@ -168,7 +175,10 @@ export default {
     Chart,
     ChartBar,
     GeneralMap,
-    CustomPie
+    StoreRank,
+    IndustryRank,
+    ReturnFlow,
+    TimeEcharts
   },
   created () {
   },
@@ -187,12 +197,15 @@ export default {
     // 是否是单店/商场门店/连锁门店
     isStore () {
       return this.currentManage.type === 3 || new Set([3, 4]).has(this.currentFloor.type)
+    },
+    emptyMap () {
+      return this.currentManage.type === 3
     }
   },
   methods: {
     changeType () {
       this.$set(this.currentFloor, 'type', 3)
-      this.$store.state.currentManage = {type: 1}
+      this.$store.state.currentManage = { type: 1 }
     },
     setFloorInfo (data) {
       this.currentFloor = data || {}
@@ -201,9 +214,10 @@ export default {
     },
     /*
     * @params data {Object, Array} 需要处理的数组或者对象，对象中的属性值为数组时对即对数组进行处理
+    * @params type {String} percent返回数字还是百分比字符串
     * @return {Array} 返回包含percent 和 total 值的新数组
     * */
-    CommunicationPer (data) {
+    CommunicationPer (data, type) {
       // 计算数组中和值与百分比值
       let count = (list) => {
         let total = 0
@@ -211,8 +225,9 @@ export default {
           total += item.count
         })
         return list.map(item => {
+          let num = total ? Number(((item.count / total) * 100).toFixed(1)) : 0
           item.total = total
-          item.percent = total ? ((item.count / total) * 100).toFixed(1) + '%' : '0%'
+          item.percent = type === 'number' ? num : num + '%'
           return item
         })
       }
@@ -239,7 +254,7 @@ export default {
       // 获取客流排行(查看总商场时展示门店、业态客流排行；查看单层楼时展示门店客流排行)
       // if (!info) return
       this.getRankData(2)
-
+      this.getRankData(1)
       // 获取实时比率
       this.getRatioData('member')
     },
@@ -250,15 +265,15 @@ export default {
     */
     getRankData (type) {
       // if (this.currentManage.type === 1 && type === 2) return //
-      let keyMap = {1: 'group', 2: 'industry'}
-      getFlowRank({
+      let keyMap = { 1: 'group', 2: 'industry' }
+      getFlowRankTime({
         groupFloor: this.currentFloor.floor,
         groupGuid: this.currentManage.id,
         topType: type
       }).then((res) => {
         this.num = 0
-        this.$set(this.rankData, keyMap[type], this.CommunicationPer(res.data.industry))
-        // console.log('industry------------', )
+        this.$set(this.rankData, keyMap[type], this.CommunicationPer(res.data[keyMap[type]], type === 1 ? 'number' : ''))
+        console.log(this.rankData)
       }).catch(err => {
         if (err.code === 'ERR-110') {
           this.num = 4
@@ -268,11 +283,11 @@ export default {
         console.error(err.msg || '网络异常，请稍后重新尝试')
       })
     },
-    // 获取客流数据
+    // 获取去重客流数据
     getFlowData () {
       if (this.currentFloor.industryType || this.currentFloor.type === 4) {
         let date = Moment().format('YYYY-MM-DD')
-        GetChartLine({
+        getFlowAnalysisTime({
           groupGuid: this.currentManage.id,
           groupName: this.currentFloor.name,
           groupSonGuid: this.currentFloor.groupSonGuid || this.currentFloor.guid,
@@ -287,9 +302,13 @@ export default {
     },
     /*
     * @params {type} appearance(回头客)、member(会员)、age(年龄)、gender(性别)
-    * */
+    */
     getRatioData (type) {
-      getTimeRatio({groupFloor: this.currentFloor.floor, groupGuid: this.currentManage.id, type: type}).then((res) => {
+      getRatioTime({
+        groupFloor: this.currentFloor.floor,
+        groupGuid: this.currentManage.id,
+        type: type
+      }).then((res) => {
         this.num = 0
         let resData = res.data
         resData = this.CommunicationPer(resData)
@@ -326,9 +345,10 @@ export default {
 </script>
 
 <style lang="scss" type="text/scss" scoped>
-  @import "@/styles/variables.scss";
+  @import "~@/styles/variables.scss";
 
   .app-wrapper .app-main-content .three__floor--wrap {
+    padding: 20px;
     box-sizing: border-box;
   }
 
@@ -393,14 +413,14 @@ export default {
     padding: 0 10px;
     /*margin-left: 10px;*/
     background: $theme-bg1;
-    .title{
+    .title {
       height: 56px;
       line-height: 56px;
       margin-bottom: 12px;
       border-bottom: 1px dashed #3B3F46;
       font-size: 20px;
       color: $gray-title;
-      &:before{
+      &:before {
         content: '';
         display: inline-block;
         width: 6px;
@@ -461,64 +481,38 @@ export default {
         background-size: 100% auto;
       }
     }
-    /*回头客比例*/
-    .return-ratio {
-      height: 126px;
-      &.single {
-        height: 146px;
-        .person__pie--wrap {
-          margin-top: 28px;
-          margin-bottom: 15px;
-          height: 38px;
-        }
-      }
-      .person__pie--wrap {
-        margin-top: 20px;
-        height: 32px;
-      }
+    .return-ratio{
+      height: 120px;
     }
-    .return__data--wrap {
-      margin-top: 10px;
-      font-size: 12px;
-      overflow: hidden;
-      > div {
-        img {
-          margin-right: 4px;
-          width: 15px;
-        }
-        &:first-child {
-          float: left;
-        }
-        &:last-child {
-          float: right;
-        }
-      }
-    }
-    .return__ratio--wrap {
-      display: inline-block;
-      margin-top: 15px;
-      height: 24px;
-      line-height: 25px;
-      .return__ratio--icon {
-        float: left;
-        display: block;
-        width: 10px;
-        height: 24px;
-        margin-right: 7px;
-        background-image: url(../../assets/three/return_girl_icon@2x.png);
-        background-size: 100% auto;
-        &.boy {
-          background-image: url(../../assets/three/return_boy_icon@2x.png);
-        }
-        &:last-child {
-          margin-right: 0;
-        }
-      }
-    }
+
+    /*.return__ratio--wrap {*/
+      /*display: inline-block;*/
+      /*margin-top: 15px;*/
+      /*height: 24px;*/
+      /*line-height: 25px;*/
+      /*.return__ratio--icon {*/
+        /*float: left;*/
+        /*display: block;*/
+        /*width: 10px;*/
+        /*height: 24px;*/
+        /*margin-right: 7px;*/
+        /*background-image: url(../../assets/three/return_girl_icon@2x.png);*/
+        /*background-size: 100% auto;*/
+        /*&.boy {*/
+          /*background-image: url(../../assets/three/return_boy_icon@2x.png);*/
+        /*}*/
+        /*&:last-child {*/
+          /*margin-right: 0;*/
+        /*}*/
+      /*}*/
+    /*}*/
     .content--wrap {
       height: 250px;
       &.double-item {
         height: 300px;
+        @media screen and(max-width: 1400px) {
+          height: 260px;
+        }
       }
     }
 
@@ -655,6 +649,87 @@ export default {
       width: 100%;
       height: 100%;
       background: #0F0E11;
+    }
+  }
+
+  /*单店无地图样式*/
+
+  .store__map--empty{
+    height: 100%;
+    .main-content{
+      height: 100%;
+      overflow: hidden;
+    }
+    .items {
+      height: 100%;
+      padding: 10px 15px;
+      box-sizing: border-box;
+      background: #26273D;
+    }
+    .item--top{
+      height: 26%;
+    }
+    .item--middle{
+      height: calc(40% - 10px);
+      margin: 10px 0;
+      .flow-wrap{
+        height: 100%;
+        overflow: hidden;
+      }
+      .double-ratio{
+        float: right;
+        width: calc(50% - 5px);
+        height: 100%;
+        margin-left: 10px;
+        .ratio-item{
+          float: left;
+          width: calc(50% - 5px);
+          height: 100%;
+          box-sizing: border-box;
+          & + .ratio-item{
+            margin-left: 10px;
+          }
+        }
+      }
+      @media screen and(max-width: 1600px){
+        .double-ratio{
+          width: calc(30%);
+          .ratio-item{
+            width: 100%;
+            height: calc(50% - 5px);
+            box-sizing: border-box;
+            & + .ratio-item{
+              margin: 10px 0 0;
+            }
+          }
+        }
+      }
+    }
+    .item--bottom{
+      height: calc(34% - 15px);
+    }
+    .double{
+      float: left;
+      width: calc(50% - 5px);
+      height: 100%;
+      box-sizing: border-box;
+      & + .double{
+        margin-left: 10px;
+      }
+    }
+    .time-echart--wrap{
+      display: inline-block;
+      width: 150px;
+      height: 38px;
+    }
+    /*侧边栏样式*/
+    .bar-box{
+      float: right;
+      width: 164px;
+      height: 100%;
+      padding: 5px;
+      overflow: hidden;
+      box-sizing: border-box;
     }
   }
 </style>

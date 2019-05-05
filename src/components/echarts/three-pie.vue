@@ -1,18 +1,18 @@
 <template>
-  <div ref="echartsWrap" class="echarts--wrap" :style="{width: width, height: height}" :class="{'empty--data': total === 0}">
-    <!--<div :id="eid" :style="{width: width, height: height}"></div>-->
-    <!--<div class="percent-wrap" v-if="type === 'age'">-->
-    <!--<p v-for="(item, $index) in percentList" :key="$index">{{getPercent(item.value)}}</p>-->
-    <!--</div>-->
+  <div
+    ref="echartsWrap"
+    class="echarts--wrap"
+    :style="{width: width, height: height}"
+    :class="{'empty--data': total === 0}">
   </div>
 </template>
 
 <script>
 import resize from './mixins/resize'
 import { mapState } from 'vuex'
+
 const setEchartsFontSize = () => {
   let offsetWidth = document.body.offsetWidth
-  // console.log('offset width', offsetWidth)
   if (offsetWidth <= 1440) {
     return 12
   } else if (offsetWidth > 1440 && offsetWidth < 1600) {
@@ -31,20 +31,20 @@ export default {
       chart: null,
       dataMap: {
         age: [
-          {key: 'child', name: '0-10'},
-          {key: 'teen', name: '10-20'},
-          {key: 'youth', name: '20-30'},
-          {key: 'man', name: '30-40'},
-          {key: 'middle', name: '40-50'},
-          {key: 'old', name: '50以上'}
+          { key: 'child', name: '0-10' },
+          { key: 'teen', name: '10-20' },
+          { key: 'youth', name: '20-30' },
+          { key: 'man', name: '30-40' },
+          { key: 'middle', name: '40-50' },
+          { key: 'old', name: '50以上' }
         ],
         member: [
-          {key: 'not_member', name: '非会员'},
-          {key: 'member', name: '会员'}
+          { key: 'not_member', name: '非会员' },
+          { key: 'member', name: '会员' }
         ],
         gender: [
-          {key: 'man', name: '男'},
-          {key: 'woman', name: '女'}
+          { key: 'man', name: '男' },
+          { key: 'woman', name: '女' }
         ]
       },
       options: {}
@@ -108,19 +108,16 @@ export default {
         center: ['28%', '50%'],
         radius: ['46%', '82%']
       }
-console.log('width-------------', document.getElementById(this.eid).offsetWidth)
       if (this.mode === 'horizontal') {
         option = {
           right: 'auto',
           bottom: '1.5%',
-          // height: (option.itemHeight + option.itemGap) * 3,
           itemHeight: 13,
           itemGap: 8,
           center: ['50%', '32%'],
           radius: ['36%', '60%']
         }
       }
-      console.log('----------', option)
       return option
     }
   },
@@ -164,7 +161,7 @@ console.log('width-------------', document.getElementById(this.eid).offsetWidth)
       }
       let color = []
       let fontSize = setEchartsFontSize()
-      if (this.mode !== 'vertical') fontSize = fontSize -1
+      if (this.mode !== 'vertical') fontSize = fontSize - 1
       switch (this.type) {
         case 'gender':
           color = ['#005BC9', '#EA9D49']
@@ -225,7 +222,7 @@ console.log('width-------------', document.getElementById(this.eid).offsetWidth)
             selectedMode: false,
             formatter: function (name) {
               // let per = _this.getPercent(seriesData.filter(item => item.name === name)[0].value) || '88.8%'
-              let per = (_this.mode === 'vertical' ?  '  ' : '') +  '88.8%'
+              let per = (_this.mode === 'vertical' ? '  ' : '') + '88.8%'
               return `{name|${name}}{per|${per}}`
             },
             textStyle: {
@@ -245,12 +242,12 @@ console.log('width-------------', document.getElementById(this.eid).offsetWidth)
             },
             icon: 'square',
             data: [
-              {name: '0-10'},
-              {name: '10-20'},
-              {name: '20-30'},
-              {name: '30-40'},
-              {name: '40-50'},
-              {name: '50以上'}
+              { name: '0-10' },
+              { name: '10-20' },
+              { name: '20-30' },
+              { name: '30-40' },
+              { name: '40-50' },
+              { name: '50以上' }
             ]
           },
           series: [

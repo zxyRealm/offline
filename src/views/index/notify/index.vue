@@ -6,8 +6,17 @@
     <div class="content" v-if="!state">
       <ul>
         <el-scrollbar style="height:100%;">
-          <li v-for="(val,index) in notifyData" :key="index" class="clearfix" :class="val.readState ==1?'': 'readed'">
-            <span :class="val.readState ==1?'active':''">{{index+1}}.&nbsp;&nbsp;{{val.content}}<a v-if="val.otherInfo" :href="val.otherInfo" download class="ml5">点此查看</a></span>
+          <li
+            v-for="(val,index) in notifyData"
+            :key="index" class="clearfix"
+            :class="val.readState ? '' : 'readed'">
+            <span :class="val.readState ? 'active' : ''">
+              {{index+1}}.&nbsp;&nbsp;{{val.content}}
+              <a
+                v-if="val.otherInfo"
+                :href="val.otherInfo"
+                download class="ml5">点此查看</a>
+            </span>
             <span>{{val.createTime}}</span>
           </li>
         </el-scrollbar>
@@ -16,7 +25,7 @@
   </div>
 </template>
 <script>
-import {SiteNoticeList} from '../../../api/developer'
+import { SiteNoticeList } from '@/api/developer'
 
 export default {
   data () {

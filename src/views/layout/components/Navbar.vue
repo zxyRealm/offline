@@ -1,9 +1,13 @@
 <template>
-  <div>
-    <el-menu
+  <div class="common__nav--wrap">
+    <span
+      v-show="isFullScreen"
+      class="iconfont icon-suoxiao"
+      @click="changeScreen"></span>
+    <div
+      v-show="!isFullScreen"
       class="navbar"
-      :class="{'console__nav': $route.name === 'console-lwh'}"
-      mode="horizontal">
+      :class="{'console__nav': $route.name === 'console-lwh'}">
       <router-link to="/index" class="logo-wrap vam" :class="{'hide-sidebar': hideSidebar}">
         <img src="@/assets/public/logo.png" alt="">
         <div class="des" v-show="!hideSidebar">
@@ -58,7 +62,7 @@
           </el-dropdown>
         </div>
       </div>
-    </el-menu>
+    </div>
 
     <!--操作指导弹框-->
     <el-dialog
@@ -147,14 +151,14 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import { eventObject } from '@/utils/event.js'
-import { GetManageList, OssSignature, FirstLogin, NoticeReadState } from '../../../api/common'
-import { CheckNameExist, AddNewCommunity } from '../../../api/community'
-import { validateRule, validPhone } from '../../../utils/validate'
-import { parseTime, fileTypeAllow, IntToFloor } from '../../../utils'
-import { exitLogin } from '../../../api/account'
+import { eventObject } from '@/utils/event'
+import { GetManageList, OssSignature, FirstLogin, NoticeReadState } from '@/api/common'
+import { CheckGroupNameExist, AddNewCommunity } from '@/api/community'
+import { validateRule, validPhone } from '@/utils/validate'
+import { parseTime, fileTypeAllow, IntToFloor } from '@/utils'
+import { exitLogin } from '@/api/account'
 import axios from 'axios'
-import { load } from '../../../utils/request'
+import { load } from '@/utils/request'
 import AreaSelect from '@/components/area-select/area-select'
 import FloorSelect from '@/components/FloorSelect'
 import ButtonSelect from '@/components/button-select'
@@ -290,7 +294,9 @@ export default {
       return title
     },
     isFullScreen () { // 当前是否全屏状态 (17 为浏览器默认滚动条宽度)
-      return Math.abs(window.screen.height - this.clientHeight) <= 23
+      let status = Math.abs(window.screen.height - this.clientHeight) <= 23
+      eventObject().$emit('CHANGE_FULL_STATUS', status)
+      return status
     }
   },
   watch: {
@@ -599,8 +605,21 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  @import "@/styles/variables.scss";
-
+  @import "~@/styles/variables.scss";
+  .common__nav--wrap {
+    position: relative;
+    .iconfont{
+      cursor: pointer;
+    }
+    >.icon-suoxiao{
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      color: #fff;
+      font-size: 20px;
+      z-index: 999;
+    }
+  }
   .text--wrap {
     .el-icon-check {
       font-size: 14px;

@@ -14,10 +14,6 @@
         <i class="ob-icon__index"></i>
         <span slot="title">首页</span>
       </el-menu-item>
-      <!--<el-menu-item index="/console">-->
-        <!--<i class="ob-icon__console"></i>-->
-        <!--<span slot="title">控制台</span>-->
-      <!--</el-menu-item>-->
       <el-menu-item index="/community">
         <i class="ob-icon__community"></i>
         <span slot="title">社群管理</span>
@@ -38,10 +34,6 @@
         <i class="ob-icon__data"></i>
         <span slot="title">数据分析</span>
       </el-menu-item>
-      <!--<el-menu-item index="/developer">-->
-        <!--<i class="ob-icon__developer"></i>-->
-        <!--<span slot="title">开发者中心</span>-->
-      <!--</el-menu-item>-->
     </el-menu>
   </el-scrollbar>
 </template>

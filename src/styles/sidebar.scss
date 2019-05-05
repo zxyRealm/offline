@@ -5,7 +5,7 @@
   width: 100%;
   height: 100%;
   transition: all .28s;
-  padding: 90px 20px 20px $barWidth + 20px;
+  padding: 70px 0 0 $barWidth;
   overflow-y: auto;
   box-sizing: border-box;
   background: $content-bg;
@@ -14,7 +14,7 @@
     background-size: 10px auto;
   }
   &.no-bar {
-    padding: 90px 20px 20px;
+    padding: 70px 0;
     transition: none;
   }
 }
@@ -32,8 +32,6 @@
   z-index: 1001;
   overflow: hidden;
   background-color: $theme-bg1;
-  //background-image: url(../assets/public/main_bg_icon.png);
-  //reset element-ui css
   .horizontal-collapse-transition {
     transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
   }
@@ -70,7 +68,7 @@
     width: 65px !important;
   }
   .main-container:not(.no-bar) {
-    padding: 90px 20px 20px 85px;
+    padding: 70px 0 0 65px;
   }
   .submenu-title-noDropdown {
     padding-left: 10px !important;
@@ -101,11 +99,21 @@
       }
     }
   }
+
+  // 全屏时布局样式
+  &.full-screen {
+    .sidebar-container{
+      width: 0!important;
+    }
+    .main-container:not(.no-bar) {
+      padding: 50px 40px 40px;
+    }
+  }
 }
 
 .sidebar-container .nest-menu .el-submenu > .el-submenu__title,
 .sidebar-container .el-submenu .el-menu-item {
-  min-width: 200px !important;
+  min-width: $barWidth !important;
   background-color: $subMenuBg !important;
   &:hover {
     background-color: $menuHover !important;
@@ -119,7 +127,7 @@
 //适配移动端
 .mobile {
   .main-container {
-    margin-left: 0px;
+    margin-left: 0;
   }
   .sidebar-container {
     transition: transform .28s;
@@ -146,4 +154,8 @@
   .main-container{
     background-color: $theme-white;
   }
+}
+
+.full-screen{
+
 }

@@ -13,6 +13,7 @@
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
 import { mapState } from 'vuex'
+import { eventObject } from '@/utils/event'
 
 export default {
   name: 'layout',
@@ -21,7 +22,13 @@ export default {
     Sidebar,
     AppMain
   },
+  data () {
+    return {
+      isFull: false
+    }
+  },
   created () {
+    eventObject().$on('CHANGE_FULL_STATUS', this.changeFull)
   },
   computed: {
     sidebar () {
@@ -32,6 +39,7 @@ export default {
     },
     classObj () {
       return {
+        'full-screen': this.isFull,
         hideSidebar: !this.sidebar.opened,
         withoutAnimation: this.sidebar.withoutAnimation,
         mobile: this.device === 'mobile',
@@ -59,14 +67,20 @@ export default {
   methods: {
     handleClickOutside () {
       this.$store.dispatch('closeSideBar', { withoutAnimation: false })
-    }
+    },
+    changeFull (st) {
+      this.isFull = st
+    },
+  },
+  beforeDestroy () {
+    eventObject().$off('CHANGE_FULL_STATUS', this.changeFull)
   }
 }
 </script>
 
 <style lang="scss" scoped>
-  @import "@/styles/mixin.scss";
-  @import "@/styles/variables.scss";
+  @import "~@/styles/mixin.scss";
+  @import "~@/styles/variables.scss";
 
   .app-wrapper {
     @include clearfix;

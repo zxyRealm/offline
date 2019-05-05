@@ -34,8 +34,6 @@
           class="picker-data"
           :picker-options="pickerOptions1"
           :clearable="false"
-          :clear-icon="''"
-          :prefix-icon="''"
         >
         </el-date-picker>
         <el-date-picker

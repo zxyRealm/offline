@@ -1,9 +1,14 @@
 <template>
-  <div ref="personWrap" class="person__pie--wrap">
+  <div
+    ref="personWrap"
+    id="person__pie--wrap"
+    class="person__pie--wrap vam"
+    :class="size">
       <span
         :key="item"
         v-for="item in iconCount"
         class="iconfont icon-huitoukebili"
+        :style="customStyle"
         :class="item > girlInt ? 'icon-nan':'icon-nv'"></span>
   </div>
 </template>
@@ -23,13 +28,18 @@ export default {
     itemMargin: {
       type: Number,
       default: 8
+    },
+    size: {
+      type: String,
+      default: 'small'
     }
   },
   data () {
     return {
       wrapWidth: '',
       iconCount: 18,
-      iconWidth: ''
+      iconWidth: '',
+      customStyle: {}
     }
   },
   created () {
@@ -47,7 +57,8 @@ export default {
         let int = this.total ? Math.floor((num / 100) * this.iconCount) : (this.iconCount / 2)
         return int
       },
-      set () {}
+      set () {
+      }
     }
   },
   methods: {
@@ -56,7 +67,6 @@ export default {
       let mr = parseInt(this.getStyle(child, 'marginRight'), 10)
       let count = Math.floor((this.$refs.personWrap.clientWidth + mr) / (child.clientWidth + mr))
       this.iconCount = count % 2 ? count - 1 : count
-      // console.log(child.clientWidth, this.iconCount, mr)
     },
     /* 获取元素样式
     * {Object} ele 要获取的元素dom对象
@@ -83,32 +93,39 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .empty--data{
-    .icon-huitoukebili{
+  .empty--data {
+    .icon-huitoukebili {
       color: #79787B;
-      &.icon-nv, &.icon-nan{
+      &.icon-nv, &.icon-nan {
         color: #79787B;
       }
     }
   }
-  .person__pie--wrap{
+
+  .person__pie--wrap {
     display: block;
     overflow: hidden;
   }
-  .icon-huitoukebili{
+
+  .icon-huitoukebili {
     display: inline-block;
-    width: 10px;
     color: #005BC9;
     font-size: 30px;
-    letter-spacing: -20px;
-    height: 24px;
+    letter-spacing: -10px;
     margin-right: 7px;
     text-indent: -10px;
-    &.icon-nv{
+    &.icon-nv {
       color: #8663FF;
     }
-    &:last-child{
+    &:last-child {
       margin-right: 0;
+    }
+  }
+  .large{
+    .icon-huitoukebili{
+      font-size: 60px;
+      letter-spacing: -20px;
+      text-indent: -20px;
     }
   }
 </style>
