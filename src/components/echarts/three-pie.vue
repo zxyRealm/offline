@@ -25,7 +25,6 @@ export default {
   name: 'three-pie',
   mixins: [resize],
   data () {
-    let width = 3000
     return {
       percentList: [],
       chart: null,
@@ -45,6 +44,10 @@ export default {
         gender: [
           { key: 'man', name: '男' },
           { key: 'woman', name: '女' }
+        ],
+        repeat: [
+          { key: 'once', name: '多次' },
+          { key: 'more', name: '单次' }
         ]
       },
       options: {}
@@ -65,11 +68,11 @@ export default {
     },
     width: {
       type: String,
-      default: '200px'
+      default: '100%'
     },
     height: {
       type: String,
-      default: '200px'
+      default: '100%'
     },
     title: {
       type: String,
@@ -78,6 +81,10 @@ export default {
     mode: {
       type: String,
       default: 'vertical' // vertical horizontal
+    },
+    theme: { // 主题颜色
+      type: String,
+      default: 'white'
     }
   },
   created () {
@@ -88,8 +95,8 @@ export default {
   },
   computed: {
     ...mapState(['currentManage']),
-    eid () {
-      return this.id || 'echarts_' + this.type
+    randomId () {
+      return `three-bar-${this.type}_${Math.random().toString()}`
     },
     total () {
       let total = 0
@@ -103,6 +110,7 @@ export default {
         height: '',
         right: '6%',
         bottom: '24%',
+        padding: 0,
         itemHeight: 14,
         itemGap: 10,
         center: ['28%', '50%'],
@@ -112,10 +120,20 @@ export default {
         option = {
           right: 'auto',
           bottom: '1.5%',
+          padding: 0,
           itemHeight: 13,
           itemGap: 8,
           center: ['50%', '32%'],
           radius: ['36%', '60%']
+        }
+        if (this.theme === 'white') option = {
+          right: 'auto',
+          bottom: '5%',
+          padding: [0, 6],
+          itemHeight: 14,
+          itemGap: 12,
+          center: ['50%', '32%'],
+          radius: ['44%', '80%']
         }
       }
       return option
@@ -129,15 +147,15 @@ export default {
       * 将echarts 实例销毁重新设置相同设置信息是可以使 图例内容居中的
       */
 
-      if (!document.getElementById(this.eid)) {
+      if (!document.getElementById(this.randomId)) {
         let container = document.createElement('div')
-        container.id = this.eid
+        container.id = this.randomId
         container.style.width = this.width
         container.style.height = this.height
         this.$refs.echartsWrap.appendChild(container)
       }
       this.$nextTick(() => {
-        this.chart = this.$echarts.init(document.getElementById(this.eid))
+        this.chart = this.$echarts.init(document.getElementById(this.randomId))
         this.setOptions()
         this.chart.resize()
         this.chart.setOption(this.options)
@@ -152,6 +170,7 @@ export default {
     setOptions () {
       let _this = this
       let seriesData = this.formatData()
+      console.log('series------', this.type, seriesData)
       let size = () => {
         return {
           tSize: 14,
@@ -159,10 +178,15 @@ export default {
           itemGap: 6
         }
       }
-      let color = []
+      let [color ]= [[]]
+      // 是否显示label信息
+      let showLabel = this.theme === 'dark'
       let fontSize = setEchartsFontSize()
-      if (this.mode !== 'vertical') fontSize = fontSize - 1
+      let fontColor = '#252525'
+      if (this.theme === 'dark') fontColor = '#fff'
+      if (this.mode !== 'vertical' && this.theme === 'dark') fontSize = fontSize - 1
       switch (this.type) {
+        case 'repeat':
         case 'gender':
           color = ['#005BC9', '#EA9D49']
           break
@@ -176,9 +200,11 @@ export default {
             '#E4DA52',
             '#EA9D49',
             '#2B51ED',
-            '#6201ED']
+            '#6201ED'
+          ]
           break
       }
+      let op = this.modeOption
       // if (!this.total) color = ['#403E42', '#403E42', '#403E42', '#403E42', '#403E42']
       if (this.type === 'age') {
         let style = {
@@ -191,14 +217,13 @@ export default {
             top: '24%'
           }
         }
-        let op = this.modeOption
         this.options = {
           color: color,
           title: {
             text: this.title,
             textStyle: {
-              color: '#ffffff',
-              fontSize: fontSize + 2,
+              color: fontColor,
+              fontSize: this.theme === 'dark' ? fontSize + 2 : 16,
               fontWeight: 'normal'
             }
           },
@@ -215,18 +240,17 @@ export default {
             height: op.height,
             bottom: op.bottom,
             right: op.right,
-            // align: 'center',
             itemWidth: 14,
             itemHeight: fontSize,
             itemGap: op.itemGap,
             selectedMode: false,
             formatter: function (name) {
-              // let per = _this.getPercent(seriesData.filter(item => item.name === name)[0].value) || '88.8%'
-              let per = (_this.mode === 'vertical' ? '  ' : '') + '88.8%'
+              let per = _this.getPercent(seriesData.filter(item => item.name === name)[0].value) || '0%'
               return `{name|${name}}{per|${per}}`
             },
             textStyle: {
-              color: '#ffffff',
+              color: fontColor,
+              padding: op.padding,
               fontSize: fontSize,
               fontWeight: 'normal',
               rich: {
@@ -297,7 +321,7 @@ export default {
           title: {
             text: this.title,
             textStyle: {
-              color: '#ffffff',
+              color: fontColor,
               fontSize: size().tSize,
               fontWeight: 'normal'
             }
@@ -313,20 +337,32 @@ export default {
           },
           legend: {
             orient: 'vertical',
-            top: 15,
-            right: '30%',
-            align: 'left',
+            bottom: '15%',
+            right: 'auto',
             itemWidth: 16,
             itemGap: 12,
+            formatter: function (name) {
+              let per = _this.getPercent(seriesData.filter(item => item.name === name)[0].value) || '0%'
+              return `{name|${name}}{per|${per}}`
+            },
             textStyle: {
-              color: '#ffffff',
-              background: '#fff',
+              color: fontColor,
               fontSize: '12',
-              fontWeight: 'normal'
+              fontWeight: 'normal',
+              rich: {
+                name: {
+                  width: fontSize * 4,
+                  fontSize: fontSize
+                },
+                per: {
+                  width: fontSize * 3,
+                  fontSize: fontSize
+                }
+              }
             },
             icon: 'square',
             shadowColor: 'none',
-            data: []
+            data: _this.dataMap[_this.type]
           },
           series: [
             {
@@ -336,13 +372,13 @@ export default {
               radius: ['30%', '60%'],
               label: {
                 normal: {
-                  show: true,
+                  show: showLabel,
                   fontSize: 12,
                   formatter: '{per|{b}} {per|{d}%}', // '{per|{d}%}',//'{d}%',  //显示百分比
                   position: 'inner',
                   rich: {
                     per: {
-                      color: '#fff',
+                      color: fontColor,
                       fontSize: 12,
                       align: 'left'
                     }
@@ -373,7 +409,6 @@ export default {
         }
       }
       this.chart.setOption(this.options)
-      // this.chart.reset()
     },
     formatData () {
       let _data = []

@@ -54,10 +54,6 @@ const paramExplain = () => import('@/views/developer/notify/explain.vue')
 
 /* 数据可视化的路由 */
 const Data = () => import('@/views/data/index.vue')
-const guestAnalysis = () => import('@/views/data/guest-analysis')
-const genderAnalysis = () => import('@/views/data/gender-analysis')
-const ageAnalysis = () => import('@/views/data/age-analysis')
-const shopFrequencyAnalysis = () => import('@/views/data/shop-frequency-analysis')
 
 /** 首页+消息 **/
 const homePage = () => import('@/views/index/three')
@@ -308,57 +304,14 @@ export const constantRouterMap = [
     },
     children: [
       {
-        path: 'index',
+        path: '',
         name: 'data',
         meta: {
           title: '数据分析-线下浏览器服务平台',
           auth: true,
           keepAlive: false
         },
-        component: Data,
-        children: [
-          {
-            path: '/data/guest-analysis',
-            name: 'guest-analysis',
-            meta: {
-              title: '数据分析-线下浏览器服务平台',
-              auth: true,
-              keepAlive: false
-            },
-            component: guestAnalysis
-          },
-          {
-            path: '/data/gender-analysis',
-            name: 'gender-analysis',
-            meta: {
-              title: '数据分析-线下浏览器服务平台',
-              auth: true,
-              keepAlive: false
-            },
-            component: genderAnalysis
-          },
-          {
-            path: '/data/age-analysis',
-            name: 'age-analysis',
-            meta: {
-              title: '数据分析-线下浏览器服务平台',
-              auth: true,
-              keepAlive: false
-            },
-            component: ageAnalysis
-          },
-          {
-            path: '/data/shop-frequency-analysis',
-            name: 'shop-frequency-analysis',
-            meta: {
-              title: '数据分析-线下浏览器服务平台',
-              auth: true,
-              keepAlive: false
-            },
-            component: shopFrequencyAnalysis
-          }
-        ],
-        redirect: '/data/guest-analysis'
+        component: Data
       }
     ]
   },

@@ -1,21 +1,44 @@
 <template>
-  <div id="echarts-line" class="line-wrap" :style="{height: lineHeight}">
+  <div :id="randomId" class="line-wrap" :style="{height: height, width: width}">
   </div>
 </template>
 
 <script>
-import {mapState} from 'vuex'
-import {GetChartLine} from '../../api/visual'
-import {eventObject} from '../../utils/event'
-import {parseTime} from '../../utils'
+import { mapState } from 'vuex'
+import { GetChartLine } from '@/api/visual'
+import { eventObject } from '@/utils/event'
+import { parseTime } from '@/utils'
+import resize from './mixins/resize'
 
 export default {
   name: 'echarts-line',
-  props: ['lineHeight', 'lineParams'],
+  mixins: [resize],
+  props: {
+    data: {
+      type: Object,
+      default: () => ({})
+    },
+    title: {
+      type: String,
+      default: ''
+    },
+    height: {
+      type: String,
+      default: ''
+    },
+    width: {
+      type: String,
+      default: '100%'
+    },
+    type: { // 图表类型
+      type: String,
+      default: ''
+    }
+  },
   data () {
     return {
+      chart: null,
       timer: null, // 定时器
-      data: [],
       // 比例图基本数据结构配置
       legendMap: {
         inflow: [
@@ -43,39 +66,39 @@ export default {
             }
           }
         ],
-        sex: [
+        gender: [
           {
             name: '女',
             textStyle: {
-              color: 'rgba(109,46,187,1)'
+              color: '#EA9D49'
             }
           },
           {
             name: '男',
             textStyle: {
-              color: 'rgba(15,158,233,1)'
+              color: '#2CA0F7'
             }
           }
         ],
         age: [
-          {name: '0-10岁', textStyle: {color: '#FFD500'}},
-          {name: '11-20岁', textStyle: {color: '#7ED321'}},
-          {name: '21-30岁', textStyle: {color: '#FF6660'}},
-          {name: '31-40岁', textStyle: {color: '#0F9EE9'}},
-          {name: '41-50岁', textStyle: {color: '#005BC9'}},
-          {name: '50岁以上', textStyle: {color: '#8663FF'}}
+          { name: '0-10岁', textStyle: { color: '#28C0B1' } },
+          { name: '11-20岁', textStyle: { color: '#79CF62' } },
+          { name: '21-30岁', textStyle: { color: '#E4DA52' } },
+          { name: '31-40岁', textStyle: { color: '#EA9D49' } },
+          { name: '41-50岁', textStyle: { color: '#2B51ED' } },
+          { name: '50岁以上', textStyle: { color: '#6201ED' } }
         ],
         repeat: [
           {
             name: '多次',
             textStyle: {
-              color: 'rgba(109,46,187,1)'
+              color: '#EA9D49'
             }
           },
           {
             name: '单次',
             textStyle: {
-              color: 'rgba(15,158,233,1)'
+              color: '#2CA0F7'
             }
           }
         ]
@@ -84,13 +107,13 @@ export default {
       option: {
         color: ['#F1BB13', '#7FC16A', '#EE6C4B', '#6D2EBB', '#2187DF', '#DDDDDD'],
         textStyle: { // 总体字体样式
-          color: '#ffffff'
+          color: '#999'
         },
         title: {
-          text: '',
+          text: this.title,
           textStyle: {
-            color: '#ffffff',
-            fontSize: '14',
+            color: '#252525',
+            fontSize: '16',
             fontWeight: 'normal'
           }
         },
@@ -113,7 +136,6 @@ export default {
             label: {
               backgroundColor: 'rgba(114,116,118,1)', // '#6a7985',
               fontSize: 11
-              // padding: [15, 17, 15, 17]
             }
           }
         },
@@ -139,7 +161,6 @@ export default {
             }
           ]
         },
-        toolbox: {},
         grid: {
           left: '1%',
           right: '3.6%',
@@ -149,7 +170,13 @@ export default {
         xAxis: [
           {
             type: 'category',
-            // boundaryGap: false,
+            boundaryGap: true,
+            axisLine: { // 坐标轴线相关设置
+              show: false
+            },
+            axisTick: { // 坐标刻度相关设置
+              show: false
+            },
             axisPointer: { // x轴鼠标移动虚线显示设置
               type: 'line',
               lineStyle: {
@@ -162,14 +189,19 @@ export default {
         yAxis: [
           {
             type: 'value',
+            axisLine: { // 坐标轴线相关设置
+              show: false
+            },
+            axisTick: { // 坐标刻度相关设置
+              show: false
+            },
             axisPointer: { // y轴鼠标移动虚线不显示
               show: false
             },
             splitLine: { // y轴横线不显示
               show: true,
               lineStyle: {
-                color: 'rgba(255, 255, 255, 0.07)',
-                type: 'dashed'
+                color: '#F0F0F0'
               }
             }
           }
@@ -178,85 +210,31 @@ export default {
           {
             name: '进客流',
             type: 'line',
-            data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
+            data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+            smooth: true
           },
           {
             name: '出客流',
             type: 'line',
-            data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
+            data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+            smooth: true
           }
         ]
       }
     }
   },
-  created () {
-    eventObject().$on('REFRESH_DATA', this.getData)
-  },
   methods: {
     // 绘制图表
     drawLine () {
       // 基于准备好的dom，初始化echarts实例
-      let myChart = this.$echarts.init(document.getElementById('echarts-line'))
+      let myChart = this.$echarts.init(document.getElementById(this.randomId))
       myChart.clear() // 清除数据缓存
       myChart.setOption(this.option)
-      this.myChart = myChart
-    },
-    // 自适应图表
-    resizeEcharts () {
-      if (this.myChart) {
-        this.myChart.resize()
-      }
+      this.chart = myChart
     },
     // 改变标题
     changeTitle () {
-      this.option.title = this.$apply(this.option.title, this.lineParams.title)
-    },
-    // 改变Series单个项目配置
-    changeSeries () {
-      let params = {
-        smooth: true
-      }
-      for (let i = 0; i < this.option.series.length; i++) {
-        this.$apply(this.option.series[i], params)
-      }
-    },
-    // 请求数据
-    getData () {
-      let params = JSON.parse(JSON.stringify(this.filterParams))
-      if (!params.startTime) {
-        this.$tip('请选择时间', 'error')
-        this.defaultShow()
-        this.drawLine()
-        return
-      }
-      params.groupGuid = this.currentManage.id
-      params.groupSonGuid = params.group.guid
-      params.groupName = params.group.name
-      delete params.group
-      this.option.title = this.$apply(this.option.title, this.lineParams.title)
-      this.option.color = this.legendMap[this.filterParams.type].map(item => item.textStyle.color)
-      GetChartLine(params).then(res => {
-        let data = res.data
-        this.option.xAxis[0] = this.$apply(this.option.xAxis[0], data.xaxisGroup)
-        this.option.yAxis[0] = this.$apply(this.option.yAxis[0], data.yAxis) // 这个yAxis是对象形式
-        this.option.legend['data'] = this.legendMap[this.filterParams.type] // 根据type类型设置配置信息
-        this.option.series = this.legendMap[this.filterParams.type].map(item => {
-          let val = data.seriesGroup.filter(item2 => item2.name === (item.value || item.name))[0]
-          val.name = item.name
-          return val
-        })
-        if (this.filterParams.timeIntervalUnit === 'hour' && parseTime(new Date(), '{y}-{m}-{d}') === parseTime(this.filterParams.startTime, '{y}-{m}-{d}')) {
-          let num = Number(parseTime(new Date(), '{h}')) + 1
-          this.option.series.map(item => {
-            item.data = item.data.slice(0, num)
-            return item
-          })
-        }
-        this.changeSeries()
-        this.drawLine()
-      }).catch(error => {
-        console.info(error)
-      })
+      this.option.title = this.$apply(this.option.title, this.title)
     },
     // 模拟假数据series
     simulateSeries (data) {
@@ -274,15 +252,14 @@ export default {
     },
     // 默认数据展示 = 可视化
     defaultShow () {
-      this.option.legend['data'] = this.legendMap[this.filterParams.type]
-      this.option.series = this.simulateSeries(this.legendMap[this.filterParams.type])
+      this.option.legend['data'] = this.legendMap[this.type]
+      this.option.series = this.simulateSeries(this.legendMap[this.type])
     }
   },
   mounted () {
     // 根据数据类型设置不同颜色配置参数
-    this.option.color = this.legendMap[this.filterParams.type].map(item => item.textStyle.color)
+    this.option.color = this.legendMap[this.type].map(item => item.textStyle.color)
     if (!this.filterParams.group || !this.filterParams.group.group) {
-      this.changeTitle()
       this.defaultShow()
       this.drawLine()
     }
@@ -292,12 +269,10 @@ export default {
       'groupConsoleId',
       'filterParams',
       'currentManage'
-    ])
-  },
-  watch: {
-  },
-  beforeDestroy () {
-    eventObject().$off('REFRESH_DATA', this.getData)
+    ]),
+    randomId () {
+      return `echarts-line-${this.type}_${Math.random().toString()}`
+    }
   }
 }
 </script>
@@ -307,11 +282,9 @@ export default {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    padding: 20px;
-    background-color: rgba(64, 58, 73, 0.30);
-    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.10);
   }
-  .console__main .line-wrap{
-    background-color: rgba(0,0,0,0);
+
+  .console__main .line-wrap {
+    background-color: rgba(0, 0, 0, 0);
   }
 </style>

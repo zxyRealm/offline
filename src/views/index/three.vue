@@ -11,6 +11,7 @@
           <!--门店状态（商场、连锁）或者单店状态下显示-->
           <div class="in-flow items" v-if="isStore">
             <chart-bar
+              theme="dark"
               title="去重客流量"
               :data="flowData"
               type="inflow"
@@ -26,7 +27,10 @@
             <!--会员比例-->
             <div class="member-ratio items">
               <Chart
-                title="会员比例" :data="ratioData.member" type="member" width="100%"
+                theme="dark"
+                title="会员比例"
+                :data="ratioData.member"
+                type="member" width="100%"
                 height="100%"></Chart>
             </div>
             <!--男女比例-->
@@ -34,6 +38,7 @@
               class="sex-ratio items"
               :class="{'empty--data': !ratioData.gender.man || !ratioData.gender.man.total}">
               <Chart
+                theme="dark"
                 title="性别比例"
                 :data="ratioData.gender"
                 type="gender" width="100%"
@@ -43,7 +48,8 @@
           <!--回头客比例-->
           <div
             class="return-ratio items"
-            :class="{'empty--data': !ratioData.appearance.many || !ratioData.appearance.many.total, single: currentManage.type === 3}">
+            :class="{'empty--data': !ratioData.appearance.many || !ratioData.appearance.many.total,
+             single: currentManage.type === 3}">
             <return-flow :data="ratioData.appearance.many"></return-flow>
 
           </div>
@@ -57,6 +63,7 @@
             <!--年龄比例-->
             <div class="age-ratio items" :class="{single: currentManage.type === 3, vertical: showIndustry}">
               <Chart
+                theme="dark"
                 :data="ratioData.age"
                 :mode="!showIndustry ? 'vertical': 'horizontal'"
                 title="年龄比例" type="age"
@@ -91,6 +98,7 @@
               <div class="double-ratio">
                 <div class="ratio-item items">
                   <Chart
+                    theme="dark"
                     title="会员比例"
                     :data="ratioData.member"
                     type="member" width="100%"
@@ -98,15 +106,16 @@
                 </div>
                 <div class="ratio-item items">
                   <Chart
+                    theme="dark"
                     title="性别比例"
                     :data="ratioData.gender"
-                    type="gender" width="100%"
-                    height="100%"></Chart>
+                    type="gender"></Chart>
                 </div>
               </div>
               <div class="flow-wrap">
                 <div class="items">
                   <chart-bar
+                    theme="dark"
                     title="去重客流量"
                     :data="flowData"
                     type="inflow"
@@ -118,6 +127,7 @@
             <div class="item--bottom">
               <div class="double items">
                 <Chart
+                  theme="dark"
                   :data="ratioData.age"
                   :mode="!showIndustry ? 'vertical': 'horizontal'"
                   title="年龄比例" type="age"

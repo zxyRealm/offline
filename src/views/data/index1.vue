@@ -2,7 +2,7 @@
   <div class="data-wrap" v-if="$route.name!=='guest-analysis'">
     <ul class="data-type">
       <li v-for="(value,index) in dataType" :key="index1">
-        <router-link :to="value.path">{{value.title}}</router-link>
+        <!--<router-link :to="value.path">{{value.title}}</router-link>-->
       </li>
     </ul>
     <div class="data-wrap-content">
@@ -14,7 +14,7 @@
       <div class="data-wrap">
         <ul class="data-type">
           <li v-for="(value,index) in dataType" :key="index1">
-            <router-link :to="value.path">{{value.title}}</router-link>
+            <!--<router-link :to="value.path">{{value.title}}</router-link>-->
           </li>
         </ul>
         <router-view></router-view>

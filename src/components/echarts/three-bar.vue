@@ -1,6 +1,6 @@
 <template>
   <div class="echarts--wrap" :style="{width: width, height: height}">
-    <div :id="eid" :style="{width: width, height: height}"></div>
+    <div :id="randomId" :style="{width: width, height: height}"></div>
   </div>
 </template>
 
@@ -40,6 +40,10 @@ export default {
     title: {
       type: String,
       default: ''
+    },
+    theme: { // 主题颜色 dark、white
+      type: String,
+      default: 'white'
     }
   },
   created () {
@@ -49,13 +53,13 @@ export default {
     this.initData()
   },
   computed: {
-    eid () {
-      return this.id || 'echarts_bar_' + this.type
+    randomId () {
+      return `echarts-line-${this.type}_${Math.random().toString()}`
     }
   },
   methods: {
     initData () {
-      this.chart = this.$echarts.init(document.getElementById(this.eid))
+      this.chart = this.$echarts.init(document.getElementById(this.randomId))
       this.chart.resize()
       this.chart.setOption(this.options)
     },
