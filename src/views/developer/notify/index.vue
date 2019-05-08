@@ -2,7 +2,7 @@
   <div class="notify-wrap">
     <uu-sub-tab
       :menu-array="menu"
-      :show-button="!!notifyList.length && !loading"
+      :show-button="!loading"
       :btn-array="btnOption"
       btn-size="small"
       @handle-btn="addCallbackInfo"></uu-sub-tab>
@@ -37,6 +37,7 @@
 <script>
 import {mapState} from 'vuex'
 import {DiscardNotice, GetNoticeList} from '../../../api/developer'
+import { DeviceIsEmpty } from '../../../api/developer'
 
 export default {
   name: 'notify',
@@ -90,22 +91,50 @@ export default {
       })
     },
     addCallbackInfo () {
-      if (!this.equipmentEmpty) {
-        this.$router.push('/developer/notify/add-info')
+      if (this.notifyList.length) {
+        if (!this.equipmentEmpty) {
+          this.$router.push('/developer/notify/add-info')
+        } else {
+          this.$affirm({
+            confirm: '前往【添加设备】',
+            cancel: '返回',
+            text: '您还没有设备，无法创建消息通知。'
+          }, (action, instance, done) => {
+            if (action === 'confirm') {
+              done()
+              this.$router.push('/equipment/mine')
+            } else {
+              done()
+            }
+          })
+        }
       } else {
-        this.$affirm({
-          confirm: '前往【添加设备】',
-          cancel: '返回',
-          text: '您还没有设备，无法创建消息通知。'
-        }, (action, instance, done) => {
-          if (action === 'confirm') {
-            done()
-            this.$router.push('/equipment/mine')
-          } else {
-            done()
-          }
-        })
+        this.createCallback()
       }
+    },
+    // 当没有通知列表的时候
+    // 根据商户设备存在状态显示提示信息或者直接跳转路由
+    createCallback () {
+      DeviceIsEmpty().then(res => {
+        if (res.data) {
+          this.$router.push('/developer/notify/add-info')
+        } else {
+          this.$affirm({
+            confirm: '前往【设备列表】',
+            cancel: '返回',
+            text: '您还没有绑定设备，无法创建消息通知。'
+          }, (action, instance, done) => {
+            if (action === 'confirm') {
+              done()
+              this.$router.push('/equipment/mine')
+            } else {
+              done()
+            }
+          })
+        }
+      }).catch(error => {
+        console.log(error)
+      })
     }
   },
   created () {

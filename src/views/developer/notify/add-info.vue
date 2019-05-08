@@ -1,6 +1,24 @@
 <template>
   <div class="notify-wrap">
     <uu-sub-tab back :menu-array="[{title:notifyTitle}]"></uu-sub-tab>
+    <el-form :model="callbackForm" :rules="rules" ref="callbackInfoForm" size="medium" label-width="84px" class="callback-info-form">
+      <el-form-item label="类型" prop="type">
+        <el-select v-model="callbackForm.type" placeholder="请选择类型">
+          <el-option label="到店通知" :value="1"></el-option>
+          <el-option label="人脸通知" :value="2"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="回调地址" prop="tokenURL">
+        <el-input type="text" placeholder="请输入回调地址" v-model.trim="callbackForm.tokenURL"></el-input>
+      </el-form-item>
+      <el-form-item label="描述：" prop="intro">
+        <el-input type="textarea" v-model.trim="callbackForm.intro" placeholder="请输入描述"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button size="small">取消</el-button>
+        <el-button size="small" type="primary" @click="handelCallbackInfo">创建</el-button>
+      </el-form-item>
+    </el-form>
     <div class="notify-form-wrap vam">
       <uu-form
         ref="callbackInfoForm"
@@ -115,6 +133,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .callback-info-form{
+    margin-top: 20px;
+    width: 364px;
+    /deep/ .el-select{
+      width: 100%;
+    }
+    /deep/ .el-form-item__error{
+      left: 288px;
+      width: 100%;
+      line-height: 36px;
+      top: 0;
+      padding-top: 0;
+    }
+  }
   .notify-wrap {
     height: 100%;
     .notify-form-wrap {

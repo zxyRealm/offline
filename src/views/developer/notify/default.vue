@@ -1,28 +1,30 @@
 <template>
   <div class="notify-default-wrap">
-    <p class="tac fs12">若您已拥有设备，并配置了回调信息，则在消费者到店时便可接收到相关数据信息。</p>
+    <div class="tac">
+      <p class="title">创建消息通知</p>
+      <p class="fs12">若您已拥有设备，并配置了回调信息，则在消费者到店时便可接收到相关数据信息。</p>
+    </div>
     <div class="step-wrap vam">
       <div class="step-items">
-        <img src="@/assets/public/step_create_icon.png" alt="">
+        <img src="@/assets/public/developer/developer-notify-create.jpg" alt="">
         <p class="des">创建</p>
       </div>
       <span class="separate"></span>
       <div class="step-items">
-        <img src="@/assets/public/step_edit_icon.png" alt="">
+        <img src="@/assets/public/developer/developer-notify-write.jpg" alt="">
         <p class="des">填写回调信息</p>
       </div>
       <span class="separate"></span>
       <div class="step-items">
-        <img src="@/assets/public/step_receive_icon.png" alt="">
+        <img src="@/assets/public/developer/developer-notify-accept.jpg" alt="">
         <p class="des">接收回调数据</p>
       </div>
     </div>
-    <el-button class="affirm" @click.stop="createCallback">创建</el-button>
+    <!--<el-button class="affirm" @click.stop="createCallback">创建</el-button>-->
   </div>
 </template>
 
 <script>
-import {DeviceIsEmpty} from '../../../api/developer'
 
 export default {
   name: 'notify',
@@ -34,46 +36,32 @@ export default {
       ]
     }
   },
-  methods: {
-    // 根据商户设备存在状态显示提示信息或者直接跳转路由
-    createCallback () {
-      DeviceIsEmpty().then(res => {
-        if (res.data) {
-          this.$router.push('/developer/notify/add-info')
-        } else {
-          this.$affirm({
-            confirm: '前往【设备列表】',
-            cancel: '返回',
-            text: '您还没有绑定设备，无法创建消息通知。'
-          }, (action, instance, done) => {
-            if (action === 'confirm') {
-              done()
-              this.$router.push('/equipment/mine')
-            } else {
-              done()
-            }
-          })
-        }
-      }).catch(error => {
-        console.log(error)
-      })
-    }
-  }
+  methods: {}
 }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .notify-default-wrap {
-    > p.tac {
+    > div.tac {
       margin: 65px 0;
+      .title{
+        font-weight: 600;
+        font-size: 30px;
+        color: #252525;
+        margin-bottom: 20px;
+      }
     }
     .step-wrap {
       text-align: center;
       .step-items {
         text-align: center;
         > img {
-          width: 122px;
-          height: 122px;
+          width: 222px;
+          height: 222px;
+        }
+        > p {
+          font-size: 20px;
+          color: #252525;
         }
         /*display: inline-block;*/
         .des {
