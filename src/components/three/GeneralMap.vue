@@ -452,10 +452,10 @@ export default {
       })
     },
     getCommunityInfo () {
-      if (!this.currentManage.id) {
+      if (!this.currentManage.groupGuid) {
         return
       }
-      GetMarketList({parentId: this.currentManage.id}).then(res => {
+      GetMarketList({parentId: this.currentManage.groupGuid}).then(res => {
         // 整理数据结构, 所有楼层数组
         if (res.data.length) {
           let floorInfo = this.sortRouterList(res.data[0].subGroupSon)

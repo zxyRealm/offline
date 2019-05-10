@@ -42,10 +42,10 @@ export default {
   methods: {
     // 获取服务器列表
     getServerEquipment (page) {
-      if (!this.currentManage.id) return
+      if (!this.currentManage.groupGuid) return
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
       this.emptyText = '数据加载中...'
-      GetGroupServerList({groupGuid: this.currentManage.id, index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
+      GetGroupServerList({groupGuid: this.currentManage.groupGuid, index: page, searchText: this.$route.params.name || '', length: 8}).then(res => {
         this.emptyText = '暂无设备'
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination || {}

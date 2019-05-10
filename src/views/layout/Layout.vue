@@ -55,7 +55,7 @@ export default {
       } else if (routeName === 'index-lwh') {
         return 'corner-bg home--wrap'
       }
-      return 'corner-bg'
+      // return 'corner-bg'
     },
     ...mapState([
       'userInfo'

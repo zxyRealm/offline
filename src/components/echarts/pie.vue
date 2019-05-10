@@ -220,7 +220,7 @@ export default {
         this.drawPie()
         return
       }
-      params.groupGuid = this.currentManage.id
+      params.groupGuid = this.currentManage.groupGuid
       params.groupSonGuid = params.group.guid
       params.groupName = params.group.name
       delete params.group

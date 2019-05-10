@@ -2,7 +2,7 @@
   <div class="three__floor--wrap">
     <!--楼宇3D/平面分布图展示 start-->
     <!--没有管理层信息是空数据状态 使用class="empty--data"-->
-    <template v-if="currentManage.id">
+    <template v-if="currentManage.groupGuid">
       <!--<el-button @click="changeType">切换</el-button>-->
       <div class="floor__data--wrap" v-if="!emptyMap">
         <el-scrollbar>
@@ -278,7 +278,7 @@ export default {
       let keyMap = { 1: 'group', 2: 'industry' }
       getFlowRankTime({
         groupFloor: this.currentFloor.floor,
-        groupGuid: this.currentManage.id,
+        groupGuid: this.currentManage.groupGuid,
         topType: type
       }).then((res) => {
         this.num = 0
@@ -298,7 +298,7 @@ export default {
       if (this.currentFloor.industryType || this.currentFloor.type === 4) {
         let date = Moment().format('YYYY-MM-DD')
         getFlowAnalysisTime({
-          groupGuid: this.currentManage.id,
+          groupGuid: this.currentManage.groupGuid,
           groupName: this.currentFloor.name,
           groupSonGuid: this.currentFloor.groupSonGuid || this.currentFloor.guid,
           timeIntervalUnit: 'hour',
@@ -316,7 +316,7 @@ export default {
     getRatioData (type) {
       getRatioTime({
         groupFloor: this.currentFloor.floor,
-        groupGuid: this.currentManage.id,
+        groupGuid: this.currentManage.groupGuid,
         type: type
       }).then((res) => {
         this.num = 0

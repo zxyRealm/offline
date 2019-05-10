@@ -155,7 +155,7 @@
             <el-input placeholder="请选取文件" readonly v-model.trim="excelImportForm.filename"></el-input>
             <el-upload
               ref="excelUpload"
-              :data="{groupGuid: currentManage.id, serverKey: $route.query.server_key, merchantGuid: userInfo.developerId}"
+              :data="{groupGuid: currentManage.groupGuid, serverKey: $route.query.server_key, merchantGuid: userInfo.developerId}"
               name="excelFile"
               class="import--excel white"
               :action="excelUrl"
@@ -364,7 +364,7 @@ export default {
     },
     // 显示添加设备弹框
     addDeviceDialog () {
-      if (!this.currentManage.id) {
+      if (!this.currentManage.groupGuid) {
         this.$tip('管理社群不存在, 请先添加社群！', 'error', 3000)
       } else {
         this.addDeviceVisible = true
@@ -376,7 +376,7 @@ export default {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.addCameraForm))
           subData.serverKey = this.$route.query.server_key
-          subData.groupGuid = this.currentManage.id
+          subData.groupGuid = this.currentManage.groupGuid
           AddCamera(subData).then(() => {
             this.$tip('添加成功')
             this.addCameraVisible = false
@@ -390,7 +390,7 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.addServerForm))
-          subData.groupGuid = this.currentManage.id
+          subData.groupGuid = this.currentManage.groupGuid
           AddDevice(subData).then(() => {
             this.$tip('添加成功')
             this.addServerVisible = false

@@ -8,7 +8,7 @@
         @remote-search="remoteSearch"
         :menu-array="[{title: '社群管理'}]">
       </uu-sub-tab>
-      <div class="mine__community--main" v-if="currentManage.id && (groupList.length || (storeFloor.length && currentManage.type === 3))">
+      <div class="mine__community--main" v-if="currentManage.groupGuid && (groupList.length || (storeFloor.length && currentManage.type === 3))">
         <div class="mine__community--content">
           <div class="community--sidebar" v-if="currentManage.type !== 3">
             <ob-group-nav
@@ -430,7 +430,7 @@ export default {
             })
           } else {
             // 校验其他成员社群昵称是否存在
-            CheckMemberNickNameExist({name: value, parentGuid: this.currentManage.id}).then(res => {
+            CheckMemberNickNameExist({name: value, parentGuid: this.currentManage.groupGuid}).then(res => {
               !res.data ? callback() : callback(new Error('社群名称已存在'))
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
@@ -687,7 +687,7 @@ export default {
       this.currentCommunity = {}
       this.inputError = ''
       if (val) {
-        SonCommunitySearch({parentId: this.currentManage.id, searchText: val}).then(res => {
+        SonCommunitySearch({parentId: this.currentManage.groupGuid, searchText: val}).then(res => {
           if (res.data[0]) {
             let restoreArray = this.$restoreArray(this.groupList, 'subGroupSon')
             let getCurrent = () => {
@@ -748,7 +748,7 @@ export default {
         this.currentCommunity = {}
         this.communityInfo = {}
       }
-      let pid = this.currentManage.id
+      let pid = this.currentManage.groupGuid
       if (!pid) return
       switch (this.currentManage.type) {
         case 1:
@@ -794,7 +794,7 @@ export default {
           GetStoreList({parentGuid: pid}).then(res => {
             this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
             if (res.data[0] && res.data[0].groupSonGuid) {
-              GetMemberDetail({groupSonId: res.data[0].groupSonGuid, parentId: this.currentManage.id}).then(res2 => {
+              GetMemberDetail({groupSonId: res.data[0].groupSonGuid, parentId: this.currentManage.groupGuid}).then(res2 => {
                 res2.data.level = 1
                 res2.data.self = this.currentManage.type === 3 || res2.data.type !== 4
                 this.communityInfo = res2.data || {}
@@ -807,13 +807,13 @@ export default {
     },
     // 获取社群详细信息
     getCommunityInfo (val) {
-      if (!this.currentManage.id) return
+      if (!this.currentManage.groupGuid) return
       if (val.type === 4) {
         GetStoreList({groupSonGuid: val.groupSonGuid}).then(res => {
           this.storeFloor = res.data[0] ? res.data[0].subGroupSon : []
         })
       }
-      GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: this.currentManage.id}).then(res => {
+      GetMemberDetail({groupSonId: val.groupSonGuid || val.guid, parentId: this.currentManage.groupGuid}).then(res => {
         res.data.level = val.type === 1 || val.type === 4 ? 1 : val.type // type对应关系 1 成员 2 管理层（商场、连锁总店） 3 楼层
         res.data.self = this.currentManage.type === 3 || val.type !== 4 // slef 属性控制自有与非自有社群操作限制
         if (val.self) res.data.nickName = res.data.name
@@ -890,7 +890,7 @@ export default {
           subData.provinceAreaId = address[0] || 0
           subData.cityAreaId = address[1] || 0
           subData.districtAreaId = address[2] || 0
-          if (subData.type === 4) subData.guid = this.currentManage.id
+          if (subData.type === 4) subData.guid = this.currentManage.groupGuid
           GetCommunityUpdate(subData).then(() => {
             this.$tip('保存成功')
             this.addCommunityVisible = false
@@ -909,7 +909,7 @@ export default {
           subData.cityAreaId = address[1] || 0
           subData.districtAreaId = address[2] || 0
           subData.industryTypeName = this.industryList.filter(item => item.code === subData.industryType)[0].value
-          if (!subData.parentGuid) subData.parentGuid = this.currentManage.id
+          if (!subData.parentGuid) subData.parentGuid = this.currentManage.groupGuid
           if (!subData.coordinates || !subData.coordinates.length) {
             this.$tip('请选取绑定区域', 'error')
             return
@@ -983,7 +983,7 @@ export default {
           this.industryList = res.data
         })
         if (type !== 7) {
-          GetMarketFloorList({id: this.currentManage.id}).then(res => {
+          GetMarketFloorList({id: this.currentManage.groupGuid}).then(res => {
             this.floorList = res.data
           })
         }
@@ -1073,7 +1073,7 @@ export default {
                     this.getGroupList('refresh')
                   })
                 } else {
-                  DeleteCommunity({id: this.currentManage.id}).then(() => {
+                  DeleteCommunity({id: this.currentManage.groupGuid}).then(() => {
                     this.$tip('删除成功')
                     eventObject().$emit('ManageListRefresh')
                   })
@@ -1088,7 +1088,7 @@ export default {
           if (action === 'confirm') {
             ExitManage({
               groupId: this.communityInfo.guid,
-              groupPid: this.currentManage.id,
+              groupPid: this.currentManage.groupGuid,
               groupNickName: this.communityInfo.nickName,
               parentGroupNickName: this.currentManage.name
             }).then(() => {

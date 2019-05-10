@@ -144,7 +144,7 @@ export default {
   },
   mounted () {
     window.addEventListener('message', this.handleMessage)
-    this.init(this.data, this.currentManage.id)
+    this.init(this.data, this.currentManage.groupGuid)
   },
   computed: {
     ...mapState(['currentManage']),

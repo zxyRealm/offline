@@ -171,11 +171,11 @@ export default {
   methods: {
     // 获取人员库列表
     getList (page) {
-      if (!this.currentManage.id) return
+      if (!this.currentManage.groupGuid) return
       let data = {
         index: page || this.pagination.index || 1,
         length: this.pagination.length || 10,
-        groupGuid: this.currentManage.id
+        groupGuid: this.currentManage.groupGuid
       }
       this.emptyText = '数据加载中...'
       MemberLibraryList(data).then(res => {
@@ -273,8 +273,8 @@ export default {
     // 获取自有社群列表，绑定社群时只能绑定自有社群
     getGroupList (e) {
       this.sendData = e
-      if (!this.currentManage.id) return
-      MemberNoFloor({groupId: this.currentManage.id}).then(res => {
+      if (!this.currentManage.groupGuid) return
+      MemberNoFloor({groupId: this.currentManage.groupGuid}).then(res => {
         if (res.data[0]) {
           res.data[0].subGroupSon = res.data.slice(1)
           this.groupList = [res.data[0]]
@@ -290,7 +290,7 @@ export default {
       }
       let gid = data[0].guid
       if (data[0].guid === this.groupList[0].guid) {
-        gid = this.currentManage.id
+        gid = this.currentManage.groupGuid
       }
       let send = {
         guid: this.sendData.guid,

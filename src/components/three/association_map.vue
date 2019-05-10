@@ -127,7 +127,7 @@ export default {
           if (this.handleDialogType === 2 && this.handlePortalForm.originName === value) {
             callback(new Error('该名称已存在'))
           } else {
-            CheckPortalNameExist({name: value, groupGuid: this.currentManage.id, groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
+            CheckPortalNameExist({name: value, groupGuid: this.currentManage.groupGuid, groupSonId: this.currentFloor.groupSonGuid || this.currentFloor.guid}).then(res => {
               !res.data ? callback() : callback(new Error('该名称已存在'))
             }).catch(err => {
               callback(new Error(err.msg || '验证失败'))
@@ -380,7 +380,7 @@ export default {
       this.AddDeviceVisible = true
       this.currentPortal = data
       this.checkedItems = this.deviceInfo.list.map(item => item.deviceKey)
-      GetGroupDevice({groupGuid: this.currentManage.id}).then(res => {
+      GetGroupDevice({groupGuid: this.currentManage.groupGuid}).then(res => {
         // this.currentPortal = row
         let deviceKeySet = new Set(this.deviceInfo.list.map(item => item.deviceKey))
         res.data = res.data.map(item => {
@@ -421,7 +421,7 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let subData = JSON.parse(JSON.stringify(this.handlePortalForm))
-          subData.groupGuid = this.currentManage.id
+          subData.groupGuid = this.currentManage.groupGuid
           subData.groupSonId = this.currentFloor.guid || this.currentFloor.groupSonGuid
           subData.floor = this.currentFloor.floor
           if (this.handleDialogType === 1) { // 添加出入口

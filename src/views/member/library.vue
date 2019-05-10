@@ -98,7 +98,7 @@ export default {
         remark: e.remark,
         type: e.type,
         guid: this.$route.query.guid,
-        groupGuid: this.currentManage.id
+        groupGuid: this.currentManage.groupGuid
       }
       if (this.$route.query.guid) {
         MemberLibraryUpdate(data).then(() => {

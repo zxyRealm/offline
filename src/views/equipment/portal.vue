@@ -129,14 +129,14 @@ export default {
   },
   methods: {
     getGroupList () {
-      if (!this.currentManage.id) return
-      MemberNoFloor({groupId: this.currentManage.id}).then(res => {
+      if (!this.currentManage.groupGuid) return
+      MemberNoFloor({groupId: this.currentManage.groupGuid}).then(res => {
         this.groupList = res.data
       })
     },
     // 获取出入口设备列表
     getPortalEquipment (page, size) {
-      if (!this.currentManage.id) return
+      if (!this.currentManage.groupGuid) return
       if (this.currentGroup && this.currentGroup.guid) {
         this.emptyText = '数据加载中...'
         PortalMemberDevice({groupSonId: this.currentGroup.guid, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
@@ -147,7 +147,7 @@ export default {
           this.emptyText = '数据请求失败'
         })
       } else {
-        PortalDeviceList({groupId: this.currentManage.id, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
+        PortalDeviceList({groupId: this.currentManage.groupGuid, index: page || this.pagination.index || 1, length: size || this.pagination.length || 4}).then(res => {
           this.emptyText = '暂无数据'
           this.portalList = res.data.content || []
           this.pagination = res.data.pagination
@@ -184,7 +184,7 @@ export default {
     // 显示添加设备弹框
     showAddDialog (row) {
       this.checkedItems = row.portalDeviceList.map(item => item.deviceKey)
-      GetGroupDevice({groupGuid: this.currentManage.id}).then(res => {
+      GetGroupDevice({groupGuid: this.currentManage.groupGuid}).then(res => {
         this.currentPortal = row
         let deviceKeySet = new Set(this.currentPortal.portalDeviceList.map(item => item.deviceKey))
         res.data = res.data.map(item => {

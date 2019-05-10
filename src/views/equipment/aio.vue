@@ -68,10 +68,10 @@ export default {
     },
     // 获取自有设备
     getAioEquipment (page) {
-      if (!this.currentManage.id) return
+      if (!this.currentManage.groupGuid) return
       page = page || (this.$route.meta.keepAlive ? (this.aliveState.pagination ? this.aliveState.pagination.index : 1) : this.pagination.index ? this.pagination.index : 1)
       this.emptyText = '数据加载中...'
-      GetGroupDeviceList({groupGuid: this.currentManage.id, index: page, searchText: this.searchValue || '', length: this.pagination.length || 10}).then(res => {
+      GetGroupDeviceList({groupGuid: this.currentManage.groupGuid, index: page, searchText: this.searchValue || '', length: this.pagination.length || 10}).then(res => {
         this.emptyText = '暂无设备'
         this.equipmentList = res.data.content || []
         this.pagination = res.data.pagination || {}

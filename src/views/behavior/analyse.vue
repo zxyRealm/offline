@@ -208,8 +208,8 @@ export default {
   methods: {
     // 获取当前管理社群下所有子社群
     getGroupList () {
-      if (!this.currentManage.id) return
-      MemberNoFloor({groupId: this.currentManage.id}).then(res => {
+      if (!this.currentManage.groupGuid) return
+      MemberNoFloor({groupId: this.currentManage.groupGuid}).then(res => {
         let list = res.data.filter(item => item.coordinates)
         this.groupList = list
         this.groupOriginList = list
@@ -222,7 +222,7 @@ export default {
           if (this.selectType === 1) return
           this.selectType = 1
           this.search.device = ''
-          GetGroupAioList({groupGuid: this.currentManage.id}).then(res => {
+          GetGroupAioList({groupGuid: this.currentManage.groupGuid}).then(res => {
             this.deviceOriginList = res.data
             this.deviceList = res.data
           })
@@ -231,7 +231,7 @@ export default {
           if (this.selectType === 2) return
           this.selectType = 2
           this.search.device = ''
-          GetGroupCameraList({groupGuid: this.currentManage.id}).then(res => {
+          GetGroupCameraList({groupGuid: this.currentManage.groupGuid}).then(res => {
             this.deviceOriginList = res.data
             this.deviceList = res.data
           })
@@ -256,7 +256,7 @@ export default {
     },
     // 获取行为分析信息列表
     getBehaviorList (page, size) {
-      if (!this.currentManage.id) return
+      if (!this.currentManage.groupGuid) return
       let [startT, endT] = ['', '']
       if (this.filter.date) { // clearable方法 会使date为null
         startT = this.filter.date[0] + ' 00:00:00'
@@ -269,7 +269,7 @@ export default {
         endTime: endT,
         groupSonGuid: this.filter.group || '',
         deviceKey: this.filter.device || '',
-        groupGuid: this.currentManage.id,
+        groupGuid: this.currentManage.groupGuid,
         length: size || this.pagination.length || 10,
         index: page
       }).then(res => {
