@@ -6,6 +6,14 @@
   <div class="data__content--wrap">
     <h3 class="data-title">数据分析</h3>
     <div class="filter-wrap">
+      <el-select v-model="currentParams.group">
+        <el-option
+          v-for="item in groupList"
+          :label="item.name"
+          :value="item.guid"
+        >{{item.name}}
+        </el-option>
+      </el-select>
       <el-date-picker
         v-show="currentParams.timeIntervalUnit === 'hour'"
         type="date"
@@ -48,7 +56,7 @@
       >
       </el-date-picker>
       <el-radio-group v-model="currentParams.timeIntervalUnit">
-        <el-radio-button v-for="t in dimensionData" :label="t.type">
+        <el-radio-button v-for="t in dimensionData" :label="t.type" :key="t.name">
           {{t.name}}
         </el-radio-button>
       </el-radio-group>
@@ -57,215 +65,50 @@
       <!--客流量-->
       <div class="flow">
         <div class="item item-4-3">
-          <chart-bar></chart-bar>
+          <chart-bar :data="lineData.flow"></chart-bar>
         </div>
         <div class="item item-4-1">
-          <div class="rank-list">
-            <div class="rank-title">
-              <i class="iconfont icon-biaotitubiao"></i>
-              客流统计表
-            </div>
-            <el-table
-              class="rank-table"
-              :data="rankData.store"
-            >
-              <el-table-column
-                width="140"
-                props="date"
-                label="时间">
-                <template slot-scope="scope">
-                  {{new Date().toLocaleDateString()}}
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="num"
-                label="客流量">
-              </el-table-column>
-            </el-table>
-            <el-pagination
-              small
-              background
-              class="rank__pagination--custom"
-              layout="pager,jumper"
-              :pager-count="3"
-              :total="1000">
-            </el-pagination>
-          </div>
+          <data-list
+            type="flow"
+            @handle-change="getRankListData"
+            :data="rankData.flow">
+          </data-list>
         </div>
       </div>
       <!--排行榜-->
-      <div class="rank">
+      <div class="rank" v-if="currentManage.type !== 2">
         <div class="item item-4">
-          <div class="rank-list">
-            <div class="rank-title">
-              <i class="iconfont icon-biaotitubiao"></i>
-              门店排行
-            </div>
-            <el-table
-              class="rank-table"
-              :data="rankData.store"
-            >
-              <el-table-column
-                width="70"
-                label="排名">
-                <template slot-scope="scope">
-                  No.{{scope.$index + 1}}
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="name"
-                show-overflow-tooltip
-                label="门店">
-              </el-table-column>
-              <el-table-column
-                width="60"
-                prop="date"
-                label="占比">
-              </el-table-column>
-              <el-table-column
-                width="90"
-                prop="date"
-                label="客流量">
-              </el-table-column>
-            </el-table>
-            <el-pagination
-              small
-              background
-              class="rank__pagination--custom"
-              layout="pager,jumper"
-              :pager-count="3"
-              :total="1000">
-            </el-pagination>
+          <data-list
+            type="store"
+            @handle-change="getRankListData"
+            :data="rankData.store">
+          </data-list>
+        </div>
+        <template v-if="!isChain">
+          <div class="item item-4">
+            <data-list
+              type="floor"
+              @handle-change="getRankListData"
+              :data="rankData.floor">
+            </data-list>
           </div>
+          <div class="item item-4">
+            <data-list
+              type="industry"
+              @handle-change="getRankListData"
+              :data="rankData.industry">
+            </data-list>
+          </div>
+        </template>
+        <div v-else class="item item-map">
+
         </div>
         <div class="item item-4">
-          <div class="rank-list">
-            <div class="rank-title">
-              <i class="iconfont icon-biaotitubiao"></i>
-              楼层排行
-            </div>
-            <el-table
-              class="rank-table"
-              :data="rankData.store"
-            >
-              <el-table-column
-                width="70"
-                label="排名">
-                <template slot-scope="scope">
-                  No.{{scope.$index + 1}}
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="name"
-                show-overflow-tooltip
-                label="楼层">
-              </el-table-column>
-              <el-table-column
-                width="60"
-                prop="date"
-                label="占比">
-              </el-table-column>
-              <el-table-column
-                width="90"
-                prop="date"
-                label="客流量">
-              </el-table-column>
-            </el-table>
-            <el-pagination
-              small
-              background
-              class="rank__pagination--custom"
-              layout="pager,jumper"
-              :pager-count="3"
-              :total="1000">
-            </el-pagination>
-          </div>
-        </div>
-        <div class="item item-4">
-          <div class="rank-list">
-            <div class="rank-title">
-              <i class="iconfont icon-biaotitubiao"></i>
-              业态排行
-            </div>
-            <el-table
-              class="rank-table"
-              :data="rankData.store"
-            >
-              <el-table-column
-                width="70"
-                label="排名">
-                <template slot-scope="scope">
-                  No.{{scope.$index + 1}}
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="name"
-                show-overflow-tooltip
-                label="业态">
-              </el-table-column>
-              <el-table-column
-                width="60"
-                prop="date"
-                label="占比">
-              </el-table-column>
-              <el-table-column
-                width="90"
-                prop="date"
-                label="客流量">
-              </el-table-column>
-            </el-table>
-            <el-pagination
-              small
-              background
-              class="rank__pagination--custom"
-              layout="pager,jumper"
-              :pager-count="3"
-              :total="1000">
-            </el-pagination>
-          </div>
-        </div>
-        <div class="item item-4">
-          <div class="rank-list">
-            <div class="rank-title">
-              <i class="iconfont icon-biaotitubiao"></i>
-              商场出入口客流量分布
-            </div>
-            <el-table
-              class="rank-table"
-              :data="rankData.store"
-            >
-              <el-table-column
-                width="70"
-                label="排名">
-                <template slot-scope="scope">
-                  No.{{scope.$index + 1}}
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="name"
-                show-overflow-tooltip
-                label="出入口">
-              </el-table-column>
-              <el-table-column
-                width="60"
-                prop="date"
-                label="占比">
-              </el-table-column>
-              <el-table-column
-                width="90"
-                prop="date"
-                label="客流量">
-              </el-table-column>
-            </el-table>
-            <el-pagination
-              small
-              background
-              class="rank__pagination--custom"
-              layout="pager,jumper"
-              :pager-count="3"
-              :total="1000">
-            </el-pagination>
-          </div>
+          <data-list
+            :type="isChain ? 'area' : 'gate'"
+            @handle-change="getRankListData"
+            :data="rankData[isChain ? 'area' : 'gate']">
+          </data-list>
         </div>
       </div>
       <!--性别-->
@@ -273,13 +116,14 @@
         <div class="item item-4-1">
           <Chart
             title="性别比例"
-            :data="ratioData.gender"
+            :data="pieData.gender"
             type="gender"></Chart>
         </div>
         <div class="item item-4-3">
           <chart-line
             title="性别流量图"
             type="gender"
+            :data="lineData.gender"
           ></chart-line>
         </div>
       </div>
@@ -289,13 +133,16 @@
           <chart-line
             title="年龄流量图"
             type="age"
+            :data="lineData.age"
           ></chart-line>
         </div>
         <div class="item item-4-1">
           <Chart
-            :data="ratioData.age"
             mode="horizontal"
-            title="年龄比例" type="age">
+            title="年龄比例"
+            type="age"
+            :props="{name: 'name'}"
+            :data="pieData.age">
           </Chart>
         </div>
       </div>
@@ -303,15 +150,16 @@
       <div class="return">
         <div class="item item-4-1">
           <Chart
-            :data="ratioData.repeat"
             title="回头客比例"
-            type="repeat">
+            type="repeat"
+            :data="pieData.repeat">
           </Chart>
         </div>
         <div class="item item-4-3">
           <chart-line
             title="回头客流量图"
             type="repeat"
+            :data="lineData.repeat"
           ></chart-line>
         </div>
       </div>
@@ -323,18 +171,40 @@
 import Chart from '@/components/echarts/three-pie'
 import ChartLine from '@/components/echarts/line'
 import ChartBar from './components/bar'
+import DataList from './components/list'
 import Moment from 'moment'
 import { mapState } from 'vuex'
+import {
+  getInOutFlowList,
+  getDeduplicatedList,
+  getChainAreaList,
+  getChainStoreList,
+  getMarketStoreList,
+  getMarketFloorList,
+  getMarketIndustryList,
+  getMarketGateList,
+  getInOutFlowLine,
+  getDeduplicatedFlowLine,
+  getGenderLine,
+  getAgeLine,
+  getRepeatLine,
+  getGenderPie,
+  getAgePie,
+  getRepeatPie
+} from '@/api/visual'
+import { getManageMember } from '@/api/community'
 
 export default {
   name: 'index',
   components: {
     Chart,
     ChartLine,
-    ChartBar
+    ChartBar,
+    DataList
   },
   data () {
     return {
+      count: 0,
       pickerOptions1: {
         disabledDate (time) {
           return time.getTime() > Date.now()
@@ -353,34 +223,53 @@ export default {
         startTime: '',
         endTime: ''
       },
-      ratioData: { // 比例数据
+      deduplicated: false, // 是否展示去重客流
+      lineData: { // 折线图/柱状图数据
+        flow: {},
+        age: {},
+        gender: {},
+        repeat: {}
+      },
+      pieData: { // 饼图数据
         age: [],
         gender: [],
-        repeat: [
-          {}
-        ]
+        repeat: []
       },
       rankData: {
-        store: [
-          { name: '阿迪阿迪阿迪阿迪', percent: '10%', num: 50 },
-          { name: '阿迪阿迪阿迪阿迪', percent: '10%', num: 50 },
-          { name: '阿迪阿迪阿迪阿迪', percent: '10%', num: 50 },
-          { name: '阿迪阿迪阿迪阿迪', percent: '10%', num: 50 },
-          { name: '阿迪阿迪阿迪阿迪', percent: '10%', num: 50 },
-          { name: '阿迪阿迪阿迪阿迪', percent: '10%', num: 50 },
-          { name: '阿迪阿迪阿迪阿迪', percent: '10%', num: 50 },
-          { name: '阿迪阿迪阿迪阿迪', percent: '10%', num: 50 }
-        ],
-        floor: [],
-        industry: [],
-        gate: []
-      }
+        flow: { // 进出、去重 客流统计表
+          content: [],
+          pagination: {}
+        },
+        store: {
+          content: [
+            { groupName: '阿迪阿迪阿迪阿迪', percent: '10%', count: 50 },
+            { groupName: '阿迪阿迪阿迪阿迪', percent: '10%', count: 50 },
+            { groupName: '阿迪阿迪阿迪阿迪', percent: '10%', count: 50 },
+            { groupName: '阿迪阿迪阿迪阿迪', percent: '10%', count: 50 },
+            { groupName: '阿迪阿迪阿迪阿迪', percent: '10%', count: 50 },
+            { groupName: '阿迪阿迪阿迪阿迪', percent: '10%', count: 50 },
+            { groupName: '阿迪阿迪阿迪阿迪', percent: '10%', count: 50 },
+            { groupName: '阿迪阿迪阿迪阿迪', percent: '10%', count: 50 }
+          ],
+          pagination: {}
+        },
+        floor: {},
+        industry: {},
+        gate: {},
+        area: {}
+      },
+      groupList: [
+        {
+          guid: ''
+        }
+      ] // 社群列表
     }
   },
-  created () {
+  created() {
+    this.setDefaultDate()
+    this.getManageMemberList()
   },
   mounted () {
-    this.setDefaultDate()
     // this.changeParams()
   },
   computed: {
@@ -401,30 +290,42 @@ export default {
           break
       }
       return type
+    },
+    // 格式请求参数
+    fetchParams () {
+      const _this = this
+      const { group, timeIntervalUnit } = this.currentParams
+      let timeArray = JSON.parse(JSON.stringify(this.timeArray)).map(item => item.replace(/\//g, '-'))
+      let [startTime, endTime] = []
+      startTime = (Moment(timeArray[0]).format('YYYY-MM-DD')) + ' 00:00:00'
+      switch (timeIntervalUnit) {
+        case 'month':
+          startTime = (Moment(timeArray[0] || new Date()).format('YYYY-MM-01')) + ' 00:00:00'
+          endTime = Moment(timeArray[1]).endOf('month').format('YYYY-MM-DD 23:59:59')
+          break
+        case 'hour':
+          endTime = Moment(timeArray[0]).format('YYYY-MM-DD') + ' 23:59:59'
+          break
+        default:
+          endTime = (Moment(timeArray[1]).format('YYYY-MM-DD')) + ' 23:59:59'
+          break
+      }
+      return {
+        groupGuid: _this.currentManage.groupGuid,
+        groupSonGuid: group.guid,
+        timeIntervalUnit,
+        startTime,
+        endTime,
+        size: 8
+      }
+    },
+    // 是否为连锁
+    isChain () {
+    // && this.groupList[0].guid === this.currentParams.group
+      return this.currentManage.type === 3
     }
   },
   methods: {
-    // 格式化时间参数
-    formatDateParams () {
-      let { timeIntervalUnit } = this.currentParams
-      // Moment格式化 2018/09/18 形式的日期时会警告日期格式问题
-      let timeArray = JSON.parse(JSON.stringify(this.timeArray)).map(item => item.replace(/\//g, '-'))
-      // timeIntervalUnit 改变时重新格式化startTime、endTime
-      // 为满足传参要求
-      this.currentParams.startTime = (Moment(timeArray[0]).format('YYYY-MM-DD')) + ' 00:00:00'
-      switch (timeIntervalUnit) {
-        case 'month':
-          this.currentParams.startTime = (Moment(timeArray[0] || new Date()).format('YYYY-MM-01')) + ' 00:00:00'
-          this.currentParams.endTime = Moment(timeArray[1]).endOf('month').format('YYYY-MM-DD 23:59:59')
-          break
-        case 'hour':
-          this.currentParams.endTime = Moment(timeArray[0]).format('YYYY-MM-DD') + ' 23:59:59'
-          break
-        default:
-          this.currentParams.endTime = (Moment(timeArray[1]).format('YYYY-MM-DD')) + ' 23:59:59'
-          break
-      }
-    },
     // 设置默认时间
     setDefaultDate () {
       const current = Moment(new Date()).format('YYYY/MM/DD')
@@ -445,32 +346,135 @@ export default {
       }
     },
     // 条件改变时获取数据
-    getEchartsData () {
+    getEchartsData (type) {
       const _this = this
-      const { group, timeIntervalUnit, startTime, endTime } = this.currentParams
-      const params = {
-        groupGuid: _this.currentManage.id,
-        groupSonGuid: group.guid,
-        timeIntervalUnit,
-        startTime,
-        endTime
+      let params = { chartModel: _this.fetchParams }
+      if (type === 'inout') params.orientation = 2
+      let apiMap = {
+        flow: _this.deduplicated ? getDeduplicatedFlowLine : getInOutFlowLine, // 进出、去重 客流柱状图
+        repeat: getRepeatLine, //
+        age: getAgeLine, // 年龄
+        gender: getGenderLine, // 性别
+        repeatPie: getRepeatPie,
+        agePie: getAgePie,
+        genderPie: getGenderPie
       }
-      console.log('params------------', params)
+      try {
+        apiMap[type](params).then((res) => {
+          if (type.includes('Pie')) {
+            this.pieData[type.replace(/Pie/, '')] = res.data
+          } else {
+            this.lineData[type] = res.data
+          }
+        })
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    /*
+     * 获取排行列表分页数据
+     * @param {Object} option - 参数
+     * @param {String} option.type - 需调用的接口类型
+     * @param {Number} option.page - 请求数据页码
+     */
+    getRankListData ({ type, page }) {
+      let _this = this
+      let params = { chartModel: _this.pfetchParams, page: page, size: 8 }
+      let apiMap = {
+        flow: _this.deduplicated ? getDeduplicatedList : getInOutFlowList, // 进出/去重 客流统计表
+        gate: getMarketGateList, // 商场出入口
+        floor: getMarketFloorList, // 商场楼层排行
+        industry: getMarketIndustryList, // 商场业态排行
+        store: _this.currentManage.type === 1 ? getMarketStoreList : getChainStoreList, // 连锁门店排行
+        area: getChainAreaList // 连锁区域排行
+      }
+
+      try {
+        apiMap[type](params).then((res) => {
+          if (type === 'area') {
+            console.log('area', res.data)
+            let startIndex = (page - 1) * 8
+            this.rankData.area = {
+              content: res.data.slice(startIndex, startIndex + 8),
+              pagination: {
+                total: res.data.length,
+                index: page || 1
+              }
+            }
+          } else {
+            this.rankData[type] = res.data
+          }
+        })
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
+    // 页面加载获取商场所有列表
+    getMarketAllList () {
+      // this.getRankListData({ type: 'flow' })
+      this.getRankListData({ type: 'floor' })
+      this.getRankListData({ type: 'industry' })
+      this.getRankListData({ type: 'gate' })
+      this.getRankListData({ type: 'store' })
+    },
+
+    // 页面加载获取连锁所有列表
+    getChainAllList () {
+      // this.getRankListData({ type: 'flow' })
+      this.getRankListData({ type: 'store' })
+      this.getRankListData({ type: 'area' })
+    },
+
+    getAllList () {
+      switch (this.currentManage.type) {
+        case 1:
+          this.getMarketAllList()
+          break
+        case 2:
+          this.getChainAllList()
+          break
+      }
+      this.getRankListData({ type: 'flow' })
+    },
+    // 获取所有echarts图表数据
+    getAllEchartsData () {
+      this.getEchartsData('flow')
+      this.getEchartsData('gender')
+      this.getEchartsData('genderPie')
+      this.getEchartsData('age')
+      this.getEchartsData('agePie')
+      this.getEchartsData('repeat')
+      this.getEchartsData('repeatPie')
+    },
+
+    // 获取社群成员列表
+    getManageMemberList () {
+      let pid = this.currentManage.groupGuid
+      if (!pid) return
+      getManageMember({groupGuid: pid}).then((res) => {
+        this.groupList = res.data
+        this.currentParams.group = res.data[0].guid
+      })
     }
   },
   watch: {
     'currentParams.timeIntervalUnit' () {
       this.setDefaultDate()
     },
-    'timeArray': {
+    currentParams: {
       handler () {
-        this.formatDateParams()
+        if (!this.currentManage.groupGuid) return
+        this.getAllEchartsData()
+        this.getAllList()
+        this.count++
+        console.log(this.count)
       },
       deep: true
     },
-    currentParams: {
+    currentManage: {
       handler (val) {
-        this.getEchartsData()
+        this.getManageMemberList()
       },
       deep: true
     }
@@ -501,6 +505,11 @@ export default {
           font-size: 13px;
         }
       }
+      .el-select {
+        float: left;
+        width: 168px;
+        margin-right: 20px;
+      }
     }
     .echarts-wrap {
       padding: 20px 20px 0;
@@ -519,6 +528,9 @@ export default {
       }
       .item-4-3 {
         width: calc(75% - 10px);
+      }
+      .item-map{
+        width: calc(50% - 10px);
       }
       .item {
         float: left;
@@ -554,6 +566,9 @@ export default {
         .el-range-input {
           font-size: 13px;
         }
+      }
+      .el-radio-button {
+
       }
     }
     .rank-table {

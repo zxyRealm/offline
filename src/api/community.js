@@ -2,6 +2,24 @@ import request from '@/utils/request'
 import prefix from './prefix'
 // 获取商场结构信息
 
+// 管理社群列表
+export function getManageList (data) {
+  return request({
+    url: `${prefix[0]}/group/read/list/${data.merchantGuid}`,
+    method: 'get'
+  })
+}
+
+
+// 获取管理社群下成员社群
+export function getManageMember (data) {
+  return request({
+    url: `${prefix[0]}/group/unit/list/${data.groupGuid}/${data.type || 2}`,
+    method: 'get'
+  })
+}
+
+
 // 校验社群名称是否存在
 export function CheckGroupNameExist (data) {
   return request({

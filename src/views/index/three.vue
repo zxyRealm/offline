@@ -14,9 +14,7 @@
               theme="dark"
               title="去重客流量"
               :data="flowData"
-              type="inflow"
-              width="100%"
-              height="100%"></chart-bar>
+              type="inflow"></chart-bar>
           </div>
           <!--门店客流排行榜-->
           <!--商场管理、商场楼层、连锁全国、省、市、区 状态下显示-->
@@ -26,23 +24,25 @@
           <div class="float-block clearfix" :class="{single: currentManage.type === 3}">
             <!--会员比例-->
             <div class="member-ratio items">
-              <Chart
+              <chart
+                type="member"
                 theme="dark"
                 title="会员比例"
+                mode="horizontal"
                 :data="ratioData.member"
-                type="member" width="100%"
-                height="100%"></Chart>
+              ></chart>
             </div>
             <!--男女比例-->
             <div
               class="sex-ratio items"
               :class="{'empty--data': !ratioData.gender.man || !ratioData.gender.man.total}">
-              <Chart
+              <chart
                 theme="dark"
+                type="gender"
                 title="性别比例"
+                mode="horizontal"
                 :data="ratioData.gender"
-                type="gender" width="100%"
-                height="100%"></Chart>
+              ></chart>
             </div>
           </div>
           <!--回头客比例-->
@@ -62,12 +62,11 @@
 
             <!--年龄比例-->
             <div class="age-ratio items" :class="{single: currentManage.type === 3, vertical: showIndustry}">
-              <Chart
+              <chart
                 theme="dark"
                 :data="ratioData.age"
                 :mode="!showIndustry ? 'vertical': 'horizontal'"
-                title="年龄比例" type="age"
-                width="100%" height="100%"></Chart>
+                title="年龄比例" type="age"></chart>
             </div>
           </div>
 
@@ -91,25 +90,28 @@
                 <div class="time-echart--wrap">
                   <time-echarts type="member"></time-echarts>
                 </div>
-
               </div>
             </div>
+            <!--此处根据媒体查询控制样式， 同时需要改变Chart组件mode 状态-->
             <div class="item--middle">
               <div class="double-ratio">
                 <div class="ratio-item items">
-                  <Chart
+                  <chart
                     theme="dark"
+                    type="member"
                     title="会员比例"
                     :data="ratioData.member"
-                    type="member" width="100%"
-                    height="100%"></Chart>
+                    :mode="windowOffsetWidth < 1600 ? 'vertical' : 'horizontal'"
+                  ></chart>
                 </div>
                 <div class="ratio-item items">
-                  <Chart
+                  <chart
                     theme="dark"
+                    type="gender"
                     title="性别比例"
                     :data="ratioData.gender"
-                    type="gender"></Chart>
+                    :mode="windowOffsetWidth < 1600 ? 'vertical' : 'horizontal'"
+                  ></chart>
                 </div>
               </div>
               <div class="flow-wrap">
@@ -118,20 +120,17 @@
                     theme="dark"
                     title="去重客流量"
                     :data="flowData"
-                    type="inflow"
-                    width="100%"
-                    height="100%"></chart-bar>
+                    type="inflow"></chart-bar>
                 </div>
               </div>
             </div>
             <div class="item--bottom">
               <div class="double items">
-                <Chart
+                <chart
                   theme="dark"
                   :data="ratioData.age"
                   :mode="!showIndustry ? 'vertical': 'horizontal'"
-                  title="年龄比例" type="age"
-                  width="100%" height="100%"></Chart>
+                  title="年龄比例" type="age"></chart>
               </div>
               <div class="double items">
                 <return-flow size="large" :data="ratioData.appearance.many"></return-flow>
@@ -178,7 +177,8 @@ export default {
       flowData: [],
       currentFloor: {}, // 当前查看的楼层信息
       num: 0, // 左侧数据轮询时接口连续出错的次数 （连续3次都异常，则停止数据轮询）
-      timer: null // 数据获取定时器
+      timer: null, // 数据获取定时器
+      windowOffsetWidth: 1280 // 窗口宽度
     }
   },
   components: {
@@ -190,9 +190,9 @@ export default {
     ReturnFlow,
     TimeEcharts
   },
-  created () {
-  },
   mounted () {
+    this.handleWindowResize()
+    addEventListener('resize', this.handleWindowResize)
     // 地图首页默认收起侧边栏
     this.$store.dispatch('DISPATCH_SIDEBAR', false)
     this.initBaseData()
@@ -226,7 +226,7 @@ export default {
     * @params data {Object, Array} 需要处理的数组或者对象，对象中的属性值为数组时对即对数组进行处理
     * @params type {String} percent返回数字还是百分比字符串
     * @return {Array} 返回包含percent 和 total 值的新数组
-    * */
+    */
     CommunicationPer (data, type) {
       // 计算数组中和值与百分比值
       let count = (list) => {
@@ -343,6 +343,10 @@ export default {
           }
         }, '*')
       }
+    },
+    handleWindowResize () {
+      console.log('000000000000000')
+      this.windowOffsetWidth = document.body.offsetWidth
     }
   },
   watch: {},
@@ -350,6 +354,7 @@ export default {
     if (this.timer) {
       clearTimeout(this.timer)
     }
+    removeEventListener('resize', this.handleWindowResize)
   }
 }
 </script>
@@ -491,30 +496,30 @@ export default {
         background-size: 100% auto;
       }
     }
-    .return-ratio{
+    .return-ratio {
       height: 120px;
     }
 
     /*.return__ratio--wrap {*/
-      /*display: inline-block;*/
-      /*margin-top: 15px;*/
-      /*height: 24px;*/
-      /*line-height: 25px;*/
-      /*.return__ratio--icon {*/
-        /*float: left;*/
-        /*display: block;*/
-        /*width: 10px;*/
-        /*height: 24px;*/
-        /*margin-right: 7px;*/
-        /*background-image: url(../../assets/three/return_girl_icon@2x.png);*/
-        /*background-size: 100% auto;*/
-        /*&.boy {*/
-          /*background-image: url(../../assets/three/return_boy_icon@2x.png);*/
-        /*}*/
-        /*&:last-child {*/
-          /*margin-right: 0;*/
-        /*}*/
-      /*}*/
+    /*display: inline-block;*/
+    /*margin-top: 15px;*/
+    /*height: 24px;*/
+    /*line-height: 25px;*/
+    /*.return__ratio--icon {*/
+    /*float: left;*/
+    /*display: block;*/
+    /*width: 10px;*/
+    /*height: 24px;*/
+    /*margin-right: 7px;*/
+    /*background-image: url(../../assets/three/return_girl_icon@2x.png);*/
+    /*background-size: 100% auto;*/
+    /*&.boy {*/
+    /*background-image: url(../../assets/three/return_boy_icon@2x.png);*/
+    /*}*/
+    /*&:last-child {*/
+    /*margin-right: 0;*/
+    /*}*/
+    /*}*/
     /*}*/
     .content--wrap {
       height: 250px;
@@ -664,9 +669,9 @@ export default {
 
   /*单店无地图样式*/
 
-  .store__map--empty{
+  .store__map--empty {
     height: 100%;
-    .main-content{
+    .main-content {
       height: 100%;
       overflow: hidden;
     }
@@ -676,64 +681,64 @@ export default {
       box-sizing: border-box;
       background: #26273D;
     }
-    .item--top{
+    .item--top {
       height: 26%;
     }
-    .item--middle{
+    .item--middle {
       height: calc(40% - 10px);
       margin: 10px 0;
-      .flow-wrap{
+      .flow-wrap {
         height: 100%;
         overflow: hidden;
       }
-      .double-ratio{
+      .double-ratio {
         float: right;
         width: calc(50% - 5px);
         height: 100%;
         margin-left: 10px;
-        .ratio-item{
+        .ratio-item {
           float: left;
           width: calc(50% - 5px);
           height: 100%;
           box-sizing: border-box;
-          & + .ratio-item{
+          & + .ratio-item {
             margin-left: 10px;
           }
         }
       }
-      @media screen and(max-width: 1600px){
-        .double-ratio{
+      @media screen and(max-width: 1600px) {
+        .double-ratio {
           width: calc(30%);
-          .ratio-item{
+          .ratio-item {
             width: 100%;
             height: calc(50% - 5px);
             box-sizing: border-box;
-            & + .ratio-item{
+            & + .ratio-item {
               margin: 10px 0 0;
             }
           }
         }
       }
     }
-    .item--bottom{
+    .item--bottom {
       height: calc(34% - 15px);
     }
-    .double{
+    .double {
       float: left;
       width: calc(50% - 5px);
       height: 100%;
       box-sizing: border-box;
-      & + .double{
+      & + .double {
         margin-left: 10px;
       }
     }
-    .time-echart--wrap{
+    .time-echart--wrap {
       display: inline-block;
       width: 150px;
       height: 38px;
     }
     /*侧边栏样式*/
-    .bar-box{
+    .bar-box {
       float: right;
       width: 164px;
       height: 100%;

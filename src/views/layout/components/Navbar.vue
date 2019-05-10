@@ -27,7 +27,7 @@
           @click="changeScreen"></span>
         <button-select
           ref="buttonSelect"
-          value-key="id"
+          value-key="groupGuid"
           placeholder="添加社群"
           v-model="manageGroup">
           <button-select-item
@@ -152,8 +152,8 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 import { eventObject } from '@/utils/event'
-import { GetManageList, OssSignature, FirstLogin, NoticeReadState } from '@/api/common'
-import { CheckGroupNameExist, AddNewCommunity } from '@/api/community'
+import { OssSignature, FirstLogin, NoticeReadState } from '@/api/common'
+import { CheckGroupNameExist, AddNewCommunity, getManageList } from '@/api/community'
 import { validateRule, validPhone } from '@/utils/validate'
 import { parseTime, fileTypeAllow, IntToFloor } from '@/utils'
 import { exitLogin } from '@/api/account'
@@ -365,7 +365,7 @@ export default {
     },
     // 获取商户所有管管理层社群
     getManageList () {
-      GetManageList().then(res => {
+      getManageList({merchantGuid: '19212466sdfe'}).then(res => {
         this.manageList = res.data
         if (this.manageList.length) {
           this.manageGroup = this.manageList[0]

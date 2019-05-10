@@ -22,13 +22,16 @@ export default {
   mixins: [resize],
   props: {
     data: {
-      type: Array,
-      default: () => []
+      type: Object,
+      default: () => ({})
     }
   },
   data () {
     return {
       chart: null,
+      seriesMap: {
+
+      },
       option: {
         title: {
           text: '客流统计表',
@@ -38,7 +41,10 @@ export default {
             fontWeight: 'lighter'
           }
         },
-        color: ['#EA9D49','#2CA0F7'],
+        // color: [
+        //   '#EA9D49',
+        //   '#2CA0F7'
+        // ],
         textStyle: { // 总体字体样式
           color: '#999'
         },
@@ -46,7 +52,10 @@ export default {
           show: true,
           trigger: 'axis',
           axisPointer: { // 坐标轴指示器，坐标轴触发有效
-            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+            type: 'line', // 默认为直线，可选为：'line' | 'shadow'
+            lineStyle: {
+              type: 'dashed'
+            }
           },
           formatter: function (params) {
             let total = 0
@@ -66,8 +75,10 @@ export default {
             fontWeight: 'normal'
           },
           data: [
-            { name: '进客流' },
-            { name: '出客流' }
+            '进客流',
+            '出客流'
+            // { name: '进客流'},
+            // { name: '出客流'}
           ]
         },
         grid: {
@@ -115,16 +126,24 @@ export default {
             type: 'bar',
             stack: '客流',
             barWidth: '60%',
+            itemStyle: {
+              color: '#EA9D49'
+            },
+            data: []
             // itemStyle: {normal: {label: {show: true, position: 'top'}}},
-            data: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
+            // data: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
           },
           {
             name: '进客流',
             type: 'bar',
             stack: '客流',
             barWidth: '60%',
+            itemStyle: {
+              color: '#2CA0F7'
+            },
+            data: []
             // itemStyle: {normal: {label: {show: true, position: 'top'}}},
-            data: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
+            // data: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
           }
         ]
       }
@@ -161,11 +180,20 @@ export default {
     this.drawBar()
   },
   watch: {
-    ageBar: { // 监听数组
-      handler () {
-        this.drawBar()
+    data: { // 监听数组
+      handler (val) {
+        this.option.xAxis[0].data = val.xAxis
+        this.option.series.map(item => {
+          let v =  (val.series || []).filter(item2 => item.name === item2.name)[0]
+          item.data = v ? v.data : []
+          return item
+        })
+        this.$nextTick(() => {
+          this.drawBar()
+        })
       },
       deep: true
+      // immediate: true
     }
   }
 }

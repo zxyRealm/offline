@@ -1,76 +1,152 @@
 import request from '@/utils/request'
 import prefix from './prefix'
-// 折线图接口
-export function GetChartLine (data) {
-  return request({
-    url: '/chart/line',
-    data
-  })
-}
 
-// 饼状图接口
-export function GetChartPie (data) {
+// 进出客流统计列表
+export function getInOutFlowList (data) {
   return request({
-    url: '/chart/pie',
-    data
-  })
-}
-
-// 客流排行榜查询
-export function getFlowRank (data) {
-  return request({
-    tip: false,
-    url: `${prefix[1]}/realTime/topTypeRankingTop`,
+    url: `${prefix[1]}/flowAnalysis/inOutPassengerFlowForm`,
     data,
     method: 'get'
   })
 }
 
-// 首页实时比例接口
-export function getTimeRatio (data) {
+// 去重客流统计表
+export function getDeduplicatedList (data) {
   return request({
-    tip: false,
-    url: `${prefix[1]}/realTime/typeDayRealTime`,
+    url: `${prefix[1]}/flowAnalysis/toReenterInFlowForm`,
+    data,
     method: 'get'
   })
 }
-// 获取实时比率
-export function GetTimeRatio (data) {
+
+// 进出客流折线图
+export function getInOutFlowLine (data) {
   return request({
-    tip: false,
-    url: '/chart/ratio',
-    data
+    url: `${prefix[1]}/flowAnalysis/inOutFlowLine`,
+    data,
+    method: 'get'
   })
 }
 
-// 数据分析客流统计表格数据
-export function GetFlowCount (data) {
+// 去重客流折线图
+export function getDeduplicatedFlowLine (data) {
   return request({
-    url: '/chart/flow/count',
-    data
+    url: `${prefix[1]}/flowAnalysis/toReenterInFlowLine`,
+    data,
+    method: 'get'
   })
 }
 
-// 获取缓存人脸数据
-export function GetLatestFace (data) {
+// 性别客流折线图
+export function getGenderLine (data) {
   return request({
-    url: '/chart/getLatestFace',
-    data
+    url: `${prefix[1]}/flowAnalysis/genderFlowLine`,
+    data,
+    method: 'get'
   })
 }
 
-// 控制台获取会员信息
-export function GetMemberList (data) {
+// 性别客流饼图
+export function getGenderPie (data) {
   return request({
-    url: '/personData',
-    data
+    url: `${prefix[1]}/flowAnalysis/genderFlowPie`,
+    data,
+    method: 'get'
   })
 }
 
-// 客流统计人员到访记录
-export function GetVisitedList (data) {
+// 年龄客流饼图
+export function getAgeLine (data) {
   return request({
-    url: '/chart/inflow/Image',
-    data
+    url: `${prefix[1]}/flowAnalysis/ageFlowLine`,
+    data,
+    method: 'get'
+  })
+}
+
+// 年龄客流饼图
+export function getAgePie (data) {
+  return request({
+    url: `${prefix[1]}/flowAnalysis/ageFlowPie`,
+    data,
+    method: 'get'
+  })
+}
+
+// 回头客流线图
+export function getRepeatLine (data) {
+  return request({
+    url: `${prefix[1]}/flowAnalysis/repeatFlowLine`,
+    data,
+    method: 'get'
+  })
+}
+
+// 回头客流饼图
+export function getRepeatPie (data) {
+  return request({
+    url: `${prefix[1]}/flowAnalysis/repeatFlowPie`,
+    data,
+    method: 'get'
+  })
+}
+
+
+/***********************  商场定制排行 ******************************/
+
+// 门店排行
+export function getMarketStoreList (data) {
+  return request({
+    url: `${prefix[1]}/store/storeRanking`,
+    data,
+    method: 'get'
+  })
+}
+
+// 业态排行
+export function getMarketIndustryList (data) {
+  return request({
+    url: `${prefix[1]}/store/formatsRanking`,
+    data,
+    method: 'get'
+  })
+}
+
+// 楼层排行
+export function getMarketFloorList (data) {
+  return request({
+    url: `${prefix[1]}/store/floorRanking`,
+    data,
+    method: 'get'
+  })
+}
+
+// 出入口客流排行
+export function getMarketGateList (data) {
+  return request({
+    url: `${prefix[1]}/store/externalGatewayRanking`,
+    data,
+    method: 'get'
+  })
+}
+
+
+/***********************  连锁定制排行 ******************************/
+
+// 门店排行
+export function getChainStoreList (data) {
+  return request({
+    url: `${prefix[1]}/chain/storeRanking`,
+    data,
+    method: 'get'
+  })
+}
+
+// 区域客流排行
+export function getChainAreaList (data) {
+  return request({
+    url: `${prefix[1]}/chain/regionalRanking`,
+    data,
+    method: 'get'
   })
 }

@@ -8,11 +8,11 @@ import { mapState } from 'vuex'
 import { GetChartLine } from '@/api/visual'
 import { eventObject } from '@/utils/event'
 import { parseTime } from '@/utils'
-import resize from './mixins/resize'
+import tool from '@/utils/mixins/tool'
 
 export default {
   name: 'echarts-line',
-  mixins: [resize],
+  mixins: [tool],
   props: {
     data: {
       type: Object,
@@ -24,7 +24,7 @@ export default {
     },
     height: {
       type: String,
-      default: ''
+      default: '100%'
     },
     width: {
       type: String,
@@ -44,7 +44,7 @@ export default {
         inflow: [
           {
             name: '进客流',
-            value: '客流入',
+            value: '进客流',
             textStyle: {
               color: 'rgba(109,46,187,1)'
             }
@@ -53,14 +53,14 @@ export default {
         flow: [
           {
             name: '进客流',
-            value: '客流入',
+            key: '进客流',
             textStyle: {
               color: 'rgba(109,46,187,1)'
             }
           },
           {
             name: '出客流',
-            value: '客流出',
+            key: '出客流',
             textStyle: {
               color: 'rgba(15,158,233,1)'
             }
@@ -69,34 +69,38 @@ export default {
         gender: [
           {
             name: '女',
+            key: '女',
             textStyle: {
               color: '#EA9D49'
             }
           },
           {
             name: '男',
+            key: '男',
             textStyle: {
               color: '#2CA0F7'
             }
           }
         ],
         age: [
-          { name: '0-10岁', textStyle: { color: '#28C0B1' } },
-          { name: '11-20岁', textStyle: { color: '#79CF62' } },
-          { name: '21-30岁', textStyle: { color: '#E4DA52' } },
-          { name: '31-40岁', textStyle: { color: '#EA9D49' } },
-          { name: '41-50岁', textStyle: { color: '#2B51ED' } },
-          { name: '50岁以上', textStyle: { color: '#6201ED' } }
+          { name: '0-10岁', key: '0-10岁', textStyle: { color: '#28C0B1' } },
+          { name: '11-20岁', key: '11-20岁', textStyle: { color: '#79CF62' } },
+          { name: '21-30岁',key: '21-30岁', textStyle: { color: '#E4DA52' } },
+          { name: '31-40岁',key: '31-40岁', textStyle: { color: '#EA9D49' } },
+          { name: '41-50岁',key: '41-50岁', textStyle: { color: '#2B51ED' } },
+          { name: '50岁以上',key: '50岁以上', textStyle: { color: '#6201ED' } }
         ],
         repeat: [
           {
             name: '多次',
+            key: '多次',
             textStyle: {
               color: '#EA9D49'
             }
           },
           {
             name: '单次',
+            key: '单次',
             textStyle: {
               color: '#2CA0F7'
             }
@@ -146,20 +150,7 @@ export default {
             fontWeight: 'normal'
           },
           icon: 'line',
-          data: [
-            {
-              name: '进客流',
-              textStyle: {
-                color: 'rgba(109,46,187,1)'
-              }
-            },
-            {
-              name: '出客流',
-              textStyle: {
-                color: 'rgba(15,158,233,1)'
-              }
-            }
-          ]
+          data: []
         },
         grid: {
           left: '1%',
@@ -208,15 +199,13 @@ export default {
         ],
         series: [
           {
-            name: '进客流',
+            name: '',
             type: 'line',
-            data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
             smooth: true
           },
           {
-            name: '出客流',
+            name: '',
             type: 'line',
-            data: ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
             smooth: true
           }
         ]
@@ -259,19 +248,35 @@ export default {
   mounted () {
     // 根据数据类型设置不同颜色配置参数
     this.option.color = this.legendMap[this.type].map(item => item.textStyle.color)
-    if (!this.filterParams.group || !this.filterParams.group.group) {
-      this.defaultShow()
-      this.drawLine()
-    }
+    this.defaultShow()
+    // this.drawLine()
   },
   computed: {
-    ...mapState([
-      'groupConsoleId',
-      'filterParams',
-      'currentManage'
-    ]),
     randomId () {
       return `echarts-line-${this.type}_${Math.random().toString()}`
+    }
+  },
+  watch: {
+    data: {
+      handler (val) {
+        if (Object.keys(val).length) {
+          this.option.xAxis[0].data = val.xAxis
+          this.option.series = this.legendMap[this.type].map(item => {
+            let newData = val.series.filter(item2 => item2.name === item.key)[0]
+            return {
+              name: item.name,
+              type: 'line',
+              smooth: true,
+              data: newData ? newData.data : []
+            }
+          })
+        }
+        this.$nextTick(() => {
+          this.drawLine()
+        })
+      },
+      deep: true,
+      immediate: true
     }
   }
 }
