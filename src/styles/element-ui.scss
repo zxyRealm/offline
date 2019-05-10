@@ -114,28 +114,6 @@
   }
 }
 
-//element-ui el-select组件下拉框样式覆盖（全局应用）
-
-.el-select-dropdown {
-  .el-select-dropdown__list {
-    .el-select-dropdown__item {
-      line-height: 20px;
-      height: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      &.selected {
-        background: #EBEBEB;
-        color: #333;
-      }
-      &:hover {
-        background-color: #EBEBEB;
-      }
-      > span {
-        line-height: 20px!important;
-      }
-    }
-  }
-}
 
 //el-table 样式覆盖（全局应用）
 .el-table {
@@ -981,5 +959,24 @@
   .el-input__inner{
     background: none;
     color: #fff;
+  }
+}
+
+//添加通用el-form 样式表
+
+.el-form{
+  &.dialog__form--wrap{
+    margin: 0 auto;
+    &.w-360{
+      width: 360px;
+    }
+    .el-form-item__content{
+      .el-select{
+        width: 100%;
+      }
+    }
+    .el-form-item__label{
+      text-align: left;
+    }
   }
 }

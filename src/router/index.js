@@ -20,7 +20,7 @@ const CommunityGuide = () => import('@/views/community/guide.vue')
 const CommunityCreate = () => import('@/views/community/create.vue')
 
 // 设备管理
-const EquipmentList = () => import('@/views/equipment/list.vue')
+const EquipmentList = () => import('@/views/equipment/index.vue')
 const EquipmentAio = () => import('@/views/equipment/aio.vue')
 const EquipmentServer = () => import('@/views/equipment/server.vue')
 const EquipmentPortal = () => import('@/views/equipment/portal.vue')
@@ -204,8 +204,8 @@ export const constantRouterMap = [
     ]
   },
   // 设备管理
-  {path: '/equipment', redirect: '/equipment/list/aio'},
-  {path: '/equipment/list', redirect: '/equipment/list/aio'},
+  {path: '/equipment', redirect: '/equipment/list'},
+  // {path: '/equipment/list', redirect: '/equipment/list/aio'},
   {
     path: '/equipment',
     component: Layout,
@@ -220,46 +220,46 @@ export const constantRouterMap = [
           title: '设备管理-线下浏览器服务平台',
           keepAlive: true
         },
-        component: EquipmentList,
-        children: [
-          {
-            path: 'aio',
-            name: 'equipmentAio',
-            meta: {
-              title: '设备管理-线下浏览器服务平台',
-              keepAlive: true
-            },
-            component: EquipmentAio
-          },
-          {
-            path: 'camera',
-            name: 'equipmentCamera',
-            meta: {
-              title: '设备管理-线下浏览器服务平台',
-              keepAlive: true
-            },
-            component: EquipmentCamera
-          },
-          {
-            path: 'server',
-            name: 'equipmentServer',
-            meta: {
-              title: '设备管理-线下浏览器服务平台',
-              keepAlive: true
-            },
-            component: EquipmentServer
-          },
-          {
-            path: '/equipment/portal',
-            name: 'equipmentPortal',
-            meta: {
-              title: '设备管理-线下浏览器服务平台',
-              auth: true,
-              keepAlive: false
-            },
-            component: EquipmentPortal
-          }
-        ]
+        component: EquipmentList
+        // children: [
+        //   {
+        //     path: 'aio',
+        //     name: 'equipmentAio',
+        //     meta: {
+        //       title: '设备管理-线下浏览器服务平台',
+        //       keepAlive: true
+        //     },
+        //     component: EquipmentAio
+        //   },
+        //   {
+        //     path: 'camera',
+        //     name: 'equipmentCamera',
+        //     meta: {
+        //       title: '设备管理-线下浏览器服务平台',
+        //       keepAlive: true
+        //     },
+        //     component: EquipmentCamera
+        //   },
+        //   {
+        //     path: 'server',
+        //     name: 'equipmentServer',
+        //     meta: {
+        //       title: '设备管理-线下浏览器服务平台',
+        //       keepAlive: true
+        //     },
+        //     component: EquipmentServer
+        //   },
+        //   {
+        //     path: '/equipment/portal',
+        //     name: 'equipmentPortal',
+        //     meta: {
+        //       title: '设备管理-线下浏览器服务平台',
+        //       auth: true,
+        //       keepAlive: false
+        //     },
+        //     component: EquipmentPortal
+        //   }
+        // ]
       }
     ]
   },

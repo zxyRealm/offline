@@ -103,7 +103,7 @@ export default {
     &.theme-white {
       .app-main-content {
         background: $theme-white;
-        color: #333;
+        color: $white-text-color;
       }
     }
   }

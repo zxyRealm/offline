@@ -93,8 +93,8 @@
                             :key="index">
                         <div v-show="show !== index" @mouseover="operationShow(index)" @mouseout="operationHide(index)">
                             <span class="cont__title">{{item.typeValue}}</span>
-                            <span class="fr del" v-show="hover === index" @click="delList(index)">删除</span>
-                            <span class="fr edit" v-show="hover === index" @click="edit(index,item)">编辑</span>
+                            <span class="g-fr del" v-show="hover === index" @click="delList(index)">删除</span>
+                            <span class="g-fr edit" v-show="hover === index" @click="edit(index,item)">编辑</span>
                         </div>
 
                         <div class="edit__border" v-show="show === index">

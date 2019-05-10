@@ -39,7 +39,7 @@
                       <uu-icon v-show="showNickName"  class="role__icon--img" type="foreign"></uu-icon>
                     </el-tooltip>
                   </span>
-                <p class="handle fr fs12">
+                <p class="handle g-fr fs12">
                   <i
                     v-if="communityInfo.self"
                     @click="showAddForm(backDialogType('add'))">

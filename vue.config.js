@@ -25,7 +25,7 @@ module.exports = {
         // @/ 是 src/ 的别名
         // 假设项目下已经有 src/styles/variables.scss 这个文件
         // 配置后你可以这样向所有 Sass 样式传入共享的全局变量
-        // data: `@import "@/style/variables.scss";`
+        data: `@import "@/styles/variables.scss";`
       }
     }
   },

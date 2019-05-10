@@ -25,6 +25,24 @@ $theme-bg1: #222336; // 主题背景色
 $theme-bg2: rgba(21, 21, 22, 0.5); // 主题背景色
 $theme-white: rgba(255, 255, 255, 1); // 白色主题色
 $theme-white-color: #303133; // 白色主题背景字体色
-$barWidth: 200px;
+
+$white-title-color: #252525;
+$white-text-color: #555;
+$white-sub-title-color: #606266;
+$white-sub-text-color: #999999;
+
+$placeholder-color: #D2D2D2;
+
 $theme-blue: #0B7EF9;
+$global-danger-color: #FF6660;
+$global-success-color: #28C0B1;
+
+$gray-color: #999;
 $gray-title: #E6EFFF;
+$gray-border-color: #f0f0f0;
+
+// 尺寸变量 宽高
+
+$barWidth: 200px;
+
+$module-title-height: 72px;

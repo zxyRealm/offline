@@ -68,7 +68,7 @@
         start-placeholder="开始日期"
         end-placeholder="结束日期">
       </el-date-picker>
-      <a href="javascript:void (0)" @click="getBehaviorList()" class="fr">刷新</a>
+      <a href="javascript:void (0)" @click="getBehaviorList()" class="g-fr">刷新</a>
     </div>
     <el-scrollbar v-scroll-top="pagination.index" class="table__scrollbar">
       <el-table
