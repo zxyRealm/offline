@@ -1,0 +1,45 @@
+.f-blue {color: #0B7EF9;}
+.f-red {color: #FF6660;}
+.f-margin-right10 {margin-right: 10px;}
+.f-margin-right20 {margin-right: 20px;}
+.f-margin-right30 {margin-right: 30px;}
+.f-margin-right50 {margin-right: 50px;}
+.f-margin-left10 {margin-left: 10px;}
+.f-margin-left20 {margin-left: 20px;}
+.f-margin-left30 {margin-left: 30px;}
+.f-margin-left50 {margin-left: 50px;}
+.f-margin-top10 {margin-top: 10px;}
+.f-margin-top20 {margin-top: 20px;}
+.f-margin-top30 {margin-top: 30px;}
+.f-margin-top50 {margin-top: 50px;}
+.f-margin-bottom10 {margin-bottom: 10px;}
+.f-margin-bottom20 {margin-bottom: 20px;}
+.f-margin-bottom30 {margin-bottom: 30px;}
+.f-margin-bottom50 {margin-bottom: 50px;}
+.f-link {cursor: pointer;}
+.f-center {text-align: center;}
+.box__block {display: inline-block;}
+.text__overflow {
+  overflow: hidden; //超出的文本隐藏
+  text-overflow: ellipsis; //溢出用省略号显示
+  white-space: nowrap; //溢出不换行
+}
+
+.custom__message-box--delete{
+  .el-message-box__message{
+    padding: 20px 0;
+    text-align: center;
+  }
+  .el-message-box__btns{
+    padding: 0 0 20px;
+    text-align: center;
+  }
+  .delete__confirm.el-button--primary{
+    background-color: #FF6660;
+    border-color: #FF6660;
+  }
+  .delete__confirm:hover{
+    background-color: #FF6660;
+    border-color: #FF6660;
+  }
+}
