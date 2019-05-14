@@ -131,12 +131,12 @@ export default {
       height: 14px;
     }
     &.role02{
-      background-image: url(../../assets/community/chain_role_icon.png);
+      background-image: url(../../assets/community/single_role_icon.png);
       width: 24px;
       height: 14px;
     }
     &.role03{
-      background-image: url(../../assets/community/single_role_icon.png);
+      background-image: url(../../assets/community/chain_role_icon.png);
       width: 24px;
       height: 14px;
     }

@@ -14,7 +14,13 @@
     <div class="content--wrap">
       <!--侧边栏-->
       <div class="device--sidebar">
-
+        <group-tree
+          ref="groupTree"
+          :data="memberTreeList"
+          :fetch-suggestions="querySearchAsync"
+          @handle-select="handleSelect"
+          @current-change="currentNodeChange"
+        ></group-tree>
       </div>
       <!--列表内容-->
       <div class="device__list--wrap">
@@ -326,13 +332,16 @@ import CustomPagination from '@/components/Pagination'
 import UploadProgress from '@/components/UploadProgressDialog'
 import SideDialog from '@/components/SideDialog'
 import { validateRule } from '@/utils/validate'
+import GroupTree from '@/components/group-nav/tree'
+import { getManageMemberTree, getSearchMember } from '@/api/community'
 
 export default {
   name: 'index',
   components: {
     CustomPagination,
     UploadProgress,
-    SideDialog
+    SideDialog,
+    GroupTree
   },
   data () {
     // 校验设备序列号
@@ -441,6 +450,7 @@ export default {
     }
 
     return {
+      memberTreeList: [],
       communityInfo: {
         name: '城西银泰'
       },
@@ -590,6 +600,7 @@ export default {
     }
   },
   created () {
+    this.getMemberTree()
   },
   mounted () {
   },
@@ -653,6 +664,51 @@ export default {
     }
   },
   methods: {
+    // 获取成员社群组织架构
+    getMemberTree () {
+      let guid = this.currentManage.groupGuid
+      getManageMemberTree({groupGuid: guid}).then((res) => {
+        this.memberTreeList = this.formatTreeList(res.data)
+        console.log(this.memberTreeList)
+        this.$nextTick(() => {
+          // this.$refs.groupTree.setCurrentKey(this.memberTreeList[0].groupGuid)
+        })
+      })
+    },
+    // 返回输入建议的方法
+    querySearchAsync (queryString, cb) {
+      getSearchMember({name: queryString }).then((res) => {
+        cb(res.data || [])
+      })
+    },
+    currentNodeChange (data) {
+      console.log('current-change', data)
+    },
+    // 格式化组织架构数据
+    // 非社群结构无子元素时不可点击
+    formatTreeList (arr) {
+      let list = arr
+      if (Array.isArray(arr)) {
+        list = arr.map(item => {
+          if (item['trieNodeList'] && item['trieNodeList'].length) {
+            this.formatTreeList(item['trieNodeList'])
+          } else if (item.type !== 'MEMBER' && item.type !== 'JOINED') {
+            item.disabled = true
+          }
+          return item
+        })
+      }
+      return list
+    },
+    // 点击选中建议项时触发事件处理
+    handleSelect (item) {
+      let guid = "02C81AD4EC3643C8A61BE424C73A0FC0"
+      console.log(item)
+      this.$nextTick(() => {
+        this.$refs.groupTree.setCurrentKey(item.guid)
+      })
+    },
+
     // 刷新设备状态
     refreshState (key) {
       console.log(key)

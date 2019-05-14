@@ -560,10 +560,10 @@ export default {
     }
   }
 
-  .el-tree-node__expand-icon {
-    color: #fff;
-    font-size: 14px;
-  }
+  /*.el-tree-node__expand-icon {*/
+    /*color: #fff;*/
+    /*font-size: 14px;*/
+  /*}*/
 
   .ob-group-nav {
     box-sizing: border-box;

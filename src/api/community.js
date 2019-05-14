@@ -10,6 +10,13 @@ export function getManageList (data) {
   })
 }
 
+// 获取管理社群下成员社群组织结构
+export function getManageMemberTree (data) {
+  return request({
+    url: `${prefix[0]}/group/read/structure/${data.groupGuid}`,
+    method: 'get'
+  })
+}
 
 // 获取管理社群下成员社群
 export function getManageMember (data) {
@@ -19,6 +26,16 @@ export function getManageMember (data) {
   })
 }
 
+// 组织架构 成员社群搜素
+
+export function getSearchMember (data) {
+  return request({
+    url: `${prefix[0]}/group/unit/read/search`,
+    tip: false,
+    method: 'get',
+    data
+  })
+}
 
 // 校验社群名称是否存在
 export function CheckGroupNameExist (data) {

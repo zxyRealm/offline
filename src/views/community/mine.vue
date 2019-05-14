@@ -11,6 +11,7 @@
       <div class="mine__community--main" v-if="currentManage.groupGuid && (groupList.length || (storeFloor.length && currentManage.type === 3))">
         <div class="mine__community--content">
           <div class="community--sidebar" v-if="currentManage.type !== 3">
+
             <ob-group-nav
               is-edit
               rights
@@ -343,8 +344,11 @@ import Clipboard from '@/utils/clipboard'
 import area from '@/components/area-select/area-select'
 import BindCommunity from '@/components/three/bind_community'
 import {eventObject} from '../../utils/event'
+
+
 import {GetMarketList, GetCommunityInfoByCode, GetStoreList, GetCommunityUpdate, CheckNameExist, CheckMemberNameExist, GetIndustry, DeleteCommunity, GetMarketFloorList, GetMemberDetail, AddMember, UpdateMemberInfo, CheckMemberNickNameExist, UpdateMemberNickName, GetGroupPortalCount, JoinOtherManage, SonCommunitySearch, DeleteMember, ExitManage} from '../../api/community'
 import ThreeAssociationMap from '@/components/three/association_map'
+
 export default {
   name: 'mineCommunity',
   mixins: [Mixins],

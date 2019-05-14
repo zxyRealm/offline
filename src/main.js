@@ -17,7 +17,7 @@ import obList from '@/components/data-list'
 import obListItem from '@/components/data-list/sub-item'
 import ImageBox from '@/components/ImageBox' // 图片展示组件
 import obDialogForm from '@/components/dialog-form'
-import obGroupNav from '@/components/group-nav'
+import obGroupNav from '@/components/group-nav/tree'
 import obListEmpty from '@/components/list-empty'
 import ImagePreview from '@/components/preview'
 import * as filters from './filters'

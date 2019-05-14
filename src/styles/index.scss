@@ -630,6 +630,10 @@ button, input {
       @extend .ellipsis;
       width: calc(100% - #{$lf + px});
     }
+    &.max-width-#{$lf} {
+      width: auto;
+      max-width: calc(100% - #{$lf + px});
+    }
   }
 }
 
