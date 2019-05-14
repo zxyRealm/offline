@@ -203,8 +203,8 @@ div:focus {
   }
 }
 
-@each $ml in 5, 8, 10, 20, 50, 94 {
-  .ml#{$ml} {
+@each $ml in 5, 8, 10, 15, 20, 50, 94 {
+  .g-ml#{$ml} {
     margin-left: $ml + px;
   }
 }
@@ -253,11 +253,12 @@ div:focus {
 .g-fl {
   float: left;
 }
-.g-inline{
+
+.g-inline {
   display: inline-block;
 }
 
-.g-center{
+.g-center {
   text-align: center;
 }
 
@@ -583,16 +584,32 @@ button, input {
 //公共确认框
 .uu-message-affirm {
   width: 500px;
+  height: 220px;
+  padding: 0;
   min-width: auto !important;
-  .el-message-box__btns {
-    padding: 25px 15px 0;
-    button:nth-child(2) {
-      margin-left: 50px !important;
+  .el-message-box__btns,
+  .el-message-box__content{
+    text-align: center;
+    font-size: 16px;
+  }
+  .el-message-box__btns{
+    .el-button{
+      width: 80px;
     }
   }
-  .el-message-box__headerbtn {
-    right: 10px !important;
-    top: 10px !important;
+  .el-message-box__content{
+    height: 80px;
+    vertical-align: middle;
+    &:after{
+      content: '';
+      height: 100%;
+      width: 0;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .el-message-box__message{
+      display: inline-block;
+    }
   }
   .el-button--primary {
 
@@ -712,13 +729,23 @@ button, input {
 
 }
 
-.danger {
-  color: $pink;
+.g-danger {
+  color: $global-danger-color;
   &:hover, &:focus {
-    color: $pink;
+    color: $global-danger-color;
   }
 }
 
+.g-success {
+  color: $global-success-color;
+}
+
+.g-gray{
+  color: $white-text-color;
+}
+.g-title-gray{
+  color: $white-title-color;
+}
 .c-grey {
   color: $grey;
   &:hover, &:focus {
@@ -764,7 +791,6 @@ button, input {
 
 //form表单元素风格
 
-
 .el-scrollbar {
   &.scroll-x {
     .el-scrollbar__wrap {
@@ -778,6 +804,11 @@ button, input {
   }
   &.ob-scrollbar {
     height: 100%;
+  }
+  &.hidden-x{
+    .el-scrollbar__wrap {
+      overflow-x: hidden;
+    }
   }
 }
 
@@ -1059,6 +1090,11 @@ p > .ellipsis {
   vertical-align: middle;
 }
 
+.icon-shuaxin {
+  color: #0B7EF9;
+  cursor: pointer;
+}
+
 // 模块title样式
 .g-module-title {
   height: $module-title-height;
@@ -1088,8 +1124,16 @@ p > .ellipsis {
     }
   }
   > .el-input {
-      .el-input__inner {
-        border-radius: 0 4px 4px 0;
-      }
+    .el-input__inner {
+      border-radius: 0 4px 4px 0;
+    }
+  }
+}
+
+// 卡片式单元结构 hover 样式
+.m__item--active {
+  box-shadow: 0 0 6px 2px rgba(200, 205, 214, 0.30);
+  &:hover {
+    box-shadow: 0 1px 12px 6px rgba(200, 205, 214, 0.30);
   }
 }

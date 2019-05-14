@@ -17,13 +17,13 @@
       name="el-zoom-in-top"
     >
       <div class="button__dropdown--wrap" @mousedown="cancelBlur" v-show="dropVisible">
-      <el-scrollbar
-        tag="ul"
-      >
-        <slot></slot>
-      </el-scrollbar>
-      <slot name="footer"></slot>
-    </div>
+        <el-scrollbar
+          tag="ul"
+        >
+          <slot></slot>
+        </el-scrollbar>
+        <slot name="footer"></slot>
+      </div>
     </transition>
   </div>
 </template>
@@ -106,73 +106,83 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .button__select--wrap{
+  .button__select--wrap {
     position: relative;
-    .el-input{
+    .el-input {
       width: 120px;
       background: none;
     }
   }
-.button__dropdown--wrap{
-  min-width: 100%;
-  width: 200px;
-  position: absolute;
-  top: 36px;
-  left: 0;
-  background: #26232B;
-  box-shadow: 1px 3px 8px 0 rgba(0,0,0,0.60);
-  padding: 15px;
-  box-sizing: border-box;
-  .el-scrollbar{
-    .el-scrollbar__wrap{
-      overflow: scroll;
+
+  .button__dropdown--wrap {
+    min-width: 100%;
+    width: 200px;
+    position: absolute;
+    top: 36px;
+    left: 0;
+    background: $theme-bg1;
+    box-shadow: 1px 3px 8px 0 rgba(0, 0, 0, 0.60);
+    padding: 15px;
+    border-radius: 2px;
+    box-sizing: border-box;
+    color: #fff;
+    .el-scrollbar {
+      .el-scrollbar__wrap {
+        overflow: scroll;
+      }
+    }
+    .el-button {
+      width: 100%;
+      margin-top: 5px;
+    }
+    .button__dropdown--item {
+      height: 24px;
+      line-height: 24px;
+      cursor: pointer;
+      &:hover {
+        color: #3a8ee6;
+      }
     }
   }
-  .el-button{
-    width: 100%;
-    margin-top: 5px;
-  }
-  .button__dropdown--item{
-    height: 24px;
-    line-height: 24px;
-    cursor: pointer;
-    &:hover{
-     color: #3a8ee6;
+
+  .theme-white {
+    .button__dropdown--wrap{
+      background: $white;
+      color: $white-title-color;
     }
   }
-}
 </style>
 <style lang="scss">
-  .button__select--wrap
-  {
-    .el-input{
-      .el-input__inner{
+  .button__select--wrap {
+    .el-input {
+      .el-input__inner {
         cursor: pointer;
       }
-      .el-input__suffix-inner{
+      .el-input__suffix-inner {
         height: 100%;
-        .el-input__icon{
+        .el-input__icon {
           vertical-align: top;
           font-size: 18px;
           line-height: 30px;
           /*transition: 0.4s all;*/
-          &.up{
+          &.up {
             transform: rotateZ(180deg);
           }
         }
       }
     }
   }
- .button__dropdown--wrap{
-   .el-scrollbar{
-     .el-scrollbar__wrap{
-       overflow: scroll;
-       max-height: 137px;
-       height: auto;
-     }
-   }
-   > .el-button{
-     margin-top: 5px;
-   }
- }
+
+  .button__dropdown--wrap {
+    .el-scrollbar {
+      .el-scrollbar__wrap {
+        overflow: scroll;
+        max-height: 137px;
+        height: auto;
+      }
+    }
+    > .el-button {
+      margin-top: 5px;
+    }
+  }
 </style>

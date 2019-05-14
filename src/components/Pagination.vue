@@ -5,6 +5,7 @@
 */
 <template>
   <el-pagination
+    v-show="total"
     class="g-custom-pagination"
     @current-change="currentChange"
     :background="true"
@@ -64,6 +65,9 @@ export default {
   margin-top: 20px;
   overflow: hidden;
   box-sizing: border-box;
+  &.not-mt{
+    margin-top: 0;
+  }
   > * {
     float: left;
   }

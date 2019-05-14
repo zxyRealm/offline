@@ -36,7 +36,7 @@
             :key="$index"
             :label="item.name"
           >
-            <span class="ellipsis-28" style="float: left">{{ item.name }}</span>
+            <span class="ellipsis max-width" style="float: left">{{ item.name }}</span>
             <uu-icon v-if="item.type === 1" type="role01"></uu-icon>
             <uu-icon v-if="item.type === 2" type="role02"></uu-icon>
             <uu-icon v-if="item.type === 3" type="role03"></uu-icon>
@@ -52,12 +52,20 @@
             <span class="iconfont icon-xiaoxi" :class="{'notify-have': notifState}"></span>
           </router-link>
           <el-dropdown @command="handleCommand">
-            <span class="el-dropdown-link">
-              <img width="26" :src="avatar" alt="">
-            </span>
+            <img class="avatar pointer" width="26" :src="avatar" alt="">
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="user">{{userInfo.phoneNumber || '13145697895'}}</el-dropdown-item>
-              <el-dropdown-item command="exit">退出</el-dropdown-item>
+              <el-dropdown-item command="user">
+                <i class="iconfont icon-zhanghuguanli"></i>
+                {{userInfo.phoneNumber || '13145697895'}}
+              </el-dropdown-item>
+              <el-dropdown-item command="change">
+                <i class="iconfont icon-xiugaimima"></i>
+                修改密码
+              </el-dropdown-item>
+              <el-dropdown-item command="exit">
+                <i class="iconfont icon-tongyong-tuichudenglutubiao"></i>
+                退出登录
+              </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -94,6 +102,45 @@
         <el-button class="affirm" @click="helpDialogVisible = false">收起</el-button>
       </div>
     </el-dialog>
+
+
+    <!--修改密码-->
+
+    <el-dialog
+      title="修改密码"
+      width="560px"
+      :visible.sync="passwordFormVisible">
+      <el-form
+        ref="passwordForm"
+        label-width="80px"
+        class="dialog__form--wrap w-360"
+        :rules="passwordRules"
+        :model="passwordForm">
+        <el-form-item prop="password" label="旧密码">
+          <el-input
+            v-model.trim="passwordForm.password"
+            placeholder="请输入原密码"
+            autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item prop="newPassword" label="新密码">
+          <el-input
+            v-model.trim="passwordForm.newPassword"
+            placeholder="请输入新密码"
+            autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item prop="confirmPassword" label="重复密码">
+          <el-input
+            v-model.trim="passwordForm.confirmPassword"
+            placeholder="请再次输入新密码"
+            autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer g-center">
+        <el-button @click="passwordFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitPasswordForm('passwordForm')">修 改</el-button>
+      </div>
+    </el-dialog>
+
 
     <!--添加新社群-->
     <ob-dialog-form
@@ -252,7 +299,24 @@ export default {
       manageList: [],
       showClose: true, // 是否显示关闭按钮
       loadModule: null, // 加载中遮罩层
-      labelList: [] // 选取楼层后对应的要上传的文件列表
+      labelList: [], // 选取楼层后对应的要上传的文件列表
+      passwordFormVisible: false,
+      passwordForm: {
+        password: '',
+        newPassword: '',
+        confirmPassword: ''
+      },
+      passwordRules: {
+        password: [
+          { required: true }
+        ],
+        newPassword: [
+          { required: true }
+        ],
+        confirmPassword: [
+          { required: true }
+        ]
+      }
     }
   },
   computed: {
@@ -350,22 +414,35 @@ export default {
         })
       },
       deep: true
+    },
+    passwordFormVisible (val) {
+      if (!val && this.$refs['passwordForm']) {
+        this.$refs['passwordForm'].resetFields()
+      }
     }
   },
   methods: {
     // 下拉菜单事件处理
     handleCommand (e) {
       if (e === 'exit') {
-        exitLogin({ phoneNumber: '', token: '' }).then(() => {
-          this.$cookie().remove('user_phone')
-          this.$cookie().remove('user_token')
-          this.$router.push('/login')
-        })
+        this.$affirm({ title: '退出登录', confirmType: 'danger', text: '是否确认退出登录', confirm: '退出' },
+          (action, instance, done) => {
+            if (action === 'confirm') {
+              exitLogin({ phoneNumber: '', token: '' }).then(() => {
+                this.$cookie().remove('user_phone')
+                this.$cookie().remove('user_token')
+                this.$router.push('/login')
+              })
+            }
+            done()
+          })
+      } else if (e === 'change') {
+        this.passwordFormVisible = true
       }
     },
     // 获取商户所有管管理层社群
     getManageList () {
-      getManageList({merchantGuid: '19212466sdfe'}).then(res => {
+      getManageList({ merchantGuid: '19212466sdfe' }).then(res => {
         this.manageList = res.data
         if (this.manageList.length) {
           this.manageGroup = this.manageList[0]
@@ -568,6 +645,14 @@ export default {
     deleteLabel (index) {
       this.$set(this.labelList[index], 'file', '')
       document.getElementById(`map__input--file${index}`).value = ''
+    },
+    // 修改密码
+    submitPasswordForm (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+
+        }
+      })
     }
   },
   created () {
@@ -606,12 +691,13 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import "~@/styles/variables.scss";
+
   .common__nav--wrap {
     position: relative;
-    .iconfont{
+    .iconfont {
       cursor: pointer;
     }
-    >.icon-suoxiao{
+    > .icon-suoxiao {
       position: absolute;
       top: 15px;
       left: 15px;
@@ -620,6 +706,7 @@ export default {
       z-index: 999;
     }
   }
+
   .text--wrap {
     .el-icon-check {
       font-size: 14px;
@@ -670,6 +757,12 @@ export default {
   /*操作引导弹框 图标闪烁效果*/
   .flicker-animation {
     animation: flicker 1.5s infinite ease-in-out;
+  }
+
+  .max-width {
+    width: auto;
+    max-width: calc(100% - 24px);
+    padding-right: 6px;
   }
 
   @keyframes flicker {

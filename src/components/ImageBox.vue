@@ -1,5 +1,8 @@
 <template>
-  <div class="common__image--box" @click="showImage" :style="{backgroundImage: `url(${src})`, height: height, width: width}">
+  <div
+    class="common__image--box"
+    @click="showImage"
+    :style="{backgroundImage: `url(${src})`, height: height, width: width}">
   </div>
 </template>
 
@@ -29,8 +32,10 @@ export default {
       visible: false
     }
   },
-  created () {},
-  mounted () {},
+  created () {
+  },
+  mounted () {
+  },
   computed: {},
   methods: {
     showImage () {
@@ -44,12 +49,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.common__image--box{
-  display: inline-block;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  vertical-align: top;
-  cursor: pointer;
-}
+  .common__image--box {
+    display: inline-block;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    vertical-align: top;
+    cursor: pointer;
+  }
 </style>

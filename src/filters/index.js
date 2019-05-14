@@ -26,6 +26,51 @@ export function deviceType (type, use) {
   }
 }
 
+// 过滤设备类型、设备形态
+export function filterType (val, type) {
+  let text = val
+  switch (type) {
+    case 'type': // 设备形态
+      switch (val) {
+        case 1:
+          text = '服务器'
+          break
+        case 2:
+          text = '一体机'
+          break
+        case 3:
+          text = '摄像头'
+          break
+        default:
+          text = '摄像头'
+          break
+      }
+      break
+    case 'positionType': // 设备类型
+      switch (val) {
+        case 1:
+          text = '出入口设备'
+          break
+        case 2:
+          text = '通道设备'
+          break
+      }
+      break
+    case 'onLineState':
+      switch (val) {
+        case 1:
+          text = '离线'
+          break
+        default:
+          text = '在线'
+
+          break
+      }
+      break
+  }
+  return text
+}
+
 // 设备操作权限
 export function authority (str) {
   return (str || '').split(',') <= 1 ? '数据查看权限' : '数据查看权限、设备操作权限'

@@ -51,19 +51,18 @@ export default {
     // 确认操作框
     Vue.prototype.$affirm = function (text, callback, type, showCancel = true) {
       let html = `${text.text}`
-      if (type) {
-        html = ` <img width="72px" src="${ossPrefix}static/img/${type}_tip_icon.png" alt="提示信息"><p>${text.text}</p>`
-      }
+      // if (type) {
+      //   html = ` <img width="72px" src="${ossPrefix}static/img/${type}_tip_icon.png" alt="提示信息"><p>${text.text}</p>`
+      // }
       this.$msgbox({
         title: text.title || '',
         message: html,
-        center: true,
+        // type: type || 'info',
+        // center: true,
+        confirmButtonClass: text.confirmType === 'danger' ? 'el-button--danger' : '',
         dangerouslyUseHTMLString: true,
         customClass: 'uu-message-affirm',
-        confirmButtonClass: 'affirm',
-        cancelButtonClass: 'cancel',
-        showCancelButton: type ? !type : showCancel,
-        showConfirmButton: !type,
+        showCancelButton: true,
         confirmButtonText: text.confirm || '确 定',
         cancelButtonText: text.cancel || '取 消',
         beforeClose: (action, instance, done) => {
@@ -72,7 +71,7 @@ export default {
       })
     }
 
-    /**
+    /*
      * lwh = 公用的方法
      */
 
