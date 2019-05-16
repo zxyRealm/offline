@@ -212,7 +212,6 @@ export default {
           imageUrl: res.data.imageUrl,
           showClose: false
         })
-        console.log(this.person.form.faceImgUrls)
       })
     },
     // 图片上传前
@@ -266,7 +265,6 @@ export default {
             this.$message.success(msg)
             if (next) {
               this.$refs.personRef.resetFields()
-              console.log(this.person.form)
             } else {
               this.$router.back(-1)
             }
@@ -358,11 +356,13 @@ export default {
       }
     },
     handleOptionAdd () {
-      this.initList()
-      this.optionAdd.isAdd = true
-      this.$nextTick(() => {
-        this.$refs.optionAddInput.focus()
-      })
+      if (!this.optionAdd.isAdd) {
+        this.initList()
+        this.optionAdd.isAdd = true
+        this.$nextTick(() => {
+          this.$refs.optionAddInput.focus()
+        })
+      }
     },
     initList () {
       this.personTypeList.forEach((item) => {

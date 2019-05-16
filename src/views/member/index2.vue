@@ -45,7 +45,7 @@
           <el-select v-model="searchConfig.gender" placeholder="请选择性别" size="small" class="f-margin-right20">
             <el-option :label="item.label" :value="item.value" v-for="item in searchConfig.genderList" :key="item.value"></el-option>
           </el-select>
-          <el-button icon="el-icon-search" size="small"></el-button>
+          <el-button icon="el-icon-search" size="small" @click="handleListSearch"></el-button>
         </div>
         <div class="content__table">
           <el-table :data="personList" style="width: 100%">
@@ -124,16 +124,16 @@
           ref="batchUpload"
           class="batch-upload__box"
           drag
+          :file-list="batchAddPersonDialog.fileList"
           :show-file-list="false"
           :multiple="false"
           :auto-upload="false"
-          :http-request="handleBatchAddPersonUpload"
-          :before-upload="beforeBatchAddPersonUpload"
           :on-success="uploadSuccess"
+          :data="{merchantGuid: userInfo.developerId, memberLibraryGuid: $route.query.libraryId}"
+          :on-change="beforeBatchAddPersonUpload"
           :on-error="uploadError"
           :on-progress="uploading"
-          :on-change="handleBatchAddPersonChange"
-          action="">
+          :action="ip">
           <div v-if="batchAddPersonDialog.file" class="zip__have">
             <img src="../../assets/logo.png" alt="" width="25" height="25">
             <span class="batch-upload__file-name text__overflow">{{batchAddPersonDialog.file.name}}</span>
@@ -273,23 +273,23 @@ export default {
       },
       batchAddPersonDialog: {
         visible: false,
-        file: null
+        file: null,
+        fileList: []
       },
       percent: {
         visible: false,
-        data: '0%'
+        data: 0
       }
     }
   },
   created () {
     this.getLibraryList()
-    console.log(this.currentManage)
   },
   mounted () {},
   computed: {
     ...mapState(['currentManage', 'userInfo', 'serverIp']),
     ip () {
-      return `//${process.env.VUE_APP_BASE_API}${prefix[3]}/person/import`
+      return `//${process.env.VUE_APP_API_HOSTNAME}${prefix[3]}/person/import`
     },
     // 人员库搜索
     searchLibraryList () {
@@ -322,7 +322,6 @@ export default {
     },
     // 获取人员库列表
     getLibraryList () {
-      console.log(this.currentManage)
       if (!this.currentManage.groupGuid) return
       let data = {
         groupGuid: this.currentManage.groupGuid
@@ -348,6 +347,10 @@ export default {
       getPersonLibraryById({ personLibraryId: this.chooseLibraryId }).then(res => {
         this.libraryInfo = res.data
       })
+    },
+    handleListSearch () {
+      this.searchConfig.pagination.index = 1
+      this.getPersonList()
     },
     // 获取人员库下的人员列表
     getPersonList () {
@@ -426,7 +429,6 @@ export default {
     },
     // 点击左侧人员库
     handleLibraryClick (id) {
-      console.log(id)
       this.$router.push({ path: '/member', query: { libraryId: id } })
       this.getLibraryList()
     },
@@ -435,21 +437,24 @@ export default {
       this.batchAddPersonDialog.file = null
       this.batchAddPersonDialog.visible = true
     },
-    // 文件选择
-    handleBatchAddPersonChange (file, fileList) {
-      console.log(file, fileList)
-    },
     // 批量上传前
-    beforeBatchAddPersonUpload (file) {
-      if (!(/\w+(.zip)$/).test(file.name)) {
-        this.$message.error('文件仅限zip格式')
-        return false
-      } else if (file.size > 1000 * 1024 * 1024) {
-        this.$message.error('文件不可超过1G')
-        return false
+    beforeBatchAddPersonUpload (file, fileList) {
+      if (!file.response) {
+        if (!(/\w+(.zip)$/).test(file.name)) {
+          this.$message.error('文件仅限zip格式')
+          this.$refs.batchUpload.clearFiles()
+          return
+        } else if (file.size > 1000 * 1024 * 1024) {
+          this.$message.error('文件不可超过1G')
+          this.$refs.batchUpload.clearFiles()
+          return
+        }
+        if (fileList.length > 1) {
+          this.$refs.batchUpload.clearFiles()
+          this.batchAddPersonDialog.fileList = [file]
+        }
+        this.batchAddPersonDialog.file = file
       }
-      this.batchAddPersonDialog.file = file
-      return true
     },
     // 当上传失败的时候
     uploadError () {
@@ -458,23 +463,13 @@ export default {
     },
     // 文件上传中
     uploading (event) {
-      console.log(event)
       this.percent.visible = true
       this.batchAddPersonDialog.visible = false
-      this.percent.data = Math.floor(event.percent) + '%'
+      this.percent.data = Math.floor(event.percent)
     },
     // 文件上传成功
     uploadSuccess (response) {
       this.percent.visible = false
-    },
-    handleBatchAddPersonUpload (file) {
-      let formData = new FormData()
-      formData.append('file', this.batchAddPersonDialog.file)
-      formData.append('merchantGuid', this.userInfo.developerId)
-      formData.append('memberLibraryGuid', this.$route.query.libraryId)
-      axios.post(`${process.env.VUE_APP_BASE_API}${prefix[3]}/person/import`, formData).then(res => {
-        console.log(res)
-      })
     },
     handleBatchAddPersonDialogSubmit () {
       this.batchAddPersonDialog.visible = false
