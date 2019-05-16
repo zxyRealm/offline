@@ -1,151 +1,127 @@
 <template>
-  <div class="member" v-if="canShowPage">
+  <div class="menber">
     <div class="member__title">
-      <span class="fl">人员管理</span>
-      <el-button class="affirm medium fr add__button" @click="handleLibraryCreate">添加库</el-button>
+      <el-breadcrumb separator="/" class="fl">
+        <el-breadcrumb-item :to="{ path: '/member' }">人员管理</el-breadcrumb-item>
+      </el-breadcrumb>
+      <el-button class="affirm medium fr add__button" @click="addNew">添加库
+        <div @click.stop="add__hint" class="first__enter" v-show="firstEnter">人员库添加点这里</div>
+      </el-button>
     </div>
-    <div v-if="libraryList.length" class="container__box">
-      <div class="search__list">
-        <div class="search__box">
-          <el-input prefix-icon="el-icon-search" size="small" clearable v-model="searchLibraryValue"
-                    placeholder="输入关键字"></el-input>
-        </div>
-        <div
-          v-for="item in searchLibraryList" :key="item.personLibraryId"
-          :class="['search__item', {'item__name--active': chooseLibraryId === item.personLibraryId}]">
-          <span class="text__overflow item__name">{{item.personLibraryName}}</span>
-          <span class="text__overflow item__type">{{item.personLibraryType | libraryType}}</span>
-        </div>
-      </div>
-      <div class="content__box">
-        <div class="content__title">
-          <div class="content__title--top">
-            <span>{{libraryInfo.personLibraryName}}</span>
-            <div class="title__button">
-              <span class="f-margin-right20 f-blue f-link">添加人员</span>
-              <span class="f-margin-right20 f-blue f-link">批量添加</span>
-              <i class="f-margin-right20 f-blue f-link iconfont icon-bianji" @click="handleLibraryUpdate"></i>
-              <i class="f-red f-link iconfont icon-shanchu" @click="handleLibraryDelete"></i>
-            </div>
-          </div>
-          <span class="text__overflow f-margin-right50">类型：{{libraryInfo.personLibraryType | libraryType}}</span>
-          <span v-text="`人数：${libraryInfo.personTotal}`" class="text__overflow f-margin-right50"></span>
-          <span v-text="`备注：${libraryInfo.remark}`" class="text__overflow"></span>
-        </div>
-        <div class="search__bar">
-          <el-input placeholder="请输入内容" v-model="searchConfig.person.value" class="input-with-select f-margin-right20" size="small">
-            <el-select v-model="searchConfig.person.select" slot="prepend" placeholder="请选择">
-              <el-option :label="item.label" :value="item.value" v-for="item in searchConfig.personInfoList" :key="item.value"></el-option>
-            </el-select>
-          </el-input>
-          <el-select v-model="searchConfig.personType" placeholder="请选择人员类型" size="small" class="f-margin-right20">
-            <el-option :label="item.typeValue" :value="item.id" v-for="item in searchConfig.personTypeList" :key="item.id"></el-option>
-          </el-select>
-          <el-select v-model="searchConfig.gender" placeholder="请选择性别" size="small" class="f-margin-right20">
-            <el-option :label="item.label" :value="item.value" v-for="item in searchConfig.genderList" :key="item.value"></el-option>
-          </el-select>
-          <el-button icon="el-icon-search" size="small"></el-button>
-        </div>
-        <div class="content__table">
-          <el-table :data="personList" style="width: 100%">
-            <el-table-column label="照片">
-              <template slot-scope="scope">
-                <img :src="item" alt="" v-for="(item, index) in scope.faceImgUrls" :key="index">
-              </template>
-            </el-table-column>
-            <el-table-column prop="personName" label="姓名"></el-table-column>
-            <el-table-column prop="phone" label="手机号"></el-table-column>
-            <el-table-column prop="personType" label="人员类型"></el-table-column>
-            <el-table-column prop="gender" label="性别">
-              <template slot-scope="scope">
-                <span v-text="scope.gender === 0 ? '女' : '男'"></span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="birthday" label="生日"></el-table-column>
-            <el-table-column label="操作">
-              <template slot-scope="scope">
-                <span @click="handlePersonUpdate(scope.row)" class="box__block f-blue f-link f-margin-right30">编辑</span>
-                <span @click="handlePersonDelete(scope.row)" class="box__block f-red f-link"></span>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <div class="content__pagination">
-          <el-pagination
-            :current-page.sync="searchConfig.pagination.index"
-            layout="prev, pager, next, jumper"
-            @current-change="getPersonList"
-            :total="searchConfig.pagination.total">
-          </el-pagination>
-        </div>
-      </div>
+    <div class="data-list-wrap">
+      <el-scrollbar v-scroll-top class="table">
+        <el-table
+          :empty-text="emptyText"
+          :data="tableData"
+          border
+          style="width: 100%">
+          <el-table-column label="库名" min-width="100" :show-overflow-tooltip="true">
+            <template slot-scope="scope">
+              <span class="libraryName">{{scope.row.name || '—'}}</span>
+              <el-popover
+                :hide="removeVerify(scope.$index)"
+                v-model="scope.row.showPopver"
+                placement="top"
+                width="210">
+
+                <el-form
+                  :key="scope.$index"
+                  @submit.native.prevent
+                  :ref="'tableForm' + scope.$index"
+                  :rules="rules"
+                  class="table-form"
+                  :model="changeName"
+                >
+                  <el-form-item :key="'form-item' + scope.$index" prop="name">
+                    <input type="text" maxlength="20" v-model.trim="changeName.name"
+                           class="changeText">
+                    <uu-icon type="success"
+                             @click.native="sureChange(scope.row,scope.$index)"></uu-icon>
+                    <uu-icon type="error" @click.native="closeChange"></uu-icon>
+                  </el-form-item>
+                </el-form>
+                <span class="el-icon-edit name__edit" slot="reference"
+                      @click="getName(scope.row.name)"></span>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <el-table-column
+            min-width="100"
+            prop="remark"
+            :show-overflow-tooltip="true"
+            label="备注">
+            <template slot-scope="scope">
+              <span class="libraryName">{{scope.row.remark || '—'}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="类型">
+            <template slot-scope="scope">
+              {{scope.row.type | libraryType}}
+            </template>
+          </el-table-column>
+          <el-table-column
+            width="90"
+            prop="memberCount"
+            label="人员数">
+          </el-table-column>
+          <el-table-column
+            min-width="100"
+            label="操作">
+            <template slot-scope="scope">
+              <router-link class="fl" :to="{name: 'Library', query: {guid: scope.row.guid}}">编辑
+              </router-link>
+              <div class="fl hand manage" @click="goDetails(scope.row.guid)">人员管理</div>
+              <div class="fl hand del" @click="del(scope.row.guid)">删除</div>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-pagination
+          v-if="pagination.total && pagination.total > pagination.length"
+          @current-change="getList"
+          :current-page="pagination.index"
+          :page-size="pagination.length"
+          layout="total, prev, pager, next, jumper"
+          :total="pagination.total">
+        </el-pagination>
+      </el-scrollbar>
     </div>
-    <div v-else class="empty__box">
-      <img src="../../assets/empty-info@2x.png" width="325" alt="" class="">
-    </div>
-    <!-- 弹框 -->
-    <!-- 库(新增、编辑)弹框 -->
-    <el-dialog
-      :title="libraryDialog.type === 1 ? '添加库' : '编辑库' "
-      :close-on-click-modal="false"
-      :visible.sync="libraryDialog.visible"
-      @close="handleLibraryDialogClose"
-      width="560px">
-      <div class="library-dialog__body">
-        <el-form label-position="left" label-width="80px" :model="libraryDialog.form" ref="libraryDialogRef" :rules="libraryDialog.rules">
-          <el-form-item label="名称" prop="personLibraryName">
-            <el-input v-model="libraryDialog.form.personLibraryName" placeholder="请输入名称"></el-input>
-          </el-form-item>
-          <el-form-item label="类型" prop="personLibraryType">
-            <el-select v-model="libraryDialog.form.personLibraryType" placeholder="请选择类型" class="f-margin-right20">
-              <el-option :label="item.label" :value="item.value" v-for="item in libraryDialog.libraryTypeList" :key="item.value"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="备注" prop="remark">
-            <el-input v-model="libraryDialog.form.remark" :rows="3" type="textarea" placeholder="请输入备注"></el-input>
-          </el-form-item>
-        </el-form>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="handleLibraryDialogClose">取 消</el-button>
-        <el-button type="primary" @click="handleLibraryDialogSubmit">确 定</el-button>
-      </span>
-    </el-dialog>
+    <!--设备绑定社群-->
+    <ob-dialog-form
+      filter
+      @remote-submit="bindCommunity"
+      :group="groupList"
+      title="关联社群"
+      type="group"
+      :visible.sync="dialogFormVisible"
+    >
+    </ob-dialog-form>
+
   </div>
 </template>
 
 <script>
 import { validateRule } from '@/utils/validate'
-import { IsManageGroup } from '../../api/common'
-import {
-  getPersonList,
-  getPersonLibraryById,
-  getPersonLibraryList,
-  judgeLibraryName,
-  getPersonTypeList,
-  createPersonLibrary,
-  deletePersonLibrary,
-  updatePersonLibrary
-} from '../../api/member'
+import { MemberNoFloor } from '../../api/community'
+import { IsManageGroup, FirstLogin } from '../../api/common'
+import { MemberLibraryUpdate, MemberLibraryDelete, MemberLibraryList, MemberLibraryNameExist } from '../../api/member'
 import { mapState } from 'vuex'
 
 export default {
   name: 'index',
   data () {
-    const libraryNameRule = (rule, value, callback) => {
+    const name = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请输入库名称'))
-      } else if (value.length > 32) {
-        callback(new Error('请输入1-32位字符'))
       } else if (!validateRule(value, 2)) {
         callback(new Error('仅限汉字/字母/数字/下划线/空格'))
-      } else if (this.libraryInfo.personLibraryName === value) {
+      } else if (this.checkName === value) {
         callback()
       } else {
         let data = {
           name: value
         }
-        judgeLibraryName(data).then(res => {
+        MemberLibraryNameExist(data).then(res => {
           if (!res.data) {
             callback(new Error('应用库名称重复'))
           } else {
@@ -159,9 +135,10 @@ export default {
     return {
       emptyText: '数据加载中...',
       rules: {
-        name: [{ required: true, validator: name, trigger: 'change' }]
+        name: [{required: true, validator: name, trigger: 'change'}]
       },
       // 列表内容
+      tableData: [],
       pagination: {
         length: 10
       },
@@ -170,106 +147,46 @@ export default {
         name: ''
       },
       showPopver: false,
+      firstEnter: false,
       dialogFormVisible: false,
       sendData: '',
       groupList: [],
-      checkName: '',
-      /* 1.3版本 */
-      libraryList: [],
-      canShowPage: false,
-      searchLibraryValue: '',
-      libraryInfo: {},
-      searchConfig: {
-        person: {
-          select: 'personName',
-          value: ''
-        },
-        personType: null,
-        gender: null,
-        genderList: [
-          { value: 0, label: '女' },
-          { value: 1, label: '男' }
-        ],
-        personTypeList: [],
-        personInfoList: [
-          { value: 'personName', label: '姓名' },
-          { value: 'phone', label: '手机号' }
-        ],
-        pagination: {
-          index: 1,
-          length: 10,
-          total: 1
-        }
-      },
-      personList: [],
-      libraryDialog: {
-        visible: false,
-        type: 1, // 1.新增，2.编辑
-        form: {
-          personLibraryName: '',
-          personLibraryType: '',
-          remark: ''
-        },
-        rules: {
-          personLibraryName: [{ required: true, validator: libraryNameRule, trigger: 'blur' }],
-          personLibraryType: [{ required: true, message: '请选择类型', trigger: 'change' }],
-          remark: [
-            { required: true, message: '请输入备注', trigger: 'blur' },
-            { min: 1, max: 255, message: '请输入1-255位字符', trigger: 'blur' }
-          ]
-        },
-        libraryTypeList: [
-          { value: 0, label: '员工' },
-          { value: 1, label: '会员' },
-          { value: 2, label: '黑名单' }
-        ]
-      }
+      checkName: ''
     }
   },
   created () {
-    this.getLibraryList()
-    console.log(this.currentManage)
+    this.getList()
+    FirstLogin({name: 'insight_member_list_first'}).then(res => {
+      if (res.data) {
+        this.firstEnter = true
+      }
+    })
   },
-  mounted () {},
+  mounted () {
+
+  },
   computed: {
-    ...mapState(['currentManage']),
-    searchLibraryList () {
-      return this.libraryList.filter((item) => {
-        return item.personLibraryName.includes(this.searchLibraryValue)
-      })
-    },
-    chooseLibraryId () {
-      return this.$route.query.libraryId || null
-    }
+    ...mapState(['currentManage'])
   },
   methods: {
-    // 表格内点击编辑
-    handlePersonUpdate (row) {},
-    // 表格内点击删除
-    handlePersonDelete (row) {},
     // 获取人员库列表
-    getLibraryList () {
+    getList (page) {
       if (!this.currentManage.id) return
       let data = {
+        index: page || this.pagination.index || 1,
+        length: this.pagination.length || 10,
         groupGuid: this.currentManage.id
       }
       this.emptyText = '数据加载中...'
-      getPersonLibraryList(data).then(res => {
-        this.canShowPage = true
-        this.libraryList = res.data
-        if (this.libraryList.length) {
-          this.$router.push({ path: '/member', query: { libraryId: this.$route.query.libraryId || this.libraryList[0].personLibraryId } })
+      MemberLibraryList(data).then(res => {
+        for (let i = 0; i < res.data.content.length; i++) {
+          res.data.content[i].showPopver = false
         }
-        this.getLibraryById()
-        this.getPersonList()
-        this.getPersonTypeList()
+        this.tableData = res.data.content
+        this.pagination = res.data.pagination
+        this.emptyText = '暂无数据'
       }).catch(() => {
         this.emptyText = '数据获取失败'
-      })
-    },
-    getPersonTypeList () {
-      getPersonTypeList({ memberLibraryGuid: this.libraryInfo.personLibraryId }).then(res => {
-        this.searchConfig.personTypeList = res.data
       })
     },
     // 添加库
@@ -282,96 +199,120 @@ export default {
             text: '需满足条件：<br/>该账号下有管理员社群/单店社群/成员社群（已加入管理员社群）'
           }, (action, instance, done) => {
             if (action === 'confirm') {
-              this.$router.push({ path: '/community/mine' })
+              this.$router.push({path: '/community/mine'})
               done()
             } else {
               done()
             }
           })
         } else {
-          this.$router.push({ path: '/member/library' })
+          this.$router.push({path: '/member/library'})
         }
       })
     },
-    // 单个人员库信息查询
-    getLibraryById () {
-      getPersonLibraryById({ personLibraryId: this.chooseLibraryId }).then(res => {
-        this.libraryInfo = res.data
-      })
-    },
-    // 获取人员库下的人员列表
-    getPersonList () {
-      let { gender, personType } = this.searchConfig
-      let params = {
-        personLibraryId: this.personLibraryId,
-        ...{ gender, personType },
-        index: this.searchConfig.pagination.index,
-        length: this.searchConfig.pagination.length,
-        [this.searchConfig.person.select]: this.searchConfig.person.value
+    // 删除库
+    del (e) {
+      let data = {
+        guid: e
       }
-      getPersonList(params).then(res => {
-        this.personList = res.data.content
-        let { index, length, total } = res.data.pagination
-        this.searchConfig.pagination = { index, length, total }
-      })
-    },
-    // 打开编辑人员库
-    handleLibraryUpdate () {
-      this.libraryDialog.type = 2
-      this.libraryDialog.visible = true
-      this.$nextTick(() => {
-        let { personLibraryId, personLibraryName, personLibraryType, remark } = this.libraryInfo
-        this.libraryDialog.form = { personLibraryId, personLibraryName, personLibraryType, remark }
-      })
-    },
-    // 打开添加人员库
-    handleLibraryCreate () {
-      this.libraryDialog.type = 1
-      this.libraryDialog.visible = true
-    },
-    // 人员库弹窗关闭
-    handleLibraryDialogClose () {
-      this.libraryDialog.visible = false
-      this.$refs.libraryDialogRef.resetFields()
-    },
-    // 人员库弹窗确定
-    handleLibraryDialogSubmit () {
-      this.$refs.libraryDialogRef.validate(valid => {
-        if (valid) {
-          let params
-          if (this.libraryDialog.type === 1) {
-            let { personLibraryName, personLibraryType, remark } = this.libraryDialog.form
-            params = { personLibraryName, personLibraryType, remark }
-            createPersonLibrary(params).then(() => {
-              this.getPersonList()
-              this.handleLibraryDialogClose()
-            })
-          } else {
-            params = this.libraryDialog.form
-            updatePersonLibrary(params).then(() => {
-              this.getPersonList()
-              this.handleLibraryDialogClose()
-            })
-          }
+      this.$affirm({
+        confirm: '确定',
+        cancel: '返回',
+        text: '确定删除该人员库信息？'
+      }, (action, instance, done) => {
+        if (action === 'confirm') {
+          MemberLibraryDelete(data).then(() => {
+            this.getList()
+            done()
+          })
+        } else {
+          done()
         }
       })
     },
-    // 删除人员库
-    handleLibraryDelete () {
-      this.$confirm('删除后，该人员库下所有人员都将被删除', '删除库', {
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-        confirmButtonClass: 'delete__confirm',
-        customClass: 'custom__message-box--delete'
-      }).then(() => {
-
-      }).catch(() => {})
+    // 人员管理
+    goDetails (e) {
+      this.$router.push({path: '/member/details', query: {guid: e}})
+    },
+    // 确定改变库名称
+    sureChange (e, index) {
+      let data = {
+        guid: e.guid,
+        name: this.changeName.name
+      }
+      this.$refs['tableForm' + index].validate((valid) => {
+        if (valid) {
+          MemberLibraryUpdate(data).then(() => {
+            this.getList()
+            this.removeState()
+          })
+        } else {
+          console.log('error submit')
+        }
+      })
+    },
+    // 关闭改变库名称
+    closeChange () {
+      this.changeName.name = ''
+      this.removeState()
+    },
+    // 恢复弹窗状态
+    removeState () {
+      for (let i = 0; i < this.tableData.length; i++) {
+        this.tableData[i].showPopver = false
+      }
+    },
+    // 获取库名称
+    getName (e) {
+      this.changeName.name = e
+      this.checkName = e
+    },
+    add__hint () {
+      // console.log(123)
+    },
+    // 获取自有社群列表，绑定社群时只能绑定自有社群
+    getGroupList (e) {
+      this.sendData = e
+      if (!this.currentManage.id) return
+      MemberNoFloor({groupId: this.currentManage.id}).then(res => {
+        if (res.data[0]) {
+          res.data[0].subGroupSon = res.data.slice(1)
+          this.groupList = [res.data[0]]
+        }
+        this.dialogFormVisible = true
+      })
+    },
+    // 确认关联
+    bindCommunity (data) {
+      if (!data.length) {
+        this.$tip('请选择要绑定的社群', 'error')
+        return false
+      }
+      let gid = data[0].guid
+      if (data[0].guid === this.groupList[0].guid) {
+        gid = this.currentManage.id
+      }
+      let send = {
+        guid: this.sendData.guid,
+        name: this.sendData.name,
+        groupGuid: gid
+      }
+      MemberLibraryUpdate(send).then(() => {
+        this.getList()
+        this.dialogFormVisible = false
+      })
+    },
+    // 清除表单校验
+    removeVerify (e) {
+      if (this.$refs['tableForm' + e]) {
+        this.$refs['tableForm' + e].clearValidate()
+      }
     }
   },
   watch: {
     currentManage: {
       handler () {
-        this.getLibraryList()
+        this.getList()
       },
       deep: true
     }
@@ -380,13 +321,13 @@ export default {
     libraryType (type) {
       let typeName = ''
       switch (type) {
-        case 0:
+        case 1:
           typeName = '会员'
           break
-        case 1:
+        case 2:
           typeName = '员工'
           break
-        case 2:
+        case 3:
           typeName = '黑名单'
           break
       }
@@ -397,162 +338,136 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .member {
-    /deep/ .el-scrollbar__wrap {
-      overflow-x: hidden;
-    }
-    /deep/ .el-input--small {
-      font-size: 14px;
-    }
-    /deep/ .el-dialog__footer{
-      text-align: center;
-    }
-    .member__title {
-      height: 72px;
-      line-height: 72px;
-      border-bottom: 1px solid #F0F0F0;
-      padding: 0 40px;
-      span {
-        display: inline-block;
-        font-size: 22px;
-        color: #252525;
-      }
-      .add__button {
-        margin-top: 20px;
-      }
-    }
-    .empty__box {
-      text-align: center;
-      height: calc(100vh - 142px);
-      position: relative;
-      img {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        -ms-transform: translate(-50%, -50%);
-        -moz-transform: translate(-50%, -50%);
-        -webkit-transform: translate(-50%, -50%);
-        -o-transform: translate(-50%, -50%);
-      }
-    }
-    .container__box {
-      font-size: 0;
-      .search__list {
-        box-sizing: border-box;
-        width: 240px;
-        display: inline-block;
-        font-size: 16px;
-        height: 12px;
-        padding: 30px 0;
-        vertical-align: top;
-        .search__box {
-          padding: 0 30px 16px;
-          width: auto;
-        }
-        .search__item {
-          height: 42px;
-          line-height: 42px;
-          color: #555555;
-          padding: 0 30px;
-          cursor: pointer;
-          .item__name {
-            display: inline-block;
-            width: 90px;
-          }
-          .item__type {
-            display: inline-block;
-            width: 70px;
-            margin-left: 20px;
-          }
-          &.item__name--active {
-            background: #F8F8F8;
-            color: #0B7EF9;
-          }
-        }
-      }
-      .content__box {
-        box-sizing: border-box;
-        min-height: calc(100vh - 142px);
-        width: calc(100% - 240px);
-        display: inline-block;
-        font-size: 14px;
-        border-left: 1px solid #E6EAEE;
-        .content__title {
-          height: 116px;
-          padding: 30px 40px 26px;
-          box-sizing: border-box;
-          font-size: 16px;
-          color: #555555;
-          line-height: 22px;
-          .content__title--top {
-            font-size: 20px;
-            color: #252525;
-            line-height: 28px;
-            margin-bottom: 10px;
-            & > span {
-              display: inline-block;
-              max-width: 150px;
-            }
-            .title__button {
-              display: inline-block;
-              float: right;
-              span, i {
-                display: inline-block;
-                font-size: 16px;
-              }
-            }
-          }
-        }
-        .search__bar {
-          padding: 20px 40px 14px;
-          box-sizing: border-box;
-          border-top: 1px solid #F0F0F0;
-          overflow: hidden;
-          height: 67px;
-          /deep/ .el-select{
-            width: 168px;
-          }
-          .input-with-select{
-            width: 267px;
-            /deep/ .el-select{
-              width: 100px;
-              /deep/ .el-input{
-                width: 100px;
-              }
-            }
-          }
-          /deep/ .el-button--small{
-            padding: 7px 15px;
-            font-size: 14px;
-          }
-        }
-        .content__table{
-          /deep/ th:first-child{
-            padding-left: 40px;
-          }
-          /deep/ .el-table__body-wrapper{
-            height: calc(100vh - 422px);
-            overflow-x: auto;
-          }
-        }
-        .content__pagination{
-          padding: 0 40px;
-          /deep/ .el-pagination{
-            padding: 12px 0;
-          }
-        }
-      }
-    }
-    .library-dialog__body{
-      width: 365px;
-      margin: auto;
-      /deep/ .el-input, /deep/ .el-textarea{
-        width: 280px;
-      }
-      /deep/ .el-textarea__inner{
-        resize: none;
-      }
-    }
+  .menber {
+  }
+
+  .member__title {
+    height: 36px;
+    border-bottom: 1px dashed rgba(151, 151, 151, 0.10);
+    padding: 26px 20px 0;
+  }
+
+  .hand {
+    cursor: pointer;
+  }
+
+  .edit {
+    color: #0F9EE9;
+  }
+
+  .manage {
+    margin-left: 40px;
+    color: #0F9EE9;
+  }
+
+  .del {
+    margin-left: 40px;
+    color: #FF6660;
+  }
+
+  .table {
+    /*height: calc(100% - 63px - 40px);*/
+    overflow: hidden;
+  }
+
+  .name__edit {
+    position: absolute;
+    right: 20px;
+    color: #0F9EE9;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .changeText {
+    width: 160px;
+    height: 16px;
+  }
+
+  .sure {
+    cursor: pointer;
+    color: #0F9EE9;
+    font-size: 20px;
+  }
+
+  .close {
+    cursor: pointer;
+    color: #EE6C4B;
+    font-size: 20px;
+  }
+
+  .add__button {
+    position: relative;
+  }
+
+  .first__enter {
+    z-index: 10;
+    font-size: 12px;
+    color: #191919;
+    letter-spacing: 0;
+    position: absolute;
+    right: 0;
+    top: 40px;
+    width: 150px;
+    height: 35px;
+    line-height: 35px;
+    background-color: #fff;
+    border-radius: 3px;
+  }
+
+  .first__enter::before {
+    box-sizing: content-box;
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    top: -10px;
+    right: 40px;
+    padding: 0;
+    border-bottom: 5px solid #FFFFFF;
+    border-top: 5px solid transparent;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    display: block;
+    content: '';
+    z-index: 12;
+  }
+
+  .libraryName {
+    float: left;
+    width: calc(100% - 50px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .grey {
+    color: rgba(255, 255, 255, 0.5);
+  }
+</style>
+
+<style>
+  .menber .el-scrollbar__wrap {
+    overflow-x: hidden;
+  }
+
+  .relevance {
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 12.5px;
+    width: 15px;
+    height: 15px;
+    background: url("../../assets/public/binding.png");
+    background-size: contain;
+  }
+
+  .noImage {
+    background: none;
+  }
+
+  .relevance__cont {
+    width: calc(100% - 21px - 30px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
   }
 </style>

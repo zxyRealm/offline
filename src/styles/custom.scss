@@ -1,6 +1,10 @@
 .f-blue {color: #0B7EF9;}
 .f-red {color: #FF6660;}
+.f-gray {color: #D2D2D2;}
+.f-deep-gray {color: #555555;}
+.f-center {text-align: center;}
 .f-margin-right10 {margin-right: 10px;}
+.f-margin-right15 {margin-right: 15px;}
 .f-margin-right20 {margin-right: 20px;}
 .f-margin-right30 {margin-right: 30px;}
 .f-margin-right50 {margin-right: 50px;}
@@ -24,7 +28,20 @@
   text-overflow: ellipsis; //溢出用省略号显示
   white-space: nowrap; //溢出不换行
 }
+.f-secondary-title{
+  padding: 38px 50px;
+  line-height: 30px;
+  font-size: 22px;
+  .icon-fanhui{
+    font-size: 30px;
+    vertical-align: middle;
+  }
+  span{
+    vertical-align: middle;
+  }
+}
 
+// 自定义删除
 .custom__message-box--delete{
   .el-message-box__message{
     padding: 20px 0;
@@ -41,5 +58,92 @@
   .delete__confirm:hover{
     background-color: #FF6660;
     border-color: #FF6660;
+  }
+}
+
+// 自定义可以增删改的筛选项
+.multi-function__option{
+  .el-select-dropdown__item{
+    border-bottom: 1px solid;
+    border-color: #F0F0F0;
+    padding: 0;
+    margin: 0 20px;
+    &.is-disabled {
+      color: #606266;
+      cursor: auto;
+    }
+    &:hover{
+      background: #fff;
+    }
+    &.option__edit{
+      border-color: #0B7EF9;
+    }
+    &.option__error{
+      border-color: #FF6660;
+    }
+  }
+  .option__icon--edit{
+    >i{
+      font-weight: 100;
+    }
+    >span{
+      font-weight: 100;
+      font-size: 12px;
+    }
+  }
+  .option__value{
+    display: inline-block;
+    width: 180px;
+    .el-input__inner{
+      background-color: transparent;
+      border: none;
+      padding: 0 20px 0 0;
+    }
+  }
+  .option-add__button{
+    position: absolute;
+    bottom: 0;
+    background-color: #fff;
+    width: 100%;
+    border-top: 1px solid #e1e7ec;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+    color: #0f9ee9;
+    height: 34px;
+    line-height: 34px;
+  }
+  .option-add__input{
+    position: absolute;
+    bottom: 34px;
+    background-color: #fff;
+    border-top: 1px solid #e1e7ec;
+    text-align: left;
+    cursor: pointer;
+    font-size: 12px;
+    border-bottom: 1px solid #0f9ee9;
+    margin: 0 20px 1px;
+    color: #0f9ee9;
+    height: 36px;
+    line-height: 36px;
+    box-sizing: border-box;
+    &.add__error{
+      border-bottom: 1px solid #FF6660;
+    }
+    .el-input{
+      width: 180px;
+      .el-input__inner{
+        border: none;
+        padding: 0 20px 0 0;
+      }
+    }
+  }
+  .el-select-dropdown__list{
+    padding: 6px 0 40px;
+  }
+  &.multi-function__option--add{
+    .el-select-dropdown__list {
+      padding: 6px 0 74px;
+    }
   }
 }

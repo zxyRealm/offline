@@ -145,7 +145,7 @@ export function MemberImgDetect (data) {
 // 创建人员库
 export function createPersonLibrary (data) {
   return request({
-    url: `${prefix[3]}/personLibrary/create`,
+    url: `${prefix[3]}/personLibrary/add`,
     method: 'POST',
     data
   })
@@ -161,7 +161,7 @@ export function deletePersonLibrary (data) {
 // 单个人员库信息查询
 export function getPersonLibraryById (data) {
   return request({
-    url: `${prefix[3]}/personLibrary/find`,
+    url: `${prefix[3]}/personLibrary/select`,
     method: 'POST',
     data
   })
@@ -169,7 +169,7 @@ export function getPersonLibraryById (data) {
 // 社群下所有人员库信息查询
 export function getPersonLibraryList (data) {
   return request({
-    url: `${prefix[3]}/personLibrary/findAll`,
+    url: `${prefix[3]}/personLibrary/selectAll`,
     method: 'POST',
     data
   })
@@ -185,7 +185,7 @@ export function updatePersonLibrary (data) {
 // 添加人员
 export function createPerson (data) {
   return request({
-    url: `${prefix[3]}/person/create`,
+    url: `${prefix[3]}/person/add`,
     method: 'POST',
     data
   })
@@ -201,7 +201,7 @@ export function deletePerson (data) {
 // 单个人员的信息查询
 export function getPersonById (data) {
   return request({
-    url: `${prefix[3]}/person/find`,
+    url: `${prefix[3]}/person/select`,
     method: 'GET',
     data
   })
@@ -209,7 +209,7 @@ export function getPersonById (data) {
 // 筛选人员信息
 export function getPersonList (data) {
   return request({
-    url: `${prefix[3]}/person/find/search`,
+    url: `${prefix[3]}/person/screening`,
     method: 'GET',
     data
   })
@@ -273,7 +273,17 @@ export function getPersonTypeList (data) {
 // 判断新增或编辑的人员库名称是否可用
 export function judgeLibraryName (data) {
   return request({
-    url: `${prefix[3]}/personLibrary/name/exist`,
+    tip: false,
+    url: `${prefix[3]}/personLibrary/personLibraryName/exist`,
+    method: 'GET',
+    data
+  })
+}
+// 校验手机号是否重复
+export function judgePhone (data) {
+  return request({
+    tip: false,
+    url: `${prefix[3]}/person/existPhone`,
     method: 'GET',
     data
   })
