@@ -27,10 +27,8 @@ const EquipmentPortal = () => import('@/views/equipment/portal.vue')
 const EquipmentCamera = () => import('@/views/equipment/camera.vue')
 
 // 人员管理
-const Member = () => import('@/views/member/index2.vue')
-const Library = () => import('@/views/member/library.vue')
-const Person = () => import('@/views/member/person2.vue')
-const Details = () => import('@/views/member/details.vue')
+const Member = () => import('@/views/member/index.vue')
+const Person = () => import('@/views/member/person.vue')
 
 // 行为分析
 const Behavior = () => import('@/views/behavior/index.vue')
@@ -229,22 +227,10 @@ export const constantRouterMap = [
         component: Member
       },
       {
-        path: 'library',
-        name: 'Library',
-        meta: {title: '人员管理-线下浏览器服务平台', auth: true},
-        component: Library
-      },
-      {
         path: 'person',
         name: 'Person',
         meta: {title: '人员管理-线下浏览器服务平台', auth: true},
         component: Person
-      },
-      {
-        path: 'details',
-        name: 'Details',
-        meta: {title: '人员管理-线下浏览器服务平台', auth: true},
-        component: Details
       }
     ]
   },

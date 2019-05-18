@@ -14,6 +14,7 @@ export default {
   data () {
     return {
       communityData: [
+        {title: '社群数据'},
         {title: '描述', info: '通过accessKey获取当前开发者下社群ID。'},
         {title: '备注：', info: 'token有效期为一天，过期后需再次获取；建议定时更新token，比如每10小时更新一次。'},
         {title: '调用URL：', info: 'http://insight.uni-ubi.com/api/manage/group/info/accessKey/{accessKey}', hrefSwitch: true},

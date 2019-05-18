@@ -1,64 +1,34 @@
 <template>
   <div class="notify-wrap">
-    <uu-sub-tab back :menu-array="[{title:notifyTitle}]"></uu-sub-tab>
+    <div class="f-secondary-title">
+      <i class="iconfont icon-fanhui f-margin-right10 f-link" @click="$router.back(-1)"></i>
+      <span class="title">{{isEdit ? '编辑消息通知' : '创建消息通知'}}</span>
+    </div>
     <el-form :model="callbackForm" :rules="rules" ref="callbackInfoForm" size="medium" label-width="84px" class="callback-info-form">
-      <el-form-item label="类型" prop="type">
-        <el-select v-model="callbackForm.type" placeholder="请选择类型">
+      <el-form-item label="类型" prop="dataNoticeType">
+        <el-select v-model="callbackForm.dataNoticeType" placeholder="请选择类型">
           <el-option label="到店通知" :value="1"></el-option>
           <el-option label="人脸通知" :value="2"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="回调地址" prop="tokenURL">
-        <el-input type="text" placeholder="请输入回调地址" v-model.trim="callbackForm.tokenURL"></el-input>
+      <el-form-item label="回调地址" prop="url">
+        <el-input type="text" placeholder="请输入回调地址" v-model.trim="callbackForm.url"></el-input>
       </el-form-item>
-      <el-form-item label="描述：" prop="intro">
-        <el-input type="textarea" v-model.trim="callbackForm.intro" placeholder="请输入描述"></el-input>
+      <el-form-item label="描述：" prop="description">
+        <el-input type="textarea" v-model.trim="callbackForm.description" placeholder="请输入描述"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button size="small">取消</el-button>
+        <el-button size="small" @click="$router.back(-1)">取消</el-button>
         <el-button size="small" type="primary" @click="handelCallbackInfo">创建</el-button>
       </el-form-item>
     </el-form>
-    <div class="notify-form-wrap vam">
-      <uu-form
-        ref="callbackInfoForm"
-        subText="保存"
-        form-class="callback-info-form"
-        :rules="rules"
-        width="306px"
-        label-width="84px"
-        @handle-submit="handelCallbackInfo"
-        v-model="callbackForm">
-        <el-form-item label="类型：" prop="type">
-          <el-select v-model="callbackForm.type" placeholder="请选择类型">
-            <el-option :value="1" label="到店通知">
-              到店通知
-            </el-option>
-            <el-option :value="2" label="人脸通知">
-              人脸通知
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="回调地址：" prop="tokenURL">
-          <el-input
-            type="text"
-            placeholder="请输入回调地址"
-            v-model.trim="callbackForm.tokenURL"></el-input>
-        </el-form-item>
-        <el-form-item label="描述：" prop="intro">
-          <el-input
-            type="textarea"
-            v-model.trim="callbackForm.intro"
-            placeholder="请输入描述"></el-input>
-        </el-form-item>
-      </uu-form>
-    </div>
   </div>
 </template>
 
 <script>
-import {validateURL} from '@/utils/validate'
-import {HandleNotice, GetNoticeInfo} from '../../../api/developer'
+import {mapState} from 'vuex'
+import { validateURL } from '@/utils/validate'
+import { createNotice, updateNotice, getNoticeInfoById, judgeUrl } from '../../../api/developer'
 
 export default {
   name: 'notify',
@@ -71,61 +41,82 @@ export default {
         if (value.length > 1024) {
           callback(new Error('请输入1-1024位字符'))
         } else if (validateURL(value)) {
-          callback()
+          judgeUrl({ url: value }).then(res => {
+            if (!res.data) {
+              callback(new Error('URL重复'))
+            } else {
+              callback()
+            }
+          }).catch(() => {
+            callback(new Error('校验失败,请重试'))
+          })
         } else {
           callback(new Error('非法回调地址'))
         }
       }
     }
     return {
-      menu: [
-        {title: '消息通知', index: '/developer/notify'},
-        {title: '开放API', index: '/developer/api'}
-      ],
       rules: {
-        type: [
-          {required: true, message: '请选择类型', trigger: 'blur'}
+        dataNoticeType: [
+          { required: true, message: '请选择类型', trigger: 'change' }
         ],
-        tokenURL: [
-          {required: true, validator: validateUrl, trigger: 'blur'}
+        url: [
+          { required: true, validator: validateUrl, trigger: 'blur' }
         ],
-        intro: [
-          {required: true, message: '请输入描述', trigger: 'blur'},
-          {max: 255, message: '请输入1-255位字符', trigger: 'blur'}
+        description: [
+          { max: 255, message: '请输入1-255位字符', trigger: 'blur' }
         ]
       },
       callbackForm: {
-        type: 1,
-        tokenURL: '',
-        intro: ''
+        dataNoticeType: null,
+        url: '',
+        description: ''
       }
     }
   },
   methods: {
     // 处理回调信息 根据路由名称确定当前是更新信息或创建信息
-    handelCallbackInfo (data) {
-      const type = this.$route.name === 'addNotifyCallback' ? 'create' : 'update'
-      HandleNotice(data, type).then(() => {
-        this.$tip('操作成功')
-        this.$router.push('/developer/notify')
+    handelCallbackInfo () {
+      this.$refs.callbackInfoForm.validate(valid => {
+        if (valid) {
+          let fun, msg, params
+          params = { ...this.callbackForm }
+          params.merchantGuid = this.userInfo.uuid
+          if (this.isEdit) {
+            fun = updateNotice
+            msg = '编辑成功'
+            params.dataNoticeGuid = this.isEdit
+          } else {
+            fun = createNotice
+            msg = '创建成功'
+          }
+          fun(params).then(() => {
+            this.$message.success(msg)
+            this.$router.push(`/developer/notify?page=${this.page}`)
+          })
+        }
       })
     },
     // 获取回调信息
     getCallbackInfo () {
-      GetNoticeInfo({noticeGuid: this.$route.params.id}).then(res => {
-        this.callbackForm = res.data
+      getNoticeInfoById({ dataNoticeGuid: this.$route.query.id }).then(res => {
+        let { dataNoticeType, description, url, dataNoticeGuid } = res.data
+        this.callbackForm = { dataNoticeType, description, url, dataNoticeGuid }
       })
     }
   },
   computed: {
-    // 根据路由显示页面标题
-    notifyTitle: function () {
-      return this.$route.name === 'addNotifyCallback' ? '创建消息通知' : '编辑消息通知'
+    ...mapState(['userInfo']),
+    isEdit () {
+      return this.$route.query.id || null
+    },
+    page () {
+      return this.$route.query.page || null
     }
   },
   mounted () {
     // 编辑信息路由下先获取信息
-    if (this.$route.name === 'editNotifyCallback') {
+    if (this.$route.query.id) {
       this.getCallbackInfo()
     }
   }
@@ -134,7 +125,7 @@ export default {
 
 <style lang="scss" scoped>
   .callback-info-form{
-    margin-top: 20px;
+    margin: 20px 40px;
     width: 364px;
     /deep/ .el-select{
       width: 100%;

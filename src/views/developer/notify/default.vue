@@ -5,22 +5,14 @@
       <p class="fs12">若您已拥有设备，并配置了回调信息，则在消费者到店时便可接收到相关数据信息。</p>
     </div>
     <div class="step-wrap vam">
-      <div class="step-items">
-        <img src="@/assets/public/developer/developer-notify-create.jpg" alt="">
-        <p class="des">创建</p>
-      </div>
-      <span class="separate"></span>
-      <div class="step-items">
-        <img src="@/assets/public/developer/developer-notify-write.jpg" alt="">
-        <p class="des">填写回调信息</p>
-      </div>
-      <span class="separate"></span>
-      <div class="step-items">
-        <img src="@/assets/public/developer/developer-notify-accept.jpg" alt="">
-        <p class="des">接收回调数据</p>
+      <div v-for="(item, index) in stepList" :key="index" class="vam">
+        <div class="step-items">
+          <img :src="item.img" alt="">
+          <p class="des">{{item.title}}</p>
+        </div>
+        <span class="separate" v-if="index < stepList.length-1"></span>
       </div>
     </div>
-    <!--<el-button class="affirm" @click.stop="createCallback">创建</el-button>-->
   </div>
 </template>
 
@@ -30,9 +22,10 @@ export default {
   name: 'notify',
   data () {
     return {
-      menu: [
-        {title: '消息通知', index: '/developer/notify'},
-        {title: '开放API', index: '/developer/api'}
+      stepList: [
+        { title: '创建', img: require('@/assets/public/developer/developer-notify-create.jpg') },
+        { title: '填写回调信息', img: require('@/assets/public/developer/developer-notify-write.jpg') },
+        { title: '接收回调数据', img: require('@/assets/public/developer/developer-notify-accept.jpg') }
       ]
     }
   },

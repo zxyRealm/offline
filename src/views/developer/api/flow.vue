@@ -14,6 +14,7 @@ export default {
   data () {
     return {
       flowData: [
+        {title: '客流数据'},
         {title: '描述', info: '根据社群ID获取当前社群的客流数据。'},
         {title: '调用URL：', info: 'http://insight.uni-ubi.com/api/visual/group/flow/{groupGuid}/{startTime}/{endTime}', hrefSwitch: true},
         {title: '请求方式：', info: 'GET'},

@@ -21,6 +21,7 @@
           <el-table
             :data="subItem.tableData"
             border
+            stripe
             class="api__table"
             style="width: 100%">
             <el-table-column
@@ -137,7 +138,7 @@ export default {
         .api-list-context{
           font-size: 12px;
           line-height: 22px;
-          color: rgba(255,255,255, 0.7);
+          margin: 10px 0 0 15px;
           > a {
             cursor: text;
           }
@@ -148,24 +149,34 @@ export default {
           > .title{
             position: relative;
             padding-left: 15px;
-            color: #fff;
+            margin-top: 10px;
             margin-bottom: 4px;
+            font-size: 14px;
+            color: #252525;
+            font-weight: bold;
             &:after{
               content: '';
               position: absolute;
               left: 0;
-              top: 6px;
-              width: 4px;
-              height: 4px;
-              border-radius: 4px;
-              background: #fff;
+              top: 5px;
+              width: 8px;
+              height: 8px;
+              border-radius: 8px;
+              background: #0B7EF9;
             }
           }
         }
         .api-list-item {
           margin-bottom: 28px;
+          &:first-child{
+            .api-list-title{
+              font-size: 16px;
+              color: #252525;
+              font-weight: 100;
+            }
+          }
           pre{
-            color: rgba(255, 255, 255, 0.7);
+            color: #252525;
             line-height: 2;
           }
           .des {
@@ -173,7 +184,10 @@ export default {
             font-size: 12px;
           }
           .api-list-title {
-            margin: 10px 0;
+            margin: 30px 0;
+            font-size: 14px;
+            color: #252525;
+            font-weight: bold;
           }
           .api-list-sub-title {
             line-height: 20px;

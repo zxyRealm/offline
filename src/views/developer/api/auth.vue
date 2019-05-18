@@ -14,6 +14,7 @@ export default {
   data () {
     return {
       authData: [
+        {title: '鉴权接口'},
         {title: '描述', info: '线下浏览器云端服务器需要鉴定用户是否有权调用业务接口，token为接口调用凭证，是线下浏览器接口请求的基本参数之一。'},
         {title: '备注：', info: 'token有效期为一天，过期后需再次获取；建议定时更新token，比如每10小时更新一次。'},
         {title: '调用URL：', info: 'http://insight.uni-ubi.com/obs/auth', hrefSwitch: true},
