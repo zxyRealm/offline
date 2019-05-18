@@ -8,6 +8,20 @@ function pluralize (time, label) {
   return time + label + 's'
 }
 
+// 出入口类型
+export function portalType (type) {
+  switch (type) {
+    case 1:
+      return '外部出入口'
+    case 2:
+      return '内部出入口'
+    case 3:
+      return '通道'
+    default:
+      return '未定义类型'
+  }
+}
+
 // 设备类型
 export function deviceType (type, use) {
   switch (type) {

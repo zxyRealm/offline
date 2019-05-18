@@ -3,6 +3,7 @@ import { restoreArray } from '@/utils'
 import { message } from './request'
 import { SignOut } from '../api/developer'
 import router from '../router'
+
 const ossPrefix = process.env.BASE_URL
 export default {
   install (Vue) {
@@ -19,7 +20,7 @@ export default {
     }
     // 退出登录
     Vue.prototype.$exit = function () {
-      this.$affirm({text: '确认退出吗？'}, (action, instance, done) => {
+      this.$affirm({ text: '确认退出吗？' }, (action, instance, done) => {
         if (action === 'confirm') {
           SignOut().then(res => {
             localStorage.clear()
@@ -49,24 +50,30 @@ export default {
       })
     }
     // 确认操作框
-    Vue.prototype.$affirm = function (text, callback, type, showCancel = true) {
-      let html = `${text.text}`
+    Vue.prototype.$affirm = function (options, callback) {
+      let {
+        text = '',
+        title,
+        type = '',
+        confirm = '确 定',
+        cancel = '取 消',
+        confirmType = 'default',
+        showCancelButton = true
+      } = options
       // if (type) {
       //   html = ` <img width="72px" src="${ossPrefix}static/img/${type}_tip_icon.png" alt="提示信息"><p>${text.text}</p>`
       // }
-      this.$msgbox({
-        title: text.title || '',
-        message: html,
-        // type: type || 'info',
-        // center: true,
-        confirmButtonClass: text.confirmType === 'danger' ? 'el-button--danger' : '',
+      return this.$alert(text, {
+        title: title,
+        type: type,
+        confirmButtonClass: confirmType === 'danger' ? 'el-button--danger' : '',
         dangerouslyUseHTMLString: true,
         customClass: 'uu-message-affirm',
-        showCancelButton: true,
-        confirmButtonText: text.confirm || '确 定',
-        cancelButtonText: text.cancel || '取 消',
-        beforeClose: (action, instance, done) => {
-          callback(action, instance, done)
+        showCancelButton: showCancelButton,
+        confirmButtonText: confirm || '确 定',
+        cancelButtonText: cancel || '取 消',
+        beforeClose: (...args) => {
+          callback(...args)
         }
       })
     }

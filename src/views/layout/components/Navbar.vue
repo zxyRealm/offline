@@ -206,7 +206,6 @@ import { parseTime, fileTypeAllow, IntToFloor } from '@/utils'
 import { exitLogin } from '@/api/account'
 import axios from 'axios'
 import { load } from '@/utils/request'
-import AreaSelect from '@/components/area-select/area-select'
 import FloorSelect from '@/components/FloorSelect'
 import ButtonSelect from '@/components/button-select'
 import ButtonSelectItem from '@/components/button-select/button-select-item'
@@ -214,7 +213,6 @@ import ButtonSelectItem from '@/components/button-select/button-select-item'
 const ossPrefix = process.env.BASE_URL
 export default {
   components: {
-    AreaSelect,
     FloorSelect,
     ButtonSelect,
     ButtonSelectItem
@@ -663,9 +661,6 @@ export default {
       console.info(error)
     })
     this.getManageList()
-    // FirstLogin({ name: 'insight_index_first' }).then(res => {
-    //   if (res.data) this.helpDialogVisible = true
-    // })
   },
   mounted () {
     this.clientHeight = window.document.documentElement.clientHeight

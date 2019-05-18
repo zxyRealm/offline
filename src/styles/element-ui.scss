@@ -35,10 +35,8 @@
 .el-pagination {
   margin-top: 15px;
   text-align: right;
-  color: #fff;
   .el-pagination__total, .el-pagination__sizes {
     float: left;
-    color: #fff;
   }
   .el-select {
     .el-input {
@@ -48,20 +46,12 @@
   }
   button {
     background: transparent !important;
-    color: #fff !important;
-    &:disabled {
-      color: #666 !important;
-    }
   }
   .el-pager li {
     background: transparent;
-    color: #fff;
     &.active {
       color: $blue;
     }
-  }
-  .el-pagination__jump, .btn-next {
-    color: #fff;
   }
 }
 
@@ -94,12 +84,23 @@
   color: #333;
 }
 
-.el-form-item__label {
-  position: relative;
-  font-weight: 500;
+
+// 定位显示表单必填项图标
+.icon-absolute{
+  .el-form-item__label {
+    position: relative;
+    font-weight: 500;
+    &:before{
+      position: absolute;
+      left: -8px;
+      top: 0;
+    }
+  }
 }
 
-//自定义element-ui加载层样式(全局)
+
+
+  //自定义element-ui加载层样式(全局)
 .el-loading-mask {
   .el-loading-spinner {
     margin-top: -58px !important;
@@ -168,7 +169,7 @@
     }
   }
 
-  //数据分析页table样式定制
+  // 数据分析页table样式定制
   &.flow-table {
     .has-gutter {
       th:nth-child(3) {
@@ -242,7 +243,6 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.3);
       padding-left: 35px;
       border-radius: 0;
-      color: #fff;
     }
   }
 
@@ -291,12 +291,6 @@
       line-height: 46px;
       padding: 0;
       background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
-      .el-dialog__title {
-        color: #fff;
-      }
-      .el-dialog__close {
-        color: #fff;
-      }
     }
     .el-dialog__body {
       padding: 0;
@@ -340,7 +334,6 @@
     .el-select-dropdown__item {
       height: 24px;
       line-height: 24px;
-      //background: #26232B !important;
       color: #fff;
       &:nth-last-child(2) {
         margin-bottom: 5px;
@@ -461,51 +454,6 @@
   }
 }
 
-//设备管理-自有设备 添加设备弹框
-.device__dialog--wrap {
-  .el-dialog {
-    top: 50%;
-    margin-top: -120px !important;
-  }
-  .el-dialog__header {
-    height: 46px;
-    line-height: 46px;
-    padding: 0;
-    text-align: center;
-    font-size: 16px;
-    background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
-    .el-dialog__headerbtn {
-      top: 15px;
-      .el-dialog__close {
-        color: #fff;
-      }
-    }
-    .el-dialog__title {
-      color: #fff;
-      font-size: 16px;
-    }
-  }
-  .el-dialog__body {
-    text-align: center;
-  }
-  .ad--item {
-    display: inline-block;
-    margin: 0 26px;
-    text-align: center;
-    box-sizing: border-box;
-    > img {
-      margin-bottom: 6px;
-    }
-    .handle {
-      margin-top: 10px;
-      font-size: 12px;
-      span {
-        margin: 0 12px;
-      }
-    }
-  }
-}
-
 //设备列表 ? 图标信息 样式
 .table__popper--help {
   font-size: 12px;
@@ -531,7 +479,7 @@
 
   > .is-active {
     > .el-submenu__title, &.el-menu-item {
-      color: #fff !important;
+      //color: #fff !important;
     }
   }
   .el-menu-item-group__title {
@@ -562,44 +510,20 @@
   }
 }
 
-//开发API模块table统一样式
-.api__table {
-  table {
-    th, td {
-      color: rgba(255, 255, 255, 0.7);
-    }
-  }
-}
 
-//黑色主题popper 统一样式
-.theme__popper--wrap {
-  background: #26232B;
-  border: none;
-  padding-bottom: 12px;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.50);
-  &.el-popper[x-placement^=bottom] {
-    margin-top: 0;
-  }
-  .popper__arrow {
-    display: none;
-  }
-}
 
 //行为轨迹 select下拉框定制样式
 .select__popper--wrap {
   .el-select-dropdown__list {
     padding: 6px 15px;
-    color: #fff;
+
     .el-select-dropdown__item {
       height: 24px;
       line-height: 24px;
       font-size: 12px;
       padding: 0 5px;
-      color: #fff;
-      background: transparent;
       &.selected, &:hover {
         color: #0F9EE9;
-        background: transparent;
       }
     }
     .el-input {
@@ -607,8 +531,6 @@
       height: 26px;
       margin-bottom: 14px;
       line-height: 26px;
-      background: rgba(0, 0, 0, 0.20);
-      border: 1px solid rgba(255, 255, 255, 0.10);
       border-radius: 13px;
       .el-input__inner {
         height: 26px;
@@ -628,9 +550,6 @@
       height: 100%;
       .el-select-dropdown__item {
         padding: 0;
-        &.selected {
-          color: #fff;
-        }
         &.active {
           color: #0F9EE9;
         }
@@ -660,100 +579,12 @@
 
 }
 
-// 日期选择器定制样式
-.date__popper--wrap {
-  &.el-picker-panel {
-    color: #fff;
-  }
-  .el-month-table,
-  .el-date-table,
-  .el-year-table {
-    font-size: 14px;
-    td {
-      &.end-date,
-      &.start-date {
-        span {
-          background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
-        }
-      }
-      > div {
-        height: 34px;
-      }
-      &.disabled {
-        cursor: default;
-        .cell {
-          background: none;
-          cursor: default;
-          color: rgba(255, 255, 255, 0.5);
-        }
-      }
-      .cell {
-        color: #fff;
-      }
-      &.disabled {
-        div {
-          background: none;
-          cursor: default;
-          color: rgba(255, 255, 255, 0.5);
-        }
-      }
-      &.in-range {
-        div {
-          background: rgba(255, 255, 255, 0.05);
-        }
-      }
-    }
-
-  }
-  .el-date-table {
-    font-size: 14px;
-    th {
-      border: none;
-    }
-    td {
-      &.disabled {
-        div {
-          background: none;
-          cursor: default;
-          color: rgba(255, 255, 255, 0.5);
-        }
-      }
-      span {
-        height: 28px;
-        width: 28px;
-        line-height: 28px;
-        border-radius: 14px;
-      }
-      &.next-month,
-      &.prev-month {
-        color: rgba(255, 255, 255, 0.5);
-      }
-      &.current:not(.disabled) span {
-        background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
-      }
-    }
-  }
-  .el-picker-panel__icon-btn {
-    color: #fff;
-  }
-  .el-date-picker__header-label {
-    color: #fff;
-  }
-}
-
 .date--picker {
   background: url(../assets/public/input_border_bg@2x.png) no-repeat center;
   background-size: 100% 100%;
   border: none;
-  .el-range-separator {
-    color: #fff;
-  }
   .el-range__icon {
     color: #0F9EE9;
-  }
-  .el-range-input {
-    color: #fff;
-    background: transparent;
   }
 }
 
@@ -899,5 +730,32 @@
       display: none;
     }
   }
+  &.portal__list--popover{
+    min-width: auto;
+    background: $background-color-gray;
+    color: $gray-title;
+    &[x-placement^=right]{
+      .popper__arrow {
+        border-right-color: $background-color-gray;
+        &:after{
+          border-right-color: $background-color-gray;
+        }
+      }
+    }
+  }
 }
 
+
+// dialog 中table样式重置
+
+.dialog-table{
+  &.el-table{
+    font-size: 14px;
+    td,
+    th{
+      padding: 0;
+      height: 40px;
+      line-height: 40px;
+    }
+  }
+}

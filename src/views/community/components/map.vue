@@ -3,55 +3,55 @@
 * @date    2019-04-26
 */
 <template>
-  <div class="map__form--wrap">
+  <div class="map__form--wrap" :class="{center: center}">
     <el-form
       ref="communityMapForm"
       label-position="left"
       label-width="68px"
+      class="icon-absolute"
       :model="communityMapForm"
       :rules="communityRules"
     >
-
       <el-scrollbar class="scroll-x">
         <el-form-item
-          label-width="20px"
-          :label="`${index + 1}`"
-          class="map-item--wrap"
           v-for="(map, index) in communityMapForm.map"
-          :key="map.key"
-        >
+          label-width="20px"
+          class="map-item--wrap"
+          :label="`${index + 1}`"
+          :key="map.key">
           <el-form-item
             label="楼层名称"
-            placeholder="请输入名称"
             :prop="'map.' + index + '.floorName'"
             :rules="{
               required: true, message: '请输入名称', trigger: 'blur'
             }"
           >
-            <el-input v-model="map.floorName"></el-input>
+            <el-input placeholder="请输入名称" v-model="map.floorName"></el-input>
           </el-form-item>
           <el-form-item
             label="楼层地图"
             :rules="validFile()"
             :prop="'map.' + index + '.mapUrl'">
             <label
-              :for="'map__input--file' + index"
+              class="label--item"
               :class="{empty: !map.mapUrl}"
-              class="label--item">
+              :for="'map__input--file' + index">
               <input
                 title=""
+                type="file"
+                class="input__file"
+                :id="'map__input--file' + index"
                 @click="checkFilesStatus"
-                type="file" class="input__file" @change="onChange($event, index)"
-                :id="'map__input--file' + index"/>
-              <el-input style="display: none" v-model="map.mapUrl"></el-input>
+                @change="onChange($event, index)"/>
+              <el-input v-show="false" v-model="map.mapUrl"></el-input>
               <span class="ellipsis">
                 {{map.mapUrl | fileName}}
               </span>
             </label>
           </el-form-item>
           <span
-            class="iconfont icon-guanbi"
             v-if="index && index === communityMapForm.map.length - 1"
+            class="iconfont icon-guanbi"
             @click.prevent="removeMap(map, index)"></span>
         </el-form-item>
       </el-scrollbar>
@@ -64,8 +64,8 @@
           <span>请按由底层向上的顺序添加楼层</span>
           <span class="iconfont icon-guanbi" @click.prevent="() => {showAlert = false}"></span>
         </div>
-        <div class="handle-item">
-          <el-button>跳过</el-button>
+        <div class="handle-item" :class="{'g-center': center}">
+          <el-button @click="handleCancel">{{cancelButtonText}}</el-button>
           <el-button type="primary" @click="submitMapForm">保存</el-button>
         </div>
       </el-form-item>
@@ -76,6 +76,7 @@
 <script>
 import { fileTypeAllow } from '../../../utils'
 import axios from 'axios'
+
 export default {
   name: 'CommunityMap',
   props: {
@@ -86,6 +87,18 @@ export default {
     type: {
       type: String,
       default: ''
+    },
+    center: {
+      type: Boolean,
+      default: false
+    },
+    cancelButtonText: {
+      type: String,
+      default: '取消'
+    },
+    visible: { // form 表单的可见状态
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -114,10 +127,18 @@ export default {
         }
       })
     },
+    // 处理取消按钮事件
+    handleCancel () {
+      this.$emit('handle-cancel', 'mapForm')
+    },
+    // 清除form表单校验，重置表单
+    resetFields () {
+      this.$refs.communityMapForm.resetFields()
+    },
     // 新增地图元素
     addMap () {
       this.communityMapForm.map.push({
-        name: '',
+        floorName: '',
         mapUrl: ''
       })
     },
@@ -221,7 +242,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import '@/styles/variables.scss';
+  .el-form.center {
+    margin: 0 auto;
+  }
 
   .form-title {
     height: 56px;
@@ -236,6 +259,9 @@ export default {
 
   .map__form--wrap {
     width: 500px;
+    &.center {
+      margin: auto;
+    }
     .icon-guanbi {
       cursor: pointer;
     }
@@ -273,7 +299,8 @@ export default {
       width: 130px;
       height: 36px;
       padding: 0 5px;
-      line-height: 36px;
+      line-height: 34px;
+      box-sizing: border-box;
       text-align: center;
       font-weight: normal;
       border: 1px solid #F0F0F0;
@@ -303,8 +330,11 @@ export default {
         display: inline-block;
         float: left;
         .el-form-item__content {
-          width: 128px;
-          margin-right: 33px;
+          width: 130px;
+          margin-right: 30px;
+        }
+        .el-form-item__label {
+          padding: 0;
         }
       }
     }

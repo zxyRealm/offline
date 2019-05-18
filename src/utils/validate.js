@@ -113,3 +113,18 @@ export function validPhoneEmail (rule, value, callback) {
     callback()
   }
 }
+
+export function validateContact (rule, value, callback) {
+  if (value) {
+    if (value.length > 32) {
+      callback(new Error('请输入1-32位字符'))
+    } else if (validateRule(value, 1)) {
+      callback()
+    } else {
+      callback(new Error('仅限汉字/字母/数字/下划线/空格'))
+    }
+  } else {
+    callback()
+  }
+}
+

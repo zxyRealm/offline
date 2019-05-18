@@ -2,6 +2,71 @@ import request from '@/utils/request'
 import prefix from './prefix'
 // 获取商场结构信息
 
+// 创建管理社群
+export function addManageCommunity (data) {
+  return request({
+    url: `${prefix[0]}/group`,
+    method: 'post',
+    data
+  })
+}
+
+// 更新管理社群信息
+export function updateManageCommunity (data) {
+  return request({
+    url: `${prefix[0]}/group`,
+    method: 'put',
+    data
+  })
+}
+
+
+// 管理社群名称是否存在
+export function getManageNameIsExist (data) {
+  return request({
+    url: `${prefix[0]}/group/read/name`,
+    tip: false,
+    method: 'get',
+    data
+  })
+}
+
+// 获取管理社群信息
+export function getManageInfo (data) {
+  return request({
+    url: `${prefix[0]}/group/read/info/${data.groupGuid}`,
+    method: 'get'
+  })
+}
+
+// 邀请码获取社群信息
+export function getManageInfoByCode (data) {
+  return request({
+    url: `${prefix[0]}/group/read/${data.invitationCode}`,
+    method: 'get',
+    data,
+    tip: false
+  })
+}
+
+// 删除管理员社群
+export function deleteManageCommunity (data) {
+  return request({
+    url: `${prefix[0]}/group/${data.groupGuid}`,
+    method: 'delete'
+  })
+}
+
+
+
+// 自定义业态查询
+export function getIndustryList (data) {
+  return request({
+    url: `${prefix[0]}/group/read/industry/${data.groupGuid}`,
+    method: 'get'
+  })
+}
+
 // 管理社群列表
 export function getManageList (data) {
   return request({
@@ -37,283 +102,191 @@ export function getSearchMember (data) {
   })
 }
 
-// 校验社群名称是否存在
-export function CheckGroupNameExist (data) {
+// 创建成员社群
+export function addMember (data) {
   return request({
-    tip: false,
-    url: `${prefix[0]}/group/common/read/name`,
+    url: `${prefix[0]}/group/unit`,
+    method: 'post',
     data
   })
 }
 
-// 校验成员社群名称是否存在
-export function CheckMemberNameExist (data) {
+// 获取成员社群信息
+export function getMemberInfo (data) {
   return request({
-    tip: false,
-    url: '/group/son/name/exist',
+    url: `${prefix[0]}/group/unit`,
+    method: 'get',
     data
   })
 }
 
-// 校验外来成员社群昵称是否存在
-export function CheckMemberNickNameExist (data) {
+// 修改成员社群信息
+export function updateMemberInfo (data) {
   return request({
-    tip: false,
-    url: '/group/son/nickName/exist',
+    url: `${prefix[0]}/group/unit/read/${data.guid}`,
+    method: 'get',
     data
   })
 }
 
-// 社群业态
-export function GetIndustry () {
+// 删除成员社群
+export function deleteMemberInfo (data) {
   return request({
-    url: '/dictionary/type',
-    data: {type: 'industry'}
-  })
-}
-
-// 创建商场连锁总店单个门店社群
-export function AddNewCommunity (url, data) {
-  return request({
-    url: url,
+    url: `${prefix[0]}/group/unit`,
+    method: 'delete',
     data
   })
 }
 
-// 获取商场社群列表
-export function GetMarketList (data, tip = true) {
+// 成员社群名称是否存在
+export function getMemberNameIsExist (data) {
   return request({
-    tip: tip,
-    url: `${prefix[0]}/market/read/structure/${data.groupGuid}`,
+    url: `${prefix[0]}/group/read/unit/name`,
+    method: 'get',
+    data
+  })
+}
+
+
+// 单店社群加入管理员（连锁、商场）社群
+export function joinManageCommunity (data) {
+  return request({
+    url: `${prefix[0]}/group/unit/join`,
+    method: 'post',
+    data
+  })
+}
+
+// 成员社群退出
+export function exitManageCommunity (data) {
+  return request({
+    url: `${prefix[0]}/group/unit/exit`,
+    method: 'delete',
+    data
+  })
+}
+
+
+// 添加楼层及地图
+export function addFloorMap (data) {
+  return request({
+    url: `${prefix[0]}/group/unit/floor`,
+    method: 'post',
+    data
+  })
+}
+
+// 更新楼层及地图
+export function updateFloorMap (data) {
+  return request({
+    url: `${prefix[0]}/group/unit/floor`,
+    method: 'put',
+    data
+  })
+}
+
+
+
+
+
+/******************  出入口管理  **********************/
+
+// 创建出入口 / 通道
+export function addPortal (data) {
+  return request({
+    url: `${prefix[0]}/portal`,
+    data,
+    method: 'post'
+  })
+}
+
+// 编辑出入口
+export function updatePortal (data) {
+  return request({
+    url: `${prefix[0]}/portal`,
+    data,
+    method: 'put'
+  })
+}
+
+// 删除出入口
+export function deletePortal (data) {
+  return request({
+    url: `${prefix[0]}/portal/${data.portalGuid}`,
+    data,
+    method: 'delete'
+  })
+}
+
+// 出入口、通道 绑定设备
+export function addDevcieInPortal (data) {
+  return request({
+    url: `${prefix[0]}/portal/device/add`,
+    data,
+    method: 'post'
+  })
+}
+
+// 出入口、通道 解绑设备
+export function deleteDevcieInPortal (data) {
+  return request({
+    url: `${prefix[0]}/portal/device/delete`,
+    data,
+    method: 'delete'
+  })
+}
+
+// 出入口名称校验
+export function getPortalNameIsExist (data) {
+  return request({
+    url: `${prefix[0]}/portal/read/name`,
+    data,
+    method: 'get',
+    tip: false
+  })
+}
+
+// 出入口信息
+export function getPortalInfo (data) {
+  return request({
+    url: `${prefix[0]}/portal/read/${data.portalGuid}}`,
     data,
     method: 'get'
   })
 }
 
-// 获取单个门店社群列表
-export function GetStoreList (data, tip = true) {
+// 社群下所有出入口列表
+export function getPortalList (data) {
   return request({
-    tip: tip,
-    url: '/group/son/store/list',
-    data
+    url: `${prefix[0]}/portal/read/group`,
+    data,
+    method: 'get'
   })
 }
 
-// 获取商场楼层数据
-export function GetMarketFloorList (data, tip = true) {
+// 社群下出入口分页列表
+export function getPortalPageList (data) {
   return request({
-    tip: tip,
-    url: '/group/floor',
-    data
+    url: `${prefix[0]}/portal/read/group`,
+    data,
+    method: 'get'
   })
 }
 
-// 删除社群
-export function DeleteCommunity (data) {
+// 出入口下的所有绑定设备
+export function getPortalDeviceList (data) {
   return request({
-    url: '/group/delete',
-    data
+    url: `${prefix[0]}/portal/read/group`,
+    data,
+    method: 'get'
   })
 }
 
-// 获取社群信息
-export function GetCommunityInfo (data) {
+// 出入口列表查询
+export function searchPortalList (data) {
   return request({
-    url: '/group/info',
-    data
-  })
-}
-
-// 更新外来成员社群昵称
-export function UpdateMemberNickName (data) {
-  return request({
-    url: '/group/son/nickName/update',
-    data
-  })
-}
-
-// 获取成员社群下信息（包含昵称信息）
-export function GetMemberDetail (data) {
-  return request({
-    url: '/group/son/detail',
-    data
-  })
-}
-
-// 获取成员社群下信息（不包含昵称信息）
-export function GetMemberInfo (data) {
-  return request({
-    url: '/group/son/info',
-    data
-  })
-}
-
-// 更新成员社群信息
-export function UpdateMemberInfo (data) {
-  return request({
-    url: '/group/son/update',
-    data
-  })
-}
-
-// 通过邀请码获取社群信息
-export function GetCommunityInfoByCode (data) {
-  return request({
-    tip: false,
-    url: '/group/code',
-    data
-  })
-}
-
-// 更新社群信息
-export function GetCommunityUpdate (data) {
-  return request({
-    url: '/group/update',
-    data
-  })
-}
-
-// 商场管理层社群下所有成员社群（不包含楼层社群）
-export function MemberNoFloor (data) {
-  return request({
-    url: '/group/son/except/floor',
-    data
-  })
-}
-
-// 添加成员
-export function AddMember (data) {
-  return request({
-    url: '/group/son/create',
-    data
-  })
-}
-// 删除成员
-export function DeleteMember (data) {
-  return request({
-    url: '/group/son/delete',
-    data
-  })
-}
-
-// 成员退出管理员社群
-export function ExitManage (data) {
-  return request({
-    url: '/group/son/exit',
-    data
-  })
-}
-
-// 加入其他管理社群
-export function JoinOtherManage (data) {
-  return request({
-    url: '/group/son/join',
-    data
-  })
-}
-
-// 成员社群信息搜索
-export function SonCommunitySearch (data) {
-  return request({
-    url: '/group/son/search',
-    data
-  })
-}
-
-// 创建出入口
-export function CreatePortal (data) {
-  return request({
-    url: '/group/portal/create',
-    data
-  })
-}
-
-// 编辑出入口
-export function EditPortal (data) {
-  return request({
-    url: '/group/portal/edit',
-    data
-  })
-}
-
-// 删除出入口
-export function DeletePortal (data) {
-  return request({
-    url: '/group/portal/delete',
-    data
-  })
-}
-
-// 获取出入口信息
-export function GetPortalInfo (data) {
-  return request({
-    url: '/group/portal/info',
-    data
-  })
-}
-
-// 出入口下设备列表
-export function GetPortalDeviceList (data) {
-  return request({
-    url: '/portal/device/list',
-    data
-  })
-}
-
-// 出入口绑定设备
-export function PortalBindDevice (data) {
-  return request({
-    url: '/portal/device/bind',
-    data
-  })
-}
-
-// 出入口批量绑定设备
-export function PortalBatchBindDevice (data) {
-  return request({
-    url: '/portal/device/bind/batch',
-    data
-  })
-}
-
-// 出入口解绑设备
-export function PortalUnbindDevice (data) {
-  return request({
-    url: '/portal/device/unbind',
-    data
-  })
-}
-
-// 出入口下设备名是否存在
-export function PortalDeviceNameExist (data) {
-  return request({
-    tip: false,
-    url: '/portal/deviceName/exist',
-    data
-  })
-}
-
-// 获取社群下出入口及设备数量
-export function GetGroupPortalCount (data) {
-  return request({
-    url: '/group/portal/count',
-    data
-  })
-}
-
-// 获取社群下出入口信息 =======
-export function GetGroupPortalInfo (data) {
-  return request({
-    url: '/group/portal/group/info',
-    data
-  })
-}
-
-// 社群出入口名称是否存在
-export function CheckPortalNameExist (data) {
-  return request({
-    tip: false,
-    url: '/group/portal/name/exist',
-    data
+    url: `${prefix[0]}/portal/read/search`,
+    data,
+    method: 'get'
   })
 }

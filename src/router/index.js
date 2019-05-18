@@ -15,16 +15,12 @@ const Login = () => import('@/views/account/login.vue')
 const Register = () => import('@/views/account/register.vue')
 
 // 社群管理
-const Community = () => import('@/views/community/mine.vue')
+const Community = () => import('@/views/community/index.vue')
 const CommunityGuide = () => import('@/views/community/guide.vue')
 const CommunityCreate = () => import('@/views/community/create.vue')
 
 // 设备管理
 const EquipmentList = () => import('@/views/equipment/index.vue')
-const EquipmentAio = () => import('@/views/equipment/aio.vue')
-const EquipmentServer = () => import('@/views/equipment/server.vue')
-const EquipmentPortal = () => import('@/views/equipment/portal.vue')
-const EquipmentCamera = () => import('@/views/equipment/camera.vue')
 
 // 人员管理
 const Member = () => import('@/views/member/index.vue')
@@ -124,13 +120,12 @@ export const constantRouterMap = [
   {
     path: '/community',
     component: Layout,
-    redirect: '/community/mine',
     meta: {
       title: '社群管理'
     },
     children: [
       {
-        path: 'mine',
+        path: '',
         name: 'community',
         meta: {
           title: '社群管理-线下浏览器服务平台', auth: true

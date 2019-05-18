@@ -4,14 +4,22 @@
       <h3 class="form-title">
         <span class="el-icon-arrow-left" @click="$backPrev"></span>{{moduleHeader.title}}
       </h3>
-      <base-form :type="moduleHeader.type" @handle-success="handleBaseForm"></base-form>
+      <base-form
+        :type="moduleHeader.type"
+        :confirm-button-text="confirmText"
+        @handle-cancel="handleFormCancel"
+        @handle-success="handleBaseForm"></base-form>
     </div>
     <!-- 添加地图form-->
     <div class="map-form" v-show="step === 2">
       <h3 class="form-title">
         <span class="el-icon-arrow-left" @click="step = 1"></span>{{moduleHeader.title}}地图
       </h3>
-      <map-form :type="moduleHeader.type" @handle-success="handleMapForm"></map-form>
+      <map-form
+        cancel-button-text="跳过"
+        :type="moduleHeader.type"
+        @handle-cancel="handleFormCancel"
+        @handle-success="handleMapForm"></map-form>
     </div>
   </div>
 </template>
@@ -19,6 +27,7 @@
 <script>
 import MapForm from './components/map'
 import BaseForm from './components/base'
+
 export default {
   name: 'CreateCommunity',
   components: {
@@ -69,6 +78,9 @@ export default {
           break
       }
       return head
+    },
+    confirmText () {
+      return this.moduleHeader.type === 'chain' ? '保存' : '下一步'
     }
   },
   methods: {
@@ -76,6 +88,17 @@ export default {
       if (type !== 'chain') this.step = 2
     },
     handleMapForm (type) {
+    },
+    // form cancel按钮事件处理
+    handleFormCancel (type) {
+      switch (type) {
+        case 'baseForm':
+          this.$backPrev()
+          break
+        default:
+          this.$router.push('/community')
+          break
+      }
     }
   },
   watch: {}
@@ -83,7 +106,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import '../../styles/variables';
 
   .community__create--wrap {
     padding: 0 30px;

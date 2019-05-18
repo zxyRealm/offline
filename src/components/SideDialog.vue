@@ -11,7 +11,7 @@
     <div class="side__dialog--content">
       <div class="side__dialog--header">
         <el-form
-          v-if="isEdit"
+          v-if="isEdit && showForm"
           inline
           :ref="editNameForm"
           class="oneline__form--wrap"
@@ -26,8 +26,8 @@
           </el-form-item>
         </el-form>
         <div v-else class="">
-          <span>{{data.name}}</span>
-          <i class="iconfont icon-bianji" @click="showEditForm"></i>
+          <span class="fs18">{{data[valueKey]}}</span>
+          <i v-if="showForm" class="iconfont icon-bianji" @click="showEditForm"></i>
         </div>
       </div>
       <i class="iconfont icon-guanbi" @click="close"></i>
@@ -51,9 +51,7 @@ export default {
   props: {
     data: {
       type: Object,
-      default: () => ({
-        name: '一体机'
-      })
+      default: () => ({})
     },
     visible: {
       type: Boolean,
@@ -62,6 +60,14 @@ export default {
     showFooter: {
       type: Boolean,
       default: false
+    },
+    showForm: {
+      type: Boolean,
+      default: false
+    },
+    valueKey: {
+      type: String,
+      default: 'name'
     }
   },
   data () {
@@ -115,7 +121,7 @@ export default {
     },
     showEditForm () {
       this.isEdit = true
-      this.editNameForm.deviceName = this.data.name
+      this.editNameForm.deviceName = this.data[this.valueKey]
     },
     submitEditNameForm (formName) {
       this.$refs[formName].validate((valid) => {

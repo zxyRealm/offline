@@ -6,10 +6,9 @@
         size="small"
         v-model.trim="searchText"
         :value-key="valueKey"
-        :fetch-suggestions="fetchSuggestions"
+        :fetch-suggestions="querySearchAsync"
         :placeholder="placeholder"
         @select="handleSelect"
-        @clear="clearSearch"
       >
         <i slot="prefix" class="iconfont icon-sousuo"></i>
       </el-autocomplete>
@@ -36,7 +35,7 @@
             :type="'role0' + currentManage.type"></uu-icon>
           <!------------- 非自有社群标识显示 -------------->
           <el-tooltip content="非自有社群" placement="right">
-            <uu-icon v-if="data.type === 'JOINED'"  class="role__icon--img" type="foreign"></uu-icon>
+            <uu-icon v-if="data.type === 'JOINED'" class="role__icon--img" type="foreign"></uu-icon>
           </el-tooltip>
         </span>
       </el-tree>
@@ -45,9 +44,10 @@
 </template>
 
 <script>
-import {mapState} from 'vuex'
+import { mapState } from 'vuex'
+import { getManageMemberTree, getSearchMember } from '@/api/community'
 export default {
-  name: 'tree',
+  name: 'GroupTree',
   props: {
     data: {
       type: Array,
@@ -67,7 +67,7 @@ export default {
     },
     nodeKey: {
       type: String,
-      default: 'groupGuid'
+      default: 'guid'
     },
     groupKey: { // 判别是否是社群的键值
       type: String,
@@ -80,7 +80,13 @@ export default {
         children: 'trieNodeList'
       })
     },
-    fetchSuggestions: Function,
+    formatList: {
+      type: Function,
+      default(list) {
+        return list
+      }
+    },
+    // fetchSuggestions: Function,
     valueKey: { // el-autocomplete 输入建议对象中用于显示的键名
       type: String,
       default: 'name'
@@ -91,18 +97,18 @@ export default {
       expandedKeys: [],
       searchText: '',
       currentKey: '',
-      searchEmpty: true
+      searchEmpty: true,
+      communityTreeList: []
     }
   },
   created () {
-  },
-  mounted () {
+    this.getMemberTree()
   },
   computed: {
     ...mapState(['currentManage']),
     treeList: {
       get () {
-        let list = JSON.parse(JSON.stringify(this.data))
+        let list = JSON.parse(JSON.stringify(this.communityTreeList))
         let resetArr = (arr) => {
           return arr.map(item => {
             // if (!item[this.groupKey]) {
@@ -148,7 +154,7 @@ export default {
     // 通过 key 设置某个节点的当前选中状态，使用此方法必须设置 node-key 属性
     // 注：此方法需要在node节点更新后调用，否则展开树形结构使用时会无效
     setCurrentKey (key) {
-      key = key || this.data[0][this.nodeKey]
+      key = key || (this.communityTreeList[0] ? this.communityTreeList[0][this.nodeKey]: '')
       this.expandedKeys.push(key)
       this.$nextTick(() => {
         this.currentKey = key
@@ -169,22 +175,34 @@ export default {
     treeSearch () {
       this.$emit('tree-search', this.searchText)
     },
-    // 清空搜索条件
-    clearSearch () {
-      this.searchEmpty = true
-      this.$refs.treeNode.setCheckedKeys([])
-      this.expandedKeys = []
-    },
+
     handleSelect (item) {
       this.$emit('handle-select', item)
+      this.setCurrentKey(item[this.nodeKey])
+    },
+    // 返回输入建议的方法
+    querySearchAsync (queryString, cb) {
+      return getSearchMember({ name: queryString }).then((res) => {
+        cb(res.data || [])
+      }).catch(() => {
+        cb([])
+      })
+    },
+    // 获取成员社群组织架构
+    getMemberTree () {
+      let groupGuid = this.currentManage.groupGuid
+      if (!groupGuid) return
+      getManageMemberTree({ groupGuid: groupGuid }).then((res) => {
+        if (res.data[0]) res.data[0].guid = res.data[0].groupGuid
+        this.communityTreeList = this.formatList(res.data)
+        this.setCurrentKey()
+      })
     }
   },
   watch: {
-    data: {
-      handler (val) {
-        this.$nextTick(() => {
-          this.setCurrentKey()
-        })
+    currentManage: {
+      handler () {
+        this.getMemberTree()
       },
       deep: true
     }
@@ -206,7 +224,7 @@ export default {
   }
 </style>
 <style lang="scss">
-  $backColor: #F8F8F8!important;
+  $backColor: #F8F8F8 !important;
   $color: #0f9ee9;
 
   .custom__tree--search {
@@ -232,6 +250,7 @@ export default {
         &[aria-disabled=true] {
           > .el-tree-node__content {
             color: $white-text-color;
+            background-color: #fff;
             cursor: default;
             > .el-tree-node__label[has-children]:after {
               content: '';
@@ -268,11 +287,11 @@ export default {
         height: 42px;
         line-height: 42px;
         z-index: inherit;
-        .el-tree-node__label{
+        .el-tree-node__label {
           width: calc(100% - 46px);
           font-size: 15px;
         }
-        .el-tree-node__expand-icon{
+        .el-tree-node__expand-icon {
           font-size: 20px;
         }
       }

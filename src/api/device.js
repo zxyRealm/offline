@@ -1,10 +1,12 @@
 import request from '@/utils/request'
 import prefix from './prefix'
-// 获取社群下设备列表
+
+// 获取管理社群下设备列表
 export function getGroupDeviceList (data) {
   return request({
-    url: `${prefix[0]}/device/read/list/${data.groupGuid}`,
-    method: 'get'
+    url: `${prefix[0]}/device/read/list`,
+    method: 'get',
+    data
   })
 }
 

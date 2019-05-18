@@ -9,58 +9,65 @@
       style="width: 380px"
       label-position="left"
       label-width="82px"
+      :class="{center: center}"
       :model="communityForm"
       :rules="communityRules"
     >
-      <el-form-item label="名称：" prop="name">
+      <el-form-item label="名称" prop="name">
         <el-input placeholder="请输入社群名称" v-model.trim="communityForm.name"></el-input>
       </el-form-item>
       <el-form-item
         v-if="type === 'market'"
         label="业态"
-        prop="industry"
+        prop="defaultIndustry"
         class="industry-form-item">
-        <el-radio-group v-model="communityForm.industry">
+        <el-radio-group v-model="communityForm.defaultIndustry">
           <el-radio :label="0">默认业态</el-radio>
           <el-radio :label="1">自定义业态</el-radio>
         </el-radio-group>
-        <div class="industry-label--wrap" v-show="communityForm.industry !== ''">
+        <div
+          class="industry-label--wrap"
+          v-show="communityForm.defaultIndustry === 0 || communityForm.defaultIndustry">
           {{typeText}}：
           <span v-for="(item, $index) in industryList" :key="$index">
-            {{$index ? '、' : ''}}{{item.label}}
+            {{$index ? '、' : ''}}{{item.industryName}}
           </span>
           <i
-            v-show="communityForm.industry === 1"
+            v-show="communityForm.defaultIndustry === 1"
             class="iconfont icon-bianji"
             @click="() => { customWrapVisible = true }">
           </i>
         </div>
         <!--自定义业态popper框-->
 
-        <div class="custom-industry--wrap" v-show="customWrapVisible">
+        <div
+          class="custom-industry--wrap"
+          v-show="customWrapVisible">
           <!--<el-alert-->
-            <!--v-if="customErrorText"-->
-            <!--type="error"-->
-            <!--:title="customErrorText"-->
-            <!--:closable="false"-->
+          <!--v-if="customErrorText"-->
+          <!--type="error"-->
+          <!--:title="customErrorText"-->
+          <!--:closable="false"-->
           <!--&gt;-->
           <!--</el-alert>-->
-          <el-form
-            ref="customIndustry"
-            :show-message="false"
-            :model="customIndustry"
-          >
-            <el-form-item
-              v-for="(item, index) in customIndustry.industry"
-              :key="index"
-              :prop="'industry.' + index + '.label'"
-              :rules="validCustomIndustry()"
+          <el-scrollbar :class="scrollClass">
+            <el-form
+              ref="customIndustry"
+              :show-message="false"
+              :model="customIndustry"
             >
-              <el-input v-model.trim="item.label">
-                <i slot="suffix" class="iconfont icon-guanbi" @click="removeCustomIndustry(index)"></i>
-              </el-input>
-            </el-form-item>
-          </el-form>
+              <el-form-item
+                v-for="(item, index) in customIndustry.industry"
+                :key="index"
+                :prop="'industry.' + index + '.industryName'"
+                :rules="validCustomIndustry()"
+              >
+                <el-input v-model.trim="item.industryName">
+                  <i slot="suffix" class="iconfont icon-guanbi" @click="removeCustomIndustry(index)"></i>
+                </el-input>
+              </el-form-item>
+            </el-form>
+          </el-scrollbar>
 
           <div class="add-btn">
             <i class="iconfont icon-xinzeng" @click="addCustomIndustry"></i>
@@ -73,7 +80,7 @@
 
       </el-form-item>
       <el-form-item
-        label="地区："
+        label="地区"
         prop="pca"
       >
         <area-select
@@ -89,65 +96,39 @@
           placeholder="请输入详细地址"
           v-model.trim="communityForm.address"></el-input>
       </el-form-item>
-      <el-form-item label="联系人：" prop="contacts">
+      <el-form-item label="联系人" prop="contacts">
         <el-input
           type="text" placeholder="请输入联系人"
           v-model.trim="communityForm.contacts"></el-input>
       </el-form-item>
-      <el-form-item label="联系电话：" prop="phone">
+      <el-form-item label="联系电话" prop="phone">
         <el-input
           type="text" placeholder="请输入联系电话"
           v-model.trim="communityForm.phone"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="$backPrev()">取消</el-button>
-        <el-button type="primary" @click="submitForm">{{type === 'chain' ? '保存' : '下一步'}}</el-button>
+        <el-button @click="handleCancel">取消</el-button>
+        <el-button type="primary" @click="submitForm">{{confirmButtonText}}</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-import AreaSelect from '@/components/area-select/area-select'
-import { validateRule, validPhone } from '@/utils/validate'
-import { CheckGroupNameExist } from '../../../api/community'
+import { validateRule, validPhone, validateContact } from '@/utils/validate'
+import { validateCommunityName } from '../utils'
+import {
+  getManageNameIsExist,
+  updateManageCommunity,
+  addManageCommunity,
+  getIndustryList,
+  getMemberInfo,
+  getManageInfo
+} from '@/api/community'
 
 export default {
   name: 'CommunityBase',
-  components: {
-    AreaSelect
-  },
   data () {
-    const validateName = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请输入社群名称'))
-      } else {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
-        } else if (validateRule(value, 2)) {
-          CheckGroupNameExist({ name: value }).then((res) => {
-            !res.data ? callback() : callback(new Error('社群名称已存在'))
-          }).catch((err) => {
-            callback(new Error(err.msg || '验证失败'))
-          })
-        } else {
-          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
-        }
-      }
-    }
-    const validateContact = (rule, value, callback) => {
-      if (value) {
-        if (value.length > 32) {
-          callback(new Error('请输入1-32位字符'))
-        } else if (validateRule(value, 1)) {
-          callback()
-        } else {
-          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
-        }
-      } else {
-        callback()
-      }
-    }
     const validIndustry = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请选择业态'))
@@ -159,38 +140,24 @@ export default {
     }
     return {
       customWrapVisible: false,
-      customIndustry: {
+      customIndustry: { // 动态表单绑定值业态列表
         industry: []
       },
       customErrorText: '', // 自定义业态form 错误提示信息
-      // industryList: [
-      //   { label: '百货', type: 1 },
-      //   { label: '餐饮', type: 2 },
-      //   { label: '娱乐', type: 3 },
-      //   { label: '零售', type: 4 },
-      //   { label: '儿童', type: 5 },
-      //   { label: '生活配套', type: 6 },
-      //   { label: '快时尚', type: 7 }
-      // ],
       industryList: [],
       communityForm: {
         name: '',
-        provinceId: '',
-        cityId: '',
-        areaId: '',
         pca: '',
         address: '',
         contacts: '',
         phone: '',
-        industry: ''
+        type: '',
+        defaultIndustry: ''
       },
       communityRules: {
         name: [
-          { required: true, validator: validateName, trigger: 'blur' }
+          { required: true, validator: validateCommunityName, trigger: 'blur', valueType: 'manage' }
         ],
-        provinceId: '',
-        cityId: '',
-        areaId: '',
         pca: [
           { required: true, message: '请选取地区', trigger: 'blur' }
         ],
@@ -204,45 +171,96 @@ export default {
         phone: [
           { validator: validPhone, trigger: 'blur' }
         ],
-        industry: [
-          { required: true, validator: validIndustry }
+        defaultIndustry: [
+          { required: true, validator: validIndustry, trigger: 'blur' }
         ]
       }
     }
   },
   props: {
-    type: {
+    data: {
+      type: Object,
+      default: () => ({})
+    },
+    type: { // 社群类型
       type: String,
       default: ''
+    },
+    actionType: { // 行为类型 add / edit
+      type: String,
+      default: 'add'
+    },
+    center: {
+      type: Boolean,
+      default: false
+    },
+    confirmButtonText: {
+      type: String,
+      default: '保存'
+    },
+    visible: { // form 表单的可见状态
+      type: Boolean,
+      default: false
     }
-  },
-  created () {
-  },
-  mounted () {
   },
   computed: {
     typeText () {
       switch (this.communityForm.industry) {
-        case 0:
-          return '默认'
         case 1:
           return '自定义'
+        default:
+          return '默认'
       }
+    },
+    scrollClass () {
+      return this.customIndustry.industry.length > 6 ? 'scroll-height': 'hidden'
+    }
+  },
+  mounted () {
+    if (this.actionType === 'edit') {
+      this.communityForm = JSON.parse(JSON.stringify(this.data))
     }
   },
   methods: {
+
+    // 提交表单
     submitForm () {
-      this.submitCustomForm()
+      this.submitCustomForm('customIndustry')
       this.$refs.communityForm.validate((valid) => {
         if (valid) {
-          this.$emit('handle-success', this.type)
+          let { name, pca, address, contacts, phone, type, defaultIndustry } = JSON.parse(JSON.stringify(this.communityForm))
+          let pcaList = pca.split(',')
+          let params = {
+            name,
+            type,
+            phone,
+            address,
+            contacts,
+            defaultIndustry,
+            provinceCode: pcaList[0],
+            cityCode: pcaList[1],
+            districtCode: pcaList[2]
+          }
+          if (defaultIndustry) params.industryInfo = this.industryList
+          console.log('submit data', params)
+          addManageCommunity(params).then((res) => {
+            this.$emit('handle-success', this.type)
+          })
         }
       })
+    },
+    // 处理取消按钮事件
+    handleCancel () {
+      this.$emit('handle-cancel', 'baseForm')
+    },
+    // 清除form表单校验，重置表单
+    resetFields () {
+      this.$refs.communityForm.resetFields()
     },
     // 添加自定义业态
     addCustomIndustry () {
       this.$refs.customIndustry.validate((valid) => {
-        if (valid) this.customIndustry.industry.push({ label: '' })
+        if (valid) this.customIndustry.industry.push({ industryName: '', industryId: null })
       })
     },
     // 移除自定义业态
@@ -276,51 +294,63 @@ export default {
     },
 
     // 保存自定义业态列表
-    submitCustomForm () {
+    submitCustomForm (formName) {
       let len = this.customIndustry.industry.length
       // if (!len) {
       //   this.customErrorText = '请添加自定义业态'
       //   return false
       // }
-      this.$refs.customIndustry.validate((valid) => {
+      this.$refs[formName].validate((valid) => {
         if (valid) {
           this.customWrapVisible = false
-          this.industryList = this.customIndustry.industry.filter(item => item.label)
+          this.industryList = this.customIndustry.industry.filter(item => item.industryName)
         }
       })
     }
   },
   watch: {
-    'communityForm.industry': {
+    'communityForm.defaultIndustry': {
       handler (val) {
         switch (val) {
           case 0:
             this.customWrapVisible = false
-            this.industryList = [
-              { label: '百货', type: 1 },
-              { label: '餐饮', type: 2 },
-              { label: '娱乐', type: 3 },
-              { label: '零售', type: 4 },
-              { label: '儿童', type: 5 },
-              { label: '生活配套', type: 6 },
-              { label: '快时尚', type: 7 }
-            ]
+            getIndustryList({ groupGuid: 'default' }).then((res) => {
+              this.industryList = res.data
+            })
             break
           case 1:
-            this.customWrapVisible = !this.customIndustry.industry.length
-            this.industryList = this.customIndustry.industry.filter(item => item.label)
+            if (this.actionType === 'edit') {
+              getIndustryList({ groupGuid: this.data.groupGuid }).then((res) => {
+                this.customIndustry.industry = res.data
+                this.customWrapVisible = !this.customIndustry.industry.length
+                this.industryList = this.customIndustry.industry.filter(item => item.industryName)
+              })
+            } else  {
+              this.customWrapVisible = !this.customIndustry.industry.length
+              this.industryList = this.customIndustry.industry.filter(item => item.industryName)
+            }
             break
         }
       },
       immediate: true
+    },
+    visible (val) {
+      if (val && this.actionType === 'edit') {
+        this.communityForm = JSON.parse(JSON.stringify(this.data))
+      }
+      if (!val) this.customWrapVisible = false
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-  @import '../../../styles/variables';
-
+  .el-form.center {
+    margin: auto;
+  }
+  .scroll-height{
+    height: 219px;
+  }
   .industry-label--wrap {
     padding: 8px 26px;
     line-height: 22px;
@@ -384,8 +414,6 @@ export default {
 </style>
 
 <style lang="scss">
-  @import '../../../styles/variables';
-
   .custom-industry--wrap {
     .el-alert__content {
       padding: 0;

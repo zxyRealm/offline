@@ -13,17 +13,15 @@
 
     <div class="content--wrap">
       <!--侧边栏-->
-      <div class="device--sidebar">
+      <div class="device--sidebar content--sidebar">
         <group-tree
           ref="groupTree"
-          :data="memberTreeList"
-          :fetch-suggestions="querySearchAsync"
-          @handle-select="handleSelect"
+          :format-list="formatTreeList"
           @current-change="currentNodeChange"
         ></group-tree>
       </div>
       <!--列表内容-->
-      <div class="device__list--wrap">
+      <div class="device__list--wrap content__list-wrap">
         <div class="device-sub-title">
           <h3 class="name normal g-inline">{{communityInfo.name}}</h3>
           <span class="">一体机（{{deviceInfo.aioDeviceNum}}）</span>
@@ -259,6 +257,7 @@
 
       <!-------------------------侧边弹出框------------------------->
       <side-dialog
+        show-form
         :visible.sync="visibleSideDialog"
         :data="currentDeviceInfo"
         :show-footer="currentDeviceInfo.type !== 3"
@@ -288,10 +287,10 @@
             <el-table
               :data="cameraListInfo.content"
             >
+              <el-table-column width="30"></el-table-column>
               <el-table-column
                 show-overflow-tooltip
                 width="160"
-                align="center"
                 prop="name"
                 label="名称">
               </el-table-column>
@@ -301,16 +300,17 @@
               </el-table-column>
               <el-table-column
                 show-overflow-tooltip
+                width="100"
                 prop="portalName"
                 label="出入口/通道">
               </el-table-column>
+              <el-table-column width="30"></el-table-column>
             </el-table>
             <custom-pagination
               :total="cameraListInfo.pagination.total"
             ></custom-pagination>
           </template>
         </div>
-
         <ul slot="footer" class="side-dialog-footer">
           <li
             v-for="btn in dialogHandleList"
@@ -333,7 +333,6 @@ import UploadProgress from '@/components/UploadProgressDialog'
 import SideDialog from '@/components/SideDialog'
 import { validateRule } from '@/utils/validate'
 import GroupTree from '@/components/group-nav/tree'
-import { getManageMemberTree, getSearchMember } from '@/api/community'
 
 export default {
   name: 'index',
@@ -450,7 +449,6 @@ export default {
     }
 
     return {
-      memberTreeList: [],
       communityInfo: {
         name: '城西银泰'
       },
@@ -600,7 +598,6 @@ export default {
     }
   },
   created () {
-    this.getMemberTree()
   },
   mounted () {
   },
@@ -664,23 +661,6 @@ export default {
     }
   },
   methods: {
-    // 获取成员社群组织架构
-    getMemberTree () {
-      let guid = this.currentManage.groupGuid
-      getManageMemberTree({groupGuid: guid}).then((res) => {
-        this.memberTreeList = this.formatTreeList(res.data)
-        console.log(this.memberTreeList)
-        this.$nextTick(() => {
-          // this.$refs.groupTree.setCurrentKey(this.memberTreeList[0].groupGuid)
-        })
-      })
-    },
-    // 返回输入建议的方法
-    querySearchAsync (queryString, cb) {
-      getSearchMember({name: queryString }).then((res) => {
-        cb(res.data || [])
-      })
-    },
     currentNodeChange (data) {
       console.log('current-change', data)
     },
@@ -699,14 +679,6 @@ export default {
         })
       }
       return list
-    },
-    // 点击选中建议项时触发事件处理
-    handleSelect (item) {
-      let guid = "02C81AD4EC3643C8A61BE424C73A0FC0"
-      console.log(item)
-      this.$nextTick(() => {
-        this.$refs.groupTree.setCurrentKey(item.guid)
-      })
     },
 
     // 刷新设备状态
@@ -880,37 +852,6 @@ export default {
 
 <style lang="scss" scoped>
 
-  .hideSidebar {
-    .device__list--wrap {
-      .list-item {
-        @media screen and (max-width: 1440px) {
-          + .list-item {
-            margin-left: calc((100% - 3 * 252px) / 2);
-          }
-          &:nth-child(3n + 1) {
-            margin-left: 0;
-          }
-        }
-        @media screen and (min-width: 1440px) {
-          + .list-item {
-            margin-left: calc((100% - 4 * 252px) / 3);
-          }
-          &:nth-child(4n + 1) {
-            margin-left: 0;
-          }
-        }
-        @media screen and (min-width: 1670px) {
-          + .list-item {
-            margin-left: calc((100% - 5 * 250px) / 4);
-          }
-          &:nth-child(5n + 1) {
-            margin-left: 0;
-          }
-        }
-      }
-    }
-  }
-
   .device__main--content {
     .content--wrap {
       height: calc(100% - #{$module-title-height});
@@ -1027,7 +968,6 @@ export default {
       height: 190px;
       padding: 10px 20px;
       box-sizing: border-box;
-      /*box-shadow: 0 0 6px 2px rgba(200, 205, 214, 0.30);*/
       background-repeat: no-repeat;
       background-position: center 42px;
       background-size: 96px;

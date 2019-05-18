@@ -20,6 +20,7 @@ import obDialogForm from '@/components/dialog-form'
 import obGroupNav from '@/components/group-nav/tree'
 import obListEmpty from '@/components/list-empty'
 import ImagePreview from '@/components/preview'
+import AreaSelect from '@/components/area-select/area-select'
 import * as filters from './filters'
 import directives from './directives/index'
 import echarts from 'echarts'
@@ -42,6 +43,7 @@ Vue.component(obDialogForm.name, obDialogForm)
 Vue.component(obListEmpty.name, obListEmpty)
 Vue.component(ImageBox.name, ImageBox)
 Vue.component(ImagePreview.name, ImagePreview)
+Vue.component(AreaSelect.name, AreaSelect)
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
