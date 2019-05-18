@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="./core/three.min.js"></script>
+  <script src="./core/Tween.js"></script>
+  <script src="./controls/OrbitControls.js"></script>
+  <script src="./controls/TrackballControls.js"></script>
+  <script src="./loaders/SVGLoader.js"></script>
+  <script src="./postprocessing/EffectComposer.js"></script>
+  <script src="./postprocessing/RenderPass.js"></script>
+  <script src="./postprocessing/ShaderPass.js"></script>
+  <script src="./shaders/CopyShader.js"></script>
+  <script src="./shaders/LuminosityHighPassShader.js"></script>
+  <script src="./postprocessing/UnrealBloomPass.js"></script>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: rgb(28, 29, 45)
+    }
+
+    #button-ul a {
+      display: inline-block;
+      width: 53px;
+      height: 53px;
+      line-height: 53px;
+      text-align: center;
+      background: #222336;
+      text-decoration: none;
+      color: #636E9C;
+    }
+
+    #button-ul {
+      width: 100%;
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    #floor a {
+      margin-right: 1px
+    }
+
+    #gate-group {
+      position: absolute;
+      right: 20px;
+      top: 100px;
+    }
+
+    .gate-item {
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .gate-item img {
+      width: 20px;
+    }
+
+    .gate-item span {
+      position: relative;
+      top: -2px;
+      font-size: 13px;
+      color: #ffffff
+    }
+
+
+    .levitaten .title {
+      padding: 3px 2px;
+      color: #ffffff;
+      overflow: hidden;
+      border-bottom: 1px dashed #979797;
+    }
+    .levitaten ul {
+      margin: 0;
+      padding: 4px 2px 0;
+      text-decoration: none;
+      color: #ffffff;
+    }
+    .levitaten .device-list-wrap{
+      height: 85px;
+      overflow: hidden;;
+    }
+    .levitaten .device-list {
+      height: 85px;
+      width: calc(100% + 15px);
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+    .levitaten .device-list .delete--icon{
+      width: 12px;
+      cursor: pointer;
+      float: right;
+      margin: 2px 0;
+    }
+    .levitaten li {
+      height: 20px;
+      line-height: 20px;
+      margin-bottom: 8px;
+      list-style: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .levitaten .text-center{
+      text-align: center;
+    }
+    .levitaten li span {
+      width: 70px;
+      top: -3px;
+      margin-left: 5px;
+      position: absolute;
+    }
+
+    .levitaten li i {
+      position: absolute;
+      cursor: pointer;
+      right: 0;
+      top: 7px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .levitaten {
+      width: 114px;
+      height: 146px;
+      background-color: #162D56;
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      padding: 5px;
+      font-size: 12px;
+      box-sizing: border-box;
+      display: none;
+    }
+    .add-button {
+      text-align: center;
+      line-height: 20px;
+    }
+    .add-button > a {
+      color: #0f9ee9;
+      text-decoration: none;
+    }
+    .add-button:before {
+      content: '';
+      position: absolute;
+      top: 140px;
+      left: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      width: 1px;
+      height: 30px;
+    }
+
+    .add-button:after {
+      content: '';
+      position: absolute;
+      top: 170px;
+      left: 50%;
+      background: #ffffff;
+      background: rgba(255, 255, 255, 0.5);
+      width: 30px;
+      height: 1px;
+    }
+    .add-button[data-visible=true]:after, .add-button[data-visible=true]:before{
+      display: none;
+    }
+    .pull-left {
+      margin-right: 34px;
+      overflow: hidden;
+    }
+
+    .pull-right {
+      width: 34px;
+      float: right;
+    }
+    .pull-right > img{
+      width: 12px;
+      cursor: pointer;
+    }
+    .pull-right > img:last-child{
+      margin-left: 4px;
+    }
+    .amount {
+      position: absolute;
+      top: 144px;
+      right: 50px;
+      user-select: none;
+    }
+    .gateway, .count {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 4px;
+    }
+
+    .count {
+      font-size: 24px;
+      color: #ffffff;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div id="button-ul" style="position: absolute">
+      <a m-show="mode" href="javascript:;" id="all">总</a>
+      <span id="floor">
+        <a href="javascript:;" m-repeat="item in floorList">
+          ${item.name}
+        </a>
+      </span>
+      <a m-show="mode" href="javascript:;" id="upfloor">上升</a>
+      <a m-show="mode" href="javascript:;" id="downfloor">下降</a>
+    </div>
+
+    <div id="gate-group" m-hide="mode">
+      <div class="gate-item gate-red">
+        <img src="./static/camera-inside.png" alt="">
+        <span>内部出入口</span>
+      </div>
+      <div class="gate-item gate-orange">
+        <img src="./static/camera-outside.png" alt="">
+        <span>内部出入口</span>
+      </div>
+      <div class="gate-item gate-green">
+        <img src="./static/camera-post.png" alt="">
+        <span>通道</span>
+      </div>
+    </div>
+
+    <!--出入口设备列表信息-->
+    <div class="levitaten" id="device__popper--wrap">
+      <div class="title">
+        <div class="pull-right">
+          <img src="./static/edit_icon2x.png" data-type="editPortal" alt="">
+          <img src="./static/delete_icon.png" data-type="deletePortal" alt="">
+        </div>
+        <div class="pull-left">
+          <p id="device--title" class="ellipsis"></p>
+        </div>
+      </div>
+      <div class="device-list-wrap">
+        <ul class="device-list" id="device--list">
+        </ul>
+      </div>
+      <div class="add-button">
+        <a href="javascript:void (0);" data-type="add">添加设备</a>
+      </div>
+      <div class="horizontal-line"></div>
+    </div>
+
+  </div>
+  <script src="bundle.js"></script>
+</body>
+
+</html>
