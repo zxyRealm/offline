@@ -1,4 +1,9 @@
 import request from '../utils/request'
+const headers = {
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  }
+}
 
 export function GetCode (data) {
   return request({
@@ -20,7 +25,8 @@ export function Login (data) {
   return request({
     url: '/account/login',
     method: 'post',
-    data
+    data,
+    ...headers
   })
 }
 
@@ -28,7 +34,8 @@ export function Register (data) {
   return request({
     url: '/account/register',
     method: 'post',
-    data
+    data,
+    ...headers
   })
 }
 

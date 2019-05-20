@@ -89,9 +89,6 @@ const service = axios.create({
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
-  },
-  transformRequest: function (data) {
-    return JSON.stringify(data)
   }
 })
 
@@ -104,6 +101,12 @@ service.interceptors.request.use(config => {
   let method = config.method.toUpperCase()
   if ( method === 'GET') {
     config.params = config.data
+  } else {
+    if (config.headers['Content-Type'] === 'application/json') {
+      config.data = JSON.stringify(config.data)
+    } else {
+      config.data = Qs.stringify(config.data)
+    }
   }
   return config
 }, error => {
