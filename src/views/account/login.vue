@@ -436,9 +436,12 @@ export default {
           .el-input {
             height: 50px;
             line-height: 50px;
-            background: none;
-            background-color: #e6efff;
+            background-color: #ffffff;
             font-size: 14px;
+            /deep/.el-input__inner {
+              background-color: #ffffff !important;
+              border: none;
+            }
           }
         }
         .submit-button {

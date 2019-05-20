@@ -1,9 +1,8 @@
 <template>
   <div class="behavior__content--wrap">
-    <uu-sub-tab
-      :back="$route.name === 'BehaviorTrail'"
-      :menu-array="[{title: $route.name === 'BehaviorTrail' ? '移动轨迹' : '行为分析'}]"
-    ></uu-sub-tab>
+    <div class="g-module-title">
+      <h1 class="normal title g-inline">行为轨迹</h1>
+    </div>
     <router-view></router-view>
   </div>
 </template>
@@ -18,7 +17,9 @@ export default {
       ]
     }
   },
-  created () {},
+  created () {
+    
+  },
   mounted () {},
   computed: {},
   methods: {
