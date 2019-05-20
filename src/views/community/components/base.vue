@@ -14,12 +14,24 @@
       :rules="communityRules"
     >
       <el-form-item label="名称" prop="name">
-        <el-input placeholder="请输入社群名称" v-model.trim="communityForm.name"></el-input>
+        <el-input
+          placeholder="请输入社群名称"
+          v-model.trim="communityForm.name"
+          :disabled="actionType === 'audit'"></el-input>
+      </el-form-item>
+
+      <el-form-item
+        v-if="actionType === 'audit'"
+        label="备注名"
+        prop="name">
+        <el-input
+          placeholder="请输入名称"
+          v-model.trim="communityForm.name"></el-input>
       </el-form-item>
 
       <!------------------------------ 仅商场包含自定义业态 ----------------------->
       <el-form-item
-        v-if="type === 'market'"
+        v-if="type === 'market' && actionType !== 'audit'"
         label="业态"
         prop="defaultIndustry"
         class="industry-form-item">
@@ -96,36 +108,52 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item
-        label="地区"
-        prop="pca"
-      >
-        <area-select
-          placeholder="请选择地区"
-          v-model="communityForm.pca"
+      <!-------------------  地区地址 仅管理社群包含此信息 ------------------------------->
+      <template v-if="hasAddress">
+        <el-form-item
+          label="地区"
+          prop="pca"
         >
-        </area-select>
-      </el-form-item>
-      <el-form-item
-        prop="address">
-        <el-input
-          type="text"
-          placeholder="请输入详细地址"
-          v-model.trim="communityForm.address"></el-input>
+          <area-select
+            placeholder="请选择地区"
+            v-model="communityForm.pca"
+          >
+          </area-select>
+        </el-form-item>
+        <el-form-item
+          prop="address">
+          <el-input
+            type="text"
+            placeholder="请输入详细地址"
+            v-model.trim="communityForm.address"></el-input>
+        </el-form-item>
+      </template>
+      <!------------------------  楼层及位置选取  ---------------------------->
+
+      <el-form-item label="楼层" porp="floor">
+        <el-select v-model="communityForm.floor">
+          <el-option
+            v-for="(f, index) in floorList"
+            :key="index"
+            :value="index"
+            :label="f.floorName"></el-option>
+        </el-select>
       </el-form-item>
 
       <!--编辑修改外来加入成员时无以下信息-->
+      <template v-if="type !== 'join' && actionType !== 'audit'">
+        <el-form-item label="联系人" prop="contacts">
+          <el-input
+            type="text" placeholder="请输入联系人"
+            v-model.trim="communityForm.contacts"></el-input>
+        </el-form-item>
+        <el-form-item label="联系电话" prop="phone">
+          <el-input
+            type="text" placeholder="请输入联系电话"
+            v-model.trim="communityForm.phone"></el-input>
+        </el-form-item>
+      </template>
 
-      <el-form-item v-if="type !== 'join'" label="联系人" prop="contacts">
-        <el-input
-          type="text" placeholder="请输入联系人"
-          v-model.trim="communityForm.contacts"></el-input>
-      </el-form-item>
-      <el-form-item v-if="type !== 'join'" label="联系电话" prop="phone">
-        <el-input
-          type="text" placeholder="请输入联系电话"
-          v-model.trim="communityForm.phone"></el-input>
-      </el-form-item>
       <el-form-item>
         <el-button @click="handleCancel">取消</el-button>
         <el-button type="primary" @click="submitForm">{{confirmButtonText}}</el-button>
@@ -194,7 +222,10 @@ export default {
         defaultIndustry: [
           { required: true, validator: validIndustry, trigger: 'blur' }
         ]
-      }
+      },
+      floorList: [ // 楼层列表
+        { floorName: '', floorId: '' }
+      ]
     }
   },
   props: {
@@ -206,7 +237,7 @@ export default {
       type: String,
       default: ''
     },
-    actionType: { // 行为类型 add / edit
+    actionType: { // 行为类型 add / edit / audit 添加/编辑/审核
       type: String,
       default: 'add'
     },
@@ -253,6 +284,10 @@ export default {
     },
     hasIndustry () {
       return this.currentManage.type === 2 && this.type !== 'market'
+    },
+    hasAddress () { // 是否显示地区信息
+      return (this.type === 'chain' && this.actionType === 'audit') ||
+        (new Set(['market', 'store']).has(this.type) && this.actionType !== 'audit')
     }
   },
   mounted () {

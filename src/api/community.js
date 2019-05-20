@@ -75,6 +75,16 @@ export function getManageList (data) {
   })
 }
 
+// 管理社群待审核列表
+export function getAduitList (data) {
+  return request({
+    url: `${prefix[0]}/group/read/list/audit`,
+    method: 'get',
+    data
+  })
+}
+
+
 // 获取管理社群下成员社群组织结构
 export function getManageMemberTree (data) {
   return request({

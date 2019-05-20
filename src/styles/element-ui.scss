@@ -84,6 +84,11 @@
   color: #333;
 }
 
+.el-form{
+  .el-select{
+    width: 100%;
+  }
+}
 
 // 定位显示表单必填项图标
 .icon-absolute{

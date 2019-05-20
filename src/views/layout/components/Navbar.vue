@@ -142,44 +142,6 @@
     </el-dialog>
 
 
-    <!--添加新社群-->
-    <ob-dialog-form
-      width="600px"
-      :show-close="showClose"
-      :close-on-click-modal="false"
-      custom-class="el-dialog--pd0"
-      :show-button="false"
-      title="请根据实际情况创建一个社群"
-      :visible.sync="addFormVisible"
-    >
-      <div class="create__community--content" slot="content">
-        <div class="cc__item">
-          <div class="icon--wrap" @click="showAddForm(1)">
-            <img src="@/assets/community/market_icon@2x.png" alt="">
-            <p>商场</p>
-          </div>
-          <p class="c-grey fs12">可包含单店，如：银泰商城</p>
-        </div>
-
-        <div class="cc__item disabled">
-          <div class="icon--wrap" @click="showAddForm(2)">
-            <img src="@/assets/community/chain_icon@2x.png" alt="">
-            <p>连锁总店</p>
-          </div>
-          <p class="c-grey fs12">可包含单店，如：屈臣氏总店</p>
-        </div>
-
-        <div class="cc__item">
-          <div class="icon--wrap" @click="showAddForm(3)">
-            <img src="@/assets/community/single_icon@2x.png" alt="">
-            <p>单个门店</p>
-          </div>
-          <p class="c-grey fs12">如：银泰商城下的屈臣氏</p>
-        </div>
-
-      </div>
-    </ob-dialog-form>
-
     <!--添加商场社群成功确认弹框-->
     <ob-dialog-form
       title="已添加成功，下方是自动生成的邀请码"
@@ -253,7 +215,6 @@ export default {
       addCommunitySuccess: false,
       communityCode: '',
       handleCommunityType: 1,
-      addCommunityVisible: false, // 添加社群表单弹框
       addFormVisible: false, // 添加弹框
       communityRules: {
         name: [
@@ -323,8 +284,7 @@ export default {
       'avatar'
     ]),
     ...mapState([
-      'userInfo',
-      'groupConsoleId'
+      'userInfo'
     ]),
     avatarUrl: {
       get () {
@@ -339,21 +299,6 @@ export default {
     },
     showBar () {
       return this.$route.name !== 'console-lwh'
-    },
-    communityDialogTitle () {
-      let title
-      switch (this.handleCommunityType) {
-        case 1:
-          title = '添加商场'
-          break
-        case 2:
-          title = '添加门店'
-          break
-        case 3:
-          title = '添加连锁总店'
-          break
-      }
-      return title
     },
     isFullScreen () { // 当前是否全屏状态 (17 为浏览器默认滚动条宽度)
       let status = Math.abs(window.screen.height - this.clientHeight) <= 23
@@ -393,26 +338,6 @@ export default {
         }, 500)
       }
     },
-    addCommunityVisible (val) {
-      if (!val) {
-        this.fileList = []
-        this.$refs.addCommunityForm.resetFields()
-      }
-    },
-    'communityForm.floorList': {
-      handler (val) {
-        this.labelList = val.map((item, index) => {
-          this.$nextTick(() => {
-            document.getElementById(`map__input--file${index}`).value = ''
-          })
-          return {
-            file: '',
-            floor: item
-          }
-        })
-      },
-      deep: true
-    },
     passwordFormVisible (val) {
       if (!val && this.$refs['passwordForm']) {
         this.$refs['passwordForm'].resetFields()
@@ -446,153 +371,23 @@ export default {
         if (this.manageList.length) {
           this.manageGroup = this.manageList[0]
         } else {
-          // this.addFormVisible = true
           this.showClose = false
         }
       })
     },
     addNewGroup () {
-      // this.addFormVisible = true
       this.$router.push('/community/create')
       this.$refs.buttonSelect.blur()
-    },
-    showAddForm (type) {
-      if (type === 2) {
-        this.$tip('此服务暂未开通', 'error')
-        return
-      }
-      this.handleCommunityType = type
-      this.addFormVisible = false
-      this.addCommunityVisible = true
     },
     // 只要点击了通知消息就为false
     notifyToggle () {
       this.notifState = false
     },
-    // 新建社群 （商场、连锁总店、单个门店）
-    addNewCommunity (formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          this.fileList = this.labelList.map(item => item.file)
-          let len = this.fileList.filter(item => item).length
-          if (!len) {
-            this.$tip('请上传地图文件', 'error')
-            return
-          }
-          if (this.communityForm.floorList.length !== len) {
-            this.$tip('文件和所选楼层数不符,请重新选择', 'error')
-            return
-          }
-          // 校验选取文件与所选楼层数据是否能够一一对应
-          for (let k = 0, len = this.fileList.length; k < len; k++) {
-            if (!this.fileList[k]) {
-              this.$tip(`缺少${IntToFloor(this.communityForm.floorList[k])}楼层地图`, 'error', 5000)
-              return
-            }
-          }
-          this.httpRequest()
-        }
-      })
-    },
-    byTypeAddCommunity (imgUrl) {
-      let subData = JSON.parse(JSON.stringify(this.communityForm))
-      let address = subData.pca.split(',').map(Number)
-      subData.provinceAreaId = address[0] || 0
-      subData.cityAreaId = address[1] || 0
-      subData.districtAreaId = address[2] || 0
-      subData.rule = subData.rule.toString()
-      subData.imgUrlList = []
-      for (let k = 0; k < this.fileList.length; k++) {
-        subData.imgUrlList.push(`${imgUrl}${IntToFloor(this.communityForm.floorList[k])}.svg`)
-      }
-      let url
-      switch (this.handleCommunityType) {
-        case 1:
-          url = '/group/market'
-          break
-        case 2:
-          url = '/group/chain'
-          break
-        case 3:
-          url = '/group/store'
-          break
-      }
-      AddNewCommunity(url, subData).then(res => {
-        this.$tip('添加成功')
-        this.addCommunityVisible = false
-        if (this.handleCommunityType !== 3) {
-          this.addCommunitySuccess = true
-          this.communityCode = res.data
-        }
-        this.getManageList()
-        this.fileList = []
-        document.getElementById('map__input--file').value = ''
-        this.$router.push('/community/mine')
-      }).catch(error => {
-        if (error.code) {
-          this.$tip(error.msg, 'error')
-        }
-      })
-    },
+
     toggleSideBar () {
       this.$store.dispatch('DISPATCH_SIDEBAR')
-      eventObject().$emit('resize-echarts-console', '') // 触发控制台图表重置
-      eventObject().$emit('resize-echarts-data', '') // 触发数据可视化图表重置
     },
-    // 自定义文件上传
-    httpRequest () {
-      OssSignature({ superKey: 'floor_map' }).then(res => {
-        if (res.data) {
-          let time = parseTime(new Date()).replace(/[ :-]/g, '')
-          this.loadModule = load('数据加载中...')
-          this.uploadOss(res.data, 0, time)
-        }
-      }).catch(() => {
-        this.$tip('服务器错误，请重新尝试')
-      })
-    },
-    // 图片上传阿里云
-    uploadOss (signature, index, time) {
-      let file = this.fileList[index]
-      if (!file) return
-      let formData = new FormData()
-      let fileName = `${IntToFloor(this.communityForm.floorList[index])}.svg`
-      let uid = this.userInfo.developerId
-      formData.append('key', `floor_map/${uid}/${time}/${fileName}`)
-      formData.append('policy', signature['policy'])
-      formData.append('OSSAccessKeyId', signature['accessid'])
-      formData.append('success_action_status', '200')
-      formData.append('signature', signature['signature'])
-      formData.append('file', file, fileName)
-      // 构建formData 对象，将图片上传至阿里云oss服务
-      axios.post(signature.host, formData).then(back => {
-        if (!back.data) {
-          if (index < this.fileList.length - 1) {
-            this.uploadOss(signature, index + 1, time)
-          }
-          // 所图片成功上完成后 进行表单提交
-          if (index === (this.fileList.length - 1)) {
-            this.loadModule.close()
-            this.byTypeAddCommunity(`${signature.host}/floor_map/${uid}/${time}/`)
-          }
-        } else {
-          this.loadModule.close()
-          this.$tip('上传失败，请稍后重试', 'error')
-        }
-      }).catch(() => {
-        this.loadModule.close()
-        this.$tip('网络异常，请稍后重新尝试', 'error')
-      })
-    },
-    // 文件改变事件监听
-    onChange (e, index) {
-      let files = (e || window.event).target.files
-      if (files[0] && !fileTypeAllow(files[0].name, 'svg')) {
-        this.$tip('文件格式只支持svg', 'error')
-        return
-      }
-      this.$set(this.labelList[index], 'file', files[0])
-    },
+
     // 切换全屏状态
     changeScreen () {
       if (!this.isFullScreen) {
@@ -619,7 +414,6 @@ export default {
     exitFullScreen () {
       let el = document
       let cfs = el.cancelFullScreen || el.mozCancelFullScreen || el.msExitFullscreen || el.webkitExitFullscreen || el.exitFullscreen
-      // console.log('exit full', cfs)
       if (cfs) { // typeof cfs != "undefined" && cfs
         cfs.call(el)
       } else if (typeof window.ActiveXObject !== 'undefined') {
@@ -638,12 +432,7 @@ export default {
       }
     },
     windowResize () {
-      // console.log('resize', window.screen.height, window.document.documentElement.clientHeight)
       this.clientHeight = window.document.documentElement.clientHeight
-    },
-    deleteLabel (index) {
-      this.$set(this.labelList[index], 'file', '')
-      document.getElementById(`map__input--file${index}`).value = ''
     },
     // 修改密码
     submitPasswordForm (formName) {
@@ -685,9 +474,7 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
-  @import "~@/styles/variables.scss";
-
+<style lang="scss" scoped>
   .common__nav--wrap {
     position: relative;
     .iconfont {
@@ -730,25 +517,6 @@ export default {
     text-align: center;
   }
 
-  /*选取地图文件框样式*/
-  .import__map--wrap {
-    > .el-scrollbar {
-      height: 72px;
-      margin-bottom: 5px !important;
-      .file__items {
-        float: left;
-        width: 33%;
-        line-height: 24px;
-        text-align: left;
-        text-transform: uppercase;
-      }
-    }
-    height: 130px;
-    padding: 10px;
-    box-sizing: border-box;
-    background: url(../../../assets/public/textarea_border_bg.png) no-repeat center;
-    background-size: 100% 101.7%;
-  }
 
   /*操作引导弹框 图标闪烁效果*/
   .flicker-animation {
@@ -981,88 +749,6 @@ export default {
     }
   }
 
-  .dialog__item--wrap {
-    display: inline-block;
-    float: left;
-    width: 500px;
-    height: 538px;
-    background: #fff;
-    border-radius: 5px;
-    .dialog__item--title {
-      position: relative;
-      overflow: hidden;
-      padding: 30px 0 12px;
-      text-align: center;
-      > h3 {
-        font-size: 16px;
-      }
-      .el-icon-close {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        font-size: 20px;
-        cursor: pointer;
-      }
-    }
-    .dialog__item--content {
-      width: 400px;
-      height: 404px;
-      padding: 15px 0;
-      margin: 0 auto;
-      background: #F8F8F8;
-      border-radius: 4px;
-      overflow: hidden;
-      box-sizing: border-box;
-      .ob-group-nav {
-        padding: 0;
-        padding-left: 20px;
-      }
-      > div {
-        width: 50%;
-        height: 100%;
-        box-sizing: border-box;
-        &:first-child {
-          border-right: 1px dashed #ddd;
-        }
-        &:last-child {
-          text-align: center;
-        }
-      }
-      .el-scrollbar {
-        height: 100%;
-      }
-      .el-radio {
-        display: block;
-        overflow: hidden;
-        height: 16px;
-        margin-bottom: 20px;
-        &:last-child {
-          margin-bottom: 0;
-        }
-        + .el-radio {
-          margin-left: 0;
-        }
-      }
-    }
-    .dialog__item--footer {
-      margin-top: 15px;
-      text-align: center;
-    }
-    &:nth-child(2) {
-      margin-left: 20px
-    }
-  }
-
-  .dialog__item--footer {
-    .is-disabled {
-      background: #CBCBCB;
-      box-shadow: none;
-      &:hover {
-        background: #CBCBCB;
-      }
-    }
-  }
-
   /*操作提示框消失动画*/
   .slide-fade-enter-active {
     transition: all 1s ease;
@@ -1072,141 +758,11 @@ export default {
     transition: all 5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
   }
 
-  .slide-fade-enter, .slide-fade-leave-to
-    /* .slide-fade-leave-active for below version 2.1.8 */
-  {
+  .slide-fade-enter, .slide-fade-leave-to {
     transform: translateX(100px);
     opacity: 0;
   }
 
-  /*创建社群弹框样式*/
-  .create__community--content {
-    overflow: hidden;
-    margin-top: 42px;
-    margin-bottom: 50px;
-    text-align: center;
-    .cc__item {
-      display: inline-block;
-      width: 32%;
-      .icon--wrap {
-        cursor: pointer;
-        img {
-          width: 86px;
-          height: 86px;
-        }
-        color: #0F9EE9;
-      }
-      &.disabled {
-        .icon--wrap {
-          cursor: default;
-        }
-
-      }
-    }
-    .cc-sub-title {
-      height: 30px;
-      line-height: 30px;
-      text-align: center;
-      color: #fff;
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
-      background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
-    }
-    .cc__content {
-      width: 220px;
-      height: 184px;
-      padding: 2px;
-      padding-top: 0;
-      overflow: hidden;
-      text-align: center;
-      border-radius: 2px;
-      background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
-      box-sizing: border-box;
-      &.fl {
-        width: 390px;
-        margin-right: 10px;
-      }
-      .content__text--wrap {
-        position: relative;
-        height: calc(100% - 30px);
-        background: #fff;
-        z-index: 9;
-      }
-      .g-custom__button {
-        width: 160px;
-        height: 24px;
-        line-height: 24px;
-        margin-bottom: 8px;
-        text-align: center;
-        color: #0F9EE9;
-        cursor: pointer;
-      }
-      .content--text {
-        display: inline-block;
-        width: 160px;
-        margin: 20px 10px 0;
-        text-align: left;
-        font-size: 12px;
-        vertical-align: top;
-        color: rgba(0, 0, 0, 0.30);
-      }
-    }
-  }
-
-  /*地图上传*/
-  .label__list--wrap {
-    position: relative;
-    height: 142px;
-    padding: 10px;
-    box-sizing: border-box;
-    background: url(../../../assets/public/textarea_border_bg.png) no-repeat center;
-    background-size: 100% 101.7%;
-    > .el-scrollbar {
-      height: 126px;
-    }
-    .input__file {
-      position: absolute;
-      z-index: -1;
-    }
-    .label__item-wrap {
-      position: relative;
-      float: left;
-      width: 40px;
-      margin: 0 8px;
-      text-align: center;
-      > p {
-        line-height: 1.5;
-        margin-bottom: 5px;
-      }
-      .el-icon-close {
-        position: absolute;
-        top: 0;
-        right: 0;
-        background: #f85650;
-        color: #fff;
-        z-index: 9;
-        cursor: pointer;
-      }
-    }
-    .label--item {
-      position: relative;
-      display: block;
-      height: 40px;
-      line-height: 40px;
-      background: rgba(216, 216, 216, 0.5);
-      cursor: pointer;
-      font-weight: normal;
-      overflow: hidden;
-      input[type=file] {
-        opacity: 0;
-        margin-left: -999999px;
-      }
-      .el-icon-plus {
-        font-size: 18px;
-        color: #CBCBCB;
-      }
-    }
-  }
 
   /***************
 
@@ -1217,11 +773,10 @@ export default {
   .theme-white {
     .navbar {
       box-shadow: none;
-      /*border-bottom:1px solid #E6EAEE;*/
       .right-menu {
         background: $theme-white;
         color: #333;
-        border-bottom: 1px solid #E6EAEE;
+        border-bottom: 1px solid $gray-border-color;
         .right-menu-item {
           a {
             color: $theme-white-color;
@@ -1230,60 +785,26 @@ export default {
       }
     }
   }
-</style>
-<style lang="scss">
-  .dialog__item--content {
-    .el-scrollbar__wrap {
-      overflow-x: hidden;
-    }
-    .ob-group-nav[type=custom] {
-      .el-tree {
-        padding-right: 0;
-      }
-    }
-    > div {
-      &:last-child {
-        .el-scrollbar__view {
-          min-height: 100%;
-          &:after {
-            display: inline-block;
-            content: '';
-            min-height: 374px;
-            width: 0;
-            vertical-align: middle;
-          }
-          .el-radio-group {
-            max-width: 80%;
-            text-align: left;
-          }
-        }
-      }
-    }
-  }
 
-  .help__dialog--wrap {
+  /deep/.help__dialog--wrap {
     border-radius: 2px;
     overflow: hidden;
-
     .el-dialog__header {
       padding: 12px;
       text-align: center;
       font-size: 16px;
       background-image: linear-gradient(-90deg, #8041C6 0%, #2090E4 100%);
       border-radius: 2px;
-
       .el-dialog__title {
         color: #fff;
       }
-
     }
-    .el-dialog__body {
+    /deep/.el-dialog__body {
       padding-top: 14px;
     }
 
-    .dialog__content {
+    /deep/.dialog__content {
       color: #191919;
-
       > p {
         font-size: 14px;
         text-align: center;
@@ -1297,11 +818,9 @@ export default {
       .step__item {
         margin: 18px 0;
         padding-left: 156px;
-
         h3 {
           font-size: 16px;
         }
-
         .item--supply {
           padding-left: 50px;
         }
@@ -1309,3 +828,5 @@ export default {
     }
   }
 </style>
+
+

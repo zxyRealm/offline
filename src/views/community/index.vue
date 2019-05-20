@@ -30,7 +30,7 @@
               class="items"
               :key="$index">
               <span class="ellipsis">{{aud.name}}</span>
-              <i class="g-success" @click="showDialogForm('edit')">通过</i>
+              <i class="g-success" @click="showDialogForm('audit')">通过</i>
               <i class="g-danger">拒绝</i>
             </li>
           </ul>
@@ -188,10 +188,10 @@
 
       <!---------------- 编辑社群 -------------->
       <base-form
-        v-if="dialogFormType === 'edit'"
-        ref="editForm"
+        v-if="dialogFormType !== 'map'"
+        ref="baseForm"
         center
-        action-type="edit"
+        :action-type="dialogFormType"
         :visible="dialogFormVisible"
         :data="communityInfo"
         :type="currentCommunityType"
@@ -268,7 +268,8 @@ import {
   getManageInfo,
   getIndustryList,
   deleteManageCommunity,
-  deleteMemberInfo
+  deleteMemberInfo,
+  getAduitList
 } from '@/api/community'
 
 export default {
@@ -357,7 +358,8 @@ export default {
         { type: 2, icon: 'inner', name: '内部出入口' },
         { type: 3, icon: 'pass', name: '通道' }
       ],
-      defaultPortalType: null
+      defaultPortalType: null,
+      actionType: '' // form 表单行为类型
     }
   },
   created () {
@@ -369,6 +371,9 @@ export default {
     dialogFormTitle () {
       let title = ''
       switch (this.dialogFormType) {
+        case 'audit':
+          title = '通过审核'
+          break
         case 'add':
           title = '添加成员'
           break
@@ -547,6 +552,15 @@ export default {
         })
       }
     },
+
+    // 获取社群待审核列表
+    getAuditList () {
+      getAduitList({ groupGuid: this.currentManage.groupGuid }).then((res) => {
+        this.auditList = res.data
+      })
+    },
+// /group/read/list/audit
+
     // 显示单表单元素form
     showOneInputForm (type) {
       let _this = this
@@ -581,13 +595,20 @@ export default {
     },
     // 表单弹框消失时重置整个表单
     dialogFormVisible (val) {
-      let refsForm = this.$refs[this.dialogFormType + 'Form']
-      if (!val && refsForm) {
+      let refsForm = this.$refs.baseForm
+      let refsForm2 = this.$refs.mapForm
+      if (!val) {
         this.$nextTick(() => {
-          refsForm.resetFields()
-          // this.dialogFormType = ''
+          if (refsForm) refsForm.resetFields()
+          if (refsForm2) refsForm2.resetFields()
         })
       }
+    },
+    currentManage: {
+      handler () {
+        this.getAuditList()
+      },
+      deep: true
     }
   }
 }

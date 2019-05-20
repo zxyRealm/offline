@@ -1,26 +1,25 @@
 <template>
   <div class="home-notify-wrapper">
-    <div class="title">系统消息</div>
+    <div class="g-module-title">
+      <h1 class="normal title g-inline">系统消息</h1>
+    </div>
     <ob-list-empty text="暂无消息通知" v-if="state"></ob-list-empty>
 
     <div class="content" v-if="!state">
-      <ul>
-        <el-scrollbar style="height:100%;">
-          <li
-            v-for="(val,index) in notifyData"
-            :key="index" class="clearfix"
-            :class="val.readState ? '' : 'readed'">
-            <span :class="val.readState ? 'active' : ''">
-              {{index+1}}.&nbsp;&nbsp;{{val.content}}
-              <a
-                v-if="val.otherInfo"
-                :href="val.otherInfo"
-                download class="ml5">点此查看</a>
-            </span>
-            <span>{{val.createTime}}</span>
-          </li>
-        </el-scrollbar>
+      <ul class="notice--list">
+        <li
+          v-for="(item, $index) in noticeList"
+          class="notice-item"
+          :key="$index">
+          <span class="index">{{calculateIndex($index)}}.</span>
+          <span class="content ellipsis">{{item.content}}</span>
+          <span>{{item.createTime || new Date().toLocaleString()}}</span>
+          <i class="iconfont icon-guanbi g-fr" @click="del(item)"></i>
+        </li>
       </ul>
+      <custom-pagination
+        :size="pagination.length"
+        :total="pagination.total"></custom-pagination>
     </div>
   </div>
 </template>
@@ -31,11 +30,27 @@ export default {
   data () {
     return {
       state: false,
-      notifyData: []
+        noticeList: [
+            { content: 'SHFA爱上了对方就撒浪费法律是放假啊'},
+            { content: 'SHFA爱上了对方就撒浪费法律是放假啊'},
+            { content: 'SHFA爱上了对方就撒浪费法律是放假啊'},
+            { content: 'SHFA爱上了对方就撒浪费法律是放假啊'},
+            { content: 'SHFA爱上了对方就撒浪费法SHFA爱上了对方就撒浪费法律是放假啊律是放假啊SHFA爱上了对方就撒浪费法律是放假啊SHFA爱上了对方就撒浪费法律是放假啊'},
+            { content: 'SHFA爱上了对方就撒浪费法律是放假啊'},
+            { content: 'SHFA爱上了对方就撒浪费法律是放假啊'},
+            { content: 'SHFA爱上了对方就撒浪费法律是放假啊'},
+            { content: 'SHFA爱上了对方就撒浪费法律是放假啊'},
+            { content: 'SHFA爱上了对方就撒浪费法律是放假啊'}
+        ],
+        pagination: {
+          index: 2,
+           length:10,
+          total: 24
+        }
     }
   },
   methods: {
-    getData () {
+      getData () {
       SiteNoticeList().then(res => {
         if (res.data.length > 0) {
           this.notifyData = res.data
@@ -43,6 +58,13 @@ export default {
           this.state = true
         }
       })
+    },
+    del (data) {
+
+    },
+    calculateIndex (index) {
+        let page = this.pagination
+        return page.total - page.length * (page.index - 1) - index
     }
   },
   created () {
@@ -50,88 +72,43 @@ export default {
   }
 }
 </script>
-<style rel="stylesheet/scss" lang="scss">
-  .content .el-scrollbar .el-scrollbar__wrap {
-    margin-right: -18px !important;
-    margin-bottom: -200px !important;
-    overflow: auto;
-  }
 
-  /* 滚动条粗细 */
-  .content .el-scrollbar__bar.is-vertical {
-    // width: 8px;
-  }
-
-  /* 滚动条高度 */
-  .content .el-scrollbar__thumb {
-    //hieght: 30%!important;
-  }
-
-  .main-container {
-    overflow: hidden;
-  }
-</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .home-notify-wrapper {
-    height: 100px;
-    min-width: 1020px;
-    /*background-color: rgba(0, 0, 0, 0.3);*/
-    background-color: rgba(64, 58, 73, 0.001);
-    .title {
-      font-size: 16px;
-      padding: 20px 0 0 20px;
-      box-sizing: border-box;
+.notice--list {
+  margin: 24px 0;
+}
+  .notice-item {
+    height: 62px;
+    padding: 20px 40px;
+    box-sizing: border-box;
+    border-bottom: 1px solid $gray-border-color;
+    text-align: left;
+    line-height: 1.2;
+    &:nth-child(2n + 1) {
+      background: $background-color-gray-1;
     }
-    .content {
-      height: calc(100% - 42px);
-      padding-top: 6%;
-      box-sizing: border-box;
-      ul {
-        cursor: pointer;
-        margin: 0 auto;
-        width: 72%;
-        height: 61%;
-        padding: 16px 0;
-        overflow-y: auto;
-        /*border: 2px dashed hsla(0, 0%, 62%, 0.03);*/
-        /*background: rgba(15, 158, 233, 0.003);*/
-        /*border-image: linear-gradient(to right,#1896E6,#813FC5) 20 20;*/
-        background-image: url(../../../assets/public/notify_background.png);
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: 100% 100%;
-        .readed {
-          opacity: 0.5;
-        }
-        li {
-          font-size: 14px;
-          margin-bottom: 16px;
-          padding: 0 30px;
-          padding-right: 50px;
-          text-align: right;
-          span {
-            display: inline-block;
-            vertical-align: middle;
-            &:nth-child(1) {
-              float: left;
-              width: 60%;
-              text-align: left;
-              display: inline-block;
-              position: relative;
-            }
-          }
-          .active::before {
-            content: '';
-            border: 3px solid #0F9EE9;
-            border-radius: 50%;
-            position: absolute;
-            top: 7px;
-            left: -16px
-          }
-        }
-      }
+    > * {
+      display: inline-block;
+      vertical-align: middle;
     }
-
+    &:before{
+      content: '';
+      display: inline-block;
+      height: 10px;
+      width: 10px;
+      border-radius: 5px;
+      margin-right: 12px;
+      background: $theme-blue;
+      vertical-align: middle;
+    }
+    .index{
+      margin-right: 14px;
+    }
+    .content{
+      width: auto;
+      max-width: calc(100% - 280px);
+      margin-right: 30px;
+    }
   }
 
   .ob-list-empty-wrap {

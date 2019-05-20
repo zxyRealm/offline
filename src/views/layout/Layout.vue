@@ -43,7 +43,7 @@ export default {
         hideSidebar: !this.sidebar.opened,
         withoutAnimation: this.sidebar.withoutAnimation,
         mobile: this.device === 'mobile',
-        'theme-white': this.$route.path.split('/')[1] !== 'index'
+        'theme-white': this.$route.name !== 'index-lwh'
       }
     },
     cornerBg () {

@@ -481,23 +481,24 @@ router.beforeEach((to, from, next) => {
     'BehaviorTrail': 'BehaviorAnalyse'
   }
   if (to.meta.auth) {
-    let [phone, token] = [Cookie.get('user_phone'), Cookie.get('user_token')]
-    if (phone && token) {
-      checkLoginStatus({ phoneNumber: phone, token: token }).then((res) => {
-        Cookie.set('user_phone', res.data.phoneNumber)
-        Cookie.set('user_token', res.data.token)
-        router.app.$options.store.state.userInfo = res.data
-        next()
-      }).catch(() => {
-        Cookie.remove('user_phone')
-        Cookie.remove('user_token')
-        next({ path: '/login' })
-      })
-    } else {
-      Cookie.remove('user_phone')
-      Cookie.remove('user_token')
-      next({ path: '/login' })
-    }
+    next()
+    // let [phone, token] = [Cookie.get('user_phone'), Cookie.get('user_token')]
+    // if (phone && token) {
+    //   checkLoginStatus({ phoneNumber: phone, token: token }).then((res) => {
+    //     Cookie.set('user_phone', res.data.phoneNumber)
+    //     Cookie.set('user_token', res.data.token)
+    //     router.app.$options.store.state.userInfo = res.data
+    //     next()
+    //   }).catch(() => {
+    //     Cookie.remove('user_phone')
+    //     Cookie.remove('user_token')
+    //     next({ path: '/login' })
+    //   })
+    // } else {
+    //   Cookie.remove('user_phone')
+    //   Cookie.remove('user_token')
+    //   next({ path: '/login' })
+    // }
   } else {
     next()
   }
