@@ -51,21 +51,20 @@ class Bloom {
   }
 
   shining (pos) {
-    let geometry = new THREE.SphereGeometry( 3, 32, 32 )
+    let geometry = new THREE.SphereGeometry( 5, 64, 64 )
     let material = new THREE.MeshBasicMaterial( { color: '#EFEE00', side: THREE.DoubleSide } )
     let sphere = new THREE.Mesh(geometry, material)
-    sphere.position.set(pos.x, pos.y, pos.z)
-    sphere.rotation.x = -0.5 * Math.PI
+    sphere.position.set(pos.x, pos.y+10, pos.z)
     World.scene.add( sphere )
     sphere.name = 'shine'
     sphere.layers.enable(1)
 
-    var scaleKF = new THREE.VectorKeyframeTrack( '.scale', [ 0, 0.5, 1, 1.5, 2 ], [ 0.5, 0.5, 0.5, 1.2, 1.2, 1.2, 0.8, 0.8, 0.8, 1.2, 1.2, 1.2, 0.5, 0.5, 0.5 ] );
+    var scaleKF = new THREE.VectorKeyframeTrack( '.scale', [ 0, 0.5, 1, 1.5, 2], [ 0.7, 0.7, 0.7, 1.2, 1.2, 1.2, 0.8, 0.8, 0.8, 1.2, 1.2, 1.2, 0, 0, 0] );
     var clip = new THREE.AnimationClip( 'Action', 3, [ scaleKF ] )
     Bloom.mixer = new THREE.AnimationMixer( sphere );
     var clipAction = Bloom.mixer.clipAction( clip );
     // clipAction.setLoop( THREE.LoopOnce )
-    clipAction.play();
+    // clipAction.play();
 
     // Bloom.mixer.addEventListener( 'finished', ( e ) => { 
     //   sphere.visible = false
@@ -81,13 +80,13 @@ class Bloom {
   setBloomPass () {
     let bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.5, 0.1, 0.05)
 
-    // bloomPass.threshold = 0;
-    // bloomPass.strength = 0.65;
-    // bloomPass.radius = 2.5;
-
     bloomPass.threshold = 0;
-    bloomPass.strength = 25;
-    bloomPass.radius = 1.6;
+    bloomPass.strength = 5;
+    bloomPass.radius = 1.2;
+
+    // bloomPass.threshold = 0;
+    // bloomPass.strength = 0.5;
+    // bloomPass.radius = 0;
 
     this.bloomComposer = new THREE.EffectComposer(World.renderer);
     this.bloomComposer.renderTarget1.texture.format = THREE.RGBAFormat;

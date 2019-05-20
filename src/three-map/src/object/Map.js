@@ -18,7 +18,10 @@ class Map {
   createExtrudeGeometry(shape) {
     return new THREE.ExtrudeBufferGeometry(shape, {
       depth: 5,
-      bevelEnabled: false
+      bevelEnabled: true,
+      bevelThickness: 1.5,
+	    bevelSize: 1,
+	    bevelSegments: 5
     })
   }
 
@@ -83,7 +86,7 @@ class Map {
   loadPlane(item, group, planeList) {
     const originPosition = (item.floor - 2) * 120 - 65
     group.userData.positionY = originPosition
-    this.initTemplate('./static/bottom.svg', (path, shape) => {
+    this.initTemplate('./static/bott.svg', (path, shape) => {
       const options = {
         color: '#1a425e',
         transparent: true,
