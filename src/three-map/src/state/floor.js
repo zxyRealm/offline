@@ -1,4 +1,4 @@
-import {houseData} from '../data/House'
+import {houseData} from '../data/house'
 import EventEmitter from '../util/event'
 
 /**

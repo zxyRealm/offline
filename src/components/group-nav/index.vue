@@ -268,14 +268,6 @@ export default {
     filterNode (value, data) {
       if (!value) return true
       return data[this.defaultProps.label].indexOf(value) !== -1
-    },
-    // 一键全选
-    checkedAll (val) {
-      if (val) {
-        this.$refs.GroupTree.setCheckedNodes(this.originList)
-      } else {
-        this.$refs.GroupTree.setCheckedNodes(this.originList.filter(item => item.disabled))
-      }
     }
   },
   created () {

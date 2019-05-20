@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Cookie from 'js-cookie'
 import request from '@/utils/request'
-import { checkLoginStatus } from '../api/account'
+import { checkLoginStatus } from '@/api/account'
 
 const Layout = () => import('@/views/layout/Layout.vue')
 
@@ -191,7 +191,7 @@ export const constantRouterMap = [
     ]
   },
   // 设备管理
-  {path: '/equipment', redirect: '/equipment/list'},
+  { path: '/equipment', redirect: '/equipment/list' },
   {
     path: '/equipment',
     component: Layout,
@@ -218,13 +218,13 @@ export const constantRouterMap = [
       {
         path: '',
         name: 'MemberMine',
-        meta: {title: '人员管理-线下浏览器服务平台', auth: true},
+        meta: { title: '人员管理-线下浏览器服务平台', auth: true },
         component: Member
       },
       {
         path: 'person',
         name: 'Person',
-        meta: {title: '人员管理-线下浏览器服务平台', auth: true},
+        meta: { title: '人员管理-线下浏览器服务平台', auth: true },
         component: Person
       }
     ]
@@ -251,7 +251,7 @@ export const constantRouterMap = [
     ]
   },
   // 行为分析
-  {path: '/behavior', redirect: '/behavior/analyse'},
+  { path: '/behavior', redirect: '/behavior/analyse' },
   {
     path: '/behavior',
     component: Layout,
@@ -455,7 +455,7 @@ export const constantRouterMap = [
 
 const router = new Router({
   mode: 'history',
-  scrollBehavior: () => ({y: 0}),
+  scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap,
   // 取消掉对query参数 encodeURIComponent编码处理
   stringifyQuery: function (query) {
@@ -483,7 +483,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.auth) {
     let [phone, token] = [Cookie.get('user_phone'), Cookie.get('user_token')]
     if (phone && token) {
-      checkLoginStatus({phoneNumber: phone, token: token}).then((res) => {
+      checkLoginStatus({ phoneNumber: phone, token: token }).then((res) => {
         Cookie.set('user_phone', res.data.phoneNumber)
         Cookie.set('user_token', res.data.token)
         router.app.$options.store.state.userInfo = res.data
@@ -491,12 +491,12 @@ router.beforeEach((to, from, next) => {
       }).catch(() => {
         Cookie.remove('user_phone')
         Cookie.remove('user_token')
-        next({path: '/login'})
+        next({ path: '/login' })
       })
     } else {
       Cookie.remove('user_phone')
       Cookie.remove('user_token')
-      next({path: '/login'})
+      next({ path: '/login' })
     }
   } else {
     next()

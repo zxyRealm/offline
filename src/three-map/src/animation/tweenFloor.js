@@ -2,7 +2,7 @@ import World from '../scene/mapWorld'
 
 /**
  * change single and multi by some tween, and bind some status at group's userData
- * 
+ *
  * @class
  * @param { Number } mode   scene mode
  * @paramDesc mode          0: home, 1: association

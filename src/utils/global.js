@@ -22,21 +22,36 @@ export default {
     Vue.prototype.$exit = function () {
       this.$affirm({ text: '确认退出吗？' }, (action, instance, done) => {
         if (action === 'confirm') {
-          SignOut().then(res => {
-            localStorage.clear()
-            Cookies.remove('guid')
-            window.location.href = `${res.data}?redirectURL=${window.location.href}`
-          }).catch(error => {
-            if (!error.code) {
-              localStorage.clear()
-              Cookies.remove('guid')
-              window.location.href = `${error.data}?redirectURL=${window.location.href}`
-            }
+          let signOut = new Promise(resolve => {
+            SignOut().then(res => {
+              resolve()
+            }).catch(error => {
+              if (!error.code) {
+                resolve()
+              }
+            })
           })
-          done()
-        } else {
-          done()
+          signOut().then(() => {
+            localStorage.clear()
+            this.$cookie().remove('user_token')
+            this.$cookie().remove('user_phone')
+            this.$cookie().remove('user_uuid')
+            window.location.href = `${res.data}?redirectURL=${window.location.href}`
+          })
+          // SignOut().then(res => {
+          //
+          // }).catch(error => {
+          //   if (!error.code) {
+          //     localStorage.clear()
+          //     this.$cookie().remove('user_token')
+          //     this.$cookie().remove('user_phone')
+          //     this.$cookie().remove('user_uuid')
+          //     window.location.href = `${error.data}?redirectURL=${window.location.href}`
+          //   }
+          // })
         }
+        done()
+
       })
     }
 

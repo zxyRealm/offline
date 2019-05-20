@@ -249,17 +249,16 @@ export default {
     },
     // 点击登录提交按钮
     submit(loginObj) {
-      this._verifyForm(() => {
+      // this._verifyForm(() => {
         const { phoneNumber, password } = loginObj
         const data = { phoneNumber, password }
         Login(data).then(res => {
-          if (res.data) {
-            this.$router.push('/index')
-            this.$cookie().set('user_phone', res.data.phoneNumber)
-            this.$cookie().set('user_token', res.data.token)
-          }
+          this.$cookie().set('user_phone', res.data.phoneNumber)
+          this.$cookie().set('user_token', res.data.token)
+          this.$cookie().set('user_uuid', res.data.uuid)
+          this.$router.push('/index')
         })
-      })
+      // })
     },
     // 点击注册提交按钮
     registAccount(regObj) {

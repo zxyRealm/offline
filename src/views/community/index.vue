@@ -16,6 +16,7 @@
         <group-tree
           :format-list="formatTreeList"
           @current-change="handleCurrentChange"
+          @handle-empty="emptyChildren = true"
         ></group-tree>
 
         <!---------------- 审核社群 ------------->
@@ -42,7 +43,7 @@
         </el-popover>
       </div>
 
-      <div class="content__list--wrap">
+      <div  v-if="!emptyChildren && !loading" class="content__list--wrap">
         <!---
         当前选中社群类型
         商场、单店 、成员社群 ------------------->
@@ -118,13 +119,14 @@
               </p>
             </div>
           </div>
-
-
           <div class="community__map--wrap">
           </div>
           <portal-list :current-community="currentCommunityInfo"></portal-list>
         </template>
       </div>
+      <ob-list-empty v-if="emptyChildren" text="">
+        <span class="fs16">您还没有添加地图点此<a @click="showDialogForm('map')">【添加】</a></span>
+      </ob-list-empty>
     </div>
 
     <!-----------------  弹窗表单  --------------->
@@ -284,6 +286,7 @@ export default {
   },
   data () {
     return {
+      emptyChildren: true, // 组织架构是否无子成员
       unAuditingCount: 1, // 未审核社群数量
       auditList: [
         { name: '我是外来的我是外来的' },
@@ -366,7 +369,7 @@ export default {
   mounted () {
   },
   computed: {
-    ...mapState(['currentManage']),
+    ...mapState(['currentManage', 'loading']),
     dialogFormTitle () {
       let title = ''
       switch (this.dialogFormType) {

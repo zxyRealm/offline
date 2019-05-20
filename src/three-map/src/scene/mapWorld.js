@@ -1,14 +1,14 @@
-import { houseData } from '../data/House'                 // map data
 import MapDom from '../html/MapDom'
+import { houseData } from '../data/house'                 // map data
 // 3D Object
 import Map from '../object/Map'                           // 3D map
 import Gate from '../object/Gate'                         // gate
 import Raycaster from '../object/Raycaster'               // raycaster
 import Bloom from '../object/Bloom'                       // bloom shining
 // animate
-import TrackFloor from '../animation/TrackFloor'          // up & down animate
-import TweenFloor from '../animation/TweenFloor'          // change floor
-import StateA from '../state/Floor'                       // up & down state
+import TrackFloor from '../animation/trackFloor'          // up & down animate
+import TweenFloor from '../animation/tweenFloor'          // change floor
+import StateA from '../state/floor'                       // up & down state
 // util
 import Compile from '../util/Compile'                     // dom compile
 import EventEmitter from '../util/event'

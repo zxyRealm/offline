@@ -5,7 +5,7 @@
     <template v-if="currentManage.groupGuid">
       <!--<el-button @click="changeType">切换</el-button>-->
       <div class="floor__data--wrap" v-if="!emptyMap">
-        <el-scrollbar>
+        <el-scrollbar class="hidden-x">
           <h2 class="title">{{currentManage.name || '屈臣氏'}}</h2>
           <!--进客流柱状图-->
           <!--门店状态（商场、连锁）或者单店状态下显示-->
@@ -209,7 +209,7 @@ export default {
       return this.currentManage.type === 3 || new Set([3, 4]).has(this.currentFloor.type)
     },
     emptyMap () {
-      return this.currentManage.type === 3
+      return this.currentManage.type === 2
     }
   },
   methods: {
@@ -327,7 +327,7 @@ export default {
       })
     },
     createCommunity () {
-      eventObject().$emit('CREATE_COMMUNITY-INDEX')
+      this.$router.push('/community/create')
     },
     // 进入成员社群
     enterStore (data) {
@@ -345,7 +345,6 @@ export default {
       }
     },
     handleWindowResize () {
-      console.log('000000000000000')
       this.windowOffsetWidth = document.body.offsetWidth
     }
   },
@@ -499,28 +498,6 @@ export default {
     .return-ratio {
       height: 120px;
     }
-
-    /*.return__ratio--wrap {*/
-    /*display: inline-block;*/
-    /*margin-top: 15px;*/
-    /*height: 24px;*/
-    /*line-height: 25px;*/
-    /*.return__ratio--icon {*/
-    /*float: left;*/
-    /*display: block;*/
-    /*width: 10px;*/
-    /*height: 24px;*/
-    /*margin-right: 7px;*/
-    /*background-image: url(../../assets/three/return_girl_icon@2x.png);*/
-    /*background-size: 100% auto;*/
-    /*&.boy {*/
-    /*background-image: url(../../assets/three/return_boy_icon@2x.png);*/
-    /*}*/
-    /*&:last-child {*/
-    /*margin-right: 0;*/
-    /*}*/
-    /*}*/
-    /*}*/
     .content--wrap {
       height: 250px;
       &.double-item {

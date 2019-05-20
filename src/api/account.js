@@ -60,7 +60,7 @@ export function checkLoginStatus (data) {
   return request({
     tip: false,
     url: '/account/checkLoginStatus',
-    method: 'post',
+    method: 'get',
     data
   })
 }

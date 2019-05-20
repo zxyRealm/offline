@@ -347,10 +347,10 @@ export default {
           title = '添加商场'
           break
         case 2:
-          title = '添加连锁总店'
+          title = '添加门店'
           break
         case 3:
-          title = '添加门店'
+          title = '添加连锁总店'
           break
       }
       return title
@@ -429,6 +429,7 @@ export default {
               exitLogin({ phoneNumber: '', token: '' }).then(() => {
                 this.$cookie().remove('user_phone')
                 this.$cookie().remove('user_token')
+                this.$cookie().remove('user_uuid')
                 this.$router.push('/login')
               })
             }
@@ -440,7 +441,7 @@ export default {
     },
     // 获取商户所有管管理层社群
     getManageList () {
-      getManageList({ merchantGuid: '19212466sdfe' }).then(res => {
+      getManageList({ merchantGuid: this.$cookie().get('user_uuid') }).then(res => {
         this.manageList = res.data
         if (this.manageList.length) {
           this.manageGroup = this.manageList[0]

@@ -193,9 +193,13 @@ export default {
       let groupGuid = this.currentManage.groupGuid
       if (!groupGuid) return
       getManageMemberTree({ groupGuid: groupGuid }).then((res) => {
-        if (res.data[0]) res.data[0].guid = res.data[0].groupGuid
-        this.communityTreeList = this.formatList(res.data)
-        this.setCurrentKey()
+        if (res.data[0]) {
+          res.data[0].guid = res.data[0].groupGuid
+          this.communityTreeList = this.formatList(res.data)
+          this.setCurrentKey()
+        } else if (!res.data[0][this.childProps.children].length) {
+          this.$emit('handle-empty')
+        }
       })
     }
   },

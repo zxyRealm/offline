@@ -1,5 +1,5 @@
 import World from '../scene/mapWorld'
-import StateA from '../state/Floor'
+import StateA from '../state/floor'
 class TrackFloor {
 
   constructor () {}

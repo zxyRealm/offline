@@ -22,18 +22,18 @@
         prop="defaultIndustry"
         class="industry-form-item">
         <el-radio-group v-model="communityForm.defaultIndustry">
-          <el-radio :label="0">默认业态</el-radio>
-          <el-radio :label="1">自定义业态</el-radio>
+          <el-radio :label="true">默认业态</el-radio>
+          <el-radio :label="false">自定义业态</el-radio>
         </el-radio-group>
         <div
           class="industry-label--wrap"
-          v-show="communityForm.defaultIndustry === 0 || communityForm.defaultIndustry">
+          v-show="communityForm.defaultIndustry">
           {{typeText}}：
           <span v-for="(item, $index) in industryList" :key="$index">
             {{$index ? '、' : ''}}{{item.industryName}}
           </span>
           <i
-            v-show="communityForm.defaultIndustry === 1"
+            v-show="communityForm.defaultIndustry === false"
             class="iconfont icon-bianji"
             @click="() => { customWrapVisible = true }">
           </i>
@@ -151,7 +151,6 @@ export default {
         address: '',
         contacts: '',
         phone: '',
-        type: '',
         defaultIndustry: ''
       },
       communityRules: {
@@ -213,37 +212,57 @@ export default {
       }
     },
     scrollClass () {
-      return this.customIndustry.industry.length > 6 ? 'scroll-height': 'hidden'
+      return this.customIndustry.industry.length > 6 ? 'scroll-height' : 'hidden'
+    },
+    communityType () {
+      let type = 1
+      switch (this.type) {
+        case 'chain':
+          type = 3
+          break
+        case 'store':
+          type = 2
+          break
+        default:
+          type = 1
+          break
+      }
+      return type
     }
   },
   mounted () {
     if (this.actionType === 'edit') {
-      this.communityForm = JSON.parse(JSON.stringify(this.data))
+      this.communityForm = { ...this.data }
     }
   },
   methods: {
 
     // 提交表单
     submitForm () {
-      this.submitCustomForm('customIndustry')
+      if (this.type === 'market')this.submitCustomForm('customIndustry')
       this.$refs.communityForm.validate((valid) => {
         if (valid) {
-          let { name, pca, address, contacts, phone, type, defaultIndustry } = JSON.parse(JSON.stringify(this.communityForm))
+          let { name, pca, address, contacts, phone, defaultIndustry } = { ...this.communityForm }
           let pcaList = pca.split(',')
           let params = {
-            name,
-            type,
-            phone,
-            address,
-            contacts,
-            defaultIndustry,
-            provinceCode: pcaList[0],
-            cityCode: pcaList[1],
-            districtCode: pcaList[2]
+              name,
+              type: this.communityType,
+              phone,
+              address,
+              contacts,
+              provinceCode: pcaList[0],
+              cityCode: pcaList[1],
+              districtCode: pcaList[2],
+              merchantGuid: this.$cookie().get('user_uuid')
+            }
+          if (this.type === 'market') {
+            params = {
+              ...params,
+              defaultIndustry,
+              industryInfo: !defaultIndustry ? { ...this.industryList } : []
+            }
           }
-          if (defaultIndustry) params.industryInfo = this.industryList
-          console.log('submit data', params)
-          addManageCommunity(params).then((res) => {
+          addManageCommunity(params).then(() => {
             this.$emit('handle-success', this.type)
           })
         }
@@ -300,6 +319,7 @@ export default {
       //   this.customErrorText = '请添加自定义业态'
       //   return false
       // }
+      console.log('formName', formName)
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.customWrapVisible = false
@@ -312,20 +332,20 @@ export default {
     'communityForm.defaultIndustry': {
       handler (val) {
         switch (val) {
-          case 0:
+          case true:
             this.customWrapVisible = false
             getIndustryList({ groupGuid: 'default' }).then((res) => {
               this.industryList = res.data
             })
             break
-          case 1:
+          case false:
             if (this.actionType === 'edit') {
               getIndustryList({ groupGuid: this.data.groupGuid }).then((res) => {
                 this.customIndustry.industry = res.data
                 this.customWrapVisible = !this.customIndustry.industry.length
                 this.industryList = this.customIndustry.industry.filter(item => item.industryName)
               })
-            } else  {
+            } else {
               this.customWrapVisible = !this.customIndustry.industry.length
               this.industryList = this.customIndustry.industry.filter(item => item.industryName)
             }
@@ -348,9 +368,11 @@ export default {
   .el-form.center {
     margin: auto;
   }
-  .scroll-height{
+
+  .scroll-height {
     height: 219px;
   }
+
   .industry-label--wrap {
     padding: 8px 26px;
     line-height: 22px;

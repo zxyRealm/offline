@@ -2,7 +2,10 @@ import axios from 'axios'
 import { Message, Loading, MessageBox } from 'element-ui'
 import Store from '@/store'
 import Qs from 'qs'
+import Cookie from 'js-cookie'
+
 const ossPrefix = process.env.BASE_URL
+// const token = Cookie
 // 加载层
 export function load (text, target) {
   // target 必须用id
@@ -83,15 +86,24 @@ export function message (txt, type, delay = 1500) {
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // api的base_api
   // timeout: 5000, // request timeout
-  method: 'POST'
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  transformRequest: function (data) {
+    return JSON.stringify(data)
+  }
 })
 
 // request interceptor
 service.interceptors.request.use(config => {
   // Do something before request is sent
+  config.headers.token = Cookie.get('user_token')
+  config.headers.phoneNumber = Cookie.get('user_phone')
   showFullScreenLoading(config.tip)
-  if (config.method === 'post') {
-    config.data = Qs.stringify(config.data)
+  let method = config.method.toUpperCase()
+  if ( method === 'GET') {
+    config.params = config.data
   }
   return config
 }, error => {
@@ -135,12 +147,16 @@ service.interceptors.response.use(
   error => {
     // 此处错误已由node项目中finalResult方法包装处理
     tryHideFullScreenLoading()
-    if (error.response && /^5/.test(error.response.status)) {
-      message('网络异常，请稍后重试', 'error', 3000)
-    } else {
-      message(error.response.statusText, 'error', 3000)
+    console.error(error)
+    let response = error.response
+    if (response) {
+      if (/^5/.test(response.status)) {
+        message('网络异常，请稍后重试', 'error', 3000)
+      } else {
+        message(response.statusText, 'error', 3000)
+      }
     }
-    return Promise.reject(error.response || error)
+    return Promise.reject(response || error)
   })
 
 export default service
