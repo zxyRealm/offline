@@ -1,4 +1,5 @@
 import { houseData } from '../data/House'                 // map data
+import MapDom from '../html/MapDom'
 // 3D Object
 import Map from '../object/Map'                           // 3D map
 import Gate from '../object/Gate'                         // gate
@@ -12,7 +13,6 @@ import StateA from '../state/Floor'                       // up & down state
 import Compile from '../util/Compile'                     // dom compile
 import EventEmitter from '../util/event'
 const async = require('async')                            // asynchronous
-
 /**
  * Member
  * private: _hello
@@ -67,8 +67,6 @@ export default class World {
     this.planeList = []                                   // board list for raycaster
     this.spriteList = []                                  // sprite list for raycaster
 
-    this.domCompile()                                     // compile dom in html
-
     // create scene
     World.scene = new THREE.Scene()
     // World.scene.background = new THREE.Color('#AAAAAA')
@@ -103,6 +101,7 @@ export default class World {
     this.createLight()
     // this.createShine({x: 0, y: 0, z: 0 })
     this.eventCollection()
+    // this.tweenTest()
 
     // 初始化TweenFloor类 - 切换楼层动画
     this.tweenFloor = new TweenFloor()
@@ -130,6 +129,34 @@ export default class World {
     this.animateFloor.init()
 
     this.animate()
+  }
+
+  tweenTest () {
+    let geometry = new THREE.SphereGeometry(10, 32, 32)
+    let material = new THREE.MeshBasicMaterial({
+      color: '#ff0000'
+    })
+    let mesh = new THREE.Mesh(geometry, material)
+    World.scene.add(mesh)
+
+    let position = {
+      x: 1,
+      y: 1,
+      z: 1
+    }
+    let target = {
+      x: 0.2, 
+      y: 0.2,
+      z: 0.2
+    }
+    let tween = new TWEEN.Tween(position).to(target, 2000)
+    tween.onUpdate(() => {
+      mesh.scale.x = position.x;
+      mesh.scale.y = position.y;
+      mesh.scale.z = position.z;
+    })
+    .easing(TWEEN.Easing.Linear.None)
+    .start()
   }
 
   // 创建时间流
@@ -266,9 +293,7 @@ export default class World {
           event.clientY > boxBottom) {
             this.gate.createLevitateBox()
         }
-
       })
-
     }
   }
 
@@ -298,44 +323,67 @@ export default class World {
   }
 
   eventCollection() {
-    const upfloorEl = document.getElementById('upfloor')
-    const downfloorEl = document.getElementById('downfloor')
+    const upfloorEl2 = document.getElementById('button-ul')
+    if (this.mode === 0) {
+      const upfloorEl = upfloorEl2.childNodes[5]
+      const downfloorEl = upfloorEl2.childNodes[7]
+      const allEl = document.getElementById('all')
+      upfloorEl.addEventListener('click', () => {
+        this.animateFloor.beforeUp()
+      }, false)
+      
+      downfloorEl.addEventListener('click', () => {
+        this.animateFloor.beforeDown()
+      }, false)
+      
+      allEl.addEventListener('click', () => {
+        this.singleToMulti()
+      }, false)
+
+      
+    } else {
+      const gateEl = document.getElementById('gate-group')
+      gateEl.addEventListener('click', (e) => {
+        this.gate.createGate(gateEl, e, this.spriteList)
+      }, false)
+    }
+    
+    
     const floor = document.getElementById('floor')
-    const allEl = document.getElementById('all')
-    const gateEl = document.getElementById('gate-group')
+    
 
     window.addEventListener('mousedown', () => {
       this.onDocumentMouseClick(event)
-    }, false);
-    upfloorEl.addEventListener('click', () => {
-      this.animateFloor.beforeUp()
     }, false)
-    downfloorEl.addEventListener('click', () => {
-      this.animateFloor.beforeDown()
-    }, false)
-    allEl.addEventListener('click', () => {
-      this.singleToMulti()
-    }, false)
+    
     floor.addEventListener('click', (e) => {
       if (e.target && e.target.nodeName.toUpperCase() === 'A') {
         this.changeFloor(parseInt(e.target.innerHTML))
       }
     }, false)
-    gateEl.addEventListener('click', (e) => {
-      this.gate.createGate(gateEl, e, this.spriteList)
-    }, false)
+    
+    
   }
 
   // compile dom 
   domCompile() {
-    const root = document.querySelector('#app');
-    const data = {
-      mode: this.mode,
-      floorList: [ { name: 1 }, { name: 2 }, { name: 3 }, { name: 4 }, { name: 5 } ]
-    }
-    new Compile(root, data);
+    // const root = document.querySelector('#app')
+    // const data = {
+    //   mode: this.mode,
+    //   floorList: [{ name: 1 }, { name: 2 }, { name: 3 }, { name: 4 }, { name: 5 }]
+    // }
+    // new Compile(root, data);
   }
 }
+
+const floorList = [ 
+  { name: 1 },
+  { name: 2 },
+  { name: 3 },
+  { name: 4 },
+  { name: 5 }
+]
+new MapDom(0, floorList)
 
 var world = new World(0)
 world.init()
