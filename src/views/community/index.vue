@@ -30,7 +30,7 @@
               class="items"
               :key="$index">
               <span class="ellipsis">{{aud.name}}</span>
-              <i class="g-success">通过</i>
+              <i class="g-success" @click="showDialogForm('edit')">通过</i>
               <i class="g-danger">拒绝</i>
             </li>
           </ul>
@@ -43,7 +43,7 @@
         </el-popover>
       </div>
 
-      <div  v-if="!emptyChildren && !loading" class="content__list--wrap">
+      <div v-if="!emptyChildren && !loading" class="content__list--wrap">
         <!---
         当前选中社群类型
         商场、单店 、成员社群 ------------------->
@@ -232,10 +232,6 @@
           <el-button @click="dialogOneInputFormVisible = false">取 消</el-button>
           <el-button type="primary">保 存</el-button>
         </el-form-item>
-        <!--<el-form-item prop="industry">-->
-          <!--<el-select v-model="oneInputForm.industry"></el-select>-->
-          <!--<el-input v-for="item in industryList"></el-input>-->
-        <!--</el-form-item>-->
       </el-form>
     </el-dialog>
 
@@ -348,7 +344,7 @@ export default {
       },
       oneInputFormRules: {
         nickName: [
-          { required: true, validator: validateCommunityName, trigger: 'blur', valueType: 'member'}
+          { required: true, validator: validateCommunityName, trigger: 'blur', valueType: 'member' }
         ],
         industry: [
           { required: true, message: '请选择业态', trigger: 'blur' }
@@ -357,9 +353,9 @@ export default {
       oneInputFormType: 'industry', // industry、name
       portalDialogVisible: false,
       portalTypeList: [
-        { type: 1, icon: 'outside', name: '外部出入口'},
-        { type: 2, icon: 'inner', name: '内部出入口'},
-        { type: 3, icon: 'pass', name: '通道'},
+        { type: 1, icon: 'outside', name: '外部出入口' },
+        { type: 2, icon: 'inner', name: '内部出入口' },
+        { type: 3, icon: 'pass', name: '通道' }
       ],
       defaultPortalType: null
     }
@@ -528,7 +524,7 @@ export default {
       }
     },
 
-     // 编辑社群信息、楼层信息 弹框成功回调
+    // 编辑社群信息、楼层信息 弹框成功回调
     handleFormSuccessEmit (type) {
       this.dialogFormVisible = false
     },
@@ -538,12 +534,15 @@ export default {
       let isMember = new Set(['member', 'join']).has(this.currentCommunityType)
       let { guid } = this.currentCommunityInfo
       let data = { groupGuid: guid }
+
       if (isMember) {
         getMemberInfo(data).then((res) => {
+          res.data.communityType = this.currentCommunityType
           this.communityInfo = res.data
         })
       } else {
         getManageInfo(data).then((res) => {
+          res.data.communityType = this.currentCommunityType
           this.communityInfo = res.data
         })
       }
@@ -681,7 +680,7 @@ export default {
       font-size: 20px;
     }
 
-    .sub-header-container{
+    .sub-header-container {
       position: relative;
       padding: 0 40px;
     }
@@ -708,7 +707,7 @@ export default {
       }
     }
 
-    .add-handle-wrap{
+    .add-handle-wrap {
       position: absolute;
       top: 30px;
       right: 40px;
@@ -719,7 +718,6 @@ export default {
       }
     }
   }
-
 
 
 </style>

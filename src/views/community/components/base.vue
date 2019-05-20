@@ -16,6 +16,8 @@
       <el-form-item label="名称" prop="name">
         <el-input placeholder="请输入社群名称" v-model.trim="communityForm.name"></el-input>
       </el-form-item>
+
+      <!------------------------------ 仅商场包含自定义业态 ----------------------->
       <el-form-item
         v-if="type === 'market'"
         label="业态"
@@ -79,6 +81,21 @@
         </div>
 
       </el-form-item>
+
+      <!-------------------  商场管理员下成员  -------------------->
+      <el-form-item
+        v-if="hasIndustry"
+        label="业态"
+        prop="defaultIndustry">
+        <el-select v-model="communityForm.industryIndex">
+          <el-option
+            v-for="(i,$index) in industryList"
+            :key="$index"
+            :value="$index"
+            :label="i.industryName"></el-option>
+        </el-select>
+      </el-form-item>
+
       <el-form-item
         label="地区"
         prop="pca"
@@ -96,12 +113,15 @@
           placeholder="请输入详细地址"
           v-model.trim="communityForm.address"></el-input>
       </el-form-item>
-      <el-form-item label="联系人" prop="contacts">
+
+      <!--编辑修改外来加入成员时无以下信息-->
+
+      <el-form-item v-if="type !== 'join'" label="联系人" prop="contacts">
         <el-input
           type="text" placeholder="请输入联系人"
           v-model.trim="communityForm.contacts"></el-input>
       </el-form-item>
-      <el-form-item label="联系电话" prop="phone">
+      <el-form-item v-if="type !== 'join'" label="联系电话" prop="phone">
         <el-input
           type="text" placeholder="请输入联系电话"
           v-model.trim="communityForm.phone"></el-input>
@@ -115,6 +135,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import { validateRule, validPhone, validateContact } from '@/utils/validate'
 import { validateCommunityName } from '../utils'
 import {
@@ -203,6 +224,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['currentManage']),
     typeText () {
       switch (this.communityForm.industry) {
         case 1:
@@ -214,7 +236,7 @@ export default {
     scrollClass () {
       return this.customIndustry.industry.length > 6 ? 'scroll-height' : 'hidden'
     },
-    communityType () {
+    communityType () { // 管理社群类型
       let type = 1
       switch (this.type) {
         case 'chain':
@@ -228,6 +250,9 @@ export default {
           break
       }
       return type
+    },
+    hasIndustry () {
+      return this.currentManage.type === 2 && this.type !== 'market'
     }
   },
   mounted () {
@@ -239,22 +264,22 @@ export default {
 
     // 提交表单
     submitForm () {
-      if (this.type === 'market')this.submitCustomForm('customIndustry')
+      if (this.type === 'market') this.submitCustomForm('customIndustry')
       this.$refs.communityForm.validate((valid) => {
         if (valid) {
           let { name, pca, address, contacts, phone, defaultIndustry } = { ...this.communityForm }
           let pcaList = pca.split(',')
           let params = {
-              name,
-              type: this.communityType,
-              phone,
-              address,
-              contacts,
-              provinceCode: pcaList[0],
-              cityCode: pcaList[1],
-              districtCode: pcaList[2],
-              merchantGuid: this.$cookie().get('user_uuid')
-            }
+            name,
+            type: this.communityType,
+            phone,
+            address,
+            contacts,
+            provinceCode: pcaList[0],
+            cityCode: pcaList[1],
+            districtCode: pcaList[2],
+            merchantGuid: this.$cookie().get('user_uuid')
+          }
           if (this.type === 'market') {
             params = {
               ...params,
