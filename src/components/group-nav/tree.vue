@@ -197,7 +197,8 @@ export default {
           res.data[0].guid = res.data[0].groupGuid
           this.communityTreeList = this.formatList(res.data)
           this.setCurrentKey()
-        } else if (!res.data[0][this.childProps.children].length) {
+        }
+        if (!res.data[0][this.defaultProps.children].length) {
           this.$emit('handle-empty')
         }
       })

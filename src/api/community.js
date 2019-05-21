@@ -84,6 +84,27 @@ export function getAduitList (data) {
   })
 }
 
+// /group/reject
+
+// 管理社群拒绝申请加入
+export function getRejectAuditing (data) {
+  return request({
+    url: `${prefix[0]}/group/reject`,
+    method: 'post',
+    data
+  })
+}
+
+// 管理社群通过申请加入
+export function getAcceptAuditing (data) {
+  return request({
+    url: `${prefix[0]}/group/accept`,
+    method: 'post',
+    data
+  })
+}
+
+
 
 // 获取管理社群下成员社群组织结构
 export function getManageMemberTree (data) {
@@ -96,7 +117,7 @@ export function getManageMemberTree (data) {
 // 获取管理社群下成员社群
 export function getManageMember (data) {
   return request({
-    url: `${prefix[0]}/group/unit/list/${data.groupGuid}/${data.type || 2}`,
+    url: `${prefix[0]}/group/unit/read/list/${data.groupGuid}/${data.type || 2}`,
     method: 'get'
   })
 }

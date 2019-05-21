@@ -20,18 +20,19 @@
           :disabled="actionType === 'audit'"></el-input>
       </el-form-item>
 
+      <!------------------------  备注名 --------------------->
       <el-form-item
         v-if="actionType === 'audit'"
         label="备注名"
         prop="name">
         <el-input
-          placeholder="请输入名称"
+          placeholder="请输入备注名"
           v-model.trim="communityForm.name"></el-input>
       </el-form-item>
 
       <!------------------------------ 仅商场包含自定义业态 ----------------------->
       <el-form-item
-        v-if="type === 'market' && actionType !== 'audit'"
+        v-if="hasCustomIndustry"
         label="业态"
         prop="defaultIndustry"
         class="industry-form-item">
@@ -94,11 +95,12 @@
 
       </el-form-item>
 
-      <!-------------------  商场管理员下成员  -------------------->
+
+      <!-------------------  商场管理员下成员选取业态   -------------------->
       <el-form-item
         v-if="hasIndustry"
         label="业态"
-        prop="defaultIndustry">
+        prop="industryIndex">
         <el-select v-model="communityForm.industryIndex">
           <el-option
             v-for="(i,$index) in industryList"
@@ -130,15 +132,27 @@
       </template>
       <!------------------------  楼层及位置选取  ---------------------------->
 
-      <el-form-item label="楼层" porp="floor">
-        <el-select v-model="communityForm.floor">
-          <el-option
-            v-for="(f, index) in floorList"
-            :key="index"
-            :value="index"
-            :label="f.floorName"></el-option>
-        </el-select>
-      </el-form-item>
+      <template  v-if="hasFloor">
+        <el-form-item
+          label="楼层"
+          porp="floor">
+          <el-select v-model="communityForm.floor">
+            <el-option
+              v-for="(f, index) in floorList"
+              :key="index"
+              :value="index"
+              :label="f.floorName"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="communityForm.floor || communityForm.floor === 0">
+          <div class="map--wrap">
+
+            <!--  成员位置绑定  -->
+
+          </div>
+        </el-form-item>
+      </template>
+
 
       <!--编辑修改外来加入成员时无以下信息-->
       <template v-if="type !== 'join' && actionType !== 'audit'">
@@ -172,7 +186,11 @@ import {
   addManageCommunity,
   getIndustryList,
   getMemberInfo,
-  getManageInfo
+  getManageInfo,
+  getManageMember,
+  getAcceptAuditing,
+  addMember,
+  updateMemberInfo
 } from '@/api/community'
 
 export default {
@@ -200,7 +218,9 @@ export default {
         address: '',
         contacts: '',
         phone: '',
-        defaultIndustry: ''
+        defaultIndustry: '',
+        industryIndex: '',
+        coordinates: []
       },
       communityRules: {
         name: [
@@ -221,6 +241,9 @@ export default {
         ],
         defaultIndustry: [
           { required: true, validator: validIndustry, trigger: 'blur' }
+        ],
+        industryIndex: [
+          { required: true, message: '请选择业态', trigger: 'blur' }
         ]
       },
       floorList: [ // 楼层列表
@@ -233,7 +256,7 @@ export default {
       type: Object,
       default: () => ({})
     },
-    type: { // 社群类型
+    type: { // 社群类型 market、store、chain、 member、 join
       type: String,
       default: ''
     },
@@ -282,12 +305,24 @@ export default {
       }
       return type
     },
+    isManage () { // 是否为管理社群
+      return new Set(['market', 'store', 'chain']).has(this.type) && this.actionType !== 'audit'
+    },
     hasIndustry () {
-      return this.currentManage.type === 2 && this.type !== 'market'
+      return this.actionType === 'add' && this.type === 'market'
     },
     hasAddress () { // 是否显示地区信息
-      return (this.type === 'chain' && this.actionType === 'audit') ||
-        (new Set(['market', 'store']).has(this.type) && this.actionType !== 'audit')
+      return new Set(['chain', 'store']).has(this.type) ||
+        (this.$route.name === 'community' && this.type === 'market' && this.actionType !== 'add') ||
+        (this.$route.name !== 'community' && this.type === 'market' && this.actionType === 'add')
+    },
+    hasFloor () { // 是否展示楼层
+      return new Set(['join', 'member']).has(this.type) || this.actionType === 'audit'
+    },
+    hasCustomIndustry () {
+      return this.type === 'market' &&
+        ((this.$route.name === 'community' && this.type === 'edit') ||
+        (this.$route.name !== 'community' && this.type === 'add'))
     }
   },
   mounted () {
@@ -296,13 +331,35 @@ export default {
     }
   },
   methods: {
-
+    // 获取楼层列表
+    getFloorList () {
+      let guid = this.currentManage.groupGuid
+      let param = {
+        groupGuid: guid,
+        type: 1
+      }
+      if (!guid) return
+      getManageMember(param).then((res) => {
+        this.floorList = res.data
+      })
+    },
     // 提交表单
     submitForm () {
       if (this.type === 'market') this.submitCustomForm('customIndustry')
+      let apiMap = {
+        edit: updateManageCommunity,
+        add: addManageCommunity,
+        audit: getAcceptAuditing,
+        member: {
+          add: addMember,
+          edit: updateMemberInfo
+        }
+      }
       this.$refs.communityForm.validate((valid) => {
         if (valid) {
-          let { name, pca, address, contacts, phone, defaultIndustry } = { ...this.communityForm }
+          let industryList = this.industryList
+          let actionType = this.actionType
+          let { name, pca, address, contacts, phone, defaultIndustry,industryIndex } = { ...this.communityForm }
           let pcaList = pca.split(',')
           let params = {
             name,
@@ -315,16 +372,31 @@ export default {
             districtCode: pcaList[2],
             merchantGuid: this.$cookie().get('user_uuid')
           }
-          if (this.type === 'market') {
+          if (this.type === 'market' && actionType !== 'audit') {
+              params = {
+                ...params,
+                defaultIndustry,
+                industryInfo: !defaultIndustry ? { ...industryList } : []
+              }
+          }
+          if (this.currentManage.type === 1 && this.type !== 'market') { // 当管理社群为商场时成员社群业态
             params = {
               ...params,
-              defaultIndustry,
-              industryInfo: !defaultIndustry ? { ...this.industryList } : []
+              industryId: industryList[industryIndex].industryId,
+              industryName: industryList[industryIndex].industryName
             }
           }
-          addManageCommunity(params).then(() => {
-            this.$emit('handle-success', this.type)
-          })
+
+          if (this.isManage || actionType === 'audit') {
+            apiMap[actionType](params).then(() => {
+              this.$emit('handle-success', { type: this.type, actionType })
+            })
+          } else {
+            apiMap[this.type][this.actionType](params).then(() => {
+              this.$emit('handle-success', { type: this.type, actionType })
+            })
+          }
+
         }
       })
     },
@@ -419,6 +491,11 @@ export default {
         this.communityForm = JSON.parse(JSON.stringify(this.data))
       }
       if (!val) this.customWrapVisible = false
+    },
+    hasFloor (val) {
+      if (val) {
+        this.getFloorList()
+      }
     }
   }
 }
@@ -431,6 +508,12 @@ export default {
 
   .scroll-height {
     height: 219px;
+  }
+
+  .map--wrap {
+    height: 158px;
+    border: 1px solid $gray-border-color;
+    border-radius: 2px;
   }
 
   .industry-label--wrap {

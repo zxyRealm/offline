@@ -85,7 +85,7 @@ export function message (txt, type, delay = 1500) {
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // api的base_api
-  timeout: 5000, // request timeout
+  // timeout: 5000, // request timeout
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'

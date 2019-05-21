@@ -1,9 +1,9 @@
 import request from '../utils/request'
-// const headers = {
-//   headers: {
-//     'Content-Type': 'application/x-www-form-urlencoded'
-//   }
-// }
+const headers = {
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  }
+}
 
 export function GetCode (data) {
   return request({

@@ -31,21 +31,21 @@
           <el-form-item
             label="楼层地图"
             :rules="validFile()"
-            :prop="'map.' + index + '.mapUrl'">
+            :prop="'map.' + index + '.floorMap'">
             <label
               class="label--item"
-              :class="{empty: !map.mapUrl}"
+              :class="{empty: !map.floorMap}"
               :for="'map__input--file' + index">
               <input
                 title=""
                 type="file"
                 class="input__file"
                 :id="'map__input--file' + index"
-                @click="checkFilesStatus"
+                @click="checkFilesStatus($event, index)"
                 @change="onChange($event, index)"/>
-              <el-input v-show="false" v-model="map.mapUrl"></el-input>
+              <el-input v-show="false" v-model="map.floorMap"></el-input>
               <span class="ellipsis">
-                {{map.mapUrl | fileName}}
+                {{map.floorMap | fileName}}
               </span>
             </label>
           </el-form-item>
@@ -74,9 +74,19 @@
 </template>
 
 <script>
-import { fileTypeAllow } from '../../../utils'
+import { mapState } from 'vuex'
+import { fileTypeAllow } from '@/utils'
 import axios from 'axios'
+import { uploadFileToOss } from '@/api/common'
+import { load } from '@/utils/request'
+import prefix from '@/api/prefix'
+import {
+  addFloorMap,
+  updateFloorMap,
+  getManageMember
+} from '@/api/community'
 
+const BASE_API = process.env.VUE_APP_BASE_API
 export default {
   name: 'CommunityMap',
   props: {
@@ -87,6 +97,10 @@ export default {
     type: {
       type: String,
       default: ''
+    },
+    actionType: {
+      type: String,
+      default: 'add'
     },
     center: {
       type: Boolean,
@@ -103,27 +117,74 @@ export default {
   },
   data () {
     return {
-      // https://offline-browser-images.oss-cn-hangzhou.aliyuncs.com/static/img/%E5%9C%B0%E5%9B%BE%E8%83%8C%E6%99%AF%402x(2).png
       communityMapForm: {
         map: [
-          { floorName: '', mapUrl: '' }
+          { floorName: '', floorMap: '' }
         ]
       },
       communityRules: {},
       fileList: [],
-      showAlert: true
+      showAlert: true,
+      communityCopyMap: []
     }
   },
   created () {
   },
   mounted () {
+    if (this.actionType === 'edit') {
+      this.getManageMember()
+    }
   },
-  computed: {},
+  computed: {
+    ...mapState(['currentManage'])
+  },
   methods: {
+    getManageMember () {
+      let param = {
+        type: 1,
+        groupGuid: this.currentManage.groupGuid
+      }
+      getManageMember(param).then(res => {
+        let map = res.data.map(item => {
+          let { name, floorMap, floorIndex, guid, operation  } = item
+          return {
+            floorName: name,
+            floorMap,
+            floorIndex,
+            guid,
+            operation
+          }
+        })
+        this.$set(this.communityMapForm, 'map', map)
+        map.forEach(() => {
+          this.fileList.push('')
+        })
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+
     submitMapForm () {
       this.$refs.communityMapForm.validate((valid) => {
         if (valid) {
-          this.$emit('handle-success', this.type)
+          this.uploadOss().then(floors => {
+            let apiMap = {
+              add: addFloorMap,
+              edit: updateFloorMap
+            }
+            floors = floors.map((item, index) => {
+              item.floorIndex = index + 1
+              return item
+            })
+            let params = {
+              groupGuid: this.currentManage.groupGuid,
+              floors
+            }
+            apiMap[this.actionType](params).then(() => {
+              // this.$tip('创建成功')
+              this.$emit('handle-success')
+            })
+          })
         }
       })
     },
@@ -139,57 +200,51 @@ export default {
     addMap () {
       this.communityMapForm.map.push({
         floorName: '',
-        mapUrl: ''
+        floorMap: ''
       })
+      let len = this.communityMapForm.map.length
+      this.$set(this.fileList, len - 1, '')
     },
     // 删除地图元素
     removeMap (map, index) {
+      this.checkFilesStatus( '',index)
       this.communityMapForm.map.splice(index, 1)
       this.fileList.splice(index, 1)
     },
-    // 自定义文件上传
-    httpRequest () {
-      OssSignature({ superKey: 'floor_map' }).then(res => {
-        if (res.data) {
-          let time = parseTime(new Date()).replace(/[ :-]/g, '')
-          this.loadModule = load('数据加载中...')
-          this.uploadOss(res.data, 0, time)
-        }
-      }).catch(() => {
-        this.$tip('服务器错误，请重新尝试')
-      })
-    },
+
     // 图片上传阿里云
-    uploadOss (signature, index, time) {
-      let file = this.fileList[index]
-      if (!file) return
-      let formData = new FormData()
-      let fileName = encodeURIComponent(`${this.communityForm.map[index].floorName}${file.name.substring(file.name.lastIndexOf('.'))}`)
-      let uid = this.userInfo.developerId
-      formData.append('key', `floor_map/${uid}/${time}/${fileName}`)
-      formData.append('policy', signature['policy'])
-      formData.append('OSSAccessKeyId', signature['accessid'])
-      formData.append('success_action_status', '200')
-      formData.append('signature', signature['signature'])
-      formData.append('file', file, fileName)
-      // 构建formData 对象，将图片上传至阿里云oss服务
-      axios.post(signature.host, formData).then(back => {
-        if (!back.data) {
-          if (index < this.fileList.length - 1) {
-            this.uploadOss(signature, index + 1, time)
+    uploadOss () {
+      let _this = this
+      this.communityCopyMap = JSON.parse(JSON.stringify(this.communityMapForm.map))
+      return new Promise(resolve => {
+        for (let i = 0, len = this.fileList.length; i < len; i++) {
+          let formData = new FormData()
+          formData.append('file', this.fileList[i])
+          if (!this.fileList[i] && i === this.fileList.length - 1) {
+            resolve(this.communityCopyMap)
           }
-          // 所图片成功上完成后 进行表单提交
-          if (index === (this.fileList.length - 1)) {
-            this.loadModule.close()
-            this.byTypeAddCommunity(`${signature.host}/floor_map/${uid}/${time}/`)
-          }
-        } else {
-          this.loadModule.close()
-          this.$tip('上传失败，请稍后重试', 'error')
+          if (!this.fileList[i]) continue
+          (function (i) {
+            axios.post(`${BASE_API}/${prefix[0]}/oss/file`,
+              formData,
+              {
+                headers: { 'Content-Type': 'multipart/form-data' }
+              }).then(res => {
+              if (res.data.result) {
+                _this.$set(_this.communityCopyMap[i], 'floorMap', res.data.data)
+                if (i === _this.fileList.length - 1) {
+                  resolve(_this.communityCopyMap)
+                }
+              } else {
+                _this.$tip(res.data.msg, 'error')
+              }
+            }).catch(error => {
+              if (error.response) {
+                _this.$tip(error.response.msg, 'error')
+              }
+            })
+          })(i)
         }
-      }).catch(() => {
-        this.loadModule.close()
-        this.$tip('网络异常，请稍后重新尝试', 'error')
       })
     },
     // 文件改变事件监听
@@ -197,22 +252,27 @@ export default {
       let files = (e || window.event).target.files
       if (files[0]) {
         this.fileList.splice(index, 1, files[0])
-        this.$set(this.communityMapForm.map[index], 'mapUrl', files[0].name)
+        this.$set(this.communityMapForm.map[index], 'floorMap', files[0].name)
       }
 
       console.log(this.communityMapForm.map[index])
     },
     // 校验地图文件是否可以更改
-    checkFilesStatus (e) {
-      setTimeout(() => {
-        e.preventDefault()
-      }, 0)
-      // e.preventDefault()
+    checkFilesStatus (e, index) {
+      let map = this.communityMapForm.map[index]
+      if (map) {
+        if (!map.operation && map.operation !== undefined) {
+          if (e) e.preventDefault()
+          this.$tip('已创建出入口，地图不允许修改', 'error')
+          return false
+        }
+      }
     },
+    // 文件格式校验
     validFile () {
       const validFiles = (rule, value, callback) => {
         if (value) {
-          if (!fileTypeAllow(value, 'svg')) {
+          if (!fileTypeAllow(value.split('?')[0], 'svg')) {
             callback(new Error('文件格式只支持svg'))
           } else {
             callback()
@@ -226,7 +286,13 @@ export default {
       ]
     }
   },
-  watch: {},
+  watch: {
+    visible (val) {
+      if (val && this.actionType === 'edit') {
+        this.getManageMember()
+      }
+    }
+  },
   filters: {
     fileName (val) {
       let text = '导入地图'

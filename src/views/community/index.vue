@@ -14,9 +14,10 @@
       :class="{'no-sidebar': currentManage.type === 2 }">
       <div class="content--sidebar">
         <group-tree
+          ref="groupTree"
           :format-list="formatTreeList"
           @current-change="handleCurrentChange"
-          @handle-empty="emptyChildren = true"
+          @handle-empty="emptyChildren = false"
         ></group-tree>
 
         <!---------------- 审核社群 ------------->
@@ -29,12 +30,13 @@
               v-for="(aud, $index) in auditList"
               class="items"
               :key="$index">
-              <span class="ellipsis">{{aud.name}}</span>
+              <span class="ellipsis">{{aud.unitName}}</span>
               <i class="g-success" @click="showDialogForm('audit')">通过</i>
-              <i class="g-danger">拒绝</i>
+              <i class="g-danger" @click="handleRejectApply(aud)">拒绝</i>
             </li>
           </ul>
           <div
+            v-show="!!unAuditingCount"
             slot="reference"
             class="community-auditing"
             :class="{active: unAuditingCount}">
@@ -43,7 +45,7 @@
         </el-popover>
       </div>
 
-      <div v-if="!emptyChildren && !loading" class="content__list--wrap">
+      <div v-if="emptyChildren && !loading" class="content__list--wrap">
         <!---
         当前选中社群类型
         商场、单店 、成员社群 ------------------->
@@ -119,12 +121,13 @@
               </p>
             </div>
           </div>
-          <div class="community__map--wrap">
+          <div v-if="contentMode === 'map'" class="community__map--wrap">
+
           </div>
-          <portal-list :current-community="currentCommunityInfo"></portal-list>
+          <portal-list v-else :current-community="currentCommunityInfo"></portal-list>
         </template>
       </div>
-      <ob-list-empty v-if="emptyChildren" text="">
+      <ob-list-empty v-if="!emptyChildren" text="">
         <span class="fs16">您还没有添加地图点此<a @click="showDialogForm('map')">【添加】</a></span>
       </ob-list-empty>
     </div>
@@ -135,57 +138,6 @@
       :title="dialogFormTitle"
       :visible.sync="dialogFormVisible"
     >
-      <!---------------- 商场添加成员 -------------->
-      <el-form
-        v-if="dialogFormType === 'add'"
-        ref="addForm"
-        label-width="80px"
-        label-position="left"
-        class="g-form-center"
-        :model="addMemberForm"
-        :rules="addMemberRules"
-      >
-        <el-form-item prop="name" data-type="member" label="名称">
-          <el-input placeholder="请输入名称" v-model.trim="addMemberForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="业态" prop="industryId">
-          <el-select v-model="addMemberForm.industryId" placeholder="请选择业态">
-            <el-option
-              v-for="item in industryList"
-              :key="item.industryId"
-              :label="item.industryName"
-              :value="item.industryId">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item
-          label="楼层"
-          prop="floorIndex">
-          <el-select v-model="addMemberForm.floorIndex" placeholder="请选择楼层">
-            <el-option
-              v-for="item in floorList"
-              :key="item.floorIndex"
-              :label="item.floorName"
-              :value="item.floorIndex">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="联系人" prop="contacts">
-          <el-input
-            type="text" placeholder="请输入联系人"
-            v-model.trim="addMemberForm.contacts"></el-input>
-        </el-form-item>
-        <el-form-item label="联系电话" prop="phone">
-          <el-input
-            type="text" placeholder="请输入联系电话"
-            v-model.trim="addMemberForm.phone"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button>取 消</el-button>
-          <el-button type="primary" @click="submitAddMemberForm('addForm')">添 加</el-button>
-        </el-form-item>
-      </el-form>
-
       <!---------------- 编辑社群 -------------->
       <base-form
         v-if="dialogFormType !== 'map'"
@@ -195,7 +147,7 @@
         :visible="dialogFormVisible"
         :data="communityInfo"
         :type="currentCommunityType"
-        @handle-cancel="dialogFormVisible = false"
+        @handle-cancel="() => { dialogFormVisible = false }"
         @handle-success="handleFormSuccessEmit">
       </base-form>
       <!---------------- 编辑楼层/地图 -------------->
@@ -203,6 +155,7 @@
         v-if="dialogFormType === 'map'"
         ref="mapForm"
         center
+        action-type="edit"
         :visible="dialogFormVisible"
         @handle-cancel="dialogFormVisible = false"
         @handle-success="handleFormSuccessEmit">
@@ -269,7 +222,8 @@ import {
   getIndustryList,
   deleteManageCommunity,
   deleteMemberInfo,
-  getAduitList
+  getAduitList,
+  getRejectAuditing
 } from '@/api/community'
 
 export default {
@@ -284,10 +238,9 @@ export default {
   data () {
     return {
       emptyChildren: true, // 组织架构是否无子成员
-      unAuditingCount: 1, // 未审核社群数量
       auditList: [
-        { name: '我是外来的我是外来的' },
-        { name: '我是外来的222222222' }
+        { unitName: '我是外来的我是外来的' },
+        { unitName: '我是外来的222222222' }
       ],
       contentMode: 'map', // 地图模式： map , 列表模式： list
       communityInfo: { // 管理社群、成员社群 详细信息
@@ -431,6 +384,9 @@ export default {
     },
     isManage () {
       return new Set(['market', 'store', 'chain']).has(this.currentCommunityType)
+    },
+    unAuditingCount () { // 未审核社群数量
+      return this.auditList.length
     }
   },
   methods: {
@@ -470,11 +426,11 @@ export default {
     * @param {String} type 弹框类型
     */
     showDialogForm (type) {
-      if (type !== 'map') {
-        getIndustryList({ groupGuid: 'default' }).then((res) => {
-          this.industryList = res.data
-        })
-      }
+      // if (type !== 'map') {
+      //   getIndustryList({ groupGuid: 'default' }).then((res) => {
+      //     this.industryList = res.data
+      //   })
+      // }
       this.dialogFormType = type
       this.dialogFormVisible = true
     },
@@ -530,9 +486,22 @@ export default {
     },
 
     // 编辑社群信息、楼层信息 弹框成功回调
-    handleFormSuccessEmit (type) {
+    handleFormSuccessEmit (data) {
       this.dialogFormVisible = false
+      switch (data.actionType) {
+        case 'audit':
+          this.getAuditList()
+          break
+        case 'map':
+          this.refreshTreeList()
+          break
+      }
     },
+    // 刷新组织架构
+    refreshTreeList () {
+      this.$refs.groupTree.getMemberTree()
+    },
+
     // 获取当前社群详情
     getCurrentCommunityInfo () {
       // 是否是成员
@@ -557,10 +526,33 @@ export default {
     getAuditList () {
       if (!this.currentManage.groupGuid) return
       getAduitList({ groupGuid: this.currentManage.groupGuid }).then((res) => {
-        this.auditList = res.data
+        // this.auditList = res.data
       })
     },
-// /group/read/list/audit
+
+    // 拒绝加入请求
+    handleRejectApply (data) {
+      let mGuid = this.currentManage.groupGuid
+      let param = {
+        parentGuid: mGuid,
+        guid: data.guid
+      }
+      if (mGuid) {
+        this.$affirm({ title: '拒绝申请', text: '确认拒绝此社群加入？'}, (action, instance, done) => {
+          if (action === 'confirm') {
+            getRejectAuditing(param).then(() => {
+              this.getAuditList()
+            })
+          }
+          done()
+        })
+      } else {
+        this.$tip('管理社群不存在', 'error')
+      }
+
+
+    },
+
 
     // 显示单表单元素form
     showOneInputForm (type) {
@@ -742,5 +734,8 @@ export default {
     }
   }
 
+  .community__map--wrap{
+    height: calc(100% - 240px);
+  }
 
 </style>

@@ -8,6 +8,17 @@ export function GetAreaList () {
   })
 }
 
+export function uploadFileToOss () {
+  return request({
+    tip: false,
+    url: `${prefix[0]}/oss/file`,
+    method: 'post',
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
 // 获取商户下管理员社群列表
 export function GetManageList () {
   return request({
