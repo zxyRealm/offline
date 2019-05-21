@@ -134,7 +134,7 @@ export default {
     // 展示默认数据
     showDefaultValue () {
       let idArr = this.value.split(',')
-      if (this.value && idArr[0] && idArr[1] && idArr[2]) {
+      if (this.value && idArr[0] && idArr[1] && idArr[2] && this.originAddress[2]) {
         let [pMap, cMap, aMap] = [new Map(), new Map(), new Map()]
         this.originAddress[0].map(item => pMap.set(item[this.childProps.id], item))
         this.originAddress[1].map(item => cMap.set(item[this.childProps.id], item))

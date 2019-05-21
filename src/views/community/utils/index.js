@@ -1,5 +1,6 @@
 import { validateRule } from '@/utils/validate'
 import Cookie from 'js-cookie'
+import Store from '@/store'
 import {
   getMemberNameIsExist,
   getManageNameIsExist
@@ -11,12 +12,16 @@ export function validateCommunityName (rule, value, callback) {
     manage: getManageNameIsExist
   }
   const params = {
-    merchantGuid: Cookie.get('user_uuid')
+    merchantGuid: Cookie.get('user_uuid'),
+    groupGuid: Store.state.currentManage.groupGuid
   }
   params[rule.field] = value
-
   if (!value) {
-    callback(new Error('请输入社群名称'))
+    if (!rule.required) {
+      callback()
+    } else {
+      callback(new Error('请输入社群名称'))
+    }
   } else {
     if (value.length > 32) {
       callback(new Error('请输入1-32位字符'))

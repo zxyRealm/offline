@@ -20,16 +20,6 @@
           :disabled="actionType === 'audit'"></el-input>
       </el-form-item>
 
-      <!------------------------  备注名 --------------------->
-      <el-form-item
-        v-if="actionType === 'audit'"
-        label="备注名"
-        prop="name">
-        <el-input
-          placeholder="请输入备注名"
-          v-model.trim="communityForm.name"></el-input>
-      </el-form-item>
-
       <!------------------------------ 仅商场包含自定义业态 ----------------------->
       <el-form-item
         v-if="hasCustomIndustry"
@@ -37,18 +27,18 @@
         prop="defaultIndustry"
         class="industry-form-item">
         <el-radio-group v-model="communityForm.defaultIndustry">
-          <el-radio :label="true">默认业态</el-radio>
-          <el-radio :label="false">自定义业态</el-radio>
+          <el-radio :label="0">默认业态</el-radio>
+          <el-radio :label="1">自定义业态</el-radio>
         </el-radio-group>
         <div
           class="industry-label--wrap"
-          v-show="communityForm.defaultIndustry">
+          v-show="communityForm.defaultIndustry || communityForm.defaultIndustry === 0">
           {{typeText}}：
           <span v-for="(item, $index) in industryList" :key="$index">
             {{$index ? '、' : ''}}{{item.industryName}}
           </span>
           <i
-            v-show="communityForm.defaultIndustry === false"
+            v-show="communityForm.defaultIndustry === 1"
             class="iconfont icon-bianji"
             @click="() => { customWrapVisible = true }">
           </i>
@@ -95,21 +85,6 @@
 
       </el-form-item>
 
-
-      <!-------------------  商场管理员下成员选取业态   -------------------->
-      <el-form-item
-        v-if="hasIndustry"
-        label="业态"
-        prop="industryIndex">
-        <el-select v-model="communityForm.industryIndex">
-          <el-option
-            v-for="(i,$index) in industryList"
-            :key="$index"
-            :value="$index"
-            :label="i.industryName"></el-option>
-        </el-select>
-      </el-form-item>
-
       <!-------------------  地区地址 仅管理社群包含此信息 ------------------------------->
       <template v-if="hasAddress">
         <el-form-item
@@ -130,29 +105,6 @@
             v-model.trim="communityForm.address"></el-input>
         </el-form-item>
       </template>
-      <!------------------------  楼层及位置选取  ---------------------------->
-
-      <template  v-if="hasFloor">
-        <el-form-item
-          label="楼层"
-          porp="floor">
-          <el-select v-model="communityForm.floor">
-            <el-option
-              v-for="(f, index) in floorList"
-              :key="index"
-              :value="index"
-              :label="f.floorName"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="communityForm.floor || communityForm.floor === 0">
-          <div class="map--wrap">
-
-            <!--  成员位置绑定  -->
-
-          </div>
-        </el-form-item>
-      </template>
-
 
       <!--编辑修改外来加入成员时无以下信息-->
       <template v-if="type !== 'join' && actionType !== 'audit'">
@@ -179,7 +131,6 @@
 <script>
 import { mapState } from 'vuex'
 import { validateRule, validPhone, validateContact } from '@/utils/validate'
-import { validateCommunityName } from '../utils'
 import {
   getManageNameIsExist,
   updateManageCommunity,
@@ -205,7 +156,34 @@ export default {
         callback()
       }
     }
+    const validateCommunityName = (rule, value, callback) => {
+      const params = {
+        name: value,
+        merchantGuid: this.$cookie().get('user_uuid')
+      }
+      if (!value) {
+        callback(new Error('请输入社群名称'))
+      } else {
+        if (value.length > 32) {
+          callback(new Error('请输入1-32位字符'))
+        } else if (validateRule(value, 2)) {
+          if (this.actionType === 'edit' && this.originName === value) {
+            callback()
+          } else {
+            getManageNameIsExist(params).then((res) => {
+              !res.data ? callback() : callback(new Error('社群名称已存在'))
+            }).catch((err) => {
+              callback(new Error(err.msg || '验证失败'))
+            })
+          }
+        } else {
+          callback(new Error('仅限汉字/字母/数字/下划线/空格'))
+        }
+      }
+    }
+
     return {
+      originName: '',
       customWrapVisible: false,
       customIndustry: { // 动态表单绑定值业态列表
         industry: []
@@ -219,8 +197,7 @@ export default {
         contacts: '',
         phone: '',
         defaultIndustry: '',
-        industryIndex: '',
-        coordinates: []
+        industryIndex: ''
       },
       communityRules: {
         name: [
@@ -245,10 +222,7 @@ export default {
         industryIndex: [
           { required: true, message: '请选择业态', trigger: 'blur' }
         ]
-      },
-      floorList: [ // 楼层列表
-        { floorName: '', floorId: '' }
-      ]
+      }
     }
   },
   props: {
@@ -308,27 +282,17 @@ export default {
     isManage () { // 是否为管理社群
       return new Set(['market', 'store', 'chain']).has(this.type) && this.actionType !== 'audit'
     },
-    hasIndustry () {
-      return this.actionType === 'add' && this.type === 'market'
-    },
     hasAddress () { // 是否显示地区信息
       return new Set(['chain', 'store']).has(this.type) ||
         (this.$route.name === 'community' && this.type === 'market' && this.actionType !== 'add') ||
         (this.$route.name !== 'community' && this.type === 'market' && this.actionType === 'add')
     },
-    hasFloor () { // 是否展示楼层
-      return new Set(['join', 'member']).has(this.type) || this.actionType === 'audit'
-    },
     hasCustomIndustry () {
-      return this.type === 'market' &&
-        ((this.$route.name === 'community' && this.type === 'edit') ||
-        (this.$route.name !== 'community' && this.type === 'add'))
+      return this.type === 'market'
     }
   },
   mounted () {
-    if (this.actionType === 'edit') {
-      this.communityForm = { ...this.data }
-    }
+    this.initData()
   },
   methods: {
     // 获取楼层列表
@@ -345,23 +309,20 @@ export default {
     },
     // 提交表单
     submitForm () {
-      if (this.type === 'market') this.submitCustomForm('customIndustry')
+      if (this.type === 'market' && this.communityForm.defaultIndustry) this.submitCustomForm('customIndustry')
       let apiMap = {
         edit: updateManageCommunity,
-        add: addManageCommunity,
-        audit: getAcceptAuditing,
-        member: {
-          add: addMember,
-          edit: updateMemberInfo
-        }
+        add: addManageCommunity
       }
       this.$refs.communityForm.validate((valid) => {
+        // console.log('list--------', this.industryList)
         if (valid) {
           let industryList = this.industryList
           let actionType = this.actionType
-          let { name, pca, address, contacts, phone, defaultIndustry,industryIndex } = { ...this.communityForm }
+          let { name, pca, address, contacts, phone, defaultIndustry, groupGuid } = { ...this.communityForm }
           let pcaList = pca.split(',')
           let params = {
+            groupGuid,
             name,
             type: this.communityType,
             phone,
@@ -372,30 +333,18 @@ export default {
             districtCode: pcaList[2],
             merchantGuid: this.$cookie().get('user_uuid')
           }
-          if (this.type === 'market' && actionType !== 'audit') {
+          if (this.type === 'market') {
               params = {
                 ...params,
                 defaultIndustry,
-                industryInfo: !defaultIndustry ? { ...industryList } : []
+                industryInfo: defaultIndustry ? industryList : []
               }
           }
-          if (this.currentManage.type === 1 && this.type !== 'market') { // 当管理社群为商场时成员社群业态
-            params = {
-              ...params,
-              industryId: industryList[industryIndex].industryId,
-              industryName: industryList[industryIndex].industryName
-            }
-          }
-
-          if (this.isManage || actionType === 'audit') {
-            apiMap[actionType](params).then(() => {
-              this.$emit('handle-success', { type: this.type, actionType })
-            })
-          } else {
-            apiMap[this.type][this.actionType](params).then(() => {
-              this.$emit('handle-success', { type: this.type, actionType })
-            })
-          }
+          apiMap[actionType](params).then(() => {
+            this.$emit('handle-success', { type: this.type, actionType })
+          }).catch(error => {
+            console.error(error)
+          })
 
         }
       })
@@ -451,26 +400,35 @@ export default {
       //   this.customErrorText = '请添加自定义业态'
       //   return false
       // }
-      console.log('formName', formName)
+      // console.log('formName', this.industryList)
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.customWrapVisible = false
           this.industryList = this.customIndustry.industry.filter(item => item.industryName)
         }
       })
+    },
+    // 编辑时初始化数据
+    initData () {
+      if (!this.actionType === 'edit') return
+      let data = JSON.parse(JSON.stringify(this.data))
+      this.originName = JSON.parse(JSON.stringify(this.data.name || ''))
+      data.pca = data.provinceCode ? `${data.provinceCode},${data.cityCode},${data.districtCode}` : ''
+      this.communityForm = data
     }
   },
   watch: {
     'communityForm.defaultIndustry': {
       handler (val) {
         switch (val) {
-          case true:
+          case 0:
             this.customWrapVisible = false
             getIndustryList({ groupGuid: 'default' }).then((res) => {
               this.industryList = res.data
             })
             break
-          case false:
+          case 1:
+            console.log('cusotm-------------')
             if (this.actionType === 'edit') {
               getIndustryList({ groupGuid: this.data.groupGuid }).then((res) => {
                 this.customIndustry.industry = res.data
@@ -487,14 +445,10 @@ export default {
       immediate: true
     },
     visible (val) {
-      if (val && this.actionType === 'edit') {
-        this.communityForm = JSON.parse(JSON.stringify(this.data))
-      }
-      if (!val) this.customWrapVisible = false
-    },
-    hasFloor (val) {
       if (val) {
-        this.getFloorList()
+       this.initData()
+      } else {
+        this.customWrapVisible = false
       }
     }
   }

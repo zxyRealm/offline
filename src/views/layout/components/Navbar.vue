@@ -161,7 +161,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 import { eventObject } from '@/utils/event'
-import { OssSignature, FirstLogin, NoticeReadState } from '@/api/common'
+import { OssSignature, FirstLogin, getNoticeReadState } from '@/api/common'
 import { CheckGroupNameExist, AddNewCommunity, getManageList } from '@/api/community'
 import { validateRule, validPhone } from '@/utils/validate'
 import { parseTime, fileTypeAllow, IntToFloor } from '@/utils'
@@ -445,7 +445,7 @@ export default {
   },
   created () {
     // 是否有新的消息
-    NoticeReadState().then(res => {
+    getNoticeReadState({ merchantGuid: this.$cookie().get('user_uuid')}).then(res => {
       this.notifState = res.data > 0
     }).catch(error => {
       console.info(error)

@@ -45,7 +45,11 @@
 
 <script>
 import { validateRule } from '@/utils/validate'
-
+import {
+  updateDeviceInfo,
+  getDeviceNameIsExist,
+  getCameraNameExist
+} from '@/api/device'
 export default {
   name: 'side-dialog',
   props: {
@@ -67,7 +71,7 @@ export default {
     },
     valueKey: {
       type: String,
-      default: 'name'
+      default: 'deviceName'
     }
   },
   data () {
@@ -77,19 +81,22 @@ export default {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           // 一体机、服务器名称验重
-          let subData = { name: value }
-          if (this.$route.name === 'equipmentCamera') {
-            // CheckCameraName(subData).then(res => {
-            //   res.data ? callback(new Error('该名称已存在')) : callback()
-            // }).catch(err => {
-            //   callback(new Error(err.msg || '验证失败'))
-            // })
+          let param = {
+            groupGuid: this.currentManage.groupGuid,
+            deviceName: value
+          }
+          if (this.editNameForm.deviceType === 3) {
+            getCameraNameExist(param).then(res => {
+              res.data ? callback(new Error('该名称已存在')) : callback()
+            }).catch(err => {
+              callback(new Error(err.msg || '验证失败'))
+            })
           } else {
-            // DeviceAliasExist(subData).then(res => {
-            //   res.data ? callback(new Error('该名称已存在')) : callback()
-            // }).catch(err => {
-            //   callback(new Error(err.msg || '验证失败'))
-            // })
+            getDeviceNameIsExist(param).then(res => {
+              res.data ? callback(new Error('该名称已存在')) : callback()
+            }).catch(err => {
+              callback(new Error(err.msg || '验证失败'))
+            })
           }
         } else {
           callback(new Error('仅限汉字/字母/数字/下划线/空格'))
@@ -113,6 +120,7 @@ export default {
   created () {
   },
   mounted () {
+    this.initData()
   },
   computed: {},
   methods: {
@@ -121,7 +129,6 @@ export default {
     },
     showEditForm () {
       this.isEdit = true
-      this.editNameForm.deviceName = this.data[this.valueKey]
     },
     submitEditNameForm (formName) {
       this.$refs[formName].validate((valid) => {
@@ -129,12 +136,17 @@ export default {
           this.$emit('handle-edit', this.editNameForm)
         }
       })
+    },
+    initData () {
+      this.editNameForm = JSON.parse(JSON.stringify(this.data))
     }
   },
   watch: {
     visible (val) {
       if (!val) {
         this.isEdit = false
+      } else {
+        this.initData()
       }
     }
   }

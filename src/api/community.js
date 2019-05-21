@@ -58,7 +58,6 @@ export function deleteManageCommunity (data) {
 }
 
 
-
 // 自定义业态查询
 export function getIndustryList (data) {
   return request({
@@ -76,7 +75,7 @@ export function getManageList (data) {
 }
 
 // 管理社群待审核列表
-export function getAduitList (data) {
+export function getAuditList (data) {
   return request({
     url: `${prefix[0]}/group/read/list/audit`,
     method: 'get',
@@ -109,6 +108,7 @@ export function getAcceptAuditing (data) {
 // 获取管理社群下成员社群组织结构
 export function getManageMemberTree (data) {
   return request({
+    tip: false,
     url: `${prefix[0]}/group/read/structure/${data.groupGuid}`,
     method: 'get'
   })
@@ -145,17 +145,17 @@ export function addMember (data) {
 // 获取成员社群信息
 export function getMemberInfo (data) {
   return request({
-    url: `${prefix[0]}/group/unit`,
-    method: 'get',
-    data
+    
+    url: `${prefix[0]}/group/unit/read/${data.guid}`,
+    method: 'get'
   })
 }
 
 // 修改成员社群信息
 export function updateMemberInfo (data) {
   return request({
-    url: `${prefix[0]}/group/unit/read/${data.guid}`,
-    method: 'get',
+    url: `${prefix[0]}/group/unit`,
+    method: 'put',
     data
   })
 }
@@ -163,16 +163,15 @@ export function updateMemberInfo (data) {
 // 删除成员社群
 export function deleteMemberInfo (data) {
   return request({
-    url: `${prefix[0]}/group/unit`,
-    method: 'delete',
-    data
+    url: `${prefix[0]}/group/unit/${data.guid}`,
+    method: 'delete'
   })
 }
 
 // 成员社群名称是否存在
 export function getMemberNameIsExist (data) {
   return request({
-    url: `${prefix[0]}/group/read/unit/name`,
+    url: `${prefix[0]}/group/unit/read/name`,
     method: 'get',
     data
   })

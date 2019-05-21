@@ -10,255 +10,165 @@ export function getGroupDeviceList (data) {
   })
 }
 
-// 获取商户一体机设备列表
-export function GetOwnDeviceList (data) {
+// 获取管理社群下设备列表
+export function getMemberDeviceList (data) {
   return request({
-    url: '/merchant/device/list',
+    url: `${prefix[0]}/device/read/search`,
+    method: 'get',
     data
   })
 }
 
-// 获取管理社群下服务器列表
-export function GetGroupServerList (data) {
+// 统计管理员社群设备的数量
+export function getManageDeviceState (data) {
   return request({
-    url: '/device/group/server',
+    url: `${prefix[0]}/device/read/count/group/${data.groupGuid}`,
+    method: 'get',
     data
   })
 }
 
-// 获取商户服务器列表
-export function GetServerDeviceList (data) {
+
+// 统计成员社群设备的数量
+export function getMemberDeviceState (data) {
   return request({
-    url: '/merchant/device/server/list',
+    url: `${prefix[0]}/device/read/count/group/unit/${data.guid}`,
+    method: 'get',
     data
   })
 }
 
-// 商户添加设备(一体机、服务器)
-export function AddDevice (data) {
+
+// 查询社群下没有绑定出入口的设备
+export function getUnbindDeviceList (data) {
   return request({
-    url: '/merchant/device/create',
+    url: `${prefix[0]}/device/read/list/free`,
+    method: 'post',
     data
   })
 }
 
-// 查询管理社群下所有设备（一体机、摄像头）
-export function GetGroupDevice (data) {
+// 下载一体机导入模板
+export function getTemplateUrl (data) {
   return request({
-    url: '/device/group/all',
+    url: `${prefix[0]}/device/read/import/template`,
+    method: 'get',
     data
   })
 }
 
-// 查询用户所有设备（一体机、摄像头）
-export function GetAllDevice (data) {
+
+// 设备绑定详情
+export function getDeviceBindInfo (data) {
   return request({
-    url: '/device/all',
+    url: `${prefix[0]}/device/read/bindingInfo/${data.deviceKey}`,
+    method: 'get',
     data
   })
 }
 
-// 查询管理社群下已经绑定了出入口的一体机
-export function GetGroupAioList (data) {
+
+// 单设备信息查询
+export function getDeviceInfo (data) {
   return request({
-    url: '/device/group/aio',
+    url: `${prefix[0]}/device/read/info`,
+    method: 'get',
     data
   })
 }
 
-// 查询用户设备中已经绑定了出入口的一体机
-export function GetAllAioList (data) {
+
+// 单设备状态刷新
+export function getDeviceState (data) {
   return request({
-    url: '/device/all/aio',
+    url: `${prefix[4]}/device/state/${data.deviceKey}`,
+    method: 'get',
     data
   })
 }
 
-// 摄像头
 
-// 商户添加设备(摄像头)
-export function AddCamera (data) {
+// 校验设备序列号
+export function getDeviceKeyState ({ deviceKey }) {
   return request({
-    url: '/device/camera/add',
+    url: `${prefix[0]}/device/${deviceKey}`,
+    method: 'get'
+  })
+}
+
+
+// 服务器IPC 列表(摄像头)
+
+export function getCameraList (data) {
+  return request({
+    url: `${prefix[0]}/ipc/read/${data.deviceKey}`,
+    method: 'get',
     data
   })
 }
 
-// 摄像头列表
-export function GetCameraList (data) {
+// IPC 名称校验(摄像头)
+
+export function getCameraNameExist (data) {
   return request({
-    url: '/device/camera',
+    url: `${prefix[0]}/ipc/read/existName`,
+    method: 'get',
     data
   })
 }
 
-// 查询管理社群下已经绑定了出入口的摄像头
-export function GetGroupCameraList (data) {
+// 删除一体机、服务器设备信息
+export function deleteDevice ({ deviceKey }) {
   return request({
-    url: '/device/group/camera',
+    url: `${prefix[0]}/device/${deviceKey}`,
+    method: 'DELETE'
+  })
+}
+
+// 设备绑定出入口
+export function bindDeviceToPortal (data) {
+  return request({
+    url: `${prefix[0]}/device/portal`,
+    method: 'POST',
     data
   })
 }
 
-// 查询用户设备中已经绑定了出入口的摄像头
-export function GetAllCameraList (data) {
+// 设备解绑出入口
+export function unbindDeviceToPortal ({ deviceKey }) {
   return request({
-    url: '/device/all/camera',
+    url: `${prefix[0]}/device/portal/${deviceKey}`,
+    method: 'DELETE'
+  })
+}
+
+
+// 设备名称重复性校验
+export function getDeviceNameIsExist (data) {
+  return request({
+    url: `${prefix[0]}/device/read/name`,
+    method: 'POST',
     data
   })
 }
 
-// 摄像头设备查询
-export function SearchCamera (data) {
+
+// 修改一体机、服务器设备信息
+export function updateDeviceInfo (data) {
   return request({
-    url: '/device/camera/search',
+    url: `${prefix[0]}/device`,
+    method: 'PUT',
     data
   })
 }
 
-// 摄像头名称验重
-export function CheckCameraName (data) {
+// 添加设备 一体机、服务器
+export function addDevice (data) {
   return request({
-    tip: false,
-    url: '/device/existName',
+    url: `${prefix[0]}/device`,
+    method: 'POST',
     data
   })
 }
 
-// 摄像头名称修改
-export function UpdateCameraName (data) {
-  return request({
-    url: '/device/camera/name/update',
-    data
-  })
-}
-// 摄像头批量删除
-export function DeleteCameraBatch (data) {
-  return request({
-    url: '/device/camera/delete',
-    data
-  })
-}
 
-// 设备最新版本信息
-export function GetDeviceVersion (data) {
-  return request({
-    url: '/device/deviceType/firmware',
-    data
-  })
-}
-
-// 商户删除设备
-export function DeleteDevice (data) {
-  return request({
-    url: '/merchant/device/delete',
-    data
-  })
-}
-
-// 商户批量删除设备
-export function DeleteDeviceBatch (data) {
-  return request({
-    url: '/merchant/device/delete/batch',
-    data
-  })
-}
-
-// 修改设备别名
-export function ChangeDeviceAlias (data) {
-  return request({
-    url: '/merchant/device/alias',
-    data
-  })
-}
-
-// (一体机、服务器)设备别名是否存在
-export function DeviceAliasExist (data) {
-  return request({
-    tip: false,
-    url: '/merchant/device/alias/exist',
-    data
-  })
-}
-
-// (一体机、服务器)批量导入模板下载地址获取
-export function DownloadSrc (data) {
-  return request({
-    url: '/merchant/import/template',
-    data
-  })
-}
-
-// 设备是否存在
-export function DeviceIsExisted (data) {
-  return request({
-    tip: false,
-    url: '/device/deviceKey',
-    data
-  })
-}
-
-// 设备是否已经被添加
-export function DeviceIsAdded (data) {
-  return request({
-    tip: false,
-    url: '/merchant/device/exist',
-    data
-  })
-}
-
-// 获取设备在线状态
-export function GetDeviceState (data) {
-  return request({
-    url: '/device/state/use',
-    data
-  })
-}
-
-// // 设备重启
-// export function DeviceRestart (data) {
-//   return request({
-//     url: '/device/restart',
-//     data
-//   })
-// }
-
-// 设备重置、重启、启用禁用
-export function DeviceHandleUrl (url, data) {
-  return request({
-    url: url,
-    data
-  })
-}
-
-// 设备升级
-export function DeviceUpgrade (data) {
-  return request({
-    url: '/device/upgrade',
-    data
-  })
-}
-
-// // 设备启用、禁用
-// export function DeviceOnOff (data) {
-//   return request({
-//     url: '/device/startOrShutdown',
-//     data
-//   })
-// }
-
-// 社群下出口设备列表（管理层ID）
-export function PortalDeviceList (data) {
-  return request({
-    url: '/portal/device/group',
-    data
-  })
-}
-
-// 社群下出口设备列表(通过成员ID获取)
-export function PortalMemberDevice (data) {
-  return request({
-    url: '/portal/member/device',
-    data
-  })
-}

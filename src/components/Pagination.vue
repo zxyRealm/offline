@@ -53,7 +53,7 @@ export default {
   },
   computed: {},
   methods: {
-    currentChange (...args) {
+    currentChange (args) {
       this.$emit('current-change', args)
     }
   }

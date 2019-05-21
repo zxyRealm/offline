@@ -400,18 +400,6 @@ export function byKeyDeviceType (keys) {
           msg: '人脸抓拍一体机'
         }
         break
-      case '8A45':
-        backObj = {
-          type: 4,
-          msg: '客行分析摄像头'
-        }
-        break
-      case '7A45':
-        backObj = {
-          type: 5,
-          msg: '人脸抓拍摄像头'
-        }
-        break
       default:
         backObj = {
           error: '序列号不存在'

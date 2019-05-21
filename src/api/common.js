@@ -19,6 +19,17 @@ export function uploadFileToOss () {
   })
 }
 
+
+// 判断用户下是否存在设备
+export function getUserHasDevice (data) {
+  return request({
+    url: `${prefix[0]}/device/read/exist/${data.merchantGuid}`,
+    method: 'get',
+    data
+  })
+}
+
+
 // 获取商户下管理员社群列表
 export function GetManageList () {
   return request({
@@ -60,9 +71,10 @@ export function FirstLogin (data) {
 }
 
 // 账号是否有未读通知消息
-export function NoticeReadState (data) {
+export function getNoticeReadState (data) {
   return request({
-    url: '/siteNotice/unRead',
+    url: `${prefix[0]}/siteNotice/read/unRead/${data.merchantGuid}`,
+    method: 'get',
     data
   })
 }

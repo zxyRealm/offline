@@ -51,16 +51,18 @@
           </el-radio-group>
           <div class="device-filter select-input--wrap">
             <el-select size="small" class="type-select" v-model="filterParams.type">
-              <el-option value="deviceName">名称</el-option>
-              <el-option value="deviceKey">序列号</el-option>
+              <el-option value="deviceName" label="名称"></el-option>
+              <el-option value="deviceKey" label="序列号"></el-option>
             </el-select>
             <el-input
+              clearable
               size="small"
-              placeholder="请输入名称"
+              :placeholder="placeholder"
               class="input-item"
               v-model.trim="filterParams.text"></el-input>
           </div>
           <el-select
+            clearable
             size="small"
             placeholder="请选择出入口"
             class="input-item"
@@ -70,8 +72,8 @@
               :label="item.name"
               :value="item.portalGuid"></el-option>
           </el-select>
-          <el-button size="small" icon="el-icon-search"></el-button>
-          <a class="g-fr">刷新</a>
+          <el-button size="small" icon="el-icon-search" @click="getDeviceList()"></el-button>
+          <a class="g-fr" @click="getDeviceList(pagination.index)">刷新</a>
         </div>
         <el-scrollbar class="scrollbar-wrap hidden-x">
           <ul class="list-wrap">
@@ -99,11 +101,11 @@
                 </el-form>
                 <template v-else>
                   <div class="ellipsis-64">
-                    {{item.name}}
+                    {{item.deviceName}}
                   </div>
                   <div class="handle__icon--wrap g-fr">
                     <i class="iconfont icon-bianji" @click="handleEditNameForm(item, $index, true)"></i>
-                    <i class="iconfont icon-shuaxin" @click="refreshState(item.deviceKey)"></i>
+                    <i class="iconfont icon-shuaxin" @click="getDeviceState(item, $index)"></i>
                     <el-popover
                       popper-class="device__handle--popover"
                       placement="right-start"
@@ -130,9 +132,9 @@
                     {{item.deviceKey}}
                   </span>
                   <span
-                    :class="{offline: item.onLineState}"
+                    :class="{offline: item.onlineState}"
                     class="g-fr state">
-                    {{item.onLineState | filterType('onLineState')}}</span>
+                    {{item.onlineState | filterType('onlineState')}}</span>
                 </p>
               </div>
             </li>
@@ -140,95 +142,101 @@
           <custom-pagination
             class="not-mt"
             :total="pagination.total"
+            @current-change="currentChange"
           ></custom-pagination>
         </el-scrollbar>
       </div>
 
-      <!---------------------- 添加弹框表单 ------------------------------->
-      <el-dialog
-        width="560px"
-        :title="dialogTitle"
-        :visible.sync="dialogFormVisible">
+    </div>
 
-        <!-------------------- 一体机或者服务器添加 ---------------------------->
-        <el-form
-          v-if="dialogType === 'aio' || dialogType === 'server'"
-          ref="deviceForm"
-          class="dialog__form--wrap w-360"
-          label-position="left"
-          :rules="deviceFormRules"
-          :label-width="formLabelWidth"
-          :model="deviceForm">
-          <el-form-item label="名称" prop="deviceName">
-            <el-input
-              placeholder="请输入名称"
-              v-model.trim="deviceForm.deviceName"
-              autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="序列号" prop="deviceKey">
-            <el-input
-              placeholder="请输入序列号"
-              v-model.trim="deviceForm.deviceKey"
-              autocomplete="off"></el-input>
-          </el-form-item>
+    <!---------------------- 添加弹框表单 ------------------------------->
+    <el-dialog
+      width="560px"
+      :title="dialogTitle"
+      :visible.sync="dialogFormVisible">
 
-          <!------------ 仅添加一体机时需要类型参数 ---------------->
+      <!-------------------- 一体机或者服务器添加 ---------------------------->
+      <el-form
+        v-if="dialogType === 'aio' || dialogType === 'server'"
+        ref="deviceForm"
+        class="dialog__form--wrap w-360"
+        label-position="left"
+        :rules="deviceFormRules"
+        :label-width="formLabelWidth"
+        :model="deviceForm">
+        <el-form-item label="名称" prop="deviceName">
+          <el-input
+            placeholder="请输入名称"
+            v-model.trim="deviceForm.deviceName"
+            autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="序列号" prop="deviceKey">
+          <el-input
+            placeholder="请输入序列号"
+            v-model.trim="deviceForm.deviceKey"
+            autocomplete="off"></el-input>
+        </el-form-item>
 
-          <el-form-item v-if="dialogType === 'aio'" label="选择类型" prop="positionType">
-            <el-select v-model="deviceForm.positionType" placeholder="请选择类型">
-              <el-option label="出入口设备" :value="1"></el-option>
-              <el-option label="通道设备" :value="2"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
+        <!------------ 仅添加一体机时需要类型参数 ---------------->
+        <!--v-if="dialogType === 'aio'"-->
+        <el-form-item  label="选择类型" prop="positionType">
+          <el-select
+            v-model="deviceForm.positionType"
+            placeholder="请选择类型">
+            <el-option label="出入口设备" :value="1"></el-option>
+            <el-option label="通道设备" :value="2"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
 
-        <!------------------------------- 添加设备 --------------------------------->
-        <!------------ 区分服务器、一体机（一体机可批量添加） ------->
+      <!------------------------------- 添加设备 --------------------------------->
+      <!------------ 区分服务器、一体机（一体机可批量添加） ------->
 
-        <div v-if="dialogType === 'device'" class="device__dialog-content">
-          <div class="item">
-            <img src="../../assets/device/aio-device.png" alt="">
-            <h4 class="">一体机</h4>
-            <div class="handle">
-              <span class="c-blue" @click="dialogType = 'aio'">手动添加</span>
-              <span @click="dialogType = 'batch'">批量添加</span>
-            </div>
-          </div>
-          <div class="item">
-            <img src="../../assets/device/server-device.png" alt="">
-            <h4>服务器</h4>
-            <div class="handle">
-              <span @click="dialogType = 'server'">手动添加</span>
-            </div>
+      <div v-if="dialogType === 'device'" class="device__dialog-content">
+        <div class="item">
+          <img src="../../assets/device/aio-device.png" alt="">
+          <h4 class="">一体机</h4>
+          <div class="handle">
+            <span class="c-blue" @click="dialogType = 'aio'">手动添加</span>
+            <span @click="dialogType = 'batch'">批量添加</span>
           </div>
         </div>
+        <div class="item">
+          <img src="../../assets/device/server-device.png" alt="">
+          <h4>服务器</h4>
+          <div class="handle">
+            <span @click="dialogType = 'server'">手动添加</span>
+          </div>
+        </div>
+      </div>
 
-        <!-------------------- 批量添加一体机 ----------------------->
-        <el-form
-          v-if="dialogType === 'batch'"
-          ref="excelImportForm"
-          class="dialog__form--wrap w-280"
-          :model="excelImportForm"
-          :rules="excelImportRules"
-        >
-          <p class="form--text">批量导入模版<a :href="downloadSrc">下载模板</a></p>
-          <el-form-item prop="filename">
-            <el-input
-              class="input__suffix--pr42"
-              placeholder="请选取文件"
-              readonly v-model.trim="excelImportForm.filename">
+      <!-------------------- 批量添加一体机 ----------------------->
+      <el-form
+        v-if="dialogType === 'batch'"
+        ref="excelImportForm"
+        class="dialog__form--wrap w-280"
+        :model="excelImportForm"
+        :rules="excelImportRules"
+      >
+        <p class="form--text">批量导入模版<a :href="downloadSrc">下载模板</a></p>
+        <el-form-item prop="filename">
+          <el-input
+            class="input__suffix--pr42"
+            placeholder="请选取文件"
+            readonly v-model.trim="excelImportForm.filename">
               <span slot="suffix">
                 <el-upload
                   ref="excelUpload"
                   :data="{
                     groupGuid: currentManage.groupGuid,
                     serverKey: $route.query.server_key,
-                    merchantGuid: userInfo.developerId
+                    merchantGuid: $cookie().get('user_uuid')
                   }"
                   name="excelFile"
                   class="import--excel white"
                   :action="excelUrl"
                   :on-change="handleChange"
+
                   :on-progress="handleProgress"
                   :multiple="false"
                   :auto-upload="false"
@@ -237,40 +245,41 @@
                   <a href="javascript:void(0)">导入&nbsp;&nbsp;</a>
                 </el-upload>
               </span>
-            </el-input>
+          </el-input>
 
-          </el-form-item>
-        </el-form>
+        </el-form-item>
+      </el-form>
 
-        <div v-if="dialogType !== 'device'" slot="footer" class="dialog-footer g-center">
-          <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary"
-                     @click="submitDeviceForm(dialogType === 'batch' ? 'excelImportForm' : 'deviceForm')">确 定
-          </el-button>
-        </div>
-      </el-dialog>
+      <div v-if="dialogType !== 'device'" slot="footer" class="dialog-footer g-center">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button
+          type="primary"
+          @click="submitDeviceForm(dialogType === 'batch' ? 'excelImportForm' : 'deviceForm')">确 定
+        </el-button>
+      </div>
+    </el-dialog>
 
 
-      <upload-progress :visible.sync="progressVisible">
-        正在导入，请耐心等待…<br>{{percent}}
-      </upload-progress>
+    <upload-progress :visible.sync="progressVisible">
+      正在导入，请耐心等待…<br>{{percent}}
+    </upload-progress>
 
-      <!-------------------------侧边弹出框------------------------->
-      <side-dialog
-        show-form
-        :visible.sync="visibleSideDialog"
-        :data="currentDeviceInfo"
-        :show-footer="currentDeviceInfo.type !== 3"
-      >
-        <div slot="content">
-          <ul class="info-list">
-            <li
-              v-for="(info,index) in baseInfoList"
-              :key="index"
-              class="info-item">
-              <span class="label">{{info.label}}：</span>
-              <span>
-              <template v-if="info.key === 'onLineState'">
+    <!-------------------------侧边弹出框------------------------->
+    <side-dialog
+      show-form
+      :visible.sync="visibleSideDialog"
+      :data="currentDeviceInfo"
+      :show-footer="currentDeviceInfo.type !== 3"
+    >
+      <div slot="content">
+        <ul class="info-list">
+          <li
+            v-for="(info,index) in baseInfoList"
+            :key="index"
+            class="info-item">
+            <span class="label">{{info.label}}：</span>
+            <span>
+              <template v-if="info.key === 'onlineState'">
                 <span :class="currentDeviceInfo[info.key] ? 'g-danger': 'g-success'">
                   {{currentDeviceInfo[info.key] | filterType(info.key)}}
                 </span>
@@ -280,49 +289,49 @@
                 {{currentDeviceInfo[info.key] | filterType(info.key)}}
               </template>
             </span>
-            </li>
-          </ul>
-          <template v-if="currentDeviceInfo.type === 1">
-            <div class="split-line"></div>
-            <el-table
-              :data="cameraListInfo.content"
-            >
-              <el-table-column width="30"></el-table-column>
-              <el-table-column
-                show-overflow-tooltip
-                width="160"
-                prop="name"
-                label="名称">
-              </el-table-column>
-              <el-table-column
-                prop="deviceKey"
-                label="序列号">
-              </el-table-column>
-              <el-table-column
-                show-overflow-tooltip
-                width="100"
-                prop="portalName"
-                label="出入口/通道">
-              </el-table-column>
-              <el-table-column width="30"></el-table-column>
-            </el-table>
-            <custom-pagination
-              :total="cameraListInfo.pagination.total"
-            ></custom-pagination>
-          </template>
-        </div>
-        <ul slot="footer" class="side-dialog-footer">
-          <li
-            v-for="btn in dialogHandleList"
-            class="items"
-            :key="btn.type"
-            @click="handleDeviceState(btn)"
-          >
-            {{btn.label}}
           </li>
         </ul>
-      </side-dialog>
-    </div>
+        <template v-if="currentDeviceInfo.type === 1">
+          <div class="split-line"></div>
+          <el-table
+            :data="cameraListInfo.content"
+          >
+            <el-table-column width="30"></el-table-column>
+            <el-table-column
+              show-overflow-tooltip
+              width="160"
+              prop="name"
+              label="名称">
+            </el-table-column>
+            <el-table-column
+              prop="deviceKey"
+              label="序列号">
+            </el-table-column>
+            <el-table-column
+              show-overflow-tooltip
+              width="100"
+              prop="portalName"
+              label="出入口/通道">
+            </el-table-column>
+            <el-table-column width="30"></el-table-column>
+          </el-table>
+          <custom-pagination
+            :total="cameraListInfo.pagination.total"
+            @current-change="ipcPageChange"
+          ></custom-pagination>
+        </template>
+      </div>
+      <ul slot="footer" class="side-dialog-footer">
+        <li
+          v-for="btn in dialogHandleList"
+          class="items"
+          :key="btn.type"
+          @click="handleDeviceState(btn)"
+        >
+          {{btn.label}}
+        </li>
+      </ul>
+    </side-dialog>
   </div>
 </template>
 
@@ -332,7 +341,25 @@ import CustomPagination from '@/components/Pagination'
 import UploadProgress from '@/components/UploadProgressDialog'
 import SideDialog from '@/components/SideDialog'
 import { validateRule } from '@/utils/validate'
+import { byKeyDeviceType, fileTypeAllow } from '@/utils'
 import GroupTree from '@/components/group-nav/tree'
+import {
+  getGroupDeviceList,
+  getMemberDeviceList,
+  getManageDeviceState,
+  getMemberDeviceState,
+  getTemplateUrl,
+  getDeviceInfo,
+  getDeviceState,
+  getCameraList,
+  getDeviceKeyState,
+  getDeviceNameIsExist,
+  getCameraNameExist,
+  addDevice,
+  updateDeviceInfo
+} from '@/api/device'
+
+const FULL_API = `http://${process.env.VUE_APP_API_HOSTNAME}:${process.env.VUE_APP_API_PORT}`
 
 export default {
   name: 'index',
@@ -347,58 +374,32 @@ export default {
     const validateKey = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请输入序列号'))
-      } else {
-        if (value.length === 16) {
-          if (!/^[\dA-Za-z]+$/.test(value)) {
-            callback(new Error('仅限数字/字母'))
-            return
-          }
-          // 设备序列号是否存在
-          let dType = byKeyDeviceType(value)
-          if (dType.type) {
-            let currentType = ''
-            if (this.$route.name !== 'equipmentCamera' && this.addDialogType === 1 && !new Set([2, 3]).has(dType.type)) {
-              callback(new Error('非一体机序列号'))
-              currentType = 'aio'
-            } else if (this.$route.name !== 'equipmentCamera' && this.addDialogType === 2 && !new Set([1]).has(dType.type)) {
-              callback(new Error('非服务器序列号'))
-              currentType = 'server'
-            } else if (this.$route.name === 'equipmentCamera' && !new Set([4, 5]).has(dType.type)) {
-              callback(new Error('非摄像头序列号'))
-              currentType = 'camera'
-            } else {
-              // DeviceIsExisted({deviceKey: value}).then(res => {
-              //   if (res.data) {
-              //     // 校验设备是否被绑定过
-              //     DeviceIsAdded({deviceKey: value}).then(res2 => {
-              //       if (res2.data) {
-              //         callback(new Error(`该${currentType === 'server' ? '服务器' : '设备'}已添加`))
-              //       } else {
-              //         callback()
-              //       }
-              //       if (this.$route.name === 'equipmentCamera') {
-              //         this.$set(this.addCameraForm, 'type', dType.type)
-              //       } else {
-              //         this.$set(this.addServerForm, 'type', dType.type)
-              //       }
-              //       // 添加一体机时输入了服务器的序列号时提示 序列号不存在 反之也如此
-              //       callback()
-              //     }).catch(err => {
-              //       callback(new Error(err.msg || '服务器异常'))
-              //     })
-              //   } else {
-              //     callback(new Error('序列号不存在'))
-              //   }
-              // }).catch(err => {
-              //   callback(new Error(err.msg || '服务器异常'))
-              // })
-            }
+      } else if (!/^[\dA-Za-z]+$/.test(value)){
+        callback(new Error('仅限数字/字母'))
+      } else if (value.length === 16) {
+        let dType = byKeyDeviceType(value)
+        if (dType.type) {
+          if (this.dialogType === 'aio' && !new Set([2, 3]).has(dType.type)) {
+            callback(new Error('非一体机序列号'))
+          } else if (this.dialogType === 'server' && !new Set([1]).has(dType.type)) {
+            callback(new Error('非服务器序列号'))
           } else {
-            callback(new Error('序列号不存在'))
+            // callback()
+            getDeviceKeyState({deviceKey: value}).then(res => {
+              if (res.data) {
+                callback()
+              } else {
+                callback(new Error('序列号不存在'))
+              }
+            }).catch(err => {
+              callback(new Error(err.msg || '服务器异常'))
+            })
           }
         } else {
-          callback(new Error('请输入16位序列号'))
+          callback(new Error('序列号不存在'))
         }
+      } else {
+        callback(new Error('请输入16位序列号'))
       }
     }
     const validateName = (rule, value, callback) => {
@@ -407,24 +408,11 @@ export default {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
           // 一体机、服务器名称验重
-          let subData = { name: value }
-          if (this.$route.name === 'equipmentCamera') {
-            subData = {
-              name: value,
-              serverKey: this.$route.query.server_key
-            }
-            // CheckCameraName(subData).then(res => {
-            //   res.data ? callback(new Error('该名称已存在')) : callback()
-            // }).catch(err => {
-            //   callback(new Error(err.msg || '验证失败'))
-            // })
-          } else {
-            // DeviceAliasExist(subData).then(res => {
-            //   res.data ? callback(new Error('该名称已存在')) : callback()
-            // }).catch(err => {
-            //   callback(new Error(err.msg || '验证失败'))
-            // })
-          }
+          getDeviceNameIsExist({ groupGuid: this.currentManage.groupGuid, deviceName: value }).then(res => {
+            res.data ? callback(new Error('该名称已存在')) : callback()
+          }).catch(err => {
+            callback(new Error(err.msg || '验证失败'))
+          })
         } else {
           callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
@@ -440,7 +428,7 @@ export default {
         let name = file.name.substring(0, file.name.lastIndexOf('.'))
         if (!fileTypeAllow(file.name, 'xlsx,xls')) {
           callback(new Error('只允许上传xlsx、xls文件'))
-        } else if (this.$route.name !== 'equipmentCamera' && name !== '8045') {
+        } else if (name !== '8045') {
           callback(new Error('excel文件名需为“8045”'))
         } else {
           callback()
@@ -449,15 +437,17 @@ export default {
     }
 
     return {
+      currentNodeInfo: {},
       communityInfo: {
         name: '城西银泰'
       },
       deviceInfo: {
-        aioDeviceNum: 23,
-        serverDeviceNum: 40,
-        onLineNum: 50,
-        offLineNum: 30,
-        unbindingNum: 30
+        aioDeviceNum: 0,
+        serverDeviceNum: 0,
+        onLineNum: 0,
+        offLineNum: 0,
+        unbindingNum: 0,
+        ipcNum: 0
       },
       logoUrl: {
         0: require('@/assets/device/aio-device.png'),
@@ -467,68 +457,26 @@ export default {
       doorList: [ // 出入口列表
       ],
       deviceList: [
-        {
-          'deviceKey': 'string',   // 设备序列号
-          'deviceVersion': 'string',  // 设备版本
-          'serverName': 'xxxx',      // 当设备为摄像头时的所属服务器名称
-          'serverKey': 'xxxxxx',     // 当设备为摄像头时的所属服务器序列号
-          'name': '一体机设备',         // 设备名称
-          'onLineState': 0,        // 设备在线状态  0 在线 1：离线
-          'type': 2,              // 设备类型：1：服务器 2：一体机
-          'ip': '192.168.1.13',      // 设备IP地址
-          'createTime': '2019/3/8 16:04'   // 添加时间
-        },
-        {
-          'deviceKey': 'string',   // 设备序列号
-          'deviceVersion': 'string',  // 设备版本
-          'serverName': 'xxxx',      // 当设备为摄像头时的所属服务器名称
-          'serverKey': 'xxxxxx',     // 当设备为摄像头时的所属服务器序列号
-          'name': '服务器设备',         // 设备名称
-          'onLineState': 0,        // 设备在线状态  0 在线 1：离线
-          'type': 1,              // 设备类型：1：服务器 2：一体机
-          'ip': '192.168.1.13',      // 设备IP地址
-          'createTime': '2019/3/8 16:04'   // 添加时间
-        },
-        {
-          'deviceKey': 'string',   // 设备序列号
-          'deviceVersion': 'string',  // 设备版本
-          'serverName': 'xxxx',      // 当设备为摄像头时的所属服务器名称
-          'serverKey': 'xxxxxx',     // 当设备为摄像头时的所属服务器序列号
-          'name': '摄像头设备',         // 设备名称
-          'onLineState': 1,        // 设备在线状态  0 在线 1：离线
-          'type': 3,              // 设备类型：1：服务器 2：一体机
-          'ip': '192.168.1.13',      // 设备IP地址
-          'createTime': '2019/3/8 16:04'   // 添加时间
-        },
-        {
-          'deviceKey': 'string',   // 设备序列号
-          'deviceVersion': 'string',  // 设备版本
-          'serverName': 'xxxx',      // 当设备为摄像头时的所属服务器名称
-          'serverKey': 'xxxxxx',     // 当设备为摄像头时的所属服务器序列号
-          'name': '一体机设备',         // 设备名称
-          'onLineState': 0,        // 设备在线状态  0 在线 1：离线
-          'type': 0,              // 设备类型：1：服务器 2：一体机
-          'ip': '192.168.1.13',      // 设备IP地址
-          'createTime': '2019/3/8 16:04'   // 添加时间
-        },
-        {
-          'deviceKey': 'string',   // 设备序列号
-          'deviceVersion': 'string',  // 设备版本
-          'serverName': 'xxxx',      // 当设备为摄像头时的所属服务器名称
-          'serverKey': 'xxxxxx',     // 当设备为摄像头时的所属服务器序列号
-          'name': '一体机设备',         // 设备名称
-          'onLineState': 0,        // 设备在线状态  0 在线 1：离线
-          'type': 0,              // 设备类型：1：服务器 2：一体机
-          'ip': '192.168.1.13',      // 设备IP地址
-          'createTime': '2019/3/8 16:04'   // 添加时间
-        }
+        // {
+        //   'deviceKey': 'string',   // 设备序列号
+        //   'deviceVersion': 'string',  // 设备版本
+        //   'serverName': 'xxxx',      // 当设备为摄像头时的所属服务器名称
+        //   'serverKey': 'xxxxxx',     // 当设备为摄像头时的所属服务器序列号
+        //   'name': '一体机设备',         // 设备名称
+        //   'onlineState': 0,        // 设备在线状态  0 在线 1：离线
+        //   'type': 2,              // 设备类型：1：服务器 2：一体机
+        //   'ip': '192.168.1.13',      // 设备IP地址
+        //   'createTime': '2019/3/8 16:04'   // 添加时间
+        // }
       ],
       pagination: {
-        total: 30
+        index: 1,
+        length: 10,
+        total: 0
       },
       filterParams: {
         state: '', // 在线: online、离线: offline、未绑定: unbind
-        type: '', // deviceName、deviceKey
+        type: 'deviceName', // deviceName、deviceKey
         text: '',
         portalGuid: ''
       },
@@ -538,7 +486,7 @@ export default {
       deviceForm: {
         deviceKey: '',
         deviceName: '',
-        deviceType: '', // 1：服务器  2：一体机
+        deviceType: '', // 1：服务器  2：一体机 3: 摄像头
         groupGuid: '',
         positionType: '' // 1：出入口设备   2：通道设备
       },
@@ -567,29 +515,29 @@ export default {
         ]
       },
       editNameForm: {
-        name: ''
+        deviceName: ''
       },
       visibleSideDialog: false, // 侧边弹出框
       currentDeviceInfo: {}, // 弹框显示的当前设备信息
       dialogHandleList: [
-        { label: '重启', type: 'restart'},
-        { label: '重置', type: 'reset'},
-        { label: '禁用', type: 'disabled'},
-        { label: '升级', type: 'upgrade'},
-        { label: '删除', type: 'delete'},
+        { label: '重启', type: 'restart' },
+        { label: '重置', type: 'reset' },
+        { label: '禁用', type: 'disabled' },
+        { label: '升级', type: 'upgrade' },
+        { label: '删除', type: 'delete' }
       ],
       cameraListInfo: { // 摄像头列表信息
         content: [
-          {name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd'},
-          {name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd'},
-          {name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd'},
-          {name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd'},
-          {name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd'},
-          {name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd'},
-          {name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd'},
-          {name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd'},
-          {name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd'},
-          {name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd'}
+          { name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd' },
+          { name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd' },
+          { name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd' },
+          { name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd' },
+          { name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd' },
+          { name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd' },
+          { name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd' },
+          { name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd' },
+          { name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd' },
+          { name: '拉的说法是解放路上', deviceKey: 'ASFODF20SODF0QWER', portalName: 'afa sdfasd' }
         ],
         pagination: {
           total: 100
@@ -600,6 +548,7 @@ export default {
   created () {
   },
   mounted () {
+    this.getDownloadSrc()
   },
   computed: {
     ...mapState(['currentManage', 'userInfo']),
@@ -619,13 +568,15 @@ export default {
       }
       return text
     },
+    placeholder () {
+      return this.filterParams.type === 'deviceName' ? '请输入名称' : '请输入序列号'
+    },
     excelUrl () {
-      // let UPLOAD_API = `//${this.serverIp.substring(0, this.serverIp.indexOf(':'))}`
-      return `/manage/merchant/device/import` // excel批量导入一体机
+      return `${FULL_API}/manage/device/import` // excel批量导入一体机
     },
     baseInfoList () {
       let arr = [
-        { label: '状态', key: 'onLineState' },
+        { label: '状态', key: 'onlineState' },
         { label: '序列号', key: 'deviceKey' },
         { label: '设备形态', key: 'type' }
       ]
@@ -658,11 +609,36 @@ export default {
       }
 
       return arr
+    },
+    communityType () {
+      let type = ''
+      switch (this.currentNodeInfo.type) {
+        case 'MARKET':
+          type = 'market'
+          break
+        case 'CHAIN':
+          type = 'chain'
+          break
+        case 'STORE':
+          type = 'store'
+          break
+        case 'JOINED':
+          type = 'join'
+          break
+        case 'MEMBER':
+          type = 'member'
+          break
+      }
+      return type
+    },
+    isManage () {
+      return new Set(['market', 'chain', 'store']).has(this.communityType)
     }
   },
   methods: {
     currentNodeChange (data) {
-      console.log('current-change', data)
+      this.currentNodeInfo = data
+      this.getBaseData()
     },
     // 格式化组织架构数据
     // 非社群结构无子元素时不可点击
@@ -681,13 +657,10 @@ export default {
       return list
     },
 
-    // 刷新设备状态
-    refreshState (key) {
-      console.log(key)
-    },
     // 设备列表翻页
     currentChange (page) {
-      console.log('change page', page)
+      this.getDeviceList(page)
+      // console.log('change page', page)
     },
     // 取消单选框选中
     cancelRadioChecked (st) {
@@ -703,17 +676,119 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.dialogFormVisible = false
+          let { deviceKey, positionType, deviceName } = this.deviceForm
+          let param = {
+            deviceName,
+            deviceKey,
+            positionType,
+            groupGuid: this.currentManage.groupGuid
+          }
+          console.log('param ', this.dialogType)
           switch (this.dialogType) {
             case 'batch': // 批量导入一体机设备
               this.$refs.excelUpload.submit()
+              this.progressVisible = true
               break
-            case 'device':
+            case 'server':
             case 'aio':
-
+              param.deviceType = (this.dialogType === 'aio' ? 2 : 1)
+              // if (this.dialogType) param.positionType = positionType
+              console.log('form ------------', param)
+              addDevice(param).then((res) => {
+                this.$tip('添加成功')
+                this.getDeviceList()
+              })
               break
           }
-          console.log('can submit form')
         }
+      })
+    },
+
+    // 查询设备列表
+    getDeviceList (page) {
+      let { state, type, text, portalGuid } = this.filterParams
+      let params = {
+        index: page || 1,
+        length: 10
+      }
+      if (text || portalGuid) {
+        this.filterParams.state = ''
+        if (text) params[type] = text
+        if (portalGuid) params['portalGuid'] = portalGuid
+      } else if (state === 'unbind') {
+        params.bindingState = 0
+      } else if (state === 'online' || state === 'offline') {
+        params.onlineState = state === 'online' ? 0 : 1
+      }
+      // console.log('=============', params)
+      if (this.isManage) {
+        params['groupGuid'] = this.currentManage.groupGuid
+        getGroupDeviceList(params).then(res => {
+          this.deviceList = res.data.content
+          this.pagination = res.data.pagination
+        })
+      } else {
+        params['guid'] = this.currentNodeInfo.guid
+        getMemberDeviceList(params).then(res => {
+          this.deviceList = res.data.content
+          this.pagination = res.data.pagination
+        })
+      }
+
+    },
+
+    // 获取设备 在线离线 绑定未绑定 数量
+
+    getDeviceStateCount () {
+      if (this.isManage) {
+        getManageDeviceState({ groupGuid: this.currentManage.groupGuid }).then(res => {
+          this.deviceInfo = res.data
+        })
+      } else {
+        getMemberDeviceState({ guid: this.currentNodeInfo.guid }).then(res => {
+          this.deviceInfo = res.data
+        })
+      }
+    },
+
+    getBaseData () {
+      this.getDeviceList()
+      this.getDeviceStateCount()
+    },
+
+    // 单设备详细信息
+    getDeviceInfo (data) {
+      let { deviceType, deviceKey } = data
+      console.log('info', data)
+      let param = {
+        deviceType,
+        deviceKey
+      }
+      getDeviceInfo(param).then((res) => {
+        this.currentDeviceInfo = res.data
+        if (deviceType === 1) {
+          this.getCameraList()
+        }
+      })
+    },
+    getDeviceState (data, index) {
+      getDeviceState({ deviceKey: data.deviceKey }).then(res => {
+        if (index !== undefined) {
+          this.$set(this.deviceList[index], 'onlineState', res.data)
+        } else {
+          data.onlineState = res.data
+        }
+      })
+    },
+    // 获取摄像头列表
+    getCameraList (page) {
+      let param = {
+        page: page || 1,
+        length: 10,
+        serviceKey: this.currentDeviceInfo.serviceKey
+      }
+      getCameraList(param).then(res => {
+        this.cameraListInfo = res.data
       })
     },
 
@@ -725,9 +800,9 @@ export default {
 
     // 获取模板下载地址
     getDownloadSrc () {
-      // DownloadSrc({name: '8045.xlsx'}).then(res => {
-      //   this.downloadSrc = res.data
-      // })
+      getTemplateUrl().then(res => {
+        this.downloadSrc = res.data
+      })
     },
 
     // 显示上传进度
@@ -802,21 +877,29 @@ export default {
       })
       if (isShow) {
         this.$set(this.deviceList[index], 'isEdit', true)
-        this.editNameForm.deviceName = data.name
+        this.editNameForm = JSON.parse(JSON.stringify(data))
       } else {
 
       }
     },
     // 编辑设备名称
     submitEditNameForm (formName, index) {
-      console.log(this.$refs)
+      // console.log(this.$refs)
       this.$refs[formName][index].validate((valid) => {
+        if (valid) {
+          updateDeviceInfo(this.editNameForm).then(() => {
+            // this.$set()
+            this.getDeviceList(this.pagination.index)
+            // this.$set(this.deviceList[index], 'isEdit', false)
+
+          })
+        }
       })
     },
     // 显示侧边弹出框
     showSideDialog (data) {
       this.visibleSideDialog = true
-      this.currentDeviceInfo = data
+      this.getDeviceInfo(data)
     },
     // 操作设备 重启、重置、禁用、升级、删除
     handleDeviceState (btn) {
@@ -841,12 +924,18 @@ export default {
           break
       }
       console.log(btn.type)
-      this.$affirm({ confirmType: confirmType, title: `${btn.label}设备`,text: msg }, (action, instance, done) => {
+      this.$affirm({ confirmType: confirmType, title: `${btn.label}设备`, text: msg }, (action, instance, done) => {
         done()
       })
     }
   },
-  watch: {}
+  watch: {
+    dialogFormVisible (val) {
+      if (!val && this.$refs.deviceForm) {
+        this.$refs.deviceForm.resetFields()
+      }
+    }
+  }
 }
 </script>
 
@@ -1091,21 +1180,23 @@ export default {
       width: 150px;
     }
   }
-  .split-line{
+
+  .split-line {
     margin: 20px 0;
     border-bottom: 1px solid $gray-border-color;
   }
-  .side-dialog-footer{
+
+  .side-dialog-footer {
     height: 50px;
     border-top: 1px solid $gray-border-color;
-    .items{
+    .items {
       float: left;
       width: 20%;
       line-height: 50px;
       text-align: center;
       color: $theme-blue;
       cursor: pointer;
-      &:last-child{
+      &:last-child {
         color: $global-danger-color;
       }
     }

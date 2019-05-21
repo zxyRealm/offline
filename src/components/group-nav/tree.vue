@@ -198,9 +198,13 @@ export default {
           this.communityTreeList = this.formatList(res.data)
           this.setCurrentKey()
         }
-        if (!res.data[0][this.defaultProps.children].length) {
-          this.$emit('handle-empty')
+        if (res.data[0][this.defaultProps.children].length) {
+          this.$emit('handle-empty', false)
+        } else {
+          this.$emit('handle-empty', true)
         }
+      }).catch(error => {
+        console.error(error)
       })
     }
   },

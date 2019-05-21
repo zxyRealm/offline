@@ -128,18 +128,14 @@ export default {
       communityCopyMap: []
     }
   },
-  created () {
-  },
   mounted () {
-    if (this.actionType === 'edit') {
-      this.getManageMember()
-    }
+    this.initData()
   },
   computed: {
     ...mapState(['currentManage'])
   },
   methods: {
-    getManageMember () {
+    getFloorsList () {
       let param = {
         type: 1,
         groupGuid: this.currentManage.groupGuid
@@ -155,7 +151,9 @@ export default {
             operation
           }
         })
+        if (!map.length) map = [ { floorName: '', floorMap: '' } ]
         this.$set(this.communityMapForm, 'map', map)
+        this.fileList = []
         map.forEach(() => {
           this.fileList.push('')
         })
@@ -165,14 +163,14 @@ export default {
     },
 
     submitMapForm () {
+      let apiMap = {
+        add: addFloorMap,
+        edit: updateFloorMap
+      }
       this.$refs.communityMapForm.validate((valid) => {
         if (valid) {
-          this.uploadOss().then(floors => {
-            let apiMap = {
-              add: addFloorMap,
-              edit: updateFloorMap
-            }
-            floors = floors.map((item, index) => {
+          this.uploadOss((floor) => {
+            let floors = floor.map((item, index) => {
               item.floorIndex = index + 1
               return item
             })
@@ -182,7 +180,7 @@ export default {
             }
             apiMap[this.actionType](params).then(() => {
               // this.$tip('创建成功')
-              this.$emit('handle-success')
+              this.$emit('handle-success', { actionType: 'map', type: this.type})
             })
           })
         }
@@ -211,41 +209,51 @@ export default {
       this.communityMapForm.map.splice(index, 1)
       this.fileList.splice(index, 1)
     },
-
-    // 图片上传阿里云
-    uploadOss () {
-      let _this = this
-      this.communityCopyMap = JSON.parse(JSON.stringify(this.communityMapForm.map))
-      return new Promise(resolve => {
-        for (let i = 0, len = this.fileList.length; i < len; i++) {
-          let formData = new FormData()
-          formData.append('file', this.fileList[i])
-          if (!this.fileList[i] && i === this.fileList.length - 1) {
-            resolve(this.communityCopyMap)
-          }
-          if (!this.fileList[i]) continue
-          (function (i) {
-            axios.post(`${BASE_API}/${prefix[0]}/oss/file`,
-              formData,
-              {
-                headers: { 'Content-Type': 'multipart/form-data' }
-              }).then(res => {
-              if (res.data.result) {
-                _this.$set(_this.communityCopyMap[i], 'floorMap', res.data.data)
-                if (i === _this.fileList.length - 1) {
-                  resolve(_this.communityCopyMap)
-                }
-              } else {
-                _this.$tip(res.data.msg, 'error')
-              }
-            }).catch(error => {
-              if (error.response) {
-                _this.$tip(error.response.msg, 'error')
-              }
-            })
-          })(i)
+    findIndex (array, index = 0) {
+      for (let i = index, len = array.length; i < len; i++) {
+        if (array[i]) {
+          return i
         }
-      })
+      }
+      return array.length - 1
+    },
+    // 图片上传阿里云
+    uploadOss (cb) {
+      let _this = this
+      let urlList = JSON.parse(JSON.stringify(this.communityMapForm.map))
+
+      let uploadFile = (array, index) => {
+        let formData = new FormData()
+        formData.append('file', array[index])
+        axios.post(`${BASE_API}${prefix[0]}/oss/file`,
+          formData,
+          {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          }).then(res => {
+          if (res.data.result) {
+            urlList[index]['floorMap'] = res.data.data
+            let _index = _this.findIndex(array, index + 1)
+            if (index === array.length - 1) {
+              cb(urlList)
+            } else {
+              uploadFile(array, _index)
+            }
+          } else {
+            _this.$tip(res.data.msg, 'error')
+          }
+        }).catch(error => {
+          if (error.response) {
+            _this.$tip(error.response.msg, 'error')
+          }
+        })
+      }
+      let _index = _this.findIndex(this.fileList, 0)
+      console.log('out index', _index)
+      if (!this.fileList[_index] &&_index === this.fileList.length - 1) {
+        cb(urlList)
+      } else {
+        uploadFile(this.fileList, _index)
+      }
     },
     // 文件改变事件监听
     onChange (e, index) {
@@ -255,7 +263,7 @@ export default {
         this.$set(this.communityMapForm.map[index], 'floorMap', files[0].name)
       }
 
-      console.log(this.communityMapForm.map[index])
+      console.log(this.communityMapForm.map[index], this.fileList)
     },
     // 校验地图文件是否可以更改
     checkFilesStatus (e, index) {
@@ -284,12 +292,18 @@ export default {
       return [
         { validator: validFiles, trigger: ['change', 'blur'] }
       ]
+    },
+    initData () {
+      console.log('00000000', this.actionType, '----------', this.type)
+      if (this.actionType === 'edit') {
+        this.getFloorsList()
+      }
     }
   },
   watch: {
     visible (val) {
-      if (val && this.actionType === 'edit') {
-        this.getManageMember()
+      if (val) {
+        this.initData()
       }
     }
   },
