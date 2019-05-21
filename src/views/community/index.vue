@@ -555,6 +555,7 @@ export default {
 
     // 获取社群待审核列表
     getAuditList () {
+      if (!this.currentManage.groupGuid) return
       getAduitList({ groupGuid: this.currentManage.groupGuid }).then((res) => {
         this.auditList = res.data
       })
@@ -608,7 +609,8 @@ export default {
       handler () {
         this.getAuditList()
       },
-      deep: true
+      deep: true,
+      immediate: true
     }
   }
 }
