@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="trail__detail--wrap">
-      <div class="td--left dashed--border">
+      <div class="td--left dashed--border" style="background: #FAFBFD;">
         <div class="td__date--wrap">
           <span>{{spoorDate}}</span>
           <i class="el-icon-date fr"></i>
@@ -219,7 +219,6 @@ export default {
 
   .dashed--border {
     border: 1px dashed rgba(151, 151, 151, 0.1);
-    background: rgba(1, 8, 20, 0.1);
   }
 
   .trail__info--wrap {

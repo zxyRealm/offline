@@ -10,7 +10,7 @@
           <el-alert
             v-if="isSuccess"
             class="success-tip"
-            title="成功文案message"
+            :title="successMessage"
             :closable="false"
             type="success"
             show-icon
@@ -165,6 +165,7 @@ export default {
       }
     };
     return {
+      successMessage: '',
       login: {
         form: {
           phoneNumber: '',
@@ -266,7 +267,8 @@ export default {
       const data = { phoneNumber }
       this._verifyForm(() => {
         Register(regObj).then(res => {
-          if (res.data) {
+          this.successMessage = '注册成功'
+          if (res.code === 'OB_SUS-200') {
             this._setSuccess(() => {
               this.$router.push('/index')
             })
@@ -278,9 +280,11 @@ export default {
     findAccount(forgotObj) {
       const { contactInfo, verifyCode, password } = forgotObj
       const data = { contactInfo, verifyCode, password }
+      data.newPassword = data.password
       this._verifyForm(() => {
         UpdateForgotPassword(data).then(res => {
-          if (res.data) {
+          this.successMessage = '密码修改成功'
+          if (res.code === 'OB_SUS-200') {
             this._setSuccess(() => {
               this.skipTo('login')
             })

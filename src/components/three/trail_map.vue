@@ -175,7 +175,6 @@ export default {
 <style lang="scss" scoped>
 .trail-map {
   height: 100%;
-  background: rgba(1, 8, 20, 0.1);
   #iframeWrap {
     height: 100%;
     .iframe {

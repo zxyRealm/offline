@@ -1,7 +1,10 @@
 <template>
   <div class="behavior__content--wrap">
     <div class="g-module-title">
-      <h1 class="normal title g-inline">行为轨迹</h1>
+      <h1 class="normal title g-inline">
+        <a v-if="$route.name !== 'BehaviorAnalyse'" href="javascript:;" style="color: #252525;margin-top:-2px" @click="historyBack()"> < </a>
+        {{$route.name === 'BehaviorAnalyse' ? '行为分析' : '移动轨迹'}}
+      </h1>
     </div>
     <router-view></router-view>
   </div>
@@ -23,6 +26,9 @@ export default {
   mounted () {},
   computed: {},
   methods: {
+    historyBack() {
+      this.$router.go(-1)
+    }
   },
   watch: {}
 }

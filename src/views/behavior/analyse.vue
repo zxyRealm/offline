@@ -2,7 +2,7 @@
   <div class="analyse__content--wrap g-prl20">
     <div class="tab__container">
       <a href="javascript:;" @click="checkStatus(0)" :class="{'active': !status}">库内人员</a>
-      <a href="javascript:;" @click="checkStatus(1)"  :class="{'active': status}">陌生人</a>
+      <a href="javascript:;" @click="checkStatus(1)" :class="{'active': status}">陌生人</a>
     </div>
     <div v-if="!status">
       <div class="select__container clearfix">
@@ -106,24 +106,31 @@
           >刷新</a>
         </div>
       </div>
-      <el-scrollbar v-scroll-top="pagination.index" class="table__scrollbar">
-        <el-table :data="tableData" stripe style="width: 100%">
-          <el-table-column prop="name" label="姓名"></el-table-column>
-          <el-table-column prop="gender" label="性别"></el-table-column>
-          <el-table-column prop="age" label="年龄"></el-table-column>
-          <el-table-column prop="age" label="手机号"></el-table-column>
-          <el-table-column prop="age" label="近一周到访"></el-table-column>
-          <el-table-column prop="age" label="近一月到访"></el-table-column>
-          <el-table-column prop="age" label="会员库"></el-table-column>
-          <el-table-column prop="age" label="最近到访时间"></el-table-column>
-          <el-table-column prop="age" label="操作"></el-table-column>
-        </el-table>
-      </el-scrollbar>
+      <el-table :data="tableData1" stripe style="width: 100%">
+        <el-table-column prop="name" label="姓名"></el-table-column>
+        <el-table-column prop="gender" label="性别"></el-table-column>
+        <el-table-column prop="age" label="年龄"></el-table-column>
+        <el-table-column prop="phoneNumber" label="手机号"></el-table-column>
+        <el-table-column prop="visitWeek" label="近一周到访"></el-table-column>
+        <el-table-column prop="visitMonth" label="近一月到访"></el-table-column>
+        <el-table-column prop="memberHub" label="会员库"></el-table-column>
+        <el-table-column prop="recentVisit" label="最近到访时间"></el-table-column>
+        <el-table-column prop="picture" label="抓拍照片">
+          <template>
+            <div style="width: 40px;height: 40px;background: #000"></div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="option" label="操作">
+          <template>
+            <a href="javascript:;" @click="skipTo('trail', 1)">移动轨迹</a>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
-    <div v-if="status">
+    <div v-else>
       <div class="select__container clearfix">
         <div style="float: left; width: 90%">
-           <el-select
+          <el-select
             v-model="select2"
             slot="prepend"
             placeholder="请选择出入口"
@@ -166,14 +173,23 @@
         </div>
       </div>
       <el-scrollbar v-scroll-top="pagination.index" class="table__scrollbar">
-        <el-table :data="tableData" stripe style="width: 100%">
-          <el-table-column prop="photo" label="抓拍照片"></el-table-column>
-          <el-table-column prop="gender" label="性别"></el-table-column>
-          <el-table-column prop="age" label="年龄"></el-table-column>
-          <el-table-column prop="age" label="近一周到访"></el-table-column>
-          <el-table-column prop="age" label="近一月到访"></el-table-column>
-          <el-table-column prop="age" label="最近到访时间"></el-table-column>
-          <el-table-column prop="age" label="操作"></el-table-column>
+        <el-table :data="tableData2" stripe style="width: 100%">
+          <el-table-column prop="photo2" label="抓拍照片">
+            <template>
+              <div style="width: 40px;height: 40px;background: #000"></div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="gender2" label="性别"></el-table-column>
+          <el-table-column prop="age2" label="年龄"></el-table-column>
+          <el-table-column prop="visitWeek2" label="近一周到访"></el-table-column>
+          <el-table-column prop="visitMonth2" label="近一月到访"></el-table-column>
+          <el-table-column prop="recentVisit2" label="最近到访时间"></el-table-column>
+          <el-table-column prop="option2" label="操作">
+            <template>
+              <a href="javascript:;" style="margin-right: 20px"  @click="skipTo('trail', 1)">移动轨迹</a>
+              <a href="javascript:;">人员注册</a>
+            </template>
+          </el-table-column>
         </el-table>
       </el-scrollbar>
     </div>
@@ -221,6 +237,40 @@ export default {
         group: 0,
         device: 0
       },
+      tableData1: [
+        {
+          name: "张晓元",
+          gender: "男",
+          age: "20",
+          phoneNumber: "15757575757",
+          visitWeek: "10",
+          visitMonth: "30",
+          memberHub: "城西银泰",
+          recentVisit: "2019-05-20"
+        },
+        {
+          name: "周碧莹",
+          gender: "女",
+          age: "20",
+          phoneNumber: "15757575757",
+          visitWeek: "10",
+          visitMonth: "30",
+          memberHub: "城西银泰",
+          recentVisit: "2019-05-20"
+        }
+      ],
+      tableData2: [
+        {
+          name2: "张晓元",
+          gender2: "男",
+          age2: "20",
+          phoneNumber2: "15757575757",
+          visitWeek2: "10",
+          visitMonth2: "30",
+          memberHub2: "城西银泰",
+          recentVisit2: "2019-05-20"
+        }
+      ],
       groupList: [], // 社群列表
       groupOriginList: [], // 原始社群列表数据
       deviceOriginList: [], // 原始设备列表数据
@@ -279,9 +329,17 @@ export default {
         default:
       }
     },
-    checkStatus (val) {
-      this.status = val
+    checkStatus(val) {
+      this.status = val;
     },
+
+    skipTo (path, id = 0) {
+      if (path === 'trail') {
+        this.$router.push('trail/' + id)
+      }
+
+    },
+
     visibleChange() {
       this.selectType = "";
       this.search = {

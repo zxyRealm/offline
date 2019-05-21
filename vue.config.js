@@ -8,22 +8,22 @@ module.exports = {
   pages: {
     index: {
       entry: 'src/main.js'
-    },
-    'chain-world': {
-      entry: 'src/three-map/src/scene/chainWorld.js',
-      template: 'map/chain-world.html',
-      filename: 'static/html/chain-world.html'
-    },
-    'map-world': {
-      entry: 'src/three-map/src/scene/mapWorld.js',
-      template: 'map/map-world.html',
-      filename: 'static/html/map-world.html'
-    },
-    'trail-world': {
-      entry: 'src/three-map/src/scene/trailWorld.js',
-      template: 'map/trail-world.html',
-      filename: 'static/html/trail-world.html'
     }
+    // 'chain-world': {
+    //   entry: 'src/three-map/src/scene/chainWorld.js',
+    //   template: 'map/chain-world.html',
+    //   filename: 'static/html/chain-world.html'
+    // },
+    // 'map-world': {
+    //   entry: 'src/three-map/src/scene/mapWorld.js',
+    //   template: 'map/map-world.html',
+    //   filename: 'static/html/map-world.html'
+    // },
+    // 'trail-world': {
+    //   entry: 'src/three-map/src/scene/trailWorld.js',
+    //   template: 'map/trail-world.html',
+    //   filename: 'static/html/trail-world.html'
+    // }
   },
   productionSourceMap: false,
   devServer: {
