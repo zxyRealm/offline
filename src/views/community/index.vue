@@ -122,7 +122,7 @@
             </div>
           </div>
           <div v-if="contentMode === 'map'" class="community__map--wrap">
-
+            <map-container></map-container>
           </div>
           <portal-list v-else :current-community="currentCommunityInfo"></portal-list>
         </template>
@@ -209,6 +209,7 @@ import { eventObject } from '@/utils/event'
 import GroupTree from '@/components/group-nav/tree'
 import BaseForm from './components/base'
 import MapForm from './components/map'
+import MapContainer from './components/map-container'
 import PortalList from './components/list'
 import PortalDialog from './components/portal-dialog'
 import Clipboard from '@/utils/clipboard'
@@ -233,6 +234,7 @@ export default {
     BaseForm,
     MapForm,
     PortalList,
+    MapContainer,
     PortalDialog
   },
   data () {
