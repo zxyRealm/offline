@@ -9,7 +9,7 @@
         <el-form-item label="照片" prop="faceImgUrls">
           <el-upload
             action=""
-            v-if="!person.form.faceImgUrls.length"
+            v-if="!person.form.personImageUrls.length"
             :http-request="handlePhotoUpload"
             :before-upload="beforePhotoUpload"
             class="form__photo form__photo--none"
@@ -18,27 +18,27 @@
             <p class="f-gray">（400KB以内）</p>
           </el-upload>
           <div v-else class="form__photo form__photo--have">
-            <div :class="[{ 'f-margin-right15': index < person.form.faceImgUrls.length - 1 }]"
-                 v-for="(item, index) in person.form.faceImgUrls"
+            <div :class="[{ 'f-margin-right15': index < person.form.personImageUrls.length - 1 }]"
+                 v-for="(item, index) in person.form.personImageUrls"
                  :key="index"
                  @mouseenter="item.showClose = true"
                  @mouseleave="item.showClose = false">
-              <img :src="item.imageUrl" alt="" height="70" width="70">
-              <i class="el-icon-close f-link f-red close__icon" v-show="item.showClose" @click="handlePersonPhotoDelete"></i>
+              <img :src="`${item.imageUrl}`" :attr="JSON.stringify(item)" alt="" height="70" width="70">
+              <i class="el-icon-close f-link f-red close__icon" v-show="item.showClose" @click="handlePersonPhotoDelete(item)"></i>
             </div>
             <el-upload
               action=""
               class="upload__button"
               :http-request="handlePhotoUpload"
               :before-upload="beforePhotoUpload"
-              v-if="person.form.faceImgUrls.length < 3"
+              v-if="person.form.personImageUrls.length < 3"
               :show-file-list="false">
               <i class="el-icon-plus avatar-uploader-icon photo__icon f-blue"></i>
             </el-upload>
           </div>
         </el-form-item>
         <el-form-item label="姓名" prop="personName">
-          <el-input v-model.trim="person.form.personName" placeholder="请输入名称" clearable></el-input>
+          <el-input v-model.trim="person.form.personName" placeholder="请输入姓名" clearable></el-input>
         </el-form-item>
         <el-form-item label="手机号" prop="phone">
           <el-input v-model.trim="person.form.phone" placeholder="请输入手机号" clearable></el-input>
@@ -60,7 +60,13 @@
               :disabled="item.isUpdate || item.isDelete"
               :value="item.id">
               <div class="fl option__value">
-                <el-input v-if="item.isUpdate" v-model="optionName" size="small" ref="personTypeOptionRef"></el-input>
+                <el-input
+                  v-if="item.isUpdate"
+                  v-model="optionName"
+                  size="small"
+                  ref="personTypeOptionRef"
+                  @keyup.enter.native="handleOptionUpdate(item)">
+                </el-input>
                 <span class="fl" v-else>{{ item.typeValue }}</span>
               </div>
               <span class="fr option__icon--edit" v-show="item.isHover && !item.isUpdate && !item.isDelete">
@@ -73,14 +79,17 @@
                 <span class="f-link f-red" @click.stop="handleOptionDelete(item)" v-show="item.isDelete">删除</span>
               </span>
             </el-option>
+            <el-option :disabled="true" :value="''" class="empty__option"></el-option>
             <div :class="['option-add__input', {'add__error': optionAdd.isError}]" v-if="optionAdd.isAdd">
-              <el-input size="small" v-model="optionNameAdd" ref="optionAddInput"></el-input>
+              <el-input size="small" v-model="optionNameAdd" ref="optionAddInput"
+                        @keyup.enter.native="handleOptionUpdate()"></el-input>
               <span class="f-margin-right10 f-link f-deep-gray" @click.stop="handleOptionCancel()">取消</span>
               <span class="f-link f-blue" @click.stop="handleOptionUpdate()">确定</span>
             </div>
             <div class="f-center option-add__button" @click="handleOptionAdd">
               <i class="iconfont icon-xinzeng f-blue"></i>
             </div>
+            <!-- 还有另一种写法，slot="empty" -->
           </el-select>
         </el-form-item>
         <el-form-item label="性别" prop="gender">
@@ -112,7 +121,6 @@ import { validateRule } from '../../utils/validate'
 import {
   judgePhone,
   getPersonById,
-  uploadAndDetection,
   createPersonType,
   deletePersonType,
   updatePersonType,
@@ -120,6 +128,10 @@ import {
   updatePerson,
   createPerson
 } from '../../api/member'
+import prefix from '@/api/prefix'
+import axios from 'axios'
+
+const BASE_API = process.env.VUE_APP_BASE_API
 
 export default {
   name: 'person',
@@ -150,7 +162,7 @@ export default {
         } else if (this.person.form.originPhone === value) {
           callback()
         } else {
-          judgePhone({ phone: value, memberLibraryGuid: this.$route.query.guid }).then(res => {
+          judgePhone({ phone: value, personLibraryId: this.guid }).then(res => {
             !res.data ? callback(new Error('手机号重复')) : callback()
           }).catch(err => {
             callback(err.msg || '验证失败')
@@ -164,7 +176,7 @@ export default {
       /* 1.3版本 */
       person: {
         form: {
-          faceImgUrls: [],
+          personImageUrls: [],
           personName: '',
           phone: null,
           personType: null,
@@ -200,23 +212,37 @@ export default {
       })
     },
     // 照片点击删除
-    handlePersonPhotoDelete () {
-
+    handlePersonPhotoDelete (data) {
+      this.person.form.personImageUrls.splice(this.person.form.personImageUrls.findIndex(item => item.id === data.id), 1)
     },
     // 自定义图片上传事件
     handlePhotoUpload (file) {
       let formData = new FormData()
       formData.append('file', file.file)
-      uploadAndDetection(formData).then(res => {
-        this.person.form.faceImgUrls.push({
-          imageUrl: res.data.imageUrl,
-          showClose: false
-        })
+      axios.post(
+        `${BASE_API}/${prefix[3]}/person/uploadAndDetection`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }).then((res) => {
+        if (res.data.result) {
+          this.person.form.personImageUrls.push({
+            imageUrl: res.data.data.imageUrl,
+            faceId: res.data.data.faceId,
+            showClose: false
+          })
+        } else {
+          this.$message.error(res.data.msg)
+        }
+      }).catch(err => {
+        if (err.response.data) {
+          this.$message.error(err.response.data.message)
+        }
       })
     },
     // 图片上传前
     beforePhotoUpload (file) {
-      if (!(/\w+(.png|.jpg|.jpeg)$/).test(file.name)) {
+      if (!(/([\w\W]*)+(.png|.jpg|.jpeg)$/).test(file.name)) {
         this.$message.error('格式有误')
         return false
       }
@@ -240,7 +266,7 @@ export default {
             this.$set(item, 'showClose', false)
           })
           this.person.form = { personName, phone, personType, gender, birthday, originPhone }
-          this.$set(this.person.form, 'faceImgUrls', res.data.personImageUrls)
+          this.$set(this.person.form, 'personImageUrls', res.data.personImageUrls)
         })
       }
     },
@@ -249,8 +275,8 @@ export default {
       this.$refs.personRef.validate(valid => {
         if (valid) {
           let param, func, msg
-          let { faceImgUrls, personName, phone, personType, gender, birthday } = this.person.form
-          param = { faceImgUrls, personName, phone, personType, gender, birthday }
+          let { personImageUrls, personName, phone, personType, gender, birthday } = this.person.form
+          param = { personImageUrls, personName, phone, personType, gender, birthday }
           if (this.isEdit) {
             this.$set(param, 'personId', this.isEdit)
             func = updatePerson
@@ -260,7 +286,8 @@ export default {
             msg = '新增成功'
           }
           this.$set(param, 'personLibraryId', this.guid)
-          param.faceImgUrls = param.faceImgUrls.map(item => item.imageUrl)
+          param.personImageUrls.forEach(item => delete item.showClose)
+          console.log(param)
           func(param).then(() => {
             this.$message.success(msg)
             if (next) {
@@ -374,6 +401,7 @@ export default {
     }
   },
   created () {
+    this.$store.commit('SET_LIBRARY_ID', this.guid)
     this.getPersonTypeList()
     this.getPersonById()
   },

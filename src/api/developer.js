@@ -6,7 +6,7 @@ import prefix from './prefix'
 // 开发者申请
 export function applyDevelope (data) {
   return request({
-    url: `${prefix[0]}/develope`,
+    url: `${prefix[0]}/developer`,
     method: 'POST',
     data
   })

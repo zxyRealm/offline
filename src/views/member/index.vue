@@ -7,7 +7,7 @@
     <div v-if="libraryList.length" class="container__box">
       <div class="search__list">
         <div class="search__box">
-          <el-input prefix-icon="el-icon-search" size="small" clearable v-model="searchLibraryValue"
+          <el-input prefix-icon="el-icon-search" size="small" clearable v-model.trim="searchLibraryValue"
                     placeholder="输入关键字"></el-input>
         </div>
         <div
@@ -23,7 +23,7 @@
           <div class="content__title--top">
             <span>{{libraryInfo.personLibraryName}}</span>
             <div class="title__button">
-              <span class="f-margin-right20 f-blue f-link" @click="$router.push({ path: '/member/person', query: { guid: $route.query.libraryId } })">添加人员</span>
+              <span class="f-margin-right20 f-blue f-link" @click="$router.push({ path: '/member/person', query: { guid: chooseLibraryId } }); $store.commit('SET_LIBRARY_ID', chooseLibraryId)">添加人员</span>
               <span class="f-margin-right20 f-blue f-link" @click="handleBatchAddPersonDialogShow">批量添加</span>
               <i class="f-margin-right20 f-blue f-link iconfont icon-bianji" @click="handleLibraryUpdate"></i>
               <i class="f-red f-link iconfont icon-shanchu" @click="handleLibraryDelete"></i>
@@ -34,15 +34,15 @@
           <span v-text="`备注：${libraryInfo.personLibraryNote}`" class="text__overflow"></span>
         </div>
         <div class="search__bar">
-          <el-input placeholder="请输入内容" v-model="searchConfig.person.value" class="input-with-select f-margin-right20" size="small">
+          <el-input placeholder="请输入内容" v-model.trim="searchConfig.person.value" class="input-with-select f-margin-right20" size="small">
             <el-select v-model="searchConfig.person.select" slot="prepend" placeholder="请选择">
               <el-option :label="item.label" :value="item.value" v-for="item in searchConfig.personInfoList" :key="item.value"></el-option>
             </el-select>
           </el-input>
-          <el-select v-model="searchConfig.personType" placeholder="请选择人员类型" size="small" class="f-margin-right20">
+          <el-select v-model="searchConfig.personType" placeholder="请选择人员类型" clearable size="small" class="f-margin-right20">
             <el-option :label="item.typeValue" :value="item.id" v-for="item in searchConfig.personTypeList" :key="item.id"></el-option>
           </el-select>
-          <el-select v-model="searchConfig.gender" placeholder="请选择性别" size="small" class="f-margin-right20">
+          <el-select v-model="searchConfig.gender" placeholder="请选择性别" clearable size="small" class="f-margin-right20">
             <el-option :label="item.label" :value="item.value" v-for="item in searchConfig.genderList" :key="item.value"></el-option>
           </el-select>
           <el-button icon="el-icon-search" size="small" @click="handleListSearch"></el-button>
@@ -51,15 +51,19 @@
           <el-table :data="personList" style="width: 100%" stripe>
             <el-table-column label="照片">
               <template slot-scope="scope">
-                <img :src="item" alt="" v-for="(item, index) in scope.faceImgUrls" :key="index">
+                <img :src="item.imageUrl" alt="" v-for="(item, index) in scope.row.personImageUrls" :key="index" width="50" height="50">
               </template>
             </el-table-column>
             <el-table-column prop="personName" label="姓名"></el-table-column>
             <el-table-column prop="phone" label="手机号"></el-table-column>
-            <el-table-column prop="personType" label="人员类型"></el-table-column>
+            <el-table-column prop="personType" label="人员类型">
+              <template slot-scope="scope">
+                {{ personType(scope.row.personType) }}
+              </template>
+            </el-table-column>
             <el-table-column prop="gender" label="性别">
               <template slot-scope="scope">
-                <span v-text="scope.gender === 0 ? '女' : '男'"></span>
+                {{scope.row.gender | gender}}
               </template>
             </el-table-column>
             <el-table-column prop="birthday" label="生日"></el-table-column>
@@ -72,11 +76,12 @@
           </el-table>
         </div>
         <div class="content__pagination">
-          <custom-pagination
-            :current-page.sync="searchConfig.pagination.index"
-            :total="searchConfig.pagination.total"
+          <el-pagination
             @current-change="getPersonList"
-          ></custom-pagination>
+            :current-page.sync="searchConfig.pagination.index"
+            layout="prev, pager, next, jumper"
+            :total="searchConfig.pagination.total">
+          </el-pagination>
         </div>
       </div>
     </div>
@@ -127,12 +132,10 @@
           :show-file-list="false"
           :multiple="false"
           :auto-upload="false"
-          :on-success="uploadSuccess"
-          :data="{merchantGuid: userInfo.developerId, memberLibraryGuid: $route.query.libraryId}"
+          :http-request="handleBatchAddPersonSubmit"
           :on-change="beforeBatchAddPersonUpload"
           :on-error="uploadError"
-          :on-progress="uploading"
-          :action="ip">
+          action="">
           <div v-if="batchAddPersonDialog.file" class="zip__have">
             <img src="../../assets/logo.png" alt="" width="25" height="25">
             <span class="batch-upload__file-name text__overflow">{{batchAddPersonDialog.file.name}}</span>
@@ -176,7 +179,6 @@
 </template>
 
 <script>
-import CustomPagination from '@/components/Pagination'
 import { validateRule } from '@/utils/validate'
 import prefix from '@/api/prefix'
 import {
@@ -191,12 +193,12 @@ import {
   deletePerson
 } from '../../api/member'
 import { mapState } from 'vuex'
+import axios from 'axios'
+
+const BASE_API = process.env.VUE_APP_BASE_API
 
 export default {
   name: 'index',
-  components: {
-    CustomPagination
-  },
   data () {
     const libraryNameRule = (rule, value, callback) => {
       if (!value) {
@@ -209,7 +211,8 @@ export default {
         callback()
       } else {
         let data = {
-          name: value
+          personLibraryName: value,
+          groupGuid: this.currentManage.groupGuid
         }
         judgeLibraryName(data).then(res => {
           if (!res.data) {
@@ -281,14 +284,15 @@ export default {
       percent: {
         visible: false,
         data: 0
-      }
+      },
+      chooseLibraryId: null
     }
   },
   created () {
     this.getLibraryList()
   },
   computed: {
-    ...mapState(['currentManage', 'userInfo', 'serverIp']),
+    ...mapState(['currentManage', 'userInfo', 'serverIp', 'libraryIdState']),
     ip () {
       return `//${process.env.VUE_APP_API_HOSTNAME}${prefix[3]}/person/import`
     },
@@ -298,14 +302,27 @@ export default {
         return item.personLibraryName.includes(this.searchLibraryValue)
       })
     },
-    // 选择某个人员库
-    chooseLibraryId () {
-      return this.$route.query.libraryId || null
+    personType () {
+      return (id) => {
+        if (id) {
+          let typeInfo = this.searchConfig.personTypeList.find((item) => {
+            return item.id === id
+          })
+          if (typeInfo) {
+            return typeInfo.typeValue
+          } else {
+            return ''
+          }
+        } else {
+          return ''
+        }
+      }
     }
   },
   methods: {
     // 表格内点击编辑
     handlePersonUpdate (row) {
+      this.$store.commit('SET_LIBRARY_ID', this.chooseLibraryId)
       this.$router.push({ path: '/member/person', query: { guid: this.chooseLibraryId, personId: row.personId } })
     },
     // 表格内点击删除
@@ -314,38 +331,42 @@ export default {
         confirmButtonText: '删除',
         cancelButtonText: '取消',
         confirmButtonClass: 'delete__confirm',
-        customClass: 'custom__message-box--delete'
+        customClass: 'custom__message-box'
       }).then(() => {
         deletePerson({ personId: row.personId }).then(() => {
           this.$message.success('删除成功!')
+          this.getPersonList()
         })
       }).catch(() => {})
     },
     // 获取人员库列表
-    getLibraryList () {
+    async getLibraryList () {
       if (!this.currentManage.groupGuid) return
       let data = {
         groupGuid: this.currentManage.groupGuid
       }
-      getPersonLibraryList(data).then(res => {
+      await getPersonLibraryList(data).then(res => {
         this.canShowPage = true
         this.libraryList = res.data
-        if (this.libraryList.length && !this.$route.query.libraryId) {
-          this.$router.replace({ path: '/member', query: { libraryId: this.libraryList[0].personLibraryId } })
+        if (this.libraryList.length) {
+          this.chooseLibraryId = this.libraryIdState || this.chooseLibraryId || this.libraryList[0].personLibraryId
+        } else {
+          this.$router.replace({ path: '/member' })
         }
-        this.getLibraryById()
-        this.getPersonList()
-        this.getPersonTypeList()
       }).catch(() => {})
+      await this.getLibraryById()
+      await this.getPersonList()
+      await this.getPersonTypeList()
+      this.$store.commit('SET_LIBRARY_ID', '')
     },
     getPersonTypeList () {
-      getPersonTypeList({ memberLibraryGuid: this.libraryInfo.personLibraryId }).then(res => {
+      return getPersonTypeList({ memberLibraryGuid: this.chooseLibraryId }).then(res => {
         this.searchConfig.personTypeList = res.data
       })
     },
     // 单个人员库信息查询
     getLibraryById () {
-      getPersonLibraryById({ personLibraryId: this.chooseLibraryId }).then(res => {
+      return getPersonLibraryById({ personLibraryId: this.chooseLibraryId }).then(res => {
         this.libraryInfo = res.data
       })
     },
@@ -357,13 +378,13 @@ export default {
     getPersonList () {
       let { gender, personType } = this.searchConfig
       let params = {
-        personLibraryId: this.personLibraryId,
+        personLibraryId: this.chooseLibraryId,
         ...{ gender, personType },
         index: this.searchConfig.pagination.index,
         length: this.searchConfig.pagination.length,
         [this.searchConfig.person.select]: this.searchConfig.person.value
       }
-      getPersonList(params).then(res => {
+      return getPersonList(params).then(res => {
         this.personList = res.data.content
         let { index, length, total } = res.data.pagination
         this.searchConfig.pagination = { index, length, total }
@@ -396,14 +417,15 @@ export default {
           if (this.libraryDialog.type === 1) {
             let { personLibraryName, personLibraryType, personLibraryNote } = this.libraryDialog.form
             params = { personLibraryName, personLibraryType, personLibraryNote }
+            params.groupGuid = this.currentManage.groupGuid
             createPersonLibrary(params).then(() => {
-              this.getPersonList()
+              this.getLibraryList()
               this.handleLibraryDialogClose()
             })
           } else {
             params = this.libraryDialog.form
             updatePersonLibrary(params).then(() => {
-              this.getPersonList()
+              this.getLibraryList()
               this.handleLibraryDialogClose()
             })
           }
@@ -416,10 +438,11 @@ export default {
         confirmButtonText: '删除',
         cancelButtonText: '取消',
         confirmButtonClass: 'delete__confirm',
-        customClass: 'custom__message-box--delete'
+        customClass: 'custom__message-box'
       }).then(() => {
         deletePersonLibrary({ personLibraryId: this.chooseLibraryId }).then(() => {
           this.$message.success('删除成功!')
+          this.getLibraryList()
         })
       }).catch(() => {})
     },
@@ -430,8 +453,12 @@ export default {
     },
     // 点击左侧人员库
     handleLibraryClick (id) {
-      this.$router.replace({ path: '/member', query: { libraryId: id } })
-      this.getLibraryList()
+      if (id !== this.chooseLibraryId) {
+        this.chooseLibraryId = id
+        this.getLibraryById()
+        this.getPersonList()
+        this.getPersonTypeList()
+      }
     },
     // 打开的时候删除batchAddPersonDialog.file
     handleBatchAddPersonDialogShow () {
@@ -472,6 +499,47 @@ export default {
     uploadSuccess (response) {
       this.percent.visible = false
     },
+    // 上传操作
+    uploadPhoto (callback1, callback2) {
+      let formData = new FormData()
+      formData.append('merchantGuid', this.userInfo.developerId)
+      formData.append('memberLibraryGuid', this.chooseLibraryId)
+      formData.append('file', this.batchAddPersonDialog.file)
+      console.log(1111)
+      axios({
+        url: `${BASE_API}/${prefix[3]}/person/import`,
+        method: 'post',
+        data: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        onUploadProgress: (progressEvent) => { // 原生获取上传进度的事件
+          if (progressEvent.lengthComputable) {
+            callback1(progressEvent)
+          }
+        }
+      }).then(res => {
+        callback2(res.data)
+      }).catch(error => {
+        this.percent.visible = false
+        console.log(error)
+        this.$tip('上传失败，请检查网络是否异常', 'error', 3000)
+      })
+    },
+    handleBatchAddPersonSubmit () {
+      this.percent.visible = true
+      let _this = this
+      this.uploadPhoto((res) => {
+        let loaded = res.loaded
+        let total = res.total
+        _this.$nextTick(() => {
+          _this.percent.data = parseInt((loaded / total) * 100)
+        })
+      }, () => {
+        this.percent.visible = false
+        this.$message.success('上传成功')
+      })
+    },
     handleBatchAddPersonDialogSubmit () {
       this.batchAddPersonDialog.visible = false
       this.$refs.batchUpload.submit()
@@ -500,6 +568,20 @@ export default {
           break
       }
       return typeName
+    },
+    gender (type) {
+      let genderText
+      switch (type) {
+        case 0:
+          genderText = '女'
+          break
+        case 1:
+          genderText = '男'
+          break
+        default:
+          genderText = ''
+      }
+      return genderText
     }
   }
 }

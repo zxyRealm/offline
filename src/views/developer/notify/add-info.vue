@@ -42,7 +42,7 @@ export default {
           callback(new Error('请输入1-1024位字符'))
         } else if (validateURL(value)) {
           judgeUrl({ url: value }).then(res => {
-            if (!res.data) {
+            if (res.data) {
               callback(new Error('URL重复'))
             } else {
               callback()

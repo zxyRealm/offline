@@ -23,7 +23,7 @@ export function deletePersonLibrary (data) {
 export function getPersonLibraryById (data) {
   return request({
     url: `${prefix[3]}/personLibrary/select/${data.personLibraryId}`,
-    method: 'POST',
+    method: 'GET',
     data
   })
 }
@@ -31,7 +31,7 @@ export function getPersonLibraryById (data) {
 export function getPersonLibraryList (data) {
   return request({
     url: `${prefix[3]}/personLibrary/selectAll`,
-    method: 'POST',
+    method: 'GET',
     data
   })
 }
@@ -96,7 +96,10 @@ export function uploadAndDetection (data) {
   return request({
     url: `${prefix[3]}/person/uploadAndDetection`,
     method: 'POST',
-    data
+    data,
+    header: {
+      'content-type': 'multipart/form-data'
+    }
   })
 }
 // 人员类型创建接口

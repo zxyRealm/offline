@@ -42,8 +42,9 @@
   }
 }
 
-// 自定义删除
-.custom__message-box--delete{
+// 自定义弹窗
+.custom__message-box{
+  width: 560px;
   .el-message-box__message{
     padding: 20px 0;
     text-align: center;
@@ -146,5 +147,9 @@
     .el-select-dropdown__list {
       padding: 6px 0 74px;
     }
+  }
+  .empty__option{
+    height: 0;
+    border: none;
   }
 }

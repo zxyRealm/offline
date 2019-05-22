@@ -24,7 +24,8 @@ const state = {
   showBar: true, // 是否显示侧边栏
   aliveState: {}, // 保存上一页状态值
   expired: false, // 登录是否过期
-  currentManage: {} // 当前管理社群信息
+  currentManage: {}, // 当前管理社群信息
+  libraryIdState: '' // 选择的人员库id
 }
 
 const actions = {
@@ -59,6 +60,9 @@ const mutations = {
   },
   SET_CURRENT_MANAGE: (state, data) => {
     state.currentManage = data || {}
+  },
+  SET_LIBRARY_ID: (state, data) => {
+    state.libraryIdState = data || ''
   }
 }
 

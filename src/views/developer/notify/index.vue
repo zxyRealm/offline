@@ -1,7 +1,7 @@
 <template>
   <div class="notify-wrap">
     <header-bar :menu-array="menu" active-name="notify" >
-      <el-button slot="buttons" size="small" type="primary" @click="addCallbackInfo" v-show="!loading">创建</el-button>
+      <el-button slot="buttons" size="small" type="primary" @click="addCallbackInfo">创建</el-button>
     </header-bar>
     <div v-if="notifyList && notifyList.length">
       <el-scrollbar class="scrollbar-wrap hidden-x">
@@ -32,7 +32,7 @@
         </div>
       </el-scrollbar>
     </div>
-    <no-callback-info v-if="!notifyList.length && !loading"></no-callback-info>
+    <no-callback-info v-if="!notifyList.length"></no-callback-info>
   </div>
 </template>
 <script>
@@ -80,7 +80,7 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         confirmButtonClass: 'delete__confirm',
-        customClass: 'custom__message-box--delete'
+        customClass: 'custom__message-box'
       }).then(() => {
         deleteNotice({ dataNoticeGuid: item.dataNoticeGuid }).then(() => {
           this.$message.success('删除成功')
@@ -103,18 +103,13 @@ export default {
         if (!this.equipmentEmpty) {
           this.$router.push(`/developer/notify/add-info?page=${this.pagination.index}`)
         } else {
-          this.$affirm({
-            confirm: '前往【添加设备】',
-            cancel: '返回',
-            text: '您还没有设备，无法创建消息通知。'
-          }, (action, instance, done) => {
-            if (action === 'confirm') {
-              done()
-              this.$router.push('/equipment/mine')
-            } else {
-              done()
-            }
-          })
+          this.$confirm('您还没有绑定设备，无法创建消息通知。', '创建提示', {
+            confirmButtonText: '前往创建',
+            showCancelButton: false,
+            customClass: 'custom__message-box'
+          }).then(() => {
+            this.$router.push('/equipment')
+          }).catch(() => {})
         }
       } else {
         this.createCallback()
@@ -127,18 +122,13 @@ export default {
         if (res.data) {
           this.$router.push('/developer/notify/add-info')
         } else {
-          this.$affirm({
-            confirm: '前往【设备列表】',
-            cancel: '返回',
-            text: '您还没有绑定设备，无法创建消息通知。'
-          }, (action, instance, done) => {
-            if (action === 'confirm') {
-              done()
-              this.$router.push('/equipment/mine')
-            } else {
-              done()
-            }
-          })
+          this.$confirm('您还没有绑定设备，无法创建消息通知。', '创建提示', {
+            confirmButtonText: '前往创建',
+            showCancelButton: false,
+            customClass: 'custom__message-box'
+          }).then(() => {
+            this.$router.push('/equipment')
+          }).catch(() => {})
         }
       }).catch(error => {
         console.log(error)

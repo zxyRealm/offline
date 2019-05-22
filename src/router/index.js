@@ -30,6 +30,7 @@ const Person = () => import('@/views/member/person.vue')
 const Behavior = () => import('@/views/behavior/index.vue')
 const BehaviorAnalyse = () => import('@/views/behavior/analyse.vue')
 const BehaviorTrail = () => import('@/views/behavior/trail.vue')
+const BehaviorPicture = () => import('@/views/behavior/picture.vue')
 
 // 开发者中心
 const Developer = () => import('@/views/developer/index.vue')
@@ -259,6 +260,14 @@ export const constantRouterMap = [
       title: '行为分析'
     },
     children: [
+      {
+        path: 'picture',
+        component: BehaviorPicture,
+        name: 'BehaviorPicture',
+        meta: {
+          title: '行为分析-线下浏览器服务平台', auth: true
+        }
+      },
       {
         path: '',
         component: Behavior,
