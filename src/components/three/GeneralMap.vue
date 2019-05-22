@@ -203,14 +203,15 @@ export default {
     return {
       maskToggle: false,
       page: {
-        path: "http://localhost:8080?mode=0&time=" + Number(new Date()),
+        path: ossPrefix + "static/map-scene/index.html?mode=0&time=" + Number(new Date()),
+        // path: "http://localhost:8080?mode=0&time=" + Number(new Date()),
         id: "map",
         floor: 0
       },
-      personList: Array(13).fill({ imgUrl: "/static/img/avatar2.png", key: Number(new Date() + Math.random() * 1234) }),
+      personList: Array(13).fill({ imgUrl: "/static/img/avatar2.png", key: 1 }),
       frame: {
-        // path: ossPrefix + 'static/map-scene/index.html',
-        path: "http://localhost:8080?mode=0&time=" + Number(new Date()),
+        path: ossPrefix + "static/map-scene/index.html?mode=0&time=" + Number(new Date()),
+        // path: "http://localhost:8080?mode=0&time=" + Number(new Date()),
         id: "threeFrame"
       },
       statisticInfo: {
@@ -243,7 +244,7 @@ export default {
       const MapData = [
         {
           floor: 1,
-          url: "./static/11.svg",
+          url: "./static/10.svg",
           name: "F10"
         },
         {
@@ -253,12 +254,12 @@ export default {
         },
         {
           floor: 3,
-          url: "./static/11.svg",
+          url: "./static/12.svg",
           name: "F12"
         },
         {
           floor: 4,
-          url: "./static/11.svg",
+          url: "./static/yintai2.svg",
           name: "F13",
           gateArr: [
             {
@@ -268,9 +269,18 @@ export default {
         }
       ];
       this.iframe.postMessage({
-        type: "Basic_Map_Data",
+        cmd: "map_data",
         data: MapData
       }, '*');
+    },
+    getColorData (floor) {
+      let data = [
+        { meshNo: 10, floor: floor, colorType: floor }
+      ]
+      this.iframe.postMessage({
+        cmd: "color_data",
+        data: data
+      }, '*')
     },
     // 获取socket服务地址并建立websocket链接
     getWebsocket(groupSonGuid, groupParentGuid) {
@@ -370,6 +380,9 @@ export default {
         case "home-load_signal":
           this.getMapData()
           break;
+        case "to_single":
+          this.getColorData(data.data)
+          break;
       }
     },
   },
@@ -381,7 +394,6 @@ export default {
   },
   mounted() {
     this.iframe = this.$refs.iframe.contentWindow;
-    console.log(this.iframe)
     window.addEventListener("message", this.handleMessage);
   },
   watch: {
@@ -401,7 +413,8 @@ export default {
           if (val.type !== 3) {
             this.singleStoreTrig = false;
             this.frame = {
-              path: "http://localhost:8080?mode=0&time=" + Number(new Date()),
+              path: ossPrefix + "static/map-scene/index.html?mode=0&time=" + Number(new Date()),
+              // path: "http://localhost:8080?mode=0&time=" + Number(new Date()),
               id: "threeFrame"
             };
           } else {
