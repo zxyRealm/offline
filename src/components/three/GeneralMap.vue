@@ -183,13 +183,6 @@
 import { GetSocketIP } from "@/api/common";
 import FloorBar from "../../components/FloorBar";
 import { mapState } from "vuex";
-import {
-  GetMarketList,
-  GetGroupPortalInfo,
-  GetPortalDeviceList,
-  GetStoreList
-} from "../../api/community";
-import { GetLatestFace, GetFlowRank } from "../../api/visual";
 import { parseTime } from "../../utils";
 import CountTo from "vue-count-to";
 const ossPrefix = process.env.BASE_URL;

@@ -12,6 +12,7 @@
     ></iframe>
   </div>
 </template>
+
 <script>
 const houseData = [{
   floor: 1,
@@ -33,10 +34,11 @@ const houseData = [{
     logo: '/static/camera-inside.png'
   }]
 }]
+const ossPrefix = process.env.BASE_URL;
 export default {
   name: 'MapContainer',
   components: {},
-  data () {
+  data() {
     return {
       frame: {
         path: ossPrefix + "static/map-scene/index.html?mode=1&time=" + Number(new Date()),
@@ -45,13 +47,6 @@ export default {
       },
       iframe: null
     }
-  },
-  created () {
-    
-  },
-  mounted () {
-    this.iframe = this.$refs.iframe.contentWindow;
-    window.addEventListener("message", this.handleMessage);
   },
   methods: {
     handleMessage (event) {
@@ -89,8 +84,15 @@ export default {
       }, '*')
     }
   },
-  watch: {}
-}
+  beforeDestroy() {
+  },
+  mounted() {
+    this.iframe = this.$refs.iframe.contentWindow;
+    window.addEventListener("message", this.handleMessage);
+  },
+  watch: {
+  }
+};
 </script>
 <style lang="scss" scoped>
 .map-container{
