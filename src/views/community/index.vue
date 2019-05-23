@@ -126,7 +126,7 @@
           <div v-if="contentMode === 'map'" class="community__map--wrap">
             <map-container></map-container>
           </div>
-          <portal-list :current-community="currentCommunityInfo" v-else></portal-list>
+          <portal-list ref="portalList" :current-community="currentCommunityInfo" v-else></portal-list>
         </template>
       </div>
       <ob-list-empty v-if="emptyChildren" text="">
@@ -175,32 +175,6 @@
       @handle-cancel="() => { memberDialogVisible = false }"
       @handle-success="handleFormSuccessEmit">
     </member-dialog>
-
-    <!-- 编辑业态、备注名 -->
-    <el-dialog
-      width="560px"
-      :title="oneInputFormTitle"
-      :visible.sync="dialogOneInputFormVisible"
-    >
-      <el-form
-        ref="oneInputForm"
-        class="g-form-center"
-        label-width="70px"
-        label-position="left"
-        :rules="oneInputFormRules"
-        :model="oneInputForm">
-        <el-form-item
-          v-if="oneInputFormType === 'name'"
-          label="备注名"
-          prop="nickName">
-          <el-input placeholder="请输入名称" v-model="oneInputForm.nickName"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button @click="dialogOneInputFormVisible = false">取 消</el-button>
-          <el-button type="primary">保 存</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
 
     <!-- 加入管理员社群 -->
     <el-dialog
@@ -324,10 +298,7 @@ export default {
     }
     return {
       emptyChildren: true, // 组织架构是否无子成员
-      auditList: [
-        // { unitName: '我是外来的我是外来的' },
-        // { unitName: '我是外来的222222222' }
-      ],
+      auditList: [],
       contentMode: 'map', // 地图模式： map , 列表模式： list
       communityInfo: { // 管理社群、成员社群 详细信息
         'guid': '',  // 成员社群的GUID
@@ -346,51 +317,8 @@ export default {
         'type': 1 // 成员社群 -> 1: 楼层  2：门店   管理社群 ->  1：商场 2：单店 3：连锁
       },
       dialogFormVisible: false, // 表单弹框
-      dialogOneInputFormVisible: false, // 单个表单元素弹框
       dialogFormType: '', // add: 添加成员 edit: 编辑社群信息  map: 编辑楼层、地图
       currentCommunityInfo: {},
-      addMemberForm: {
-        address: '',
-        contacts: '',   // 联系人
-        coordinates: '',   // 相对楼层的坐标信息
-        industryId: '',   // 业态类型
-        industryName: '',  // 业态类型名称
-        name: '',    //  成员社群名称
-        groupGuid: '', // 管理员社群GUID
-        phone: '',      // 联系人联系电话
-        floorIndex: ''
-      },
-      addMemberRules: {
-        name: [
-          { required: true, validator: validateCommunityName, trigger: 'blur', valueType: 'member' }
-        ],
-        industryId: [
-          { required: true, message: '请选择业态', trigger: 'blur' }
-        ],
-        floorIndex: [
-          { required: true, message: '请选择楼层', trigger: 'blur' }
-        ],
-        contacts: [
-          { validator: validateContact, trigger: 'blur' }
-        ],
-        phone: [
-          { validator: validPhone, trigger: 'blur' }
-        ]
-      },
-      industryList: [], // 业态列表
-      floorList: [], // 楼层列表
-      oneInputForm: {
-        nickName: ''
-      },
-      oneInputFormRules: {
-        nickName: [
-          { required: true, validator: validateCommunityName, trigger: 'blur', valueType: 'member' }
-        ],
-        industry: [
-          { required: true, message: '请选择业态', trigger: 'blur' }
-        ]
-      },
-      oneInputFormType: 'industry', // industry、name
       portalDialogVisible: false,
       portalTypeList: [
         { type: 1, icon: 'outside', name: '外部出入口' },
@@ -435,7 +363,7 @@ export default {
           title = '编辑楼层/地图'
           break
       }
-      return title
+      return title  
     },
     /*
     * 当前显示社群类型
@@ -468,18 +396,7 @@ export default {
       }
       return type
     },
-    oneInputFormTitle () {
-      let title = ''
-      switch (this.oneInputFormType) {
-        case 'industry':
-          title = '编辑业态'
-          break
-        default:
-          title = '编辑备注名'
-          break
-      }
-      return title
-    },
+
     addBtnText () {
       return this.currentCommunityType === 'store' ? '加入管理员社群' : '添加成员'
     },
@@ -510,7 +427,6 @@ export default {
     },
 
     handleEmpty (val) {
-      console.log('hhhhhhhhhhhhh', val)
       this.emptyChildren = val
     },
 
@@ -540,6 +456,8 @@ export default {
     // 当前选中社群改变事件处理
     handleCurrentChange (data) {
       this.currentCommunityInfo = data
+      this.getCurrentCommunityInfo()
+
     },
     /*
     * 显示表单弹框
@@ -696,26 +614,8 @@ export default {
       } else {
         this.$tip('管理社群不存在', 'error')
       }
-
-
     },
 
-
-    // 显示单表单元素form
-    showOneInputForm (type) {
-      let _this = this
-      this.oneInputFormType = type
-      this.dialogOneInputFormVisible = true
-      if (type === 'name') {
-        this.oneInputForm = {
-          nickName: _this.communityInfo.name
-        }
-      } else {
-        this.oneInputForm = {
-          industry: _this.communityInfo.industryId
-        }
-      }
-    },
     // 显示添加出入口弹框
     showAddPortalDialog (type) {
       this.defaultPortalType = type
@@ -727,12 +627,6 @@ export default {
     }
   },
   watch: {
-    currentCommunityInfo: {
-      handler () {
-        this.getCurrentCommunityInfo()
-      },
-      deep: true
-    },
     // 表单弹框消失时重置整个表单
     dialogFormVisible (val) {
       let refsForm = this.$refs.baseForm

@@ -208,9 +208,9 @@ export default {
     },
     visibleDialog (val) {
       this.$emit('update:visible', val)
-      if (val) {
+      if (!val) {
         this.$nextTick(() => {
-          this.$refs.portalForm.clearValidate()
+          this.$refs.portalForm.resetFields()
         })
       }
     },

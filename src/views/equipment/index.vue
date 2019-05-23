@@ -82,7 +82,7 @@
               :key="$index"
               :class="'type_' + item.type"
               class="list-item m__item--active"
-              @click.self="showSideDialog(item)">
+              @click.self="showSideDialog($index)">
               <h3 class="item-title normal">
                 <el-form
                   v-if="item.isEdit"
@@ -105,7 +105,7 @@
                   </div>
                   <div class="handle__icon--wrap g-fr">
                     <i class="iconfont icon-bianji" @click="handleEditNameForm(item, $index, true)"></i>
-                    <i class="iconfont icon-shuaxin" @click="getDeviceState(item, $index)"></i>
+                    <i class="iconfont icon-shuaxin" @click="getDeviceState($index)"></i>
                     <el-popover
                       popper-class="device__handle--popover"
                       placement="right-start"
@@ -124,9 +124,9 @@
                   </div>
                 </template>
               </h3>
-              <div class="more-info">
+              <div class="more-info" @click="showSideDialog($index)">
                 <p class="gray ellipsis">{{item.serverName}}</p>
-                <p class="gray ellipsis">{{item.name}}</p>
+                <p class="gray ellipsis">{{item.deviceType | filterType}}</p>
                 <p>
                   <span class="gray">
                     {{item.deviceKey}}
@@ -354,9 +354,13 @@ import {
   getCameraList,
   getDeviceKeyState,
   getDeviceNameIsExist,
-  getCameraNameExist,
   addDevice,
-  updateDeviceInfo
+  updateDeviceInfo,
+  handleDeviceDisabled,
+  handleDeviceRestart,
+  handleDeviceReset,
+  handleDeviceUpgrade,
+  handleDeviceDelete
 } from '@/api/device'
 
 const FULL_API = `http://${process.env.VUE_APP_API_HOSTNAME}:${process.env.VUE_APP_API_PORT}`
@@ -542,7 +546,8 @@ export default {
         pagination: {
           total: 100
         }
-      }
+      },
+      currentIndex: null // 当前选中项索引值
     }
   },
   created () {
@@ -683,7 +688,6 @@ export default {
             positionType,
             groupGuid: this.currentManage.groupGuid
           }
-          console.log('param ', this.dialogType)
           switch (this.dialogType) {
             case 'batch': // 批量导入一体机设备
               this.$refs.excelUpload.submit()
@@ -692,9 +696,7 @@ export default {
             case 'server':
             case 'aio':
               param.deviceType = (this.dialogType === 'aio' ? 2 : 1)
-              // if (this.dialogType) param.positionType = positionType
-              console.log('form ------------', param)
-              addDevice(param).then((res) => {
+              addDevice(param).then(() => {
                 this.$tip('添加成功')
                 this.getDeviceList()
               })
@@ -734,11 +736,9 @@ export default {
           this.pagination = res.data.pagination
         })
       }
-
     },
 
     // 获取设备 在线离线 绑定未绑定 数量
-
     getDeviceStateCount () {
       if (this.isManage) {
         getManageDeviceState({ groupGuid: this.currentManage.groupGuid }).then(res => {
@@ -756,8 +756,8 @@ export default {
       this.getDeviceStateCount()
     },
 
-    // 单设备详细信息
-    getDeviceInfo (data) {
+    // 单设备详细信息, 设备信息修改时更新列表中单个设备信息
+    getDeviceInfo (data, type) {
       let { deviceType, deviceKey } = data
       console.log('info', data)
       let param = {
@@ -765,18 +765,25 @@ export default {
         deviceKey
       }
       getDeviceInfo(param).then((res) => {
-        this.currentDeviceInfo = res.data
-        if (deviceType === 1) {
-          this.getCameraList()
-        }
+          if (type === 'refresh') {
+              this.$set(this.deviceList, this.currentIndex, res.data)
+          } else {
+              this.currentDeviceInfo = res.data
+              if (deviceType === 1) {
+                  this.getCameraList()
+              }
+          }
       })
     },
-    getDeviceState (data, index) {
-      getDeviceState({ deviceKey: data.deviceKey }).then(res => {
+
+    //  获取单个设备的在线离线状态
+    getDeviceState (index) {
+      let info = this.deviceList[index]
+      getDeviceState({ deviceKey: info.deviceKey }).then(res => {
         if (index !== undefined) {
-          this.$set(this.deviceList[index], 'onlineState', res.data)
+          this.$set(info, 'onlineState', res.data)
         } else {
-          data.onlineState = res.data
+          info.onlineState = res.data
         }
       })
     },
@@ -884,26 +891,31 @@ export default {
     },
     // 编辑设备名称
     submitEditNameForm (formName, index) {
-      // console.log(this.$refs)
       this.$refs[formName][index].validate((valid) => {
         if (valid) {
           updateDeviceInfo(this.editNameForm).then(() => {
-            // this.$set()
             this.getDeviceList(this.pagination.index)
-            // this.$set(this.deviceList[index], 'isEdit', false)
-
           })
         }
       })
     },
     // 显示侧边弹出框
-    showSideDialog (data) {
+    showSideDialog (index) {
+       let info = this.deviceList[index]
+      this.currentIndex = index
       this.visibleSideDialog = true
-      this.getDeviceInfo(data)
+      this.getDeviceInfo(info)
     },
     // 操作设备 重启、重置、禁用、升级、删除
     handleDeviceState (btn) {
       let [msg, confirmType] = ['', '']
+      let apiMap = {
+          disabled: handleDeviceDisabled,
+          restart: handleDeviceRestart,
+          reset: handleDeviceReset,
+          upgrade: handleDeviceUpgrade,
+          delete: handleDeviceDelete
+      }
       switch (btn.type) {
         case 'restart':
           msg = '设备将被重启'
@@ -923,9 +935,19 @@ export default {
           confirmType = 'danger'
           break
       }
-      console.log(btn.type)
+      apiType = btn.type.slice(0, 1).toUpperCase() + btn.type.slice(1)
+      console.log('handleDevice' + apiType)
       this.$affirm({ confirmType: confirmType, title: `${btn.label}设备`, text: msg }, (action, instance, done) => {
-        done()
+        if (action === 'confirm') {
+            let param = {
+                deviceKey: this.currentDeviceInfo.deviceKey
+            }
+            if (btn.type === 'disabled')
+            apiMap[btn.type](param).then(() => {
+                this.$tip(`${btn.label}成功`)
+            })
+        }
+          done()
       })
     }
   },

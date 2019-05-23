@@ -99,7 +99,7 @@ service.interceptors.request.use(config => {
   config.headers.phoneNumber = Cookie.get('user_phone')
   showFullScreenLoading(config.tip)
   let method = config.method.toUpperCase()
-  if ( method === 'GET') {
+  if (method === 'GET') {
     config.params = config.data
   } else {
     if (config.headers['Content-Type'] === 'application/json') {
@@ -146,8 +146,7 @@ service.interceptors.response.use(
         message('网络异常，请稍后重试', 'error', 3000)
       }
     }
-  },
-  error => {
+  }, error => {
     // 此处错误已由node项目中finalResult方法包装处理
     tryHideFullScreenLoading()
     console.error(error)

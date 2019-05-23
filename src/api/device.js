@@ -171,4 +171,48 @@ export function addDevice (data) {
   })
 }
 
+// 禁用启用设备
+export function handleDeviceDisabled (data) {
+  return request({
+    url: `${prefix[0]}/device`,
+    method: 'POST',
+    data
+  })
+}
+
+// 重启设备
+export function handleDeviceRestart (data) {
+    return request({
+        url: `${prefix[0]}/device`,
+        method: 'POST',
+        data
+    })
+}
+
+// 重置设备
+export function handleDeviceReset (data) {
+    return request({
+        url: `${prefix[0]}/device`,
+        method: 'POST',
+        data
+    })
+}
+
+// 升级设备
+export function handleDeviceUpgrade (data) {
+    return request({
+        url: `${prefix[0]}/device`,
+        method: 'POST',
+        data
+    })
+}
+
+// 升级设备
+export function handleDeviceDelete (data) {
+  return request({
+      url: `${prefix[0]}/device`,
+      method: 'delete',
+      data
+  })
+}
 

@@ -41,7 +41,7 @@ export function deviceType (type, use) {
 }
 
 // 过滤设备类型、设备形态
-export function filterType (val, type) {
+export function filterType (val, type = 'type') {
   let text = val
   switch (type) {
     case 'type': // 设备形态

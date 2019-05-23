@@ -220,6 +220,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  $backColor: #F8F8F8 !important;
+  $color: #0f9ee9;
   .search__error {
     font-size: 12px;
     line-height: 20px;
@@ -230,20 +232,13 @@ export default {
   .custom__tree--search {
     padding: 25px 15px 0;
     box-sizing: border-box;
-  }
-</style>
-<style lang="scss">
-  $backColor: #F8F8F8 !important;
-  $color: #0f9ee9;
-
-  .custom__tree--search {
-    .el-input__prefix {
+    /deep/.el-input__prefix {
       line-height: 32px;
     }
   }
 
   .custom__tree--content {
-    .el-tree {
+    /deep/.el-tree {
       .el-tree-node {
         .content__after {
           position: absolute;
@@ -307,3 +302,4 @@ export default {
     }
   }
 </style>
+

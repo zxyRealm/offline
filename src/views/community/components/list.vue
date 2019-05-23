@@ -29,7 +29,7 @@
       <li
         v-for="(item, $index) in portalList"
         class="list-item m__item--active"
-        @click.stop="showSideDialog($event,item)">
+        @click.self="showSideDialog(item)">
         <h3 class="item-title normal">
           <el-form
             v-if="item.isEdit"
@@ -56,7 +56,7 @@
             </div>
           </template>
         </h3>
-        <ul class="device__list">
+        <ul class="device__list" @click="showSideDialog(item)">
           <template v-for="(device, $index2) in item.portalDeviceList">
             <li
               v-if="$index2 < 5"
@@ -86,7 +86,7 @@
             <!--</ul>-->
           <!--</el-popover>-->
         </ul>
-        <div class="portal-tag">
+        <div class="portal-tag" @click="showSideDialog(item)">
           <i class="iconfont" :class="setTagObj(item.tag).icon"></i>
           {{setTagObj(item.tag).text}}
         </div>
@@ -95,6 +95,7 @@
     <custom-pagination
       class="not-mt"
       :total="pagination.total"
+      @current-change="getPortalList"
     ></custom-pagination>
 
     <!------------------ 添加出入口/通道 ---------------------->
@@ -274,7 +275,8 @@ import {
   getPortalInfo,
   getPortalNameIsExist,
   addDevcieInPortal,
-  deleteDevcieInPortal
+  deleteDevcieInPortal,
+  updatePortal
 } from '@/api/community'
 
 import { getGroupDeviceList } from '@/api/device'
@@ -301,15 +303,19 @@ export default {
         if (value.length > 32) {
           callback(new Error('请输入1-32位字符'))
         } else if (validateRule(value, 2)) {
-          let param = {
-            portal: value,
-            groupGuid: _this.currentManage.groupGuid
-          }
-          getPortalNameIsExist(param).then((res) => {
-            !res.data ? callback() : callback(new Error('出入口名称已存在'))
-          }).catch((err) => {
-            callback(new Error(err.msg || '验证失败'))
-          })
+           if (this.originName === value) {
+               callback()
+           } else {
+               let param = {
+                   portal: value,
+                   groupGuid: _this.currentManage.groupGuid
+               }
+               getPortalNameIsExist(param).then((res) => {
+                   !res.data ? callback() : callback(new Error('出入口名称已存在'))
+               }).catch((err) => {
+                   callback(new Error(err.msg || '验证失败'))
+               })
+           }
         } else {
           callback(new Error('仅限汉字/字母/数字/下划线/空格'))
         }
@@ -361,7 +367,6 @@ export default {
           'portalName': '出入口',     // 出入口名称
           'portalType': 1,            // 出入口类型： 1：内部出入口，2：外部出入口 3：通道
           'tag': 2
-
         }
       ],
       pagination: {
@@ -369,6 +374,7 @@ export default {
         length: 10,
         total: 10
       },
+
       editNameForm: {},
       editNameRules: {},
       portalDialogVisible: false,
@@ -376,20 +382,9 @@ export default {
       currentPortalInfo: {
         portalDeviceList: []
       }, // 当前选中出入口信息
-      portalDeviceList: { // 出入口设备列表
-        content: [
-          {
-            'deviceKey': 'string',  // 设备序列号
-            'deviceName': '设备一号', // 设备名称
-            'deviceType': 0         // 设备类型。 2为一体机。3 为IPC
-          }
-        ],
-        pagination: {
-          total: 10,
-          index: 1
-        }
-      },
+
       sideDialogFormIsEdit: false, // 侧边弹框form是否可编辑
+      originName: '', // 出入口编辑前名称
       portalForm: {
         portalType: null,
         portalName: '',
@@ -408,8 +403,9 @@ export default {
       unbindDeviceListObj: { // 未绑定社群设备列表
         content: [],
         pagination: {
-          total: 20,
-          index: 1
+          total: 0,
+          index: 1,
+          length: 5
         }
       },
       multipleSelection: [{deviceKey: ''}] // 选中列表
@@ -444,7 +440,7 @@ export default {
         groupGuid: _this.currentManage.groupGuid,
         guid: '',
         name, portalType, tag,
-        index: page || 1,
+        index: page || this.pagination.index || 1,
         length: 10
       }
       searchPortalList(params).then((res) => {
@@ -466,6 +462,12 @@ export default {
     },
     // 提交名称编辑表单
     submitEditNameForm (formName, index) {
+    },
+    // 获取出入口信息
+    getPortalInfo ({ portalGuid }) {
+        getPortalInfo({ portalGuid }).then(res => {
+            this.currentPortalInfo = res.data
+        })
     },
     // 删除出入口
     deletePortal (data) {
@@ -529,12 +531,12 @@ export default {
     // 处理出入口dialog 成功回调
     handlePortalSuccess () {
     },
-    showSideDialog (e, data) {
-      console.log(e.target.parentNode,data)
+    showSideDialog (data) {
+      // console.log(e.target.parentNode,data)
       this.visibleSideDialog = true
       this.currentPortalInfo = JSON.parse(JSON.stringify(data))
       this.portalForm = JSON.parse(JSON.stringify(data))
-
+      this.originName = JSON.parse(JSON.stringify(data.portalName))
     },
     // 清除表单校验，取消编辑状态
     clearFormValidate () {
@@ -546,7 +548,12 @@ export default {
     submitPortalForm () {
       this.$refs.portalForm.validate((valid) => {
         if (valid) {
-
+          let param = this.portalForm
+          updatePortal(param).then(() => {
+              this.sideDialogFormIsEdit = false
+              this.getPortalInfo(param)
+              this.getPortalList()
+          })
         }
       })
     },
@@ -555,16 +562,11 @@ export default {
       this.bindDeviceDialogVisible = true
       this.getUnbindDeviceList()
     },
-    getPortalInfo () {
-      getPortalInfo().then((res) => {
-        this.currentPortalInfo = res.data
-      })
-    },
     // 获取未绑定设备列表
     getUnbindDeviceList (page) {
       let param = {
         groupGuid: this.currentManage.groupGuid,
-        index: page || 1,
+        index: page || this.unbindDeviceListObj.pagination.index || 1,
         length: 5,
         bindingState: 0 // 未绑定设备
       }
@@ -586,7 +588,8 @@ export default {
       addDevcieInPortal(param).then(() => {
         this.$tip('绑定成功')
         this.bindDeviceDialogVisible = false
-        this.getPortalInfo()
+        this.getPortalInfo(param)
+        this.getPortalList()
       })
     },
     // 解绑设备
@@ -604,7 +607,8 @@ export default {
           }
           deleteDevcieInPortal(params).then(() => {
             this.$tip('解绑成功')
-            this.getPortalInfo()
+            this.getPortalInfo(params)
+            this.getPortalList()
           })
         }
         done()
